@@ -1,0 +1,82 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+.directory
+.Trash-*
+.fuse_hidden*
+.nfs*
+
+# IntelliJ / Android Studio
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# VS Code / Cursor launch configs can be shared; keep this commented
+# if you want to commit them.
+#.vscode/
+#.cursor/
+
+# Secrets and local env
+.env
+.env.*
+!.env.example
+*.hprof
+
+# Flutter/Dart/Pub
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub-preload-cache/
+.pub/
+.fvm/flutter_sdk
+.fvm/versions
+.widget_preview/
+/build/
+/coverage/
+android/build/
+
+# Symbolication / obfuscation
+app.*.symbols
+app.*.map.json
+
+# Android Studio places these next to the module
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Build products that should never be committed
+*.apk
+*.aab
+*.ap_
+*.dex
+output-metadata.json
+
+# Python helpers in tool/
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/

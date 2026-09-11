@@ -1,0 +1,23 @@
+{
+  "fileKey": "3l8DyW2mxf917HzgXsQaz7",
+  "fileUrl": "https://www.figma.com/design/3l8DyW2mxf917HzgXsQaz7",
+  "phase": "foundations",
+  "colors": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"collections\":[{\"id\":\"VariableCollectionId:3:2\",\"name\":\"Sky Club / Primitives\"},{\"id\":\"VariableCollectionId:3:3\",\"name\":\"Sky Club / Theme\"}],\"variables\":[{\"id\":\"VariableID:3:4\",\"name\":\"sky\"},{\"id\":\"VariableID:3:5\",\"name\":\"skyDeep\"},{\"id\":\"VariableID:3:6\",\"name\":\"cream\"},{\"id\":\"VariableID:3:7\",\"name\":\"ink\"},{\"id\":\"VariableID:3:8\",\"name\":\"muted\"},{\"id\":\"VariableID:3:9\",\"name\":\"coral\"},{\"id\":\"VariableID:3:10\",\"name\":\"coralDeep\"},{\"id\":\"VariableID:3:11\",\"name\":\"yellow\"},{\"id\":\"VariableID:3:12\",\"name\":\"gold\"},{\"id\":\"VariableID:3:13\",\"name\":\"mint\"},{\"id\":\"VariableID:3:14\",\"name\":\"teal\"},{\"id\":\"VariableID:3:15\",\"name\":\"lavender\"},{\"id\":\"VariableID:3:16\",\"name\":\"purple\"},{\"id\":\"VariableID:3:17\",\"name\":\"white\"},{\"id\":\"VariableID:3:18\",\"name\":\"sand\"},{\"id\":\"VariableID:3:19\",\"name\":\"rock\"},{\"id\":\"VariableID:3:20\",\"name\":\"color/sky\"},{\"id\":\"VariableID:3:21\",\"name\":\"color/skyDeep\"},{\"id\":\"VariableID:3:22\",\"name\":\"color/cream\"},{\"id\":\"VariableID:3:23\",\"name\":\"color/ink\"},{\"id\":\"VariableID:3:24\",\"name\":\"color/muted\"},{\"id\":\"VariableID:3:25\",\"name\":\"color/coral\"},{\"id\":\"VariableID:3:26\",\"name\":\"color/coralDeep\"},{\"id\":\"VariableID:3:27\",\"name\":\"color/yellow\"},{\"id\":\"VariableID:3:28\",\"name\":\"color/gold\"},{\"id\":\"VariableID:3:29\",\"name\":\"color/mint\"},{\"id\":\"VariableID:3:30\",\"name\":\"color/teal\"},{\"id\":\"VariableID:3:31\",\"name\":\"color/lavender\"},{\"id\":\"VariableID:3:32\",\"name\":\"color/purple\"},{\"id\":\"VariableID:3:33\",\"name\":\"color/white\"},{\"id\":\"VariableID:3:34\",\"name\":\"color/sand\"},{\"id\":\"VariableID:3:35\",\"name\":\"color/rock\"}],\"createdNodeIds\":[]}"
+      }
+    ],
+    "isError": false
+  },
+  "layout": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"collection\":{\"id\":\"VariableCollectionId:3:36\",\"name\":\"Sky Club / Layout\"},\"variables\":[{\"id\":\"VariableID:3:37\",\"name\":\"space/xs\"},{\"id\":\"VariableID:3:38\",\"name\":\"space/sm\"},{\"id\":\"VariableID:3:39\",\"name\":\"space/md\"},{\"id\":\"VariableID:3:40\",\"name\":\"space/lg\"},{\"id\":\"VariableID:3:41\",\"name\":\"space/xl\"},{\"id\":\"VariableID:3:42\",\"name\":\"radius/button\"},{\"id\":\"VariableID:3:43\",\"name\":\"radius/panel\"},{\"id\":\"VariableID:3:44\",\"name\":\"radius/pill\"}],\"styles\":[{\"id\":\"S:2a484ca7c7f4b2855a1e26ad9ed4c9ef01590e5e,\",\"name\":\"Sky Club / Display\",\"font\":{\"family\":\"Fredoka\",\"style\":\"Bold\",\"variationSettings\":{\"wght\":700,\"wdth\":100}}},{\"id\":\"S:e82d71fd7fcc6942bbf889f624eb5debdfab37fe,\",\"name\":\"Sky Club / Heading\",\"font\":{\"family\":\"Fredoka\",\"style\":\"SemiBold\",\"variationSettings\":{\"wght\":600,\"wdth\":100}}},{\"id\":\"S:214c17afd99d98d9b05627a5b8e97203ef42c134,\",\"name\":\"Sky Club / Title\",\"font\":{\"family\":\"Fredoka\",\"style\":\"Medium\",\"variationSettings\":{\"wght\":500,\"wdth\":100}}},{\"id\":\"S:6331fd6b4c7ac05d85ea2e9c64a233da5beb9deb,\",\"name\":\"Sky Club / Body\",\"font\":{\"family\":\"Nunito\",\"style\":\"Regular\",\"variationSettings\":{\"wght\":400}}},{\"id\":\"S:7b4c4a7761f6541071b650178c82f742ac02ff7e,\",\"name\":\"Sky Club / Label\",\"font\":{\"family\":\"Nunito\",\"style\":\"ExtraBold\",\"variationSettings\":{\"wght\":800}}},{\"id\":\"S:7e0ad254a00e51a2baa2ca3d666923a991faa991,\",\"name\":\"Sky Club / Caption\",\"font\":{\"family\":\"Nunito\",\"style\":\"Bold\",\"variationSettings\":{\"wght\":700}}}],\"effect\":{\"id\":\"S:e874695b1a69496df42fddce00125749c3e9ecb5,\",\"name\":\"Sky Club / Floating panel\"},\"validation\":{\"totalVariables\":40,\"allHaveCodeSyntax\":true,\"noAllScopes\":true,\"aliasesResolve\":true},\"createdNodeIds\":[]}"
+      }
+    ],
+    "isError": false
+  }
+}
