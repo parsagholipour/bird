@@ -225,6 +225,19 @@ enum class CameraAccess(val raw: Int) {
   }
 }
 
+enum class MicrophoneAccess(val raw: Int) {
+  GRANTED(0),
+  DENIED(1),
+  PERMANENTLY_DENIED(2),
+  UNAVAILABLE(3);
+
+  companion object {
+    fun ofRaw(raw: Int): MicrophoneAccess? {
+      return values().firstOrNull { it.raw == raw }
+    }
+  }
+}
+
 /** Generated class from Pigeon that represents data sent in messages. */
 data class LandmarkPacket (
   val x: Double,
@@ -350,6 +363,55 @@ data class TrackingPacket (
     return "TrackingPacket(session=$session, detector=$detector, capturedAtMs=$capturedAtMs, sentAtMs=$sentAtMs, inferenceMs=$inferenceMs, imageWidth=$imageWidth, imageHeight=$imageHeight, landmarks=$landmarks, smile=$smile, detected=$detected, sensorTimestamp=$sensorTimestamp)"
   }
 }
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class CameraClip (
+  val path: String,
+  val startedAtMs: Long,
+  val durationMs: Long,
+  val hasAudio: Boolean
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): CameraClip {
+      val path = pigeonVar_list[0] as String
+      val startedAtMs = pigeonVar_list[1] as Long
+      val durationMs = pigeonVar_list[2] as Long
+      val hasAudio = pigeonVar_list[3] as Boolean
+      return CameraClip(path, startedAtMs, durationMs, hasAudio)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      path,
+      startedAtMs,
+      durationMs,
+      hasAudio,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as CameraClip
+    return TrackingApiPigeonUtils.deepEquals(this.path, other.path) && TrackingApiPigeonUtils.deepEquals(this.startedAtMs, other.startedAtMs) && TrackingApiPigeonUtils.deepEquals(this.durationMs, other.durationMs) && TrackingApiPigeonUtils.deepEquals(this.hasAudio, other.hasAudio)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + TrackingApiPigeonUtils.deepHash(this.path)
+    result = 31 * result + TrackingApiPigeonUtils.deepHash(this.startedAtMs)
+    result = 31 * result + TrackingApiPigeonUtils.deepHash(this.durationMs)
+    result = 31 * result + TrackingApiPigeonUtils.deepHash(this.hasAudio)
+    return result
+  }
+  override fun toString(): String {
+    return "CameraClip(path=$path, startedAtMs=$startedAtMs, durationMs=$durationMs, hasAudio=$hasAudio)"
+  }
+}
 private open class TrackingApiPigeonCodec : StandardMessageCodec() {
   override fun readValueOfType(type: Byte, buffer: ByteBuffer): Any? {
     return when (type) {
@@ -364,13 +426,23 @@ private open class TrackingApiPigeonCodec : StandardMessageCodec() {
         }
       }
       131.toByte() -> {
-        return (readValue(buffer) as? List<Any?>)?.let {
-          LandmarkPacket.fromList(it)
+        return (readValue(buffer) as Long?)?.let {
+          MicrophoneAccess.ofRaw(it.toInt())
         }
       }
       132.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
+          LandmarkPacket.fromList(it)
+        }
+      }
+      133.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
           TrackingPacket.fromList(it)
+        }
+      }
+      134.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          CameraClip.fromList(it)
         }
       }
       else -> super.readValueOfType(type, buffer)
@@ -386,12 +458,20 @@ private open class TrackingApiPigeonCodec : StandardMessageCodec() {
         stream.write(130)
         writeValue(stream, value.raw.toLong())
       }
-      is LandmarkPacket -> {
+      is MicrophoneAccess -> {
         stream.write(131)
+        writeValue(stream, value.raw.toLong())
+      }
+      is LandmarkPacket -> {
+        stream.write(132)
         writeValue(stream, value.toList())
       }
       is TrackingPacket -> {
-        stream.write(132)
+        stream.write(133)
+        writeValue(stream, value.toList())
+      }
+      is CameraClip -> {
+        stream.write(134)
         writeValue(stream, value.toList())
       }
       else -> super.writeValue(stream, value)
@@ -403,8 +483,12 @@ private open class TrackingApiPigeonCodec : StandardMessageCodec() {
 /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
 interface TrackingHostApi {
   fun requestCamera(callback: (Result<CameraAccess>) -> Unit)
+  fun microphoneAccess(): MicrophoneAccess
+  fun requestMicrophone(callback: (Result<MicrophoneAccess>) -> Unit)
   fun start(detector: DetectorKind, frontCamera: Boolean, session: Long, callback: (Result<Unit>) -> Unit)
   fun stop(callback: (Result<Unit>) -> Unit)
+  fun startRecording(withAudio: Boolean, callback: (Result<Long>) -> Unit)
+  fun stopRecording(callback: (Result<CameraClip?>) -> Unit)
   fun monotonicTimeMs(): Long
   fun openAppSettings()
 
@@ -422,6 +506,39 @@ interface TrackingHostApi {
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             api.requestCamera{ result: Result<CameraAccess> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(TrackingApiPigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(TrackingApiPigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.push_up_bird.TrackingHostApi.microphoneAccess$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              listOf(api.microphoneAccess())
+            } catch (exception: Throwable) {
+              TrackingApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.push_up_bird.TrackingHostApi.requestMicrophone$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            api.requestMicrophone{ result: Result<MicrophoneAccess> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(TrackingApiPigeonUtils.wrapError(error))
@@ -466,6 +583,44 @@ interface TrackingHostApi {
                 reply.reply(TrackingApiPigeonUtils.wrapError(error))
               } else {
                 reply.reply(TrackingApiPigeonUtils.wrapResult(null))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.push_up_bird.TrackingHostApi.startRecording$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val withAudioArg = args[0] as Boolean
+            api.startRecording(withAudioArg) { result: Result<Long> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(TrackingApiPigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(TrackingApiPigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.push_up_bird.TrackingHostApi.stopRecording$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            api.stopRecording{ result: Result<CameraClip?> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(TrackingApiPigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(TrackingApiPigeonUtils.wrapResult(data))
               }
             }
           }

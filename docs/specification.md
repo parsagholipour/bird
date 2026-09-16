@@ -111,6 +111,43 @@ Deliver an installable Android APK, reproducible build instructions, and the sha
 - Working title: **Push-Up Bird**.
 - Initial push-up mode uses standard push-ups; knee and other exercise variants come later.
 - Body checks are confidence-based gameplay checks, not a guarantee of correct exercise form.
-- Camera processing stays on-device; no video recording, uploads, accounts, ads, or cloud services in this milestone.
+- Camera processing and saved session videos stay on-device. Record camera footage during flight with optional microphone audio and retain it only when the player chooses Save session. Store timestamped gameplay inputs, timing, seeded randomness and interruptions separately; reconstruct gameplay for replay. No uploads, accounts, ads or cloud services.
 - Competition uses local records initially.
 - Public Play Store submission, monetization, and iOS publication follow the polished offline milestone and broader device testing.
+
+
+## Session replay
+
+Results offer **Save session** independently of automatic score records, including
+practice flights. Records → Saved sessions lists the full saved library and lets
+players replay or delete a session without changing score totals. Reset local
+progress also removes saved sessions and camera videos.
+
+The player supports a movable corner camera rectangle over gameplay, camera
+video behind transparent bird/obstacles, and gameplay only. All modes have
+play/pause, a seek bar, restart, ±5 seconds, 0.5×/1×/1.5×/2× speed and game-sound
+mute. Controls overlay the replay instead of shrinking it. Tapping the viewing
+area hides the controls; tapping again reveals them. Interacting with buttons,
+menus or the seek bar does not toggle the overlay. The replay keeps the same
+viewport size and aspect ratio in both states. Camera clips include microphone audio when the player opts in; music
+and effects are generated during playback. Recorded audio and game sound have
+independent mute controls in all three views, including gameplay only. The equipped bird is retained.
+
+CameraX writes camera-only MP4 files; no screen capture is used. Versioned JSON
+stores movement inputs and exact simulation steps, including timestamps, random
+seed, rule parameters and interruption commands. Replay version 1 uses the current
+FlightSimulation rules; future rule changes must preserve that version or provide
+an explicit migration. Practice camera restarts create additional clips on the
+same monotonic timeline. Failed camera capture permits gameplay-only saves.
+
+
+Microphone recording is off by default. The setup switch reads **Record microphone
+· Optional**, accompanied by: “Add your voice and room sound to replays. Uses the
+microphone during flight only. Saved on this phone.” Enabling the switch is the
+only action that may request Android's separate RECORD_AUDIO permission. There
+is no extra rationale dialog. Remember successful opt-in in local preferences;
+denial, unavailable hardware and revocation keep video/gameplay available. Do
+not automatically request microphone access on game start, retry or resume.
+Permanently denied access has an optional Settings link, never a forced redirect.
+Camera clips record whether they contain an audio track; legacy clips default to
+silent. Microphone audio uses the same MP4 timeline and local retention policy.

@@ -8,6 +8,7 @@ import 'domain/tracking.dart';
 import 'ui/home_screen.dart';
 import 'ui/collection_screen.dart';
 import 'ui/records_screen.dart';
+import 'ui/replay_screen.dart';
 import 'ui/settings_screen.dart';
 import 'ui/play_screen.dart';
 import 'ui/calibration_probe.dart';
@@ -42,6 +43,17 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/records',
       builder: (context, state) => const RecordsScreen(),
+    ),
+    GoRoute(
+      path: '/sessions',
+      builder: (context, state) => const SessionLibraryScreen(),
+    ),
+    GoRoute(
+      path: '/replay/:id',
+      builder: (context, state) => ReplayScreen(
+        key: ValueKey(state.pathParameters['id']),
+        id: state.pathParameters['id']!,
+      ),
     ),
     GoRoute(
       path: '/settings',

@@ -200,6 +200,13 @@ enum CameraAccess: Int, CaseIterable {
   case unavailable = 3
 }
 
+enum MicrophoneAccess: Int, CaseIterable {
+  case granted = 0
+  case denied = 1
+  case permanentlyDenied = 2
+  case unavailable = 3
+}
+
 /// Generated class from Pigeon that represents data sent in messages.
 struct LandmarkPacket: Hashable, CustomStringConvertible {
   var x: Double
@@ -335,6 +342,56 @@ struct TrackingPacket: Hashable, CustomStringConvertible {
   }
 }
 
+/// Generated class from Pigeon that represents data sent in messages.
+struct CameraClip: Hashable, CustomStringConvertible {
+  var path: String
+  var startedAtMs: Int64
+  var durationMs: Int64
+  var hasAudio: Bool
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> CameraClip? {
+    let path = pigeonVar_list[0] as! String
+    let startedAtMs = pigeonVar_list[1] as! Int64
+    let durationMs = pigeonVar_list[2] as! Int64
+    let hasAudio = pigeonVar_list[3] as! Bool
+
+    return CameraClip(
+      path: path,
+      startedAtMs: startedAtMs,
+      durationMs: durationMs,
+      hasAudio: hasAudio
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      path,
+      startedAtMs,
+      durationMs,
+      hasAudio,
+    ]
+  }
+  static func == (lhs: CameraClip, rhs: CameraClip) -> Bool {
+    if Swift.type(of: lhs) != Swift.type(of: rhs) {
+      return false
+    }
+    return TrackingApiPigeonInternal.deepEquals(lhs.path, rhs.path) && TrackingApiPigeonInternal.deepEquals(lhs.startedAtMs, rhs.startedAtMs) && TrackingApiPigeonInternal.deepEquals(lhs.durationMs, rhs.durationMs) && TrackingApiPigeonInternal.deepEquals(lhs.hasAudio, rhs.hasAudio)
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine("CameraClip")
+    TrackingApiPigeonInternal.deepHash(value: path, hasher: &hasher)
+    TrackingApiPigeonInternal.deepHash(value: startedAtMs, hasher: &hasher)
+    TrackingApiPigeonInternal.deepHash(value: durationMs, hasher: &hasher)
+    TrackingApiPigeonInternal.deepHash(value: hasAudio, hasher: &hasher)
+  }
+
+  public var description: String {
+    return "CameraClip(path: \(String(describing: path)), startedAtMs: \(String(describing: startedAtMs)), durationMs: \(String(describing: durationMs)), hasAudio: \(String(describing: hasAudio)))"
+  }
+}
+
 private class TrackingApiPigeonCodecReader: FlutterStandardReader {
   override func readValue(ofType type: UInt8) -> Any? {
     switch type {
@@ -351,9 +408,17 @@ private class TrackingApiPigeonCodecReader: FlutterStandardReader {
       }
       return nil
     case 131:
-      return LandmarkPacket.fromList(self.readValue() as! [Any?])
+      let enumResultAsInt: Int? = nilOrValue(self.readValue() as! Int?)
+      if let enumResultAsInt = enumResultAsInt {
+        return MicrophoneAccess(rawValue: enumResultAsInt)
+      }
+      return nil
     case 132:
+      return LandmarkPacket.fromList(self.readValue() as! [Any?])
+    case 133:
       return TrackingPacket.fromList(self.readValue() as! [Any?])
+    case 134:
+      return CameraClip.fromList(self.readValue() as! [Any?])
     default:
       return super.readValue(ofType: type)
     }
@@ -368,11 +433,17 @@ private class TrackingApiPigeonCodecWriter: FlutterStandardWriter {
     } else if let value = value as? CameraAccess {
       super.writeByte(130)
       super.writeValue(value.rawValue)
-    } else if let value = value as? LandmarkPacket {
+    } else if let value = value as? MicrophoneAccess {
       super.writeByte(131)
+      super.writeValue(value.rawValue)
+    } else if let value = value as? LandmarkPacket {
+      super.writeByte(132)
       super.writeValue(value.toList())
     } else if let value = value as? TrackingPacket {
-      super.writeByte(132)
+      super.writeByte(133)
+      super.writeValue(value.toList())
+    } else if let value = value as? CameraClip {
+      super.writeByte(134)
       super.writeValue(value.toList())
     } else {
       super.writeValue(value)
@@ -398,8 +469,12 @@ class TrackingApiPigeonCodec: FlutterStandardMessageCodec, @unchecked Sendable {
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
 protocol TrackingHostApi {
   func requestCamera(completion: @escaping (Result<CameraAccess, Error>) -> Void)
+  func microphoneAccess() throws -> MicrophoneAccess
+  func requestMicrophone(completion: @escaping (Result<MicrophoneAccess, Error>) -> Void)
   func start(detector: DetectorKind, frontCamera: Bool, session: Int64, completion: @escaping (Result<Void, Error>) -> Void)
   func stop(completion: @escaping (Result<Void, Error>) -> Void)
+  func startRecording(withAudio: Bool, completion: @escaping (Result<Int64, Error>) -> Void)
+  func stopRecording(completion: @escaping (Result<CameraClip?, Error>) -> Void)
   func monotonicTimeMs() throws -> Int64
   func openAppSettings() throws
 }
@@ -424,6 +499,34 @@ class TrackingHostApiSetup {
       }
     } else {
       requestCameraChannel.setMessageHandler(nil)
+    }
+    let microphoneAccessChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.push_up_bird.TrackingHostApi.microphoneAccess\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      microphoneAccessChannel.setMessageHandler { _, reply in
+        do {
+          let result = try api.microphoneAccess()
+          reply(wrapResult(result))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      microphoneAccessChannel.setMessageHandler(nil)
+    }
+    let requestMicrophoneChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.push_up_bird.TrackingHostApi.requestMicrophone\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      requestMicrophoneChannel.setMessageHandler { _, reply in
+        api.requestMicrophone { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      requestMicrophoneChannel.setMessageHandler(nil)
     }
     let startChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.push_up_bird.TrackingHostApi.start\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
@@ -458,6 +561,38 @@ class TrackingHostApiSetup {
       }
     } else {
       stopChannel.setMessageHandler(nil)
+    }
+    let startRecordingChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.push_up_bird.TrackingHostApi.startRecording\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      startRecordingChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let withAudioArg = args[0] as! Bool
+        api.startRecording(withAudio: withAudioArg) { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      startRecordingChannel.setMessageHandler(nil)
+    }
+    let stopRecordingChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.push_up_bird.TrackingHostApi.stopRecording\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      stopRecordingChannel.setMessageHandler { _, reply in
+        api.stopRecording { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      stopRecordingChannel.setMessageHandler(nil)
     }
     let monotonicTimeMsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.push_up_bird.TrackingHostApi.monotonicTimeMs\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {

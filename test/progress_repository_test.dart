@@ -57,6 +57,7 @@ void main() {
     addTearDown(repo.close);
     await expectLater(repo.equipBird(3), throwsStateError);
     await repo.setSetting(SettingKey.music, false);
+    await repo.setSetting(SettingKey.recordAudio, true);
     await repo.saveRun(run('a', 30));
     await repo.equipBird(1);
     await repo.reset();
@@ -65,6 +66,7 @@ void main() {
     expect(p.unlocked, {0});
     expect(p.settings.bird, 0);
     expect(p.settings.music, true);
+    expect(p.settings.recordAudio, false);
     expect(p.recent, isEmpty);
   });
   test(
@@ -76,6 +78,8 @@ void main() {
       var repo = SqliteProgressRepository(
         ProgressDatabase(NativeDatabase(file)),
       );
+      expect((await repo.load()).settings.recordAudio, isFalse);
+      await repo.setSetting(SettingKey.recordAudio, true);
       await repo.saveRun(run('a', 100));
       await repo.setSetting(SettingKey.reducedMotion, true);
       await repo.equipBird(2);
@@ -85,6 +89,7 @@ void main() {
       final p = await repo.load();
       expect(p.totalObstacles, 100);
       expect(p.settings.reducedMotion, true);
+      expect(p.settings.recordAudio, true);
       expect(p.settings.bird, 2);
     },
   );

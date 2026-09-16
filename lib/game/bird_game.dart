@@ -12,8 +12,14 @@ class BirdGame extends FlameGame {
     required this.bird,
     required this.reducedMotion,
     required this.onChanged,
+    this.advance,
+    this.playback = false,
+    this.transparent = false,
   });
-  final FlightSimulation simulation;
+  FlightSimulation simulation;
+  final void Function(double dt, double now, double width)? advance;
+  final bool playback;
+  bool transparent;
   final double Function() nowMs;
   final int bird;
   final bool reducedMotion;
@@ -31,7 +37,8 @@ class BirdGame extends FlameGame {
   }
 
   @override
-  Color backgroundColor() => SkyColors.sky;
+  Color backgroundColor() =>
+      transparent ? const Color(0x00000000) : SkyColors.sky;
   @override
   Future<void> onLoad() async {
     await super.onLoad();
@@ -45,12 +52,17 @@ class BirdGame extends FlameGame {
   void update(double dt) {
     super.update(dt);
     if (size.y <= 0) return;
-    _time += dt;
+    _time = playback ? simulation.elapsed : _time + dt;
     if (simulation.phase == RunPhase.playing && dt > 0) {
       _frameDurations.add(dt);
       if (_frameDurations.length > 600) _frameDurations.removeAt(0);
     }
-    simulation.tick(dt, nowMs(), viewportWidth: size.x / size.y);
+    if (playback) return;
+    if (advance != null) {
+      advance!(dt, nowMs(), size.x / size.y);
+    } else {
+      simulation.tick(dt, nowMs(), viewportWidth: size.x / size.y);
+    }
     _notify += dt;
     if (_notify >= .05 || simulation.phase == RunPhase.ended) {
       _notify = 0;
@@ -63,43 +75,45 @@ class BirdGame extends FlameGame {
     super.render(canvas);
     final w = size.x, h = size.y;
     if (h <= 0) return;
-    canvas.drawRect(
-      Rect.fromLTWH(0, 0, w, h),
-      Paint()
-        ..shader = Gradient.linear(
-          Offset.zero,
-          Offset(0, h),
-          [SkyColors.skyDeep, SkyColors.sky, const Color(0xffe4f4e7)],
-          const [0, .5, 1],
-        ),
-    );
-    final drift = reducedMotion ? 0 : _time * 5;
-    for (var i = 0; i < 5; i++) {
-      final x = ((i * w * .28 - drift) % (w + 160)) - 70;
-      _cloud(
-        canvas,
-        Offset(x, h * (.12 + (i % 3) * .16)),
-        h * (.26 + (i % 2) * .09),
-        .6,
+    if (!transparent) {
+      canvas.drawRect(
+        Rect.fromLTWH(0, 0, w, h),
+        Paint()
+          ..shader = Gradient.linear(
+            Offset.zero,
+            Offset(0, h),
+            [SkyColors.skyDeep, SkyColors.sky, const Color(0xffe4f4e7)],
+            const [0, .5, 1],
+          ),
       );
-    }
-    if (_island != null) {
-      final x = ((w * .73 - simulation.distance * h * .13) % (w + h * .5));
-      _island!.render(
-        canvas,
-        position: Vector2(x, h * .77),
-        size: Vector2(h * .5, h * .3125),
-        overridePaint: Paint()..color = const Color(0x77ffffff),
-      );
-      _island!.render(
-        canvas,
-        position: Vector2(
-          ((w * .18 - simulation.distance * h * .08) % (w + h * .3)),
-          h * .86,
-        ),
-        size: Vector2(h * .32, h * .20),
-        overridePaint: Paint()..color = const Color(0x55ffffff),
-      );
+      final drift = reducedMotion ? 0 : _time * 5;
+      for (var i = 0; i < 5; i++) {
+        final x = ((i * w * .28 - drift) % (w + 160)) - 70;
+        _cloud(
+          canvas,
+          Offset(x, h * (.12 + (i % 3) * .16)),
+          h * (.26 + (i % 2) * .09),
+          .6,
+        );
+      }
+      if (_island != null) {
+        final x = ((w * .73 - simulation.distance * h * .13) % (w + h * .5));
+        _island!.render(
+          canvas,
+          position: Vector2(x, h * .77),
+          size: Vector2(h * .5, h * .3125),
+          overridePaint: Paint()..color = const Color(0x77ffffff),
+        );
+        _island!.render(
+          canvas,
+          position: Vector2(
+            ((w * .18 - simulation.distance * h * .08) % (w + h * .3)),
+            h * .86,
+          ),
+          size: Vector2(h * .32, h * .20),
+          overridePaint: Paint()..color = const Color(0x55ffffff),
+        );
+      }
     }
     for (final o in simulation.obstacles) {
       final x = o.x * h,

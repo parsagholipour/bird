@@ -10,9 +10,9 @@ import 'package:flutter/services.dart';
 import 'package:meta/meta.dart' show immutable, protected, visibleForTesting;
 
 Object? _extractReplyValueOrThrow(
-  List<Object?>? replyList,
-  String channelName, {
-  required bool isNullValid,
+    List<Object?>? replyList,
+    String channelName, {
+    required bool isNullValid,
 }) {
   if (replyList == null) {
     throw PlatformException(
@@ -34,11 +34,8 @@ Object? _extractReplyValueOrThrow(
   return replyList.firstOrNull;
 }
 
-List<Object?> wrapResponse({
-  Object? result,
-  PlatformException? error,
-  bool empty = false,
-}) {
+
+List<Object?> wrapResponse({Object? result, PlatformException? error, bool empty = false}) {
   if (empty) {
     return <Object?>[];
   }
@@ -47,7 +44,6 @@ List<Object?> wrapResponse({
   }
   return <Object?>[error.code, error.message, error.details];
 }
-
 bool _deepEquals(Object? a, Object? b) {
   if (identical(a, b)) {
     return true;
@@ -60,9 +56,8 @@ bool _deepEquals(Object? a, Object? b) {
   }
   if (a is List && b is List) {
     return a.length == b.length &&
-        a.indexed.every(
-          ((int, dynamic) item) => _deepEquals(item.$2, b[item.$1]),
-        );
+        a.indexed
+            .every(((int, dynamic) item) => _deepEquals(item.$2, b[item.$1]));
   }
   if (a is Map && b is Map) {
     if (a.length != b.length) {
@@ -111,9 +106,25 @@ int _deepHash(Object? value) {
   return value.hashCode;
 }
 
-enum DetectorKind { pose, face }
 
-enum CameraAccess { granted, denied, permanentlyDenied, unavailable }
+enum DetectorKind {
+  pose,
+  face,
+}
+
+enum CameraAccess {
+  granted,
+  denied,
+  permanentlyDenied,
+  unavailable,
+}
+
+enum MicrophoneAccess {
+  granted,
+  denied,
+  permanentlyDenied,
+  unavailable,
+}
 
 class LandmarkPacket {
   LandmarkPacket({
@@ -132,12 +143,16 @@ class LandmarkPacket {
   double confidence;
 
   List<Object?> _toList() {
-    return <Object?>[x, y, z, confidence];
+    return <Object?>[
+      x,
+      y,
+      z,
+      confidence,
+    ];
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static LandmarkPacket decode(Object result) {
     result as List<Object?>;
@@ -158,10 +173,7 @@ class LandmarkPacket {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(x, other.x) &&
-        _deepEquals(y, other.y) &&
-        _deepEquals(z, other.z) &&
-        _deepEquals(confidence, other.confidence);
+    return _deepEquals(x, other.x) && _deepEquals(y, other.y) && _deepEquals(z, other.z) && _deepEquals(confidence, other.confidence);
   }
 
   @override
@@ -228,8 +240,7 @@ class TrackingPacket {
   }
 
   Object encode() {
-    return _toList();
-  }
+    return _toList();  }
 
   static TrackingPacket decode(Object result) {
     result as List<Object?>;
@@ -257,17 +268,7 @@ class TrackingPacket {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(session, other.session) &&
-        _deepEquals(detector, other.detector) &&
-        _deepEquals(capturedAtMs, other.capturedAtMs) &&
-        _deepEquals(sentAtMs, other.sentAtMs) &&
-        _deepEquals(inferenceMs, other.inferenceMs) &&
-        _deepEquals(imageWidth, other.imageWidth) &&
-        _deepEquals(imageHeight, other.imageHeight) &&
-        _deepEquals(landmarks, other.landmarks) &&
-        _deepEquals(smile, other.smile) &&
-        _deepEquals(detected, other.detected) &&
-        _deepEquals(sensorTimestamp, other.sensorTimestamp);
+    return _deepEquals(session, other.session) && _deepEquals(detector, other.detector) && _deepEquals(capturedAtMs, other.capturedAtMs) && _deepEquals(sentAtMs, other.sentAtMs) && _deepEquals(inferenceMs, other.inferenceMs) && _deepEquals(imageWidth, other.imageWidth) && _deepEquals(imageHeight, other.imageHeight) && _deepEquals(landmarks, other.landmarks) && _deepEquals(smile, other.smile) && _deepEquals(detected, other.detected) && _deepEquals(sensorTimestamp, other.sensorTimestamp);
   }
 
   @override
@@ -280,6 +281,67 @@ class TrackingPacket {
   }
 }
 
+class CameraClip {
+  CameraClip({
+    required this.path,
+    required this.startedAtMs,
+    required this.durationMs,
+    this.hasAudio = false,
+  });
+
+  String path;
+
+  int startedAtMs;
+
+  int durationMs;
+
+  bool hasAudio;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      path,
+      startedAtMs,
+      durationMs,
+      hasAudio,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static CameraClip decode(Object result) {
+    result as List<Object?>;
+    return CameraClip(
+      path: result[0]! as String,
+      startedAtMs: result[1]! as int,
+      durationMs: result[2]! as int,
+      hasAudio: result[3]! as bool,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! CameraClip || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(path, other.path) && _deepEquals(startedAtMs, other.startedAtMs) && _deepEquals(durationMs, other.durationMs) && _deepEquals(hasAudio, other.hasAudio);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'CameraClip(path: $path, startedAtMs: $startedAtMs, durationMs: $durationMs, hasAudio: $hasAudio)';
+  }
+}
+
+
 class _PigeonCodec extends StandardMessageCodec {
   const _PigeonCodec();
   @override
@@ -287,17 +349,23 @@ class _PigeonCodec extends StandardMessageCodec {
     if (value is int) {
       buffer.putUint8(4);
       buffer.putInt64(value);
-    } else if (value is DetectorKind) {
+    }    else if (value is DetectorKind) {
       buffer.putUint8(129);
       writeValue(buffer, value.index);
-    } else if (value is CameraAccess) {
+    }    else if (value is CameraAccess) {
       buffer.putUint8(130);
       writeValue(buffer, value.index);
-    } else if (value is LandmarkPacket) {
+    }    else if (value is MicrophoneAccess) {
       buffer.putUint8(131);
-      writeValue(buffer, value.encode());
-    } else if (value is TrackingPacket) {
+      writeValue(buffer, value.index);
+    }    else if (value is LandmarkPacket) {
       buffer.putUint8(132);
+      writeValue(buffer, value.encode());
+    }    else if (value is TrackingPacket) {
+      buffer.putUint8(133);
+      writeValue(buffer, value.encode());
+    }    else if (value is CameraClip) {
+      buffer.putUint8(134);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -314,9 +382,14 @@ class _PigeonCodec extends StandardMessageCodec {
         final value = readValue(buffer) as int?;
         return value == null ? null : CameraAccess.values[value];
       case 131:
-        return LandmarkPacket.decode(readValue(buffer)!);
+        final value = readValue(buffer) as int?;
+        return value == null ? null : MicrophoneAccess.values[value];
       case 132:
+        return LandmarkPacket.decode(readValue(buffer)!);
+      case 133:
         return TrackingPacket.decode(readValue(buffer)!);
+      case 134:
+        return CameraClip.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
     }
@@ -327,13 +400,9 @@ class TrackingHostApi {
   /// Constructor for [TrackingHostApi]. The [binaryMessenger] named argument is
   /// available for dependency injection. If it is left null, the default
   /// BinaryMessenger will be used which routes to the host platform.
-  TrackingHostApi({
-    BinaryMessenger? binaryMessenger,
-    String messageChannelSuffix = '',
-  }) : pigeonVar_binaryMessenger = binaryMessenger,
-       pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty
-           ? '.$messageChannelSuffix'
-           : '';
+  TrackingHostApi({BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''})
+      : pigeonVar_binaryMessenger = binaryMessenger,
+        pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
   final BinaryMessenger? pigeonVar_binaryMessenger;
 
   static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
@@ -341,8 +410,7 @@ class TrackingHostApi {
   final String pigeonVar_messageChannelSuffix;
 
   Future<CameraAccess> requestCamera() async {
-    final pigeonVar_channelName =
-        'dev.flutter.pigeon.push_up_bird.TrackingHostApi.requestCamera$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.push_up_bird.TrackingHostApi.requestCamera$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -352,58 +420,16 @@ class TrackingHostApi {
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-      pigeonVar_replyList,
-      pigeonVar_channelName,
-      isNullValid: false,
-    );
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
     return pigeonVar_replyValue! as CameraAccess;
   }
 
-  Future<void> start(
-    DetectorKind detector,
-    bool frontCamera,
-    int session,
-  ) async {
-    final pigeonVar_channelName =
-        'dev.flutter.pigeon.push_up_bird.TrackingHostApi.start$pigeonVar_messageChannelSuffix';
-    final pigeonVar_channel = BasicMessageChannel<Object?>(
-      pigeonVar_channelName,
-      pigeonChannelCodec,
-      binaryMessenger: pigeonVar_binaryMessenger,
-    );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
-      <Object?>[detector, frontCamera, session],
-    );
-    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
-
-    _extractReplyValueOrThrow(
-      pigeonVar_replyList,
-      pigeonVar_channelName,
-      isNullValid: true,
-    );
-  }
-
-  Future<void> stop() async {
-    final pigeonVar_channelName =
-        'dev.flutter.pigeon.push_up_bird.TrackingHostApi.stop$pigeonVar_messageChannelSuffix';
-    final pigeonVar_channel = BasicMessageChannel<Object?>(
-      pigeonVar_channelName,
-      pigeonChannelCodec,
-      binaryMessenger: pigeonVar_binaryMessenger,
-    );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
-    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
-
-    _extractReplyValueOrThrow(
-      pigeonVar_replyList,
-      pigeonVar_channelName,
-      isNullValid: true,
-    );
-  }
-
-  Future<int> monotonicTimeMs() async {
-    final pigeonVar_channelName =
-        'dev.flutter.pigeon.push_up_bird.TrackingHostApi.monotonicTimeMs$pigeonVar_messageChannelSuffix';
+  Future<MicrophoneAccess> microphoneAccess() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.push_up_bird.TrackingHostApi.microphoneAccess$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -413,16 +439,128 @@ class TrackingHostApi {
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-      pigeonVar_replyList,
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as MicrophoneAccess;
+  }
+
+  Future<MicrophoneAccess> requestMicrophone() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.push_up_bird.TrackingHostApi.requestMicrophone$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
-      isNullValid: false,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
     );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as MicrophoneAccess;
+  }
+
+  Future<void> start(DetectorKind detector, bool frontCamera, int session) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.push_up_bird.TrackingHostApi.start$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[detector, frontCamera, session]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
+
+  Future<void> stop() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.push_up_bird.TrackingHostApi.stop$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
+
+  Future<int> startRecording(bool withAudio) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.push_up_bird.TrackingHostApi.startRecording$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[withAudio]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
+    return pigeonVar_replyValue! as int;
+  }
+
+  Future<CameraClip?> stopRecording() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.push_up_bird.TrackingHostApi.stopRecording$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+    return pigeonVar_replyValue as CameraClip?;
+  }
+
+  Future<int> monotonicTimeMs() async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.push_up_bird.TrackingHostApi.monotonicTimeMs$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: false,
+    )
+    ;
     return pigeonVar_replyValue! as int;
   }
 
   Future<void> openAppSettings() async {
-    final pigeonVar_channelName =
-        'dev.flutter.pigeon.push_up_bird.TrackingHostApi.openAppSettings$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName = 'dev.flutter.pigeon.push_up_bird.TrackingHostApi.openAppSettings$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -432,10 +570,11 @@ class TrackingHostApi {
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-      pigeonVar_replyList,
-      pigeonVar_channelName,
-      isNullValid: true,
-    );
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
   }
 }
 
@@ -446,20 +585,12 @@ abstract class TrackingFlutterApi {
 
   void onStatus(int session, String code, String message);
 
-  static void setUp(
-    TrackingFlutterApi? api, {
-    BinaryMessenger? binaryMessenger,
-    String messageChannelSuffix = '',
-  }) {
-    messageChannelSuffix = messageChannelSuffix.isNotEmpty
-        ? '.$messageChannelSuffix'
-        : '';
+  static void setUp(TrackingFlutterApi? api, {BinaryMessenger? binaryMessenger, String messageChannelSuffix = '',}) {
+    messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
     {
       final pigeonVar_channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.push_up_bird.TrackingFlutterApi.onSample$messageChannelSuffix',
-        pigeonChannelCodec,
-        binaryMessenger: binaryMessenger,
-      );
+          'dev.flutter.pigeon.push_up_bird.TrackingFlutterApi.onSample$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
@@ -471,20 +602,16 @@ abstract class TrackingFlutterApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          } catch (e) {
-            return wrapResponse(
-              error: PlatformException(code: 'error', message: e.toString()),
-            );
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }
     }
     {
       final pigeonVar_channel = BasicMessageChannel<Object?>(
-        'dev.flutter.pigeon.push_up_bird.TrackingFlutterApi.onStatus$messageChannelSuffix',
-        pigeonChannelCodec,
-        binaryMessenger: binaryMessenger,
-      );
+          'dev.flutter.pigeon.push_up_bird.TrackingFlutterApi.onStatus$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
       if (api == null) {
         pigeonVar_channel.setMessageHandler(null);
       } else {
@@ -498,10 +625,8 @@ abstract class TrackingFlutterApi {
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
-          } catch (e) {
-            return wrapResponse(
-              error: PlatformException(code: 'error', message: e.toString()),
-            );
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
           }
         });
       }

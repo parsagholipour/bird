@@ -11,7 +11,6 @@ import '../domain/tracking.dart';
 import '../game/audio.dart';
 import '../game/bird_game.dart';
 import '../game/play_controller.dart';
-import '../tracking/native_tracking_source.dart';
 import 'calibration_probe.dart' show LandmarkPainter;
 import 'components.dart';
 import 'theme.dart';
@@ -36,7 +35,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    audio = SkyAudio();
+    audio = ref.read(audioFactoryProvider)();
     final settings =
         ref.read(progressProvider).asData?.value.settings ??
         const GameSettings();
@@ -46,11 +45,22 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     controller = PlayController(
       mode: widget.mode,
       practice: widget.practice,
-      source: NativeTrackingSource(),
+      source: ref.read(trackingSourceFactoryProvider)(),
       audio: audio,
+      bird: settings.bird,
+      reducedMotion: settings.reducedMotion,
+      recordAudio: settings.recordAudio,
+      rememberRecordAudio: (value) => ref
+          .read(progressProvider.notifier)
+          .setting(SettingKey.recordAudio, value),
+      saveSession: (session) async {
+        await ref.read(sessionRepositoryProvider).save(session);
+        ref.invalidate(sessionsProvider);
+      },
       saveRun: (run) => ref.read(progressProvider.notifier).save(run),
     );
     controller.addListener(changed);
+    unawaited(controller.verifyMicrophoneAccess());
   }
 
   void changed() {
@@ -70,6 +80,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         bird: settings.bird,
         reducedMotion: settings.reducedMotion,
         onChanged: controller.tick,
+        advance: controller.advance,
       );
     }
     if (sim != null) {
@@ -218,7 +229,11 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                                   PlayMode.pushUp,
                                 ),
                               )
-                            : const Center(child: BirdArt(bird: 1, size: 160)),
+                            : const Center(
+                                child: FittedBox(
+                                  child: BirdArt(bird: 1, size: 160),
+                                ),
+                              ),
                       ),
                       Text(
                         widget.mode == PlayMode.pushUp
@@ -234,6 +249,8 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                         style: bodyText(15, color: SkyColors.muted),
                         textAlign: TextAlign.center,
                       ),
+                      const SizedBox(height: 12),
+                      _microphoneOption(),
                     ],
                   ),
                 ),
@@ -245,7 +262,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Pill(
-                      'YOUR CAMERA STAYS ON THIS PHONE',
+                      'LOCAL CAMERA REPLAY',
                       icon: Icons.shield_outlined,
                       color: SkyColors.cream,
                     ),
@@ -270,13 +287,13 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                     ),
                     _step(
                       '3',
-                      'We’ll count you in',
-                      'After calibration, a 3-second countdown starts the flight.',
+                      'Keep a replay',
+                      'Camera video stays local. Save it after the flight or it is discarded.',
                     ),
                     const Spacer(),
                     Text(
                       widget.practice
-                          ? 'Practice can pause. It does not change records or unlocks.'
+                          ? 'Practice can pause. Save a local camera replay after your flight.'
                           : 'A collision, a break or leaving the app ends a scored flight.',
                       style: bodyText(13, color: SkyColors.muted),
                     ),
@@ -286,7 +303,9 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                       child: SkyButton(
                         label: 'Set up my camera',
                         icon: Icons.camera_alt_outlined,
-                        onPressed: () => controller.startCamera(),
+                        onPressed: controller.microphoneRequestPending
+                            ? null
+                            : () => controller.startCamera(),
                       ),
                     ),
                   ],
@@ -298,8 +317,53 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       ],
     ),
   );
+  Widget _microphoneOption() => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+    decoration: BoxDecoration(
+      color: SkyColors.cream,
+      borderRadius: BorderRadius.circular(14),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.mic_none_rounded, size: 22),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Record microphone · Optional',
+                style: bodyText(14, weight: FontWeight.w800),
+              ),
+            ),
+            Semantics(
+              label: 'Record microphone for replays',
+              child: Switch(
+                value: controller.recordAudio,
+                onChanged: controller.microphoneRequestPending
+                    ? null
+                    : controller.setRecordAudio,
+              ),
+            ),
+          ],
+        ),
+        Text(
+          controller.microphoneMessage.isEmpty
+              ? 'Add your voice and room sound to replays. Uses the microphone during flight only. Saved on this phone.'
+              : controller.microphoneMessage,
+          style: bodyText(12, color: SkyColors.muted),
+        ),
+        if (controller.microphoneSettingsAvailable)
+          TextButton(
+            onPressed: controller.source.openSettings,
+            child: const Text('Microphone settings'),
+          ),
+      ],
+    ),
+  );
+
   Widget _step(String number, String title, String subtitle) => Padding(
-    padding: const EdgeInsets.only(bottom: 15),
+    padding: const EdgeInsets.only(bottom: 8),
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -795,6 +859,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                 Expanded(
                   flex: 5,
                   child: Panel(
+                    padding: const EdgeInsets.all(16),
                     child: Column(
                       children: [
                         Row(
@@ -857,7 +922,38 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                                 : 'Saving your flight…',
                             style: bodyText(13, color: SkyColors.muted),
                           ),
-                        const SizedBox(height: 14),
+                        if (controller.simulation?.started == true)
+                          TextButton.icon(
+                            onPressed:
+                                controller.canSaveSession &&
+                                    !controller.sessionSaving &&
+                                    !controller.sessionSaved
+                                ? controller.persistSession
+                                : null,
+                            icon: Icon(
+                              controller.sessionSaved
+                                  ? Icons.check_circle_outline
+                                  : Icons.save_outlined,
+                            ),
+                            label: Text(
+                              controller.preparingReplay
+                                  ? 'Preparing session…'
+                                  : controller.sessionSaving
+                                  ? 'Saving session…'
+                                  : controller.sessionSaved
+                                  ? 'Session saved · Watch in Records'
+                                  : 'Save session',
+                            ),
+                          ),
+                        if (controller.sessionError.isNotEmpty ||
+                            controller.cameraRecordingError.isNotEmpty)
+                          Text(
+                            controller.sessionError.isNotEmpty
+                                ? controller.sessionError
+                                : controller.cameraRecordingError,
+                            style: bodyText(11, color: SkyColors.coralDeep),
+                          ),
+                        const SizedBox(height: 8),
                         Row(
                           children: [
                             Expanded(
@@ -897,7 +993,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         style: bodyText(12, color: SkyColors.muted, weight: FontWeight.w900),
       ),
       const SizedBox(height: 4),
-      Text(value, style: heading(large ? 58 : 28)),
+      Text(value, style: heading(large ? 50 : 26)),
     ],
   );
 }

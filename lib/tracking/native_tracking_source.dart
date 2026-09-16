@@ -41,6 +41,13 @@ class NativeTrackingSource implements TrackingSource, TrackingFlutterApi {
     return access == CameraAccess.granted;
   }
 
+  Future<MicrophoneAccess> microphoneAccess() => _host.microphoneAccess();
+  Future<MicrophoneAccess> requestMicrophone() => _host.requestMicrophone();
+  Future<double> startRecording({bool withAudio = false}) async =>
+      await _host.startRecording(withAudio) + _nativeOffset;
+  Future<CameraClip?> stopRecording() => _host.stopRecording();
+  double recordingTime(int nativeMs) => nativeMs + _nativeOffset;
+
   Future<void> openSettings() => _host.openAppSettings();
   @override
   Future<void> start(PlayMode mode, {bool frontCamera = true}) async {

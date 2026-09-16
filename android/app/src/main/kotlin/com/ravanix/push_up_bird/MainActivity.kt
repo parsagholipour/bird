@@ -21,6 +21,11 @@ import androidx.camera.core.Preview
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.video.Recorder
+import androidx.camera.video.VideoCapture
+import androidx.camera.video.Quality
+import androidx.camera.video.QualitySelector
+import androidx.camera.video.FallbackStrategy
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import com.google.mediapipe.framework.image.BitmapImageBuilder
@@ -45,6 +50,7 @@ class MainActivity : FlutterActivity(), TrackingHostApi {
     private var flutterApi: TrackingFlutterApi? = null
     private var cameraProvider: ProcessCameraProvider? = null
     private var preview: Preview? = null
+    private val sessionVideo by lazy { SessionVideoCapture(this) }
     private var previewView: PreviewView? = null
     // Detector ownership is confined to worker. Generation fences invalidate late callbacks.
     private var pose: PoseLandmarker? = null
@@ -52,6 +58,7 @@ class MainActivity : FlutterActivity(), TrackingHostApi {
     @Volatile private var generation = 0
     @Volatile private var running = false
     private var session = 0L
+    private var microphonePermissionResult: ((Result<MicrophoneAccess>) -> Unit)? = null
     private var permissionResult: ((Result<CameraAccess>) -> Unit)? = null
     private val trackingCaptures by lazy {
         if (BuildConfig.TRACKING_CAPTURE_IMAGES)
@@ -92,15 +99,46 @@ class MainActivity : FlutterActivity(), TrackingHostApi {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             callback(Result.success(CameraAccess.GRANTED)); return
         }
-        if (permissionResult != null) {
+        if (permissionResult != null || microphonePermissionResult != null) {
             callback(Result.failure(FlutterError("busy", "A camera permission request is already open"))); return
         }
         permissionResult = callback
         requestPermissions(arrayOf(Manifest.permission.CAMERA), 8041)
     }
 
+    override fun microphoneAccess(): MicrophoneAccess {
+        if (!packageManager.hasSystemFeature(PackageManager.FEATURE_MICROPHONE)) return MicrophoneAccess.UNAVAILABLE
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+            return MicrophoneAccess.GRANTED
+        }
+        return if (getPreferences(Context.MODE_PRIVATE).getBoolean("microphoneBlocked", false))
+            MicrophoneAccess.PERMANENTLY_DENIED else MicrophoneAccess.DENIED
+    }
+
+    // Called only when the player explicitly enables the optional setup switch.
+    // The explanation is already visible beside that switch; no extra dialog.
+    override fun requestMicrophone(callback: (Result<MicrophoneAccess>) -> Unit) {
+        val access = microphoneAccess()
+        if (access != MicrophoneAccess.DENIED) { callback(Result.success(access)); return }
+        if (permissionResult != null || microphonePermissionResult != null) {
+            callback(Result.failure(FlutterError("busy", "A permission request is already open"))); return
+        }
+        microphonePermissionResult = callback
+        requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), 8042)
+    }
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 8042) {
+            val granted = grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED
+            val blocked = grantResults.isNotEmpty() && !granted &&
+                !shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO)
+            getPreferences(Context.MODE_PRIVATE).edit().putBoolean("microphoneBlocked", blocked).apply()
+            val access = if (granted) MicrophoneAccess.GRANTED
+                else if (blocked) MicrophoneAccess.PERMANENTLY_DENIED else MicrophoneAccess.DENIED
+            val callback = microphonePermissionResult; microphonePermissionResult = null
+            callback?.invoke(Result.success(access))
+        }
         if (requestCode == 8041) {
             val access = if (grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) CameraAccess.GRANTED
                 else if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) CameraAccess.DENIED
@@ -109,6 +147,9 @@ class MainActivity : FlutterActivity(), TrackingHostApi {
             permissionResult = null
         }
     }
+
+    override fun startRecording(withAudio: Boolean, callback: (Result<Long>) -> Unit) = sessionVideo.start(withAudio, callback)
+    override fun stopRecording(callback: (Result<CameraClip?>) -> Unit) = sessionVideo.stop(callback)
 
     override fun monotonicTimeMs(): Long = SystemClock.elapsedRealtime()
     override fun openAppSettings() {
@@ -182,7 +223,21 @@ class MainActivity : FlutterActivity(), TrackingHostApi {
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                     .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888).build()
                 provider.unbindAll()
-                val camera = provider.bindToLifecycle(this, selector, displayPreview, analysis)
+                val recorder = Recorder.Builder().setQualitySelector(
+                    QualitySelector.from(Quality.SD, FallbackStrategy.higherQualityOrLowerThan(Quality.SD))).build()
+                val video = VideoCapture.withOutput(recorder)
+                video.targetRotation = rotation
+                val camera = try {
+                    provider.bindToLifecycle(this, selector, displayPreview, analysis, video).also {
+                        sessionVideo.recorder = recorder
+                    }
+                } catch (_: IllegalArgumentException) {
+                    // Some camera HALs cannot supply three streams. Preserve tracking
+                    // and let the results screen offer a gameplay-only session.
+                    provider.unbindAll()
+                    sessionVideo.recorder = null
+                    provider.bindToLifecycle(this, selector, displayPreview, analysis)
+                }
                 val realtime = Camera2CameraInfo.from(camera.cameraInfo).getCameraCharacteristic(
                     CameraCharacteristics.SENSOR_INFO_TIMESTAMP_SOURCE) == CameraCharacteristics.SENSOR_INFO_TIMESTAMP_SOURCE_REALTIME
                 running = true
@@ -278,7 +333,7 @@ class MainActivity : FlutterActivity(), TrackingHostApi {
             main.post { callback(Result.success(Unit)) }
         }
     }
-    private fun providerCleanup() { cameraProvider?.unbindAll(); preview = null }
+    private fun providerCleanup() { sessionVideo.requestStop(); cameraProvider?.unbindAll(); preview = null; sessionVideo.recorder = null }
     private fun closeDetectors() { pose?.close(); pose = null; face?.close(); face = null }
     override fun onStop() {
         if (running) {
@@ -292,6 +347,8 @@ class MainActivity : FlutterActivity(), TrackingHostApi {
         providerCleanup()
         permissionResult?.invoke(Result.failure(FlutterError("cancelled", "Activity closed")))
         permissionResult = null
+        microphonePermissionResult?.invoke(Result.failure(FlutterError("cancelled", "Activity closed")))
+        microphonePermissionResult = null
         worker.execute { closeDetectors() }
         worker.execute { trackingCaptures?.close() }
         worker.shutdown()

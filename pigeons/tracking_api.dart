@@ -13,6 +13,8 @@ enum DetectorKind { pose, face }
 
 enum CameraAccess { granted, denied, permanentlyDenied, unavailable }
 
+enum MicrophoneAccess { granted, denied, permanentlyDenied, unavailable }
+
 class LandmarkPacket {
   LandmarkPacket({
     required this.x,
@@ -53,14 +55,34 @@ class TrackingPacket {
   bool sensorTimestamp;
 }
 
+class CameraClip {
+  CameraClip({
+    required this.path,
+    required this.startedAtMs,
+    required this.durationMs,
+    this.hasAudio = false,
+  });
+  String path;
+  int startedAtMs;
+  int durationMs;
+  bool hasAudio;
+}
+
 @HostApi()
 abstract class TrackingHostApi {
   @asyncCallback
   CameraAccess requestCamera();
+  MicrophoneAccess microphoneAccess();
+  @asyncCallback
+  MicrophoneAccess requestMicrophone();
   @asyncCallback
   void start(DetectorKind detector, bool frontCamera, int session);
   @asyncCallback
   void stop();
+  @asyncCallback
+  int startRecording(bool withAudio);
+  @asyncCallback
+  CameraClip? stopRecording();
   int monotonicTimeMs();
   void openAppSettings();
 }

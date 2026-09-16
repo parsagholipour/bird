@@ -27,7 +27,7 @@ class SettingsScreen extends ConsumerWidget {
       builder: (c) => AlertDialog(
         title: Text('Start a fresh adventure?', style: heading(26)),
         content: const Text(
-          'This deletes your scores, runs, unlocked birds and settings from this phone. It cannot be undone.',
+          'This deletes your saved videos, replays, scores, runs, unlocked birds and settings from this phone. It cannot be undone.',
         ),
         actions: [
           TextButton(
@@ -150,7 +150,7 @@ class SettingsScreen extends ConsumerWidget {
                               ),
                               const SizedBox(height: 10),
                               Text(
-                                'No recordings, uploads, accounts or ads. Models, music and your personal bests live on this phone.',
+                                'Video and optional microphone audio stay on this phone. Save after a flight; unsaved clips are discarded. No uploads.',
                                 style: bodyText(15, color: SkyColors.muted),
                               ),
                               const Spacer(),

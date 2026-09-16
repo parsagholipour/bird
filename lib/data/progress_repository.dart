@@ -95,16 +95,17 @@ const birdDescriptions = [
   'Dreams beyond the clouds.',
 ];
 
-enum SettingKey { music, effects, reducedMotion }
+enum SettingKey { music, effects, reducedMotion, recordAudio }
 
 class GameSettings {
   const GameSettings({
     this.music = true,
     this.effects = true,
     this.reducedMotion = false,
+    this.recordAudio = false,
     this.bird = 0,
   });
-  final bool music, effects, reducedMotion;
+  final bool music, effects, reducedMotion, recordAudio;
   final int bird;
 }
 
@@ -192,6 +193,7 @@ class SqliteProgressRepository implements ProgressRepository {
         music: prefs['music'] != 'false',
         effects: prefs['effects'] != 'false',
         reducedMotion: prefs['reducedMotion'] == 'true',
+        recordAudio: prefs['recordAudio'] == 'true',
         bird: unlocked.contains(selected) && selected >= 0 && selected < 4
             ? selected
             : 0,

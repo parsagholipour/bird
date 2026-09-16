@@ -3,7 +3,8 @@
 An offline Android arcade game built with Flutter, Flame, CameraX and MediaPipe.
 Push-Up Flight maps a calibrated push-up range to continuous bird height. Grin &
 Glide maps each neutral-to-smile transition to one flap. Records, settings and
-cosmetic unlocks stay in SQLite on the phone.
+cosmetic unlocks stay in SQLite on the phone. After a flight, Save session keeps
+a local camera clip and an input journal for replay in Records → Saved sessions.
 
 **Status:** tracking has regression replays from the OnePlus CPH2585's actual
 landmarks, including the latest scored game's missed top, false calibration
@@ -121,7 +122,7 @@ recalibration after a camera-distance change.
 
 For opt-in landmark and control diagnostics in the real play screen
 (`make diag` builds and installs this; `make run` debug builds and release
-builds record nothing):
+builds omit diagnostic traces):
 
 ```sh
 flutter build apk --profile --target-platform android-arm64 --dart-define=TRACKING_DIAGNOSTICS=true --dart-define=TRACKING_CAPTURE_IMAGES=true
@@ -141,7 +142,7 @@ app storage, each capped at 4 MiB. A new camera session or a full log rotates
 these files so the newest measurements are retained. Replay requires the
 calibration frames; for a rotated trace, also retrieve `previous.log` if it still
 contains those frames. Control records remain useful without calibration replay;
-normal builds omit the trace. Release mode disables diagnostics and image
+normal builds omit this diagnostic trace. User-saved session replays are separate. Release mode disables diagnostics and image
 capture even if either define is passed.
 
 `TRACKING_CAPTURE_IMAGES=true` additionally retains up to 120 camera JPEGs per
@@ -157,3 +158,41 @@ adb exec-out run-as com.ravanix.push_up_bird tar -cf - files/tracking_diagnostic
 ```
 
 Full requirements: [specification](docs/specification.md).
+
+
+## Saved session replay
+
+Results offer an explicit **Save session** action. Camera MP4 clips, optionally including microphone audio,
+are stored separately from a versioned gameplay input journal; gameplay is
+re-simulated, never screen-recorded. Unsaved camera drafts are removed on leaving
+results or retrying, and drafts left by a killed process are cleaned up when the
+camera subsystem next starts. Saved sessions live in app-private storage with
+Android backup disabled.
+
+Open **Records → Saved sessions** for corner-camera, camera-background and
+gameplay-only views. Tap the replay to hide or show controls over the video
+without resizing it. Controls include play/pause, scrub, restart, ±5 seconds,
+0.5×–2× speed, camera-corner placement, recorded-audio mute and game sound on/off. Practice sessions
+are also saveable. Delete removes replay files; Reset local progress removes all
+saved sessions as well as scores/settings. Camera capture may be unavailable on
+hardware that cannot run three CameraX streams; its gameplay journal still works.
+
+Implementation references: [CameraX video capture](https://developer.android.com/media/camera/camerax/video-capture)
+and [Flutter video_player](https://pub.dev/packages/video_player). Physical-device
+synchronization and performance checks are listed in [validation](docs/validation.md).
+
+
+Microphone audio is optional and off by default. Enable **Record microphone** on
+setup to add voice and room sound to the camera clip. Its inline explanation
+appears before Android's separate microphone prompt; there is no additional
+confirmation dialog. Successful opt-in is remembered. Declining leaves video and
+input recording available; starting, retrying and resuming do not request access.
+If Android blocks further prompts, setup offers a user-initiated Settings link.
+Revoked access turns microphone recording off without interrupting the flight.
+
+Replay keeps recorded audio synchronized with the clip in every visual mode,
+including gameplay only, with independent recorded-audio and game-sound controls.
+Old silent sessions still work. Audio stays inside the local MP4 and follows the
+same save/discard/delete lifecycle as camera video. See Android's
+[runtime permission guidance](https://developer.android.com/training/permissions/requesting)
+and [CameraX audio opt-in](https://developer.android.com/reference/androidx/camera/video/PendingRecording).

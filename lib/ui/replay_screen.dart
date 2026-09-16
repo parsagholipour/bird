@@ -1,0 +1,754 @@
+import 'dart:async';
+import 'dart:io';
+import 'package:flame/game.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:video_player/video_player.dart';
+import '../data/providers.dart';
+import '../data/progress_repository.dart';
+import '../data/session_repository.dart';
+import '../domain/game_rules.dart';
+import '../domain/session_replay.dart';
+import '../domain/tracking.dart';
+import '../game/audio.dart';
+import '../game/bird_game.dart';
+import 'theme.dart';
+
+enum ReplayView { corner, background, gameplay }
+
+class SessionLibraryScreen extends ConsumerWidget {
+  const SessionLibraryScreen({super.key});
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+    appBar: AppBar(
+      leading: IconButton(
+        tooltip: 'Back to Records',
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () => context.go('/records'),
+      ),
+      title: const Text('Saved sessions'),
+    ),
+    body: ref
+        .watch(sessionsProvider)
+        .when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (_, _) => Center(
+            child: TextButton(
+              onPressed: () => ref.invalidate(sessionsProvider),
+              child: const Text('Could not load sessions. Retry'),
+            ),
+          ),
+          data: (sessions) => sessions.isEmpty
+              ? const Center(
+                  child: Text(
+                    'Save a session after a flight to watch it here.',
+                  ),
+                )
+              : ListView.builder(
+                  itemCount: sessions.length,
+                  itemBuilder: (context, i) {
+                    final run = sessions[i];
+                    return ListTile(
+                      leading: const Icon(Icons.play_circle_outline),
+                      title: Text(
+                        '${run.mode == PlayMode.pushUp ? 'Push-Up Flight' : 'Grin & Glide'}${run.practice ? ' · Practice' : ''}',
+                      ),
+                      subtitle: Text(
+                        '${run.finishedAt.toLocal().toString().substring(0, 16)} · ${run.durationSeconds.round()} sec · ${run.score} obstacles',
+                      ),
+                      onTap: () => context.go('/replay/${run.id}'),
+                      trailing: IconButton(
+                        tooltip: 'Delete session',
+                        icon: const Icon(Icons.delete_outline),
+                        onPressed: () async {
+                          final delete = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Delete this session?'),
+                              content: const Text(
+                                'The camera video and replay will be removed. Your scores stay in Records.',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
+                                  child: const Text('Cancel'),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  child: const Text('Delete'),
+                                ),
+                              ],
+                            ),
+                          );
+                          if (delete == true) {
+                            try {
+                              await ref
+                                  .read(sessionRepositoryProvider)
+                                  .delete(run.id);
+                              ref.invalidate(sessionsProvider);
+                            } catch (_) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Could not delete session. Try again.',
+                                    ),
+                                  ),
+                                );
+                              }
+                            }
+                          }
+                        },
+                      ),
+                    );
+                  },
+                ),
+        ),
+  );
+}
+
+class ReplayScreen extends ConsumerStatefulWidget {
+  const ReplayScreen({super.key, required this.id});
+  final String id;
+  @override
+  ConsumerState<ReplayScreen> createState() => _ReplayScreenState();
+}
+
+class _ReplayScreenState extends ConsumerState<ReplayScreen>
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+  late final Ticker _ticker;
+  late final SkyAudio _audio;
+  SavedSession? _session;
+  ReplayPlayer? _player;
+  BirdGame? _game;
+  VideoPlayerController? _video;
+  SessionClip? _clip;
+  final Set<String> _failedClips = {};
+  ReplayView _view = ReplayView.corner;
+  bool _playing = false, _sound = true, _mediaBusy = false, _scrubbing = false;
+  bool _controlsVisible = true, _cameraSound = true;
+  bool get _hasCameraAudio => _session?.clips.any((c) => c.hasAudio) ?? false;
+  bool _resumeAfterScrub = false,
+      _syncPending = false,
+      _forcePending = false,
+      _loadingMedia = false,
+      _closed = false;
+  double _speed = 1, _position = 0, _lastFrame = 0, _lastSync = -1000;
+  int _corner = 0;
+  String? _error;
+  String _videoMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _audio = ref.read(audioFactoryProvider)();
+    WidgetsBinding.instance.addObserver(this);
+    _ticker = createTicker(_frame)..start();
+    unawaited(_load());
+  }
+
+  Future<void> _load() async {
+    try {
+      final session = await ref.read(sessionRepositoryProvider).load(widget.id);
+      if (!mounted) return;
+      final player = ReplayPlayer(session.tape)..seek(0);
+      setState(() {
+        _session = session;
+        _player = player;
+        if (session.clips.isEmpty) _view = ReplayView.gameplay;
+        _game = BirdGame(
+          simulation: player.simulation,
+          nowMs: () => 0,
+          bird: session.tape.bird,
+          reducedMotion: session.tape.reducedMotion,
+          playback: true,
+          onChanged: () {},
+        );
+      });
+      await _syncVideo(force: true);
+    } catch (_) {
+      if (mounted) setState(() => _error = 'This session could not be opened.');
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) _setPlaying(false);
+  }
+
+  void _frame(Duration elapsed) {
+    final now = elapsed.inMicroseconds / 1000;
+    final dt = now - _lastFrame;
+    _lastFrame = now;
+    if (_player == null || !_playing || _scrubbing || _loadingMedia) return;
+    if (_video?.value.isBuffering == true &&
+        _video?.value.hasError == false &&
+        (_view != ReplayView.gameplay ||
+            (_cameraSound && _clip?.hasAudio == true)) &&
+        _activeClip() != null &&
+        _activeClip() == _clip) {
+      return;
+    }
+    final oldScore = _player!.simulation.score,
+        oldFlaps = _player!.simulation.flaps;
+    final oldPhase = _player!.simulation.phase;
+    _position = (_position + dt.clamp(0, 100) * _speed).clamp(
+      0,
+      _session!.tape.durationMs,
+    );
+    _player!.seek(_position);
+    _game!.simulation = _player!.simulation;
+    if (_sound) {
+      if (_player!.simulation.score > oldScore) _audio.effect('point');
+      if (_player!.simulation.flaps > oldFlaps) _audio.effect('flap');
+      if (oldPhase != RunPhase.ended &&
+          _player!.simulation.phase == RunPhase.ended) {
+        _audio.effect('finish');
+      }
+    }
+    if (_position >= _session!.tape.durationMs) _setPlaying(false);
+    if (now - _lastSync >= 100) {
+      _lastSync = now;
+      unawaited(_syncVideo());
+    }
+    setState(() {});
+  }
+
+  SessionClip? _activeClip() {
+    for (final clip in _session?.clips ?? <SessionClip>[]) {
+      if (_position >= clip.startMs &&
+          _position < clip.startMs + clip.durationMs) {
+        return clip;
+      }
+    }
+    return null;
+  }
+
+  Future<void> _syncVideo({bool force = false}) async {
+    if (_closed || _session == null) return;
+    if (_mediaBusy) {
+      _syncPending = true;
+      _forcePending |= force;
+      return;
+    }
+    _mediaBusy = true;
+    try {
+      final clip = _activeClip();
+      if (clip == null ||
+          (_view == ReplayView.gameplay && !(_cameraSound && clip.hasAudio))) {
+        await _video?.setVolume(0);
+        await _video?.pause();
+        _videoMessage = clip == null
+            ? 'Camera was paused during this part of the session'
+            : '';
+        return;
+      }
+      if (_failedClips.contains(clip.path)) {
+        _videoMessage = 'Camera clip unavailable · Gameplay still plays';
+        return;
+      }
+      if (_clip != clip) {
+        _loadingMedia = true;
+        final old = _video;
+        _video = null;
+        _clip = clip;
+        await old?.dispose();
+        if (!mounted) return;
+        final video = VideoPlayerController.file(
+          File(clip.path),
+          videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+        );
+        _video = video;
+        await video.initialize().timeout(const Duration(seconds: 10));
+        if (!mounted) return;
+        force = true;
+      }
+      final video = _video!;
+      if (video.value.hasError) throw StateError('Video playback failed');
+      final volume = _cameraSound && clip.hasAudio && !_scrubbing ? 1.0 : 0.0;
+      if (video.value.volume != volume) await video.setVolume(volume);
+      final desired = (_position - clip.startMs).clamp(
+        0.0,
+        video.value.duration.inMilliseconds.toDouble(),
+      );
+      final actual = await video.position;
+      if (force) _loadingMedia = true;
+      if (force ||
+          actual == null ||
+          (actual.inMilliseconds - desired).abs() > 120) {
+        await video.seekTo(Duration(milliseconds: desired.round()));
+      }
+      if (video.value.playbackSpeed != _speed) {
+        await video.setPlaybackSpeed(_speed);
+      }
+      if (_playing && !_scrubbing) {
+        if (!video.value.isPlaying) await video.play();
+      } else {
+        await video.pause();
+      }
+      _videoMessage = '';
+    } catch (_) {
+      if (_clip != null) _failedClips.add(_clip!.path);
+      _videoMessage = 'Camera clip unavailable · Gameplay still plays';
+      try {
+        if (!_closed) await _video?.pause();
+      } catch (_) {}
+    } finally {
+      _mediaBusy = false;
+      _loadingMedia = false;
+      if (_syncPending && !_closed) {
+        final pendingForce = _forcePending;
+        _syncPending = false;
+        _forcePending = false;
+        unawaited(_syncVideo(force: pendingForce));
+      }
+      if (mounted && !_closed) setState(() {});
+    }
+  }
+
+  void _configureAudio() {
+    unawaited(
+      _audio.configure(
+        GameSettings(music: _sound, effects: _sound),
+        active: _playing && !_scrubbing,
+      ),
+    );
+    unawaited(_audio.setRate(_speed));
+    if (!_playing || !_sound || _scrubbing) unawaited(_audio.stopEffects());
+  }
+
+  void _setPlaying(bool playing) {
+    if (!mounted) return;
+    if (playing && _position >= (_session?.tape.durationMs ?? 0)) _seek(0);
+    setState(() {
+      _playing = playing;
+      if (!playing) _controlsVisible = true;
+    });
+    _configureAudio();
+    unawaited(_syncVideo(force: true));
+  }
+
+  void _seek(double position) {
+    if (_player == null) return;
+    setState(() {
+      _position = position.clamp(0.0, _session!.tape.durationMs);
+      _player!.seek(_position);
+      _game!.simulation = _player!.simulation;
+    });
+    unawaited(_audio.stopEffects());
+    unawaited(_syncVideo(force: true));
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _closed = true;
+    _ticker.dispose();
+    unawaited(_video?.dispose());
+    unawaited(_audio.dispose());
+    super.dispose();
+  }
+
+  String _time(double ms) {
+    final s = (ms / 1000).floor();
+    return '${s ~/ 60}:${(s % 60).toString().padLeft(2, '0')}';
+  }
+
+  Widget _camera({required bool background}) {
+    final video = _video;
+    if (video == null ||
+        !video.value.isInitialized ||
+        _videoMessage.isNotEmpty ||
+        _activeClip() != _clip) {
+      return ColoredBox(
+        color: const Color(0xff18313b),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Text(
+              _videoMessage.isEmpty ? 'Loading camera…' : _videoMessage,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.white, fontSize: 12),
+            ),
+          ),
+        ),
+      );
+    }
+    return ClipRect(
+      child: SizedBox.expand(
+        child: FittedBox(
+          fit: background ? BoxFit.cover : BoxFit.contain,
+          child: SizedBox(
+            width: video.value.size.width,
+            height: video.value.size.height,
+            child: VideoPlayer(video),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _toggleControls() =>
+      setState(() => _controlsVisible = !_controlsVisible);
+
+  Widget _playback() {
+    final theme = Theme.of(context);
+    return Theme(
+      data: theme.copyWith(
+        colorScheme: const ColorScheme.dark(
+          primary: SkyColors.coral,
+          surface: Color(0xff18313b),
+        ),
+        textTheme: theme.textTheme.apply(
+          bodyColor: Colors.white,
+          displayColor: Colors.white,
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Center(
+            child: AspectRatio(
+              aspectRatio: _player!.aspectRatio,
+              child: ClipRect(
+                child: LayoutBuilder(
+                  builder: (context, constraints) => Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      if (_view == ReplayView.background)
+                        _camera(background: true),
+                      GameWidget(game: _game!),
+                      if (_view == ReplayView.corner)
+                        Align(
+                          alignment: [
+                            Alignment.topRight,
+                            Alignment.topLeft,
+                            Alignment.bottomRight,
+                            Alignment.bottomLeft,
+                          ][_corner],
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Container(
+                              width: constraints.maxWidth * .25,
+                              height: constraints.maxHeight * .34,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 2,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              clipBehavior: Clip.antiAlias,
+                              child: _camera(background: false),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          if (_player!.simulation.phase == RunPhase.paused)
+            const IgnorePointer(
+              child: Center(
+                child: Card(
+                  child: Padding(
+                    padding: EdgeInsets.all(12),
+                    child: Text('Practice break'),
+                  ),
+                ),
+              ),
+            ),
+          // This surface stays behind the controls, so their gestures never
+          // toggle visibility or change the replay's viewport dimensions.
+          Semantics(
+            button: true,
+            label: _controlsVisible
+                ? 'Hide replay controls'
+                : 'Show replay controls',
+            onTap: _toggleControls,
+            child: GestureDetector(
+              key: const ValueKey('replay-tap-surface'),
+              behavior: HitTestBehavior.opaque,
+              excludeFromSemantics: true,
+              onTap: _toggleControls,
+            ),
+          ),
+          if (_controlsVisible) ...[
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: DecoratedBox(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Colors.black54, Colors.transparent],
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 4, 16, 12),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        tooltip: 'Back to saved sessions',
+                        onPressed: () => context.go('/sessions'),
+                        icon: const Icon(Icons.arrow_back),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'REPLAY',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: _playbackControls(),
+            ),
+          ],
+          Positioned(
+            top: 12,
+            left: 0,
+            right: 0,
+            child: IgnorePointer(
+              child: Center(
+                child: Semantics(
+                  label: 'Score: ${_player!.simulation.score}',
+                  excludeSemantics: true,
+                  child: Container(
+                    key: const ValueKey('replay-score'),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xcc18313b),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.white38),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('SCORE', style: bodyText(11, color: Colors.white)),
+                        Text(
+                          '${_player!.simulation.score}',
+                          style: heading(32, color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _playbackControls() => Material(
+    key: const ValueKey('replay-controls'),
+    color: Colors.transparent,
+    child: DecoratedBox(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Colors.transparent, Color(0xb3000000), Color(0xe6000000)],
+          stops: [0, .25, 1],
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                Text(_time(_position)),
+                Expanded(
+                  child: Slider(
+                    value: _position,
+                    max: _session!.tape.durationMs.clamp(1, double.infinity),
+                    semanticFormatterCallback: _time,
+                    onChangeStart: (_) {
+                      _resumeAfterScrub = _playing;
+                      _scrubbing = true;
+                      _configureAudio();
+                      unawaited(_syncVideo(force: true));
+                    },
+                    onChanged: _seek,
+                    onChangeEnd: (v) {
+                      _scrubbing = false;
+                      _seek(v);
+                      _setPlaying(_resumeAfterScrub);
+                    },
+                  ),
+                ),
+                Text(_time(_session!.tape.durationMs)),
+              ],
+            ),
+            // Keep related controls together while allowing compact screens
+            // to wrap without shrinking the gameplay underneath.
+            SizedBox(
+              width: double.infinity,
+              child: Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        tooltip: _playing ? 'Pause replay' : 'Play replay',
+                        onPressed: () => _setPlaying(!_playing),
+                        icon: Icon(_playing ? Icons.pause : Icons.play_arrow),
+                      ),
+                      IconButton(
+                        tooltip: 'Restart replay',
+                        onPressed: () => _seek(0),
+                        icon: const Icon(Icons.replay),
+                      ),
+                      IconButton(
+                        tooltip: 'Back 5 seconds',
+                        onPressed: () => _seek(_position - 5000),
+                        icon: const Icon(Icons.replay_5),
+                      ),
+                      IconButton(
+                        tooltip: 'Forward 5 seconds',
+                        onPressed: () => _seek(_position + 5000),
+                        icon: const Icon(Icons.forward_5),
+                      ),
+                      DropdownButton<double>(
+                        value: _speed,
+                        underline: const SizedBox(),
+                        items: [0.5, 1.0, 1.5, 2.0]
+                            .map(
+                              (s) => DropdownMenuItem(
+                                value: s,
+                                child: Text('${s}x'),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (s) {
+                          if (s != null) {
+                            setState(() => _speed = s);
+                            _configureAudio();
+                            unawaited(_syncVideo(force: true));
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      DropdownButton<ReplayView>(
+                        value: _view,
+                        underline: const SizedBox(),
+                        items: [
+                          if (_session!.clips.isNotEmpty)
+                            const DropdownMenuItem(
+                              value: ReplayView.corner,
+                              child: Text('Corner camera'),
+                            ),
+                          if (_session!.clips.isNotEmpty)
+                            const DropdownMenuItem(
+                              value: ReplayView.background,
+                              child: Text('Camera background'),
+                            ),
+                          const DropdownMenuItem(
+                            value: ReplayView.gameplay,
+                            child: Text('Gameplay only'),
+                          ),
+                        ],
+                        onChanged: (view) {
+                          if (view == null) return;
+                          setState(() {
+                            _view = view;
+                            _game!.transparent = view == ReplayView.background;
+                          });
+                          unawaited(_syncVideo(force: true));
+                        },
+                      ),
+                      if (_view == ReplayView.corner)
+                        IconButton(
+                          tooltip: 'Move camera corner',
+                          onPressed: () =>
+                              setState(() => _corner = (_corner + 1) % 4),
+                          icon: const Icon(Icons.picture_in_picture_alt),
+                        ),
+                      if (_hasCameraAudio)
+                        IconButton(
+                          tooltip: _cameraSound
+                              ? 'Mute recorded audio'
+                              : 'Enable recorded audio',
+                          onPressed: () {
+                            setState(() => _cameraSound = !_cameraSound);
+                            unawaited(_syncVideo());
+                          },
+                          icon: Icon(_cameraSound ? Icons.mic : Icons.mic_off),
+                        ),
+                      IconButton(
+                        tooltip: _sound
+                            ? 'Mute game sound'
+                            : 'Enable game sound',
+                        onPressed: () {
+                          setState(() => _sound = !_sound);
+                          _configureAudio();
+                        },
+                        icon: Icon(_sound ? Icons.volume_up : Icons.volume_off),
+                      ),
+                      IconButton(
+                        tooltip: 'Hide controls / full screen',
+                        onPressed: _toggleControls,
+                        icon: const Icon(Icons.fullscreen),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    backgroundColor: Colors.black,
+    body: SafeArea(
+      child: _error != null
+          ? Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(_error!, style: const TextStyle(color: Colors.white)),
+                  TextButton(
+                    onPressed: () => context.go('/sessions'),
+                    child: const Text('Back to sessions'),
+                  ),
+                ],
+              ),
+            )
+          : _player == null
+          ? const Center(child: CircularProgressIndicator())
+          : _playback(),
+    ),
+  );
+}

@@ -88,7 +88,23 @@ class RecordsScreen extends ConsumerWidget {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('Recent flights', style: heading(25)),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          'Recent flights',
+                                          style: heading(25),
+                                        ),
+                                        const Spacer(),
+                                        TextButton.icon(
+                                          onPressed: () =>
+                                              context.go('/sessions'),
+                                          icon: const Icon(
+                                            Icons.video_library_outlined,
+                                          ),
+                                          label: const Text('Saved sessions'),
+                                        ),
+                                      ],
+                                    ),
                                     const SizedBox(height: 12),
                                     Expanded(
                                       child: p.recent.isEmpty

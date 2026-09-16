@@ -41,6 +41,7 @@ dependencies:
   path_provider: ^2.1.6
   path: ^1.9.1
   audioplayers: ^6.8.1
+  video_player: ^2.14.0
 
 dev_dependencies:
   flutter_test:
@@ -55,6 +56,7 @@ dev_dependencies:
   pigeon: ^28.1.0
   drift_dev: ^2.35.0
   build_runner: ^2.15.1
+  video_player_platform_interface: ^6.9.0
 
 flutter:
   uses-material-design: true

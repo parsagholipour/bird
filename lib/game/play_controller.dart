@@ -1,9 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+import 'dart:math';
+import '../domain/session_replay.dart';
+import '../data/session_repository.dart';
 import 'package:flutter/foundation.dart';
 import '../domain/tracking.dart';
 import '../domain/game_rules.dart';
 import '../tracking/native_tracking_source.dart';
+import '../tracking/tracking_api.g.dart' show MicrophoneAccess;
 import 'audio.dart';
 
 enum PlayStage { setup, starting, calibration, ready, flying, results, error }
@@ -15,16 +20,22 @@ class PlayController extends ChangeNotifier {
     required this.source,
     required this.saveRun,
     required this.audio,
+    required this.saveSession,
+    this.bird = 0,
+    this.reducedMotion = false,
+    this.recordAudio = false,
+    this.rememberRecordAudio,
   }) {
     _samples = source.samples.listen(_onSample);
     _issues = source.issues.listen((issue) {
+      if (stage == PlayStage.results || _disposed) return;
       if (issue.code == 'background') {
         background();
         return;
       }
       message = issue.message;
       if (simulation?.phase == RunPhase.playing) {
-        simulation?.end(EndReason.trackingLost);
+        recorder?.command('end', EndReason.trackingLost);
         finish();
       } else {
         stage = PlayStage.error;
@@ -40,6 +51,178 @@ class PlayController extends ChangeNotifier {
   final NativeTrackingSource source;
   final Future<void> Function(RunResult) saveRun;
   final SkyAudio audio;
+  final Future<void> Function(SavedSession) saveSession;
+  final int bird;
+  final bool reducedMotion;
+  final Future<void> Function(bool)? rememberRecordAudio;
+  bool recordAudio, microphoneRequestPending = false;
+  bool microphoneSettingsAvailable = false;
+  String microphoneMessage = '';
+  int _audioChoiceRevision = 0;
+
+  Future<void> _rememberAudio() async {
+    try {
+      await rememberRecordAudio?.call(recordAudio);
+    } catch (_) {
+      microphoneMessage =
+          'Changed for this flight. Could not remember your preference.';
+    }
+  }
+
+  /// Only this user-invoked action may request the microphone. Camera startup,
+  /// replay, practice resume and retry only check existing access.
+  Future<void> setRecordAudio(bool enabled) async {
+    if (_disposed || microphoneRequestPending || stage != PlayStage.setup) {
+      return;
+    }
+    ++_audioChoiceRevision;
+    microphoneMessage = '';
+    microphoneSettingsAvailable = false;
+    if (!enabled) {
+      recordAudio = false;
+      notify();
+      await _rememberAudio();
+      notify();
+      return;
+    }
+    microphoneRequestPending = true;
+    notify();
+    try {
+      final access = await source.requestMicrophone();
+      if (_disposed) return;
+      recordAudio = access == MicrophoneAccess.granted;
+      if (!recordAudio) _microphoneUnavailable(access);
+      await _rememberAudio();
+    } catch (_) {
+      recordAudio = false;
+      microphoneMessage =
+          'Microphone unavailable. Video and gameplay still work.';
+    } finally {
+      microphoneRequestPending = false;
+      notify();
+    }
+  }
+
+  void _microphoneUnavailable(MicrophoneAccess access) {
+    microphoneSettingsAvailable = access == MicrophoneAccess.permanentlyDenied;
+    microphoneMessage = microphoneSettingsAvailable
+        ? 'Microphone blocked. You can allow it in Settings; video still works.'
+        : 'Microphone off. You can still play and save video.';
+  }
+
+  Future<void> verifyMicrophoneAccess() async {
+    if (!recordAudio || _disposed) return;
+    final revision = _audioChoiceRevision;
+    MicrophoneAccess access;
+    try {
+      access = await source.microphoneAccess();
+    } catch (_) {
+      access = MicrophoneAccess.unavailable;
+    }
+    if (_disposed ||
+        revision != _audioChoiceRevision ||
+        access == MicrophoneAccess.granted) {
+      return;
+    }
+    recordAudio = false;
+    _microphoneUnavailable(access);
+    await _rememberAudio();
+    notify();
+  }
+
+  FlightRecorder? recorder;
+  final List<SessionClip> _clips = [];
+  bool sessionSaved = false, sessionSaving = false, preparingReplay = false;
+  String sessionError = '', cameraRecordingError = '';
+  Future<void>? _finishing, _stoppingCamera, _sessionSave;
+  Future<void>? _preparingCapture;
+  bool get canSaveSession =>
+      result != null && simulation?.started == true && !preparingReplay;
+
+  Future<void> _startCapture() async {
+    try {
+      await verifyMicrophoneAccess();
+      await source.startRecording(withAudio: recordAudio);
+    } catch (_) {
+      cameraRecordingError =
+          'Camera video unavailable. Gameplay can still be saved.';
+    }
+  }
+
+  Future<void> _collectClip() async {
+    try {
+      final clip = await source.stopRecording();
+      if (clip != null && recorder != null) {
+        if (recordAudio && !clip.hasAudio) {
+          cameraRecordingError =
+              'Microphone audio was unavailable. Your video and gameplay can still be saved.';
+        }
+        _clips.add(
+          SessionClip(
+            path: clip.path,
+            startMs:
+                source.recordingTime(clip.startedAtMs) -
+                recorder!.tape.originMs,
+            durationMs: clip.durationMs.toDouble(),
+            hasAudio: clip.hasAudio,
+          ),
+        );
+      } else if (clip != null) {
+        await File(clip.path).delete();
+      }
+    } catch (_) {
+      cameraRecordingError =
+          'Camera video interrupted. Available footage and gameplay can still be saved.';
+    }
+  }
+
+  Future<void> _stopCamera() => _stoppingCamera ??= () async {
+    await _preparingCapture;
+    await _collectClip();
+    try {
+      await source.stop();
+    } catch (error) {
+      debugPrint('PushUpBird camera cleanup: $error');
+    }
+    cameraActive = false;
+  }().whenComplete(() => _stoppingCamera = null);
+
+  Future<void> persistSession() => _sessionSave ??= _persistSession()
+      .whenComplete(() => _sessionSave = null);
+  Future<void> _persistSession() async {
+    if (!canSaveSession || sessionSaved) return;
+    sessionSaving = true;
+    sessionError = '';
+    notify();
+    try {
+      await saveSession(
+        SavedSession(
+          result: result!,
+          tape: recorder!.tape,
+          clips: List.of(_clips),
+        ),
+      );
+      sessionSaved = true;
+      await _discardClips();
+    } catch (_) {
+      sessionError = 'Could not save the session. Tap Save session to retry.';
+    }
+    sessionSaving = false;
+    notify();
+  }
+
+  Future<void> _discardClips() async {
+    for (final clip in _clips) {
+      try {
+        final file = File(clip.path);
+        if (await file.exists()) await file.delete();
+      } catch (_) {}
+    }
+    _clips.clear();
+  }
+
+  void advance(double dt, double now, double width) =>
+      recorder?.tick(dt, now, width);
   late final StreamSubscription<TrackingSample> _samples;
   late final StreamSubscription<TrackingIssue> _issues;
   Timer? _refresh;
@@ -106,7 +289,9 @@ class PlayController extends ChangeNotifier {
       movement = interpreter!.add(sample, now);
       if (movement.valid) _lastGood = now;
       if (stage == PlayStage.ready) message = movement.feedback;
-      simulation?.apply(movement, sample, now);
+      if (stage == PlayStage.flying && simulation?.phase != RunPhase.ended) {
+        recorder?.apply(movement, sample, now);
+      }
       if (movement.flap && simulation?.phase == RunPhase.playing) {
         audio.effect('flap');
       }
@@ -130,7 +315,9 @@ class PlayController extends ChangeNotifier {
   }
 
   Future<void> startCamera({bool recalibrate = true}) async {
-    if (_disposed || stage == PlayStage.starting) return;
+    if (_disposed || microphoneRequestPending || stage == PlayStage.starting) {
+      return;
+    }
     final op = ++_operation;
     stage = PlayStage.starting;
     message = 'Waking up your camera…';
@@ -144,6 +331,7 @@ class PlayController extends ChangeNotifier {
         notify();
         return;
       }
+      await _stoppingCamera;
       await source.stop();
       if (_disposed || op != _operation) return;
       if (recalibrate) {
@@ -162,7 +350,12 @@ class PlayController extends ChangeNotifier {
       }
       cameraActive = true;
       stage = recalibrate ? PlayStage.calibration : PlayStage.flying;
-      if (!recalibrate) simulation?.resume();
+      if (!recalibrate) {
+        _preparingCapture = _startCapture();
+        await _preparingCapture;
+        if (_disposed || op != _operation) return;
+        recorder?.command('resume');
+      }
       message = mode == PlayMode.pushUp
           ? 'Find a comfortable top position'
           : 'Relax your face and look at the phone';
@@ -177,26 +370,47 @@ class PlayController extends ChangeNotifier {
   }
 
   Future<void> switchCamera() async {
-    if (stage == PlayStage.starting) return;
+    if (stage == PlayStage.starting || preparingReplay) return;
     front = !front;
     await startCamera();
   }
 
-  void fly() {
+  Future<void> fly() async {
     if (stage != PlayStage.calibration && stage != PlayStage.ready) return;
-    if (interpreter == null) return;
+    if (interpreter == null || preparingReplay) return;
+    final op = _operation;
+    preparingReplay = true;
+    stage = PlayStage.ready;
+    message = 'Preparing your session…';
+    notify();
+    _preparingCapture = _startCapture();
+    await _preparingCapture;
+    if (_disposed || op != _operation) {
+      preparingReplay = false;
+      return;
+    }
     interpreter!.reset();
     source.recordDiagnostic('PushUpBird reset: t=${source.nowMs} reason=fly');
-    simulation = FlightSimulation(
-      rules: mode == PlayMode.pushUp
-          ? PushUpFlightMode(cycleSeconds: body.result!.cycleSeconds)
-          : GrinGlideMode(),
-      practice: practice,
+    recorder = FlightRecorder(
+      ReplayTape(
+        mode: mode,
+        practice: practice,
+        seed: Random().nextInt(1 << 32),
+        cycleSeconds: body.result?.cycleSeconds ?? 3,
+        bird: bird,
+        reducedMotion: reducedMotion,
+        originMs: source.nowMs,
+      ),
+      () => source.nowMs,
     );
+    simulation = recorder!.simulation;
     stage = PlayStage.flying;
     result = null;
     saved = false;
+    sessionSaved = false;
+    sessionError = '';
     saveError = '';
+    preparingReplay = false;
     notify();
   }
 
@@ -207,13 +421,16 @@ class PlayController extends ChangeNotifier {
     notify();
   }
 
-  Future<void> finish() async {
+  Future<void> finish() => _finishing ??= _finish();
+
+  Future<void> _finish() async {
     final game = simulation;
     if (_disposed || game == null || _saving || stage == PlayStage.results) {
       return;
     }
     _saving = true;
-    game.end(game.endReason ?? EndReason.quit);
+    recorder?.command('end', game.endReason ?? EndReason.quit);
+    preparingReplay = true;
     if (trackingDiagnosticsEnabled) {
       source.recordDiagnostic(
         'PushUpBird end: ${game.endReason?.name}; '
@@ -236,8 +453,8 @@ class PlayController extends ChangeNotifier {
     stage = PlayStage.results;
     audio.effect('finish');
     notify();
-    await source.stop();
-    cameraActive = false;
+    await _stopCamera();
+    preparingReplay = false;
     // Countdown exits are not runs. Scored run writes are idempotent.
     if (game.started) {
       await persist();
@@ -262,7 +479,7 @@ class PlayController extends ChangeNotifier {
   }
 
   void pause() {
-    simulation?.takeBreak();
+    recorder?.command('break');
     if (simulation?.phase == RunPhase.ended) {
       unawaited(finish());
     } else {
@@ -276,21 +493,23 @@ class PlayController extends ChangeNotifier {
     if (!cameraActive) {
       await startCamera(recalibrate: false);
     } else {
-      simulation?.resume();
+      recorder?.command('resume');
       notify();
     }
   }
 
   void background() {
-    if (_disposed || stage == PlayStage.starting) return;
+    if (_disposed) return;
     ++_operation;
     cameraActive = false;
-    unawaited(source.stop());
+    unawaited(_stopCamera());
     unawaited(audio.stop());
     if (stage == PlayStage.flying) {
-      simulation?.background();
+      recorder?.command('background');
       if (simulation?.phase == RunPhase.ended) unawaited(finish());
-    } else if (stage == PlayStage.calibration || stage == PlayStage.ready) {
+    } else if (stage == PlayStage.calibration ||
+        stage == PlayStage.ready ||
+        stage == PlayStage.starting) {
       stage = PlayStage.setup;
       interpreter = null;
       message = 'Welcome back. Let’s check your position again.';
@@ -303,18 +522,25 @@ class PlayController extends ChangeNotifier {
     if (simulation != null &&
         simulation!.started &&
         stage == PlayStage.flying) {
-      simulation!.end(EndReason.quit);
+      recorder?.command('end', EndReason.quit);
       await finish();
     }
-    await source.stop();
-    cameraActive = false;
+    await _finishing;
+    await _sessionSave;
+    await _stopCamera();
+    await _discardClips();
   }
 
   Future<void> retry() async {
+    await _finishing;
+    await _sessionSave;
     if (saveError.isNotEmpty) {
       await persist();
       if (!saved) return;
     }
+    await _discardClips();
+    _finishing = null;
+    cameraRecordingError = '';
     simulation = null;
     result = null;
     stage = PlayStage.setup;
@@ -328,7 +554,13 @@ class PlayController extends ChangeNotifier {
     _refresh?.cancel();
     _samples.cancel();
     _issues.cancel();
-    source.dispose();
+    unawaited(() async {
+      await _finishing;
+      await _sessionSave;
+      await _stopCamera();
+      await _discardClips();
+      await source.dispose();
+    }());
     super.dispose();
   }
 }

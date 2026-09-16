@@ -278,3 +278,52 @@ Usable continuous control while looking down, viewing comfort and approaching-ob
 - All final screens visually inspected on device.
 - Runtime test on a 16KB-page Android device/emulator (the connected phone is 4KB).
 - iOS camera implementation and build/device validation on macOS/Xcode, explicitly a later milestone.
+
+## Saved session replays
+
+Automated checks cover input-journal round trips in both modes, exact backward
+seeks, pauses and interruptions, atomic save/retry, raw video copy and deletion,
+explicit saving after camera finalization, and replay controls on an 800×360
+landscape viewport. The Android APK compiles with CameraX video capture.
+
+Device acceptance remains required (no device connected during implementation):
+
+- Finish and save both a scored and a practice flight. Reopen Records → Saved
+  sessions after restarting the app; compare the bird, passages and score.
+- Switch Corner camera → Camera background → Gameplay only while playing and
+  paused. Tap the viewing area to hide/show the overlaid controls and verify that
+  the video and game do not resize. Buttons, menus and scrubbing must not dismiss
+  the controls. Move the camera corner, scrub backward/forward, restart, and check
+  0.5×/1×/1.5×/2× plus sound on/off. Check camera/game alignment at the start,
+  middle and end; CameraX's recording-start event establishes the clock anchor.
+- Pause practice, background/resume, then save. Verify both camera segments and
+  the explicit camera-paused gap. Background a scored flight and save its ending.
+- Leave results without saving, retry, force-stop during a recording, and reopen.
+  Verify unsaved cache footage is removed; saved clips remain available.
+- Try low storage, unavailable video capture, missing/damaged clips, and repeated
+  taps on Save. Gameplay-only replay remains available if camera capture fails.
+- Measure tracking rate, inference latency and rendering FPS with video capture
+  enabled on both cameras. Some HALs cannot bind preview, analysis and recording
+  together; those devices fall back to gameplay-only replay with a visible notice.
+
+
+### Optional microphone audio
+
+Automated tests cover default-off capture with permission already granted,
+explicit opt-in, remembered preferences, denial/permanent denial, absent
+microphones, bridge failure, revocation, duplicate requests, and capture waiting
+for the permission response. Storage tests verify audio metadata and old silent
+sessions. UI tests cover inline permission rationale and blocked-permission
+layout, independent recorded/game audio mute, and recorded audio in gameplay-only
+view. Native camera capture builds with RECORD_AUDIO declared and hardware
+microphone availability optional.
+
+On an Android device, verify the actual system permission dialog only appears
+when the optional switch is enabled. Grant, deny, deny again, and try one-time
+permission and revocation in Settings. Confirm normal gameplay and video saving
+continue without microphone access, and no request appears on retry/resume.
+Record speech in each mode, save/reopen, and listen while seeking, changing speed,
+pausing, changing visual modes and muting each sound source independently. Also
+check foreground practice breaks, background/resume, another app using the mic,
+and Android's global microphone privacy toggle. No device was connected during
+implementation, so physical microphone capture/listening checks remain pending.
