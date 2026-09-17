@@ -5,6 +5,8 @@ import '../game/audio.dart';
 import '../tracking/native_tracking_source.dart';
 import '../domain/game_rules.dart';
 
+final appClockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
+
 final audioFactoryProvider = Provider<SkyAudio Function()>(
   (ref) => SkyAudio.new,
 );
@@ -13,7 +15,10 @@ final trackingSourceFactoryProvider = Provider<NativeTrackingSource Function()>(
 );
 
 final progressRepositoryProvider = Provider<ProgressRepository>((ref) {
-  final repository = SqliteProgressRepository(ProgressDatabase.onDevice());
+  final repository = SqliteProgressRepository(
+    ProgressDatabase.onDevice(),
+    clock: ref.watch(appClockProvider),
+  );
   ref.onDispose(repository.close);
   return repository;
 });
@@ -23,6 +28,17 @@ final sessionRepositoryProvider = Provider<SessionRepository>(
 final sessionsProvider = FutureProvider<List<RunResult>>(
   (ref) => ref.watch(sessionRepositoryProvider).list(),
 );
+// Keep the current course when visiting the flock, passport or results.
+final selectedCourseProvider = NotifierProvider<CourseSelection, FlightCourse>(
+  CourseSelection.new,
+);
+
+class CourseSelection extends Notifier<FlightCourse> {
+  @override
+  FlightCourse build() => FlightCourse.classic;
+  void select(FlightCourse course) => state = course;
+}
+
 final progressProvider =
     AsyncNotifierProvider<ProgressController, ProgressSnapshot>(
       ProgressController.new,
@@ -33,7 +49,8 @@ class ProgressController extends AsyncNotifier<ProgressSnapshot> {
   @override
   Future<ProgressSnapshot> build() => _repo.load();
   Future<void> refresh() async {
-    state = AsyncData(await _repo.load());
+    final progress = await _repo.load();
+    if (ref.mounted) state = AsyncData(progress);
   }
 
   Future<void> save(RunResult run) async {
@@ -55,6 +72,7 @@ class ProgressController extends AsyncNotifier<ProgressSnapshot> {
     await ref.read(sessionRepositoryProvider).reset();
     ref.invalidate(sessionsProvider);
     await _repo.reset();
+    ref.read(selectedCourseProvider.notifier).select(FlightCourse.classic);
     await refresh();
   }
 }

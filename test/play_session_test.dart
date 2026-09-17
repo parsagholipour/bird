@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:push_up_bird/data/progress_repository.dart';
 import 'package:push_up_bird/domain/tracking.dart';
+import 'package:push_up_bird/domain/game_rules.dart';
 import 'package:push_up_bird/game/audio.dart';
 import 'package:push_up_bird/game/play_controller.dart';
 import 'package:push_up_bird/tracking/native_tracking_source.dart';
@@ -15,6 +16,8 @@ class SilentAudio implements SkyAudio {
   void effect(String name) {}
   @override
   Future<void> stop() async {}
+  @override
+  Future<void> resumeMusic() async {}
   @override
   Future<void> dispose() async {}
   @override
@@ -29,6 +32,14 @@ class TestInterpreter implements MovementInterpreter {
       const MovementInput(valid: true, height: 1);
   @override
   void reset() {}
+}
+
+class CountingAudio extends SilentAudio {
+  int resumes = 0;
+  @override
+  Future<void> resumeMusic() async {
+    resumes++;
+  }
 }
 
 class SessionSource extends NativeTrackingSource {
@@ -95,7 +106,7 @@ Future<void> startFlight(
     source.time += 20;
     source.sampleStream.add(
       TrackingSample(
-        mode: PlayMode.pushUp,
+        mode: controller.mode,
         timestampMs: source.time,
         receivedMs: source.time,
         joints: const [],
@@ -108,6 +119,38 @@ Future<void> startFlight(
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  test(
+    'relaxed flights pause, restore music, and finish with saveable results',
+    () async {
+      final source = SessionSource();
+      final audio = CountingAudio();
+      RunResult? result;
+      final controller = PlayController(
+        mode: PlayMode.pushUp,
+        practice: false,
+        course: FlightCourse.cloudCruise,
+        source: source,
+        audio: audio,
+        saveRun: (run) async => result = run,
+        saveSession: (_) async {},
+      );
+      await startFlight(controller, source);
+      controller.pause();
+      expect(controller.simulation!.phase, RunPhase.paused);
+      await controller.resume();
+      expect(controller.simulation!.phase, RunPhase.countdown);
+      expect(audio.resumes, 1);
+      controller.endFlight();
+      await controller.finish();
+      expect(controller.stage, PlayStage.results);
+      expect(controller.canSaveSession, isTrue);
+      expect(result!.practice, isTrue);
+      expect(result!.course, FlightCourse.cloudCruise);
+      expect(result!.reason, EndReason.breakTaken);
+      controller.dispose();
+      await Future<void>.delayed(Duration.zero);
+    },
+  );
   test(
     'finish awaits camera finalization; Save session is explicit and deduplicated',
     () async {

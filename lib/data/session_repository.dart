@@ -179,6 +179,11 @@ class SessionRepository {
 Map<String, dynamic> _resultJson(RunResult r) => {
   'id': r.id,
   'mode': r.mode.name,
+  'course': r.course.name,
+  'gates': r.gates,
+  'stars': r.stars,
+  'bestCombo': r.bestCombo,
+  'perfectPasses': r.perfectPasses,
   'practice': r.practice,
   'score': r.score,
   'repetitions': r.repetitions,
@@ -190,6 +195,11 @@ Map<String, dynamic> _resultJson(RunResult r) => {
 RunResult _readResult(Map<String, dynamic> r) => RunResult(
   id: r['id'] as String,
   mode: PlayMode.values.byName(r['mode'] as String),
+  course: FlightCourse.values.byName(r['course'] as String? ?? 'classic'),
+  gates: r['gates'] as int?,
+  stars: r['stars'] as int? ?? 0,
+  bestCombo: r['bestCombo'] as int? ?? 0,
+  perfectPasses: r['perfectPasses'] as int? ?? 0,
   practice: r['practice'] as bool,
   score: r['score'] as int,
   repetitions: r['repetitions'] as int,

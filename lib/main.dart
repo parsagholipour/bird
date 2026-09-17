@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'domain/tracking.dart';
+import 'domain/flight_course.dart';
 import 'ui/home_screen.dart';
 import 'ui/collection_screen.dart';
 import 'ui/records_screen.dart';
@@ -13,6 +14,11 @@ import 'ui/settings_screen.dart';
 import 'ui/play_screen.dart';
 import 'ui/calibration_probe.dart';
 import 'ui/theme.dart';
+import 'ui/passport_screen.dart';
+import 'ui/daily_adventure_screen.dart';
+import 'ui/flight_school_screen.dart';
+import 'data/providers.dart';
+import 'domain/daily_adventure.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +42,23 @@ final appRouter = GoRouter(
   initialLocation: const bool.fromEnvironment('CAMERA_LAB') ? '/lab' : '/',
   routes: [
     GoRoute(path: '/', builder: (context, state) => const HomeScreen()),
+    GoRoute(
+      path: '/school',
+      builder: (context, state) => FlightSchoolScreen(
+        course: FlightCourse.values.firstWhere(
+          (c) => c.name == state.uri.queryParameters['course'],
+          orElse: () => FlightCourse.classic,
+        ),
+      ),
+    ),
+    GoRoute(
+      path: '/daily',
+      builder: (context, state) => const DailyAdventureScreen(),
+    ),
+    GoRoute(
+      path: '/passport',
+      builder: (context, state) => const PassportScreen(),
+    ),
     GoRoute(
       path: '/birds',
       builder: (context, state) => const CollectionScreen(),
@@ -67,17 +90,67 @@ final appRouter = GoRouter(
       path: '/play/:mode',
       builder: (context, state) => PlayScreen(
         key: ValueKey(state.uri.toString()),
-        mode: state.pathParameters['mode'] == 'smile'
-            ? PlayMode.smile
-            : PlayMode.pushUp,
+        mode: switch (state.pathParameters['mode']) {
+          'smile' => PlayMode.smile,
+          'touch' => PlayMode.touch,
+          _ => PlayMode.pushUp,
+        },
         practice: state.uri.queryParameters['practice'] == 'true',
+        course: FlightCourse.values.firstWhere(
+          (c) => c.name == state.uri.queryParameters['course'],
+          orElse: () => FlightCourse.classic,
+        ),
       ),
     ),
   ],
 );
 
-class PushUpBirdApp extends StatelessWidget {
+class PushUpBirdApp extends ConsumerStatefulWidget {
   const PushUpBirdApp({super.key});
+  @override
+  ConsumerState<PushUpBirdApp> createState() => _PushUpBirdAppState();
+}
+
+class _PushUpBirdAppState extends ConsumerState<PushUpBirdApp>
+    with WidgetsBindingObserver {
+  Timer? _calendar;
+  bool _refreshingDay = false;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _calendar = Timer.periodic(const Duration(minutes: 1), (_) => _checkDay());
+  }
+
+  Future<void> _checkDay() async {
+    if (!mounted || _refreshingDay) return;
+    final today = ref.read(progressProvider).asData?.value.today;
+    if (today == null ||
+        today.dayKey == localDayKey(ref.read(appClockProvider)())) {
+      return;
+    }
+    _refreshingDay = true;
+    try {
+      await ref.read(progressProvider.notifier).refresh();
+    } catch (error) {
+      debugPrint('Daily adventure refresh: $error');
+    } finally {
+      _refreshingDay = false;
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) unawaited(_checkDay());
+  }
+
+  @override
+  void dispose() {
+    _calendar?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) => MaterialApp.router(
     title: 'Push-Up Bird',

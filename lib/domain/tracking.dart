@@ -1,7 +1,18 @@
 import 'dart:math' as math;
 
 /// Camera-independent tracking data. All times use one monotonic millisecond clock.
-enum PlayMode { pushUp, smile }
+// Persisted by index: append new modes to preserve existing records.
+enum PlayMode {
+  pushUp,
+  smile,
+  touch;
+
+  String get title => switch (this) {
+    pushUp => 'Push-Up Flight',
+    smile => 'Grin & Glide',
+    touch => 'Tap & Fly',
+  };
+}
 
 enum TrackingState { idle, starting, tracking, missing, denied, error }
 

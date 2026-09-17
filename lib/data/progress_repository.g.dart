@@ -26,6 +26,60 @@ class $RunsTable extends Runs with TableInfo<$RunsTable, Run> {
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _courseMeta = const VerificationMeta('course');
+  @override
+  late final GeneratedColumn<String> course = GeneratedColumn<String>(
+    'course',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('classic'),
+  );
+  static const VerificationMeta _gatesMeta = const VerificationMeta('gates');
+  @override
+  late final GeneratedColumn<int> gates = GeneratedColumn<int>(
+    'gates',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _starsMeta = const VerificationMeta('stars');
+  @override
+  late final GeneratedColumn<int> stars = GeneratedColumn<int>(
+    'stars',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _bestComboMeta = const VerificationMeta(
+    'bestCombo',
+  );
+  @override
+  late final GeneratedColumn<int> bestCombo = GeneratedColumn<int>(
+    'best_combo',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _perfectPassesMeta = const VerificationMeta(
+    'perfectPasses',
+  );
+  @override
+  late final GeneratedColumn<int> perfectPasses = GeneratedColumn<int>(
+    'perfect_passes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   static const VerificationMeta _practiceMeta = const VerificationMeta(
     'practice',
   );
@@ -105,6 +159,11 @@ class $RunsTable extends Runs with TableInfo<$RunsTable, Run> {
   List<GeneratedColumn> get $columns => [
     id,
     mode,
+    course,
+    gates,
+    stars,
+    bestCombo,
+    perfectPasses,
     practice,
     score,
     repetitions,
@@ -137,6 +196,39 @@ class $RunsTable extends Runs with TableInfo<$RunsTable, Run> {
       );
     } else if (isInserting) {
       context.missing(_modeMeta);
+    }
+    if (data.containsKey('course')) {
+      context.handle(
+        _courseMeta,
+        course.isAcceptableOrUnknown(data['course']!, _courseMeta),
+      );
+    }
+    if (data.containsKey('gates')) {
+      context.handle(
+        _gatesMeta,
+        gates.isAcceptableOrUnknown(data['gates']!, _gatesMeta),
+      );
+    }
+    if (data.containsKey('stars')) {
+      context.handle(
+        _starsMeta,
+        stars.isAcceptableOrUnknown(data['stars']!, _starsMeta),
+      );
+    }
+    if (data.containsKey('best_combo')) {
+      context.handle(
+        _bestComboMeta,
+        bestCombo.isAcceptableOrUnknown(data['best_combo']!, _bestComboMeta),
+      );
+    }
+    if (data.containsKey('perfect_passes')) {
+      context.handle(
+        _perfectPassesMeta,
+        perfectPasses.isAcceptableOrUnknown(
+          data['perfect_passes']!,
+          _perfectPassesMeta,
+        ),
+      );
     }
     if (data.containsKey('practice')) {
       context.handle(
@@ -214,6 +306,26 @@ class $RunsTable extends Runs with TableInfo<$RunsTable, Run> {
         DriftSqlType.int,
         data['${effectivePrefix}mode'],
       )!,
+      course: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}course'],
+      )!,
+      gates: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}gates'],
+      )!,
+      stars: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}stars'],
+      )!,
+      bestCombo: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}best_combo'],
+      )!,
+      perfectPasses: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}perfect_passes'],
+      )!,
       practice: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}practice'],
@@ -254,6 +366,11 @@ class $RunsTable extends Runs with TableInfo<$RunsTable, Run> {
 class Run extends DataClass implements Insertable<Run> {
   final String id;
   final int mode;
+  final String course;
+  final int gates;
+  final int stars;
+  final int bestCombo;
+  final int perfectPasses;
   final bool practice;
   final int score;
   final int repetitions;
@@ -264,6 +381,11 @@ class Run extends DataClass implements Insertable<Run> {
   const Run({
     required this.id,
     required this.mode,
+    required this.course,
+    required this.gates,
+    required this.stars,
+    required this.bestCombo,
+    required this.perfectPasses,
     required this.practice,
     required this.score,
     required this.repetitions,
@@ -277,6 +399,11 @@ class Run extends DataClass implements Insertable<Run> {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['mode'] = Variable<int>(mode);
+    map['course'] = Variable<String>(course);
+    map['gates'] = Variable<int>(gates);
+    map['stars'] = Variable<int>(stars);
+    map['best_combo'] = Variable<int>(bestCombo);
+    map['perfect_passes'] = Variable<int>(perfectPasses);
     map['practice'] = Variable<bool>(practice);
     map['score'] = Variable<int>(score);
     map['repetitions'] = Variable<int>(repetitions);
@@ -291,6 +418,11 @@ class Run extends DataClass implements Insertable<Run> {
     return RunsCompanion(
       id: Value(id),
       mode: Value(mode),
+      course: Value(course),
+      gates: Value(gates),
+      stars: Value(stars),
+      bestCombo: Value(bestCombo),
+      perfectPasses: Value(perfectPasses),
       practice: Value(practice),
       score: Value(score),
       repetitions: Value(repetitions),
@@ -309,6 +441,11 @@ class Run extends DataClass implements Insertable<Run> {
     return Run(
       id: serializer.fromJson<String>(json['id']),
       mode: serializer.fromJson<int>(json['mode']),
+      course: serializer.fromJson<String>(json['course']),
+      gates: serializer.fromJson<int>(json['gates']),
+      stars: serializer.fromJson<int>(json['stars']),
+      bestCombo: serializer.fromJson<int>(json['bestCombo']),
+      perfectPasses: serializer.fromJson<int>(json['perfectPasses']),
       practice: serializer.fromJson<bool>(json['practice']),
       score: serializer.fromJson<int>(json['score']),
       repetitions: serializer.fromJson<int>(json['repetitions']),
@@ -324,6 +461,11 @@ class Run extends DataClass implements Insertable<Run> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'mode': serializer.toJson<int>(mode),
+      'course': serializer.toJson<String>(course),
+      'gates': serializer.toJson<int>(gates),
+      'stars': serializer.toJson<int>(stars),
+      'bestCombo': serializer.toJson<int>(bestCombo),
+      'perfectPasses': serializer.toJson<int>(perfectPasses),
       'practice': serializer.toJson<bool>(practice),
       'score': serializer.toJson<int>(score),
       'repetitions': serializer.toJson<int>(repetitions),
@@ -337,6 +479,11 @@ class Run extends DataClass implements Insertable<Run> {
   Run copyWith({
     String? id,
     int? mode,
+    String? course,
+    int? gates,
+    int? stars,
+    int? bestCombo,
+    int? perfectPasses,
     bool? practice,
     int? score,
     int? repetitions,
@@ -347,6 +494,11 @@ class Run extends DataClass implements Insertable<Run> {
   }) => Run(
     id: id ?? this.id,
     mode: mode ?? this.mode,
+    course: course ?? this.course,
+    gates: gates ?? this.gates,
+    stars: stars ?? this.stars,
+    bestCombo: bestCombo ?? this.bestCombo,
+    perfectPasses: perfectPasses ?? this.perfectPasses,
     practice: practice ?? this.practice,
     score: score ?? this.score,
     repetitions: repetitions ?? this.repetitions,
@@ -359,6 +511,13 @@ class Run extends DataClass implements Insertable<Run> {
     return Run(
       id: data.id.present ? data.id.value : this.id,
       mode: data.mode.present ? data.mode.value : this.mode,
+      course: data.course.present ? data.course.value : this.course,
+      gates: data.gates.present ? data.gates.value : this.gates,
+      stars: data.stars.present ? data.stars.value : this.stars,
+      bestCombo: data.bestCombo.present ? data.bestCombo.value : this.bestCombo,
+      perfectPasses: data.perfectPasses.present
+          ? data.perfectPasses.value
+          : this.perfectPasses,
       practice: data.practice.present ? data.practice.value : this.practice,
       score: data.score.present ? data.score.value : this.score,
       repetitions: data.repetitions.present
@@ -378,6 +537,11 @@ class Run extends DataClass implements Insertable<Run> {
     return (StringBuffer('Run(')
           ..write('id: $id, ')
           ..write('mode: $mode, ')
+          ..write('course: $course, ')
+          ..write('gates: $gates, ')
+          ..write('stars: $stars, ')
+          ..write('bestCombo: $bestCombo, ')
+          ..write('perfectPasses: $perfectPasses, ')
           ..write('practice: $practice, ')
           ..write('score: $score, ')
           ..write('repetitions: $repetitions, ')
@@ -393,6 +557,11 @@ class Run extends DataClass implements Insertable<Run> {
   int get hashCode => Object.hash(
     id,
     mode,
+    course,
+    gates,
+    stars,
+    bestCombo,
+    perfectPasses,
     practice,
     score,
     repetitions,
@@ -407,6 +576,11 @@ class Run extends DataClass implements Insertable<Run> {
       (other is Run &&
           other.id == this.id &&
           other.mode == this.mode &&
+          other.course == this.course &&
+          other.gates == this.gates &&
+          other.stars == this.stars &&
+          other.bestCombo == this.bestCombo &&
+          other.perfectPasses == this.perfectPasses &&
           other.practice == this.practice &&
           other.score == this.score &&
           other.repetitions == this.repetitions &&
@@ -419,6 +593,11 @@ class Run extends DataClass implements Insertable<Run> {
 class RunsCompanion extends UpdateCompanion<Run> {
   final Value<String> id;
   final Value<int> mode;
+  final Value<String> course;
+  final Value<int> gates;
+  final Value<int> stars;
+  final Value<int> bestCombo;
+  final Value<int> perfectPasses;
   final Value<bool> practice;
   final Value<int> score;
   final Value<int> repetitions;
@@ -430,6 +609,11 @@ class RunsCompanion extends UpdateCompanion<Run> {
   const RunsCompanion({
     this.id = const Value.absent(),
     this.mode = const Value.absent(),
+    this.course = const Value.absent(),
+    this.gates = const Value.absent(),
+    this.stars = const Value.absent(),
+    this.bestCombo = const Value.absent(),
+    this.perfectPasses = const Value.absent(),
     this.practice = const Value.absent(),
     this.score = const Value.absent(),
     this.repetitions = const Value.absent(),
@@ -442,6 +626,11 @@ class RunsCompanion extends UpdateCompanion<Run> {
   RunsCompanion.insert({
     required String id,
     required int mode,
+    this.course = const Value.absent(),
+    this.gates = const Value.absent(),
+    this.stars = const Value.absent(),
+    this.bestCombo = const Value.absent(),
+    this.perfectPasses = const Value.absent(),
     required bool practice,
     required int score,
     required int repetitions,
@@ -462,6 +651,11 @@ class RunsCompanion extends UpdateCompanion<Run> {
   static Insertable<Run> custom({
     Expression<String>? id,
     Expression<int>? mode,
+    Expression<String>? course,
+    Expression<int>? gates,
+    Expression<int>? stars,
+    Expression<int>? bestCombo,
+    Expression<int>? perfectPasses,
     Expression<bool>? practice,
     Expression<int>? score,
     Expression<int>? repetitions,
@@ -474,6 +668,11 @@ class RunsCompanion extends UpdateCompanion<Run> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (mode != null) 'mode': mode,
+      if (course != null) 'course': course,
+      if (gates != null) 'gates': gates,
+      if (stars != null) 'stars': stars,
+      if (bestCombo != null) 'best_combo': bestCombo,
+      if (perfectPasses != null) 'perfect_passes': perfectPasses,
       if (practice != null) 'practice': practice,
       if (score != null) 'score': score,
       if (repetitions != null) 'repetitions': repetitions,
@@ -488,6 +687,11 @@ class RunsCompanion extends UpdateCompanion<Run> {
   RunsCompanion copyWith({
     Value<String>? id,
     Value<int>? mode,
+    Value<String>? course,
+    Value<int>? gates,
+    Value<int>? stars,
+    Value<int>? bestCombo,
+    Value<int>? perfectPasses,
     Value<bool>? practice,
     Value<int>? score,
     Value<int>? repetitions,
@@ -500,6 +704,11 @@ class RunsCompanion extends UpdateCompanion<Run> {
     return RunsCompanion(
       id: id ?? this.id,
       mode: mode ?? this.mode,
+      course: course ?? this.course,
+      gates: gates ?? this.gates,
+      stars: stars ?? this.stars,
+      bestCombo: bestCombo ?? this.bestCombo,
+      perfectPasses: perfectPasses ?? this.perfectPasses,
       practice: practice ?? this.practice,
       score: score ?? this.score,
       repetitions: repetitions ?? this.repetitions,
@@ -519,6 +728,21 @@ class RunsCompanion extends UpdateCompanion<Run> {
     }
     if (mode.present) {
       map['mode'] = Variable<int>(mode.value);
+    }
+    if (course.present) {
+      map['course'] = Variable<String>(course.value);
+    }
+    if (gates.present) {
+      map['gates'] = Variable<int>(gates.value);
+    }
+    if (stars.present) {
+      map['stars'] = Variable<int>(stars.value);
+    }
+    if (bestCombo.present) {
+      map['best_combo'] = Variable<int>(bestCombo.value);
+    }
+    if (perfectPasses.present) {
+      map['perfect_passes'] = Variable<int>(perfectPasses.value);
     }
     if (practice.present) {
       map['practice'] = Variable<bool>(practice.value);
@@ -552,6 +776,11 @@ class RunsCompanion extends UpdateCompanion<Run> {
     return (StringBuffer('RunsCompanion(')
           ..write('id: $id, ')
           ..write('mode: $mode, ')
+          ..write('course: $course, ')
+          ..write('gates: $gates, ')
+          ..write('stars: $stars, ')
+          ..write('bestCombo: $bestCombo, ')
+          ..write('perfectPasses: $perfectPasses, ')
           ..write('practice: $practice, ')
           ..write('score: $score, ')
           ..write('repetitions: $repetitions, ')
@@ -997,6 +1226,11 @@ typedef $$RunsTableCreateCompanionBuilder =
     RunsCompanion Function({
       required String id,
       required int mode,
+      Value<String> course,
+      Value<int> gates,
+      Value<int> stars,
+      Value<int> bestCombo,
+      Value<int> perfectPasses,
       required bool practice,
       required int score,
       required int repetitions,
@@ -1010,6 +1244,11 @@ typedef $$RunsTableUpdateCompanionBuilder =
     RunsCompanion Function({
       Value<String> id,
       Value<int> mode,
+      Value<String> course,
+      Value<int> gates,
+      Value<int> stars,
+      Value<int> bestCombo,
+      Value<int> perfectPasses,
       Value<bool> practice,
       Value<int> score,
       Value<int> repetitions,
@@ -1036,6 +1275,31 @@ class $$RunsTableFilterComposer
 
   ColumnFilters<int> get mode => $composableBuilder(
     column: $table.mode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get course => $composableBuilder(
+    column: $table.course,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get gates => $composableBuilder(
+    column: $table.gates,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get stars => $composableBuilder(
+    column: $table.stars,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get bestCombo => $composableBuilder(
+    column: $table.bestCombo,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get perfectPasses => $composableBuilder(
+    column: $table.perfectPasses,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1094,6 +1358,31 @@ class $$RunsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get course => $composableBuilder(
+    column: $table.course,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get gates => $composableBuilder(
+    column: $table.gates,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get stars => $composableBuilder(
+    column: $table.stars,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get bestCombo => $composableBuilder(
+    column: $table.bestCombo,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get perfectPasses => $composableBuilder(
+    column: $table.perfectPasses,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get practice => $composableBuilder(
     column: $table.practice,
     builder: (column) => ColumnOrderings(column),
@@ -1144,6 +1433,23 @@ class $$RunsTableAnnotationComposer
 
   GeneratedColumn<int> get mode =>
       $composableBuilder(column: $table.mode, builder: (column) => column);
+
+  GeneratedColumn<String> get course =>
+      $composableBuilder(column: $table.course, builder: (column) => column);
+
+  GeneratedColumn<int> get gates =>
+      $composableBuilder(column: $table.gates, builder: (column) => column);
+
+  GeneratedColumn<int> get stars =>
+      $composableBuilder(column: $table.stars, builder: (column) => column);
+
+  GeneratedColumn<int> get bestCombo =>
+      $composableBuilder(column: $table.bestCombo, builder: (column) => column);
+
+  GeneratedColumn<int> get perfectPasses => $composableBuilder(
+    column: $table.perfectPasses,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<bool> get practice =>
       $composableBuilder(column: $table.practice, builder: (column) => column);
@@ -1201,6 +1507,11 @@ class $$RunsTableTableManager
               ({
                 Value<String> id = const Value.absent(),
                 Value<int> mode = const Value.absent(),
+                Value<String> course = const Value.absent(),
+                Value<int> gates = const Value.absent(),
+                Value<int> stars = const Value.absent(),
+                Value<int> bestCombo = const Value.absent(),
+                Value<int> perfectPasses = const Value.absent(),
                 Value<bool> practice = const Value.absent(),
                 Value<int> score = const Value.absent(),
                 Value<int> repetitions = const Value.absent(),
@@ -1212,6 +1523,11 @@ class $$RunsTableTableManager
               }) => RunsCompanion(
                 id: id,
                 mode: mode,
+                course: course,
+                gates: gates,
+                stars: stars,
+                bestCombo: bestCombo,
+                perfectPasses: perfectPasses,
                 practice: practice,
                 score: score,
                 repetitions: repetitions,
@@ -1225,6 +1541,11 @@ class $$RunsTableTableManager
               ({
                 required String id,
                 required int mode,
+                Value<String> course = const Value.absent(),
+                Value<int> gates = const Value.absent(),
+                Value<int> stars = const Value.absent(),
+                Value<int> bestCombo = const Value.absent(),
+                Value<int> perfectPasses = const Value.absent(),
                 required bool practice,
                 required int score,
                 required int repetitions,
@@ -1236,6 +1557,11 @@ class $$RunsTableTableManager
               }) => RunsCompanion.insert(
                 id: id,
                 mode: mode,
+                course: course,
+                gates: gates,
+                stars: stars,
+                bestCombo: bestCombo,
+                perfectPasses: perfectPasses,
                 practice: practice,
                 score: score,
                 repetitions: repetitions,

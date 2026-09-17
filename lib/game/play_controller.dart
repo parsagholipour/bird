@@ -16,7 +16,8 @@ enum PlayStage { setup, starting, calibration, ready, flying, results, error }
 class PlayController extends ChangeNotifier {
   PlayController({
     required this.mode,
-    required this.practice,
+    required bool practice,
+    this.course = FlightCourse.classic,
     required this.source,
     required this.saveRun,
     required this.audio,
@@ -25,9 +26,13 @@ class PlayController extends ChangeNotifier {
     this.reducedMotion = false,
     this.recordAudio = false,
     this.rememberRecordAudio,
-  }) {
-    _samples = source.samples.listen(_onSample);
-    _issues = source.issues.listen((issue) {
+    DateTime Function()? clock,
+  }) : assert(mode == PlayMode.touch || source != null),
+       practice = practice || course.relaxed,
+       clock = clock ?? DateTime.now {
+    if (isTouch) return;
+    _samples = source!.samples.listen(_onSample);
+    _issues = source!.issues.listen((issue) {
       if (stage == PlayStage.results || _disposed) return;
       if (issue.code == 'background') {
         background();
@@ -48,7 +53,14 @@ class PlayController extends ChangeNotifier {
   }
   final PlayMode mode;
   final bool practice;
-  final NativeTrackingSource source;
+  final FlightCourse course;
+  final DateTime Function() clock;
+  final NativeTrackingSource? source;
+  bool get isTouch => mode == PlayMode.touch;
+  // Touch time advances with gameplay so pauses produce no gaps in the replay.
+  double _touchTime = 0;
+  bool _touchFlap = false;
+  double get nowMs => isTouch ? _touchTime : source!.nowMs;
   final Future<void> Function(RunResult) saveRun;
   final SkyAudio audio;
   final Future<void> Function(SavedSession) saveSession;
@@ -72,7 +84,10 @@ class PlayController extends ChangeNotifier {
   /// Only this user-invoked action may request the microphone. Camera startup,
   /// replay, practice resume and retry only check existing access.
   Future<void> setRecordAudio(bool enabled) async {
-    if (_disposed || microphoneRequestPending || stage != PlayStage.setup) {
+    if (isTouch ||
+        _disposed ||
+        microphoneRequestPending ||
+        stage != PlayStage.setup) {
       return;
     }
     ++_audioChoiceRevision;
@@ -88,7 +103,7 @@ class PlayController extends ChangeNotifier {
     microphoneRequestPending = true;
     notify();
     try {
-      final access = await source.requestMicrophone();
+      final access = await source!.requestMicrophone();
       if (_disposed) return;
       recordAudio = access == MicrophoneAccess.granted;
       if (!recordAudio) _microphoneUnavailable(access);
@@ -111,11 +126,11 @@ class PlayController extends ChangeNotifier {
   }
 
   Future<void> verifyMicrophoneAccess() async {
-    if (!recordAudio || _disposed) return;
+    if (isTouch || !recordAudio || _disposed) return;
     final revision = _audioChoiceRevision;
     MicrophoneAccess access;
     try {
-      access = await source.microphoneAccess();
+      access = await source!.microphoneAccess();
     } catch (_) {
       access = MicrophoneAccess.unavailable;
     }
@@ -140,9 +155,10 @@ class PlayController extends ChangeNotifier {
       result != null && simulation?.started == true && !preparingReplay;
 
   Future<void> _startCapture() async {
+    if (isTouch) return;
     try {
       await verifyMicrophoneAccess();
-      await source.startRecording(withAudio: recordAudio);
+      await source!.startRecording(withAudio: recordAudio);
     } catch (_) {
       cameraRecordingError =
           'Camera video unavailable. Gameplay can still be saved.';
@@ -151,7 +167,7 @@ class PlayController extends ChangeNotifier {
 
   Future<void> _collectClip() async {
     try {
-      final clip = await source.stopRecording();
+      final clip = await source!.stopRecording();
       if (clip != null && recorder != null) {
         if (recordAudio && !clip.hasAudio) {
           cameraRecordingError =
@@ -161,7 +177,7 @@ class PlayController extends ChangeNotifier {
           SessionClip(
             path: clip.path,
             startMs:
-                source.recordingTime(clip.startedAtMs) -
+                source!.recordingTime(clip.startedAtMs) -
                 recorder!.tape.originMs,
             durationMs: clip.durationMs.toDouble(),
             hasAudio: clip.hasAudio,
@@ -177,10 +193,11 @@ class PlayController extends ChangeNotifier {
   }
 
   Future<void> _stopCamera() => _stoppingCamera ??= () async {
+    if (isTouch) return;
     await _preparingCapture;
     await _collectClip();
     try {
-      await source.stop();
+      await source!.stop();
     } catch (error) {
       debugPrint('PushUpBird camera cleanup: $error');
     }
@@ -221,10 +238,47 @@ class PlayController extends ChangeNotifier {
     _clips.clear();
   }
 
-  void advance(double dt, double now, double width) =>
-      recorder?.tick(dt, now, width);
-  late final StreamSubscription<TrackingSample> _samples;
-  late final StreamSubscription<TrackingIssue> _issues;
+  void flap() {
+    if (isTouch &&
+        !_disposed &&
+        stage == PlayStage.flying &&
+        simulation?.phase == RunPhase.playing) {
+      _touchFlap = true;
+    }
+  }
+
+  void advance(double dt, double now, double width) {
+    if (isTouch) {
+      if (_disposed ||
+          stage != PlayStage.flying ||
+          simulation?.phase == RunPhase.paused ||
+          simulation?.phase == RunPhase.ended ||
+          !dt.isFinite ||
+          dt <= 0) {
+        return;
+      }
+      _touchTime += dt * 1000;
+      now = _touchTime;
+      final before = simulation!.flaps;
+      recorder?.apply(
+        MovementInput(valid: true, flap: _touchFlap),
+        TrackingSample(
+          mode: mode,
+          timestampMs: now,
+          receivedMs: now,
+          joints: const [],
+          sensorTimestamp: false,
+        ),
+        now,
+      );
+      _touchFlap = false;
+      if (simulation!.flaps > before) audio.effect('flap');
+    }
+    recorder?.tick(dt, now, width);
+  }
+
+  StreamSubscription<TrackingSample>? _samples;
+  StreamSubscription<TrackingIssue>? _issues;
   Timer? _refresh;
   bool _disposed = false, _saving = false, front = true, cameraActive = false;
   int _operation = 0;
@@ -241,12 +295,13 @@ class PlayController extends ChangeNotifier {
   bool saved = false;
   double _lastGood = -10000;
   double _lastDiagnostic = -10000;
-  bool get readyNow => source.nowMs - _lastGood < 250;
+  bool get readyNow => nowMs - _lastGood < 250;
   void notify() {
     if (!_disposed) notifyListeners();
   }
 
   void _onSample(TrackingSample sample) {
+    if (isTouch || _disposed) return;
     latest = sample;
     final now = sample.receivedMs;
     if (stage == PlayStage.calibration) {
@@ -255,7 +310,7 @@ class PlayController extends ChangeNotifier {
         message = body.feedback;
         if (body.result != null) {
           final c = body.result!;
-          source.recordDiagnostic(
+          source!.recordDiagnostic(
             'PushUpBird calibration: ${jsonEncode({
               't': now,
               'cues': [
@@ -296,10 +351,10 @@ class PlayController extends ChangeNotifier {
         audio.effect('flap');
       }
     }
-    metrics.add(sample, source.nowMs);
+    metrics.add(sample, nowMs);
     if (trackingDiagnosticsEnabled && now - _lastDiagnostic >= 250) {
       _lastDiagnostic = now;
-      source.recordDiagnostic(
+      source!.recordDiagnostic(
         'PushUpBird control: t=${now.round()} stage=${stage.name} '
         'step=${body.step.name} cycles=${body.cycles} '
         'view=${body.perspective?.name} valid=${movement.valid} '
@@ -315,6 +370,7 @@ class PlayController extends ChangeNotifier {
   }
 
   Future<void> startCamera({bool recalibrate = true}) async {
+    if (isTouch) return;
     if (_disposed || microphoneRequestPending || stage == PlayStage.starting) {
       return;
     }
@@ -323,7 +379,7 @@ class PlayController extends ChangeNotifier {
     message = 'Waking up your camera…';
     notify();
     try {
-      if (!await source.requestPermission()) {
+      if (!await source!.requestPermission()) {
         if (_disposed || op != _operation) return;
         stage = PlayStage.error;
         message =
@@ -332,7 +388,7 @@ class PlayController extends ChangeNotifier {
         return;
       }
       await _stoppingCamera;
-      await source.stop();
+      await source!.stop();
       if (_disposed || op != _operation) return;
       if (recalibrate) {
         body = BodyCalibrator();
@@ -343,9 +399,9 @@ class PlayController extends ChangeNotifier {
         movement = const MovementInput(valid: false);
         _lastGood = -10000;
       }
-      await source.start(mode, frontCamera: front);
+      await source!.start(mode, frontCamera: front);
       if (_disposed || op != _operation) {
-        await source.stop();
+        await source!.stop();
         return;
       }
       cameraActive = true;
@@ -370,38 +426,47 @@ class PlayController extends ChangeNotifier {
   }
 
   Future<void> switchCamera() async {
-    if (stage == PlayStage.starting || preparingReplay) return;
+    if (isTouch || stage == PlayStage.starting || preparingReplay) return;
     front = !front;
     await startCamera();
   }
 
   Future<void> fly() async {
-    if (stage != PlayStage.calibration && stage != PlayStage.ready) return;
-    if (interpreter == null || preparingReplay) return;
+    if (_disposed || preparingReplay) return;
+    if (isTouch) {
+      if (stage != PlayStage.setup) return;
+    } else if ((stage != PlayStage.calibration && stage != PlayStage.ready) ||
+        interpreter == null) {
+      return;
+    }
     final op = _operation;
     preparingReplay = true;
-    stage = PlayStage.ready;
-    message = 'Preparing your session…';
-    notify();
-    _preparingCapture = _startCapture();
-    await _preparingCapture;
+    if (!isTouch) {
+      stage = PlayStage.ready;
+      message = 'Preparing your session…';
+      notify();
+      _preparingCapture = _startCapture();
+      await _preparingCapture;
+    }
     if (_disposed || op != _operation) {
       preparingReplay = false;
       return;
     }
-    interpreter!.reset();
-    source.recordDiagnostic('PushUpBird reset: t=${source.nowMs} reason=fly');
+    interpreter?.reset();
+    _touchFlap = false;
+    source?.recordDiagnostic('PushUpBird reset: t=$nowMs reason=fly');
     recorder = FlightRecorder(
       ReplayTape(
         mode: mode,
+        course: course,
         practice: practice,
         seed: Random().nextInt(1 << 32),
         cycleSeconds: body.result?.cycleSeconds ?? 3,
         bird: bird,
         reducedMotion: reducedMotion,
-        originMs: source.nowMs,
+        originMs: nowMs,
       ),
-      () => source.nowMs,
+      () => nowMs,
     );
     simulation = recorder!.simulation;
     stage = PlayStage.flying;
@@ -431,17 +496,22 @@ class PlayController extends ChangeNotifier {
     _saving = true;
     recorder?.command('end', game.endReason ?? EndReason.quit);
     preparingReplay = true;
-    if (trackingDiagnosticsEnabled) {
-      source.recordDiagnostic(
+    if (!isTouch && trackingDiagnosticsEnabled) {
+      source!.recordDiagnostic(
         'PushUpBird end: ${game.endReason?.name}; '
         'elapsed=${game.elapsed.toStringAsFixed(2)}; '
         'feedback=${game.trackingFeedback}',
       );
     }
-    final date = DateTime.now();
+    final date = clock();
     result = RunResult(
       id: '${date.microsecondsSinceEpoch}-${mode.name}',
       mode: mode,
+      course: course,
+      gates: game.gates,
+      stars: game.collectedStars,
+      bestCombo: game.bestCombo,
+      perfectPasses: game.perfectPasses,
       practice: practice,
       score: game.score,
       repetitions: game.repetitions,
@@ -451,7 +521,7 @@ class PlayController extends ChangeNotifier {
       finishedAt: date,
     );
     stage = PlayStage.results;
-    audio.effect('finish');
+    audio.effect(game.endReason == EndReason.completed ? 'complete' : 'finish');
     notify();
     await _stopCamera();
     preparingReplay = false;
@@ -479,6 +549,7 @@ class PlayController extends ChangeNotifier {
   }
 
   void pause() {
+    _touchFlap = false;
     recorder?.command('break');
     if (simulation?.phase == RunPhase.ended) {
       unawaited(finish());
@@ -488,18 +559,32 @@ class PlayController extends ChangeNotifier {
     }
   }
 
+  void endFlight() {
+    if (simulation == null || stage != PlayStage.flying) return;
+    recorder?.command('end', EndReason.breakTaken);
+    unawaited(finish());
+  }
+
   Future<void> resume() async {
     if (simulation?.phase != RunPhase.paused) return;
-    if (!cameraActive) {
+    if (isTouch) {
+      _touchFlap = false;
+      recorder?.command('resume');
+      notify();
+    } else if (!cameraActive) {
       await startCamera(recalibrate: false);
     } else {
       recorder?.command('resume');
       notify();
     }
+    if (!_disposed && simulation?.phase == RunPhase.countdown) {
+      unawaited(audio.resumeMusic());
+    }
   }
 
   void background() {
     if (_disposed) return;
+    _touchFlap = false;
     ++_operation;
     cameraActive = false;
     unawaited(_stopCamera());
@@ -544,7 +629,12 @@ class PlayController extends ChangeNotifier {
     simulation = null;
     result = null;
     stage = PlayStage.setup;
-    await startCamera();
+    if (isTouch) {
+      await fly();
+      await audio.resumeMusic();
+    } else {
+      await startCamera();
+    }
   }
 
   @override
@@ -552,14 +642,14 @@ class PlayController extends ChangeNotifier {
     _disposed = true;
     ++_operation;
     _refresh?.cancel();
-    _samples.cancel();
-    _issues.cancel();
+    _samples?.cancel();
+    _issues?.cancel();
     unawaited(() async {
       await _finishing;
       await _sessionSave;
       await _stopCamera();
       await _discardClips();
-      await source.dispose();
+      await source?.dispose();
     }());
     super.dispose();
   }

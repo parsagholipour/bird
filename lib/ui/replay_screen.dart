@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show compute;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -10,11 +11,15 @@ import '../data/providers.dart';
 import '../data/progress_repository.dart';
 import '../data/session_repository.dart';
 import '../domain/game_rules.dart';
+import '../domain/flight_goals.dart';
 import '../domain/session_replay.dart';
-import '../domain/tracking.dart';
+import '../domain/replay_highlights.dart';
 import '../game/audio.dart';
 import '../game/bird_game.dart';
 import 'theme.dart';
+import 'flight_goals.dart';
+import 'cloud_friends.dart';
+import 'replay_highlights.dart';
 
 enum ReplayView { corner, background, gameplay }
 
@@ -53,10 +58,10 @@ class SessionLibraryScreen extends ConsumerWidget {
                     return ListTile(
                       leading: const Icon(Icons.play_circle_outline),
                       title: Text(
-                        '${run.mode == PlayMode.pushUp ? 'Push-Up Flight' : 'Grin & Glide'}${run.practice ? ' · Practice' : ''}',
+                        '${run.mode.title}${run.course != FlightCourse.classic ? ' · ${run.course.title}' : ''}${run.practice ? ' · Practice' : ''}',
                       ),
                       subtitle: Text(
-                        '${run.finishedAt.toLocal().toString().substring(0, 16)} · ${run.durationSeconds.round()} sec · ${run.score} obstacles',
+                        '${run.finishedAt.toLocal().toString().substring(0, 16)} · ${run.durationSeconds.round()} sec · ${run.score} ${run.course.scoreUnit}',
                       ),
                       onTap: () => context.go('/replay/${run.id}'),
                       trailing: IconButton(
@@ -140,6 +145,10 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
   int _corner = 0;
   String? _error;
   String _videoMessage = '';
+  List<ReplayHighlight>? _highlights;
+  bool get _cloudHudOnRight =>
+      _player!.simulation.discoversClouds &&
+      (_view != ReplayView.corner || _corner != 0);
 
   @override
   void initState() {
@@ -168,10 +177,31 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
           onChanged: () {},
         );
       });
+      unawaited(_indexHighlights(session.tape));
       await _syncVideo(force: true);
     } catch (_) {
       if (mounted) setState(() => _error = 'This session could not be opened.');
     }
+  }
+
+  Future<void> _indexHighlights(ReplayTape tape) async {
+    try {
+      final moments = await compute(buildReplayHighlights, tape);
+      if (mounted && !_closed) setState(() => _highlights = moments);
+    } catch (_) {
+      // Indexing is optional; the original replay stays fully playable.
+      if (mounted && !_closed) setState(() => _highlights = const []);
+    }
+  }
+
+  Future<void> _showHighlights() async {
+    final moments = _highlights;
+    if (moments == null || moments.isEmpty) return;
+    _setPlaying(false);
+    final selected = await showReplayHighlights(context, moments);
+    if (!mounted || _closed || selected == null) return;
+    _seek(selected.playFromMs);
+    _setPlaying(true);
   }
 
   @override
@@ -194,6 +224,19 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
     }
     final oldScore = _player!.simulation.score,
         oldFlaps = _player!.simulation.flaps;
+    final oldPerfects = _player!.simulation.perfectPasses;
+    final oldMultiplier = _player!.simulation.multiplier;
+    final oldMagnets = _player!.simulation.magnetActivations;
+    final oldTrios = _player!.simulation.completedTrios;
+    final oldWings = FlightGoals.earned(
+      FlightGoals.forSimulation(_player!.simulation),
+    );
+    final oldLetters = _player!.simulation.lettersCollected;
+    final oldCloudFriends = _player!.simulation.cloudFriends.length;
+    final oldBumps = _player!.simulation.courierBumps;
+    final oldFlightTime = _player!.simulation.elapsed;
+    final oldHearts = _player!.simulation.hearts;
+    final oldShield = _player!.simulation.shield;
     final oldPhase = _player!.simulation.phase;
     _position = (_position + dt.clamp(0, 100) * _speed).clamp(
       0,
@@ -202,11 +245,44 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
     _player!.seek(_position);
     _game!.simulation = _player!.simulation;
     if (_sound) {
-      if (_player!.simulation.score > oldScore) _audio.effect('point');
+      final sim = _player!.simulation;
+      if (sim.phase == RunPhase.playing &&
+          FlightGoals.earned(FlightGoals.forSimulation(sim)) > oldWings) {
+        _audio.effect('wing');
+      } else if (sim.cloudFriends.length > oldCloudFriends) {
+        _audio.effect('cloud');
+      } else if (sim.isCourier && sim.score > oldScore) {
+        _audio.effect('delivery');
+      } else if (sim.lettersCollected > oldLetters) {
+        _audio.effect('letter');
+      } else if (sim.magnetActivations > oldMagnets) {
+        _audio.effect('magnet');
+      } else if (sim.multiplier > oldMultiplier) {
+        _audio.effect('streak');
+      } else if (sim.completedTrios > oldTrios) {
+        _audio.effect('trio');
+      } else if (sim.perfectPasses > oldPerfects) {
+        _audio.effect('perfect');
+      } else if (sim.score > oldScore) {
+        _audio.effect(sim.collectsStars ? 'star' : 'point');
+      }
+      if (sim.isTrail && sim.hearts < oldHearts) _audio.effect('bump');
+      if (sim.courierBumps > oldBumps) _audio.effect('bump');
+      if (sim.isTrail && !sim.shield && oldShield) _audio.effect('shield_pop');
+      if (sim.isTrail && sim.shield && !oldShield) _audio.effect('shield');
+      if (sim.timed &&
+          oldFlightTime < sim.course.duration - 10 &&
+          sim.elapsed >= sim.course.duration - 10) {
+        _audio.effect('final_stretch');
+      }
       if (_player!.simulation.flaps > oldFlaps) _audio.effect('flap');
       if (oldPhase != RunPhase.ended &&
           _player!.simulation.phase == RunPhase.ended) {
-        _audio.effect('finish');
+        _audio.effect(
+          _player!.simulation.endReason == EndReason.completed
+              ? 'complete'
+              : 'finish',
+        );
       }
     }
     if (_position >= _session!.tape.durationMs) _setPlaying(false);
@@ -433,6 +509,7 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                           child: Padding(
                             padding: const EdgeInsets.all(12),
                             child: Container(
+                              key: const ValueKey('replay-camera-inset'),
                               width: constraints.maxWidth * .25,
                               height: constraints.maxHeight * .34,
                               decoration: BoxDecoration(
@@ -522,12 +599,15 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
           ],
           Positioned(
             top: 12,
-            left: 0,
-            right: 0,
+            left: _cloudHudOnRight ? null : 0,
+            right: _cloudHudOnRight ? 12 : 0,
             child: IgnorePointer(
               child: Center(
+                widthFactor: 1,
                 child: Semantics(
-                  label: 'Score: ${_player!.simulation.score}',
+                  label:
+                      'Score: ${_player!.simulation.score}'
+                      '${_player!.simulation.discoversClouds ? ', ${_player!.simulation.cloudFriends.length} of 3 cloud friends discovered' : ''}',
                   excludeSemantics: true,
                   child: Container(
                     key: const ValueKey('replay-score'),
@@ -543,11 +623,46 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text('SCORE', style: bodyText(11, color: Colors.white)),
+                        Text(
+                          _player!.simulation.course.scoreLabel,
+                          style: bodyText(11, color: Colors.white),
+                        ),
                         Text(
                           '${_player!.simulation.score}',
                           style: heading(32, color: Colors.white),
                         ),
+                        if (!_player!.simulation.practice)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 3),
+                            child: FlightWings(
+                              goals: FlightGoals.forSimulation(
+                                _player!.simulation,
+                              ),
+                              size: 18,
+                            ),
+                          ),
+                        if (_player!.simulation.discoversClouds)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 3),
+                            child: CloudFriendsHud(
+                              friends: _player!.simulation.cloudFriends,
+                            ),
+                          ),
+                        if (_player!.simulation.isTrail)
+                          Text(
+                            '${_player!.simulation.hearts} hearts · ${_player!.simulation.remainingSeconds.ceil()}s',
+                            style: bodyText(11, color: Colors.white),
+                          ),
+                        if (_player!.simulation.magnetActive)
+                          Text(
+                            'Magnet · ${_player!.simulation.magnetRemaining.ceil()}s',
+                            style: bodyText(11, color: SkyColors.lavender),
+                          ),
+                        if (_player!.simulation.isCourier)
+                          Text(
+                            '${_player!.simulation.carryingLetter ? 'Letter aboard' : 'Find a pickup'} · ${_player!.simulation.remainingSeconds.ceil()}s',
+                            style: bodyText(11, color: SkyColors.yellow),
+                          ),
                       ],
                     ),
                   ),
@@ -651,6 +766,17 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                             unawaited(_syncVideo(force: true));
                           }
                         },
+                      ),
+                      IconButton(
+                        tooltip: _highlights == null
+                            ? 'Finding flight highlights'
+                            : _highlights!.isEmpty
+                            ? 'No flight highlights available'
+                            : 'Flight highlights',
+                        onPressed: _highlights?.isNotEmpty == true
+                            ? _showHighlights
+                            : null,
+                        icon: const Icon(Icons.movie_filter_rounded),
                       ),
                     ],
                   ),

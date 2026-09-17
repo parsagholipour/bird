@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="952" height="260" viewBox="0 0 952 260" fill="none">
+  <g transform="translate(355 72) scale(.55)" opacity=".58">
+    <path d="M-8 31C-20 17-30 5-30-11C-30-45 30-45 30-11C30 5 20 17 8 31Z" fill="#F47D64"/>
+    <ellipse cx="0" cy="-5" rx="14" ry="33" fill="#FFF9ED" opacity=".7"/>
+    <path d="M-8 30-5 43M8 30 5 43" stroke="#385A64" stroke-width="1.5"/>
+    <rect x="-8" y="41" width="16" height="10" rx="3" fill="#D9B998"/>
+    <ellipse cy="29" rx="9" ry="3.5" fill="#F47D64"/>
+  </g>
+  <g transform="translate(640 133) scale(.7)" opacity=".58">
+    <path d="M-8 31C-20 17-30 5-30-11C-30-45 30-45 30-11C30 5 20 17 8 31Z" fill="#FFD45B"/>
+    <ellipse cx="0" cy="-5" rx="14" ry="33" fill="#FFF9ED" opacity=".7"/>
+    <path d="M-8 30-5 43M8 30 5 43" stroke="#385A64" stroke-width="1.5"/>
+    <rect x="-8" y="41" width="16" height="10" rx="3" fill="#D9B998"/>
+    <ellipse cy="29" rx="9" ry="3.5" fill="#FFD45B"/>
+  </g>
+  <g transform="translate(882 59) scale(.48)" opacity=".58">
+    <path d="M-8 31C-20 17-30 5-30-11C-30-45 30-45 30-11C30 5 20 17 8 31Z" fill="#F47D64"/>
+    <ellipse cx="0" cy="-5" rx="14" ry="33" fill="#FFF9ED" opacity=".7"/>
+    <path d="M-8 30-5 43M8 30 5 43" stroke="#385A64" stroke-width="1.5"/>
+    <rect x="-8" y="41" width="16" height="10" rx="3" fill="#D9B998"/>
+    <ellipse cy="29" rx="9" ry="3.5" fill="#F47D64"/>
+  </g>
+</svg>

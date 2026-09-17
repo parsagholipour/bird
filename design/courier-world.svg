@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="952" height="260" viewBox="0 0 952 260" fill="none">
+<defs><linearGradient id="sky" x2="0" y2="260" gradientUnits="userSpaceOnUse"><stop stop-color="#AAA9E0" /><stop offset="1" stop-color="#FFDFC3" /></linearGradient><linearGradient id="rock"><stop stop-color="#D9B998" /><stop offset=".35" stop-color="#E6CEB1" /><stop offset="1" stop-color="#AB8B73" /></linearGradient></defs>
+<rect width="952" height="260" rx="20" fill="url(#sky)" />
+<circle cx="720" cy="74" r="60" fill="#FFF9ED" opacity=".06" /><circle cx="720" cy="74" r="45" fill="#FFF9ED" opacity=".08" /><circle cx="720" cy="74" r="32" fill="#FFF9ED" />
+<path d="M0 220Q70 145 145 205T300 202T455 207T610 209T780 211T952 198V260H0Z" fill="#D5B3BD" />
+<path d="M0 240Q85 188 170 238T350 226T525 233T700 230T952 225V260H0Z" fill="#BD99B6" />
+<path d="M55 67h130M76 57h55M685 125h200M723 114h80M335 63h130M359 54h55" stroke="#FFF9ED" stroke-width="14" stroke-linecap="round" opacity=".32" />
+<rect x="465" width="52" height="53" fill="url(#rock)" /><rect x="465" y="178" width="52" height="82" fill="url(#rock)" />
+<rect x="461" y="48" width="60" height="10" rx="5" fill="#9E82B4" /><rect x="461" y="174" width="60" height="10" rx="5" fill="#9E82B4" />
+<path d="M480 12q20 10 0 28M480 200q23 10 0 30" stroke="#9E82B4" stroke-width="2" />
+<rect x="800" width="52" height="113" fill="url(#rock)" /><rect x="800" y="238" width="52" height="22" fill="url(#rock)" />
+<rect x="796" y="108" width="60" height="10" rx="5" fill="#9E82B4" /><rect x="796" y="234" width="60" height="10" rx="5" fill="#9E82B4" />
+<circle cx="491" cy="115" r="23" fill="#FFD45B" stroke="#FFF9ED" stroke-width="2" />
+<rect x="476" y="104" width="30" height="21" rx="3" fill="#FFF9ED" />
+<path d="M478 107L491 118L504 107" stroke="#D75E4F" stroke-width="1.5" /><circle cx="491" cy="118" r="2" fill="#D75E4F" />
+<circle cx="826" cy="176" r="23" fill="#A8D8B4" stroke="#FFF9ED" stroke-width="2" />
+<rect x="814" y="161" width="24" height="31" rx="4" fill="#53AA99" />
+<path d="M819 170H833" stroke="#FFF9ED" stroke-width="3" stroke-linecap="round" />
+<circle cx="826" cy="184" r="2" fill="#FFD45B" />
+<path d="M180 139L193 152" stroke="#D75E4F" stroke-width="2" />
+<rect x="178" y="145" width="30" height="21" rx="3" fill="#FFD45B" />
+<path d="M180 148L193 159L206 148" stroke="#D75E4F" stroke-width="1.5" /><circle cx="193" cy="159" r="2" fill="#D75E4F" />
+</svg>

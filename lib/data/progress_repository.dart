@@ -5,12 +5,18 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import '../domain/game_rules.dart';
 import '../domain/tracking.dart';
+import '../domain/daily_adventure.dart';
 
 part 'progress_repository.g.dart';
 
 class Runs extends Table {
   TextColumn get id => text()();
   IntColumn get mode => integer()();
+  TextColumn get course => text().withDefault(const Constant('classic'))();
+  IntColumn get gates => integer().withDefault(const Constant(0))();
+  IntColumn get stars => integer().withDefault(const Constant(0))();
+  IntColumn get bestCombo => integer().withDefault(const Constant(0))();
+  IntColumn get perfectPasses => integer().withDefault(const Constant(0))();
   BoolColumn get practice => boolean()();
   // Drift's generator resolves this column reference in the SQL CHECK clause.
   // ignore: recursive_getters
@@ -50,7 +56,7 @@ class ProgressDatabase extends _$ProgressDatabase {
     }),
   );
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) async {
@@ -60,8 +66,16 @@ class ProgressDatabase extends _$ProgressDatabase {
     onUpgrade: (m, from, to) async {
       if (from < 2) {
         await m.createTable(birdUnlocks);
-        await _backfillUnlocks();
       }
+      if (from < 3) {
+        await m.addColumn(runs, runs.course);
+        await m.addColumn(runs, runs.gates);
+        await m.addColumn(runs, runs.stars);
+        await m.addColumn(runs, runs.bestCombo);
+        await m.addColumn(runs, runs.perfectPasses);
+        await customStatement('UPDATE runs SET gates = score');
+      }
+      await _backfillUnlocks();
     },
     beforeOpen: (_) async {
       await customStatement('PRAGMA foreign_keys = ON');
@@ -69,7 +83,7 @@ class ProgressDatabase extends _$ProgressDatabase {
   );
   Future<void> _backfillUnlocks() async {
     final total = await customSelect(
-      'SELECT COALESCE(SUM(score), 0) AS total FROM runs WHERE practice = 0',
+      'SELECT COALESCE(SUM(gates), 0) AS total FROM runs WHERE practice = 0',
     ).getSingle();
     final count = total.read<int>('total');
     for (var i = 0; i < unlockThresholds.length; i++) {
@@ -115,8 +129,13 @@ class ModeRecord {
     this.runs = 0,
     this.obstacles = 0,
     this.repetitions = 0,
+    this.stars = 0,
+    this.perfectPasses = 0,
+    this.bestCombo = 0,
+    this.completions = 0,
   });
   final int best, runs, obstacles, repetitions;
+  final int stars, perfectPasses, bestCombo, completions;
 }
 
 class ProgressSnapshot {
@@ -124,16 +143,76 @@ class ProgressSnapshot {
     this.settings = const GameSettings(),
     this.pushUp = const ModeRecord(),
     this.smile = const ModeRecord(),
+    this.touch = const ModeRecord(),
+    this.trailPushUp = const ModeRecord(),
+    this.trailSmile = const ModeRecord(),
+    this.trailTouch = const ModeRecord(),
+    this.courierPushUp = const ModeRecord(),
+    this.courierSmile = const ModeRecord(),
+    this.courierTouch = const ModeRecord(),
     this.unlocked = const {0},
     this.recent = const [],
+    this.adventures = const [],
   });
   final GameSettings settings;
-  final ModeRecord pushUp, smile;
+  final ModeRecord pushUp,
+      smile,
+      touch,
+      trailPushUp,
+      trailSmile,
+      trailTouch,
+      courierPushUp,
+      courierSmile,
+      courierTouch;
   final Set<int> unlocked;
   final List<RunResult> recent;
-  int get totalObstacles => pushUp.obstacles + smile.obstacles;
-  int get totalRuns => pushUp.runs + smile.runs;
-  ModeRecord record(PlayMode mode) => mode == PlayMode.pushUp ? pushUp : smile;
+
+  /// Oldest first, ending with today. Derived from saved flights, not counters.
+  final List<DailyAdventure> adventures;
+  DailyAdventure? get today => adventures.isEmpty ? null : adventures.last;
+  int get totalObstacles => allRecords.fold(0, (n, r) => n + r.obstacles);
+  int get totalRuns => allRecords.fold(0, (n, r) => n + r.runs);
+  int get totalRepetitions =>
+      pushUp.repetitions + trailPushUp.repetitions + courierPushUp.repetitions;
+  List<ModeRecord> get allRecords => [
+    pushUp,
+    smile,
+    touch,
+    trailPushUp,
+    trailSmile,
+    trailTouch,
+    courierPushUp,
+    courierSmile,
+    courierTouch,
+  ];
+  int get totalStars => allRecords.fold(0, (n, r) => n + r.stars);
+  int get totalPerfects => allRecords.fold(0, (n, r) => n + r.perfectPasses);
+  int get longestCombo =>
+      allRecords.fold(0, (n, r) => n > r.bestCombo ? n : r.bestCombo);
+  int get trailCompletions =>
+      trailPushUp.completions + trailSmile.completions + trailTouch.completions;
+  ModeRecord record(
+    PlayMode mode, [
+    FlightCourse course = FlightCourse.classic,
+  ]) => course.relaxed
+      ? const ModeRecord()
+      : course == FlightCourse.starTrail
+      ? switch (mode) {
+          PlayMode.pushUp => trailPushUp,
+          PlayMode.smile => trailSmile,
+          PlayMode.touch => trailTouch,
+        }
+      : course == FlightCourse.skyCourier
+      ? switch (mode) {
+          PlayMode.pushUp => courierPushUp,
+          PlayMode.smile => courierSmile,
+          PlayMode.touch => courierTouch,
+        }
+      : switch (mode) {
+          PlayMode.pushUp => pushUp,
+          PlayMode.smile => smile,
+          PlayMode.touch => touch,
+        };
   int? get nextBird {
     for (var i = 1; i < 4; i++) {
       if (!unlocked.contains(i)) return i;
@@ -152,8 +231,10 @@ abstract interface class ProgressRepository {
 }
 
 class SqliteProgressRepository implements ProgressRepository {
-  SqliteProgressRepository(this.db);
+  SqliteProgressRepository(this.db, {DateTime Function()? clock})
+    : clock = clock ?? DateTime.now;
   final ProgressDatabase db;
+  final DateTime Function() clock;
   @override
   Future<ProgressSnapshot> load() => db.transaction(() async {
     final prefs = {
@@ -164,13 +245,18 @@ class SqliteProgressRepository implements ProgressRepository {
       0,
       ...((await db.select(db.birdUnlocks).get()).map((e) => e.bird)),
     };
-    Future<ModeRecord> record(PlayMode mode) async {
+    Future<ModeRecord> record(PlayMode mode, FlightCourse course) async {
       final r = await db
           .customSelect(
             'SELECT COALESCE(MAX(score),0) AS best, COUNT(*) AS runs, '
-            'COALESCE(SUM(score),0) AS obstacles, COALESCE(SUM(repetitions),0) AS repetitions '
-            'FROM runs WHERE practice = 0 AND mode = ?',
-            variables: [Variable.withInt(mode.index)],
+            'COALESCE(SUM(gates),0) AS obstacles, COALESCE(SUM(repetitions),0) AS repetitions '
+            ', COALESCE(SUM(stars),0) AS stars, COALESCE(SUM(perfect_passes),0) AS perfects '
+            ', COALESCE(MAX(best_combo),0) AS combo, COALESCE(SUM(reason = \'completed\'),0) AS completions '
+            'FROM runs WHERE practice = 0 AND mode = ? AND course = ?',
+            variables: [
+              Variable.withInt(mode.index),
+              Variable.withString(course.name),
+            ],
           )
           .getSingle();
       return ModeRecord(
@@ -178,10 +264,27 @@ class SqliteProgressRepository implements ProgressRepository {
         runs: r.read<int>('runs'),
         obstacles: r.read<int>('obstacles'),
         repetitions: r.read<int>('repetitions'),
+        stars: r.read<int>('stars'),
+        perfectPasses: r.read<int>('perfects'),
+        bestCombo: r.read<int>('combo'),
+        completions: r.read<int>('completions'),
       );
     }
 
     final selected = int.tryParse(prefs['bird'] ?? '0') ?? 0;
+    final now = clock().toLocal();
+    final today = DateTime(now.year, now.month, now.day);
+    final firstDay = DateTime(now.year, now.month, now.day - 6);
+    final tomorrow = DateTime(now.year, now.month, now.day + 1);
+    final weekRows =
+        await (db.select(db.runs)..where(
+              (r) =>
+                  r.practice.equals(false) &
+                  r.finishedAt.isBiggerOrEqualValue(firstDay) &
+                  r.finishedAt.isSmallerThanValue(tomorrow),
+            ))
+            .get();
+    final weekRuns = weekRows.map(_runResult).toList();
     final rows =
         await (db.select(db.runs)
               ..where((r) => r.practice.equals(false))
@@ -198,32 +301,53 @@ class SqliteProgressRepository implements ProgressRepository {
             ? selected
             : 0,
       ),
-      pushUp: await record(PlayMode.pushUp),
-      smile: await record(PlayMode.smile),
+      pushUp: await record(PlayMode.pushUp, FlightCourse.classic),
+      smile: await record(PlayMode.smile, FlightCourse.classic),
+      touch: await record(PlayMode.touch, FlightCourse.classic),
+      trailPushUp: await record(PlayMode.pushUp, FlightCourse.starTrail),
+      trailSmile: await record(PlayMode.smile, FlightCourse.starTrail),
+      trailTouch: await record(PlayMode.touch, FlightCourse.starTrail),
+      courierPushUp: await record(PlayMode.pushUp, FlightCourse.skyCourier),
+      courierSmile: await record(PlayMode.smile, FlightCourse.skyCourier),
+      courierTouch: await record(PlayMode.touch, FlightCourse.skyCourier),
       unlocked: unlocked,
-      recent: rows
-          .map(
-            (r) => RunResult(
-              id: r.id,
-              mode: PlayMode.values[r.mode],
-              practice: r.practice,
-              score: r.score,
-              repetitions: r.repetitions,
-              flaps: r.flaps,
-              durationSeconds: r.duration,
-              reason: EndReason.values.firstWhere(
-                (v) => v.name == r.reason,
-                orElse: () => EndReason.quit,
-              ),
-              finishedAt: r.finishedAt,
-            ),
-          )
-          .toList(),
+      recent: rows.map(_runResult).toList(),
+      adventures: [
+        for (var i = 6; i >= 0; i--)
+          DailyAdventure.forDate(
+            DateTime(today.year, today.month, today.day - i),
+            weekRuns,
+          ),
+      ],
     );
   });
+
+  RunResult _runResult(Run r) => RunResult(
+    id: r.id,
+    mode: PlayMode.values[r.mode],
+    course: FlightCourse.values.byName(r.course),
+    gates: r.gates,
+    stars: r.stars,
+    bestCombo: r.bestCombo,
+    perfectPasses: r.perfectPasses,
+    practice: r.practice,
+    score: r.score,
+    repetitions: r.repetitions,
+    flaps: r.flaps,
+    durationSeconds: r.duration,
+    reason: EndReason.values.firstWhere(
+      (v) => v.name == r.reason,
+      orElse: () => EndReason.quit,
+    ),
+    finishedAt: r.finishedAt,
+  );
   @override
   Future<void> saveRun(RunResult result) async {
     if (result.score < 0 ||
+        result.gates < 0 ||
+        result.stars < 0 ||
+        result.bestCombo < 0 ||
+        result.perfectPasses < 0 ||
         result.repetitions < 0 ||
         result.flaps < 0 ||
         !result.durationSeconds.isFinite ||
@@ -237,12 +361,17 @@ class SqliteProgressRepository implements ProgressRepository {
             RunsCompanion.insert(
               id: result.id,
               mode: result.mode.index,
+              course: Value(result.course.name),
+              gates: Value(result.gates),
+              stars: Value(result.stars),
+              bestCombo: Value(result.bestCombo),
+              perfectPasses: Value(result.perfectPasses),
               practice: result.practice,
               score: result.score,
               repetitions: result.mode == PlayMode.pushUp
                   ? result.repetitions
                   : 0,
-              flaps: result.mode == PlayMode.smile ? result.flaps : 0,
+              flaps: result.mode != PlayMode.pushUp ? result.flaps : 0,
               duration: result.durationSeconds,
               reason: result.reason.name,
               finishedAt: result.finishedAt,

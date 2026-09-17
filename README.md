@@ -2,9 +2,82 @@
 
 An offline Android arcade game built with Flutter, Flame, CameraX and MediaPipe.
 Push-Up Flight maps a calibrated push-up range to continuous bird height. Grin &
-Glide maps each neutral-to-smile transition to one flap. Records, settings and
+Glide maps each neutral-to-smile transition to one flap. **Tap & Fly** lets you
+tap the screen to flap, with no camera or microphone needed. Records, settings and
 cosmetic unlocks stay in SQLite on the phone. After a flight, Save session keeps
-a local camera clip and an input journal for replay in Records → Saved sessions.
+an input journal and any camera footage for replay in Records → Saved sessions.
+Replay **Flight highlights** lets you jump to discoveries, deliveries, streaks,
+power-ups and the final approach, with a short lead-in before each moment.
+
+**Arcade update:** choose **Classic**, **Star Trail** (60-second star hunt with
+three hearts, a shield and streak multipliers), **Sky Courier** (75-second letter
+delivery route), or **Cloud Cruise** (open sky, cloud friends, no crashes or
+timer). Every course supports push-ups, smiles and touch. Three changing
+sky regions with leafy stone, festival flags and lantern-lit gates,
+perfect-pass celebrations, bird trails and an eight-stamp
+**Sky Passport** give flights more character and goals. Each scored course keeps
+separate records for each control; Cloud Cruise is always practice. See the
+[arcade update notes](docs/arcade-expansion.md) for rules, design links and checks.
+
+**Tap & Fly** on Home starts a full touch flight on the selected course. Tap
+anywhere in the sky to rise, then release and tap again. Scored flights contribute
+to unlocks, daily adventures and flight goals, with separate touch bests in
+Records. Practice and Cloud Cruise can pause and resume; scored flights end
+when interrupted. Save session keeps a gameplay replay without camera video.
+
+**Flight school** on Home lets you explore every course with touch controls:
+drag to steer or tap to flap. Learn the actual stars, gates, letters and cloud
+friends without a camera. Lessons can pause or restart freely and never change
+records, unlocks, daily adventures or saved sessions. When ready, jump directly
+into push-up or smile practice for the selected course.
+
+Perfect gates now charge a **Star Magnet** in the star courses: three perfect
+passes grant eight seconds of extra pickup reach. Push-up aiming marks and stars
+follow the full calibrated top and bottom positions. Older saved replays retain
+their original targets and scoring rules.
+
+**Star trios:** collect every star in a connected set to form a constellation
+and earn five bonus points in Star Trail or Cruise. Missed sets leave the next
+trio available. Bonus points do not accelerate multipliers or shield charge.
+
+**Daily adventures** rotate three small goals each local day. Complete them to
+stamp a Sky Club postcard; the last seven days stay visible. All three controls
+work, progress is saved offline, and there is no streak penalty.
+
+Scored flights show a live **personal-best target** for that course and control,
+with a one-time celebration when you pass it. Cleared gates bloom with flowers;
+perfect passes earn a gold seal, and Cloud Cruise rings turn mint after a pass.
+Each bird has a signature trail: Pip's bubbles, Peaches' hearts, Minty's leaves,
+and Orbit's stardust. Preview them in the crew screen; Reduced Motion freezes
+their decorative movement.
+In flight, each bird's wing follows your push-up range or makes a short stroke
+after a smile flap, with a small air wake. Reduced Motion keeps the pose neutral.
+The crew also reacts with pleased eyes after rewards, a brief startled look for
+bumps, and occasional blinks. These expressions follow replay time and stay
+neutral under Reduced Motion.
+
+**Cloud friends:** meet Cloud Whale, Daydream Bunny and Sky Turtle during a
+Cruise. Fly close to discover each one in that flight's collection; missed
+friends drift back later. Results show who you met, and saved replays preserve
+the discoveries. They add no score requirement or timer.
+
+**Sky Courier:** clear a pickup gate to carry a letter, then a postbox gate to
+deliver it. Bumps drop your cargo without ending the route. Clean gates count
+toward bird unlocks; practice leaves records untouched. Saved replays preserve
+the cargo and delivery state when seeking backward.
+Letters now fly into the bird's pouch and arc into a postbox on delivery. A
+completed postbox raises its flag and releases hearts; Reduced Motion shows the
+finished state immediately.
+
+Timed routes now approach a visible destination in their last six seconds:
+gold finish pennants for Star Trail and coral home pennants for Courier.
+Completed routes add a matching ribbon medal to the result portrait.
+
+**Flight goals:** earn three wings in one scored flight. Classic rewards 5, 10
+and 25 gates; Star Trail rewards 12 stars, a six-star streak and a full trail;
+Courier rewards one delivery, three deliveries and a full route. Open Flight
+goals from Home to see the targets, or tap a result's wings for progress. Results
+keep Save session visible, then offer Watch replay directly after saving.
 
 **Status:** tracking has regression replays from the OnePlus CPH2585's actual
 landmarks, including the latest scored game's missed top, false calibration
@@ -13,7 +86,7 @@ were already straight, and the bird dropping to mid-screen on a slight bend.
 The depth estimator was rebuilt around calibrated, reliability-weighted cues
 (see below); it is installed as a diagnostics build (`make diag`) and needs a
 physical retry.
-The complete game UI and both modes are implemented, but finished-game device
+The complete game UI and all three control modes are implemented, but finished-game device
 acceptance and performance targets are pending. See [validation](docs/validation.md).
 
 ## Build and run

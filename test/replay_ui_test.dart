@@ -108,11 +108,28 @@ void main() {
     controller.notify();
     await tester.pump();
     expect(tester.takeException(), isNull);
+    expect(find.text('Save session').hitTestable(), findsOneWidget);
     await tester.runAsync(() async {
-      await controller.persistSession();
+      await tester.tap(find.text('Save session'));
+      for (var i = 0; i < 50 && !controller.sessionSaved; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+      }
     });
     await tester.pumpAndSettle();
     expect(find.text('Session saved · Watch in Records'), findsOneWidget);
+    expect(find.text('Watch replay').hitTestable(), findsOneWidget);
+    await tester.runAsync(() async {
+      await tester.tap(find.text('Watch replay'));
+      for (
+        var i = 0;
+        i < 20 && find.byType(ReplayScreen).evaluate().isEmpty;
+        i++
+      ) {
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+        await tester.pump();
+      }
+    });
+    expect(find.byType(ReplayScreen), findsOneWidget);
     await tester.runAsync(() => container.read(sessionsProvider.future));
     appRouter.go('/sessions');
     await tester.pump();

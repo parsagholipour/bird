@@ -21,11 +21,26 @@ def melody(name,notes,step=.13):
             at=int(idx*step*RATE)+i
             if at<len(data):data[at]+=v
     write(name,data)
+melody('star.wav',[880,1174.66],.045)
+melody('trio.wav',[880,1108.73,1318.51],.065)
+melody('letter.wav',[523.25,783.99],.055)
+melody('delivery.wav',[659.25,783.99,1046.5],.075)
+melody('wing.wav',[783.99,1046.5,1318.51],.09)
+melody('cloud.wav',[523.25,659.25,880,783.99],.11)
+melody('magnet.wav',[392,587.33,783.99,987.77,1174.66],.065)
+melody('streak.wav',[783.99,987.77,1174.66,1567.98],.055)
+melody('final_stretch.wav',[523.25,783.99],.14)
+melody('perfect.wav',[659.25,987.77,1318.51],.05)
+melody('shield_pop.wav',[1174.66,587.33],.055)
+melody('shield.wav',[587.33,783.99,1174.66],.06)
+melody('bump.wav',[220,164.81],.06)
 melody('point.wav',[659.25,880],.08)
 melody('flap.wav',[392,587.33],.045)
 melody('ready.wav',[523.25],.1)
 melody('go.wav',[523.25,659.25,783.99],.08)
 melody('finish.wav',[659.25,523.25,392],.12)
+melody('complete.wav',[523.25,659.25,783.99,1046.5,1318.51],.095)
+melody('record.wav',[659.25,830.61,987.77,1318.51],.075)
 melody('unlock.wav',[523.25,659.25,783.99,1046.5],.11)
 # A quiet 16-second marimba-like loop. All notes decay before the loop boundary.
 notes=[523.25,0,659.25,783.99,0,659.25,587.33,0,523.25,0,440,523.25,0,659.25,587.33,0,

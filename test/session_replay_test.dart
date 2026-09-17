@@ -17,7 +17,12 @@ List<Object?> state(FlightSimulation s) => [
   s.elapsed,
   s.distance,
   s.countdown,
-  for (final o in s.obstacles) [o.x, o.center, o.gap, o.scored],
+  s.carryingLetter,
+  s.lettersCollected,
+  s.lettersDropped,
+  s.courierBumps,
+  for (final o in s.obstacles)
+    [o.x, o.center, o.target, o.gap, o.scored, o.courierStop],
 ];
 
 FlightRecorder makeRecorder(PlayMode mode, double Function() now) =>
@@ -49,9 +54,11 @@ void main() {
           final nearby = sim.obstacles.where(
             (o) => o.x + o.width > FlightSimulation.birdX - .04,
           );
-          final target = nearby.isEmpty ? .5 : nearby.first.center;
+          final target = nearby.isEmpty ? .5 : nearby.first.target;
           final flap =
-              mode == PlayMode.smile && sim.birdY > target && sim.velocity >= 0;
+              mode != PlayMode.pushUp &&
+              sim.birdY > target &&
+              sim.velocity >= 0;
           recorder.apply(
             MovementInput(
               valid: true,
@@ -231,7 +238,83 @@ void main() {
   );
   test('unknown simulation versions fail explicitly', () {
     final data = makeRecorder(PlayMode.pushUp, () => 1000).tape.toJson();
-    data['version'] = 2;
+    data['version'] = 999;
     expect(() => ReplayTape.fromJson(data), throwsFormatException);
   });
+
+  for (final course in FlightCourse.values) {
+    test(
+      '${course.name} session summaries keep the course and reward statistics',
+      () async {
+        final temp = await Directory.systemTemp.createTemp('course-session');
+        addTearDown(() => temp.delete(recursive: true));
+        final result = RunResult(
+          id: 'course-${course.name}',
+          mode: PlayMode.smile,
+          practice: false,
+          course: course,
+          score: 45,
+          gates: 7,
+          stars: 23,
+          bestCombo: 13,
+          perfectPasses: 4,
+          repetitions: 0,
+          flaps: 28,
+          durationSeconds: 60,
+          reason: EndReason.completed,
+          finishedAt: DateTime(2026, 9, 16),
+        );
+        final tape = ReplayTape(
+          mode: PlayMode.smile,
+          practice: false,
+          course: course,
+          seed: 18,
+          cycleSeconds: 3,
+          bird: 1,
+          reducedMotion: false,
+          originMs: 0,
+        );
+        await SessionRepository(
+          temp,
+        ).save(SavedSession(result: result, tape: tape, clips: []));
+        final reopened = SessionRepository(temp);
+        final loaded = await reopened.load(result.id);
+        for (final summary in [loaded.result, (await reopened.list()).single]) {
+          expect(summary.course, course);
+          expect(summary.practice, course.relaxed);
+          expect(summary.gates, 7);
+          expect(summary.stars, 23);
+          expect(summary.bestCombo, 13);
+          expect(summary.perfectPasses, 4);
+          expect(summary.reason, EndReason.completed);
+        }
+        expect(loaded.tape.course, course);
+        if (course == FlightCourse.classic) {
+          final manifest = File('${temp.path}/${result.id}/session.json');
+          final legacy =
+              jsonDecode(await manifest.readAsString()) as Map<String, dynamic>;
+          final oldResult = legacy['result'] as Map<String, dynamic>;
+          for (final key in [
+            'course',
+            'gates',
+            'stars',
+            'bestCombo',
+            'perfectPasses',
+          ]) {
+            oldResult.remove(key);
+          }
+          final oldTape = legacy['tape'] as Map<String, dynamic>;
+          oldTape['version'] = 1;
+          oldTape.remove('course');
+          await manifest.writeAsString(jsonEncode(legacy));
+          final oldSession = await reopened.load(result.id);
+          expect(oldSession.result.course, FlightCourse.classic);
+          expect(oldSession.result.gates, result.score);
+          expect(oldSession.result.stars, 0);
+          expect(oldSession.result.bestCombo, 0);
+          expect(oldSession.tape.course, FlightCourse.classic);
+        }
+      },
+    );
+  }
 }

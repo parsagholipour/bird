@@ -64,6 +64,7 @@ class SkyAudio {
   }
 
   Future<void> stop() => configure(_settings, active: false);
+  Future<void> resumeMusic() => configure(_settings);
 
   Future<void> dispose() async {
     _disposed = true;

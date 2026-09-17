@@ -1,0 +1,13 @@
+<svg width="952" height="260" viewBox="0 0 952 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="rock"><stop stop-color="#D9B998"/><stop offset=".35" stop-color="#E6CEB1"/><stop offset="1" stop-color="#AB8B73"/></linearGradient></defs>
+<rect x="54" width="42" height="53" fill="url(#rock)"/><rect x="54" y="178" width="42" height="82" fill="url(#rock)"/>
+<rect x="50" y="47" width="50" height="10" rx="5" fill="#8572C5"/><rect x="50" y="175" width="50" height="10" rx="5" fill="#8572C5"/>
+<path d="M65 12q20 10 0 25M65 200q20 10 0 30" stroke="#8572C5" stroke-width="2"/>
+<circle cx="75" cy="115" r="13" fill="#FFF9ED"/><path d="M75 104L78 111L86 112L80 117L82 125L75 121L68 125L70 117L64 112L72 111Z" fill="#E8A73C"/>
+<g><circle cx="63.00" cy="52.00" r="2" fill="#FFD45B"/><circle cx="60.93" cy="54.85" r="2" fill="#FFD45B"/><circle cx="57.57" cy="53.76" r="2" fill="#FFD45B"/><circle cx="57.57" cy="50.24" r="2" fill="#FFD45B"/><circle cx="60.93" cy="49.15" r="2" fill="#FFD45B"/><circle cx="60" cy="52" r="1.7" fill="#D75E4F"/></g>
+<g><circle cx="78.00" cy="52.00" r="2" fill="#FFD45B"/><circle cx="75.93" cy="54.85" r="2" fill="#FFD45B"/><circle cx="72.57" cy="53.76" r="2" fill="#FFD45B"/><circle cx="72.57" cy="50.24" r="2" fill="#FFD45B"/><circle cx="75.93" cy="49.15" r="2" fill="#FFD45B"/><circle cx="75" cy="52" r="1.7" fill="#D75E4F"/></g>
+<g><circle cx="93.00" cy="52.00" r="2" fill="#FFD45B"/><circle cx="90.93" cy="54.85" r="2" fill="#FFD45B"/><circle cx="87.57" cy="53.76" r="2" fill="#FFD45B"/><circle cx="87.57" cy="50.24" r="2" fill="#FFD45B"/><circle cx="90.93" cy="49.15" r="2" fill="#FFD45B"/><circle cx="90" cy="52" r="1.7" fill="#D75E4F"/></g>
+<g><circle cx="63.00" cy="180.00" r="2" fill="#FFD45B"/><circle cx="60.93" cy="182.85" r="2" fill="#FFD45B"/><circle cx="57.57" cy="181.76" r="2" fill="#FFD45B"/><circle cx="57.57" cy="178.24" r="2" fill="#FFD45B"/><circle cx="60.93" cy="177.15" r="2" fill="#FFD45B"/><circle cx="60" cy="180" r="1.7" fill="#D75E4F"/></g>
+<g><circle cx="78.00" cy="180.00" r="2" fill="#FFD45B"/><circle cx="75.93" cy="182.85" r="2" fill="#FFD45B"/><circle cx="72.57" cy="181.76" r="2" fill="#FFD45B"/><circle cx="72.57" cy="178.24" r="2" fill="#FFD45B"/><circle cx="75.93" cy="177.15" r="2" fill="#FFD45B"/><circle cx="75" cy="180" r="1.7" fill="#D75E4F"/></g>
+<g><circle cx="93.00" cy="180.00" r="2" fill="#FFD45B"/><circle cx="90.93" cy="182.85" r="2" fill="#FFD45B"/><circle cx="87.57" cy="181.76" r="2" fill="#FFD45B"/><circle cx="87.57" cy="178.24" r="2" fill="#FFD45B"/><circle cx="90.93" cy="177.15" r="2" fill="#FFD45B"/><circle cx="90" cy="180" r="1.7" fill="#D75E4F"/></g>
+</svg>

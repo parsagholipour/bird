@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../data/providers.dart';
 import '../data/progress_repository.dart';
+import '../game/bird_trail.dart';
 import 'components.dart';
 import 'theme.dart';
 
@@ -32,7 +33,7 @@ class CollectionScreen extends ConsumerWidget {
                           Text('Meet your flight crew.', style: heading(36)),
                           const Spacer(),
                           Pill(
-                            '${p.totalObstacles} obstacles cleared',
+                            '${p.totalObstacles} gates cleared',
                             icon: Icons.auto_awesome,
                             color: SkyColors.yellow,
                           ),
@@ -42,7 +43,7 @@ class CollectionScreen extends ConsumerWidget {
                       Padding(
                         padding: const EdgeInsets.only(left: 66),
                         child: Text(
-                          'Little personalities. Same big adventure. Unlock birds in either scored mode.',
+                          'Four personalities, four trails. Unlock your crew by clearing scored gates.',
                           style: bodyText(16, color: SkyColors.muted),
                         ),
                       ),
@@ -106,7 +107,7 @@ class _BirdCardState extends ConsumerState<_BirdCard> {
                 ? 'YOUR CO-PILOT'
                 : unlocked
                 ? 'READY TO FLY'
-                : '${unlockThresholds[i]} OBSTACLES',
+                : '${unlockThresholds[i]} GATES',
             icon: selected
                 ? Icons.check_rounded
                 : unlocked
@@ -118,11 +119,24 @@ class _BirdCardState extends ConsumerState<_BirdCard> {
             child: Center(
               child: Opacity(
                 opacity: unlocked ? 1 : .42,
-                child: BirdArt(
-                  bird: i,
-                  size: 158,
-                  bob: unlocked,
-                  reducedMotion: p.settings.reducedMotion,
+                child: FittedBox(
+                  fit: BoxFit.contain,
+                  child: SizedBox(
+                    width: 188,
+                    height: 120,
+                    child: CustomPaint(
+                      painter: _TrailPreview(bird: i),
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: BirdArt(
+                          bird: i,
+                          size: 132,
+                          bob: unlocked,
+                          reducedMotion: p.settings.reducedMotion,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -130,7 +144,7 @@ class _BirdCardState extends ConsumerState<_BirdCard> {
           Text(birdNames[i], style: heading(26)),
           const SizedBox(height: 6),
           Text(
-            birdDescriptions[i],
+            BirdTrail.names[i],
             style: bodyText(13, color: SkyColors.muted),
             textAlign: TextAlign.center,
           ),
@@ -158,4 +172,21 @@ class _BirdCardState extends ConsumerState<_BirdCard> {
       ),
     );
   }
+}
+
+class _TrailPreview extends CustomPainter {
+  const _TrailPreview({required this.bird});
+  final int bird;
+
+  @override
+  void paint(Canvas canvas, Size size) => BirdTrail.paint(
+    canvas,
+    bird: bird,
+    anchor: Offset(size.width * .65, size.height * .5),
+    unit: 5.6,
+    animate: false,
+  );
+
+  @override
+  bool shouldRepaint(_TrailPreview oldDelegate) => oldDelegate.bird != bird;
 }

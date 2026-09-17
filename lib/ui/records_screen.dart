@@ -3,13 +3,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../data/providers.dart';
 import '../domain/tracking.dart';
+import '../domain/flight_course.dart';
+import '../domain/flight_goals.dart';
 import 'components.dart';
 import 'theme.dart';
+import 'flight_goals.dart';
 
-class RecordsScreen extends ConsumerWidget {
+class RecordsScreen extends ConsumerStatefulWidget {
   const RecordsScreen({super.key});
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<RecordsScreen> createState() => _RecordsScreenState();
+}
+
+class _RecordsScreenState extends ConsumerState<RecordsScreen> {
+  FlightCourse course = FlightCourse.classic;
+  @override
+  Widget build(BuildContext context) {
     final p = ref.watch(progressProvider).asData?.value;
     return Scaffold(
       body: SkyBackdrop(
@@ -28,10 +37,26 @@ class RecordsScreen extends ConsumerWidget {
                     const SizedBox(width: 18),
                     Text('Your little victories.', style: heading(36)),
                     const Spacer(),
-                    const Pill(
-                      'PERSONAL BESTS',
-                      icon: Icons.emoji_events_rounded,
-                      color: SkyColors.yellow,
+                    SegmentedButton<FlightCourse>(
+                      segments: [
+                        for (final item in FlightCourse.values.where(
+                          (c) => !c.relaxed,
+                        ))
+                          ButtonSegment(
+                            value: item,
+                            label: Text(item.shortTitle),
+                            icon: Icon(
+                              item == FlightCourse.classic
+                                  ? Icons.all_inclusive
+                                  : item == FlightCourse.skyCourier
+                                  ? Icons.local_post_office_outlined
+                                  : Icons.star_rounded,
+                            ),
+                          ),
+                      ],
+                      selected: {course},
+                      onSelectionChanged: (value) =>
+                          setState(() => course = value.single),
                     ),
                   ],
                 ),
@@ -47,7 +72,11 @@ class RecordsScreen extends ConsumerWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'The score to beat',
+                                      course == FlightCourse.classic
+                                          ? 'The score to beat'
+                                          : course == FlightCourse.skyCourier
+                                          ? 'Your deliveries to beat'
+                                          : 'Your star points to beat',
                                       style: heading(25),
                                     ),
                                     const SizedBox(height: 20),
@@ -56,7 +85,9 @@ class RecordsScreen extends ConsumerWidget {
                                         Expanded(
                                           child: _best(
                                             'Push-Up Flight',
-                                            p.pushUp.best,
+                                            p
+                                                .record(PlayMode.pushUp, course)
+                                                .best,
                                             SkyColors.yellow,
                                           ),
                                         ),
@@ -64,15 +95,27 @@ class RecordsScreen extends ConsumerWidget {
                                         Expanded(
                                           child: _best(
                                             'Grin & Glide',
-                                            p.smile.best,
+                                            p
+                                                .record(PlayMode.smile, course)
+                                                .best,
                                             SkyColors.coral,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: _best(
+                                            'Tap & Fly',
+                                            p
+                                                .record(PlayMode.touch, course)
+                                                .best,
+                                            SkyColors.mint,
                                           ),
                                         ),
                                       ],
                                     ),
                                     const Spacer(),
                                     Text(
-                                      '${p.totalRuns} scored flights  ·  ${p.totalObstacles} obstacles\n${p.pushUp.repetitions} completed push-ups',
+                                      '${p.totalRuns} scored flights  ·  ${p.totalObstacles} gates\n${p.totalRepetitions} completed push-ups',
                                       style: bodyText(
                                         16,
                                         color: SkyColors.muted,
@@ -140,7 +183,11 @@ class RecordsScreen extends ConsumerWidget {
                                                 return Row(
                                                   children: [
                                                     Icon(
-                                                      r.mode == PlayMode.pushUp
+                                                      r.mode == PlayMode.touch
+                                                          ? Icons
+                                                                .touch_app_rounded
+                                                          : r.mode ==
+                                                                PlayMode.pushUp
                                                           ? Icons
                                                                 .fitness_center_rounded
                                                           : Icons
@@ -155,11 +202,7 @@ class RecordsScreen extends ConsumerWidget {
                                                                 .start,
                                                         children: [
                                                           Text(
-                                                            r.mode ==
-                                                                    PlayMode
-                                                                        .pushUp
-                                                                ? 'Push-Up Flight'
-                                                                : 'Grin & Glide',
+                                                            r.mode.title,
                                                             style: bodyText(
                                                               15,
                                                               weight: FontWeight
@@ -167,7 +210,7 @@ class RecordsScreen extends ConsumerWidget {
                                                             ),
                                                           ),
                                                           Text(
-                                                            '${r.finishedAt.day}/${r.finishedAt.month} · ${r.durationSeconds.round()} sec',
+                                                            '${r.course.title} · ${r.finishedAt.day}/${r.finishedAt.month} · ${r.durationSeconds.round()} sec',
                                                             style: bodyText(
                                                               12,
                                                               color: SkyColors
@@ -180,6 +223,27 @@ class RecordsScreen extends ConsumerWidget {
                                                     Text(
                                                       '${r.score}',
                                                       style: heading(28),
+                                                    ),
+                                                    const SizedBox(width: 6),
+                                                    IconButton(
+                                                      tooltip:
+                                                          'View ${r.course.title} flight goals',
+                                                      onPressed: () =>
+                                                          showFlightGoals(
+                                                            context,
+                                                            r.course,
+                                                            progress:
+                                                                FlightGoals.forRun(
+                                                                  r,
+                                                                ),
+                                                          ),
+                                                      icon: FlightWings(
+                                                        goals:
+                                                            FlightGoals.forRun(
+                                                              r,
+                                                            ),
+                                                        size: 15,
+                                                      ),
                                                     ),
                                                   ],
                                                 );
@@ -202,7 +266,7 @@ class RecordsScreen extends ConsumerWidget {
   }
 
   Widget _best(String name, int best, Color color) => Container(
-    padding: const EdgeInsets.all(16),
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
     decoration: BoxDecoration(
       color: color,
       borderRadius: BorderRadius.circular(18),
@@ -210,7 +274,11 @@ class RecordsScreen extends ConsumerWidget {
     child: Column(
       children: [
         Text('$best', style: heading(58)),
-        Text(name, style: bodyText(14, weight: FontWeight.w900)),
+        Text(
+          name,
+          textAlign: TextAlign.center,
+          style: bodyText(14, weight: FontWeight.w900),
+        ),
       ],
     ),
   );

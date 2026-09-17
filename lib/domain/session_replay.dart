@@ -7,15 +7,20 @@ import 'tracking.dart';
 class ReplayTape {
   ReplayTape({
     required this.mode,
-    required this.practice,
+    required bool practice,
     required this.seed,
     required this.cycleSeconds,
     required this.bird,
     required this.reducedMotion,
     required this.originMs,
+    this.course = FlightCourse.classic,
+    this.recordedVersion = version,
     List<List<dynamic>>? events,
-  }) : events = events ?? [];
-  static const version = 1;
+  }) : events = events ?? [],
+       practice = practice || course.relaxed;
+  static const version = FlightSimulation.currentRulesVersion;
+  final int recordedVersion;
+  final FlightCourse course;
   final PlayMode mode;
   final bool practice, reducedMotion;
   final int seed, bird;
@@ -24,14 +29,19 @@ class ReplayTape {
   double get durationMs =>
       events.isEmpty ? 0 : (events.last[0] as num).toDouble();
   FlightSimulation createSimulation() => FlightSimulation(
-    rules: mode == PlayMode.pushUp
-        ? PushUpFlightMode(cycleSeconds: cycleSeconds)
-        : GrinGlideMode(),
+    rules: switch (mode) {
+      PlayMode.pushUp => PushUpFlightMode(cycleSeconds: cycleSeconds),
+      PlayMode.smile => GrinGlideMode(),
+      PlayMode.touch => TapFlyMode(),
+    },
     practice: practice,
+    course: course,
+    rulesVersion: recordedVersion,
     random: Random(seed),
   );
   Map<String, dynamic> toJson() => {
-    'version': version,
+    'version': recordedVersion,
+    'course': course.name,
     'mode': mode.name,
     'practice': practice,
     'seed': seed,
@@ -42,10 +52,17 @@ class ReplayTape {
     'events': events,
   };
   factory ReplayTape.fromJson(Map<String, dynamic> json) {
-    if (json['version'] != version) {
+    final recordedVersion = json['version'];
+    if (recordedVersion is! int ||
+        recordedVersion < 1 ||
+        recordedVersion > version) {
       throw const FormatException('Unsupported replay version');
     }
     final tape = ReplayTape(
+      recordedVersion: recordedVersion,
+      course: FlightCourse.values.byName(
+        json['course'] as String? ?? 'classic',
+      ),
       mode: PlayMode.values.byName(json['mode'] as String),
       practice: json['practice'] as bool,
       seed: json['seed'] as int,
