@@ -103,10 +103,8 @@ void main() {
         school.advance(.02, 2.2);
       }
       expect(school.simulation.gates, greaterThan(5));
-      if (course.timed) {
-        expect(school.simulation.endReason, EndReason.completed);
-        expect(school.simulation.elapsed, course.duration);
-      }
+      expect(school.simulation.phase, RunPhase.playing);
+      expect(school.simulation.elapsed, greaterThan(75));
       if (course.collectsStars) {
         expect(school.simulation.completedTrios, greaterThan(0));
       }

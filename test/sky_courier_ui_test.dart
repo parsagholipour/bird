@@ -57,13 +57,18 @@ void main() {
           final sim = recorder.simulation;
           final ahead = sim.obstacles.where((o) => !o.scored);
           final target = ahead.isEmpty ? .5 : ahead.first.target;
+          // Start the larger jump below the passage, then glide through it.
+          final flapAt = (target + (mode == PlayMode.jump ? .13 : 0)).clamp(
+            .15,
+            .88,
+          );
           recorder.apply(
             MovementInput(
               valid: true,
               height: (.85 - target) / .7,
               flap:
-                  mode != PlayMode.pushUp &&
-                  sim.birdY > target &&
+                  !mode.controlsHeight &&
+                  sim.birdY > flapAt &&
                   sim.velocity >= 0,
             ),
             TrackingSample(
@@ -205,7 +210,14 @@ void main() {
           ],
         );
         await container.read(progressProvider.future);
-        appRouter.go('/');
+        appRouter.go(
+          '/play/${switch (mode) {
+            PlayMode.pushUp => 'push-up',
+            PlayMode.jump => 'jump',
+            PlayMode.touch => 'touch',
+            PlayMode.squat => 'squat',
+          }}?course=skyCourier',
+        );
         await tester.pumpWidget(
           UncontrolledProviderScope(
             container: container,
@@ -216,23 +228,10 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
-        await tester.tap(find.byKey(const ValueKey('course-skyCourier')));
-        await tester.pumpAndSettle();
-        expect(find.text('Deliver some joy'), findsNWidgets(2));
-        expect(tester.takeException(), isNull);
-        await capture(tester, 'home-courier');
-        await tester.tap(
-          mode == PlayMode.touch
-              ? find.text('Tap & Fly')
-              : find
-                    .text('Deliver some joy')
-                    .at(mode == PlayMode.pushUp ? 0 : 1),
-        );
-        await tester.pumpAndSettle();
         expect(
           find.textContaining(
             mode == PlayMode.touch
-                ? 'Tap anywhere in the sky'
+                ? 'Tap the sky for a stronger flap'
                 : 'Clear a pickup gate',
           ),
           findsOneWidget,
@@ -292,7 +291,8 @@ void main() {
         }
 
         await redraw();
-        expect(find.text('50s'), findsOneWidget);
+        expect(find.text('0:25'), findsOneWidget);
+        expect(find.text('1.06× pace'), findsOneWidget);
         expect(
           find.text('Find a pickup gate to collect a letter'),
           findsOneWidget,
@@ -347,14 +347,14 @@ void main() {
         expect(p.record(mode).best, 0);
         appRouter.go('/records');
         await tester.pumpAndSettle();
-        await tester.tap(find.text('Courier'));
-        await tester.pumpAndSettle();
-        expect(find.text('Your deliveries to beat'), findsOneWidget);
+        expect(find.text('Your star points to beat'), findsOneWidget);
+        expect(find.text('Courier'), findsNothing);
         expect(tester.takeException(), isNull);
         await capture(tester, 'courier-records-${mode.name}');
         appRouter.go('/');
         await tester.pumpAndSettle();
-        expect(find.text('Deliver some joy'), findsNWidgets(2));
+        expect(find.byKey(const ValueKey('push-up-mode')), findsOneWidget);
+        expect(find.text('Deliver some joy'), findsNothing);
         await tester.pumpWidget(const SizedBox());
         container.dispose();
         await tester.runAsync(() async {

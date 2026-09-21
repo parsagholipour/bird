@@ -73,6 +73,8 @@ void main() {
       expect(low.wing - high.wing, greaterThan(.9));
       expect(high.tilt, 0);
       expect(low.tilt, 0);
+      expect(high.spring, 0);
+      expect(low.spring, 0);
       expect(poseValues(BirdPose.forFlight(sim, reducedMotion: true)), [
         0,
         0,
@@ -82,16 +84,16 @@ void main() {
     },
   );
 
-  test('smile stroke is finite, pause-stable and quiet in Reduced Motion', () {
-    final sim = FlightSimulation(rules: GrinGlideMode(), practice: true)
+  test('jump stroke is finite, pause-stable and quiet in Reduced Motion', () {
+    final sim = FlightSimulation(rules: JumpFlyMode(), practice: true)
       ..started = true
       ..phase = RunPhase.playing
       ..lastFlapAt = 2
       ..elapsed = 2.07
       ..velocity = -.3;
     final stroke = BirdPose.forFlight(sim, reducedMotion: false);
-    expect(stroke.wing, greaterThan(.6));
-    expect(stroke.spring, greaterThan(0));
+    expect(stroke.wing, closeTo(-.43, .01));
+    expect(stroke.spring, lessThan(0));
     expect(stroke.flapWake, greaterThan(0));
     sim.takeBreak();
     sim.tick(.2, 5000);
@@ -105,12 +107,54 @@ void main() {
       0,
       0,
     ]);
+    sim.elapsed = 2.285;
+    final recovery = BirdPose.forFlight(sim, reducedMotion: false);
+    expect(recovery.wing, closeTo(.275, .001));
+    expect(recovery.wing - .10, lessThan((stroke.wing - .10).abs()));
+    sim.elapsed = 2.38;
+    expect(
+      BirdPose.forFlight(sim, reducedMotion: false).wing,
+      closeTo(.10, 1e-9),
+    );
     sim.elapsed = 2.5;
     final glide = BirdPose.forFlight(sim, reducedMotion: false);
     expect(glide.wing, .10);
     expect(glide.spring, 0);
     expect(glide.flapWake, 0);
   });
+
+  for (final rules in [TapFlyMode(), JumpFlyMode()]) {
+    test('${rules.mode} spring extends, softly compresses, then settles', () {
+      final sim = FlightSimulation(rules: rules, practice: true)
+        ..started = true
+        ..lastFlapAt = 0;
+      double springAt(double age) {
+        sim.elapsed = age;
+        return BirdPose.forFlight(sim, reducedMotion: false).spring;
+      }
+
+      final extension = springAt(.04);
+      final compression = springAt(.15);
+      expect(springAt(.001), lessThan(0));
+      expect(extension, lessThan(0));
+      expect(compression, greaterThan(0));
+      expect(compression, lessThan(extension.abs()));
+      for (final age in [-.1, 0.0, .08, .22, 1.0]) {
+        expect(springAt(age), 0);
+      }
+      for (final boundary in [0.0, .08, .22]) {
+        for (final offset in [-.000001, .000001]) {
+          expect(springAt(boundary + offset), closeTo(0, 1e-8));
+        }
+      }
+      for (var ms = 0; ms <= 220; ms++) {
+        expect(springAt(ms / 1000).abs(), lessThanOrEqualTo(.06));
+      }
+      expect(springAt(.15), compression);
+      expect(springAt(.04), extension);
+      expect(BirdPose.forFlight(sim, reducedMotion: true).spring, 0);
+    });
+  }
 
   for (final mode in PlayMode.values) {
     test('$mode wing poses replay identically across backward seeks', () {

@@ -4,6 +4,7 @@ import 'package:flame/game.dart';
 import 'package:flame/sprite.dart';
 import '../domain/game_rules.dart';
 import '../domain/cloud_friends.dart';
+import '../domain/bird_motion.dart';
 import '../ui/theme.dart';
 import 'sky_scenery.dart';
 import 'bird_trail.dart';
@@ -13,6 +14,8 @@ import 'bird_puppet.dart';
 import 'star_trio_art.dart';
 import 'arrival_art.dart';
 import 'gate_art.dart';
+import 'obstacle_art.dart';
+import 'combat_art.dart';
 
 class BirdGame extends FlameGame {
   BirdGame({
@@ -115,10 +118,7 @@ class BirdGame extends FlameGame {
     }
     ArrivalArt.gate(canvas, h, simulation, reducedMotion: reducedMotion);
     for (final o in simulation.obstacles) {
-      final x = o.x * h,
-          width = o.width * h,
-          top = o.top * h,
-          bottom = o.bottom * h;
+      final x = o.x * h, width = o.width * h;
       final cleared = o.scored && !o.hit;
       final perfect = cleared && o.maxDeviation <= .075;
       if (simulation.isCruise) {
@@ -132,24 +132,35 @@ class BirdGame extends FlameGame {
               ) *
               h,
         );
-        canvas.drawOval(
-          ring,
-          Paint()
-            ..color = (cleared ? SkyColors.mint : SkyColors.cream).withValues(
-              alpha: cleared ? .7 : .2,
-            )
-            ..strokeWidth = 8
-            ..style = PaintingStyle.stroke,
-        );
-        canvas.drawOval(
-          ring,
-          Paint()
-            ..color = cleared
-                ? SkyColors.teal
-                : SkyColors.cream.withValues(alpha: .65)
-            ..strokeWidth = 2
-            ..style = PaintingStyle.stroke,
-        );
+        if (simulation.rulesVersion >= 13) {
+          ObstacleArt.ring(
+            canvas,
+            ring,
+            o,
+            seconds: simulation.elapsed,
+            reducedMotion: reducedMotion,
+            cleared: cleared,
+          );
+        } else {
+          canvas.drawOval(
+            ring,
+            Paint()
+              ..color = (cleared ? SkyColors.mint : SkyColors.cream).withValues(
+                alpha: cleared ? .7 : .2,
+              )
+              ..strokeWidth = 8
+              ..style = PaintingStyle.stroke,
+          );
+          canvas.drawOval(
+            ring,
+            Paint()
+              ..color = cleared
+                  ? SkyColors.teal
+                  : SkyColors.cream.withValues(alpha: .65)
+              ..strokeWidth = 2
+              ..style = PaintingStyle.stroke,
+          );
+        }
         if (cleared) _gateSeal(canvas, ring.center, h, perfect);
       } else {
         if (o.hit) {
@@ -158,20 +169,46 @@ class BirdGame extends FlameGame {
             Paint()..color = const Color(0x66ffffff),
           );
         }
-        _tower(
-          canvas,
-          Rect.fromLTWH(x, -10, width, top + 10),
-          true,
-          cleared: cleared,
-          perfect: perfect,
-        );
-        _tower(
-          canvas,
-          Rect.fromLTWH(x, bottom, width, h - bottom + 10),
-          false,
-          cleared: cleared,
-          perfect: perfect,
-        );
+        if (simulation.rulesVersion >= 13) {
+          ObstacleArt.paint(
+            canvas,
+            o,
+            h,
+            seconds: simulation.elapsed,
+            reducedMotion: reducedMotion,
+            cleared: cleared,
+            perfect: perfect,
+          );
+        } else {
+          for (final passage in o.passages) {
+            _tower(
+              canvas,
+              Rect.fromLTWH(
+                passage.x * h,
+                -10,
+                passage.width * h,
+                passage.top * h + 10,
+              ),
+              true,
+              cleared: cleared,
+              perfect: perfect,
+              kind: o.kind,
+            );
+            _tower(
+              canvas,
+              Rect.fromLTWH(
+                passage.x * h,
+                passage.bottom * h,
+                passage.width * h,
+                h - passage.bottom * h + 10,
+              ),
+              false,
+              cleared: cleared,
+              perfect: perfect,
+              kind: o.kind,
+            );
+          }
+        }
         if (cleared && !simulation.isCourier) {
           _gateSeal(canvas, Offset(x + width / 2, o.target * h), h, perfect);
         }
@@ -278,6 +315,7 @@ class BirdGame extends FlameGame {
         Paint()..color = SkyColors.cream,
       );
     }
+    CombatArt.paint(canvas, h, simulation, reducedMotion: reducedMotion);
     {
       final cx = FlightSimulation.birdX * h, cy = simulation.birdY * h;
       final pose = BirdPose.forFlight(
@@ -366,7 +404,7 @@ class BirdGame extends FlameGame {
       canvas.translate(cx, cy);
       canvas.rotate(pose.tilt);
       canvas.scale(1 + pose.spring, 1 - pose.spring);
-      final bw = h * .145;
+      final bw = h * BirdFlightMotion.size;
       BirdPuppet.paint(
         canvas,
         Rect.fromLTWH(-bw * .48, -bw * .43, bw, bw * 224 / 256),
@@ -377,8 +415,11 @@ class BirdGame extends FlameGame {
       canvas.restore();
       if (pose.flapWake > 0) {
         final t = pose.flapWake;
+        final fadeIn = (t / .18).clamp(0.0, 1.0);
+        final opacity = ((1 - t) * .7 * fadeIn * fadeIn * (3 - 2 * fadeIn))
+            .clamp(0.0, .7);
         final wake = Paint()
-          ..color = SkyColors.cream.withValues(alpha: (1 - t) * .7)
+          ..color = SkyColors.cream.withValues(alpha: opacity)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1.5
           ..strokeCap = StrokeCap.round;
@@ -532,6 +573,8 @@ class BirdGame extends FlameGame {
       final label = switch (event.kind) {
         FlightEventKind.star => '+${event.value}',
         FlightEventKind.starTrio => 'STAR TRIO +${event.value}!',
+        FlightEventKind.enemyHit =>
+          event.value > 0 ? 'NICE SHOT +${event.value}!' : 'NICE SHOT!',
         FlightEventKind.streak => '${event.value}× STAR POWER!',
         FlightEventKind.perfect =>
           event.value > 1 ? 'PERFECT ×${event.value}' : 'PERFECT!',
@@ -614,12 +657,14 @@ class BirdGame extends FlameGame {
     bool top, {
     required bool cleared,
     required bool perfect,
+    ObstacleKind kind = ObstacleKind.garden,
   }) {
     if (bounds.right < 0 || bounds.left > size.x) return;
     GateArt.paint(
       canvas,
       bounds,
       top: top,
+      kind: kind,
       seconds: simulation.elapsed,
       reducedMotion: reducedMotion,
       cleared: cleared,

@@ -41,7 +41,20 @@ class _FloatingState extends State<Floating>
   late final controller = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 2400),
-  )..repeat();
+  );
+  bool disableAnimations = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    disableAnimations = MediaQuery.disableAnimationsOf(context);
+    if (disableAnimations) {
+      controller.stop();
+    } else if (!controller.isAnimating) {
+      controller.repeat();
+    }
+  }
+
   @override
   void dispose() {
     controller.dispose();
@@ -53,7 +66,10 @@ class _FloatingState extends State<Floating>
     animation: controller,
     child: widget.child,
     builder: (context, child) => Transform.translate(
-      offset: Offset(0, math.sin(controller.value * 2 * math.pi) * 5),
+      offset: Offset(
+        0,
+        disableAnimations ? 0 : math.sin(controller.value * 2 * math.pi) * 5,
+      ),
       child: child,
     ),
   );
@@ -80,79 +96,111 @@ class SkyButton extends StatefulWidget {
 
 class _SkyButtonState extends State<SkyButton> {
   bool pressed = false;
+  bool get enabled => widget.onPressed != null && !widget.busy;
+
   @override
-  Widget build(BuildContext context) => Semantics(
-    button: true,
-    enabled: widget.onPressed != null,
-    label: widget.label,
-    child: AnimatedContainer(
-      duration: const Duration(milliseconds: 100),
-      transform: Matrix4.translationValues(0, pressed ? 3 : 0, 0),
-      decoration: BoxDecoration(
-        color: widget.onPressed == null ? SkyColors.sky : widget.color,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: SkyColors.ink.withValues(alpha: .16),
-          width: 1.5,
+  void didUpdateWidget(covariant SkyButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!enabled) pressed = false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final disableAnimations = MediaQuery.disableAnimationsOf(context);
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      label: widget.label,
+      value: widget.busy ? 'Busy' : null,
+      liveRegion: widget.busy,
+      child: AnimatedContainer(
+        duration: disableAnimations
+            ? Duration.zero
+            : const Duration(milliseconds: 100),
+        transform: Matrix4.translationValues(
+          0,
+          pressed && !disableAnimations ? 3 : 0,
+          0,
         ),
-        boxShadow: pressed
-            ? []
-            : [
-                BoxShadow(
-                  color: SkyColors.ink.withValues(alpha: .16),
-                  offset: const Offset(0, 4),
-                ),
-              ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
+        decoration: BoxDecoration(
+          color: enabled ? widget.color : SkyColors.sky,
           borderRadius: BorderRadius.circular(16),
-          onTap: widget.onPressed,
-          onHighlightChanged: (v) => setState(() => pressed = v),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: widget.compact ? 44 : 52),
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: widget.compact ? 14 : 20,
-                vertical: 10,
-              ),
-              child: ExcludeSemantics(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (widget.busy) ...[
-                      const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                      const SizedBox(width: 10),
-                    ],
-                    Flexible(
-                      child: Text(
-                        widget.label,
-                        style: bodyText(
-                          widget.compact ? 15 : 17,
-                          weight: FontWeight.w900,
+          border: Border.all(
+            color: SkyColors.ink.withValues(alpha: .16),
+            width: 1.5,
+          ),
+          boxShadow: pressed
+              ? []
+              : [
+                  BoxShadow(
+                    color: SkyColors.ink.withValues(alpha: .16),
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: enabled ? widget.onPressed : null,
+            onHighlightChanged: (v) {
+              // Disabling a held InkWell can clear its highlight during build.
+              // didUpdateWidget already released our pressed state in that case.
+              if (!enabled || pressed == v) return;
+              setState(() => pressed = v);
+            },
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: widget.compact ? 44 : 52),
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: widget.compact ? 14 : 20,
+                  vertical: 10,
+                ),
+                child: ExcludeSemantics(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          widget.label,
+                          style: bodyText(
+                            widget.compact ? 15 : 17,
+                            weight: FontWeight.w900,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
-                        textAlign: TextAlign.center,
                       ),
-                    ),
-                    if (widget.icon != null) ...[
-                      const SizedBox(width: 12),
-                      Icon(widget.icon, size: 20, color: SkyColors.ink),
+                      if (widget.icon != null || widget.busy) ...[
+                        const SizedBox(width: 12),
+                        SizedBox.square(
+                          dimension: 20,
+                          child: widget.busy
+                              ? Padding(
+                                  padding: const EdgeInsets.all(2),
+                                  child: CircularProgressIndicator(
+                                    value: disableAnimations ? .75 : null,
+                                    strokeWidth: 2,
+                                    color: SkyColors.ink,
+                                  ),
+                                )
+                              : Icon(
+                                  widget.icon,
+                                  size: 20,
+                                  color: SkyColors.ink,
+                                ),
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
             ),
           ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class RoundButton extends StatelessWidget {
@@ -168,20 +216,17 @@ class RoundButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final Color color;
   @override
-  Widget build(BuildContext context) => Tooltip(
-    message: label,
-    child: Material(
-      color: color,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: SkyColors.ink.withValues(alpha: .12)),
-      ),
-      child: IconButton(
-        onPressed: onPressed,
-        icon: Icon(icon, color: SkyColors.ink),
-        tooltip: label,
-        style: IconButton.styleFrom(minimumSize: const Size(48, 48)),
-      ),
+  Widget build(BuildContext context) => Material(
+    color: color,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(16),
+      side: BorderSide(color: SkyColors.ink.withValues(alpha: .12)),
+    ),
+    child: IconButton(
+      onPressed: onPressed,
+      icon: Icon(icon, color: SkyColors.ink),
+      tooltip: label,
+      style: IconButton.styleFrom(minimumSize: const Size(48, 48)),
     ),
   );
 }

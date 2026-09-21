@@ -1,35 +1,66 @@
 # Push-Up Bird
 
 An offline Android arcade game built with Flutter, Flame, CameraX and MediaPipe.
-Push-Up Flight maps a calibrated push-up range to continuous bird height. Grin &
-Glide maps each neutral-to-smile transition to one flap. **Tap & Fly** lets you
+Push-Up Flight maps a calibrated push-up range to continuous bird height.
+**Squat & Fly** keeps your feet planted: squat to descend, stand to rise.
+Stand still, hold a comfortable squat briefly, then stand back up to learn your range.
+**Jump & Fly** uses full-body tracking: each small jump gives one big boost.
+Stand still briefly to calibrate, keep both feet visible, and land to rearm.
+Its boost reaches roughly three times the old smile flap height, followed by
+**3 seconds of gentle gliding**. Each collected star adds **0.75 seconds** to an
+active charge, capped at **5 seconds**. The glide meter shows when to jump again;
+a new jump refreshes the base charge without losing time earned from stars. **Tap & Fly** lets you
 tap the screen to flap, with no camera or microphone needed. Records, settings and
 cosmetic unlocks stay in SQLite on the phone. After a flight, Save session keeps
 an input journal and any camera footage for replay in Records → Saved sessions.
 Replay **Flight highlights** lets you jump to discoveries, deliveries, streaks,
 power-ups and the final approach, with a short lead-in before each moment.
 
-**Arcade update:** choose **Classic**, **Star Trail** (60-second star hunt with
-three hearts, a shield and streak multipliers), **Sky Courier** (75-second letter
-delivery route), or **Cloud Cruise** (open sky, cloud friends, no crashes or
-timer). Every course supports push-ups, smiles and touch. Three changing
+**Endless flights:** Star Trail keeps going with three hearts, a shield and
+streak multipliers. Every control has a gradual time-based speed increase,
+with no finish timer. Garden gates give way to rising **Wind Lifts**, opening
+and closing **Petal Shutters**, and two-column **Switchbacks**. Longer flights
+introduce swaying **Lantern Drift**, orbiting **Sun Wheels**, and three-column
+**Crystal Steps**. Floating obstacles use round collision shapes and leave open
+sky around them. Turbines, blossoms, faceted towers and regional color variations
+give each pattern a distinct look. Cloud Cruise gets matching decorative rings.
+Patterns mix throughout the flight; calibrated push-up and squat pacing stays reachable.
+The HUD shows elapsed time and current pace. The 60-second flight wing, daily
+goal and passport stamp are endurance milestones, so you can earn them and
+keep flying. Existing replay journals retain their original timing and physics,
+including the four-pattern version-12 flights.
+
+The saved **Classic**, **Sky Courier** (letter delivery), and **Cloud Cruise**
+(open sky, cloud friends, no crashes) courses also run endlessly in Flight School.
+Every course supports push-ups, squats, jumps and touch. Three changing
 sky regions with leafy stone, festival flags and lantern-lit gates,
 perfect-pass celebrations, bird trails and an eight-stamp
 **Sky Passport** give flights more character and goals. Each scored course keeps
 separate records for each control; Cloud Cruise is always practice. See the
 [arcade update notes](docs/arcade-expansion.md) for rules, design links and checks.
 
-**Tap & Fly** on Home starts a full touch flight on the selected course. Tap
-anywhere in the sky to rise, then release and tap again. Scored flights contribute
+**Home** opens on a game title scene with your equipped bird and a prominent
+**Play** button for Push-Up Flight on Star Trail. **Practice** is directly below;
+**Other ways to play** opens Tap & Fly, Jump & Fly and Squat & Fly. The five collectible
+shortcuts lead to daily adventures, birds, the passport, records and flight goals.
+
+**Tap & Fly**, under **Other ways to play**, starts a full touch flight on Star Trail. Tap
+anywhere in the sky to rise, then release and tap again. Touch flights have a
+stronger flap, narrower openings and closer buildings. Tap **Shoot** to spit a
+rock straight from the bird's beak at bats ahead; aim by changing your height.
+One hit clears a bat (+3 points on Star Trail), buildings block rocks, and each
+shot has a short cooldown. Bats use the same shield/heart collision rules as
+buildings. Cloud Cruise stays free of enemies. Scored flights contribute
 to unlocks, daily adventures and flight goals, with separate touch bests in
 Records. Practice and Cloud Cruise can pause and resume; scored flights end
-when interrupted. Save session keeps a gameplay replay without camera video.
+when interrupted. Save session keeps a gameplay replay without camera video,
+including shots and enemies. Existing replays keep their original flight rules.
 
 **Flight school** on Home lets you explore every course with touch controls:
 drag to steer or tap to flap. Learn the actual stars, gates, letters and cloud
 friends without a camera. Lessons can pause or restart freely and never change
 records, unlocks, daily adventures or saved sessions. When ready, jump directly
-into push-up or smile practice for the selected course.
+into push-up or jump practice for the selected course.
 
 Perfect gates now charge a **Star Magnet** in the star courses: three perfect
 passes grant eight seconds of extra pickup reach. Push-up aiming marks and stars
@@ -41,7 +72,7 @@ and earn five bonus points in Star Trail or Cruise. Missed sets leave the next
 trio available. Bonus points do not accelerate multipliers or shield charge.
 
 **Daily adventures** rotate three small goals each local day. Complete them to
-stamp a Sky Club postcard; the last seven days stay visible. All three controls
+stamp a Sky Club postcard; the last seven days stay visible. All four controls
 work, progress is saved offline, and there is no streak penalty.
 
 Scored flights show a live **personal-best target** for that course and control,
@@ -51,7 +82,7 @@ Each bird has a signature trail: Pip's bubbles, Peaches' hearts, Minty's leaves,
 and Orbit's stardust. Preview them in the crew screen; Reduced Motion freezes
 their decorative movement.
 In flight, each bird's wing follows your push-up range or makes a short stroke
-after a smile flap, with a small air wake. Reduced Motion keeps the pose neutral.
+after a jump boost, with a small air wake. Reduced Motion keeps the pose neutral.
 The crew also reacts with pleased eyes after rewards, a brief startled look for
 bumps, and occasional blinks. These expressions follow replay time and stay
 neutral under Reduced Motion.
@@ -86,7 +117,7 @@ were already straight, and the bird dropping to mid-screen on a slight bend.
 The depth estimator was rebuilt around calibrated, reliability-weighted cues
 (see below); it is installed as a diagnostics build (`make diag`) and needs a
 physical retry.
-The complete game UI and all three control modes are implemented, but finished-game device
+The complete game UI and all four control modes are implemented, but finished-game device
 acceptance and performance targets are pending. See [validation](docs/validation.md).
 
 ## Build and run
@@ -206,6 +237,13 @@ dart run tool/replay_tracking.dart /tmp/push-up-bird.log
 # (`make logs` does this and lists the sessions it found):
 adb exec-out run-as com.ravanix.push_up_bird cat files/tracking_diagnostics/latest.log > /tmp/push-up-bird-last.log
 dart run tool/replay_tracking.dart /tmp/push-up-bird-last.log
+# Jump sessions use the jump calibrator/interpreter. An optional final integer
+# asserts an exact jump count when the physical retry's count is known.
+dart run tool/replay_jump_tracking.dart /tmp/push-up-bird-last.log
+# Exercise the actual controller, countdown and bird physics with a private
+# capture. Optional assertions: CALIBRATE_BY_MS, STOP_AT_MS,
+# NO_JUMPS_BEFORE_MS, MIN_JUMPS (times relative to the first captured frame).
+flutter test tool/replay_jump_session_test.dart --dart-define=TRACKING_LOG=/tmp/push-up-bird-last.log
 ```
 
 The trace contains full-precision body landmarks, sensor timestamps, calibration

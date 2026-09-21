@@ -36,6 +36,7 @@ void main() {
     () {
       double now = 0;
       final current = ReplayTape(
+        recordedVersion: 11,
         mode: PlayMode.pushUp,
         practice: false,
         seed: 5,
@@ -137,7 +138,7 @@ void main() {
     expect(h.sim.gates, 4);
   });
 
-  test('courier finishes at 75 seconds and warns only at 65', () {
+  test('courier continues beyond 75 seconds without a final countdown', () {
     final h = FlightHarness(course: FlightCourse.skyCourier);
     h.sim.elapsed = 49.99;
     h.step();
@@ -152,17 +153,17 @@ void main() {
     h.step();
     expect(
       h.sim.events.where((e) => e.kind == FlightEventKind.finalStretch),
-      hasLength(1),
+      isEmpty,
     );
     h.step();
     expect(
       h.sim.events.where((e) => e.kind == FlightEventKind.finalStretch),
-      hasLength(1),
+      isEmpty,
     );
     h.sim.elapsed = 74.99;
     h.step();
-    expect(h.sim.endReason, EndReason.completed);
-    expect(h.sim.elapsed, 75);
+    expect(h.sim.endReason, isNull);
+    expect(h.sim.elapsed, greaterThan(75));
   });
 
   test('courier practice freezes cargo and clock while paused', () {
@@ -209,7 +210,7 @@ void main() {
         );
         sim.tick(.02, now);
       }
-      expect(sim.endReason, EndReason.completed);
+      expect(sim.phase, RunPhase.playing);
       expect(sim.courierBumps, 0);
       expect(sim.lettersDropped, 0);
       expect(sim.score, greaterThan(2));
@@ -260,13 +261,18 @@ void main() {
                 FlightSimulation.birdX - FlightSimulation.birdRadius,
           );
           final target = ahead.isEmpty ? .5 : ahead.first.target;
+          // A jump's higher arc must start below the passage center.
+          final flapAt = (target + (mode == PlayMode.jump ? .13 : 0)).clamp(
+            .15,
+            .88,
+          );
           recorder.apply(
             MovementInput(
               valid: true,
               height: (.85 - target) / .7,
               flap:
-                  mode != PlayMode.pushUp &&
-                  sim.birdY > target &&
+                  !mode.controlsHeight &&
+                  sim.birdY > flapAt &&
                   sim.velocity >= 0,
             ),
             TrackingSample(
@@ -282,7 +288,7 @@ void main() {
           if (sim.phase == RunPhase.ended) break;
         }
         final sim = recorder.simulation;
-        expect(sim.endReason, EndReason.completed);
+        expect(sim.phase, RunPhase.playing);
         expect(sim.score, greaterThan(1));
         final player = ReplayPlayer(ReplayTape.fromJson(tape.toJson()));
         player.seek(tape.durationMs);
@@ -336,16 +342,16 @@ void main() {
       }
       final p = await repo.load();
       expect(p.courierPushUp.best, 5);
-      expect(p.courierSmile.best, 5);
+      expect(p.courierJump.best, 5);
       expect(p.courierTouch.best, 5);
       expect(p.pushUp.best, 0);
       expect(p.trailPushUp.best, 0);
-      expect(p.totalObstacles, 42);
-      expect(p.totalRuns, 3);
+      expect(p.totalObstacles, 14 * PlayMode.values.length);
+      expect(p.totalRuns, PlayMode.values.length);
       expect(p.totalRepetitions, 12);
       expect(p.trailCompletions, 0);
       expect(p.totalStars, 0);
-      expect(p.recent, hasLength(3));
+      expect(p.recent, hasLength(PlayMode.values.length));
       expect(p.unlocked, contains(1));
       expect(
         p.passport.firstWhere((s) => s.stamp == SkyStamp.bothWings).earned,

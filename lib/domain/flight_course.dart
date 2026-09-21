@@ -1,14 +1,24 @@
 /// The activity controls the bird; the course defines the arcade objective.
-/// Stable names are stored in SQLite and replay journals.
+/// Star Trail is the only course new flights start. Other names remain so
+/// saved sessions and replay journals still load.
 enum FlightCourse {
   classic,
   starTrail,
   skyCourier,
   cloudCruise;
 
+  static FlightCourse named(String? name, {FlightCourse orElse = starTrail}) {
+    for (final course in values) {
+      if (course.name == name) return course;
+    }
+    return orElse;
+  }
+
   bool get relaxed => this == cloudCruise;
   bool get collectsStars => this == starTrail || this == cloudCruise;
-  bool get timed => this == starTrail || this == skyCourier;
+
+  /// The duration belongs only to saved, pre-endless replay rules.
+  bool get legacyTimed => this == starTrail || this == skyCourier;
   double get duration => this == skyCourier ? 75 : 60;
   String get shortTitle => this == skyCourier ? 'Courier' : title;
 
@@ -20,8 +30,8 @@ enum FlightCourse {
   };
   String get subtitle => switch (this) {
     classic => 'Endless sky. One chance. Make it count.',
-    starTrail => '60 seconds. Three hearts. A sky full of stars.',
-    skyCourier => '75 seconds. Pick up letters. Deliver little joys.',
+    starTrail => 'Endless stars. Three hearts. A sky that keeps changing.',
+    skyCourier => 'Endless deliveries. Pick up letters. Deliver little joys.',
     cloudCruise => 'Cloud friends. Open sky. No crashes or clock.',
   };
   String get instructions => switch (this) {

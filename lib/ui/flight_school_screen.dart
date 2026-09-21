@@ -13,8 +13,7 @@ import 'components.dart';
 import 'theme.dart';
 
 class FlightSchoolScreen extends ConsumerStatefulWidget {
-  const FlightSchoolScreen({super.key, required this.course});
-  final FlightCourse course;
+  const FlightSchoolScreen({super.key});
   @override
   ConsumerState<FlightSchoolScreen> createState() => _FlightSchoolScreenState();
 }
@@ -26,7 +25,7 @@ class _FlightSchoolScreenState extends ConsumerState<FlightSchoolScreen>
   late SkyAudio audio;
   late GameSettings settings;
   SchoolControl control = SchoolControl.drag;
-  late FlightCourse course;
+  static const course = FlightCourse.starTrail;
   bool _refreshQueued = false, _finishedNotified = false;
   @override
   void initState() {
@@ -37,7 +36,6 @@ class _FlightSchoolScreenState extends ConsumerState<FlightSchoolScreen>
         const GameSettings();
     audio = ref.read(audioFactoryProvider)();
     unawaited(audio.configure(settings, active: false));
-    course = widget.course;
     _reset();
   }
 
@@ -136,16 +134,8 @@ class _FlightSchoolScreenState extends ConsumerState<FlightSchoolScreen>
   String get _hint => control == SchoolControl.drag
       ? 'Drag anywhere to move up and down.'
       : 'Tap anywhere to flap. Release between taps.';
-  String get _lesson => switch (course) {
-    FlightCourse.classic =>
-      'Follow each aiming mark through the gap. A perfect pass blooms with gold flowers.',
-    FlightCourse.starTrail =>
-      'Collect a whole star trio for +5. Follow the gaps, charge a magnet and keep your shield.',
-    FlightCourse.skyCourier =>
-      'Fly through a pickup with an empty pouch, then reach a postbox to deliver the letter.',
-    FlightCourse.cloudCruise =>
-      'Follow the stars and meet three cloud friends. The open rings never cause a crash.',
-  };
+  String get _lesson =>
+      'Collect a whole star trio for +5. Follow the gaps, charge a magnet and keep your shield.';
   void _camera(String mode) =>
       context.go('/play/$mode?practice=true&course=${course.name}');
 
@@ -210,35 +200,6 @@ class _FlightSchoolScreenState extends ConsumerState<FlightSchoolScreen>
                     constraints.maxWidth < 750 ? 'SCHOOL' : 'FLIGHT SCHOOL',
                     icon: Icons.touch_app_rounded,
                   ),
-                  const SizedBox(width: 10),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: SkyColors.cream,
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<FlightCourse>(
-                        key: const ValueKey('school-course'),
-                        value: course,
-                        style: bodyText(14, weight: FontWeight.w900),
-                        items: [
-                          for (final item in FlightCourse.values)
-                            DropdownMenuItem(
-                              value: item,
-                              child: Text(item.shortTitle),
-                            ),
-                        ],
-                        onChanged: (value) {
-                          if (value == null || value == course) return;
-                          setState(() {
-                            course = value;
-                            _reset();
-                          });
-                        },
-                      ),
-                    ),
-                  ),
                   const Spacer(),
                   if (school.active) ...[
                     if (constraints.maxWidth >= 750)
@@ -289,18 +250,10 @@ class _FlightSchoolScreenState extends ConsumerState<FlightSchoolScreen>
                 bottom: 60,
                 right: 16,
                 child: IgnorePointer(
-                  child: Pill(switch (course) {
-                    FlightCourse.classic =>
-                      '${sim.perfectPasses} perfect passes',
-                    FlightCourse.starTrail =>
-                      '${sim.hearts} hearts · ${sim.multiplier}× · ${sim.shield ? 'Shield ready' : 'Collect 9 stars for a shield'}',
-                    FlightCourse.skyCourier =>
-                      sim.carryingLetter
-                          ? 'Letter aboard · Find a postbox'
-                          : 'Find a pickup gate',
-                    FlightCourse.cloudCruise =>
-                      '${sim.cloudFriends.length}/3 cloud friends',
-                  }, color: SkyColors.cream),
+                  child: Pill(
+                    '${sim.hearts} hearts · ${sim.multiplier}× · ${sim.shield ? 'Shield ready' : 'Collect 9 stars for a shield'}',
+                    color: SkyColors.cream,
+                  ),
                 ),
               ),
             if (!overlay)
@@ -409,16 +362,20 @@ class _FlightSchoolScreenState extends ConsumerState<FlightSchoolScreen>
                             ),
                             if (school.active) ...[
                               const SizedBox(height: 8),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                              Wrap(
+                                alignment: WrapAlignment.center,
                                 children: [
                                   TextButton(
                                     onPressed: () => _camera('push-up'),
                                     child: const Text('Try with push-ups'),
                                   ),
                                   TextButton(
-                                    onPressed: () => _camera('smile'),
-                                    child: const Text('Try with smiles'),
+                                    onPressed: () => _camera('jump'),
+                                    child: const Text('Try with jumps'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () => _camera('squat'),
+                                    child: const Text('Try with squats'),
                                   ),
                                 ],
                               ),

@@ -44,12 +44,7 @@ final appRouter = GoRouter(
     GoRoute(path: '/', builder: (context, state) => const HomeScreen()),
     GoRoute(
       path: '/school',
-      builder: (context, state) => FlightSchoolScreen(
-        course: FlightCourse.values.firstWhere(
-          (c) => c.name == state.uri.queryParameters['course'],
-          orElse: () => FlightCourse.classic,
-        ),
-      ),
+      builder: (context, state) => const FlightSchoolScreen(),
     ),
     GoRoute(
       path: '/daily',
@@ -91,15 +86,21 @@ final appRouter = GoRouter(
       builder: (context, state) => PlayScreen(
         key: ValueKey(state.uri.toString()),
         mode: switch (state.pathParameters['mode']) {
-          'smile' => PlayMode.smile,
+          'jump' || 'smile' => PlayMode.jump,
           'touch' => PlayMode.touch,
+          'squat' => PlayMode.squat,
           _ => PlayMode.pushUp,
         },
         practice: state.uri.queryParameters['practice'] == 'true',
-        course: FlightCourse.values.firstWhere(
-          (c) => c.name == state.uri.queryParameters['course'],
-          orElse: () => FlightCourse.classic,
-        ),
+        // Retire the crash-free jump diagnostic link in favor of the regular
+        // obstacle course. Saved replays retain their recorded course.
+        course: switch ((
+          state.pathParameters['mode'],
+          state.uri.queryParameters['course'],
+        )) {
+          ('jump' || 'smile', 'cloudCruise') => FlightCourse.starTrail,
+          (_, final course) => FlightCourse.named(course),
+        },
       ),
     ),
   ],
@@ -152,10 +153,26 @@ class _PushUpBirdAppState extends ConsumerState<PushUpBirdApp>
   }
 
   @override
-  Widget build(BuildContext context) => MaterialApp.router(
-    title: 'Push-Up Bird',
-    debugShowCheckedModeBanner: false,
-    theme: skyTheme(),
-    routerConfig: appRouter,
-  );
+  Widget build(BuildContext context) {
+    final reducedMotion = ref.watch(
+      progressProvider.select(
+        (p) => p.asData?.value.settings.reducedMotion ?? false,
+      ),
+    );
+    return MaterialApp.router(
+      title: 'Push-Up Bird',
+      debugShowCheckedModeBanner: false,
+      theme: skyTheme(),
+      routerConfig: appRouter,
+      builder: (context, child) {
+        final mediaQuery = MediaQuery.of(context);
+        return MediaQuery(
+          data: mediaQuery.copyWith(
+            disableAnimations: reducedMotion || mediaQuery.disableAnimations,
+          ),
+          child: child!,
+        );
+      },
+    );
+  }
 }

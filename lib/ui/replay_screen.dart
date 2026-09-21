@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'jump_glide_hud.dart';
 import 'dart:io';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,7 @@ import '../domain/replay_highlights.dart';
 import '../game/audio.dart';
 import '../game/bird_game.dart';
 import 'theme.dart';
+import 'components.dart';
 import 'flight_goals.dart';
 import 'cloud_friends.dart';
 import 'replay_highlights.dart';
@@ -46,9 +48,41 @@ class SessionLibraryScreen extends ConsumerWidget {
             ),
           ),
           data: (sessions) => sessions.isEmpty
-              ? const Center(
-                  child: Text(
-                    'Save a session after a flight to watch it here.',
+              ? SafeArea(
+                  child: Center(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(16),
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 420),
+                        child: Panel(
+                          color: SkyColors.cream,
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const BirdArt(size: 48, bob: false),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Your flights belong here',
+                                style: heading(24),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Save a session after a flight to watch it here.',
+                                style: bodyText(15),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 16),
+                              SkyButton(
+                                label: 'Choose a flight',
+                                onPressed: () => context.go('/'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 )
               : ListView.builder(
@@ -650,7 +684,7 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                           ),
                         if (_player!.simulation.isTrail)
                           Text(
-                            '${_player!.simulation.hearts} hearts · ${_player!.simulation.remainingSeconds.ceil()}s',
+                            '${_player!.simulation.hearts} hearts · ${_player!.simulation.clockLabel}',
                             style: bodyText(11, color: Colors.white),
                           ),
                         if (_player!.simulation.magnetActive)
@@ -658,9 +692,14 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                             'Magnet · ${_player!.simulation.magnetRemaining.ceil()}s',
                             style: bodyText(11, color: SkyColors.lavender),
                           ),
+                        if (_player!.simulation.supportsJumpGlide)
+                          JumpGlideHud(
+                            simulation: _player!.simulation,
+                            compact: true,
+                          ),
                         if (_player!.simulation.isCourier)
                           Text(
-                            '${_player!.simulation.carryingLetter ? 'Letter aboard' : 'Find a pickup'} · ${_player!.simulation.remainingSeconds.ceil()}s',
+                            '${_player!.simulation.carryingLetter ? 'Letter aboard' : 'Find a pickup'} · ${_player!.simulation.clockLabel}',
                             style: bodyText(11, color: SkyColors.yellow),
                           ),
                       ],

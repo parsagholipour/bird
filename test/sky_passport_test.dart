@@ -17,13 +17,13 @@ void main() {
     );
   });
   test(
-    'stamps combine both controls and courses but captain requires Classic',
+    'stamps combine both controls and captain requires a 50-point Star Trail',
     () {
       const progress = ProgressSnapshot(
         pushUp: ModeRecord(runs: 2, best: 12, perfectPasses: 4),
-        trailSmile: ModeRecord(
+        trailJump: ModeRecord(
           runs: 3,
-          best: 250,
+          best: 20,
           stars: 60,
           bestCombo: 14,
           perfectPasses: 6,
@@ -60,14 +60,15 @@ void main() {
     () {
       const progress = ProgressSnapshot(
         pushUp: ModeRecord(runs: 3, best: 11, perfectPasses: 8),
-        trailSmile: ModeRecord(runs: 2, stars: 50, bestCombo: 7),
+        trailJump: ModeRecord(runs: 2, stars: 50, bestCombo: 7),
       );
       expect(progress.nextStamp?.stamp, SkyStamp.onTheDot);
       expect(progress.nextStamp?.remaining, 2);
       const complete = ProgressSnapshot(
         pushUp: ModeRecord(runs: 3, best: 25, perfectPasses: 10),
-        trailSmile: ModeRecord(
+        trailJump: ModeRecord(
           runs: 3,
+          best: 50,
           stars: 50,
           bestCombo: 12,
           completions: 3,

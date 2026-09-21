@@ -205,34 +205,46 @@ class SettingsScreen extends ConsumerWidget {
     bool value,
     ValueChanged<bool> onChanged,
   ) => Expanded(
-    child: Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: SkyColors.yellow.withValues(alpha: .4),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Icon(icon, color: SkyColors.ink),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
+    child: MergeSemantics(
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          onTap: () => onChanged(!value),
+          excludeFromSemantics: true,
+          borderRadius: BorderRadius.circular(16),
+          child: Row(
             children: [
-              Text(title, style: heading(21)),
-              const SizedBox(height: 5),
-              Text(subtitle, style: bodyText(13, color: SkyColors.muted)),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: SkyColors.yellow.withValues(alpha: .4),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(icon, color: SkyColors.ink),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: heading(21)),
+                    const SizedBox(height: 5),
+                    Text(subtitle, style: bodyText(13, color: SkyColors.muted)),
+                  ],
+                ),
+              ),
+              ExcludeFocus(
+                child: Switch(
+                  value: value,
+                  onChanged: onChanged,
+                  activeTrackColor: SkyColors.teal,
+                ),
+              ),
             ],
           ),
         ),
-        Switch(
-          value: value,
-          onChanged: onChanged,
-          activeTrackColor: SkyColors.teal,
-        ),
-      ],
+      ),
     ),
   );
 }

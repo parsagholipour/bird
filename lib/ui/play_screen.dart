@@ -1,3 +1,6 @@
+import '../domain/squat_tracking.dart';
+import 'squat_setup_art.dart';
+import 'jump_setup_art.dart';
 import 'dart:async';
 import 'dart:io';
 import 'package:flame/game.dart';
@@ -19,6 +22,8 @@ import 'components.dart';
 import 'theme.dart';
 import 'setup_art.dart';
 import 'flight_portrait.dart';
+import 'flight_score.dart';
+import 'jump_glide_hud.dart';
 import 'record_chase.dart';
 import 'flight_goals.dart';
 import 'cloud_friends.dart';
@@ -28,7 +33,7 @@ class PlayScreen extends ConsumerStatefulWidget {
     super.key,
     required this.mode,
     bool practice = false,
-    this.course = FlightCourse.classic,
+    this.course = FlightCourse.starTrail,
   }) : practice = practice || course == FlightCourse.cloudCruise;
   final FlightCourse course;
   final PlayMode mode;
@@ -365,11 +370,27 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('A little tap. A lot of sky.', style: heading(32)),
+                      Text(
+                        widget.course.relaxed
+                            ? 'A little tap. A lot of sky.'
+                            : 'Flap. Aim. Fire!',
+                        style: heading(32),
+                      ),
                       const SizedBox(height: 12),
                       Text(
-                        'Tap anywhere in the sky to flap upward.\nRelease and tap again to keep flying.',
+                        widget.course.relaxed
+                            ? 'Tap anywhere in the sky to flap upward.\nRelease and tap again to keep flying.'
+                            : 'Tap the sky for a stronger flap through tighter gaps.\nTap Shoot to spit a rock straight at the bats.',
                         style: bodyText(18),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        widget.course.subtitle,
+                        style: bodyText(
+                          15,
+                          weight: FontWeight.w800,
+                          color: SkyColors.ink,
+                        ),
                       ),
                       const SizedBox(height: 10),
                       Text(
@@ -421,7 +442,9 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         _header(
           widget.mode == PlayMode.pushUp
               ? 'A little setup. A lot of sky.'
-              : 'Your smile has wings.',
+              : widget.mode == PlayMode.squat
+              ? 'Feet planted. Wings open.'
+              : 'Small jumps. Big wings.',
           trailing: Pill(
             '${widget.course.title.toUpperCase()} · ${widget.practice ? 'PRACTICE' : 'SCORED'}',
             icon: widget.practice
@@ -449,27 +472,29 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                                 ),
                                 painter: const PushUpSetupArt(),
                               )
-                            : Center(
-                                child: FittedBox(
-                                  child: BirdArt(
-                                    bird: 1,
-                                    size: 160,
-                                    reducedMotion: p.settings.reducedMotion,
-                                  ),
+                            : CustomPaint(
+                                size: const Size(
+                                  double.infinity,
+                                  double.infinity,
                                 ),
+                                painter: widget.mode == PlayMode.squat
+                                    ? const SquatSetupArt()
+                                    : const JumpSetupArt(),
                               ),
                       ),
                       Text(
                         widget.mode == PlayMode.pushUp
                             ? 'Make a little room to move.'
-                            : 'Take a seat. Face the camera.',
+                            : 'Show your whole body.',
                         style: heading(25),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         widget.mode == PlayMode.pushUp
                             ? 'Phone low. Show an arm and hip.\nFacing it? Keep both shoulders in view.'
-                            : 'One smile gives one flap.\nRelax your face before the next one.',
+                            : widget.mode == PlayMode.squat
+                            ? 'Squat to descend. Stand to rise.\nKeep both feet on the floor.'
+                            : 'Jump for a boost + 3s glide.\nLand before jumping again.',
                         style: bodyText(15, color: SkyColors.muted),
                         textAlign: TextAlign.center,
                       ),
@@ -498,21 +523,34 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                       '1',
                       widget.mode == PlayMode.pushUp
                           ? 'Show your arm and hip'
-                          : 'Find a comfortable seat',
+                          : widget.mode == PlayMode.squat
+                          ? 'Make room to squat'
+                          : 'Make room to jump',
                       widget.mode == PlayMode.pushUp
                           ? 'Facing the phone? Show both shoulders, one arm and a hip.'
-                          : 'Prop the phone at face height in landscape.',
+                          : 'Phone in landscape. Show your body and both feet.',
                     ),
                     _step(
                       '2',
                       widget.mode == PlayMode.pushUp
                           ? 'Find your movement range'
-                          : 'Teach us your smile',
+                          : widget.mode == PlayMode.squat
+                          ? 'Find your comfortable squat'
+                          : 'Stand tall and still',
                       widget.mode == PlayMode.pushUp
                           ? 'Find a comfortable top, then move down and up twice.'
-                          : 'Hold a neutral expression, then a smile.',
+                          : widget.mode == PlayMode.squat
+                          ? 'Stand still, squat and hold briefly, then stand back up.'
+                          : 'Hold still briefly. Then jump for a big boost.',
                     ),
-                    _step('3', widget.course.title, widget.course.instructions),
+                    _step(
+                      '3',
+                      widget.course.title,
+                      widget.mode == PlayMode.jump &&
+                              widget.course.collectsStars
+                          ? 'Stars add 0.75s of glide, up to 5s. Collect trios for +5 points.'
+                          : widget.course.instructions,
+                    ),
                     const Spacer(),
                     Text(
                       widget.practice
@@ -628,9 +666,9 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         ? 'Waking up your camera…'
         : error
         ? 'Let’s reconnect your camera.'
-        : widget.mode == PlayMode.pushUp
+        : widget.mode.controlsHeight
         ? 'Find your movement range.'
-        : 'Find your smile.';
+        : 'Stand tall and still.';
     return Stack(
       children: [
         Positioned(
@@ -774,9 +812,16 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                             : controller.body.step == BodyCalibrationStep.lower
                             ? 'Lower yourself slowly.'
                             : 'Push back up.'
-                      : controller.face.neutral == null
-                      ? 'Relax your face.'
-                      : 'Now hold a smile.',
+                      : widget.mode == PlayMode.squat
+                      ? switch (controller.squat.step) {
+                          SquatCalibrationStep.standing =>
+                            'Stand tall and still.',
+                          SquatCalibrationStep.lower => 'Squat comfortably.',
+                          SquatCalibrationStep.rise => 'Stand back up.',
+                          SquatCalibrationStep.complete =>
+                            'You found your wings!',
+                        }
+                      : 'Stand tall and still.',
                   style: heading(27),
                 ),
                 const SizedBox(height: 8),
@@ -784,10 +829,12 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                   ready
                       ? (widget.mode == PlayMode.pushUp
                             ? 'Push up to rise. Lower to glide.'
-                            : 'Relax, then smile to flap.')
+                            : widget.mode == PlayMode.squat
+                            ? 'Squat to descend. Stand to rise.'
+                            : 'Jump, then rest while your bird glides.')
                       : (widget.mode == PlayMode.pushUp
                             ? 'Keep your shoulders, one arm and a hip in view. Move comfortably.'
-                            : 'Keep your face centered for a moment.'),
+                            : 'Keep your shoulders, hips and both feet in view.'),
                   style: bodyText(14, color: SkyColors.muted),
                 ),
                 const SizedBox(height: 12),
@@ -804,7 +851,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                                 ? 'CONTROL CHECK'
                                 : widget.mode == PlayMode.pushUp
                                 ? '${controller.body.cycles} / 2 PUSH-UPS'
-                                : '${controller.face.neutral == null ? 0 : 1} / 2 EXPRESSIONS',
+                                : '${((widget.mode == PlayMode.squat ? controller.squat.progress : controller.jump.progress) * 100).round()}% CALIBRATED',
                             color: ready ? SkyColors.mint : SkyColors.yellow,
                           ),
                         ),
@@ -815,6 +862,8 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                                 ? .8 - controller.movement.height * 1.6
                                 : widget.mode == PlayMode.pushUp
                                 ? .8 - controller.body.previewHeight * 1.6
+                                : widget.mode == PlayMode.squat
+                                ? .8 - controller.squat.previewHeight * 1.6
                                 : 0,
                           ),
                           child: BirdArt(
@@ -829,21 +878,21 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                             left: 0,
                             right: 0,
                             child: Text(
-                              widget.mode == PlayMode.pushUp
+                              widget.mode.controlsHeight
                                   ? 'Learning your range as you move.'
                                   : 'Your bird moves after calibration.',
                               style: bodyText(12, color: SkyColors.muted),
                               textAlign: TextAlign.center,
                             ),
                           ),
-                        if (ready && widget.mode == PlayMode.smile)
+                        if (ready && widget.mode == PlayMode.jump)
                           Positioned(
                             bottom: 4,
                             left: 0,
                             right: 0,
                             child: Text(
                               controller.movement.flap
-                                  ? 'Flap!'
+                                  ? 'Jump!'
                                   : controller.movement.feedback,
                               style: bodyText(12, color: SkyColors.muted),
                               textAlign: TextAlign.center,
@@ -886,6 +935,22 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     );
   }
 
+  Widget _flightReadout({
+    double? left,
+    double? top,
+    double? right,
+    double? bottom,
+    double? width,
+    required Widget child,
+  }) => Positioned(
+    left: left,
+    top: top,
+    right: right,
+    bottom: bottom,
+    width: width,
+    child: IgnorePointer(child: child),
+  );
+
   Widget _flight() {
     final sim = controller.simulation!;
     final paused = sim.phase == RunPhase.paused;
@@ -907,7 +972,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
           )
         else
           GameWidget(game: game!),
-        Positioned(
+        _flightReadout(
           left: 24,
           top: 20,
           child: Pill(
@@ -926,33 +991,24 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
             color: SkyColors.cream,
           ),
         ),
-        Positioned(
+        _flightReadout(
           top: 18,
           left: 400,
           right: 400,
-          child: Center(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 3),
-              decoration: BoxDecoration(
-                color: SkyColors.cream.withValues(alpha: .94),
-                borderRadius: BorderRadius.circular(22),
-              ),
-              child: Text(
-                '${sim.score}',
-                style: heading(48, weight: FontWeight.w700),
-              ),
-            ),
+          child: FlightScore(
+            score: sim.score,
+            reducedMotion: controller.reducedMotion,
           ),
         ),
         if (sim.discoversClouds)
-          Positioned(
+          _flightReadout(
             top: 18,
             left: 284,
             width: 120,
             child: CloudFriendsHud(friends: sim.cloudFriends),
           ),
         if (goals.isNotEmpty)
-          Positioned(
+          _flightReadout(
             top: 18,
             left: 284,
             width: 120,
@@ -972,7 +1028,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
           ),
         ),
         if (!widget.practice && initialBest > 0)
-          Positioned(
+          _flightReadout(
             top: 18,
             left: 600,
             width: 188,
@@ -982,27 +1038,31 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
               reducedMotion: controller.reducedMotion,
             ),
           ),
-        Positioned(
+        _flightReadout(
           left: 24,
           bottom: 20,
           child: Pill(
             widget.mode == PlayMode.pushUp
-                ? '${sim.repetitions} push-ups'
-                : '${sim.flaps} flaps',
+                ? '${sim.repetitions} ${sim.repetitions == 1 ? 'push-up' : 'push-ups'}'
+                : widget.mode == PlayMode.squat
+                ? '${sim.repetitions} ${sim.repetitions == 1 ? 'squat' : 'squats'}'
+                : widget.mode == PlayMode.jump
+                ? '${sim.flaps} ${sim.flaps == 1 ? 'jump' : 'jumps'}'
+                : '${sim.flaps} ${sim.flaps == 1 ? 'flap' : 'flaps'}',
             icon: widget.mode == PlayMode.pushUp
                 ? Icons.fitness_center_rounded
                 : controller.isTouch
                 ? Icons.touch_app_rounded
-                : Icons.sentiment_satisfied_alt_rounded,
+                : Icons.accessibility_new_rounded,
             color: SkyColors.cream,
           ),
         ),
-        Positioned(
+        _flightReadout(
           right: 24,
           bottom: 20,
           child: Pill(
             controller.isTouch
-                ? 'Tap anywhere to flap'
+                ? 'Tap the sky to flap'
                 : sim.trackingFresh(controller.nowMs)
                 ? 'Tracking you'
                 : 'Finding you…',
@@ -1016,7 +1076,65 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                 : SkyColors.yellow,
           ),
         ),
-        Positioned(
+        if (sim.supportsJumpGlide)
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: sim.isTrail || sim.isCourier || sim.isCruise ? 88 : 18,
+            child: IgnorePointer(
+              child: Center(
+                child: SizedBox(
+                  width: 240,
+                  child: JumpGlideHud(simulation: sim),
+                ),
+              ),
+            ),
+          ),
+        if (sim.supportsCombat)
+          Positioned(
+            right: 24,
+            bottom: 76,
+            child: Listener(
+              // Consume touches across the entire control, including cooldown.
+              behavior: HitTestBehavior.opaque,
+              child: SizedBox(
+                width: 180,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      height: 88,
+                      child: SkyButton(
+                        key: const ValueKey('touch-shoot'),
+                        label: 'Shoot',
+                        icon: Icons.gps_fixed_rounded,
+                        color: SkyColors.coral,
+                        onPressed: sim.canShoot ? controller.shoot : null,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value:
+                            1 -
+                            sim.shotCooldownRemaining /
+                                FlightSimulation.shotCooldown,
+                        minHeight: 5,
+                        backgroundColor: SkyColors.cream,
+                        valueColor: const AlwaysStoppedAnimation(
+                          SkyColors.coralDeep,
+                        ),
+                        semanticsLabel: 'Rock ready',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        _flightReadout(
           left: sim.isTrail ? null : 24,
           right: sim.isTrail ? 24 : null,
           top: sim.isTrail ? 76 : 66,
@@ -1060,20 +1178,37 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
             ],
           ),
         ),
-        if (sim.timed)
-          Positioned(
+        if (sim.timed || sim.endless)
+          _flightReadout(
             top: 22,
             right: 86,
-            child: Pill(
-              '${sim.remainingSeconds.ceil()}s',
-              icon: Icons.timer_outlined,
-              color: sim.remainingSeconds <= 10
-                  ? SkyColors.coral
-                  : SkyColors.cream,
+            child: Column(
+              key: const ValueKey('flight-clock'),
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Pill(
+                  sim.clockLabel,
+                  icon: sim.timed
+                      ? Icons.timer_outlined
+                      : Icons.all_inclusive_rounded,
+                  color: sim.timed && sim.remainingSeconds <= 10
+                      ? SkyColors.coral
+                      : SkyColors.cream,
+                ),
+                if (sim.endless)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 3, right: 8),
+                    child: Text(
+                      '${sim.paceMultiplier.toStringAsFixed(2)}× pace',
+                      style: bodyText(11, weight: FontWeight.w800),
+                    ),
+                  ),
+              ],
             ),
           ),
         if (sim.isCourier)
-          Positioned(
+          _flightReadout(
             left: 300,
             right: 300,
             bottom: 24,
@@ -1091,33 +1226,35 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                       ? SkyColors.yellow
                       : SkyColors.cream,
                 ),
-                const SizedBox(height: 6),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: LinearProgressIndicator(
-                    value: sim.elapsed / sim.course.duration,
-                    minHeight: 5,
-                    backgroundColor: SkyColors.white.withValues(alpha: .6),
-                    valueColor: const AlwaysStoppedAnimation(SkyColors.teal),
+                if (sim.timed) ...[
+                  const SizedBox(height: 6),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: LinearProgressIndicator(
+                      value: sim.elapsed / sim.course.duration,
+                      minHeight: 5,
+                      backgroundColor: SkyColors.white.withValues(alpha: .6),
+                      valueColor: const AlwaysStoppedAnimation(SkyColors.teal),
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),
         if (sim.isTrail) ...[
-          Positioned(
+          _flightReadout(
             top: 84,
             left: 400,
             right: 400,
             child: Center(
               child: Pill(
-                '${sim.collectedStars} stars · ${sim.multiplier}×',
+                '${sim.collectedStars} ${sim.collectedStars == 1 ? 'star' : 'stars'} · ${sim.multiplier}×',
                 icon: Icons.star_rounded,
                 color: sim.multiplier > 1 ? SkyColors.yellow : SkyColors.cream,
               ),
             ),
           ),
-          Positioned(
+          _flightReadout(
             bottom: 24,
             left: 320,
             right: 310,
@@ -1143,7 +1280,10 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                   child: LinearProgressIndicator(
                     value: sim.magnetActive
                         ? sim.magnetRemaining / FlightSimulation.magnetDuration
-                        : sim.elapsed / FlightSimulation.trailDuration,
+                        : sim.magnetCharge / 3,
+                    semanticsLabel: sim.magnetActive
+                        ? 'Magnet time remaining'
+                        : 'Magnet charge',
                     minHeight: 5,
                     backgroundColor: SkyColors.white.withValues(alpha: .6),
                     valueColor: AlwaysStoppedAnimation(
@@ -1156,19 +1296,19 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
           ),
         ],
         if (sim.isCruise) ...[
-          Positioned(
+          _flightReadout(
             top: 84,
             left: 360,
             right: 360,
             child: Center(
               child: Pill(
-                '${sim.collectedStars} stars · ${sim.multiplier}×',
+                '${sim.collectedStars} ${sim.collectedStars == 1 ? 'star' : 'stars'} · ${sim.multiplier}×',
                 icon: Icons.star_rounded,
                 color: SkyColors.yellow,
               ),
             ),
           ),
-          Positioned(
+          _flightReadout(
             bottom: 22,
             left: 300,
             right: 300,
@@ -1209,7 +1349,9 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                   Text(
                     (controller.isTouch || sim.trackingFresh(controller.nowMs))
                         ? (controller.isTouch
-                              ? 'Tap to flap. Release between taps.'
+                              ? (sim.supportsCombat
+                                    ? 'Tap the sky to flap. Tap Shoot to fire a rock.'
+                                    : 'Tap to flap. Release between taps.')
                               : sim.isCruise
                               ? 'Breathe. Move. Follow the stars.'
                               : sim.isTrail
@@ -1336,7 +1478,8 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                         bird: newBird ?? p.settings.bird,
                         reducedMotion: p.settings.reducedMotion,
                         arrivedCourse:
-                            r.reason == EndReason.completed && r.course.timed
+                            r.reason == EndReason.completed &&
+                                r.course.legacyTimed
                             ? r.course
                             : null,
                         celebrate:
@@ -1507,8 +1650,12 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                                       child: _stat(
                                         widget.mode == PlayMode.pushUp
                                             ? 'PUSH-UPS'
+                                            : widget.mode == PlayMode.squat
+                                            ? 'SQUATS'
+                                            : widget.mode == PlayMode.jump
+                                            ? 'JUMPS'
                                             : 'FLAPS',
-                                        '${widget.mode == PlayMode.pushUp ? r.repetitions : r.flaps}',
+                                        '${widget.mode.controlsHeight ? r.repetitions : r.flaps}',
                                       ),
                                     ),
                                     Expanded(

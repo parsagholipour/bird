@@ -30,6 +30,10 @@ import 'star_magnet_test.dart' show FlightHarness;
     final sim = recorder.simulation;
     final ahead = sim.obstacles.where((o) => !o.scored);
     final target = ahead.isEmpty ? .15 : ahead.first.target;
+    // Center the larger jump arc around the target instead of boosting at its
+    // center and spending the whole arc above the collectibles.
+    final flapAt = (target + (mode == PlayMode.jump && version >= 8 ? .13 : 0))
+        .clamp(.15, .88);
     height += ((.85 - target) / .7 - height).clamp(
       -.02 * 2 / cycle,
       .02 * 2 / cycle,
@@ -38,8 +42,7 @@ import 'star_magnet_test.dart' show FlightHarness;
       MovementInput(
         valid: true,
         height: height,
-        flap:
-            mode != PlayMode.pushUp && sim.birdY > target && sim.velocity >= 0,
+        flap: !mode.controlsHeight && sim.birdY > flapAt && sim.velocity >= 0,
       ),
       TrackingSample(
         mode: mode,
@@ -142,7 +145,7 @@ void main() {
   test(
     'older cruise journals retain their stars, physics and random route',
     () {
-      final trip = recordCloudCruise(PlayMode.smile);
+      final trip = recordCloudCruise(PlayMode.jump, version: 7);
       final old = ReplayTape.fromJson(trip.tape.toJson()..['version'] = 4);
       expect(old.toJson()['version'], 4);
       final modern = ReplayPlayer(trip.tape)..seek(trip.tape.durationMs);
@@ -165,7 +168,7 @@ void main() {
       expect(legacy.simulation.completedTrios, 0);
       for (final course in FlightCourse.values.where((c) => !c.relaxed)) {
         final sim = FlightSimulation(
-          rules: GrinGlideMode(),
+          rules: JumpFlyMode(),
           practice: true,
           course: course,
           random: Random(1),

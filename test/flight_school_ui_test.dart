@@ -73,8 +73,6 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
-        await tester.tap(find.byKey(const ValueKey('course-skyCourier')));
-        await tester.pumpAndSettle();
         await capture(tester, 'school-home-${width.toInt()}');
         await tester.tap(find.text('Flight school'));
         Future<BirdGame> loaded() async {
@@ -92,14 +90,7 @@ void main() {
 
         var game = await loaded();
         expect(find.byType(FlightSchoolScreen), findsOneWidget);
-        expect(
-          tester
-              .widget<DropdownButton<FlightCourse>>(
-                find.byKey(const ValueKey('school-course')),
-              )
-              .value,
-          FlightCourse.skyCourier,
-        );
+        expect(find.byKey(const ValueKey('school-course')), findsNothing);
         expect(cameras, 0);
         expect(tester.takeException(), isNull);
         await capture(tester, 'school-intro-${width.toInt()}');
@@ -118,7 +109,7 @@ void main() {
         await tester.pump(const Duration(milliseconds: 300));
         expect(game.simulation.elapsed, time);
         await capture(tester, 'school-paused-${width.toInt()}');
-        expect(find.text('Try with smiles'), findsOneWidget);
+        expect(find.text('Try with jumps'), findsOneWidget);
         await tester.tap(find.text('Continue lesson'));
         for (var i = 0; i < 32; i++) {
           await tester.pump(const Duration(milliseconds: 100));
@@ -137,12 +128,6 @@ void main() {
         game = await loaded();
         expect(game.simulation.score, 0);
         expect(find.text('Start lesson'), findsOneWidget);
-        tester
-            .widget<DropdownButton<FlightCourse>>(
-              find.byKey(const ValueKey('school-course')),
-            )
-            .onChanged!(FlightCourse.cloudCruise);
-        await loaded();
         await tester.tap(find.text('Tap to flap'));
         game = await loaded();
         await tester.tap(find.text('Start lesson'));
@@ -169,12 +154,12 @@ void main() {
       expect(after.recent, before.recent);
         expect(await tester.runAsync(() => sessions.list()), isEmpty);
         expect(tester.takeException(), isNull);
-        await tester.tap(find.text('Try with smiles'));
+        await tester.tap(find.text('Try with jumps'));
         await tester.pump();
         expect(find.byType(PlayScreen), findsOneWidget);
         final play = tester.widget<PlayScreen>(find.byType(PlayScreen));
         expect(play.practice, isTrue);
-        expect(play.course, FlightCourse.cloudCruise);
+        expect(play.course, FlightCourse.starTrail);
         expect(
           cameras,
           1,

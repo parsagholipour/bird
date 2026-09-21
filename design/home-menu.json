@@ -1,0 +1,30 @@
+{
+  "fileKey": "3l8DyW2mxf917HzgXsQaz7",
+  "fileUrl": "https://www.figma.com/design/3l8DyW2mxf917HzgXsQaz7?node-id=92-1045",
+  "pageId": "5:9",
+  "home": "92:1045",
+  "sections": {
+    "header": "92:1046",
+    "pushUp": "92:1048",
+    "touch": "92:1050",
+    "smile": "92:1051",
+    "progress": "92:1052"
+  },
+  "implementation": "lib/ui/home_screen.dart",
+  "screenshots": [
+    "build/visual-review/home-star-trail.png",
+    "build/visual-review/touch-home-640.png",
+    "build/visual-review/touch-home-800.png"
+  ],
+  "notes": "Camera push-ups are primary. Touch has a separate no-camera card. Smile and both camera practice links remain available. Daily and flock progress have one entry each. Existing Figma screens are preserved.",
+  "validation": {
+    "fontFamilies": [
+      "Fredoka",
+      "Nunito"
+    ],
+    "designSize": [
+      1000,
+      450
+    ]
+  }
+}

@@ -1,5 +1,151 @@
 # Validation ledger
 
+## 2026-09-21 smoother Jump descent
+
+- The final 1.25 seconds of glide now gradually increase falling speed from
+  0.06 toward 0.20 viewport heights per second. That cap remains after the
+  charge expires, removing the sudden return to full gravity. Star refills
+  also slow the bird gradually, and the ending cue starts with the transition.
+- The upward boost is preserved. Replay version 11 enables the new descent;
+  recordings from versions 9 and 10 retain their original glide physics.
+- All 338 Flutter tests pass and static analysis is clean. Regression checks
+  cover the transition before and after expiry, smooth star-refill braking,
+  and historical replay behavior.
+- The Android arm64 release APK builds successfully and passes the offline
+  model and 16 KB alignment checks for all 15 packaged native libraries.
+  Device installation is pending reconnection of the phone.
+
+## 2026-09-21 regular course for Jump & Fly
+
+- Jump uses the regular Star Trail game with buildings, stars, hearts and no
+  enemies. Old Cloud Cruise diagnostic launch links now select Star Trail;
+  saved replays keep their original course. The menu describes this behavior.
+- Static analysis and 19 targeted menu, jump, glide and combat tests pass.
+  The release APK passes offline-model and 16 KB native-library checks.
+- Installed the release APK on the connected phone and opened Jump mode;
+  the device shows `STAR TRAIL · SCORED` with the charged-jump instructions.
+
+## 2026-09-21 body-motion jump detection after failed device retry
+
+- The next device capture disproved the earlier sensitivity adjustment: the
+  player waited 39.007 seconds for calibration, got one accepted jump, and the
+  game automatically paused when foot confidence dropped.
+- An independent subagent traced the failures to foot jitter resetting standing
+  calibration and estimated toe motion disagreeing with clear torso takeoffs.
+  Jump calibration now uses a robust one-second torso window, and the jump
+  signal uses coordinated hip/shoulder rise with a noise-adjusted threshold.
+  Lower landmarks establish framing with ankle/toe fallback. Deliberate body
+  bounces count; the mode no longer promises to distinguish every calf raise
+  from a small hop.
+- `tool/replay_jump_session_test.dart` feeds the original private landmarks
+  through the real controller, countdown and simulation. Cloud Cruise keeps
+  collisions from ending the replay while checking input. The new capture
+  calibrates at 9.843 seconds (about one second after body entry), accepts nine
+  distinct takeoffs and remains playing. The stationary portion produces zero
+  boosts. The earlier capture also accepts seven boosts and remains playing.
+- Opt-in diagnostics now record the learned jump baseline, threshold and each
+  jump's actual acceptance by the simulation, including game phase and count.
+  Interpreter-only replay totals are explicitly labeled because countdown or
+  paused events do not boost the bird. Captures remain outside the repository.
+- All 335 automated tests pass and static analysis is clean. New checks include
+  foot jitter during standing, brief missing frames, continuous movement during
+  calibration, small hops with inverse foot estimates and shoulder-only motion.
+- Built and installed the replacement Android arm64 profile APK with landmark
+  diagnostics at 19:54 local time. Opened Cloud Cruise practice on the connected
+  phone for a collision-free input check. Physical verification is pending.
+
+## 2026-09-21 Squat & Fly
+
+- Added a fourth control after the Jump & Fly task completed: squat to descend,
+  stand to rise, with both feet planted. Guided calibration learns a standing
+  position and a comfortable squat, then confirms the return to standing.
+- Hip height above the ankles drives continuous bird altitude, with a
+  three-frame median, 65 ms smoothing and endpoint margins. Full cycles count
+  as squats. Missing/stale frames, lifted feet and camera-distance changes
+  reject input; a tracking interruption cannot finish a repetition.
+- Added scored/practice menu entries, illustrated setup, calibration preview,
+  in-flight/result counts, camera-lab support, daily-adventure and Flight School
+  launchers, separate personal bests and persistent squat totals. Scored flights
+  contribute to unlocks, daily goals and passport progress; practice does not.
+- Appended mode index 3 and introduced replay version 10. Existing mode indices
+  and historical replay physics remain intact. Squat height, counts, pauses and
+  backward replay seeks are covered by automated tests across all courses.
+- Static analysis is clean and all 323 Flutter tests pass. Tracking tests cover
+  smooth movement at 15/20/30 Hz, different camera scales, jitter, leaning,
+  one-frame spikes, lost joints, stale/duplicate frames and interrupted squats.
+- Inspected Flutter renders of setup and records at 800×360 and calibration at
+  640×360 under `build/visual-review/squat-*.png`, plus the four-control daily
+  adventure screen. Layout checks pass without overflow.
+- ARM64 release APK builds successfully (64.3 MB). Bundled offline models,
+  all 15 native libraries' 16 KB ELF alignment and 16 KB ZIP alignment pass.
+  APK SHA-256: `d371514bf9a71c699569f42290f5db08d1127ebd58fa1ce0478a7d4f4ee2adea`.
+- No Android device is connected. Physical camera sensitivity, viewing comfort
+  and performance remain pending; tests use synthetic body landmarks.
+
+## 2026-09-21 charged jumps
+
+- A physical jump now banks three seconds of gliding after the upward boost.
+  Descent is limited to 0.06 viewport heights per second while charged. Stars
+  add 0.75 seconds, capped at five; they cannot start or revive an empty charge.
+  A new jump boosts immediately and refreshes at least three seconds while
+  retaining extra time earned from stars.
+- Pauses and countdowns preserve glide time. Existing collisions, tracking loss
+  and course endings remain active. Version 9 replay journals reproduce charge,
+  star-extension feedback and wing pose; earlier journals retain their physics.
+- Setup explains the mechanic. The flight HUD shows the remaining reserve,
+  a star-extension message and an ending cue; saved replays show glide time.
+  Gliding spreads the bird's wings, with the neutral Reduced Motion pose retained.
+- Static analysis is clean and all 301 Flutter tests pass.
+- Targeted physics tests cover exhaustion, one reward per star, the cap, refresh,
+  pauses/countdowns, invalid input, collisions and old controls. The same Cloud
+  Cruise input policy uses at least 25% fewer jumps than version 8 while still
+  collecting stars and discovering all three cloud friends.
+- Inspected actual Flutter renders of setup, active glide, star rewards and
+  low charge at 640×360 and 800×360 under `build/visual-review/charged-jump-*.png`.
+  The glide meter sits above the existing course HUD without overlapping it.
+- ARM64 release APK builds successfully. Offline-model and 16 KB alignment
+  checks pass for all 15 packaged native libraries.
+- No Android device is connected; physical camera playtesting remains pending.
+
+## 2026-09-21 Jump & Fly replaces smile mode
+
+- Both movement modes now request MediaPipe pose tracking. Jump mode calibrates
+  a stable standing body for one second, then requires torso rise and both feet
+  lifting for two frames; a stable landing rearms the next boost. The setup and
+  camera lab show a full-body guide and jump instructions.
+- Jump boosts use impulse −0.55 and gravity 0.55: approximately 2.9× the previous
+  smile flap height and 2.1× its airtime. Wider passages, slower scrolling and
+  longer spacing allow time between physical jumps. Jump counts stay separate
+  from push-up repetitions; touch physics are unchanged.
+- Existing record indices remain valid. Old `smile` routes, session summaries
+  and input journals are accepted; replay versions before 8 retain their original
+  physics. New sessions save the `jump` name and version 8.
+- Static analysis is clean. All 288 Flutter tests pass, including jump calibration, jitter, crouching,
+  calf raises, missing feet, stale/future/duplicate frames, tracking loss,
+  camera distance changes, landing rearm, 15/20/30 Hz jump trajectories, native
+  detector selection, controller flow, physics and legacy replay compatibility.
+- Rendered the menu and scored/practice jump setup at 800×360 and inspected
+  `build/visual-review/jump-mode-menu.png`, `jump-mode-setup.png` and
+  `jump-practice-setup.png`; no layout overflow.
+- Release ARM64 APK built successfully; bundled tracking models and 16 KB
+  alignment checks pass for all 15 packaged native libraries.
+- No Android device is connected. Real camera jump sensitivity and physical
+  playability still require a device check.
+
+## 2026-09-21 home menu refinement
+
+- Camera push-ups have the primary card and an explicit start action. Touch has
+  a separate card labeled “No camera needed”; smile and both camera-practice
+  links remain available. Flight School and Settings sit in the header; daily
+  goals, bird unlocks, Passport, Records and Flight goals form the lower menu.
+- Static analysis is clean. All 22 targeted menu, course, touch, daily, school,
+  experience and courier UI checks pass, including the camera-free touch flow.
+  Actual Flutter renders at 640×360, 800×360 and 1000×450 were inspected.
+- A new Figma composition reuses the existing fonts, tokens, buttons and bird
+  artwork. Its IDs and screenshot locations are recorded in
+  `design/home-menu.json`; earlier compositions are preserved.
+- No Android device was connected; device interaction was not checked.
+
 ## 2026-09-16 touch Flight School
 
 - Home opens a touch sandbox for all four courses, with drag-to-steer or
@@ -649,3 +795,91 @@ when tests run with `--dart-define=CAPTURE_VISUALS=true`.
 
 Physical touchscreen feel and interruption handling on an Android device still
 need a device check.
+
+### Touch difficulty and rock shooting
+
+Touch now has a stronger flap, narrower gaps and closer buildings. Bats appear
+on alternating approaches in Classic, Star Trail and Sky Courier. Shoot fires
+a straight rock from the rendered beak, with a 280 ms cooldown; buildings stop
+rocks, one hit defeats a bat, and Star Trail awards 3 points. Enemy contact uses
+each course's existing collision/recovery rules. Cloud Cruise has no enemies.
+
+`flutter analyze --no-pub` is clean and all 278 Flutter tests pass. New checks
+cover the harder cadence, beak alignment with motion enabled/disabled, straight
+trajectory, misses, wall blocking, slow-frame hits, shield/heart/courier damage,
+cooldown, pause/retry, and deterministic replay including backward seeks. Version
+6 touch recordings retain their original physics and reject shoot events.
+Widget checks at 640×360 and 800×360 cover shooting without flapping, cooldown
+touch isolation, simultaneous flap/shoot touches, and saved gameplay replays.
+The setup and gameplay captures in `build/visual-review/touch-*` were visually
+checked. Difficulty feel on a physical touchscreen still needs playtesting.
+The Android arm64 release APK also builds successfully with
+`flutter build apk --release --target-platform android-arm64 --no-pub`.
+## 2026-09-21 missed jumps on the connected Android phone
+
+- Replayed the user's opt-in landmark recording through the real jump
+  calibrator and interpreter. The original code detected zero jumps despite
+  repeated torso rises. A shortened recording containing calibration and the
+  first takeoff also reproduced the failure.
+- The per-foot lift threshold rejected uneven projected foot motion. Brief
+  invalid poses erased a confirmed landing, and requiring feet to return to
+  the original calibration position prevented subsequent jumps. The detector
+  now combines smaller foot lifts, preserves landing evidence across brief
+  rejected frames, and updates its foot reference at confirmed landings.
+- The same recording now yields seven detections on distinct takeoffs, with
+  no detections while approaching the camera or standing. The user's estimated
+  count was four to five, so the exact physical count still needs confirmation.
+  The minimized first-takeoff replay detects exactly one jump.
+- Regression tests cover small hops, the recorded asymmetric foot motion,
+  landing at different image positions, and brief missing/late/distorted
+  poses. Existing crouch, calf-raise, one-foot-lift, jitter and sustained-loss
+  rejection tests still pass. The controller test also verifies that a small
+  hop produces the full bird boost. All 328 tests pass; analysis is clean.
+- Installed the updated Android arm64 profile APK with landmark diagnostics
+  enabled on the connected phone. A fresh physical retry is pending.
+
+## 2026-09-21 endless flights and moving passages
+
+- Replay rules version 12 removes timed endings and final-stretch cues from new
+  flights, smoothly increases speed with elapsed play time, and mixes garden
+  gates with Wind Lifts, Petal Shutters and split Switchbacks. Old recordings
+  retain their original movement, score, countdown and arrival art.
+- All 371 Flutter tests pass; `flutter analyze --no-pub` reports no issues.
+  Twenty-four five-minute simulations cover all courses with push-up and squat
+  control at 1-, 4- and 9-second calibrated cycles. They verify continuous play,
+  obstacle variety, bounded active objects, intact shields/hearts, reachable
+  stars and no courier bumps. Speed progression is checked for all four controls.
+- Physics checks cover moving openings, both switchback columns, slow frames,
+  pause/countdown freezes, following pickups, deterministic backwards replay
+  seeks and the legacy timed endings. Saved endurance progress counts collision,
+  break and quit results at or beyond 60 seconds, excludes practice and other
+  courses, and remains idempotent on duplicate saves.
+- Rendered and inspected the four obstacle designs in the game scene and the
+  updated elapsed-time/pace HUD. Pixel checks keep decoration out of the moving
+  opening. Widget checks keep the new clock clear of the personal-best badge.
+  Captures are in `build/visual-review/endless-obstacles-*.png` and
+  `build/visual-review/star-trail-flight.png`.
+- The Android arm64 release APK builds successfully with
+  `flutter build apk --release --target-platform android-arm64 --no-pub`.
+  Physical-device playtesting of the new pace and obstacle motion is pending.
+
+## 2026-09-21 obstacle design and variety pass
+
+- Seven obstacle families now mix throughout a flight. Added floating lantern
+  pairs, orbiting sun wheels and moving crystal steps, with round collision
+  bodies for floating obstacles. Refined lifts into turbines and bellows,
+  shutters into blossoms and leaves, and split towers into faceted structures.
+  Non-garden families have three seeded color/detail variations. Cruise rings
+  share the new colors, beads, stars and crystal details.
+- All 381 Flutter tests pass and static analysis is clean. Existing five-minute
+  simulations encounter all seven families without rushing calibrated movement.
+  New tests check actual round-body collisions, open-sky bypasses, rock blocking,
+  scoring-width bounds, pause freezes, staggered crystal columns, mixed patterns
+  and visual variations. Pixel tests verify that all designs leave their moving
+  passage visibly clear. Version-12 seeded results and obstacle positions match
+  the captured baseline; new version-13 replays reproduce appearance and motion.
+- Visually inspected the generated eight-panel design sheet and in-game renders
+  across the three sky regions. Preview: `build/visual-review/obstacle-variety.png`;
+  game captures: `build/visual-review/variety-*.png`.
+- Physical-device playtesting of the new obstacle motion remains pending.
+- The updated Android arm64 release APK builds successfully (64.4 MB).

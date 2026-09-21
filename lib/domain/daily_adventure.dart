@@ -29,7 +29,7 @@ class DailyGoal {
     DailyTask.stars => 'Collect $target stars across today’s Star Trails.',
     DailyTask.streak => 'Collect $target stars in one unbroken streak.',
     DailyTask.perfects => 'Fly $target perfect passes today.',
-    DailyTask.finishTrail => 'Complete one 60-second Star Trail.',
+    DailyTask.finishTrail => 'Fly for at least 60 seconds in one Star Trail.',
   };
 }
 
@@ -80,8 +80,7 @@ class DailyAdventure {
       if (run.course == FlightCourse.starTrail) {
         stars += run.stars;
         if (run.bestCombo > streak) streak = run.bestCombo;
-        if (run.reason == EndReason.completed &&
-            run.durationSeconds >= FlightSimulation.trailDuration) {
+        if (run.durationSeconds >= FlightSimulation.trailDuration) {
           finishes++;
         }
       }

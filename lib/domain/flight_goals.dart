@@ -1,6 +1,6 @@
 import 'game_rules.dart';
 
-enum FlightGoalMetric { gates, stars, streak, deliveries, completedRoute }
+enum FlightGoalMetric { gates, stars, streak, deliveries, flightSeconds }
 
 class FlightGoal {
   const FlightGoal(this.title, this.description, this.metric, this.target);
@@ -53,8 +53,8 @@ abstract final class FlightGoals {
       ),
       FlightGoal(
         'Whole horizon',
-        'Finish the 60-second trail.',
-        FlightGoalMetric.completedRoute,
+        'Fly for 60 seconds in one trail.',
+        FlightGoalMetric.flightSeconds,
         60,
       ),
     ],
@@ -72,9 +72,9 @@ abstract final class FlightGoals {
         3,
       ),
       FlightGoal(
-        'Round complete',
-        'Finish the 75-second route.',
-        FlightGoalMetric.completedRoute,
+        'Long-haul courier',
+        'Fly for 75 seconds in one route.',
+        FlightGoalMetric.flightSeconds,
         75,
       ),
     ],
@@ -89,7 +89,6 @@ abstract final class FlightGoals {
     streak: run.bestCombo,
     score: run.score,
     duration: run.durationSeconds,
-    completed: run.reason == EndReason.completed,
   );
 
   static List<FlightGoalProgress> forSimulation(FlightSimulation sim) =>
@@ -101,7 +100,6 @@ abstract final class FlightGoals {
         streak: sim.bestCombo,
         score: sim.score,
         duration: sim.elapsed,
-        completed: sim.endReason == EndReason.completed,
       );
 
   static List<FlightGoalProgress> _progress(
@@ -112,7 +110,6 @@ abstract final class FlightGoals {
     required int streak,
     required int score,
     required double duration,
-    required bool completed,
   }) {
     if (practice || course.relaxed) return const [];
     return [
@@ -122,10 +119,7 @@ abstract final class FlightGoals {
           FlightGoalMetric.stars => stars,
           FlightGoalMetric.streak => streak,
           FlightGoalMetric.deliveries => score,
-          FlightGoalMetric.completedRoute => duration.floor().clamp(
-            0,
-            completed ? goal.target : goal.target - 1,
-          ),
+          FlightGoalMetric.flightSeconds => duration.floor(),
         }),
     ];
   }

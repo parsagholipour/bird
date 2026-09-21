@@ -11,7 +11,7 @@ import 'package:push_up_bird/ui/theme.dart';
 import 'cloud_friends_test.dart' show recordCloudCruise;
 
 FlightSimulation flight() =>
-    FlightSimulation(rules: GrinGlideMode(), practice: true)
+    FlightSimulation(rules: JumpFlyMode(), practice: true)
       ..started = true
       ..phase = RunPhase.playing
       ..elapsed = 3;

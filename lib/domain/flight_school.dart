@@ -10,7 +10,7 @@ class FlightSchool {
     : simulation = FlightSimulation(
         rules: control == SchoolControl.drag
             ? PushUpFlightMode(cycleSeconds: 3)
-            : GrinGlideMode(),
+            : JumpFlyMode(),
         practice: true,
         course: course,
         random: Random(seed),

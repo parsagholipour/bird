@@ -229,19 +229,19 @@ void main() {
     now += 16;
     sim.apply(
       const MovementInput(valid: true, height: 1),
-      sample(now, PlayMode.smile),
+      sample(now, PlayMode.jump),
       now,
     );
     expect(sim.birdY, before);
   });
-  test('smile uses gravity and a flap impulse without counting push-ups', () {
-    final game = FlightSimulation(rules: GrinGlideMode(), practice: false);
+  test('jump uses gravity and a flap impulse without counting push-ups', () {
+    final game = FlightSimulation(rules: JumpFlyMode(), practice: false);
     var t = 0.0;
     for (var i = 0; i < 190; i++) {
       t += 16;
       game.apply(
         const MovementInput(valid: true),
-        sample(t, PlayMode.smile),
+        sample(t, PlayMode.jump),
         t,
       );
       game.tick(.016, t);
@@ -250,12 +250,18 @@ void main() {
     t += 16;
     game.apply(
       const MovementInput(valid: true, flap: true, repetitions: 5),
-      sample(t, PlayMode.smile),
+      sample(t, PlayMode.jump),
       t,
     );
     game.tick(.016, t);
     expect(game.birdY, lessThan(y));
     expect(game.flaps, 1);
     expect(game.repetitions, 0);
+  });
+
+  test('new flights resolve missing course names to Star Trail', () {
+    expect(FlightCourse.named(null), FlightCourse.starTrail);
+    expect(FlightCourse.named('unknown'), FlightCourse.starTrail);
+    expect(FlightCourse.named('skyCourier'), FlightCourse.skyCourier);
   });
 }

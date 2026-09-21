@@ -2,7 +2,10 @@ import 'dart:math' as math;
 import 'tracking.dart';
 import 'flight_course.dart';
 import 'cloud_friends.dart';
+import 'bird_motion.dart';
+import 'obstacle.dart';
 export 'flight_course.dart';
+export 'obstacle.dart';
 
 enum RunPhase { countdown, playing, paused, ended }
 
@@ -32,9 +35,8 @@ enum FlightEventKind {
   letterLost,
   cloudFriend,
   starTrio,
+  enemyHit,
 }
-
-enum CourierStop { pickup, postbox }
 
 class FlightEvent {
   const FlightEvent(
@@ -53,9 +55,17 @@ class FlightEvent {
 }
 
 class SkyStar {
-  SkyStar({required this.x, required this.y, this.trio, this.trioSlot = 0});
+  SkyStar({
+    required this.x,
+    required this._y,
+    this.trio,
+    this.trioSlot = 0,
+    this.passage,
+  });
   double x;
-  final double y;
+  final double _y;
+  final Obstacle? passage;
+  double get y => passage?.target ?? _y;
   final StarTrio? trio;
   final int trioSlot;
   bool collected = false, missed = false;
@@ -64,9 +74,11 @@ class SkyStar {
 
 /// Three stars on one approach. Its center scrolls with the original pickups.
 class StarTrio {
-  StarTrio({required this.x, required this.y});
+  StarTrio({required this.x, required this._y, this.passage});
   double x;
-  final double y;
+  final double _y;
+  final Obstacle? passage;
+  double get y => passage?.target ?? _y;
   int collectedMask = 0;
   bool missed = false;
   double? completedAt;
@@ -74,24 +86,18 @@ class StarTrio {
   bool collected(int slot) => collectedMask & (1 << slot) != 0;
 }
 
-class Obstacle {
-  Obstacle({
-    required this.x,
-    required this.center,
-    required this.gap,
-    this.width = .14,
-    double? target,
-    this.courierStop,
-  }) : target = target ?? center;
+class SkyEnemy {
+  SkyEnemy({required this.x, required this.y});
   double x;
-  final double center, gap, width, target;
-  final CourierStop? courierStop;
-  bool scored = false;
-  bool hit = false;
-  double? courierActionAt;
-  double maxDeviation = 0;
-  double get top => center - gap / 2;
-  double get bottom => center + gap / 2;
+  final double y;
+  static const radius = .045;
+}
+
+class BirdRock {
+  BirdRock({required this.x, required this.y});
+  double x;
+  final double y;
+  static const radius = .014, speed = 1.65;
 }
 
 /// Extension point for exercise games. Distances are in units of viewport height.
@@ -127,9 +133,17 @@ class PushUpFlightMode implements GameMode {
   double get flapImpulse => 0;
 }
 
-class GrinGlideMode implements GameMode {
+/// Continuous height control with the player's comfortable squat cadence.
+class SquatFlyMode extends PushUpFlightMode {
+  SquatFlyMode({required super.cycleSeconds});
   @override
-  PlayMode get mode => PlayMode.smile;
+  PlayMode get mode => PlayMode.squat;
+}
+
+/// Original flap physics for saved replays and the touch mode baseline.
+class LegacyFlapMode implements GameMode {
+  @override
+  PlayMode get mode => PlayMode.jump;
   @override
   double gapFor(int score) => (.46 - score * .003).clamp(.33, .46);
   @override
@@ -145,10 +159,40 @@ class GrinGlideMode implements GameMode {
   double get flapImpulse => -.40;
 }
 
-/// Tap flight uses the same flap physics, with its own records and replay mode.
-class TapFlyMode extends GrinGlideMode {
+/// A physical jump earns nearly three times the old smile flap height and
+/// twice the airtime, with slower passages to allow time to land and recover.
+class JumpFlyMode extends LegacyFlapMode {
+  @override
+  double gapFor(int score) => (.52 - score * .002).clamp(.42, .52);
+  @override
+  double speedFor(int score) => (.28 + score * .002).clamp(.28, .40);
+  @override
+  double intervalFor(int score) => 2.8;
+  @override
+  double get gravity => .55;
+  @override
+  double get flapImpulse => -.55;
+}
+
+/// Touch has a faster arcade cadence. Older journals retain smile physics.
+class TapFlyMode extends LegacyFlapMode {
+  TapFlyMode({this.rulesVersion = FlightSimulation.currentRulesVersion});
+  final int rulesVersion;
+  bool get arcade => rulesVersion >= 7;
   @override
   PlayMode get mode => PlayMode.touch;
+  @override
+  double gapFor(int score) =>
+      arcade ? (.38 - score * .003).clamp(.28, .38) : super.gapFor(score);
+  @override
+  double speedFor(int score) =>
+      arcade ? (.40 + score * .003).clamp(.40, .58) : super.speedFor(score);
+  @override
+  double intervalFor(int score) => arcade ? 1.7 : super.intervalFor(score);
+  @override
+  double get gravity => arcade ? 1.1 : super.gravity;
+  @override
+  double get flapImpulse => arcade ? -.54 : super.flapImpulse;
 }
 
 class RunResult {
@@ -195,7 +239,7 @@ class FlightSimulation {
   final FlightCourse course;
 
   /// Replay journals keep the rules they were recorded with.
-  static const currentRulesVersion = 6;
+  static const currentRulesVersion = 13;
   final int rulesVersion;
   final math.Random random;
   final List<Obstacle> obstacles = [];
@@ -204,11 +248,34 @@ class FlightSimulation {
   final List<DriftingCloud> clouds = [];
   final Set<CloudFriend> cloudFriends = {};
   final List<FlightEvent> events = [];
+  final List<SkyEnemy> enemies = [];
+  final List<BirdRock> rocks = [];
+  int shots = 0, enemiesDefeated = 0;
+  double lastShotAt = double.negativeInfinity;
+  static const shotCooldown = .28;
+  bool get supportsCombat =>
+      rules.mode == PlayMode.touch && rulesVersion >= 7 && !isCruise;
+  double get shotCooldownRemaining =>
+      math.max(0, lastShotAt + shotCooldown - elapsed);
+  bool get canShoot =>
+      supportsCombat && phase == RunPhase.playing && shotCooldownRemaining == 0;
   static const birdX = .47, birdRadius = .038;
   RunPhase phase = RunPhase.countdown;
   EndReason? endReason;
   double birdY = .5, velocity = 0, countdown = 3, elapsed = 0, distance = 0;
   double lastFlapAt = double.negativeInfinity;
+  static const jumpGlideSeconds = 3.0, starGlideSeconds = .75;
+  static const maxGlideSeconds = 5.0, glideFallSpeed = .06;
+  static const glideEaseOutSeconds = 1.25, maxJumpFallSpeed = .20;
+  static const _jumpFallAcceleration = .24;
+  double _glideRemaining = 0;
+  double lastGlideStarAt = double.negativeInfinity;
+  bool get supportsJumpGlide =>
+      rules.mode == PlayMode.jump && rulesVersion >= 9;
+  bool get smoothJumpDescent => supportsJumpGlide && rulesVersion >= 11;
+  double get glideRemaining => supportsJumpGlide ? _glideRemaining : 0;
+  bool get hasGlideCharge => glideRemaining > 0 && phase != RunPhase.ended;
+  bool get gliding => hasGlideCharge && velocity >= 0;
   int score = 0, repetitions = 0, flaps = 0;
   int gates = 0, collectedStars = 0, combo = 0, bestCombo = 0;
   int completedTrios = 0;
@@ -232,34 +299,83 @@ class FlightSimulation {
   bool get isCruise => course.relaxed;
   bool get discoversClouds => isCruise && rulesVersion >= 5;
   bool get isCourier => course == FlightCourse.skyCourier;
-  bool get timed => course.timed;
+  bool get endless => rulesVersion >= 12;
+  bool get timed => !endless && course.legacyTimed;
   bool get collectsStars => course.collectsStars;
   bool get supportsStarTrios => collectsStars && rulesVersion >= 6;
   int get multiplier => 1 + (combo ~/ 6).clamp(0, 2);
   int get shieldCharge => collectedStars % 9;
   double get remainingSeconds => math.max(0, course.duration - elapsed);
-  double get speed => isCruise
+  String get clockLabel {
+    if (timed) return '${remainingSeconds.ceil()}s';
+    final seconds = elapsed.floor();
+    return '${seconds ~/ 60}:${(seconds % 60).toString().padLeft(2, '0')}';
+  }
+
+  // Time, not points, gently increases the pace. A star bonus never causes a
+  // sudden jump in speed; the asymptote keeps long flights physically playable.
+  double get paceMultiplier =>
+      endless ? 1 + (isCruise ? .25 : .65) * (1 - math.exp(-elapsed / 240)) : 1;
+  double get speed => endless
+      ? rules.speedFor(0) *
+            (isCruise
+                ? .75
+                : isTrail || isCourier
+                ? .9
+                : 1) *
+            paceMultiplier
+      : isCruise
       ? rules.speedFor(0) * .75
       : isTrail || isCourier
       ? rules.speedFor(gates) * .9
       : rules.speedFor(score);
+  int get _difficulty => endless ? (elapsed / 20).floor() : gates;
   double get gap => isCruise
       ? .48
+      : supportsCombat
+      ? rules.gapFor(_difficulty)
       : isTrail || isCourier
-      ? math.min(.48, rules.gapFor(gates) + .09)
-      : rules.gapFor(score);
+      ? math.min(.48, rules.gapFor(_difficulty) + .09)
+      : rules.gapFor(endless ? _difficulty : score);
   // The leading constellation occupies .42 height units before its gate.
   // At the slowest trail speed, this allowance leaves at least a calibrated
   // half-cycle between clearing one gate and reaching the next pickup halo.
-  double get spawnInterval =>
-      rules.intervalFor(collectsStars || isCourier ? gates : score) +
-      (isTrail
-          ? 1.3
-          : isCruise
-          ? 1.6
-          : isCourier
-          ? .65
-          : 0);
+  double get spawnInterval {
+    final interval =
+        rules.intervalFor(collectsStars || isCourier ? gates : score) +
+        (supportsCombat
+            ? (isTrail ? .25 : 0)
+            : isTrail
+            ? 1.3
+            : isCruise
+            ? 1.6
+            : isCourier
+            ? .65
+            : 0);
+    final mode = rules;
+    if (!endless || mode is! PushUpFlightMode) return interval;
+    // Budget for the widest switchback and the leading pickup halo, including
+    // a little headroom for acceleration while the next gate approaches.
+    final occupied =
+        (rulesVersion >= 13 ? .30 : .24) +
+        birdRadius +
+        (collectsStars ? .42 - .085 : birdRadius);
+    return math.max(interval, mode.cycleSeconds / 2 + occupied / speed + .15);
+  }
+
+  bool shoot({bool reducedMotion = false}) {
+    if (!canShoot) return false;
+    final mouth = BirdFlightMotion.mouth(
+      velocity: velocity,
+      sinceFlap: elapsed - lastFlapAt,
+      reducedMotion: reducedMotion,
+    );
+    rocks.add(BirdRock(x: birdX + mouth.x, y: birdY + mouth.y));
+    lastShotAt = elapsed;
+    shots++;
+    return true;
+  }
+
   String get regionName => switch ((elapsed / 20).floor() % 3) {
     0 => 'Sunrise Isles',
     1 => 'Peach Horizon',
@@ -273,6 +389,9 @@ class FlightSimulation {
   bool _inputValid = false, started = false;
   String trackingFeedback = 'Find your position';
   int _index = 0, _repBaseline = 0;
+  final List<ObstacleKind> _patterns = [];
+  int _patternTier = -1;
+  ObstacleKind _lastPattern = ObstacleKind.garden;
   int _latestReps = 0;
   double get lastValidMs => _lastValidMs;
   bool get hasTracking => _inputValid;
@@ -296,7 +415,7 @@ class FlightSimulation {
     _lastValidMs = sample.timestampMs;
     _lastValidReceivedMs = now;
     _latestReps = input.repetitions;
-    if (rules.mode == PlayMode.pushUp) {
+    if (rules.mode.controlsHeight) {
       birdY = .85 - input.height.clamp(0, 1) * .70;
       if (phase == RunPhase.playing) {
         repetitions = math.max(0, input.repetitions - _repBaseline);
@@ -305,6 +424,10 @@ class FlightSimulation {
       velocity = isCruise ? rules.flapImpulse * .8 : rules.flapImpulse;
       lastFlapAt = elapsed;
       flaps++;
+      if (supportsJumpGlide) {
+        // Refresh the base allowance without erasing time earned from stars.
+        _glideRemaining = math.max(_glideRemaining, jumpGlideSeconds);
+      }
     }
   }
 
@@ -379,13 +502,24 @@ class FlightSimulation {
       }
       final speed = this.speed;
       distance += speed * step;
-      if (rules.mode != PlayMode.pushUp) {
-        velocity += rules.gravity * (isCruise ? .65 : 1) * step;
+      if (!rules.mode.controlsHeight) {
+        if (smoothJumpDescent && velocity >= 0) {
+          _advanceJumpDescent(step);
+        } else {
+          velocity += rules.gravity * (isCruise ? .65 : 1) * step;
+          if (gliding) {
+            // The upward boost keeps its original height. Only the descent uses
+            // the banked glide, so a player gets the full rest after takeoff.
+            velocity = math.min(velocity, glideFallSpeed);
+            _glideRemaining = math.max(0, _glideRemaining - step);
+          }
+        }
         birdY += velocity * step;
       }
       _spawnIn -= step;
       for (final obstacle in obstacles) {
         obstacle.x -= speed * step;
+        obstacle.advance(elapsed);
       }
       if (_spawnIn <= 0) {
         final center = rules.passageCenter(_index++, random, _previousCenter);
@@ -488,6 +622,9 @@ class FlightSimulation {
       if (collectsStars && phase == RunPhase.playing) {
         _advanceStars(speed * step);
       }
+      if (supportsCombat && phase == RunPhase.playing) {
+        _advanceCombat(step, speed, viewportWidth);
+      }
       if (discoversClouds && phase == RunPhase.playing) {
         _advanceClouds(speed * step);
       }
@@ -497,30 +634,59 @@ class FlightSimulation {
   }
 
   void _addPassage(double x, double center) {
-    // Push-ups should reward the complete calibrated movement. The collision
+    // Height controls reward the complete calibrated movement. The collision
     // opening stays unchanged; its aiming mark follows the comfortable endpoint.
-    final target = rulesVersion >= 3 && rules.mode == PlayMode.pushUp
+    final target = rulesVersion >= 3 && rules.mode.controlsHeight
         ? (center < .5 ? .15 : .85)
         : center;
-    obstacles.add(
-      Obstacle(
-        x: x,
-        center: center,
-        gap: gap,
-        target: target,
-        courierStop: isCourier
-            ? (_index.isOdd ? CourierStop.pickup : CourierStop.postbox)
-            : null,
-      ),
+    final kind = _nextPattern();
+    final moving = kind != ObstacleKind.garden;
+    final amplitude = moving ? (rules.mode.controlsHeight ? .035 : .065) : 0.0;
+    // Even the tightest phase leaves a generous safe lane. Height controls keep
+    // their calibrated endpoints rather than demanding extra mini repetitions.
+    final safeGap =
+        2 * ((center - target).abs() + amplitude + birdRadius + .025);
+    final opening = endless ? math.max(gap, safeGap) : gap;
+    final obstacle = Obstacle(
+      x: x,
+      center: center,
+      gap: opening,
+      target: target,
+      width: kind.width,
+      kind: kind,
+      amplitude: amplitude,
+      period: math.max(7, rules.intervalFor(0) * 2.5),
+      phaseOffset: moving ? random.nextDouble() * math.pi * 2 : 0,
+      bornAt: elapsed,
+      fixedTarget: rules.mode.controlsHeight,
+      appearance: rulesVersion >= 13 ? random.nextInt(3) : 0,
+      courierStop: isCourier
+          ? (_index.isOdd ? CourierStop.pickup : CourierStop.postbox)
+          : null,
     );
+    obstacles.add(obstacle);
     if (collectsStars) {
-      final trio = supportsStarTrios ? StarTrio(x: x - .25, y: target) : null;
+      final passage = endless ? obstacle : null;
+      final trio = supportsStarTrios
+          ? StarTrio(x: x - .25, y: target, passage: passage)
+          : null;
       if (trio != null) starTrios.add(trio);
       for (var i = 0; i < 3; i++) {
         stars.add(
-          SkyStar(x: x - .42 + i * .17, y: target, trio: trio, trioSlot: i),
+          SkyStar(
+            x: x - .42 + i * .17,
+            y: target,
+            trio: trio,
+            trioSlot: i,
+            passage: passage,
+          ),
         );
       }
+    }
+    // Alternate approaches leave room to learn the tighter gate rhythm.
+    // Enemies share the aiming height and remain in front of their building.
+    if (supportsCombat && _index.isOdd) {
+      enemies.add(SkyEnemy(x: x - .55, y: target));
     }
     // A friend visits every third ring. The same calm endpoint reaches both
     // the cloud and the stars; no additional movement or cadence is required.
@@ -533,6 +699,98 @@ class FlightSimulation {
         ),
       );
     }
+  }
+
+  ObstacleKind _nextPattern() {
+    if (!endless || _index <= 3 || elapsed < 18) return ObstacleKind.garden;
+    final tier = rulesVersion >= 13
+        ? (elapsed / 18).floor().clamp(1, ObstacleKind.values.length - 1)
+        : elapsed < 36
+        ? 1
+        : elapsed < 54
+        ? 2
+        : 3;
+    if (_patterns.isEmpty || tier != _patternTier) {
+      _patternTier = tier;
+      _patterns
+        ..clear()
+        ..addAll(ObstacleKind.values.take(tier + 1))
+        ..shuffle(random);
+      // Shuffle bags guarantee variety without back-to-back identical hazards.
+      if (_patterns.last == _lastPattern) {
+        final first = _patterns.first;
+        _patterns[0] = _patterns.last;
+        _patterns[_patterns.length - 1] = first;
+      }
+    }
+    return _lastPattern = _patterns.removeLast();
+  }
+
+  void _advanceJumpDescent(double dt) {
+    final ending = (1 - _glideRemaining / glideEaseOutSeconds).clamp(0.0, 1.0);
+    final ease = ending * ending * (3 - 2 * ending);
+    final target = glideFallSpeed + (maxJumpFallSpeed - glideFallSpeed) * ease;
+    // Ease out before the reserve expires; afterwards keep the same gentle
+    // terminal speed. Rate-limited braking also softens a star's glide refill.
+    final change = _jumpFallAcceleration * dt;
+    velocity += (target - velocity).clamp(-change, change);
+    _glideRemaining = math.max(0, _glideRemaining - dt);
+  }
+
+  void _advanceCombat(double dt, double scrollSpeed, double viewportWidth) {
+    for (final enemy in enemies) {
+      enemy.x -= scrollSpeed * dt;
+    }
+    final spent = <BirdRock>{};
+    for (final rock in rocks) {
+      rock.x += BirdRock.speed * dt;
+      // The same small physics steps used for buildings also prevent rocks
+      // tunneling through enemies, even when a rendered frame is slow.
+      if (obstacles.any(
+        (o) => _circleTouchesObstacle(rock.x, rock.y, BirdRock.radius, o),
+      )) {
+        spent.add(rock);
+        continue;
+      }
+      for (final enemy in enemies) {
+        final dx = rock.x - enemy.x, dy = rock.y - enemy.y;
+        const radius = BirdRock.radius + SkyEnemy.radius;
+        if (dx * dx + dy * dy > radius * radius) continue;
+        spent.add(rock);
+        enemies.remove(enemy);
+        enemiesDefeated++;
+        final bonus = isTrail ? 3 : 0;
+        score += bonus;
+        events.add(
+          FlightEvent(
+            FlightEventKind.enemyHit,
+            elapsed,
+            enemy.y,
+            value: bonus,
+            gateWorldX: distance + enemy.x,
+          ),
+        );
+        break;
+      }
+    }
+    rocks.removeWhere(
+      (rock) => spent.contains(rock) || rock.x > viewportWidth + .2,
+    );
+    enemies.removeWhere((enemy) {
+      final dx = birdX - enemy.x, dy = birdY - enemy.y;
+      const radius = birdRadius + SkyEnemy.radius;
+      if (dx * dx + dy * dy <= radius * radius) {
+        if (isTrail) {
+          _damage();
+        } else if (isCourier) {
+          _dropLetter();
+        } else {
+          end(EndReason.collision);
+        }
+        return true;
+      }
+      return enemy.x < -.1;
+    });
   }
 
   void _advanceClouds(double travel) {
@@ -575,6 +833,14 @@ class FlightSimulation {
         star.collected = true;
         combo++;
         collectedStars++;
+        if (hasGlideCharge) {
+          final extended = math.min(
+            maxGlideSeconds,
+            _glideRemaining + starGlideSeconds,
+          );
+          if (extended > _glideRemaining) lastGlideStarAt = elapsed;
+          _glideRemaining = extended;
+        }
         bestCombo = math.max(bestCombo, combo);
         score += multiplier;
         events.add(
@@ -641,15 +907,28 @@ class FlightSimulation {
   void _event(FlightEventKind kind, [int value = 0]) =>
       events.add(FlightEvent(kind, elapsed, birdY, value: value));
 
-  bool _touches(Obstacle o) {
-    bool circleRect(double top, double bottom) {
-      final nearX = birdX.clamp(o.x, o.x + o.width);
-      final nearY = birdY.clamp(top, bottom);
-      final dx = birdX - nearX, dy = birdY - nearY;
-      return dx * dx + dy * dy <= birdRadius * birdRadius;
+  bool _touches(Obstacle o) =>
+      _circleTouchesObstacle(birdX, birdY, birdRadius, o);
+
+  bool _circleTouchesObstacle(double x, double y, double radius, Obstacle o) {
+    bool circleRect(ObstaclePassage passage, double top, double bottom) {
+      if (bottom <= top) return false;
+      final nearX = x.clamp(passage.x, passage.x + passage.width);
+      final nearY = y.clamp(top, bottom);
+      final dx = x - nearX, dy = y - nearY;
+      return dx * dx + dy * dy <= radius * radius;
     }
 
-    return circleRect(0, o.top) || circleRect(o.bottom, 1);
+    if (o.orbs.any((orb) {
+      final dx = x - orb.x, dy = y - orb.y;
+      final reach = radius + orb.radius;
+      return dx * dx + dy * dy <= reach * reach;
+    })) {
+      return true;
+    }
+    return o.passages.any(
+      (p) => circleRect(p, 0, p.top) || circleRect(p, p.bottom, 1),
+    );
   }
 
   void takeBreak() {

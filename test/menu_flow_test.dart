@@ -6,10 +6,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:push_up_bird/data/progress_repository.dart';
 import 'package:push_up_bird/data/providers.dart';
 import 'package:push_up_bird/main.dart';
+import 'play_session_test.dart' show SessionSource, SilentAudio;
+import 'experience_ui_test.dart' show capture;
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(() async {
+    await (FontLoader(
+      'MaterialIcons',
+    )..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'))).load();
     for (final family in ['Fredoka', 'Nunito']) {
       await (FontLoader(
         family,
@@ -28,20 +33,72 @@ void main() {
       );
       await repo.setSetting(SettingKey.reducedMotion, true);
       final container = ProviderContainer(
-        overrides: [progressRepositoryProvider.overrideWithValue(repo)],
+        overrides: [
+          progressRepositoryProvider.overrideWithValue(repo),
+          audioFactoryProvider.overrideWithValue(SilentAudio.new),
+          trackingSourceFactoryProvider.overrideWithValue(SessionSource.new),
+        ],
       );
       await container.read(progressProvider.future);
       appRouter.go('/');
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
-          child: const PushUpBirdApp(),
+          child: const RepaintBoundary(
+            key: ValueKey('visual-capture'),
+            child: PushUpBirdApp(),
+          ),
         ),
       );
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
-      expect(find.text('Push-Up Flight'), findsOneWidget);
-      expect(find.text('Grin & Glide'), findsOneWidget);
+      expect(find.byKey(const ValueKey('push-up-mode')), findsOneWidget);
+      expect(find.text('Jump & Fly'), findsNothing);
+      await tester.tap(find.text('Other ways to play'));
+      await tester.pumpAndSettle();
+      expect(find.text('Jump & Fly'), findsOneWidget);
+      await capture(tester, 'jump-mode-menu');
+      await tester.tap(find.byTooltip('Close other ways to play'));
+      await tester.pumpAndSettle();
+      for (final (label, mode, practice) in [
+        ('Practice', 'push-up', true),
+        ('Jump & Fly', 'jump', false),
+        ('Jump practice', 'jump', true),
+        ('Squat & Fly', 'squat', false),
+        ('Squat practice', 'squat', true),
+      ]) {
+        if (mode != 'push-up') {
+          await tester.tap(find.text('Other ways to play'));
+          await tester.pumpAndSettle();
+        }
+        await tester.ensureVisible(find.text(label));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(label));
+        await tester.pumpAndSettle();
+        final route = appRouter.routeInformationProvider.value.uri;
+        expect(route.path, '/play/$mode');
+        if (mode == 'jump') {
+          expect(find.text('Show your whole body.'), findsOneWidget);
+          expect(find.text('Stand tall and still'), findsOneWidget);
+          await capture(
+            tester,
+            practice ? 'jump-practice-setup' : 'jump-mode-setup',
+          );
+        }
+        if (mode == 'squat') {
+          expect(find.text('Find your comfortable squat'), findsOneWidget);
+          expect(find.textContaining('Squat to descend.'), findsOneWidget);
+          await capture(
+            tester,
+            practice ? 'squat-practice-setup' : 'squat-mode-setup',
+          );
+        }
+        expect(route.queryParameters['course'], 'starTrail');
+        expect(route.queryParameters['practice'] == 'true', practice);
+        expect(tester.takeException(), isNull);
+        appRouter.go('/');
+        await tester.pumpAndSettle();
+      }
       await tester.tap(find.text('Birds'));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
@@ -51,6 +108,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       expect(find.text('Recent flights'), findsOneWidget);
+      expect(find.text('Squat & Fly'), findsOneWidget);
+      await capture(tester, 'squat-records');
       appRouter.go('/settings');
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);

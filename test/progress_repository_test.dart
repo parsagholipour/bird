@@ -112,13 +112,13 @@ void main() {
       expect(p.totalObstacles, 24);
       expect(p.unlocked, {0});
       expect(p.totalRuns, 1);
-      await repo.saveRun(run('b', 1, mode: PlayMode.smile));
+      await repo.saveRun(run('b', 1, mode: PlayMode.jump));
       p = await repo.load();
       expect(p.unlocked, {0, 1});
       expect(p.pushUp.best, 24);
-      expect(p.smile.best, 1);
-      expect(p.smile.repetitions, 0);
-      await repo.saveRun(run('c', 75, mode: PlayMode.smile));
+      expect(p.jump.best, 1);
+      expect(p.jump.repetitions, 0);
+      await repo.saveRun(run('c', 75, mode: PlayMode.jump));
       expect((await repo.load()).unlocked, {0, 1, 2});
       await repo.saveRun(run('d', 150));
       expect((await repo.load()).unlocked, {0, 1, 2, 3});

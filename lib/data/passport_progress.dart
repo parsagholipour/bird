@@ -10,15 +10,17 @@ extension PassportProgress on ProgressSnapshot {
         SkyStamp.starChaser => totalStars,
         SkyStamp.constellation => longestCombo,
         SkyStamp.skyCaptain => [
-          pushUp,
-          smile,
-          touch,
+          trailPushUp,
+          trailJump,
+          trailTouch,
+          trailSquat,
         ].fold(0, (best, record) => record.best > best ? record.best : best),
         SkyStamp.trailblazer => trailCompletions,
         SkyStamp.flockTogether => unlocked.length,
         SkyStamp.bothWings =>
           (pushUp.runs + trailPushUp.runs + courierPushUp.runs > 0 ? 1 : 0) +
-              (smile.runs + trailSmile.runs + courierSmile.runs > 0 ? 1 : 0),
+              (jump.runs + trailJump.runs + courierJump.runs > 0 ? 1 : 0) +
+              (squat.runs + trailSquat.runs + courierSquat.runs > 0 ? 1 : 0),
       }),
   ];
   int get earnedStamps => passport.where((s) => s.earned).length;

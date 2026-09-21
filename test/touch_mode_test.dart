@@ -159,7 +159,7 @@ void main() {
             mode: PlayMode.touch,
             course: course,
             practice: course.relaxed,
-            score: 25,
+            score: course == FlightCourse.starTrail ? 50 : 25,
             gates: 25,
             repetitions: 0,
             flaps: 42,
@@ -173,9 +173,13 @@ void main() {
       for (final course in FlightCourse.values) {
         expect(
           progress.record(PlayMode.touch, course).best,
-          course.relaxed ? 0 : 25,
+          course.relaxed
+              ? 0
+              : course == FlightCourse.starTrail
+              ? 50
+              : 25,
         );
-        expect(progress.record(PlayMode.smile, course).runs, 0);
+        expect(progress.record(PlayMode.jump, course).runs, 0);
         expect(progress.record(PlayMode.pushUp, course).runs, 0);
       }
       expect(progress.totalRuns, 3);

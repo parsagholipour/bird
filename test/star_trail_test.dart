@@ -9,7 +9,7 @@ void main() {
     'Cloud Cruise never crashes, has no time limit, and is always practice',
     () {
       final cruise = FlightSimulation(
-        rules: GrinGlideMode(),
+        rules: JumpFlyMode(),
         practice: false,
         course: FlightCourse.cloudCruise,
         random: Random(4),
@@ -20,7 +20,7 @@ void main() {
         cruise.apply(
           const MovementInput(valid: true),
           TrackingSample(
-            mode: PlayMode.smile,
+            mode: PlayMode.jump,
             timestampMs: now,
             receivedMs: now,
             joints: const [],
@@ -178,28 +178,25 @@ void main() {
     expect(sim.score, score);
   });
 
-  test(
-    'a trail finishes exactly at sixty seconds without another collision',
-    () {
-      sim.elapsed = 59.98;
-      tick(.05);
-      expect(sim.elapsed, 60);
-      expect(sim.remainingSeconds, 0);
-      expect(sim.endReason, EndReason.completed);
-    },
-  );
+  test('a trail continues beyond sixty seconds', () {
+    sim.elapsed = 59.98;
+    tick(.05);
+    expect(sim.elapsed, greaterThan(60));
+    expect(sim.remainingSeconds, 0);
+    expect(sim.endReason, isNull);
+  });
 
-  test('the final stretch cue fires once when crossing ten seconds left', () {
+  test('endless trails never play a final stretch cue', () {
     sim.elapsed = 49.98;
     tick(.05);
     expect(
       sim.events.where((e) => e.kind == FlightEventKind.finalStretch),
-      hasLength(1),
+      isEmpty,
     );
     tick(.05);
     expect(
       sim.events.where((e) => e.kind == FlightEventKind.finalStretch),
-      hasLength(1),
+      isEmpty,
     );
   });
 
@@ -295,7 +292,8 @@ void main() {
         final y = sim.birdY + (target - sim.birdY).clamp(-maxStep, maxStep);
         tick(.02, (.85 - y) / .70);
       }
-      expect(sim.endReason, EndReason.completed, reason: '$cycle-second cycle');
+      expect(sim.phase, RunPhase.playing, reason: '$cycle-second cycle');
+      expect(sim.elapsed, greaterThan(60));
       expect(sim.hearts, 3);
       expect(sim.shield, isTrue);
       expect(sim.collectedStars, greaterThanOrEqualTo(12));
@@ -376,7 +374,7 @@ void main() {
   test('version one recordings remain classic with their original seed', () {
     final json =
         ReplayTape(
-            mode: PlayMode.smile,
+            mode: PlayMode.jump,
             practice: false,
             seed: 9,
             cycleSeconds: 3,

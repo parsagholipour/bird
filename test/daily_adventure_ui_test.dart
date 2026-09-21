@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:push_up_bird/data/progress_repository.dart';
 import 'package:push_up_bird/data/providers.dart';
 import 'package:push_up_bird/domain/game_rules.dart';
+import 'package:push_up_bird/domain/tracking.dart';
 import 'package:push_up_bird/main.dart';
 import 'package:push_up_bird/ui/play_screen.dart';
 import 'daily_adventure_test.dart' show dailyRun;
@@ -25,7 +26,7 @@ void main() {
   });
   for (final stage in ['fresh', 'partial', 'complete']) {
     testWidgets(
-      'daily postcard $stage fits a small phone and launches either control',
+      'daily postcard $stage fits small phones and launches any control',
       (tester) async {
         tester.view.physicalSize = const Size(800, 360);
         tester.view.devicePixelRatio = 1;
@@ -77,6 +78,20 @@ void main() {
         expect(find.text('Today’s little adventure.'), findsOneWidget);
         expect(find.textContaining('No streak to lose.'), findsOneWidget);
         expect(
+          find.text(
+            'Three goals. Any control. Fly Star Trail to work on all three.',
+          ),
+          findsOneWidget,
+        );
+        for (final size in [const Size(640, 360), const Size(800, 360)]) {
+          tester.view.physicalSize = size;
+          await tester.pumpAndSettle();
+          expect(tester.takeException(), isNull, reason: '$size');
+          for (final mode in PlayMode.values) {
+            expect(find.text(mode.title).hitTestable(), findsOneWidget);
+          }
+        }
+        expect(
           find.text('POSTCARD STAMPED!'),
           stage == 'complete' ? findsOneWidget : findsNothing,
         );
@@ -127,11 +142,20 @@ void main() {
             isTrue,
           );
         }
-        final control = stage == 'partial' ? 'Grin & Glide' : 'Push-Up Flight';
-        await tester.tap(find.text(control));
+        final (mode, routeMode) = switch (stage) {
+          'partial' => (PlayMode.jump, 'jump'),
+          'complete' => (PlayMode.touch, 'touch'),
+          _ => (PlayMode.pushUp, 'push-up'),
+        };
+        await tester.tap(find.text(mode.title));
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
         final screen = tester.widget<PlayScreen>(find.byType(PlayScreen));
+        expect(
+          appRouter.routeInformationProvider.value.uri.toString(),
+          '/play/$routeMode?course=starTrail',
+        );
+        expect(screen.mode, mode);
         expect(screen.course, FlightCourse.starTrail);
         expect(screen.practice, isFalse);
         expect(container.read(selectedCourseProvider), FlightCourse.starTrail);

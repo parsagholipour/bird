@@ -6,6 +6,8 @@ import '../domain/session_replay.dart';
 import '../data/session_repository.dart';
 import 'package:flutter/foundation.dart';
 import '../domain/tracking.dart';
+import '../domain/jump_tracking.dart';
+import '../domain/squat_tracking.dart';
 import '../domain/game_rules.dart';
 import '../tracking/native_tracking_source.dart';
 import '../tracking/tracking_api.g.dart' show MicrophoneAccess;
@@ -17,7 +19,7 @@ class PlayController extends ChangeNotifier {
   PlayController({
     required this.mode,
     required bool practice,
-    this.course = FlightCourse.classic,
+    this.course = FlightCourse.starTrail,
     required this.source,
     required this.saveRun,
     required this.audio,
@@ -247,6 +249,17 @@ class PlayController extends ChangeNotifier {
     }
   }
 
+  void shoot() {
+    if (_disposed ||
+        stage != PlayStage.flying ||
+        simulation?.canShoot != true) {
+      return;
+    }
+    recorder?.command('shoot');
+    audio.effect('flap');
+    notify();
+  }
+
   void advance(double dt, double now, double width) {
     if (isTouch) {
       if (_disposed ||
@@ -284,7 +297,8 @@ class PlayController extends ChangeNotifier {
   int _operation = 0;
   PlayStage stage = PlayStage.setup;
   BodyCalibrator body = BodyCalibrator();
-  SmileCalibrator face = SmileCalibrator();
+  JumpCalibrator jump = JumpCalibrator();
+  SquatCalibrator squat = SquatCalibrator();
   MovementInterpreter? interpreter;
   TrackingSample? latest;
   TrackingMetrics metrics = TrackingMetrics();
@@ -329,11 +343,23 @@ class PlayController extends ChangeNotifier {
           audio.effect('go');
           fly();
         }
+      } else if (mode == PlayMode.squat) {
+        squat.add(sample, now);
+        message = squat.feedback;
+        if (squat.result != null) {
+          interpreter = SquatInterpreter(squat.result!);
+          audio.effect('go');
+          fly();
+        }
       } else {
-        face.add(sample, now);
-        message = face.feedback;
-        if (face.result != null) {
-          interpreter = SmileInterpreter(face.result!);
+        jump.add(sample, now);
+        message = jump.feedback;
+        if (jump.result != null) {
+          final standing = jump.result!.standing;
+          source!.recordDiagnostic(
+            'PushUpBird calibration: ${jsonEncode({'t': now, 'mode': mode.name, 'shoulderY': standing.shoulderY, 'hipY': standing.hipY, 'leftFootY': standing.leftFootY, 'rightFootY': standing.rightFootY, 'bodyHeight': standing.bodyHeight, 'riseThreshold': jump.result!.riseThreshold})}',
+          );
+          interpreter = JumpInterpreter(jump.result!);
           audio.effect('go');
           fly();
         }
@@ -344,8 +370,16 @@ class PlayController extends ChangeNotifier {
       movement = interpreter!.add(sample, now);
       if (movement.valid) _lastGood = now;
       if (stage == PlayStage.ready) message = movement.feedback;
+      final flapsBefore = simulation?.flaps ?? 0;
       if (stage == PlayStage.flying && simulation?.phase != RunPhase.ended) {
         recorder?.apply(movement, sample, now);
+      }
+      if (trackingDiagnosticsEnabled &&
+          mode == PlayMode.jump &&
+          movement.flap) {
+        source!.recordDiagnostic(
+          'PushUpBird jump: ${jsonEncode({'t': now, 'capturedAt': sample.timestampMs, 'phase': simulation?.phase.name, 'accepted': (simulation?.flaps ?? 0) > flapsBefore, 'gameJumps': simulation?.flaps ?? 0})}',
+        );
       }
       if (movement.flap && simulation?.phase == RunPhase.playing) {
         audio.effect('flap');
@@ -362,7 +396,7 @@ class PlayController extends ChangeNotifier {
         'topElbow=${body.result?.topElbow?.toStringAsFixed(1)} bottomElbow=${body.result?.bottomElbow?.toStringAsFixed(1)} '
         'height=${movement.height.toStringAsFixed(2)} reps=${movement.repetitions} '
         'preview=${body.previewHeight.toStringAsFixed(2)} '
-        'pose=${mode == PlayMode.pushUp ? bodyDiagnostics(sample, now, preferredSide: body.side, preferredPerspective: body.perspective) : 'face'} '
+        'pose=${mode == PlayMode.pushUp ? bodyDiagnostics(sample, now, preferredSide: body.side, preferredPerspective: body.perspective) : mode.name} '
         'phase=${simulation?.phase.name} count=${simulation?.countdown.toStringAsFixed(2)} '
         'feedback=${simulation?.trackingFeedback ?? message}',
       );
@@ -392,7 +426,8 @@ class PlayController extends ChangeNotifier {
       if (_disposed || op != _operation) return;
       if (recalibrate) {
         body = BodyCalibrator();
-        face = SmileCalibrator();
+        jump = JumpCalibrator();
+        squat = SquatCalibrator();
         interpreter = null;
         latest = null;
         metrics = TrackingMetrics();
@@ -414,7 +449,7 @@ class PlayController extends ChangeNotifier {
       }
       message = mode == PlayMode.pushUp
           ? 'Find a comfortable top position'
-          : 'Relax your face and look at the phone';
+          : 'Stand still with your whole body and both feet in view';
       notify();
     } catch (e) {
       if (_disposed || op != _operation) return;
@@ -461,7 +496,8 @@ class PlayController extends ChangeNotifier {
         course: course,
         practice: practice,
         seed: Random().nextInt(1 << 32),
-        cycleSeconds: body.result?.cycleSeconds ?? 3,
+        cycleSeconds:
+            squat.result?.cycleSeconds ?? body.result?.cycleSeconds ?? 3,
         bird: bird,
         reducedMotion: reducedMotion,
         originMs: nowMs,

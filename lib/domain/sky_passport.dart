@@ -9,10 +9,14 @@ enum SkyStamp {
     'Collect 12 stars in one unbroken streak.',
     12,
   ),
-  skyCaptain('Sky captain', 'Clear 25 gates in one Classic flight.', 25),
-  trailblazer('Trailblazer', 'Complete three 60-second Star Trails.', 3),
+  skyCaptain('Sky captain', 'Score 50 star points in one Star Trail.', 50),
+  trailblazer(
+    'Trailblazer',
+    'Fly at least 60 seconds in three Star Trails.',
+    3,
+  ),
   flockTogether('Flock together', 'Unlock all four feathered friends.', 4),
-  bothWings('Both wings', 'Try scored flights with both movement controls.', 2);
+  bothWings('Both wings', 'Try scored flights with two movement controls.', 2);
 
   const SkyStamp(this.title, this.description, this.target);
   final String title, description;

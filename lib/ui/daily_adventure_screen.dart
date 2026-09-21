@@ -91,7 +91,7 @@ class DailyAdventureScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'Three goals. Either control. Fly Star Trail to work on all three.',
+          'Three goals. Any control. Fly Star Trail to work on all three.',
           style: bodyText(14, color: SkyColors.muted),
         ),
         const SizedBox(height: 16),
@@ -118,31 +118,53 @@ class DailyAdventureScreen extends ConsumerWidget {
             ],
           ),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 8),
         Row(
           children: [
-            _WeekCards(adventures: p.adventures),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _WeekCards(adventures: p.adventures),
+                const SizedBox(height: 4),
+                Text(
+                  'Fresh goals. No streak to lose.',
+                  style: bodyText(11, color: SkyColors.muted),
+                ),
+              ],
+            ),
             const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                'Fresh goals daily.\nNo streak to lose.',
-                style: bodyText(12, color: SkyColors.muted),
+            for (final (label, mode, icon, color) in [
+              (
+                'Push-Up Flight',
+                'push-up',
+                Icons.fitness_center_rounded,
+                SkyColors.coral,
               ),
-            ),
-            SkyButton(
-              label: 'Push-Up Flight',
-              compact: true,
-              icon: Icons.fitness_center_rounded,
-              onPressed: () => fly('push-up'),
-            ),
-            const SizedBox(width: 10),
-            SkyButton(
-              label: 'Grin & Glide',
-              compact: true,
-              color: SkyColors.yellow,
-              icon: Icons.sentiment_satisfied_alt_rounded,
-              onPressed: () => fly('smile'),
-            ),
+              (
+                'Jump & Fly',
+                'jump',
+                Icons.accessibility_new_rounded,
+                SkyColors.yellow,
+              ),
+              ('Tap & Fly', 'touch', Icons.touch_app_rounded, SkyColors.mint),
+              (
+                'Squat & Fly',
+                'squat',
+                Icons.airline_seat_legroom_extra_rounded,
+                SkyColors.lavender,
+              ),
+            ]) ...[
+              Expanded(
+                child: SkyButton(
+                  label: label,
+                  compact: true,
+                  icon: icon,
+                  color: color,
+                  onPressed: () => fly(mode),
+                ),
+              ),
+              const SizedBox(width: 8),
+            ],
           ],
         ),
       ],

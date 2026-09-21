@@ -21,6 +21,9 @@ List<Object?> state(FlightSimulation s) => [
   s.lettersCollected,
   s.lettersDropped,
   s.courierBumps,
+  s.glideRemaining,
+  s.gliding,
+  s.lastGlideStarAt,
   for (final o in s.obstacles)
     [o.x, o.center, o.target, o.gap, o.scored, o.courierStop],
 ];
@@ -56,9 +59,7 @@ void main() {
           );
           final target = nearby.isEmpty ? .5 : nearby.first.target;
           final flap =
-              mode != PlayMode.pushUp &&
-              sim.birdY > target &&
-              sim.velocity >= 0;
+              !mode.controlsHeight && sim.birdY > target && sim.velocity >= 0;
           recorder.apply(
             MovementInput(
               valid: true,
@@ -212,7 +213,7 @@ void main() {
       final session = SavedSession(
         result: RunResult(
           id: 'retry',
-          mode: PlayMode.smile,
+          mode: PlayMode.jump,
           practice: false,
           score: 0,
           repetitions: 0,
@@ -221,7 +222,7 @@ void main() {
           reason: EndReason.quit,
           finishedAt: DateTime.now(),
         ),
-        tape: makeRecorder(PlayMode.smile, () => 1000).tape,
+        tape: makeRecorder(PlayMode.jump, () => 1000).tape,
         clips: [SessionClip(path: source.path, startMs: 0, durationMs: 1000)],
       );
       await expectLater(
@@ -250,7 +251,7 @@ void main() {
         addTearDown(() => temp.delete(recursive: true));
         final result = RunResult(
           id: 'course-${course.name}',
-          mode: PlayMode.smile,
+          mode: PlayMode.jump,
           practice: false,
           course: course,
           score: 45,
@@ -265,7 +266,7 @@ void main() {
           finishedAt: DateTime(2026, 9, 16),
         );
         final tape = ReplayTape(
-          mode: PlayMode.smile,
+          mode: PlayMode.jump,
           practice: false,
           course: course,
           seed: 18,

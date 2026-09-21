@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 import '../ui/theme.dart';
+import '../domain/obstacle.dart';
 import 'sky_scenery.dart';
 
 /// The solid tower has a constant outline; regional details stay inside it.
@@ -13,6 +14,7 @@ abstract final class GateArt {
     required bool reducedMotion,
     required bool cleared,
     required bool perfect,
+    ObstacleKind kind = ObstacleKind.garden,
   }) {
     if (r.isEmpty) return;
     final palette = SkyPalette.at(seconds);
@@ -89,10 +91,14 @@ abstract final class GateArt {
         texture,
       );
     }
-    if (sunrise > 0) _leaves(c, r, rim, direction, palette, sunrise);
-    if (peach > 0) _festival(c, r, rim, direction, peach);
-    if (twilight > 0) {
-      _lantern(c, r, rim, direction, seconds, reducedMotion, twilight);
+    if (kind != ObstacleKind.garden) {
+      _mechanism(c, r, top, kind, seconds, reducedMotion);
+    } else {
+      if (sunrise > 0) _leaves(c, r, rim, direction, palette, sunrise);
+      if (peach > 0) _festival(c, r, rim, direction, peach);
+      if (twilight > 0) {
+        _lantern(c, r, rim, direction, seconds, reducedMotion, twilight);
+      }
     }
     if (cleared) {
       for (var i = 0; i < (perfect ? 3 : 1); i++) {
@@ -113,6 +119,80 @@ abstract final class GateArt {
         c.drawCircle(center, 2, Paint()..color = SkyColors.coralDeep);
       }
     }
+    c.restore();
+  }
+
+  static void _mechanism(
+    Canvas c,
+    Rect r,
+    bool top,
+    ObstacleKind kind,
+    double seconds,
+    bool reduced,
+  ) {
+    final accent = switch (kind) {
+      ObstacleKind.windLift => SkyColors.teal,
+      ObstacleKind.petalGate => SkyColors.coralDeep,
+      _ => SkyColors.purple,
+    };
+    c.save();
+    c.clipRect(r);
+    c.drawRect(r, Paint()..color = accent.withValues(alpha: .32));
+    final pen = Paint()
+      ..color = SkyColors.cream.withValues(alpha: .65)
+      ..strokeWidth = 2
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+    for (double y = r.top + 16; y < r.bottom; y += 26) {
+      if (kind == ObstacleKind.petalGate) {
+        c.drawRRect(
+          RRect.fromRectAndRadius(
+            Rect.fromLTWH(r.left + 3, y, r.width - 6, 15),
+            const Radius.circular(4),
+          ),
+          pen,
+        );
+      } else {
+        final direction = top ? 1.0 : -1.0;
+        c.drawPath(
+          Path()
+            ..moveTo(r.left + r.width * .22, y)
+            ..lineTo(r.center.dx, y + 7 * direction)
+            ..lineTo(r.right - r.width * .22, y),
+          pen,
+        );
+      }
+    }
+    final radius = math.min(r.width * .32, 15.0);
+    final hub = Offset(r.center.dx, top ? r.bottom - 34 : r.top + 34);
+    c.drawCircle(hub, radius + 3, Paint()..color = accent);
+    c.save();
+    c.translate(hub.dx, hub.dy);
+    if (!reduced && kind == ObstacleKind.windLift) c.rotate(seconds * .8);
+    if (kind == ObstacleKind.windLift || kind == ObstacleKind.petalGate) {
+      for (var i = 0; i < (kind == ObstacleKind.windLift ? 4 : 6); i++) {
+        c.rotate(math.pi * 2 / (kind == ObstacleKind.windLift ? 4 : 6));
+        c.drawOval(
+          Rect.fromLTWH(-radius * .23, -radius, radius * .46, radius),
+          Paint()
+            ..color = kind == ObstacleKind.petalGate
+                ? SkyColors.yellow
+                : SkyColors.mint,
+        );
+      }
+      c.drawCircle(Offset.zero, radius * .2, Paint()..color = SkyColors.cream);
+    } else {
+      c.drawPath(
+        Path()
+          ..moveTo(0, -radius)
+          ..lineTo(radius * .7, 0)
+          ..lineTo(0, radius)
+          ..lineTo(-radius * .7, 0)
+          ..close(),
+        Paint()..color = SkyColors.lavender,
+      );
+    }
+    c.restore();
     c.restore();
   }
 

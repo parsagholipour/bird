@@ -20,6 +20,7 @@ class NativeTrackingSource implements TrackingSource, TrackingFlutterApi {
   final _clock = Stopwatch()..start();
   int _session = 0;
   bool _active = false;
+  PlayMode _mode = PlayMode.pushUp;
   double _nativeOffset = 0;
   TrackingDiagnostics? _diagnostics;
   void recordDiagnostic(String message) {
@@ -80,13 +81,10 @@ class NativeTrackingSource implements TrackingSource, TrackingFlutterApi {
       }
     }
     if (session != _session) return;
+    _mode = mode;
     _active = true;
     try {
-      await _host.start(
-        mode == PlayMode.pushUp ? DetectorKind.pose : DetectorKind.face,
-        frontCamera,
-        session,
-      );
+      await _host.start(DetectorKind.pose, frontCamera, session);
     } catch (_) {
       if (session == _session) _active = false;
       rethrow;
@@ -103,17 +101,18 @@ class NativeTrackingSource implements TrackingSource, TrackingFlutterApi {
 
   @override
   void onSample(TrackingPacket packet) {
-    if (!_active || packet.session != _session) return;
+    if (!_active ||
+        packet.session != _session ||
+        packet.detector != DetectorKind.pose) {
+      return;
+    }
     final sample = TrackingSample(
-      mode: packet.detector == DetectorKind.pose
-          ? PlayMode.pushUp
-          : PlayMode.smile,
+      mode: _mode,
       timestampMs: packet.capturedAtMs + _nativeOffset,
       receivedMs: nowMs,
       joints: packet.landmarks
           .map((p) => Joint(p.x, p.y, p.z, p.confidence))
           .toList(growable: false),
-      smile: packet.smile,
       aspectRatio: packet.imageWidth / packet.imageHeight,
       detected: packet.detected,
       inferenceMs: packet.inferenceMs,
@@ -124,7 +123,21 @@ class NativeTrackingSource implements TrackingSource, TrackingFlutterApi {
       // Opt-in developer trace: landmarks and timing only, never camera frames.
       // Emit synchronously to avoid Flutter's throttled debug-log queue changing
       // the ordering of the capture used by the offline replay.
-      const ids = [11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28];
+      final ids = [
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        if (_mode == PlayMode.jump) ...[31, 32],
+      ];
       recordDiagnostic(
         'PushUpBird trace: ${jsonEncode({
           't': sample.timestampMs,

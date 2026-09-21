@@ -10,6 +10,7 @@ ReplayTape recordRoute(
   bool pause = false,
   double seconds = 90,
   bool followGates = true,
+  int rulesVersion = FlightSimulation.currentRulesVersion,
 }) {
   double now = 0;
   var paused = false;
@@ -22,6 +23,7 @@ ReplayTape recordRoute(
     reducedMotion: true,
     originMs: 0,
     course: course,
+    recordedVersion: rulesVersion,
   );
   final recorder = FlightRecorder(tape, () => now);
   final sim = recorder.simulation;
@@ -108,7 +110,7 @@ void main() {
     },
   );
 
-  test('Star Trail keeps its first power-ups and successful finish', () {
+  test('Star Trail keeps its first power-ups and voluntary ending', () {
     final tape = recordRoute(FlightCourse.starTrail);
     final moments = buildReplayHighlights(tape);
     expect(
@@ -121,7 +123,7 @@ void main() {
           .map((m) => m.value),
       [2, 3],
     );
-    expect(moments.last.title, 'Route complete');
+    expect(moments.last.title, 'Final moment');
     expect(moments.last.atMs, tape.durationMs);
     expect(
       moments.map((m) => m.atMs).toList()..sort(),

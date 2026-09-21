@@ -31,8 +31,9 @@ class ReplayTape {
   FlightSimulation createSimulation() => FlightSimulation(
     rules: switch (mode) {
       PlayMode.pushUp => PushUpFlightMode(cycleSeconds: cycleSeconds),
-      PlayMode.smile => GrinGlideMode(),
-      PlayMode.touch => TapFlyMode(),
+      PlayMode.jump => recordedVersion >= 8 ? JumpFlyMode() : LegacyFlapMode(),
+      PlayMode.touch => TapFlyMode(rulesVersion: recordedVersion),
+      PlayMode.squat => SquatFlyMode(cycleSeconds: cycleSeconds),
     },
     practice: practice,
     course: course,
@@ -63,7 +64,7 @@ class ReplayTape {
       course: FlightCourse.values.byName(
         json['course'] as String? ?? 'classic',
       ),
-      mode: PlayMode.values.byName(json['mode'] as String),
+      mode: PlayMode.fromName(json['mode'] as String),
       practice: json['practice'] as bool,
       seed: json['seed'] as int,
       cycleSeconds: (json['cycleSeconds'] as num).toDouble(),
@@ -93,6 +94,7 @@ class ReplayTape {
             'background',
             'resume',
             'end',
+            if (recordedVersion >= 7) 'shoot',
           ].contains(event[1])) {
         throw const FormatException('Invalid replay timeline');
       }
@@ -102,7 +104,8 @@ class ReplayTape {
           event.length == 10 &&
               number(2) &&
               number(3) &&
-              PlayMode.values.any((m) => m.name == event[4]) &&
+              (event[4] == 'smile' ||
+                  PlayMode.values.any((m) => m.name == event[4])) &&
               event[5] is bool &&
               number(6) &&
               event[7] is bool &&
@@ -163,11 +166,19 @@ class FlightRecorder {
 
   void command(String kind, [EndReason? reason]) {
     _add(kind, [if (reason != null) reason.name]);
-    applyReplayEvent(simulation, tape.events.last);
+    applyReplayEvent(
+      simulation,
+      tape.events.last,
+      reducedMotion: tape.reducedMotion,
+    );
   }
 }
 
-void applyReplayEvent(FlightSimulation simulation, List<dynamic> e) {
+void applyReplayEvent(
+  FlightSimulation simulation,
+  List<dynamic> e, {
+  bool reducedMotion = false,
+}) {
   double n(int i) => (e[i] as num).toDouble();
   switch (e[1]) {
     case 'input':
@@ -180,7 +191,7 @@ void applyReplayEvent(FlightSimulation simulation, List<dynamic> e) {
           feedback: e[9] as String,
         ),
         TrackingSample(
-          mode: PlayMode.values.byName(e[4] as String),
+          mode: PlayMode.fromName(e[4] as String),
           timestampMs: n(2),
           receivedMs: n(3),
           joints: const [],
@@ -197,6 +208,8 @@ void applyReplayEvent(FlightSimulation simulation, List<dynamic> e) {
       simulation.resume();
     case 'end':
       simulation.end(EndReason.values.byName(e[2] as String));
+    case 'shoot':
+      simulation.shoot(reducedMotion: reducedMotion);
   }
 }
 
@@ -217,7 +230,11 @@ class ReplayPlayer {
     }
     while (_next < tape.events.length &&
         (tape.events[_next][0] as num) <= target) {
-      applyReplayEvent(simulation, tape.events[_next++]);
+      applyReplayEvent(
+        simulation,
+        tape.events[_next++],
+        reducedMotion: tape.reducedMotion,
+      );
     }
     positionMs = target;
   }

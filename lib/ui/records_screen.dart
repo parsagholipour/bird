@@ -16,7 +16,7 @@ class RecordsScreen extends ConsumerStatefulWidget {
 }
 
 class _RecordsScreenState extends ConsumerState<RecordsScreen> {
-  FlightCourse course = FlightCourse.classic;
+  static const course = FlightCourse.starTrail;
   @override
   Widget build(BuildContext context) {
     final p = ref.watch(progressProvider).asData?.value;
@@ -36,28 +36,6 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
                     ),
                     const SizedBox(width: 18),
                     Text('Your little victories.', style: heading(36)),
-                    const Spacer(),
-                    SegmentedButton<FlightCourse>(
-                      segments: [
-                        for (final item in FlightCourse.values.where(
-                          (c) => !c.relaxed,
-                        ))
-                          ButtonSegment(
-                            value: item,
-                            label: Text(item.shortTitle),
-                            icon: Icon(
-                              item == FlightCourse.classic
-                                  ? Icons.all_inclusive
-                                  : item == FlightCourse.skyCourier
-                                  ? Icons.local_post_office_outlined
-                                  : Icons.star_rounded,
-                            ),
-                          ),
-                      ],
-                      selected: {course},
-                      onSelectionChanged: (value) =>
-                          setState(() => course = value.single),
-                    ),
                   ],
                 ),
                 const SizedBox(height: 22),
@@ -72,50 +50,47 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      course == FlightCourse.classic
-                                          ? 'The score to beat'
-                                          : course == FlightCourse.skyCourier
-                                          ? 'Your deliveries to beat'
-                                          : 'Your star points to beat',
+                                      'Your star points to beat',
                                       style: heading(25),
                                     ),
                                     const SizedBox(height: 20),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: _best(
-                                            'Push-Up Flight',
-                                            p
-                                                .record(PlayMode.pushUp, course)
-                                                .best,
-                                            SkyColors.yellow,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 16),
-                                        Expanded(
-                                          child: _best(
-                                            'Grin & Glide',
-                                            p
-                                                .record(PlayMode.smile, course)
-                                                .best,
-                                            SkyColors.coral,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: _best(
-                                            'Tap & Fly',
-                                            p
-                                                .record(PlayMode.touch, course)
-                                                .best,
-                                            SkyColors.mint,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                    for (final modes in [
+                                      [PlayMode.pushUp, PlayMode.jump],
+                                      [PlayMode.touch, PlayMode.squat],
+                                    ]) ...[
+                                      Row(
+                                        children: [
+                                          for (
+                                            var i = 0;
+                                            i < modes.length;
+                                            i++
+                                          ) ...[
+                                            if (i > 0)
+                                              const SizedBox(width: 12),
+                                            Expanded(
+                                              child: _best(
+                                                modes[i].title,
+                                                p.record(modes[i], course).best,
+                                                switch (modes[i]) {
+                                                  PlayMode.pushUp =>
+                                                    SkyColors.yellow,
+                                                  PlayMode.jump =>
+                                                    SkyColors.coral,
+                                                  PlayMode.touch =>
+                                                    SkyColors.mint,
+                                                  PlayMode.squat =>
+                                                    SkyColors.lavender,
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                      const SizedBox(height: 10),
+                                    ],
                                     const Spacer(),
                                     Text(
-                                      '${p.totalRuns} scored flights  ·  ${p.totalObstacles} gates\n${p.totalRepetitions} completed push-ups',
+                                      '${p.totalRuns} scored flights  ·  ${p.totalObstacles} gates\n${p.totalRepetitions} push-ups · ${p.totalSquats} squats',
                                       style: bodyText(
                                         16,
                                         color: SkyColors.muted,
@@ -191,7 +166,7 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
                                                           ? Icons
                                                                 .fitness_center_rounded
                                                           : Icons
-                                                                .sentiment_satisfied_alt_rounded,
+                                                                .accessibility_new_rounded,
                                                       color: SkyColors.muted,
                                                     ),
                                                     const SizedBox(width: 10),
@@ -266,18 +241,17 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
   }
 
   Widget _best(String name, int best, Color color) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
     decoration: BoxDecoration(
       color: color,
       borderRadius: BorderRadius.circular(18),
     ),
-    child: Column(
+    child: Row(
       children: [
-        Text('$best', style: heading(58)),
-        Text(
-          name,
-          textAlign: TextAlign.center,
-          style: bodyText(14, weight: FontWeight.w900),
+        Text('$best', style: heading(38)),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(name, style: bodyText(14, weight: FontWeight.w900)),
         ),
       ],
     ),

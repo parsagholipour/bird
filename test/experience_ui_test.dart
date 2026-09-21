@@ -11,7 +11,6 @@ import 'package:push_up_bird/data/progress_repository.dart';
 import 'package:push_up_bird/data/providers.dart';
 import 'package:push_up_bird/data/session_repository.dart';
 import 'package:push_up_bird/domain/game_rules.dart';
-import 'package:push_up_bird/domain/cloud_friends.dart';
 import 'package:push_up_bird/domain/tracking.dart';
 import 'package:push_up_bird/game/bird_game.dart';
 import 'package:push_up_bird/game/bird_trail.dart';
@@ -126,15 +125,13 @@ void main() {
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       await capture(tester, 'home-classic');
-      await tester.tap(find.byKey(const ValueKey('course-starTrail')));
-      await tester.pumpAndSettle();
-      expect(find.text('Chase the stars'), findsNWidgets(2));
+      expect(find.byKey(const ValueKey('push-up-mode')), findsOneWidget);
       await capture(tester, 'home-star-trail');
       if (player == 'new') {
         await tester.tap(find.text('Flight goals'));
         await tester.pumpAndSettle();
         expect(find.text('Star pocket'), findsOneWidget);
-        expect(find.text('Finish the 60-second trail.'), findsOneWidget);
+        expect(find.text('Fly for 60 seconds in one trail.'), findsOneWidget);
         expect(tester.takeException(), isNull);
         await capture(tester, 'flight-goals-guide');
         await tester.tap(
@@ -144,7 +141,7 @@ void main() {
         );
         await tester.pumpAndSettle();
       }
-      await tester.tap(find.text('Chase the stars').first);
+      await tester.tap(find.byKey(const ValueKey('push-up-mode')));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       expect(find.textContaining('Every 9 stars'), findsOneWidget);
@@ -198,7 +195,14 @@ void main() {
         greaterThan(300),
         reason: 'The HUD must not cover the bird at the top of a push-up',
       );
-      expect(find.text('36s'), findsOneWidget);
+      expect(find.text('0:24'), findsOneWidget);
+      expect(find.text('1.06× pace'), findsOneWidget);
+      if (player == 'daily') {
+        expect(
+          tester.getRect(find.byKey(const ValueKey('flight-clock'))).left,
+          greaterThan(tester.getRect(find.byType(RecordChase)).right + 8),
+        );
+      }
       await capture(tester, 'star-trail-flight');
       final flightTime = sim.elapsed;
       sim.elapsed = 58;
@@ -296,8 +300,6 @@ void main() {
       );
       appRouter.go('/records');
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Star Trail'));
-      await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       expect(find.text('Your star points to beat'), findsOneWidget);
       await capture(tester, 'records-star-trail');
@@ -358,8 +360,8 @@ void main() {
       appRouter.go('/');
       await tester.pumpAndSettle();
       expect(
-        find.text('Chase the stars'),
-        findsNWidgets(2),
+        find.byKey(const ValueKey('push-up-mode')),
+        findsOneWidget,
         reason: 'Returning home should preserve the selected course',
       );
       await tester.pumpWidget(const SizedBox());
@@ -379,7 +381,7 @@ void main() {
     for (var bird = 0; bird < 4; bird++) {
       final sim =
           FlightSimulation(
-              rules: GrinGlideMode(),
+              rules: JumpFlyMode(),
               practice: false,
               course: FlightCourse.starTrail,
             )
@@ -422,7 +424,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
       final sim = FlightSimulation(
-        rules: GrinGlideMode(),
+        rules: JumpFlyMode(),
         practice: false,
         course: FlightCourse.starTrail,
       );
@@ -522,112 +524,4 @@ void main() {
       await tester.pumpWidget(const SizedBox());
     });
   }
-
-  testWidgets('Cloud Cruise stays available as a relaxed course', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(800, 360);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-    final repo = SqliteProgressRepository(
-      ProgressDatabase(NativeDatabase.memory()),
-    );
-    await repo.setSetting(SettingKey.reducedMotion, true);
-    final source = SessionSource();
-    final audio = WingAudio();
-    final container = ProviderContainer(
-      overrides: [
-        progressRepositoryProvider.overrideWithValue(repo),
-        audioFactoryProvider.overrideWithValue(() => audio),
-        trackingSourceFactoryProvider.overrideWithValue(() => source),
-      ],
-    );
-    await container.read(progressProvider.future);
-    appRouter.go('/');
-    await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
-        child: const RepaintBoundary(
-          key: ValueKey('visual-capture'),
-          child: PushUpBirdApp(),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('course-cloudCruise')));
-    await tester.pumpAndSettle();
-    expect(tester.takeException(), isNull);
-    expect(find.text('Just drift'), findsNWidgets(2));
-    await capture(tester, 'home-cloud-cruise');
-    await tester.tap(find.text('Just drift').first);
-    await tester.pumpAndSettle();
-    final dynamic state = tester.state(find.byType(PlayScreen));
-    final controller = state.controller as PlayController;
-    expect(controller.practice, isTrue);
-    expect(controller.course, FlightCourse.cloudCruise);
-    expect(find.byType(FlightGoalHud), findsNothing);
-    expect(tester.takeException(), isNull);
-    await capture(tester, 'cloud-cruise-setup');
-    await tester.runAsync(() => startFlight(controller, source));
-    await tester.runAsync(() async {
-      await tester.pump();
-      await Future<void>.delayed(const Duration(milliseconds: 100));
-    });
-    final sim = controller.simulation!;
-    sim.elapsed = 42;
-    sim.distance = 7;
-    sim.birdY = .65;
-    sim.score = 31;
-    sim.combo = 12;
-    sim.bestCombo = 12;
-    sim.collectedStars = 16;
-    sim.obstacles.clear();
-    sim.obstacles.add(Obstacle(x: 1.3, center: .65, gap: .48));
-    sim.obstacles.add(Obstacle(x: .22, center: .65, gap: .48)..scored = true);
-    sim.stars.clear();
-    sim.stars.addAll([
-      for (var i = 0; i < 3; i++) SkyStar(x: .85 + .17 * i, y: .65),
-    ]);
-    sim.clouds.clear();
-    sim.clouds.add(DriftingCloud(friend: CloudFriend.turtle, x: 1.75, y: .38));
-    sim.cloudFriends.addAll([CloudFriend.whale, CloudFriend.bunny]);
-    final game = tester
-        .widget<GameWidget<BirdGame>>(find.byType(GameWidget<BirdGame>))
-        .game!;
-    await tester.runAsync(
-      () => game.loaded.timeout(const Duration(seconds: 5)),
-    );
-    game.pauseEngine();
-    controller.notify();
-    await tester.pump();
-    expect(tester.takeException(), isNull);
-    expect(find.text('Fly close to meet a cloud friend.'), findsOneWidget);
-    expect(find.text('2/3 cloud friends'), findsOneWidget);
-    expect(audio.clouds, 1);
-    controller.notify();
-    await tester.pump();
-    expect(audio.clouds, 1);
-    expect(find.text('Shield ready'), findsNothing);
-    await capture(tester, 'cloud-cruise-flight');
-    controller.pause();
-    await tester.pump();
-    expect(find.text('Keep flying'), findsOneWidget);
-    await capture(tester, 'cloud-cruise-paused');
-    await tester.runAsync(() async {
-      controller.endFlight();
-      await controller.finish();
-    });
-    await tester.pumpAndSettle();
-    expect(tester.takeException(), isNull);
-    expect(find.text('CRUISE COMPLETE'), findsOneWidget);
-    expect(find.text('Friends from this flight'), findsOneWidget);
-    expect(find.text('DISCOVERED'), findsNWidgets(2));
-    expect(find.text('STARS FOUND'), findsOneWidget);
-    expect(container.read(progressProvider).requireValue.totalRuns, 0);
-    await capture(tester, 'cloud-cruise-results');
-    await tester.pumpWidget(const SizedBox());
-    container.dispose();
-    await tester.runAsync(repo.close);
-  });
 }

@@ -142,28 +142,34 @@ class ProgressSnapshot {
   const ProgressSnapshot({
     this.settings = const GameSettings(),
     this.pushUp = const ModeRecord(),
-    this.smile = const ModeRecord(),
+    this.jump = const ModeRecord(),
     this.touch = const ModeRecord(),
+    this.squat = const ModeRecord(),
     this.trailPushUp = const ModeRecord(),
-    this.trailSmile = const ModeRecord(),
+    this.trailJump = const ModeRecord(),
     this.trailTouch = const ModeRecord(),
+    this.trailSquat = const ModeRecord(),
     this.courierPushUp = const ModeRecord(),
-    this.courierSmile = const ModeRecord(),
+    this.courierJump = const ModeRecord(),
     this.courierTouch = const ModeRecord(),
+    this.courierSquat = const ModeRecord(),
     this.unlocked = const {0},
     this.recent = const [],
     this.adventures = const [],
   });
   final GameSettings settings;
   final ModeRecord pushUp,
-      smile,
+      jump,
       touch,
+      squat,
       trailPushUp,
-      trailSmile,
+      trailJump,
       trailTouch,
+      trailSquat,
       courierPushUp,
-      courierSmile,
-      courierTouch;
+      courierJump,
+      courierTouch,
+      courierSquat;
   final Set<int> unlocked;
   final List<RunResult> recent;
 
@@ -174,23 +180,31 @@ class ProgressSnapshot {
   int get totalRuns => allRecords.fold(0, (n, r) => n + r.runs);
   int get totalRepetitions =>
       pushUp.repetitions + trailPushUp.repetitions + courierPushUp.repetitions;
+  int get totalSquats =>
+      squat.repetitions + trailSquat.repetitions + courierSquat.repetitions;
   List<ModeRecord> get allRecords => [
     pushUp,
-    smile,
+    jump,
     touch,
+    squat,
     trailPushUp,
-    trailSmile,
+    trailJump,
     trailTouch,
+    trailSquat,
     courierPushUp,
-    courierSmile,
+    courierJump,
     courierTouch,
+    courierSquat,
   ];
   int get totalStars => allRecords.fold(0, (n, r) => n + r.stars);
   int get totalPerfects => allRecords.fold(0, (n, r) => n + r.perfectPasses);
   int get longestCombo =>
       allRecords.fold(0, (n, r) => n > r.bestCombo ? n : r.bestCombo);
   int get trailCompletions =>
-      trailPushUp.completions + trailSmile.completions + trailTouch.completions;
+      trailPushUp.completions +
+      trailJump.completions +
+      trailTouch.completions +
+      trailSquat.completions;
   ModeRecord record(
     PlayMode mode, [
     FlightCourse course = FlightCourse.classic,
@@ -199,19 +213,22 @@ class ProgressSnapshot {
       : course == FlightCourse.starTrail
       ? switch (mode) {
           PlayMode.pushUp => trailPushUp,
-          PlayMode.smile => trailSmile,
+          PlayMode.jump => trailJump,
           PlayMode.touch => trailTouch,
+          PlayMode.squat => trailSquat,
         }
       : course == FlightCourse.skyCourier
       ? switch (mode) {
           PlayMode.pushUp => courierPushUp,
-          PlayMode.smile => courierSmile,
+          PlayMode.jump => courierJump,
           PlayMode.touch => courierTouch,
+          PlayMode.squat => courierSquat,
         }
       : switch (mode) {
           PlayMode.pushUp => pushUp,
-          PlayMode.smile => smile,
+          PlayMode.jump => jump,
           PlayMode.touch => touch,
+          PlayMode.squat => squat,
         };
   int? get nextBird {
     for (var i = 1; i < 4; i++) {
@@ -251,7 +268,8 @@ class SqliteProgressRepository implements ProgressRepository {
             'SELECT COALESCE(MAX(score),0) AS best, COUNT(*) AS runs, '
             'COALESCE(SUM(gates),0) AS obstacles, COALESCE(SUM(repetitions),0) AS repetitions '
             ', COALESCE(SUM(stars),0) AS stars, COALESCE(SUM(perfect_passes),0) AS perfects '
-            ', COALESCE(MAX(best_combo),0) AS combo, COALESCE(SUM(reason = \'completed\'),0) AS completions '
+            ', COALESCE(MAX(best_combo),0) AS combo, '
+            'COALESCE(SUM(reason = \'completed\' OR (course = \'starTrail\' AND duration >= 60)),0) AS completions '
             'FROM runs WHERE practice = 0 AND mode = ? AND course = ?',
             variables: [
               Variable.withInt(mode.index),
@@ -302,14 +320,17 @@ class SqliteProgressRepository implements ProgressRepository {
             : 0,
       ),
       pushUp: await record(PlayMode.pushUp, FlightCourse.classic),
-      smile: await record(PlayMode.smile, FlightCourse.classic),
+      jump: await record(PlayMode.jump, FlightCourse.classic),
       touch: await record(PlayMode.touch, FlightCourse.classic),
+      squat: await record(PlayMode.squat, FlightCourse.classic),
       trailPushUp: await record(PlayMode.pushUp, FlightCourse.starTrail),
-      trailSmile: await record(PlayMode.smile, FlightCourse.starTrail),
+      trailJump: await record(PlayMode.jump, FlightCourse.starTrail),
       trailTouch: await record(PlayMode.touch, FlightCourse.starTrail),
+      trailSquat: await record(PlayMode.squat, FlightCourse.starTrail),
       courierPushUp: await record(PlayMode.pushUp, FlightCourse.skyCourier),
-      courierSmile: await record(PlayMode.smile, FlightCourse.skyCourier),
+      courierJump: await record(PlayMode.jump, FlightCourse.skyCourier),
       courierTouch: await record(PlayMode.touch, FlightCourse.skyCourier),
+      courierSquat: await record(PlayMode.squat, FlightCourse.skyCourier),
       unlocked: unlocked,
       recent: rows.map(_runResult).toList(),
       adventures: [
@@ -368,10 +389,8 @@ class SqliteProgressRepository implements ProgressRepository {
               perfectPasses: Value(result.perfectPasses),
               practice: result.practice,
               score: result.score,
-              repetitions: result.mode == PlayMode.pushUp
-                  ? result.repetitions
-                  : 0,
-              flaps: result.mode != PlayMode.pushUp ? result.flaps : 0,
+              repetitions: result.mode.controlsHeight ? result.repetitions : 0,
+              flaps: !result.mode.controlsHeight ? result.flaps : 0,
               duration: result.durationSeconds,
               reason: result.reason.name,
               finishedAt: result.finishedAt,

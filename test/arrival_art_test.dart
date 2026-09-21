@@ -18,6 +18,7 @@ FlightSimulation flight(FlightCourse course) =>
         rules: PushUpFlightMode(cycleSeconds: 3),
         practice: true,
         course: course,
+        rulesVersion: 11,
       )
       ..started = true
       ..phase = RunPhase.playing;
@@ -56,7 +57,7 @@ void main() {
         final sim = flight(course)..elapsed = course.duration - 6.01;
         expect(ArrivalPose.forFlight(sim), isNull);
         sim.elapsed = course.duration - 6;
-        if (!course.timed) {
+        if (!sim.timed) {
           expect(ArrivalPose.forFlight(sim), isNull);
           continue;
         }
@@ -108,7 +109,7 @@ void main() {
     test(
       '$course replay seeks reproduce the approach and final frame',
       () async {
-        final tape = recordRoute(course);
+        final tape = recordRoute(course, rulesVersion: 11);
         final player = ReplayPlayer(tape);
         for (final offset in [4000.0, 1000.0, 7000.0, 0.0]) {
           final at = tape.durationMs - offset;

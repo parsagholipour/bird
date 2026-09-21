@@ -2,18 +2,25 @@
 
 ## Courses and controls
 
-The camera activity and the arcade course are independent. Choose Push-Up Flight
-or Grin & Glide in any of these courses:
+The movement activity and the arcade course are independent. New home flights
+use Star Trail with push-ups, squats, jumps or touch; Flight School and saved
+sessions retain the other courses. Version 12 makes every new flight endless,
+adds a gradual speed ramp and mixes garden gates with Wind Lifts, Petal Shutters
+and split Switchbacks. Version 13 adds floating Lantern Drift, orbiting Sun
+Wheels and Crystal Steps, three visual variations per non-garden family, and
+matching decorative Cruise rings. Earlier recordings keep their original rules
+and artwork. The current design sheet is generated from gameplay rendering at
+`build/visual-review/obstacle-variety.png`.
 
 | Course | Objective | Collisions | Records |
 | --- | --- | --- | --- |
 | Classic | Clear as many gates as possible | One ends the flight | Separate best for each control |
-| Star Trail | Collect star points during a 60-second flight | Shield, then three hearts | Separate best for each control |
-| Sky Courier | Deliver letters during a 75-second route | Drop carried letter; keep flying | Separate delivery best for each control |
+| Star Trail | Collect star points for as long as you can | Shield, then three hearts | Separate best for each control |
+| Sky Courier | Deliver letters along an endless route | Drop carried letter; keep flying | Separate delivery best for each control |
 | Cloud Cruise | Discover cloud friends and follow stars at your own pace | None; screen edges gently return the bird | Always practice |
 
-Classic retains its original speed, score units, seeded obstacle generation and
-collision behavior. A perfect pass means staying within 0.075 viewport heights
+Classic retains its score units and collision behavior; all new courses use
+time-based acceleration and seeded obstacle patterns. A perfect pass means staying within 0.075 viewport heights
 of the aiming mark throughout the crossing. For new push-up flights, the mark
 and stars follow the calibrated top and bottom endpoints (0.15 and 0.85 viewport
 heights). Smile flights aim at the gap center. Perfect passes and every five gates
@@ -42,7 +49,7 @@ saved. Cruise stars and gates cannot earn records, stamps or bird unlocks.
 - Star pickups glow. Shields surround the bird. Precision, milestones, shield
   saves and hits produce local bursts and text; each bird has a colored trail.
   Streak upgrades announce 2× and 3× star power, and the maximum multiplier adds
-  three orbiting stars. A single visual and musical cue marks ten seconds left.
+  three orbiting stars. Legacy timed replays retain the ten-seconds-left cue.
 - Reduced Motion disables decorative drifting, burst particles, bird tilt/squash
   and pickup pulsing, and freezes signature trail movement. Collision and
   collection positions are identical.
@@ -251,7 +258,7 @@ at landscape phone sizes.
 
 ## Sky Courier
 
-A fourth course adds a 75-second delivery route for either control. Gates alternate
+Sky Courier offers an endless delivery route for every control. Gates alternate
 between pickup and postbox stops. Clearing a pickup gate while empty loads one
 letter; clearing a postbox while carrying it earns one delivery and empties the
 satchel. Cargo cannot stack. A postbox without a letter earns no delivery. The
@@ -264,7 +271,7 @@ deliveries or unlock progress. The next clean pickup offers another chance.
 This course has no stars, multipliers, magnets or heart limit. Its wider gaps,
 10% slower scroll and extra spacing leave room for the calibrated movement.
 
-The HUD displays cargo status, remaining time and an existing personal-best
+The HUD displays cargo status, elapsed time, pace and an existing personal-best
 target. Pickup and postbox signs differ in shape and color; a letter hangs below
 the bird while aboard. Pickup and delivery have distinct sounds in play and
 replay. The final ten-second cue starts at 65 seconds. Practice pauses and
@@ -297,13 +304,13 @@ Every scored course now has three goals that belong to a single flight:
 | Course | Wing one | Wing two | Wing three |
 | --- | --- | --- | --- |
 | Classic | Clear 5 gates | Clear 10 gates | Clear 25 gates |
-| Star Trail | Collect 12 stars | Reach a 6-star streak | Finish the 60-second trail |
-| Sky Courier | Deliver 1 letter | Deliver 3 letters | Finish the 75-second route |
+| Star Trail | Collect 12 stars | Reach a 6-star streak | Fly for 60 seconds in one trail |
+| Sky Courier | Deliver 1 letter | Deliver 3 letters | Fly for 75 seconds in one route |
 
 Goals earn independently; a Star Trail can earn its streak wing before the
 12-star wing. Losing a current streak does not remove a wing already earned by
-the best streak. Timed completion requires both the full duration and a completed
-run. Stopping early cannot earn the finish wing. Practice and Cloud Cruise omit
+the best streak. Endurance wings unlock at the full duration while the flight
+continues, regardless of how it eventually ends. Practice and Cloud Cruise omit
 the goals and their celebrations.
 
 The Home footer opens the course's goals. A compact live counter sits clear of
@@ -473,6 +480,9 @@ The complete suite passes all 194 tests, with clean static analysis and a
 validated ARM64 release package. Device playtesting remains pending.
 
 ## A place to arrive
+
+This finish presentation is retained for pre-version-12 saved replays. New
+endless flights do not show a destination or a finish countdown.
 
 The final six seconds of a timed route now reveal a destination: gold FINISH
 pennants in Star Trail and coral HOME pennants in Courier. A light checker ribbon

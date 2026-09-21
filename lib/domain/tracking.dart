@@ -1,16 +1,24 @@
 import 'dart:math' as math;
 
 /// Camera-independent tracking data. All times use one monotonic millisecond clock.
-// Persisted by index: append new modes to preserve existing records.
+// Persisted by index: jump replaces smile at index 1; keep existing records.
 enum PlayMode {
   pushUp,
-  smile,
-  touch;
+  jump,
+  touch,
+  squat;
+
+  bool get controlsHeight => this == pushUp || this == squat;
+
+  /// Accept old session journals and links after replacing smile mode.
+  static PlayMode fromName(String name) =>
+      name == 'smile' ? jump : values.byName(name);
 
   String get title => switch (this) {
     pushUp => 'Push-Up Flight',
-    smile => 'Grin & Glide',
+    jump => 'Jump & Fly',
     touch => 'Tap & Fly',
+    squat => 'Squat & Fly',
   };
 }
 
@@ -29,14 +37,13 @@ class TrackingSample {
     required this.timestampMs,
     required this.receivedMs,
     required this.joints,
-    this.smile = 0,
     this.aspectRatio = 4 / 3,
     this.detected = true,
     this.inferenceMs = 0,
     this.sensorTimestamp = true,
   });
   final PlayMode mode;
-  final double timestampMs, receivedMs, aspectRatio, smile, inferenceMs;
+  final double timestampMs, receivedMs, aspectRatio, inferenceMs;
   final List<Joint> joints;
   final bool detected, sensorTimestamp;
   bool freshAt(double now) =>
@@ -751,54 +758,6 @@ class BodyCalibrator {
   }
 }
 
-class SmileCalibration {
-  const SmileCalibration(this.neutral, this.smiling);
-  final double neutral, smiling;
-  double get activate => neutral + (smiling - neutral) * 0.65;
-  double get reset => neutral + (smiling - neutral) * 0.3;
-}
-
-class SmileCalibrator {
-  double? _start;
-  final List<double> _values = [];
-  double? neutral;
-  SmileCalibration? result;
-  String feedback = 'Relax your face for a moment';
-  void add(TrackingSample sample, double now) {
-    if (result != null) return;
-    if (!sample.detected || !sample.freshAt(now)) {
-      _start = null;
-      _values.clear();
-      feedback = 'Center your face in the outline';
-      return;
-    }
-    final acceptable = neutral == null
-        ? sample.smile < 0.4
-        : sample.smile >= neutral! + 0.2;
-    feedback = neutral == null
-        ? 'Relax your face · hold steady'
-        : 'Give us a smile · hold steady';
-    if (!acceptable) {
-      _start = null;
-      _values.clear();
-      return;
-    }
-    _start ??= now;
-    _values.add(sample.smile);
-    if (now - _start! < 1000 || _values.length < 10) return;
-    _values.sort();
-    final median = _values[_values.length ~/ 2];
-    if (neutral == null) {
-      neutral = median;
-      _start = null;
-      _values.clear();
-    } else {
-      result = SmileCalibration(neutral!, median);
-      feedback = 'Ready! Relax, then smile to flap.';
-    }
-  }
-}
-
 class MovementInput {
   const MovementInput({
     required this.valid,
@@ -981,45 +940,5 @@ class PushUpInterpreter implements MovementInterpreter {
     _side = null;
     _scaleChangedAt = null;
     _referenceArm = null;
-  }
-}
-
-class SmileInterpreter implements MovementInterpreter {
-  SmileInterpreter(this.calibration);
-  final SmileCalibration calibration;
-  bool _armed = false;
-  double _lastFlap = -10000, _lastSample = -1;
-  @override
-  MovementInput add(TrackingSample sample, double now) {
-    if (!sample.detected ||
-        !sample.freshAt(now) ||
-        sample.timestampMs <= _lastSample) {
-      return const MovementInput(
-        valid: false,
-        feedback: 'Keep your face in view',
-      );
-    }
-    _lastSample = sample.timestampMs;
-    if (sample.smile <= calibration.reset) _armed = true;
-    final flap =
-        _armed &&
-        sample.smile >= calibration.activate &&
-        now - _lastFlap >= 280;
-    if (flap) {
-      _armed = false;
-      _lastFlap = now;
-    }
-    return MovementInput(
-      valid: true,
-      flap: flap,
-      feedback: _armed ? 'Smile to flap' : 'Relax to prepare the next flap',
-    );
-  }
-
-  @override
-  void reset() {
-    _armed = false;
-    _lastFlap = -10000;
-    _lastSample = -1;
   }
 }

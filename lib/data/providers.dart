@@ -35,7 +35,7 @@ final selectedCourseProvider = NotifierProvider<CourseSelection, FlightCourse>(
 
 class CourseSelection extends Notifier<FlightCourse> {
   @override
-  FlightCourse build() => FlightCourse.classic;
+  FlightCourse build() => FlightCourse.starTrail;
   void select(FlightCourse course) => state = course;
 }
 
@@ -72,7 +72,7 @@ class ProgressController extends AsyncNotifier<ProgressSnapshot> {
     await ref.read(sessionRepositoryProvider).reset();
     ref.invalidate(sessionsProvider);
     await _repo.reset();
-    ref.read(selectedCourseProvider.notifier).select(FlightCourse.classic);
+    ref.read(selectedCourseProvider.notifier).select(FlightCourse.starTrail);
     await refresh();
   }
 }

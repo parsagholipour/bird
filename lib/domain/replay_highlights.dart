@@ -61,7 +61,7 @@ List<ReplayHighlight> buildReplayHighlights(ReplayTape tape) {
     final previousTime = sim.elapsed;
     final hadStarted = sim.started;
     final phase = sim.phase;
-    applyReplayEvent(sim, entry);
+    applyReplayEvent(sim, entry, reducedMotion: tape.reducedMotion);
     final at = (entry[0] as num).toDouble();
     if (!hadStarted && sim.started) {
       offer(

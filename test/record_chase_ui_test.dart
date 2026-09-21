@@ -39,7 +39,7 @@ void main() {
 
   for (final scenario in [
     (course: FlightCourse.classic, mode: PlayMode.pushUp, practice: false),
-    (course: FlightCourse.starTrail, mode: PlayMode.smile, practice: false),
+    (course: FlightCourse.starTrail, mode: PlayMode.jump, practice: false),
     (course: FlightCourse.skyCourier, mode: PlayMode.pushUp, practice: false),
     (course: FlightCourse.starTrail, mode: PlayMode.pushUp, practice: true),
     (course: FlightCourse.cloudCruise, mode: PlayMode.pushUp, practice: false),

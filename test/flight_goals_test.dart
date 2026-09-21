@@ -79,42 +79,39 @@ void main() {
     expect(FlightGoals.earned(all), 3);
   });
 
-  test(
-    'completed-route wings need both full duration and completion reason',
-    () {
-      for (final course in [FlightCourse.starTrail, FlightCourse.skyCourier]) {
-        for (final reason in EndReason.values.where(
-          (r) => r != EndReason.completed,
-        )) {
-          final goal = FlightGoals.forRun(
-            flight(course: course, seconds: course.duration, reason: reason),
-          ).last;
-          expect(goal.earned, isFalse);
-          expect(goal.fraction, lessThan(1));
-        }
-        expect(
-          FlightGoals.forRun(
-            flight(
-              course: course,
-              seconds: course.duration - .001,
-              reason: EndReason.completed,
-            ),
-          ).last.earned,
-          isFalse,
-        );
-        expect(
-          FlightGoals.forRun(
-            flight(
-              course: course,
-              seconds: course.duration,
-              reason: EndReason.completed,
-            ),
-          ).last.earned,
-          isTrue,
-        );
+  test('endurance wings count time regardless of how the flight ends', () {
+    for (final course in [FlightCourse.starTrail, FlightCourse.skyCourier]) {
+      for (final reason in EndReason.values.where(
+        (r) => r != EndReason.completed,
+      )) {
+        final goal = FlightGoals.forRun(
+          flight(course: course, seconds: course.duration, reason: reason),
+        ).last;
+        expect(goal.earned, isTrue);
+        expect(goal.fraction, 1);
       }
-    },
-  );
+      expect(
+        FlightGoals.forRun(
+          flight(
+            course: course,
+            seconds: course.duration - .001,
+            reason: EndReason.completed,
+          ),
+        ).last.earned,
+        isFalse,
+      );
+      expect(
+        FlightGoals.forRun(
+          flight(
+            course: course,
+            seconds: course.duration,
+            reason: EndReason.completed,
+          ),
+        ).last.earned,
+        isTrue,
+      );
+    }
+  });
 
   test('Courier wings use deliveries and never cleared gates', () {
     expect(
@@ -185,7 +182,7 @@ void main() {
             FlightSimulation(
                 rules: mode == PlayMode.pushUp
                     ? PushUpFlightMode(cycleSeconds: 3)
-                    : GrinGlideMode(),
+                    : JumpFlyMode(),
                 practice: false,
                 course: course,
               )

@@ -61,6 +61,7 @@ void main() {
     () {
       for (final course in FlightCourse.values) {
         final modern = FlightSimulation(
+          rulesVersion: 11,
           rules: PushUpFlightMode(cycleSeconds: 3),
           practice: false,
           course: course,

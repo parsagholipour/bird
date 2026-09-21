@@ -47,16 +47,6 @@ TrackingSample bodySample(
   );
 }
 
-TrackingSample smileSample(double t, double smile, {bool detected = true}) =>
-    TrackingSample(
-      mode: PlayMode.smile,
-      timestampMs: t,
-      receivedMs: t,
-      joints: [],
-      smile: smile,
-      detected: detected,
-    );
-
 // Continuous, constant-length arms with a comfortable (not locked) top.
 TrackingSample movingBody(double t, double depth, {int side = 0}) {
   final sample = bodySample(t);
@@ -530,32 +520,4 @@ void main() {
     hold(false);
     expect(input!.repetitions, 1);
   });
-  test('smile hysteresis: sustained smile gives one flap, neutral rearms', () {
-    final c = SmileInterpreter(const SmileCalibration(.1, .8));
-    expect(c.add(smileSample(0, .9), 0).flap, isFalse);
-    expect(c.add(smileSample(40, .1), 40).flap, isFalse);
-    expect(c.add(smileSample(80, .8), 80).flap, isTrue);
-    for (var t = 120.0; t < 1000; t += 40) {
-      expect(c.add(smileSample(t, .8), t).flap, isFalse);
-    }
-    expect(c.add(smileSample(1000, .1), 1000).flap, isFalse);
-    expect(c.add(smileSample(1040, .8), 1040).flap, isTrue);
-    expect(c.add(smileSample(1080, .1), 1080).repetitions, 0);
-    expect(c.add(smileSample(1120, .8), 1120).flap, isFalse);
-  });
-  test(
-    'smile calibration needs stable neutral and distinct smiling scores',
-    () {
-      final c = SmileCalibrator();
-      for (var t = 0.0; t <= 1100; t += 50) {
-        c.add(smileSample(t, .1), t);
-      }
-      expect(c.neutral, closeTo(.1, .001));
-      for (var t = 1200.0; t <= 2300; t += 50) {
-        c.add(smileSample(t, .8), t);
-      }
-      expect(c.result, isNotNull);
-      expect(c.result!.activate, greaterThan(c.result!.reset));
-    },
-  );
 }

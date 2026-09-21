@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/painting.dart';
+import '../domain/bird_motion.dart';
 import '../domain/game_rules.dart';
-import '../domain/tracking.dart';
 import '../ui/theme.dart';
 
 part 'bird_vector_paths.dart';
@@ -58,7 +58,7 @@ class BirdPose {
   }) {
     if (reducedMotion || !simulation.started) return const BirdPose();
     final expression = _expression(simulation, bird);
-    if (simulation.rules.mode == PlayMode.pushUp) {
+    if (simulation.rules.mode.controlsHeight) {
       // Raising the body presses the wing down; lowering opens it for the next
       // stroke. Using height keeps each calibrated endpoint stable and readable.
       final range = ((simulation.birdY - .15) / .70).clamp(0.0, 1.0);
@@ -67,15 +67,21 @@ class BirdPose {
     final sinceFlap = simulation.elapsed - simulation.lastFlapAt;
     final t = (sinceFlap / .38).clamp(0.0, 1.0);
     final stroke = sinceFlap >= 0 && sinceFlap < .38
-        ? math.sin(t * math.pi * 2) * (1 - t) * 1.05
+        ? -math.sin(t * math.pi * 2) * (1 - t) * .70
+        : 0.0;
+    final glide = simulation.gliding
+        ? math
+              .min(
+                simulation.glideRemaining / .2,
+                simulation.velocity / FlightSimulation.glideFallSpeed,
+              )
+              .clamp(0.0, 1.0)
         : 0.0;
     return BirdPose(
       expression: expression,
-      wing: .10 + stroke,
-      tilt: (simulation.velocity * .6).clamp(-.23, .4),
-      spring: sinceFlap >= 0 && sinceFlap < .22
-          ? math.sin(sinceFlap / .22 * math.pi) * .05
-          : 0,
+      wing: .10 + stroke - .48 * glide,
+      tilt: BirdFlightMotion.tilt(simulation.velocity),
+      spring: BirdFlightMotion.spring(sinceFlap),
       flapWake: sinceFlap >= 0 && sinceFlap < .32 ? sinceFlap / .32 : 0,
     );
   }
@@ -104,6 +110,7 @@ class BirdPose {
       if (age < .7 &&
           switch (event.kind) {
             FlightEventKind.starTrio ||
+            FlightEventKind.enemyHit ||
             FlightEventKind.delivery ||
             FlightEventKind.letter ||
             FlightEventKind.cloudFriend ||

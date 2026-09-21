@@ -141,7 +141,7 @@ void main() {
   });
 
   test('old journals keep their score and identical seeded movement', () {
-    final tape = recordRoute(FlightCourse.starTrail);
+    final tape = recordRoute(FlightCourse.starTrail, rulesVersion: 11);
     final old = ReplayTape.fromJson(tape.toJson()..['version'] = 5);
     final current = ReplayPlayer(tape)..seek(tape.durationMs);
     final legacy = ReplayPlayer(old)..seek(old.durationMs);

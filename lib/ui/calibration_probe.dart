@@ -1,7 +1,11 @@
+import '../domain/squat_tracking.dart';
+import 'squat_setup_art.dart';
+import 'jump_setup_art.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../domain/tracking.dart';
+import '../domain/jump_tracking.dart';
 import '../tracking/native_tracking_source.dart';
 
 class CalibrationProbe extends StatefulWidget {
@@ -15,7 +19,8 @@ class _CalibrationProbeState extends State<CalibrationProbe>
   final source = NativeTrackingSource();
   final metrics = TrackingMetrics();
   BodyCalibrator body = BodyCalibrator();
-  SmileCalibrator face = SmileCalibrator();
+  JumpCalibrator jump = JumpCalibrator();
+  SquatCalibrator squat = SquatCalibrator();
   MovementInterpreter? interpreter;
   PlayMode mode = PlayMode.pushUp;
   TrackingSample? sample;
@@ -62,16 +67,23 @@ class _CalibrationProbeState extends State<CalibrationProbe>
           if (body.result != null) {
             interpreter = PushUpInterpreter(body.result!);
           }
+        } else if (mode == PlayMode.squat) {
+          squat.add(s, source.nowMs);
+          height = squat.previewHeight;
+          message = squat.feedback;
+          if (squat.result != null) {
+            interpreter = SquatInterpreter(squat.result!);
+          }
         } else {
-          face.add(s, source.nowMs);
-          message = face.feedback;
-          if (face.result != null) interpreter = SmileInterpreter(face.result!);
+          jump.add(s, source.nowMs);
+          message = jump.feedback;
+          if (jump.result != null) interpreter = JumpInterpreter(jump.result!);
         }
       } else {
         final input = interpreter!.add(s, source.nowMs);
         message = input.feedback;
         if (input.valid) {
-          height = input.height;
+          if (mode.controlsHeight) height = input.height;
           reps = input.repetitions;
           if (input.flap) {
             flaps++;
@@ -98,7 +110,7 @@ class _CalibrationProbeState extends State<CalibrationProbe>
       if (mounted) setState(() => message = e.message);
     });
     refresh = Timer.periodic(const Duration(milliseconds: 50), (_) {
-      if (mode == PlayMode.smile) height = (height - 0.02).clamp(0.1, 1);
+      if (mode == PlayMode.jump) height = (height - 0.02).clamp(0.1, 1);
       if (mounted) setState(() {});
     });
   }
@@ -118,7 +130,8 @@ class _CalibrationProbeState extends State<CalibrationProbe>
       }
       await source.stop();
       body = BodyCalibrator();
-      face = SmileCalibrator();
+      jump = JumpCalibrator();
+      squat = SquatCalibrator();
       interpreter = null;
       flaps = 0;
       reps = 0;
@@ -224,8 +237,10 @@ class _CalibrationProbeState extends State<CalibrationProbe>
                   Text(
                     interpreter != null
                         ? '3. Move your bird!'
-                        : mode == PlayMode.smile
-                        ? 'Calibrate your smile'
+                        : mode == PlayMode.squat
+                        ? 'Find your squat range'
+                        : mode == PlayMode.jump
+                        ? 'Find your standing position'
                         : body.step == BodyCalibrationStep.position
                         ? '1. Show your arms & hip'
                         : '2. Do two push-ups',
@@ -235,7 +250,9 @@ class _CalibrationProbeState extends State<CalibrationProbe>
                   Text(
                     mode == PlayMode.pushUp
                         ? 'Phone low, facing you or beside you.\nFacing it? Show both shoulders, an arm and hip.\nMove down and up twice at your own pace.'
-                        : 'Sit facing the phone. Relax your face, then hold a smile. Neutral → smile = one flap.',
+                        : mode == PlayMode.squat
+                        ? 'Stand still, squat comfortably and hold briefly, then stand back up. Squat to descend; stand to rise.'
+                        : 'Stand facing the phone with your whole body and feet visible. Hold still, then make small jumps. One jump = one big boost.',
                     style: const TextStyle(fontSize: 12),
                   ),
                   const SizedBox(height: 8),
@@ -263,8 +280,14 @@ class _CalibrationProbeState extends State<CalibrationProbe>
                           top: 12,
                           child: Text(
                             interpreter == null
-                                ? 'CALIBRATION\n${mode == PlayMode.pushUp ? body.cycles : (face.neutral == null ? 0 : 1)} / 2 calibrated'
-                                : 'CONTROL TEST\n${mode == PlayMode.pushUp ? '$reps push-ups' : '$flaps flaps'}',
+                                ? (mode == PlayMode.pushUp
+                                      ? 'CALIBRATION\n${body.cycles} / 2 calibrated'
+                                      : 'CALIBRATION\n${((mode == PlayMode.squat ? squat.progress : jump.progress) * 100).round()}% calibrated')
+                                : 'CONTROL TEST\n${mode == PlayMode.pushUp
+                                      ? '$reps push-ups'
+                                      : mode == PlayMode.squat
+                                      ? '$reps squats'
+                                      : '$flaps jumps'}',
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -319,9 +342,11 @@ class _CalibrationProbeState extends State<CalibrationProbe>
                         : () async {
                             await source.stop();
                             setState(() {
-                              mode = mode == PlayMode.pushUp
-                                  ? PlayMode.smile
-                                  : PlayMode.pushUp;
+                              mode = switch (mode) {
+                                PlayMode.pushUp => PlayMode.jump,
+                                PlayMode.jump => PlayMode.squat,
+                                _ => PlayMode.pushUp,
+                              };
                               started = false;
                               sample = null;
                               interpreter = null;
@@ -329,7 +354,11 @@ class _CalibrationProbeState extends State<CalibrationProbe>
                             });
                           },
                     child: Text(
-                      'Try ${mode == PlayMode.pushUp ? 'Grin & Glide' : 'Push-Up Flight'}',
+                      'Try ${mode == PlayMode.pushUp
+                          ? 'Jump & Fly'
+                          : mode == PlayMode.jump
+                          ? 'Squat & Fly'
+                          : 'Push-Up Flight'}',
                     ),
                   ),
                 ],
@@ -357,18 +386,15 @@ class LandmarkPainter extends CustomPainter {
       ..style = PaintingStyle.stroke;
     if (s == null ||
         !s.detected ||
-        (mode == PlayMode.pushUp && !observeBody(s, s.receivedMs).valid)) {
+        (mode == PlayMode.pushUp && !observeBody(s, s.receivedMs).valid) ||
+        (mode == PlayMode.jump && !observeJump(s, s.receivedMs).valid) ||
+        (mode == PlayMode.squat && !observeSquat(s, s.receivedMs).valid)) {
       paint.color = Colors.white.withValues(alpha: 0.45);
       paint.strokeWidth = 3;
-      if (mode == PlayMode.smile) {
-        canvas.drawOval(
-          Rect.fromCenter(
-            center: size.center(Offset.zero),
-            width: size.height * 0.48,
-            height: size.height * 0.65,
-          ),
-          paint,
-        );
+      if (mode == PlayMode.squat) {
+        SquatSetupArt(color: paint.color).paint(canvas, size);
+      } else if (mode == PlayMode.jump) {
+        JumpSetupArt(color: paint.color).paint(canvas, size);
       } else {
         final p = [
           Offset(size.width * .25, size.height * .45),
@@ -401,7 +427,7 @@ class LandmarkPainter extends CustomPainter {
     final dx = (size.width - w) / 2, dy = (size.height - h) / 2;
     Offset pos(Joint p) =>
         Offset(dx + (front ? 1 - p.x : p.x) * w, dy + p.y * h);
-    if (mode == PlayMode.pushUp && s.joints.length >= 33) {
+    if (s.joints.length >= 33) {
       for (final side in [0, 1]) {
         for (final pair in [
           [11, 13],
@@ -409,6 +435,7 @@ class LandmarkPainter extends CustomPainter {
           [11, 23],
           [23, 25],
           [25, 27],
+          if (mode == PlayMode.jump) [27, 31],
         ]) {
           final a = s.joints[pair[0] + side], b = s.joints[pair[1] + side];
           if (a.confidence >= .3 && b.confidence >= .3) {
@@ -418,7 +445,7 @@ class LandmarkPainter extends CustomPainter {
       }
     }
     paint.style = PaintingStyle.fill;
-    for (var i = mode == PlayMode.pushUp ? 11 : 0; i < s.joints.length; i++) {
+    for (var i = 11; i < s.joints.length; i++) {
       if (s.joints[i].confidence >= .3) {
         canvas.drawCircle(pos(s.joints[i]), 4, paint);
       }
