@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'theme.dart';
+import 'ui_sounds.dart';
 
 /// A physical-looking play key with a fixed touch target and native button input.
 class PlayButton extends StatefulWidget {
@@ -27,7 +28,10 @@ class _PlayButtonState extends State<PlayButton> {
       width: double.infinity,
       child: TextButton(
         statesController: states,
-        onPressed: widget.onPressed,
+        onPressed: () {
+          UiSounds.effect(context);
+          widget.onPressed();
+        },
         style: TextButton.styleFrom(
           padding: EdgeInsets.zero,
           minimumSize: const Size(48, 76),
@@ -39,7 +43,7 @@ class _PlayButtonState extends State<PlayButton> {
           enableFeedback: true,
         ),
         child: Semantics(
-          label: 'Start push-up flight',
+          label: 'Play. Choose your mode',
           excludeSemantics: true,
           child: ValueListenableBuilder<Set<WidgetState>>(
             valueListenable: states,

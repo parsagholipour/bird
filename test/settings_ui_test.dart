@@ -25,8 +25,8 @@ class _CountingRepository extends SqliteProgressRepository {
 
 const _titles = ['Sky Club soundtrack', 'Sound effects', 'Reduced motion'];
 const _subtitles = [
-  'A little sunshine for your ears.',
-  'Flaps, points and happy little victories.',
+  'Menu, adventure and boss themes.',
+  'Flight, combat, pickups and menu feedback.',
   'Quieter menus and fewer decorative effects.',
 ];
 const _keys = [SettingKey.music, SettingKey.effects, SettingKey.reducedMotion];

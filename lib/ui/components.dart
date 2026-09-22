@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'theme.dart';
+import 'ui_sounds.dart';
 
 const birdAssets = ['pip', 'peaches', 'minty', 'orbit'];
 
@@ -84,12 +85,14 @@ class SkyButton extends StatefulWidget {
     this.icon = Icons.arrow_forward_rounded,
     this.compact = false,
     this.busy = false,
+    this.sound = 'ui_tap',
   });
   final String label;
   final VoidCallback? onPressed;
   final Color color;
   final IconData? icon;
   final bool compact, busy;
+  final String sound;
   @override
   State<SkyButton> createState() => _SkyButtonState();
 }
@@ -142,7 +145,12 @@ class _SkyButtonState extends State<SkyButton> {
           color: Colors.transparent,
           child: InkWell(
             borderRadius: BorderRadius.circular(16),
-            onTap: enabled ? widget.onPressed : null,
+            onTap: enabled
+                ? () {
+                    UiSounds.effect(context, widget.sound);
+                    widget.onPressed!();
+                  }
+                : null,
             onHighlightChanged: (v) {
               // Disabling a held InkWell can clear its highlight during build.
               // didUpdateWidget already released our pressed state in that case.
@@ -210,11 +218,13 @@ class RoundButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.color = SkyColors.cream,
+    this.sound = 'ui_tap',
   });
   final IconData icon;
   final String label;
   final VoidCallback? onPressed;
   final Color color;
+  final String sound;
   @override
   Widget build(BuildContext context) => Material(
     color: color,
@@ -223,7 +233,19 @@ class RoundButton extends StatelessWidget {
       side: BorderSide(color: SkyColors.ink.withValues(alpha: .12)),
     ),
     child: IconButton(
-      onPressed: onPressed,
+      onPressed: onPressed == null
+          ? null
+          : () {
+              UiSounds.effect(
+                context,
+                sound == 'ui_tap' &&
+                        (icon == Icons.arrow_back_rounded ||
+                            icon == Icons.close_rounded)
+                    ? 'ui_back'
+                    : sound,
+              );
+              onPressed!();
+            },
       icon: Icon(icon, color: SkyColors.ink),
       tooltip: label,
       style: IconButton.styleFrom(minimumSize: const Size(48, 48)),

@@ -5,6 +5,7 @@ import '../data/providers.dart';
 import '../data/progress_repository.dart';
 import 'components.dart';
 import 'theme.dart';
+import 'ui_sounds.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -14,6 +15,7 @@ class SettingsScreen extends ConsumerWidget {
     SettingKey key,
     bool value,
   ) async {
+    UiSounds.effect(context, 'ui_toggle');
     try {
       await ref.read(progressProvider.notifier).setting(key, value);
     } catch (e) {
@@ -91,7 +93,7 @@ class SettingsScreen extends ConsumerWidget {
                                     _toggle(
                                       Icons.music_note_rounded,
                                       'Sky Club soundtrack',
-                                      'A little sunshine for your ears.',
+                                      'Menu, adventure and boss themes.',
                                       p.settings.music,
                                       (v) => change(
                                         context,
@@ -104,7 +106,7 @@ class SettingsScreen extends ConsumerWidget {
                                     _toggle(
                                       Icons.volume_up_rounded,
                                       'Sound effects',
-                                      'Flaps, points and happy little victories.',
+                                      'Flight, combat, pickups and menu feedback.',
                                       p.settings.effects,
                                       (v) => change(
                                         context,

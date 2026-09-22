@@ -310,8 +310,8 @@ void main() {
           expect(actual.score, sim.score);
           expect(actual.hearts, sim.hearts);
           expect(
-            actual.enemies.map((e) => (e.x, e.y)),
-            sim.enemies.map((e) => (e.x, e.y)),
+            actual.enemies.map((e) => (e.x, e.y, e.appearance)),
+            sim.enemies.map((e) => (e.x, e.y, e.appearance)),
           );
           expect(
             actual.rocks.map((r) => (r.x, r.y)),

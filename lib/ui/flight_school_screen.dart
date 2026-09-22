@@ -42,6 +42,7 @@ class _FlightSchoolScreenState extends ConsumerState<FlightSchoolScreen>
   void _reset() {
     _finishedNotified = false;
     school = FlightSchool(course: course, control: control);
+    audio.syncCombat(school.simulation, silent: true);
     game = BirdGame(
       simulation: school.simulation,
       nowMs: () => 0,
@@ -73,14 +74,19 @@ class _FlightSchoolScreenState extends ConsumerState<FlightSchoolScreen>
   void _advance(double dt, double width) {
     final sim = school.simulation;
     final before = sim.elapsed, phase = sim.phase, flaps = sim.flaps;
+    final count = sim.countdown.ceil();
     school.advance(dt, width);
+    audio.syncCombat(sim);
+    if (sim.phase == RunPhase.countdown && count != sim.countdown.ceil()) {
+      audio.effect('ready');
+    }
     if (sim.phase != phase && sim.phase == RunPhase.playing) audio.effect('go');
     if (sim.flaps > flaps) audio.effect('flap');
     if (sim.phase == RunPhase.ended && phase != RunPhase.ended) {
       audio.effect(
         sim.endReason == EndReason.completed ? 'complete' : 'finish',
       );
-      unawaited(audio.stop());
+      unawaited(audio.configure(settings, active: false));
     } else if (sim.phase == RunPhase.paused && phase != RunPhase.paused) {
       game.pauseEngine();
       unawaited(audio.stop());
@@ -102,6 +108,7 @@ class _FlightSchoolScreenState extends ConsumerState<FlightSchoolScreen>
       (FlightEventKind.starTrio, 'trio'),
       (FlightEventKind.perfect, 'perfect'),
       (FlightEventKind.shieldReady, 'shield'),
+      (FlightEventKind.heart, 'heart'),
       (FlightEventKind.star, 'star'),
     ]) {
       if (events.contains(kind)) {
@@ -218,6 +225,7 @@ class _FlightSchoolScreenState extends ConsumerState<FlightSchoolScreen>
                       RoundButton(
                         icon: Icons.pause_rounded,
                         label: 'Pause lesson',
+                        sound: 'pause',
                         onPressed: _pause,
                       ),
                     ],

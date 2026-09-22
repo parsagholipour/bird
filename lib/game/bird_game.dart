@@ -16,6 +16,9 @@ import 'arrival_art.dart';
 import 'gate_art.dart';
 import 'obstacle_art.dart';
 import 'combat_art.dart';
+import 'boss_art.dart';
+import 'heart_pickup_art.dart';
+import 'door_art.dart';
 
 class BirdGame extends FlameGame {
   BirdGame({
@@ -85,6 +88,14 @@ class BirdGame extends FlameGame {
     super.render(canvas);
     final w = size.x, h = size.y;
     if (h <= 0) return;
+    canvas.save();
+    canvas.clipRect(Rect.fromLTWH(0, 0, w, h));
+    final shake = BossArt.cameraOffset(simulation.boss, reducedMotion) * h;
+    if (shake != Offset.zero) {
+      canvas.translate(w / 2, h / 2);
+      canvas.scale(1.018);
+      canvas.translate(-w / 2 + shake.dx, -h / 2 + shake.dy);
+    }
     if (!transparent) {
       SkyScenery.paint(
         canvas,
@@ -116,6 +127,7 @@ class BirdGame extends FlameGame {
         );
       }
     }
+    BossArt.backdrop(canvas, Size(w, h), simulation.boss, reducedMotion);
     ArrivalArt.gate(canvas, h, simulation, reducedMotion: reducedMotion);
     for (final o in simulation.obstacles) {
       final x = o.x * h, width = o.width * h;
@@ -140,6 +152,7 @@ class BirdGame extends FlameGame {
             seconds: simulation.elapsed,
             reducedMotion: reducedMotion,
             cleared: cleared,
+            refined: simulation.rulesVersion >= 14,
           );
         } else {
           canvas.drawOval(
@@ -178,6 +191,8 @@ class BirdGame extends FlameGame {
             reducedMotion: reducedMotion,
             cleared: cleared,
             perfect: perfect,
+            refined: simulation.rulesVersion >= 14,
+            gardenStructures: simulation.rulesVersion >= 16,
           );
         } else {
           for (final passage in o.passages) {
@@ -209,6 +224,9 @@ class BirdGame extends FlameGame {
             );
           }
         }
+        if (o.door != null) {
+          DoorArt.paint(canvas, h, o, reducedMotion: reducedMotion);
+        }
         if (cleared && !simulation.isCourier) {
           _gateSeal(canvas, Offset(x + width / 2, o.target * h), h, perfect);
         }
@@ -236,7 +254,9 @@ class BirdGame extends FlameGame {
           ..color = SkyColors.white.withValues(alpha: .55)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2;
-        if (o.courierStop != null && !o.hit) {
+        // A closed panel shows its own health in place of the aiming mark.
+        final open = o.door?.destroyed ?? true;
+        if (open && o.courierStop != null && !o.hit) {
           CourierArt.station(
             canvas,
             center,
@@ -244,7 +264,7 @@ class BirdGame extends FlameGame {
             o.courierStop!,
             carrying: simulation.carryingLetter,
           );
-        } else if (!o.hit) {
+        } else if (open && !o.hit) {
           canvas.drawCircle(center, h * .035, paint);
           canvas.drawCircle(
             center,
@@ -286,7 +306,7 @@ class BirdGame extends FlameGame {
       );
     }
     for (final star in simulation.stars) {
-      if (star.collected || star.missed || star.x * h > w + 30) continue;
+      if (star.collected || star.x * h > w + 30) continue;
       final center = Offset(star.x * h, star.y * h);
       final pulse = reducedMotion
           ? 1.0
@@ -315,6 +335,17 @@ class BirdGame extends FlameGame {
         Paint()..color = SkyColors.cream,
       );
     }
+    for (final heart in simulation.heartPickups) {
+      if (heart.x * h > w + h * .07) continue;
+      HeartPickupArt.paint(
+        canvas,
+        h,
+        heart,
+        seconds: _time,
+        reducedMotion: reducedMotion,
+      );
+    }
+    BossArt.paint(canvas, Size(w, h), simulation, reducedMotion: reducedMotion);
     CombatArt.paint(canvas, h, simulation, reducedMotion: reducedMotion);
     {
       final cx = FlightSimulation.birdX * h, cy = simulation.birdY * h;
@@ -372,6 +403,16 @@ class BirdGame extends FlameGame {
           seconds: _time,
           animate: !reducedMotion,
           empowered: simulation.multiplier > 1,
+          // Reduced Motion keeps the rigid trail instead of a swinging tail.
+          path: reducedMotion
+              ? null
+              : [
+                  for (final p in simulation.flightPath.recent)
+                    Offset(
+                      cx + (p.distance - simulation.distance) * h,
+                      p.y * h,
+                    ),
+                ],
         );
       }
       if (simulation.isTrail && simulation.shield) {
@@ -456,6 +497,11 @@ class BirdGame extends FlameGame {
       CourierArt.handoff(canvas, h, simulation, reducedMotion: reducedMotion);
     }
     _feedback(canvas, h);
+    canvas.restore();
+    BossArt.foreground(canvas, Size(w, h), simulation, reducedMotion);
+    if (simulation.boss case final boss?) {
+      BossArt.healthBar(canvas, Size(w, h), boss);
+    }
   }
 
   void _magnet(Canvas canvas, double h) {
@@ -521,7 +567,12 @@ class BirdGame extends FlameGame {
   void _feedback(Canvas canvas, double h) {
     final dark = SkyPalette.at(simulation.elapsed).top.computeLuminance() < .22;
     final active = simulation.events
-        .where((e) => simulation.elapsed - e.at < 1.3)
+        .where(
+          (e) =>
+              simulation.elapsed - e.at < 1.3 &&
+              !(simulation.boss?.cinematic == true &&
+                  e.kind == FlightEventKind.bossDefeated),
+        )
         .toList();
     final messages = active
         .where((e) => e.kind != FlightEventKind.star)
@@ -530,6 +581,7 @@ class BirdGame extends FlameGame {
         .where(
           (e) =>
               e.kind == FlightEventKind.cloudFriend ||
+              e.kind == FlightEventKind.heart ||
               e.kind == FlightEventKind.letter ||
               e.kind == FlightEventKind.delivery ||
               e.kind == FlightEventKind.letterLost,
@@ -546,7 +598,7 @@ class BirdGame extends FlameGame {
       final alpha = (1 - t * t).clamp(0.0, 1.0);
       final center = Offset(FlightSimulation.birdX * h, event.y * h);
       final color = switch (event.kind) {
-        FlightEventKind.hit => SkyColors.coral,
+        FlightEventKind.hit || FlightEventKind.heart => SkyColors.coral,
         FlightEventKind.shieldReady ||
         FlightEventKind.shieldUsed => SkyColors.teal,
         FlightEventKind.magnet => SkyColors.purple,
@@ -572,9 +624,12 @@ class BirdGame extends FlameGame {
       }
       final label = switch (event.kind) {
         FlightEventKind.star => '+${event.value}',
+        FlightEventKind.heart => '+1 LIFE!',
         FlightEventKind.starTrio => 'STAR TRIO +${event.value}!',
         FlightEventKind.enemyHit =>
           event.value > 0 ? 'NICE SHOT +${event.value}!' : 'NICE SHOT!',
+        FlightEventKind.bossDefeated =>
+          event.value > 0 ? 'BOSS DOWN +${event.value}!' : 'BOSS DOWN!',
         FlightEventKind.streak => '${event.value}× STAR POWER!',
         FlightEventKind.perfect =>
           event.value > 1 ? 'PERFECT ×${event.value}' : 'PERFECT!',

@@ -3,9 +3,17 @@ import 'tracking.dart';
 import 'flight_course.dart';
 import 'cloud_friends.dart';
 import 'bird_motion.dart';
+import 'flight_path.dart';
 import 'obstacle.dart';
+import 'sky_boss.dart';
+import 'sky_enemy.dart';
+import 'sky_door.dart';
 export 'flight_course.dart';
+export 'flight_path.dart';
 export 'obstacle.dart';
+export 'sky_boss.dart';
+export 'sky_enemy.dart';
+export 'sky_door.dart';
 
 enum RunPhase { countdown, playing, paused, ended }
 
@@ -36,6 +44,8 @@ enum FlightEventKind {
   cloudFriend,
   starTrio,
   enemyHit,
+  bossDefeated,
+  heart,
 }
 
 class FlightEvent {
@@ -86,18 +96,26 @@ class StarTrio {
   bool collected(int slot) => collectedMask & (1 << slot) != 0;
 }
 
-class SkyEnemy {
-  SkyEnemy({required this.x, required this.y});
+class BirdRock {
+  BirdRock({required this.x, required this.y, this.damage = baseDamage}) {
+    if (damage <= 0) throw ArgumentError.value(damage, 'damage');
+  }
   double x;
   final double y;
-  static const radius = .045;
+  // A shot retains the weapon's damage at the instant it was fired.
+  final int damage;
+  static const baseDamage = 10;
+  static const radius = .014, speed = 1.65;
 }
 
-class BirdRock {
-  BirdRock({required this.x, required this.y});
+/// A life pickup that follows the safe opening of its passage.
+class SkyHeart {
+  SkyHeart({required this.x, required this._y, this.passage});
   double x;
-  final double y;
-  static const radius = .014, speed = 1.65;
+  final double _y;
+  final Obstacle? passage;
+  double get y => passage?.target ?? _y;
+  static const radius = .035, pickupRadius = .085;
 }
 
 /// Extension point for exercise games. Distances are in units of viewport height.
@@ -231,38 +249,75 @@ class FlightSimulation {
     required bool practice,
     this.course = FlightCourse.classic,
     this.rulesVersion = currentRulesVersion,
+    int weaponDamage = BirdRock.baseDamage,
     math.Random? random,
   }) : random = random ?? math.Random(),
-       practice = practice || course.relaxed;
+       practice = practice || course.relaxed {
+    setWeaponDamage(weaponDamage);
+  }
   final GameMode rules;
   final bool practice;
   final FlightCourse course;
 
   /// Replay journals keep the rules they were recorded with.
-  static const currentRulesVersion = 13;
+  static const currentRulesVersion = 27;
   final int rulesVersion;
   final math.Random random;
   final List<Obstacle> obstacles = [];
   final List<SkyStar> stars = [];
   final List<StarTrio> starTrios = [];
+  final List<SkyHeart> heartPickups = [];
   final List<DriftingCloud> clouds = [];
   final Set<CloudFriend> cloudFriends = {};
   final List<FlightEvent> events = [];
   final List<SkyEnemy> enemies = [];
+  final List<EnemyAmmo> enemyAmmo = [];
   final List<BirdRock> rocks = [];
+  SkyBoss? boss;
+  int doorsDestroyed = 0;
+  bool _lastPassageHadDoor = false;
+  final List<BossAmmo> bossAmmo = [];
+  int bossesDefeated = 0;
+  static const bossInterval = 45.0, bossBonus = 30;
+  double _nextBossAt = bossInterval;
+  int? _heartPassagesRemaining;
+  bool get supportsBosses => supportsCombat && rulesVersion >= 15;
+  bool get supportsHeartPickups =>
+      supportsBosses && isTrail && rulesVersion >= 24;
+  bool get supportsEnemyAttacks => supportsCombat && rulesVersion >= 18;
+  bool get supportsWeaponDamage => supportsCombat && rulesVersion >= 26;
+  bool get bossCutscene => boss?.inCutscene ?? false;
   int shots = 0, enemiesDefeated = 0;
+  // Presentation counters survive objects leaving the screen within a frame.
+  // They do not affect physics, RNG or the recorded replay format.
+  int rockImpacts = 0, projectilesDeflected = 0, enemyShots = 0;
   double lastShotAt = double.negativeInfinity;
   static const shotCooldown = .28;
+  int _weaponDamage = BirdRock.baseDamage;
+  int get weaponDamage => supportsWeaponDamage ? _weaponDamage : 1;
+
+  /// Live upgrades should go through FlightRecorder.setWeaponDamage so seeks
+  /// restore the same weapon and shots already in flight keep their damage.
+  void setWeaponDamage(int damage) {
+    if (damage <= 0) throw ArgumentError.value(damage, 'damage');
+    _weaponDamage = damage;
+  }
+
   bool get supportsCombat =>
       rules.mode == PlayMode.touch && rulesVersion >= 7 && !isCruise;
   double get shotCooldownRemaining =>
       math.max(0, lastShotAt + shotCooldown - elapsed);
   bool get canShoot =>
-      supportsCombat && phase == RunPhase.playing && shotCooldownRemaining == 0;
+      supportsCombat &&
+      !bossCutscene &&
+      phase == RunPhase.playing &&
+      shotCooldownRemaining == 0;
   static const birdX = .47, birdRadius = .038;
+  static const _enemyPassageLead = .55, _enemyEntryMargin = .15;
   RunPhase phase = RunPhase.countdown;
   EndReason? endReason;
   double birdY = .5, velocity = 0, countdown = 3, elapsed = 0, distance = 0;
+  final FlightPath flightPath = FlightPath();
   double lastFlapAt = double.negativeInfinity;
   static const jumpGlideSeconds = 3.0, starGlideSeconds = .75;
   static const maxGlideSeconds = 5.0, glideFallSpeed = .06;
@@ -279,6 +334,7 @@ class FlightSimulation {
   int score = 0, repetitions = 0, flaps = 0;
   int gates = 0, collectedStars = 0, combo = 0, bestCombo = 0;
   int completedTrios = 0;
+  static const maxHearts = 5;
   int perfectPasses = 0, perfectStreak = 0, hearts = 3;
   bool carryingLetter = false;
   int lettersCollected = 0, lettersDropped = 0, courierBumps = 0;
@@ -370,7 +426,9 @@ class FlightSimulation {
       sinceFlap: elapsed - lastFlapAt,
       reducedMotion: reducedMotion,
     );
-    rocks.add(BirdRock(x: birdX + mouth.x, y: birdY + mouth.y));
+    rocks.add(
+      BirdRock(x: birdX + mouth.x, y: birdY + mouth.y, damage: weaponDamage),
+    );
     lastShotAt = elapsed;
     shots++;
     return true;
@@ -420,7 +478,7 @@ class FlightSimulation {
       if (phase == RunPhase.playing) {
         repetitions = math.max(0, input.repetitions - _repBaseline);
       }
-    } else if (input.flap && phase == RunPhase.playing) {
+    } else if (input.flap && phase == RunPhase.playing && !bossCutscene) {
       velocity = isCruise ? rules.flapImpulse * .8 : rules.flapImpulse;
       lastFlapAt = elapsed;
       flaps++;
@@ -464,7 +522,7 @@ class FlightSimulation {
         _previousCenter = firstCenter;
         final lead = math.max(2.5, spawnInterval);
         _addPassage(
-          math.max(viewportWidth + .1, birdX + speed * lead),
+          math.max(_passageEntryX(viewportWidth), birdX + speed * lead),
           firstCenter,
         );
         _spawnIn = spawnInterval;
@@ -502,7 +560,14 @@ class FlightSimulation {
       }
       final speed = this.speed;
       distance += speed * step;
-      if (!rules.mode.controlsHeight) {
+      if (supportsBosses) _advanceBoss(step, viewportWidth);
+      if (bossCutscene) {
+        // Let the player watch the reveal and victory without falling into a
+        // boundary. No input queues up to launch the bird when control returns.
+        birdY += (.52 - birdY) * (1 - math.exp(-step * 3));
+        birdY = birdY.clamp(birdRadius + .001, 1 - birdRadius - .001);
+        velocity = 0;
+      } else if (!rules.mode.controlsHeight) {
         if (smoothJumpDescent && velocity >= 0) {
           _advanceJumpDescent(step);
         } else {
@@ -516,18 +581,21 @@ class FlightSimulation {
         }
         birdY += velocity * step;
       }
-      _spawnIn -= step;
+      if (boss == null) _spawnIn -= step;
       for (final obstacle in obstacles) {
         obstacle.x -= speed * step;
         obstacle.advance(elapsed);
       }
-      if (_spawnIn <= 0) {
+      if (boss == null && _spawnIn <= 0) {
         final center = rules.passageCenter(_index++, random, _previousCenter);
         _previousCenter = center;
         final spacing = speed * spawnInterval;
         final x = obstacles.isEmpty
-            ? viewportWidth + .1
-            : math.max(viewportWidth + .1, obstacles.last.x + spacing);
+            ? _passageEntryX(viewportWidth)
+            : math.max(
+                _passageEntryX(viewportWidth),
+                obstacles.last.x + spacing,
+              );
         _addPassage(x, center);
         _spawnIn += spawnInterval;
       }
@@ -545,6 +613,7 @@ class FlightSimulation {
         birdY = birdY.clamp(birdRadius + .001, 1 - birdRadius - .001);
         velocity = isCruise ? (atBottom ? -.18 : .12) : 0;
       }
+      flightPath.record(distance, birdY);
       for (final o in obstacles) {
         if (phase == RunPhase.ended) break;
         if (!isCruise && !o.hit && _touches(o)) {
@@ -622,6 +691,9 @@ class FlightSimulation {
       if (collectsStars && phase == RunPhase.playing) {
         _advanceStars(speed * step);
       }
+      if (supportsHeartPickups && phase == RunPhase.playing) {
+        _advanceHearts(speed * step);
+      }
       if (supportsCombat && phase == RunPhase.playing) {
         _advanceCombat(step, speed, viewportWidth);
       }
@@ -633,13 +705,32 @@ class FlightSimulation {
     }
   }
 
+  // Reserve room for the leading enemy, including its wings, so the whole
+  // approach scrolls in from the right while retaining enemy/gate spacing.
+  double _passageEntryX(double viewportWidth) =>
+      viewportWidth +
+      (rulesVersion >= 25 && supportsCombat
+          ? _enemyPassageLead + _enemyEntryMargin
+          : .1);
+
   void _addPassage(double x, double center) {
     // Height controls reward the complete calibrated movement. The collision
     // opening stays unchanged; its aiming mark follows the comfortable endpoint.
     final target = rulesVersion >= 3 && rules.mode.controlsHeight
         ? (center < .5 ? .15 : .85)
         : center;
-    final kind = _nextPattern();
+    // After boss 2, occasional ordinary walls have a shootable opening.
+    // Keep a clear passage between them and leave reward-heart gates open.
+    final hasDoor =
+        supportsCombat &&
+        rulesVersion >= 27 &&
+        bossesDefeated >= 2 &&
+        !_lastPassageHadDoor &&
+        _heartPassagesRemaining != 1 &&
+        random.nextDouble() < .25;
+    _lastPassageHadDoor = hasDoor;
+    final nextKind = _nextPattern();
+    final kind = hasDoor ? ObstacleKind.garden : nextKind;
     final moving = kind != ObstacleKind.garden;
     final amplitude = moving ? (rules.mode.controlsHeight ? .035 : .065) : 0.0;
     // Even the tightest phase leaves a generous safe lane. Height controls keep
@@ -659,12 +750,23 @@ class FlightSimulation {
       phaseOffset: moving ? random.nextDouble() * math.pi * 2 : 0,
       bornAt: elapsed,
       fixedTarget: rules.mode.controlsHeight,
-      appearance: rulesVersion >= 13 ? random.nextInt(3) : 0,
+      appearance: _obstacleAppearance(),
+      door: hasDoor ? SkyDoor() : null,
       courierStop: isCourier
           ? (_index.isOdd ? CourierStop.pickup : CourierStop.postbox)
           : null,
     );
     obstacles.add(obstacle);
+    if (_heartPassagesRemaining case final remaining?) {
+      if (remaining == 1) {
+        heartPickups.add(
+          SkyHeart(x: x + obstacle.width / 2, y: target, passage: obstacle),
+        );
+        _heartPassagesRemaining = null;
+      } else {
+        _heartPassagesRemaining = remaining - 1;
+      }
+    }
     if (collectsStars) {
       final passage = endless ? obstacle : null;
       final trio = supportsStarTrios
@@ -685,8 +787,16 @@ class FlightSimulation {
     }
     // Alternate approaches leave room to learn the tighter gate rhythm.
     // Enemies share the aiming height and remain in front of their building.
-    if (supportsCombat && _index.isOdd) {
-      enemies.add(SkyEnemy(x: x - .55, y: target));
+    if (supportsCombat && _index.isOdd && !hasDoor) {
+      enemies.add(
+        SkyEnemy(
+          x: x - _enemyPassageLead,
+          y: target,
+          appearance: _enemyAppearance(_index ~/ 2),
+          maxHp: _enemyHealth(_enemyAppearance(_index ~/ 2)),
+          flightPhase: rulesVersion >= 20 ? _index * 2.399963 : null,
+        ),
+      );
     }
     // A friend visits every third ring. The same calm endpoint reaches both
     // the cloud and the stars; no additional movement or cadence is required.
@@ -726,6 +836,26 @@ class FlightSimulation {
     return _lastPattern = _patterns.removeLast();
   }
 
+  /// Same draw as version 13, then the opening three gates show each structure.
+  int _obstacleAppearance() {
+    final sampled = rulesVersion >= 13 ? random.nextInt(3) : 0;
+    if (rulesVersion >= 16 && _index <= 3) return (_index - 1) % 3;
+    return sampled;
+  }
+
+  int _enemyAppearance(int index, {bool bossHelper = false}) {
+    if (rulesVersion < 16) return 0;
+    if (rulesVersion < 19) return index % 3;
+    // Baron Bat's smaller relatives lead the lineup. The natural cave bat
+    // stays a distinct fourth character in normal flight.
+    const lineup = [3, 1, 2, 0];
+    return lineup[index % (bossHelper ? 3 : lineup.length)];
+  }
+
+  int _enemyHealth(int appearance) => supportsWeaponDamage
+      ? SkyEnemy.healthFor(appearance, bossesDefeated: bossesDefeated)
+      : 1;
+
   void _advanceJumpDescent(double dt) {
     final ending = (1 - _glideRemaining / glideEaseOutSeconds).clamp(0.0, 1.0);
     final ease = ending * ending * (3 - 2 * ending);
@@ -740,6 +870,12 @@ class FlightSimulation {
   void _advanceCombat(double dt, double scrollSpeed, double viewportWidth) {
     for (final enemy in enemies) {
       enemy.x -= scrollSpeed * dt;
+      if (supportsEnemyAttacks) enemy.age += dt;
+      if (enemy.flightPhase != null) {
+        // Settle into the aiming lane on the final approach, so a small
+        // flight bob cannot turn a narrow passage into a surprise collision.
+        enemy.flightRoom = ((enemy.x - birdX - .22) / .65).clamp(0.0, 1.0);
+      }
     }
     final spent = <BirdRock>{};
     for (final rock in rocks) {
@@ -747,16 +883,40 @@ class FlightSimulation {
       // The same small physics steps used for buildings also prevent rocks
       // tunneling through enemies, even when a rendered frame is slow.
       if (obstacles.any(
-        (o) => _circleTouchesObstacle(rock.x, rock.y, BirdRock.radius, o),
+        (o) => _circleTouchesObstacle(
+          rock.x,
+          rock.y,
+          BirdRock.radius,
+          o,
+          includeDoor: false,
+        ),
       )) {
         spent.add(rock);
+        rockImpacts++;
         continue;
       }
+      for (final obstacle in obstacles) {
+        if (!_circleTouchesDoor(rock.x, rock.y, BirdRock.radius, obstacle)) {
+          continue;
+        }
+        final seal = obstacle.door!;
+        spent.add(rock);
+        seal.takeDamage(rock.damage, hitY: rock.y);
+        rockImpacts++;
+        if (seal.destroyed) doorsDestroyed++;
+        break;
+      }
+      if (spent.contains(rock)) continue;
       for (final enemy in enemies) {
         final dx = rock.x - enemy.x, dy = rock.y - enemy.y;
         const radius = BirdRock.radius + SkyEnemy.radius;
         if (dx * dx + dy * dy > radius * radius) continue;
         spent.add(rock);
+        enemy.takeDamage(supportsWeaponDamage ? rock.damage : enemy.hp);
+        if (enemy.hp > 0) {
+          rockImpacts++;
+          break;
+        }
         enemies.remove(enemy);
         enemiesDefeated++;
         final bonus = isTrail ? 3 : 0;
@@ -771,6 +931,22 @@ class FlightSimulation {
           ),
         );
         break;
+      }
+      final target = boss;
+      if (!spent.contains(rock) && target?.phase == BossPhase.attacking) {
+        final dx = rock.x - target!.x, dy = rock.y - target.y;
+        final reach =
+            BirdRock.radius +
+            (target.shielded ? SkyBoss.shieldRadius : SkyBoss.radius);
+        if (dx * dx + dy * dy <= reach * reach) {
+          spent.add(rock);
+          if (target.shielded) {
+            target.lastShieldHitAt = target.age;
+            continue;
+          }
+          target.takeDamage(supportsWeaponDamage ? rock.damage : 1);
+          if (target.hp == 0) _defeatBoss(target);
+        }
       }
     }
     rocks.removeWhere(
@@ -790,6 +966,251 @@ class FlightSimulation {
         return true;
       }
       return enemy.x < -.1;
+    });
+    if (supportsEnemyAttacks) {
+      _advanceEnemyAttacks(dt, viewportWidth);
+    }
+    bossAmmo.removeWhere((ammo) {
+      ammo.x += ammo.vx * dt;
+      ammo.y += ammo.vy * dt;
+      final dx = birdX - ammo.x, dy = birdY - ammo.y;
+      const reach = birdRadius + BossAmmo.radius;
+      if (dx * dx + dy * dy <= reach * reach) {
+        if (isTrail) {
+          _damage();
+        } else if (isCourier) {
+          _dropLetter();
+        } else {
+          end(EndReason.collision);
+        }
+        return true;
+      }
+      return ammo.x < -.1 ||
+          ammo.x > viewportWidth + .2 ||
+          ammo.y < -.1 ||
+          ammo.y > 1.1;
+    });
+  }
+
+  void _advanceEnemyAttacks(double dt, double viewportWidth) {
+    for (final enemy in enemies) {
+      // An entire warning must be visible. Close or passed enemies stop
+      // attacking; there are no off-screen or point-blank ambushes.
+      final canAttack =
+          phase == RunPhase.playing &&
+          !bossCutscene &&
+          enemy.attack != EnemyAttack.none &&
+          enemy.x < viewportWidth - .12 &&
+          enemy.x > birdX + .40;
+      enemy.preparing = canAttack;
+      if (!canAttack) {
+        enemy.fireIn = math.max(enemy.fireIn, SkyEnemy.warningSeconds);
+        continue;
+      }
+      enemy.fireIn -= dt;
+      final fan = enemy.attack == EnemyAttack.fan;
+      if (enemy.fireIn > 0 || enemyAmmo.length + (fan ? 3 : 1) > 12) continue;
+      final aim = math.atan2(birdY - enemy.y, birdX - enemy.muzzleX);
+      final speed = fan ? .34 : .44;
+      for (final offset in fan ? [-.30, 0.0, .30] : [0.0]) {
+        enemyAmmo.add(
+          EnemyAmmo(
+            x: enemy.muzzleX,
+            y: enemy.y,
+            vx: math.cos(aim + offset) * speed,
+            vy: math.sin(aim + offset) * speed,
+            attack: enemy.attack,
+          ),
+        );
+      }
+      enemy.volleys++;
+      enemyShots++;
+      enemy.lastShotAt = enemy.age;
+      enemy.fireIn += fan ? 3.2 : 2.4;
+    }
+    enemyAmmo.removeWhere((ammo) {
+      ammo.x += ammo.vx * dt;
+      ammo.y += ammo.vy * dt;
+      if (ammo.x < -.1 ||
+          ammo.x > viewportWidth + .2 ||
+          ammo.y < -.1 ||
+          ammo.y > 1.1 ||
+          obstacles.any(
+            (o) => _circleTouchesObstacle(ammo.x, ammo.y, EnemyAmmo.radius, o),
+          )) {
+        return true;
+      }
+      // A well-timed shot can cancel a pellet instead of demanding a dodge
+      // while the player is lining up with a narrow gate.
+      for (final rock in rocks) {
+        final dx = rock.x - ammo.x, dy = rock.y - ammo.y;
+        const reach = BirdRock.radius + EnemyAmmo.radius;
+        if (dx * dx + dy * dy <= reach * reach) {
+          rocks.remove(rock);
+          projectilesDeflected++;
+          return true;
+        }
+      }
+      final dx = birdX - ammo.x, dy = birdY - ammo.y;
+      const reach = birdRadius + EnemyAmmo.radius;
+      if (dx * dx + dy * dy > reach * reach) return false;
+      if (isTrail) {
+        _damage();
+      } else if (isCourier) {
+        _dropLetter();
+      } else {
+        end(EndReason.collision);
+      }
+      return true;
+    });
+  }
+
+  void _advanceBoss(double dt, double viewportWidth) {
+    if (boss == null) {
+      if (elapsed < _nextBossAt) return;
+      final number = bossesDefeated + 1;
+      final kind = rulesVersion >= 22
+          ? BossKind.values[bossesDefeated % 3]
+          : rulesVersion >= 21 && bossesDefeated.isOdd
+          ? BossKind.spitterBeetle
+          : BossKind.baronBat;
+      boss = SkyBoss(
+        number: number,
+        x: viewportWidth + .3,
+        cinematic: rulesVersion >= 17,
+        wideSpitterFans: rulesVersion >= 23,
+        kind: kind,
+        maxHp:
+            SkyBoss.healthFor(kind, number) ~/ (supportsWeaponDamage ? 1 : 10),
+      );
+      // Remove pickups with their gates so the interlude cannot break a combo
+      // or award a passage that was never flown. Existing cargo is retained.
+      obstacles.clear();
+      stars.clear();
+      starTrios.clear();
+      heartPickups.clear();
+      _heartPassagesRemaining = null;
+      enemies.clear();
+      rocks.clear();
+      bossAmmo.clear();
+      enemyAmmo.clear();
+      events.clear();
+    }
+    final current = boss!;
+    current.age += dt;
+    if (current.phase == BossPhase.defeated) {
+      if (current.age - current.defeatedAt! >= current.departureDuration) {
+        boss = null;
+        // A full normal-flight interval follows the victory celebration.
+        _nextBossAt = elapsed + bossInterval;
+        if (supportsHeartPickups) {
+          // One of the next 2–7 gates carries the reward, leaving ample flight
+          // time to reach it before the next boss. Use the replay's seeded RNG.
+          _heartPassagesRemaining = 2 + random.nextInt(6);
+        }
+        _spawnIn = 0;
+        _previousCenter = birdY.clamp(.28, .72);
+      }
+      return;
+    }
+    // The moth's denser fans need room to separate before reaching the bird,
+    // especially on narrow landscape phones.
+    final targetX = current.isMoth
+        ? math.max(birdX + .7, viewportWidth - .54)
+        : math.max(birdX + .55, viewportWidth - .72);
+    final entrance =
+        (current.cinematic
+                ? (current.age - .95) / 1.7
+                : current.age / current.arrivalDuration)
+            .clamp(0.0, 1.0);
+    final ease = 1 - math.pow(1 - entrance, 3);
+    current.x = (viewportWidth + .3) * (1 - ease) + targetX * ease;
+    if (current.cinematic && current.phase == BossPhase.arriving) {
+      current.y = .5 - .14 * math.sin(entrance * math.pi);
+    }
+    if (current.phase != BossPhase.attacking) return;
+    final fightingFor = current.age - current.arrivalDuration;
+    current.y = current.isMoth
+        ? .5 + math.sin(fightingFor * 1.15) * .15
+        : current.isSpitter
+        ? .5 + math.sin(fightingFor * 1.05) * .13
+        : .5 + math.sin(fightingFor * .85) * .10;
+    current.fireIn -= dt;
+    if (current.fireIn <= 0) {
+      final muzzleX = current.muzzleX;
+      final aim = math.atan2(birdY - current.y, birdX - muzzleX);
+      for (final offset in current.volleyOffsets) {
+        final speed = current.projectileSpeed;
+        bossAmmo.add(
+          BossAmmo(
+            x: muzzleX,
+            y: current.y,
+            vx: math.cos(aim + offset) * speed,
+            vy: math.sin(aim + offset) * speed,
+          ),
+        );
+      }
+      current.volleys++;
+      current.lastVolleyAt = current.age;
+      current.fireIn += current.volleyInterval;
+    }
+    current.summonIn -= dt;
+    if (current.summonIn <= 0) {
+      final appearance = current.isMoth
+          ? EnemyKind.duskMoth.index
+          : current.isSpitter
+          ? EnemyKind.spitterBeetle.index
+          : _enemyAppearance(current.summons, bossHelper: true);
+      enemies.add(
+        SkyEnemy(
+          // Helpers enter from the right like ordinary enemies. Older replays
+          // retain the original summon position and shooter approach time.
+          x: rulesVersion >= 25
+              ? viewportWidth + _enemyEntryMargin
+              : rulesVersion >= 18 &&
+                    (current.isSpitter ||
+                        current.isMoth ||
+                        current.summons % 3 != 0)
+              ? math.max(current.x - .16, birdX + 1.0)
+              : current.x - .16,
+          y: current.summons.isEven ? .3 : .7,
+          appearance: appearance,
+          maxHp: _enemyHealth(appearance),
+          flightPhase: rulesVersion >= 20
+              ? (current.number * 11 + current.summons) * 2.399963
+              : null,
+        ),
+      );
+      current.summons++;
+      current.lastSummonAt = current.age;
+      current.summonIn += current.summonInterval;
+    }
+  }
+
+  void _defeatBoss(SkyBoss current) {
+    current.defeatedAt = current.age;
+    bossesDefeated++;
+    bossAmmo.clear();
+    enemyAmmo.clear();
+    enemies.clear();
+    final bonus = isTrail ? bossBonus : 0;
+    score += bonus;
+    if (isTrail) shield = true;
+    _event(FlightEventKind.bossDefeated, bonus);
+  }
+
+  void _advanceHearts(double travel) {
+    heartPickups.removeWhere((heart) {
+      heart.x -= travel;
+      final dx = birdX - heart.x, dy = birdY - heart.y;
+      if (dx * dx + dy * dy <= SkyHeart.pickupRadius * SkyHeart.pickupRadius) {
+        if (hearts < maxHearts) {
+          hearts++;
+          _event(FlightEventKind.heart, 1);
+        }
+        return true;
+      }
+      return heart.x < birdX - SkyHeart.pickupRadius;
     });
   }
 
@@ -910,7 +1331,21 @@ class FlightSimulation {
   bool _touches(Obstacle o) =>
       _circleTouchesObstacle(birdX, birdY, birdRadius, o);
 
-  bool _circleTouchesObstacle(double x, double y, double radius, Obstacle o) {
+  bool _circleTouchesDoor(double x, double y, double radius, Obstacle o) {
+    if (o.door == null || o.door!.destroyed) return false;
+    final dx = x - x.clamp(o.x, o.x + o.width);
+    final dy = y - y.clamp(o.top, o.bottom);
+    return dx * dx + dy * dy <= radius * radius;
+  }
+
+  bool _circleTouchesObstacle(
+    double x,
+    double y,
+    double radius,
+    Obstacle o, {
+    bool includeDoor = true,
+  }) {
+    if (includeDoor && _circleTouchesDoor(x, y, radius, o)) return true;
     bool circleRect(ObstaclePassage passage, double top, double bottom) {
       if (bottom <= top) return false;
       final nearX = x.clamp(passage.x, passage.x + passage.width);

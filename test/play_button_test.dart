@@ -76,20 +76,21 @@ void main() {
     },
   );
 
-  testWidgets('play announces push-ups and works with keyboard activation', (
-    tester,
-  ) async {
-    var starts = 0;
-    await tester.pumpWidget(_app(() => starts++));
-    expect(find.semantics.byLabel('Start push-up flight'), findsOneWidget);
-    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-    await tester.pumpAndSettle();
-    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-    await tester.pumpAndSettle();
-    expect(starts, 1);
-    await tester.sendKeyEvent(LogicalKeyboardKey.space);
-    await tester.pumpAndSettle();
-    expect(starts, 2);
-    expect(tester.takeException(), isNull);
-  });
+  testWidgets(
+    'play announces mode selection and works with keyboard activation',
+    (tester) async {
+      var starts = 0;
+      await tester.pumpWidget(_app(() => starts++));
+      expect(find.semantics.byLabel('Play. Choose your mode'), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      expect(starts, 1);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.pumpAndSettle();
+      expect(starts, 2);
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

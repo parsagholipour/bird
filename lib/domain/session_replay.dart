@@ -15,6 +15,7 @@ class ReplayTape {
     required this.originMs,
     this.course = FlightCourse.classic,
     this.recordedVersion = version,
+    this.weaponDamage = BirdRock.baseDamage,
     List<List<dynamic>>? events,
   }) : events = events ?? [],
        practice = practice || course.relaxed;
@@ -24,6 +25,7 @@ class ReplayTape {
   final PlayMode mode;
   final bool practice, reducedMotion;
   final int seed, bird;
+  final int weaponDamage;
   final double cycleSeconds, originMs;
   final List<List<dynamic>> events;
   double get durationMs =>
@@ -38,6 +40,7 @@ class ReplayTape {
     practice: practice,
     course: course,
     rulesVersion: recordedVersion,
+    weaponDamage: weaponDamage,
     random: Random(seed),
   );
   Map<String, dynamic> toJson() => {
@@ -50,6 +53,7 @@ class ReplayTape {
     'bird': bird,
     'reducedMotion': reducedMotion,
     'originMs': originMs,
+    if (recordedVersion >= 26) 'weaponDamage': weaponDamage,
     'events': events,
   };
   factory ReplayTape.fromJson(Map<String, dynamic> json) {
@@ -58,6 +62,12 @@ class ReplayTape {
         recordedVersion < 1 ||
         recordedVersion > version) {
       throw const FormatException('Unsupported replay version');
+    }
+    final weaponDamage = recordedVersion >= 26
+        ? json['weaponDamage'] ?? BirdRock.baseDamage
+        : BirdRock.baseDamage;
+    if (weaponDamage is! int || weaponDamage <= 0) {
+      throw const FormatException('Invalid weapon damage');
     }
     final tape = ReplayTape(
       recordedVersion: recordedVersion,
@@ -71,6 +81,7 @@ class ReplayTape {
       bird: json['bird'] as int,
       reducedMotion: json['reducedMotion'] as bool,
       originMs: (json['originMs'] as num).toDouble(),
+      weaponDamage: weaponDamage,
       events: (json['events'] as List)
           .map((e) => List<dynamic>.from(e as List))
           .toList(),
@@ -95,6 +106,7 @@ class ReplayTape {
             'resume',
             'end',
             if (recordedVersion >= 7) 'shoot',
+            if (recordedVersion >= 26) 'weaponDamage',
           ].contains(event[1])) {
         throw const FormatException('Invalid replay timeline');
       }
@@ -119,6 +131,8 @@ class ReplayTape {
               (event[4] as num) > 0,
         'end' =>
           event.length == 3 && EndReason.values.any((r) => r.name == event[2]),
+        'weaponDamage' =>
+          event.length == 3 && event[2] is int && (event[2] as int) > 0,
         _ => event.length == 2,
       };
       if (!valid) throw const FormatException('Invalid replay event');
@@ -172,6 +186,16 @@ class FlightRecorder {
       reducedMotion: tape.reducedMotion,
     );
   }
+
+  /// Upgrade hook: record the change before any subsequently fired shots.
+  void setWeaponDamage(int damage) {
+    if (damage <= 0) throw ArgumentError.value(damage, 'damage');
+    if (!simulation.supportsWeaponDamage) {
+      throw StateError('Weapon damage requires touch combat rules version 26');
+    }
+    _add('weaponDamage', [damage]);
+    simulation.setWeaponDamage(damage);
+  }
 }
 
 void applyReplayEvent(
@@ -210,6 +234,8 @@ void applyReplayEvent(
       simulation.end(EndReason.values.byName(e[2] as String));
     case 'shoot':
       simulation.shoot(reducedMotion: reducedMotion);
+    case 'weaponDamage':
+      simulation.setWeaponDamage(e[2] as int);
   }
 }
 

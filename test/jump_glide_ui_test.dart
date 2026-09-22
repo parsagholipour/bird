@@ -13,6 +13,8 @@ import 'package:push_up_bird/game/play_controller.dart';
 import 'package:push_up_bird/main.dart';
 import 'package:push_up_bird/ui/jump_glide_hud.dart';
 import 'package:push_up_bird/ui/play_screen.dart';
+import 'package:push_up_bird/ui/match_hud.dart';
+import 'package:push_up_bird/ui/flight_score.dart';
 import 'experience_ui_test.dart' show capture;
 import 'play_session_test.dart' show SessionSource, SilentAudio, startFlight;
 
@@ -29,7 +31,7 @@ void main() {
   });
 
   for (final width in [640.0, 800.0]) {
-    testWidgets('charged jump meter and instructions fit at $width', (
+    testWidgets('compact jump meter stays clear of gameplay at at $width', (
       tester,
     ) async {
       tester.view.physicalSize = Size(width, 360);
@@ -75,7 +77,7 @@ void main() {
       game.pauseEngine();
       await tester.pump();
       expect(find.byType(JumpGlideHud), findsOneWidget);
-      expect(find.text('JUMP TO GLIDE'), findsOneWidget);
+      expect(find.text('Jump'), findsOneWidget);
       final sim = controller.simulation!;
       Future<void> redraw() async {
         game.resumeEngine();
@@ -98,7 +100,7 @@ void main() {
       );
       controller.notify();
       await tester.pump();
-      expect(find.text('BOOST + GLIDE'), findsOneWidget);
+      expect(find.text('Stars extend your glide'), findsNothing);
       expect(find.text('3.0s'), findsOneWidget);
       void advance(double seconds) {
         for (var i = 0; i < (seconds * 50).round(); i++) {
@@ -118,15 +120,25 @@ void main() {
 
       advance(1.5);
       await redraw();
-      expect(find.text('GLIDING'), findsOneWidget);
+      expect(
+        tester
+            .widget<MatchMeter>(
+              find.descendant(
+                of: find.byType(JumpGlideHud),
+                matching: find.byType(MatchMeter),
+              ),
+            )
+            .label,
+        startsWith('Glide,'),
+      );
       expect(tester.takeException(), isNull);
       final meter = tester.getRect(
         find.byKey(const ValueKey('jump-glide-meter')),
       );
       for (final other in [
-        find.text('1 jump'),
-        find.text('Tracking you'),
-        find.text('Follow the stars. Find your streak.'),
+        find.byKey(const ValueKey('match-health')),
+        find.byType(FlightScore),
+        find.byTooltip('Pause practice'),
       ]) {
         expect(meter.overlaps(tester.getRect(other)), isFalse);
       }
@@ -136,11 +148,24 @@ void main() {
       advance(.02);
       await redraw();
       expect(sim.glideRemaining, greaterThan(before));
-      expect(find.text('Star added glide!'), findsOneWidget);
+      expect(
+        find.text('${sim.glideRemaining.toStringAsFixed(1)}s'),
+        findsOneWidget,
+      );
       await capture(tester, 'charged-jump-star-${width.toInt()}');
       advance(3);
       await redraw();
-      expect(find.text('GLIDE ENDING'), findsOneWidget);
+      expect(
+        tester
+            .widget<MatchMeter>(
+              find.descendant(
+                of: find.byType(JumpGlideHud),
+                matching: find.byType(MatchMeter),
+              ),
+            )
+            .label,
+        startsWith('Glide ending,'),
+      );
       expect(tester.takeException(), isNull);
       await capture(tester, 'charged-jump-ending-${width.toInt()}');
       await tester.pumpWidget(const SizedBox());

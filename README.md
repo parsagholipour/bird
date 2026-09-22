@@ -24,10 +24,23 @@ introduce swaying **Lantern Drift**, orbiting **Sun Wheels**, and three-column
 **Crystal Steps**. Floating obstacles use round collision shapes and leave open
 sky around them. Turbines, blossoms, faceted towers and regional color variations
 give each pattern a distinct look. Cloud Cruise gets matching decorative rings.
+Version 14 redraws all seven families, including garden gates, and those Cruise
+rings with authored detail variations. It changes presentation only: version 13
+physics stay the same, and saved version 13 replays keep the previous artwork.
+Version 16 adds conservatory, terracotta blossom and bamboo garden structures,
+plus moon bat, armored beetle and dusk moth enemies. The first
+three garden obstacles show appearances 0, 1, and 2 immediately. That opening
+change is decoration only: the same random draws still decide later geometry,
+which matches version 15. Saved version 14 and 15 replays keep the earlier
+garden and enemy artwork.
 Patterns mix throughout the flight; calibrated push-up and squat pacing stays reachable.
-The HUD shows elapsed time and current pace. The 60-second flight wing, daily
-goal and passport stamp are endurance milestones, so you can earn them and
-keep flying. Existing replay journals retain their original timing and physics,
+The match HUD keeps score, hearts and shield status visible, with compact
+magnet/glide meters when relevant and a round Shoot control with a cooldown ring.
+Custom illustrated icons, brief state-change pops and press feedback keep the
+sky clear; Reduced Motion disables the decorative movement. Endless flights
+omit the clock, pace, flap count and persistent instruction/goal cards. The
+60-second flight wing, daily goal and passport stamp remain endurance milestones,
+so you can earn them and keep flying. Existing replay journals retain their original timing and physics,
 including the four-pattern version-12 flights.
 
 The saved **Classic**, **Sky Courier** (letter delivery), and **Cloud Cruise**
@@ -40,21 +53,150 @@ separate records for each control; Cloud Cruise is always practice. See the
 [arcade update notes](docs/arcade-expansion.md) for rules, design links and checks.
 
 **Home** opens on a game title scene with your equipped bird and a prominent
-**Play** button for Push-Up Flight on Star Trail. **Practice** is directly below;
-**Other ways to play** opens Tap & Fly, Jump & Fly and Squat & Fly. The five collectible
+**Play** button that opens a mode picker for Push-Up Flight, Tap & Fly, Jump & Fly
+and Squat & Fly on Star Trail. **Practice** is directly below and opens the same
+picker for unscored flights. The five collectible
 shortcuts lead to daily adventures, birds, the passport, records and flight goals.
 
-**Tap & Fly**, under **Other ways to play**, starts a full touch flight on Star Trail. Tap
+**Tap & Fly**, in the **Play** mode picker, starts a full touch flight on Star Trail. Tap
 anywhere in the sky to rise, then release and tap again. Touch flights have a
 stronger flap, narrower openings and closer buildings. Tap **Shoot** to spit a
 rock straight from the bird's beak at bats ahead; aim by changing your height.
-One hit clears a bat (+3 points on Star Trail), buildings block rocks, and each
+Defeating an enemy earns +3 points on Star Trail; buildings block rocks, and each
 shot has a short cooldown. Bats use the same shield/heart collision rules as
 buildings. Cloud Cruise stays free of enemies. Scored flights contribute
 to unlocks, daily adventures and flight goals, with separate touch bests in
 Records. Practice and Cloud Cruise can pause and resume; scored flights end
 when interrupted. Save session keeps a gameplay replay without camera video,
 including shots and enemies. Existing replays keep their original flight rules.
+
+**Enemy health and weapon damage (version 26):** each shot carries 10 damage by
+default. Both bat types start at 10 HP, beetles at 20 HP, and moths at 30 HP.
+Small enemies gain 5 HP per defeated boss, capped at 20 extra HP; summoned
+helpers use the same rule. Wounded enemies show a small health bar, and points
+are awarded only on defeat. Hits add a brief cream flash, a small squash and
+recoil, and warm impact sparks; defeats pop into a larger ring and puff burst.
+Reduced Motion uses a stationary fading spark. Effects follow simulation time
+through pause and replay without changing collision or attack timing.
+Bosses start at 120 / 180 / 240 HP and retain their
+previous progression and base-weapon fight lengths. Higher weapon damage
+reduces the shots needed without changing enemy health. For future upgrades,
+pass `weaponDamage` to `PlayController` for the starting loadout or call
+`FlightRecorder.setWeaponDamage()` during a flight. Starting damage and changes
+are saved in replays; ammo already in flight retains its original damage.
+
+**Small enemies (version 18):** a natural cave bat, spitter beetle and dusk moth
+face the bird with distinct profiles and articulated wings. Bats are simple
+contact enemies; beetles charge a mint throat before firing one aimed seed;
+moths light three amber glands before a slower three-shot fan. Shots lock their
+direction on release, buildings block them, and your rocks can intercept them.
+Shooters wind up visibly before firing and stop attacking when too close or
+behind the bird. The same abilities apply to boss helpers. Pause and replay
+preserve their attack clocks; older journals keep their previous enemy art and
+behavior. Reduced Motion freezes decorative wing motion while keeping charge
+and recoil cues readable.
+
+Version 19 adds a **simple purple bat** sharing the boss's basic body, ears,
+face and membrane wings, with no crown, cape, armor, gem or gold decoration.
+It takes the primary bat slot and appears among boss summons. The **cave bat**
+remains a separate fourth character in normal flight. Both are simple contact
+enemies; beetle and moth attacks are unchanged. Version-18 replays retain the
+original three-character lineup.
+
+Version 20 adds subtle flight arcs, light banking and individual wingbeat
+timing. Bats bob gently, beetles hover more tightly, and moths drift more
+slowly. Shooters steady through charging and recoil. The body, collision area
+and ammo origin move together; Reduced Motion removes decorative banking and
+wing motion while retaining the visible gameplay path. Earlier replays keep
+their straight flight.
+
+The spitter beetle has raised sculpted wing cases, separate translucent flight
+wings, a compact head and segmented abdomen. Independent wing strokes turn
+edge-on, antennae and legs follow through, and its mint cheek fills before the
+aimed spit. A short recoil settles through the shell and feet while the mouth
+stays aligned with the projectile origin. Attack timing and flight paths stay
+on the existing rules.
+
+For a design and motion preview, run
+`flutter test --no-pub --dart-define=CAPTURE_ENEMY_MOVIE=true test/small_enemies_art_test.dart`.
+The lineup, game scene and animation frames appear in
+`build/visual-review/small-enemies/`.
+Add `--dart-define=CAPTURE_SPITTER_MOVIE=true` to render dedicated beetle
+close-up and gameplay-size frames (`spitter-*.png`) in the same folder.
+
+**Touch boss fights:** after 45 seconds, the gates clear for **Baron Bat**.
+Dodge his aimed fireballs, spread volleys and small bat helpers while using
+Shoot to drain his visible health bar. He attacks faster below half health.
+Winning earns 30 Star Trail points and restores your shield, then normal flight
+resumes. Another boss arrives after 45 more seconds of normal flight. Baron
+Bat starts with 12 HP and reaches a maximum of 24 HP. Practice supports the same
+encounters; Cloud Cruise and movement controls stay free of bosses. Version 15
+replays preserve the whole fight, including pauses, shots and victories.
+Version 16 gives summoned enemies the new enemy artwork. Boss timing and damage
+stay on the version 15 rules.
+
+**Breakable wall openings (version 27):** after boss 2, random normal walls
+have a stone panel blocking the gap between their upper and lower sections.
+Keep flying and shoot the panel four times with the base weapon to drain its
+40 HP. It cracks at 30 HP, chips at 20 HP and crumbles at 10 HP before shattering
+and clearing the opening immediately. Four small health pips show its condition.
+These walls keep the normal scrolling and collision rules. They never appear
+back-to-back, carry an extra enemy, or block a reward-heart gate. Earlier
+replays keep their original route. Reduced Motion keeps the static damage
+stages without flying debris.
+
+**Extra lives (version 24):** after each boss victory, one heart appears in a
+random safe opening before the next boss. Fly into it to gain one additional
+life, up to a maximum of five hearts. Missed hearts disappear; the HUD
+shows the full life count. Older replays retain their original rules.
+
+**Spitter King (version 21):** the second boss is a bulky acid brewer with
+18 HP, a battered expedition hat, goggles, copper shell and bubbling glass
+tank. His bespoke body has four fan wings, a feed hose and articulated claws.
+He tips his hat on arrival, pumps acid into his cheeks, sloshes on recoil,
+gestures to summon helpers and opens his vents in fury. Defeat releases a
+spray of droplets and bubbles and sends his hat tumbling. Dodge faster
+acid fans alternating between three and four shots, plus summoned beetles.
+Version 23 widens the spacing to 0.30 radians and removes the center shot from
+full fans to leave a clear dodge lane. At half health, every volley has four
+shots and both attacks and summons speed up. Versions 21–22 replays retain
+the original three/five-shot fans. He shares the bat's cinematic entrance,
+defeat, sound cues and rewards.
+Later beetle fights scale up to 30 HP. Version 21 replays alternate Baron Bat
+and Spitter King; version 20 and earlier keep their original all-bat sequence.
+
+**Dusk Empress (version 22):** a crowned Dusk Moth arrives as the third boss,
+then encounters cycle Bat → Beetle → Moth. She starts with 24 HP, fires faster
+five- and seven-shot pollen fans, and summons smaller dusk moths. At half
+health every fan has seven shots, with faster attacks and summons. Her silk
+shield warns for 0.8 seconds before blocking shots for 1.6 seconds, starting
+five seconds into combat and repeating every eight seconds. Watch the pale
+blue veil and HP-bar hint, dodge while it is up, then fire when it drops.
+Later moth encounters reach 36 HP. Her crescent diadem, velvet rose wings with
+pearl hems, layered fur and glowing throat glands give her a distinct silhouette.
+The shield has a woven silk edge, lunar clasps and ripples where shots are blocked.
+Her animation and shield reactions follow simulation time in play and replay;
+Reduced Motion keeps charge and shield cues visible without decorative motion.
+
+**Cinematic boss encounters (version 17):** a storm warning, glowing silhouette,
+unfolding wings and a title reveal introduce Baron Bat. His layered armor,
+independent crown, wing beats, charged magic, recoil and hit reactions follow
+the fight. Defeat brings a stagger, a burst of light and smoke, expanding
+shockwaves, debris, a tumbling crown and a victory card. Original sound cues
+follow each beat, and music quiets during the cinematics. The bird coasts safely
+through the 4.6-second entrance and 3.8-second defeat; combat controls return
+automatically. Reduced Motion removes camera shake, flashes and decorative
+travel. Older journals retain their earlier boss timing and presentation.
+
+To render a short motion preview with synchronized sound, run
+`flutter test --no-pub --dart-define=CAPTURE_BOSS_MOVIE=true test/boss_choreography_art_test.dart`,
+then `python3 tool/render_boss_preview.py`. The movie is written to
+`build/visual-review/boss-cinematic-preview.mp4`; its final hits are staged to
+show the entire defeat in a short preview.
+
+For the Spitter boss movie, use `CAPTURE_SPITTER_BOSS_MOVIE=true` in the same
+test command, then `python3 tool/render_boss_preview.py --boss spitter`.
+This writes `build/visual-review/spitter-boss-cinematic-preview.mp4`.
 
 **Flight school** on Home lets you explore every course with touch controls:
 drag to steer or tap to flap. Learn the actual stars, gates, letters and cloud
@@ -183,7 +325,15 @@ contains color and spacing variables, typography, buttons, four bird components,
 floating-island artwork and the home composition. Bird and island PNGs in
 `assets/images` were exported directly from those designs; SVG sources are in
 `design`. Fredoka and Nunito are bundled under their included OFL licenses.
-Original synthesized audio is reproducible with `python3 tool/generate_audio.py`.
+Menus play a relaxed ElevenLabs instrumental; flights switch to an adventurous
+orchestral loop, and bosses bring in a separate dark battle theme. Music returns
+to the flight theme after the boss departs. All tracks play offline and follow
+the music setting. Effects mix with the soundtrack, and boss cinematics lower
+the music volume.
+See [music source and preparation](docs/music.md).
+The game also bundles 56 mastered sound effects and variations for flight,
+combat, boss cinematics, pickups and menus. See
+[sound effects and preparation](docs/sound-effects.md).
 
 The body controller deliberately ignores facial landmarks. Side views need one
 tracked shoulder, elbow, wrist and hip. Front views need both shoulders plus one

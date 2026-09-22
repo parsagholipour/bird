@@ -2,6 +2,9 @@ import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 import '../domain/game_rules.dart';
 import '../ui/theme.dart';
+import 'enemy_design.dart';
+import 'enemy_art.dart';
+import 'enemy_hit_art.dart';
 
 abstract final class CombatArt {
   static void paint(
@@ -11,8 +14,32 @@ abstract final class CombatArt {
     required bool reducedMotion,
   }) {
     for (final enemy in sim.enemies) {
+      if (sim.rulesVersion >= 18) {
+        EnemyArt.paint(
+          canvas,
+          height,
+          enemy,
+          birdY: sim.birdY,
+          reducedMotion: reducedMotion,
+        );
+        if (sim.supportsWeaponDamage) {
+          EnemyArt.healthBar(canvas, height, enemy);
+        }
+        continue;
+      }
       canvas.save();
       canvas.translate(enemy.x * height, enemy.y * height);
+      if (sim.rulesVersion >= 16) {
+        EnemyDesign.paint(
+          canvas,
+          height * SkyEnemy.radius,
+          appearance: enemy.appearance,
+          seconds: sim.elapsed,
+          reducedMotion: reducedMotion,
+        );
+        canvas.restore();
+        continue;
+      }
       canvas.scale(height * SkyEnemy.radius);
       final wing = reducedMotion ? 0.0 : math.sin(sim.elapsed * 12) * .18;
       final wings = Path()
@@ -80,6 +107,9 @@ abstract final class CombatArt {
       );
       canvas.restore();
     }
+    for (final ammo in sim.enemyAmmo) {
+      EnemyArt.ammo(canvas, height, ammo);
+    }
     for (final rock in sim.rocks) {
       final center = Offset(rock.x * height, rock.y * height);
       final r = BirdRock.radius * height;
@@ -120,11 +150,23 @@ abstract final class CombatArt {
       (e) => e.kind == FlightEventKind.enemyHit,
     )) {
       final age = sim.elapsed - event.at;
-      if (age > .4) continue;
+      if (age < 0 || age > EnemyHitArt.defeatSeconds) continue;
       final center = Offset(
         (event.gateWorldX! - sim.distance) * height,
         event.y * height,
       );
+      if (sim.supportsWeaponDamage) {
+        EnemyHitArt.paint(
+          canvas,
+          center,
+          height * SkyEnemy.radius,
+          age: age,
+          reducedMotion: reducedMotion,
+          defeated: true,
+        );
+        continue;
+      }
+      if (age > .4) continue;
       final t = reducedMotion ? .4 : age / .4;
       final paint = Paint()
         ..color = SkyColors.cream.withValues(alpha: 1 - age / .4)

@@ -296,7 +296,7 @@ void main() {
     'new replay journals reproduce shuffled motion through backwards seeks',
     () {
       final tape = recordRoute(FlightCourse.starTrail, seconds: 180);
-      expect(tape.recordedVersion, 13);
+      expect(tape.recordedVersion, FlightSimulation.currentRulesVersion);
       final replay = ReplayPlayer(ReplayTape.fromJson(tape.toJson()));
       for (final time in [
         90000.0,

@@ -231,7 +231,7 @@ void main() {
         expect(
           find.textContaining(
             mode == PlayMode.touch
-                ? 'Tap the sky for a stronger flap'
+                ? 'Tap the sky to flap. Tap Shoot'
                 : 'Clear a pickup gate',
           ),
           findsOneWidget,
@@ -291,12 +291,9 @@ void main() {
         }
 
         await redraw();
-        expect(find.text('0:25'), findsOneWidget);
-        expect(find.text('1.06× pace'), findsOneWidget);
-        expect(
-          find.text('Find a pickup gate to collect a letter'),
-          findsOneWidget,
-        );
+        expect(find.byKey(const ValueKey('flight-clock')), findsNothing);
+        expect(find.text('1.06× pace'), findsNothing);
+        expect(find.text('Pick up'), findsOneWidget);
         expect(find.text('Shield ready'), findsNothing);
         expect(tester.takeException(), isNull);
         await capture(tester, 'courier-empty-${mode.name}');
@@ -306,10 +303,7 @@ void main() {
         sim.gates = 7;
         sim.perfectPasses = 2;
         await redraw();
-        expect(
-          find.text('Letter aboard · find a postbox gate'),
-          findsOneWidget,
-        );
+        expect(find.text('Deliver'), findsOneWidget);
         expect(tester.takeException(), isNull);
         await capture(tester, 'courier-carrying-${mode.name}');
         sim.carryingLetter = false;
@@ -353,7 +347,7 @@ void main() {
         await capture(tester, 'courier-records-${mode.name}');
         appRouter.go('/');
         await tester.pumpAndSettle();
-        expect(find.byKey(const ValueKey('push-up-mode')), findsOneWidget);
+        expect(find.byKey(const ValueKey('play')), findsOneWidget);
         expect(find.text('Deliver some joy'), findsNothing);
         await tester.pumpWidget(const SizedBox());
         container.dispose();

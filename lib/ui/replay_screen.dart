@@ -180,9 +180,10 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
   String? _error;
   String _videoMessage = '';
   List<ReplayHighlight>? _highlights;
-  bool get _cloudHudOnRight =>
-      _player!.simulation.discoversClouds &&
-      (_view != ReplayView.corner || _corner != 0);
+  bool get _scoreHudOnRight =>
+      _player!.simulation.boss != null ||
+      (_player!.simulation.discoversClouds &&
+          (_view != ReplayView.corner || _corner != 0));
 
   @override
   void initState() {
@@ -259,6 +260,7 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
     final oldScore = _player!.simulation.score,
         oldFlaps = _player!.simulation.flaps;
     final oldPerfects = _player!.simulation.perfectPasses;
+    final oldStars = _player!.simulation.collectedStars;
     final oldMultiplier = _player!.simulation.multiplier;
     final oldMagnets = _player!.simulation.magnetActivations;
     final oldTrios = _player!.simulation.completedTrios;
@@ -272,14 +274,22 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
     final oldHearts = _player!.simulation.hearts;
     final oldShield = _player!.simulation.shield;
     final oldPhase = _player!.simulation.phase;
+    final oldCount = _player!.simulation.countdown.ceil();
     _position = (_position + dt.clamp(0, 100) * _speed).clamp(
       0,
       _session!.tape.durationMs,
     );
     _player!.seek(_position);
     _game!.simulation = _player!.simulation;
+    _audio.syncCombat(_player!.simulation, silent: !_sound);
     if (_sound) {
       final sim = _player!.simulation;
+      if (sim.phase == RunPhase.playing && oldPhase == RunPhase.countdown) {
+        _audio.effect('go');
+      } else if (sim.phase == RunPhase.countdown &&
+          sim.countdown.ceil() != oldCount) {
+        _audio.effect('ready');
+      }
       if (sim.phase == RunPhase.playing &&
           FlightGoals.earned(FlightGoals.forSimulation(sim)) > oldWings) {
         _audio.effect('wing');
@@ -297,10 +307,13 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
         _audio.effect('trio');
       } else if (sim.perfectPasses > oldPerfects) {
         _audio.effect('perfect');
-      } else if (sim.score > oldScore) {
+      } else if (sim.collectsStars
+          ? sim.collectedStars > oldStars
+          : sim.score > oldScore) {
         _audio.effect(sim.collectsStars ? 'star' : 'point');
       }
       if (sim.isTrail && sim.hearts < oldHearts) _audio.effect('bump');
+      if (sim.isTrail && sim.hearts > oldHearts) _audio.effect('heart');
       if (sim.courierBumps > oldBumps) _audio.effect('bump');
       if (sim.isTrail && !sim.shield && oldShield) _audio.effect('shield_pop');
       if (sim.isTrail && sim.shield && !oldShield) _audio.effect('shield');
@@ -446,6 +459,7 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
     setState(() {
       _position = position.clamp(0.0, _session!.tape.durationMs);
       _player!.seek(_position);
+      _audio.syncCombat(_player!.simulation, silent: true);
       _game!.simulation = _player!.simulation;
     });
     unawaited(_audio.stopEffects());
@@ -631,84 +645,85 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
               child: _playbackControls(),
             ),
           ],
-          Positioned(
-            top: 12,
-            left: _cloudHudOnRight ? null : 0,
-            right: _cloudHudOnRight ? 12 : 0,
-            child: IgnorePointer(
-              child: Center(
-                widthFactor: 1,
-                child: Semantics(
-                  label:
-                      'Score: ${_player!.simulation.score}'
-                      '${_player!.simulation.discoversClouds ? ', ${_player!.simulation.cloudFriends.length} of 3 cloud friends discovered' : ''}',
-                  excludeSemantics: true,
-                  child: Container(
-                    key: const ValueKey('replay-score'),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xcc18313b),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white38),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          _player!.simulation.course.scoreLabel,
-                          style: bodyText(11, color: Colors.white),
-                        ),
-                        Text(
-                          '${_player!.simulation.score}',
-                          style: heading(32, color: Colors.white),
-                        ),
-                        if (!_player!.simulation.practice)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 3),
-                            child: FlightWings(
-                              goals: FlightGoals.forSimulation(
-                                _player!.simulation,
-                              ),
-                              size: 18,
-                            ),
-                          ),
-                        if (_player!.simulation.discoversClouds)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 3),
-                            child: CloudFriendsHud(
-                              friends: _player!.simulation.cloudFriends,
-                            ),
-                          ),
-                        if (_player!.simulation.isTrail)
+          if (!_player!.simulation.bossCutscene)
+            Positioned(
+              top: 12,
+              left: _scoreHudOnRight ? null : 0,
+              right: _scoreHudOnRight ? 12 : 0,
+              child: IgnorePointer(
+                child: Center(
+                  widthFactor: 1,
+                  child: Semantics(
+                    label:
+                        'Score: ${_player!.simulation.score}'
+                        '${_player!.simulation.discoversClouds ? ', ${_player!.simulation.cloudFriends.length} of 3 cloud friends discovered' : ''}',
+                    excludeSemantics: true,
+                    child: Container(
+                      key: const ValueKey('replay-score'),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xcc18313b),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.white38),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
                           Text(
-                            '${_player!.simulation.hearts} hearts · ${_player!.simulation.clockLabel}',
+                            _player!.simulation.course.scoreLabel,
                             style: bodyText(11, color: Colors.white),
                           ),
-                        if (_player!.simulation.magnetActive)
                           Text(
-                            'Magnet · ${_player!.simulation.magnetRemaining.ceil()}s',
-                            style: bodyText(11, color: SkyColors.lavender),
+                            '${_player!.simulation.score}',
+                            style: heading(32, color: Colors.white),
                           ),
-                        if (_player!.simulation.supportsJumpGlide)
-                          JumpGlideHud(
-                            simulation: _player!.simulation,
-                            compact: true,
-                          ),
-                        if (_player!.simulation.isCourier)
-                          Text(
-                            '${_player!.simulation.carryingLetter ? 'Letter aboard' : 'Find a pickup'} · ${_player!.simulation.clockLabel}',
-                            style: bodyText(11, color: SkyColors.yellow),
-                          ),
-                      ],
+                          if (!_player!.simulation.practice)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 3),
+                              child: FlightWings(
+                                goals: FlightGoals.forSimulation(
+                                  _player!.simulation,
+                                ),
+                                size: 18,
+                              ),
+                            ),
+                          if (_player!.simulation.discoversClouds)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 3),
+                              child: CloudFriendsHud(
+                                friends: _player!.simulation.cloudFriends,
+                              ),
+                            ),
+                          if (_player!.simulation.isTrail)
+                            Text(
+                              '${_player!.simulation.hearts} hearts · ${_player!.simulation.clockLabel}',
+                              style: bodyText(11, color: Colors.white),
+                            ),
+                          if (_player!.simulation.magnetActive)
+                            Text(
+                              'Magnet · ${_player!.simulation.magnetRemaining.ceil()}s',
+                              style: bodyText(11, color: SkyColors.lavender),
+                            ),
+                          if (_player!.simulation.supportsJumpGlide)
+                            JumpGlideHud(
+                              simulation: _player!.simulation,
+                              compact: true,
+                            ),
+                          if (_player!.simulation.isCourier)
+                            Text(
+                              '${_player!.simulation.carryingLetter ? 'Letter aboard' : 'Find a pickup'} · ${_player!.simulation.clockLabel}',
+                              style: bodyText(11, color: SkyColors.yellow),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );

@@ -1,5 +1,210 @@
 # Validation ledger
 
+## 2026-09-22 random breakable wall openings
+
+- Rules version 27 adds a seeded 25% chance of a stone panel in a normal wall
+  opening after boss 2. Panels have 40 HP and distinct damage at 30/20/10 HP;
+  four base shots clear the opening immediately. Scrolling, flapping and boss
+  timing continue normally. Consecutive panels, extra enemies on their own
+  approach and panels on reward-heart gates are excluded.
+- Checked wall versus panel hits, health thresholds, cooldowns, upgraded ammo,
+  single destruction/audio, immediate collision clearance, intact surrounding
+  walls, pauses, legacy rules and exact forward/backward replays in both motion
+  settings. Boss 2 retains its heart reward and full interval before boss 3.
+- `flutter analyze --no-pub` reports no issues; `flutter test --no-pub` passes
+  all 513 tests. Phone-size render captures show the intact insert, progressive
+  fractures and clear opening within ordinary walls. Inspected
+  `build/visual-review/breakable-walls/{40,10,0}hp.png`, generated with
+  `flutter test --no-pub --dart-define=CAPTURE_DOOR_ART=true test/stone_door_art_test.dart`.
+  Device playtesting remains pending.
+
+## 2026-09-22 enemy health and weapon damage
+
+- Rules version 26 gives small enemies configurable HP by kind and encounter,
+  scales boss HP to ten-point base shots, and captures damage on each projectile.
+  Partial hits retain enemies; lethal hits clamp to zero and award a single
+  defeat. Large hits correctly cross the boss fury threshold.
+- Starting loadouts and recorded mid-flight damage changes reproduce across
+  forward/backward replay seeks in both motion settings. Existing shots retain
+  their damage, cooldowns remain enforced, and version 25 keeps its original
+  one-hit enemies and one-point boss hits. Invalid HP and damage are rejected.
+- `flutter analyze --no-pub` reports no issues; `flutter test --no-pub` passes
+  all 499 tests. Coverage includes shields, arrivals, overkill, partial-hit audio,
+  enemy/helper scaling, boss rewards, replay persistence and legacy rules.
+- Rendered and inspected wounded enemy bars in
+  `build/visual-review/small-enemies/health-bars.png`. Regenerated boss HUD
+  captures with `CAPTURE_VISUALS=true`; three-digit health labels and segmented
+  bars fit at 640×360 and 800×360. Physical device playtesting remains pending.
+
+## 2026-09-22 focused match HUD
+
+- Removed persistent mode/region labels, pace/time counters for endless flights,
+  repetition counts, record targets, wing cards and instruction strips. Score,
+  hearts/shield, relevant ability meters and controls remain; Courier uses
+  Pick up / Deliver. Tracking warnings still appear when needed.
+- Added illustrated HUD symbols, brief state-change pulses, circular controls
+  with press feedback, and a Shoot cooldown ring. Both Reduced Motion settings
+  suppress decorative movement. Controls retain tooltips, semantic labels and
+  keyboard focus; passive readouts continue to pass touches through to flight.
+- Flutter analysis is clean and 33 focused tests pass across touch input,
+  scoring, record audio, results, Courier/replay, jump glide and all three bosses.
+  Captures at 640×360 and 800×360 verify safe-area layout, cooldown touches,
+  simultaneous shooting/flapping and four/five-heart counts. Inspected the
+  rendered normal, boss, magnet and glide HUDs under `build/visual-review/`.
+  Physical device playtesting remains pending.
+
+## 2026-09-22 post-boss heart pickup
+
+- Rules version 24 places one heart in a seeded random safe opening among the
+  next 2–7 gates after each touch Star Trail boss victory. Collecting it adds
+  one life up to a five-heart cap; older replay rules keep their RNG flow.
+- Focused heart, boss, cinematic, replay and phone HUD checks pass.
+  Coverage includes all three bosses, repeated rewards across seeds, collection
+  on slow frames, missed hearts, pause/countdown/game-over freezes, later damage,
+  legacy rules, deterministic placement, four/five-life HUD counts, and pickups
+  at the cap without false extra-life feedback.
+- Flutter analysis reports no issues. Inspected the rendered heart and '+1 LIFE!'
+  feedback in `build/visual-review/heart-pickup-640.png` and
+  `build/visual-review/heart-collected-800.png`; captures cover both 640×360 and
+  800×360, including Reduced Motion. Physical device playtesting remains pending.
+
+## 2026-09-22 Spitter King dodge spacing
+
+- Rules version 23 removes the center projectile from full acid fans (five
+  shots become four) and widens fan spacing from 0.18 to 0.30 radians. Fury
+  uses the same open-center fan; firing cadence, speed and summons stay intact.
+  Versions 21–22 keep their original attack patterns for saved replays.
+- A trajectory regression failed on the old center shot and now verifies a
+  bird-sized lane plus margin at 640×360 and 800×360, at three target heights
+  in normal and fury phases. All 39 focused Spitter, boss combat, moth and
+  session replay tests pass. Flutter analysis reports no issues.
+
+## 2026-09-22 Dusk Empress crown perspective
+
+- The dedicated crown subagent replaced the front-facing tiara with a
+  left-facing circlet. A narrow forehead plate carries the foreshortened
+  gem and crescent, while the broad near band, shaded rear bevel, elliptical
+  opening and partly hidden far prongs give the crown depth around the skull.
+  Its fitted attachment and defeat release remain intact.
+- Inspected the actual Flutter head close-up at
+  `build/visual-review/dusk-moth-crown-profile.png`, phone pose sheet, and live
+  reveal at 800×360. Six focused art tests and both 640×360/800×360 live UI
+  checks pass. Full static analysis is clean, and gameplay hashes are unchanged.
+
+## 2026-09-22 Dusk Empress crown seating
+
+- A second dedicated subagent corrected the crown's rearward placement and
+  detached angle. Its anchor now follows the head crest, and its lower rim
+  follows the skull's upper curve with slight overlap. Independent crown
+  lift and tilt are removed while attached; the taller moon remains distinct
+  from the antennae. Defeat releases it from the seated position and angle.
+- Raster checks verify contact and attachment through hover, charge, recoil,
+  hits, arrival and pre-release defeat, plus continuity at release. Inspected
+  the updated phone sheet and live reveal/shield captures at both phone sizes.
+- Full static analysis is clean and all 451 tests pass. Gameplay hashes still
+  match the state before the design refinement.
+
+## 2026-09-22 Dusk Empress and silk-shield refinement
+
+- A dedicated design subagent refined the moth with velvet rose wings,
+  pearl scalloped hems, shaded fur, connected antennae and a crescent diadem.
+  Wings draw inward as the shield forms. The shield now has a woven border,
+  lunar clasps and visible blocked-shot ripples, with a transparent center.
+- The HP instruction stays pale blue while the shield forms or is active,
+  including during fury. Live UI captures at 640×360 and 800×360 verify the
+  warning, active shield and blocked shot; the shot leaves HP unchanged.
+- Focused rendering checks cover the fixed pollen port, complete shield rim,
+  clear center, charge and impact cues, deterministic seeks and Reduced Motion.
+  Full static analysis is clean and the refined-design suite passes 449 tests.
+  Gameplay file hashes match the pre-refinement state.
+- Inspected `build/visual-review/dusk-moth-phone-sheet.png`, the nine-state
+  pose sheet, and live reveal/shield/block captures. Physical playtesting
+  remains pending.
+
+## 2026-09-22 Dusk Empress third encounter
+
+- Rules version 22 adds the Dusk Moth boss after Baron Bat and Spitter King,
+  then repeats the three-boss sequence. The moth starts at 24 HP, fires faster
+  five/seven-shot pollen fans and summons dusk moths. Its silk shield warns
+  for 0.8 seconds and blocks shots for 1.6 seconds every eight combat seconds.
+- Shield hits consume rocks without damage or score, warning windows remain
+  vulnerable, and fury does not reset the shield cycle. Domain checks cover
+  repeated encounters, HP caps, cleanup, helper approach, bounded ammo,
+  pause/countdown and exact backward replay seeks. Version 21 keeps its old
+  alternating sequence; versions 15–20 retain the all-bat fights.
+- The third encounter is defeated using cooldown-limited shots and regular
+  flap inputs at 640×360 and 800×360, without health or position overrides.
+  Wider fan spacing and a farther-right hover leave dodge room on phones.
+- Flutter analysis reports no issues and the full suite passes all 447 tests.
+  Rig checks cover deterministic animation and Reduced Motion with readable
+  charge, warning, shield and fury cues. Live UI checks cover the new name,
+  shield semantics, touch controls and cinematic transitions at both widths.
+- Inspected the actual Flutter reveal, shield and fury captures under
+  `build/visual-review/dusk-moth-boss-*.png` and the moth pose sheet. UI captures
+  stage hovering, health and final hits to show the whole encounter; they are
+  separate from the legal-input survival tests. Physical playtesting is pending.
+
+## 2026-09-21 opening structures and enemy characters
+
+- Separate Cursor Grok 4.7 Extra High workers authored the opening structures
+  and enemies, with additional workers auditing fresh gameplay and integrating
+  the versioned artwork. The first three gates now show a conservatory,
+  terracotta blossom column and bamboo grove. Enemies cycle through a moon
+  bat, armored beetle and dusk moth, including boss helpers.
+- The new artwork starts at rules version 16. Versions 14 and 15 retain the
+  previous garden and enemy painters. Appearance selection consumes the same
+  random draws as before; version 15/16 simulations have matching gameplay
+  state, geometry and boss encounters under the same inputs. The concurrent
+  boss animation work has since advanced fresh games to version 17.
+- All 55 focused tests passed across `opening_designs_test.dart`,
+  `opening_obstacles_art_test.dart`, `obstacle_designs_test.dart`,
+  `touch_combat_test.dart` and `endless_flight_test.dart`. These cover variant
+  cycling, replay seeks, Reduced Motion, opaque collision bodies, clear lanes
+  and unchanged physics. The opening audit now runs all 16 course/control
+  combinations for 18 seconds without ending; its previous in-progress
+  survival and capture issues are resolved.
+- Actual `BirdGame` opening captures show the new gate and enemy route at
+  1000×450. Reviewed `build/visual-review/opening-*.png` and the character
+  sheet `build/visual-review/opening-gates-and-enemies.png` at phone size.
+- Static analysis reported no issues. The full workspace test run reached
+  401 passing tests and five failures in the concurrently changing boss
+  simulation/UI tests, whose expectations still used the earlier entrance
+  duration. The opening/enemy tests all passed; this is not a claim that the
+  ongoing boss animation iteration has completed validation.
+- The Android arm64 release build succeeded (64.6 MB). A copy is saved as
+  `build/releases/opening-gates-enemies-arm64.apk`. Physical-device playtesting
+  remains pending.
+
+## 2026-09-21 obstacle detail refinement
+
+- Version 14 selects the new painters for all seven obstacle families and
+  Cloud Cruise rings. Gameplay uses that art when `rulesVersion >= 14`.
+  Saved version 13 replays keep the previous ObstacleArt, and older replays
+  keep their original gate path. Physics, spawning, random draws, collision
+  and cadence are unchanged.
+- `flutter analyze --no-pub` reported no issues.
+- `flutter test --no-pub test/obstacle_designs_test.dart` passed. It checks
+  that refined and legacy pixels differ for all seven families and rings,
+  that fixed-geometry refined art repeats and matches at 5s and 9s under
+  Reduced Motion, that every appearance renders, that solids stay opaque
+  inside collision rects and clear outside, that thin rectangles still paint,
+  and that circles are filled with a drawn edge while rings keep an open center.
+- `flutter test --no-pub` on `test/endless_art_test.dart`,
+  `test/endless_flight_test.dart`, and `test/obstacle_variety_test.dart`
+  passed, including the version-14 replay expectation and the existing
+  lane-clearance checks.
+- `flutter test --no-pub --dart-define=CAPTURE_VISUALS=true test/endless_art_test.dart`
+  regenerated `build/visual-review/obstacle-variety.png` and
+  `build/visual-review/variety-*.png`.
+- Eight separate Cursor Grok 4.7 Extra High workers authored the seven obstacle
+  families and Cruise rings. Each family has three appearance variations.
+- The parent review checked every variation and phone-sized gameplay captures
+  against bright and twilight backgrounds. The complete comparison is saved at
+  `build/visual-review/obstacle-all-variations.png`.
+- `flutter test --no-pub --reporter expanded` passed all 387 tests.
+- `flutter build apk --release --target-platform android-arm64 --no-pub`
+  produced the 64.5 MB release APK. Physical-device playtesting remains pending.
+
 ## 2026-09-21 smoother Jump descent
 
 - The final 1.25 seconds of glide now gradually increase falling speed from
@@ -883,3 +1088,187 @@ The Android arm64 release APK also builds successfully with
   game captures: `build/visual-review/variety-*.png`.
 - Physical-device playtesting of the new obstacle motion remains pending.
 - The updated Android arm64 release APK builds successfully (64.4 MB).
+
+## 2026-09-21 touch boss encounters
+
+- Rules version 15 adds Baron Bat after 45 seconds of touch flight, clears
+  normal passages for the fight, and returns to ordinary flight after victory.
+  Tests cover entrance safety, HP and rock interception, aimed/spread ammo,
+  helpers, enraged attacks, shield/recovery/heart damage, course gating,
+  one-time rewards, cleanup, rematches, pause/countdown/end freezes, and a
+  victory using ordinary flaps and cooldown-limited shots.
+- All 12 boss simulation/UI tests pass. Two 170-second input journals reproduce
+  multiple victories and exact state on backwards seeks with Reduced Motion
+  on and off. Versions before 15 never enter boss encounters.
+- Visually inspected arrival, fighting, enraged and defeated scenes at 640×360
+  and 800×360. The boss HUD replaces normal top-center readouts while fighting;
+  Shoot remains accessible and the score moves to the lower-left readout.
+  Captures: `build/visual-review/boss-*.png`.
+- Static analysis is clean and the Android arm64 release APK builds (64.5 MB).
+  The full workspace run reached 399 passing tests, but the concurrently added
+  `opening_obstacles_art_test.dart` failed its Classic/push-up survival check
+  and stalled in its rendering check; that run was stopped. Rerunning with
+  only that in-progress test file excluded passes all 399 remaining tests.
+  Physical touchscreen playtesting of boss difficulty remains pending.
+
+## 2026-09-21 cinematic boss presentation
+
+- Rules version 17 adds a 4.6-second storm warning and staged entrance, a
+  layered Baron Bat rig, charge and recoil animation, and a 3.8-second defeat
+  with a stagger, impact burst, debris, detached crown and victory card. The
+  bird coasts safely during both sequences. Versions 15 and 16 retain their
+  original encounter timing and presentation.
+- All 410 Flutter tests pass with no exclusions, and `flutter analyze --no-pub`
+  reports no issues. Checks cover cutscene input safety and timing, deterministic
+  animation, Reduced Motion, one-shot audio cues and silent replay seeking.
+  Existing multi-encounter replay, fight completion and small-screen UI checks
+  pass. The Android arm64 release APK builds successfully (65.1 MB).
+- Rendered and inspected the warning, reveal, combat, fury, stagger, burst and
+  victory at 640×360 and 800×360. A 410-frame, 30 fps choreography preview uses
+  the actual game renderer and synchronized generated sound effects, with
+  staged final hits to demonstrate the full sequence in 13.7 seconds:
+  `build/visual-review/boss-cinematic-preview.mp4`.
+- Host Flutter test rasterization at 800×360 measured a median 5.82 ms and
+  p95 8.32 ms per rendered image. These are host render measurements, not
+  device frame-rate results. Physical-device performance, touchscreen
+  difficulty and speaker mix still need playtesting; no device was installed
+  or changed for this presentation pass.
+
+## 2026-09-21 directional small enemies and ranged attacks
+
+- Three separate art subagents redesigned the cave bat, spitter beetle and
+  dusk moth. Their profiles face the bird, eyes track its height, and wings
+  articulate independently. The bat remains a simple contact enemy; beetles
+  charge one aimed mint pellet, and moths charge a slower three-shot amber fan.
+  Rules version 18 gates both the new artwork and attack behavior, preserving
+  earlier journals.
+- All 421 Flutter tests pass without exclusions; static analysis and
+  `git diff --check` are clean. New checks cover visible windups, distinct
+  projectile trajectories, fixed aim, no off-screen or posthumous attacks,
+  rock interception, building collisions, course damage, pause/countdown,
+  boss cleanup, narrow-screen summons, legacy gating and exact replay seeks
+  while both projectile types are active.
+- Inspected the enlarged lineup, gameplay-size silhouettes, charge/recoil
+  poses and an actual 800×360 game render. Art checks verify animated wing
+  changes and exact Reduced Motion frames. Preview artifacts are
+  `build/visual-review/small-enemies/lineup.png`,
+  `build/visual-review/small-enemies/in-game.png`, and the four-second
+  `build/visual-review/small-enemies-preview.mp4`. The motion sheet stages
+  attack poses; simulation tests separately verify actual firing behavior.
+- Android arm64 release APK builds successfully (65.1 MB). Physical-device
+  difficulty and visual readability during touch play still need playtesting;
+  no device was installed or changed for this pass.
+
+## 2026-09-22 simple bat and preserved cave bat
+
+- Rules version 19 adds a plain purple bat based on the boss's body, face and
+  wing shapes, omitting crown, cape, armor, gem, gold trim and wing stars. The
+  original cave bat remains a fourth normal-flight character. Boss summons
+  use the simple bat alongside beetles and moths. Both bat types are ordinary
+  one-hit contact enemies.
+- Extended existing rotation, attack and rendering checks to include the
+  fourth character. Inspected the updated four-character lineup and actual
+  800×360 game render, including both bats together. The shared boss renderer
+  defaults to its full decorated appearance; the plain bat selects the
+  simplified appearance and continues to track the bird with its eyes.
+- Updated preview images and the four-second animation in
+  `build/visual-review/small-enemies/` and
+  `build/visual-review/small-enemies-preview.mp4`.
+- All 421 Flutter tests pass, analysis reports no issues, and the Android
+  arm64 release APK builds successfully (65.1 MB). No device installation
+  was performed.
+
+## 2026-09-22 natural enemy flight
+
+- Rules version 20 adds small vertical flight arcs, slight banking and
+  independently phased wingbeats for all four small enemies. Beetles have a
+  tighter hover; moths drift more slowly. Charge and recoil steady the body,
+  and the final approach eases back into the original aiming lane.
+- The shared moving position drives rendering, collision and ammo emission.
+  Checked bounded displacement, an actual hit against a bobbing body, pause
+  freezes, old straight-flight behavior and exact replay reconstruction.
+  Reduced Motion preserves the gameplay path but freezes decorative bank
+  and wing motion. The existing opening-flight survival checks pass after
+  smoothing the final approach.
+- Regenerated and inspected the design-sheet animation at enlarged and
+  gameplay sizes: `build/visual-review/small-enemies-preview.mp4`.
+- All 422 Flutter tests pass; analysis and `git diff --check` are clean.
+  Android arm64 release APK builds successfully (65.1 MB). No device
+  installation was performed.
+
+## 2026-09-22 spitter beetle refinement
+
+- A fresh dedicated subagent refined only the beetle renderer: lifted hard
+  wing cases, translucent flight membranes, compact head, distinct thorax
+  and segmented abdomen. Wings move independently and turn edge-on; antennae
+  and legs follow through. Charge fills the mint cheek, tucks the legs and
+  braces the shell; a damped recoil settles after release.
+- Parent and subagent reviewed close-up and exact gameplay-size renders of
+  cruise, charge and spit. The lip remains at local (-1.05r, 0) through cheek
+  squash. Existing Reduced Motion render checks pass. The domain attack
+  timing, flight paths, damage and hit radius are unchanged.
+- Updated the lineup and actual 800×360 game render. Added a focused
+  1000×520, 30 fps, five-second motion sheet at
+  `build/visual-review/spitter-beetle-preview.mp4`. Its attack poses are
+  staged to show the complete charge and release cycle at both scales.
+- All 422 Flutter tests pass, static analysis reports no issues, and
+  `git diff --check` is clean. Android arm64 release APK builds successfully
+  (65.1 MB). No device installation was performed.
+
+## 2026-09-22 Spitter King second boss
+
+- Rules version 21 alternates Baron Bat and Spitter King, starting with the
+  bat. The beetle's first encounter has 18 HP, faster three/five-shot acid
+  fans, a wider hover and beetle helpers. At half health, five-shot fans and
+  summons accelerate. Older journals retain their original bat encounters.
+- Added a horned helm, gilded shell trim and green attack effects to the
+  articulated beetle anatomy. Shared entrance, defeat, audio and rewards now
+  show the active boss's name, including the accessibility label. The beetle
+  sheds its own helm in the defeat burst.
+- Verified four successive encounters, the full flight interval between
+  bosses, legacy second-boss behavior, aimed trajectories, fury, narrow-screen
+  summons, bounded hazards, pause/countdown freezes and normal-input victory.
+  Replay snapshots include boss identity, volleys and summons. Pixel checks
+  confirm seekable animation and Reduced Motion with visible charge/fury cues.
+- Inspected entrance, combat, fury and defeat captures at 640×360 and 800×360,
+  including Reduced Motion. Images are in
+  `build/visual-review/spitter-boss-*.png`.
+- All 431 Flutter tests pass; static analysis and `git diff --check` are clean.
+  The Android arm64 release APK builds successfully (65.1 MB). Physical-device
+  difficulty remains untested; no device installation was performed.
+
+## 2026-09-22 Spitter boss brewer redesign
+
+- A dedicated subagent replaced the enlarged small-beetle anatomy and crown
+  with a bespoke airborne acid brewer: broad copper shell, battered hat,
+  goggle, bubbling glass tank, pressure gauge, feed hose and claw arms.
+- Added a hat-tip entrance, four independently phased fan wings, pumping
+  pressure buildup, cheek inflation, tank slosh and hat recoil, a beckoning
+  summon gesture, hot fury vents and curling defeat limbs. The parent
+  integrated authored hat/eye anchors, acid charge bubbles, a droplet pressure
+  burst and tumbling hat debris into the actual encounter.
+- Focused pixel checks verify deterministic seeks, stable Reduced Motion,
+  retained charge/fury cues, distinct anatomical attack/defeat states and a
+  fixed mouth origin. All 435 Flutter tests pass. Static analysis and
+  `git diff --check` are clean.
+- Inspected the pose sheet, ordinary-enemy comparison and gameplay at
+  640×360 and 800×360. Captured 410 actual game frames with synchronized audio
+  at `build/visual-review/spitter-boss-cinematic-preview.mp4`; final hits are
+  staged to show the complete defeat. The pose sheet is
+  `build/visual-review/spitter-brewer-pose-sheet.png`.
+- Android arm64 release APK builds successfully (65.1 MB). Gameplay timing,
+  difficulty and encounter order are unchanged by this visual pass. No
+  physical-device installation or testing was performed.
+
+## 2026-09-22 bird trails follow the flown path
+
+- In-flight trail marks now sit on the bird's recent path, spaced evenly along
+  it, and continue level behind the bird until enough path exists. The
+  simulation records the path per substep without affecting physics, RNG or
+  the replay format, so replays rebuild it after a seek. Reduced Motion and the
+  crew preview keep the straight trail.
+- New tests check the recorded path, deterministic backward seeks in every
+  control mode, and mark placement along a climb and past the path's end. All
+  519 Flutter tests pass and static analysis is clean. A real tap flight was
+  rendered at `build/visual-review/bird-trail-path.png`; no device testing was
+  performed.

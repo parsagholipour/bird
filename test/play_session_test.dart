@@ -11,7 +11,15 @@ import 'package:push_up_bird/tracking/tracking_api.g.dart';
 
 class SilentAudio implements SkyAudio {
   @override
-  Future<void> configure(GameSettings settings, {bool active = true}) async {}
+  void syncCombat(FlightSimulation simulation, {bool silent = false}) {}
+  @override
+  void syncBoss(SkyBoss? boss, {bool silent = false}) {}
+  @override
+  Future<void> configure(
+    GameSettings settings, {
+    bool active = true,
+    SkyMusic track = SkyMusic.flight,
+  }) async {}
   @override
   void effect(String name) {}
   @override

@@ -10,14 +10,19 @@ import 'components.dart';
 import 'flight_goals.dart';
 import 'home_world.dart';
 import 'menu_collectible_art.dart';
+import 'mode_picker.dart';
 import 'play_button.dart';
 import 'theme.dart';
+import 'ui_sounds.dart';
 
 const _course = FlightCourse.starTrail;
 
-void _play(BuildContext context, String mode, {bool practice = false}) {
+Future<void> _chooseMode(BuildContext context, {bool practice = false}) async {
+  final mode = await showModePicker(context, practice: practice);
+  if (mode == null || !context.mounted) return;
+  final route = mode == PlayMode.pushUp ? 'push-up' : mode.name;
   context.go(
-    '/play/$mode?${practice ? 'practice=true&' : ''}course=${_course.name}',
+    '/play/$route?${practice ? 'practice=true&' : ''}course=${_course.name}',
   );
 }
 
@@ -186,38 +191,17 @@ class _PlayMenu extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     children: [
       PlayButton(
-        key: const ValueKey('push-up-mode'),
-        onPressed: () => _play(context, 'push-up'),
+        key: const ValueKey('play'),
+        onPressed: () => _chooseMode(context),
       ),
       const SizedBox(height: 6),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          TextButton(
-            onPressed: () => _play(context, 'push-up', practice: true),
-            style: TextButton.styleFrom(minimumSize: const Size(94, 44)),
-            child: Text(
-              'Practice',
-              style: bodyText(13, weight: FontWeight.w900),
-            ),
-          ),
-          Container(
-            width: 1,
-            height: 14,
-            color: SkyColors.ink.withValues(alpha: .2),
-          ),
-          TextButton(
-            onPressed: () => _showOtherWays(context),
-            style: TextButton.styleFrom(minimumSize: const Size(182, 44)),
-            child: Row(
-              children: [
-                Text('Other ways to play', style: bodyText(13)),
-                const SizedBox(width: 5),
-                const Icon(Icons.expand_more_rounded, size: 18),
-              ],
-            ),
-          ),
-        ],
+      TextButton(
+        onPressed: () {
+          UiSounds.effect(context);
+          _chooseMode(context, practice: true);
+        },
+        style: TextButton.styleFrom(minimumSize: const Size(120, 44)),
+        child: Text('Practice', style: bodyText(13, weight: FontWeight.w900)),
       ),
     ],
   );
@@ -336,12 +320,18 @@ class _MenuCollectible extends StatelessWidget {
   Widget build(BuildContext context) => Semantics(
     button: true,
     label: semanticLabel ?? label,
-    onTap: onTap,
+    onTap: () {
+      UiSounds.effect(context);
+      onTap();
+    },
     excludeSemantics: true,
     child: Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: onTap,
+        onTap: () {
+          UiSounds.effect(context);
+          onTap();
+        },
         borderRadius: BorderRadius.circular(20),
         child: SizedBox(
           width: 112,
@@ -422,122 +412,6 @@ class _BirdCollectionArt extends StatelessWidget {
         child: Transform.rotate(
           angle: -.1,
           child: BirdArt(bird: bird, size: 76, bob: false),
-        ),
-      ),
-    ],
-  );
-}
-
-Future<void> _showOtherWays(BuildContext context) async {
-  final selection = await showDialog<({String mode, bool practice})>(
-    context: context,
-    builder: (context) => Dialog(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 510),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text('Other ways to play', style: heading(27)),
-                  ),
-                  RoundButton(
-                    icon: Icons.close_rounded,
-                    label: 'Close other ways to play',
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Same sky. A different way to fly.',
-                style: bodyText(14, color: SkyColors.muted),
-              ),
-              const SizedBox(height: 20),
-              _AlternativeMode(
-                title: 'Tap & Fly',
-                description: 'Tap to flap. Shoot the bats. No camera needed.',
-                icon: Icons.touch_app_rounded,
-                color: SkyColors.mint,
-                onPlay: () =>
-                    Navigator.pop(context, (mode: 'touch', practice: false)),
-              ),
-              const SizedBox(height: 12),
-              _AlternativeMode(
-                title: 'Jump & Fly',
-                description:
-                    'Jump through buildings. Collect stars. No enemies.',
-                icon: Icons.accessibility_new_rounded,
-                color: SkyColors.lavender,
-                onPlay: () =>
-                    Navigator.pop(context, (mode: 'jump', practice: false)),
-                onPractice: () =>
-                    Navigator.pop(context, (mode: 'jump', practice: true)),
-              ),
-              const SizedBox(height: 12),
-              _AlternativeMode(
-                title: 'Squat & Fly',
-                description:
-                    'Squat to descend. Stand to rise. Feet stay planted.',
-                icon: Icons.airline_seat_legroom_extra_rounded,
-                color: SkyColors.coral,
-                practiceLabel: 'Squat practice',
-                onPlay: () =>
-                    Navigator.pop(context, (mode: 'squat', practice: false)),
-                onPractice: () =>
-                    Navigator.pop(context, (mode: 'squat', practice: true)),
-              ),
-            ],
-          ),
-        ),
-      ),
-    ),
-  );
-  if (selection != null && context.mounted) {
-    _play(context, selection.mode, practice: selection.practice);
-  }
-}
-
-class _AlternativeMode extends StatelessWidget {
-  const _AlternativeMode({
-    required this.title,
-    required this.description,
-    required this.icon,
-    required this.color,
-    required this.onPlay,
-    this.onPractice,
-    this.practiceLabel = 'Jump practice',
-  });
-  final String title, description, practiceLabel;
-  final IconData icon;
-  final Color color;
-  final VoidCallback onPlay;
-  final VoidCallback? onPractice;
-
-  @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      Expanded(
-        child: SkyButton(
-          label: title,
-          icon: icon,
-          color: color,
-          onPressed: onPlay,
-        ),
-      ),
-      const SizedBox(width: 16),
-      Expanded(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(description, style: bodyText(13, color: SkyColors.muted)),
-            if (onPractice != null)
-              TextButton(onPressed: onPractice, child: Text(practiceLabel)),
-          ],
         ),
       ),
     ],

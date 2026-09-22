@@ -25,6 +25,7 @@ class PlayController extends ChangeNotifier {
     required this.audio,
     required this.saveSession,
     this.bird = 0,
+    this.weaponDamage = BirdRock.baseDamage,
     this.reducedMotion = false,
     this.recordAudio = false,
     this.rememberRecordAudio,
@@ -67,6 +68,7 @@ class PlayController extends ChangeNotifier {
   final SkyAudio audio;
   final Future<void> Function(SavedSession) saveSession;
   final int bird;
+  final int weaponDamage;
   final bool reducedMotion;
   final Future<void> Function(bool)? rememberRecordAudio;
   bool recordAudio, microphoneRequestPending = false;
@@ -256,7 +258,7 @@ class PlayController extends ChangeNotifier {
       return;
     }
     recorder?.command('shoot');
-    audio.effect('flap');
+    audio.syncCombat(simulation!);
     notify();
   }
 
@@ -288,6 +290,7 @@ class PlayController extends ChangeNotifier {
       if (simulation!.flaps > before) audio.effect('flap');
     }
     recorder?.tick(dt, now, width);
+    if (simulation != null) audio.syncCombat(simulation!);
   }
 
   StreamSubscription<TrackingSample>? _samples;
@@ -499,12 +502,14 @@ class PlayController extends ChangeNotifier {
         cycleSeconds:
             squat.result?.cycleSeconds ?? body.result?.cycleSeconds ?? 3,
         bird: bird,
+        weaponDamage: weaponDamage,
         reducedMotion: reducedMotion,
         originMs: nowMs,
       ),
       () => nowMs,
     );
     simulation = recorder!.simulation;
+    audio.syncCombat(simulation!, silent: true);
     stage = PlayStage.flying;
     result = null;
     saved = false;

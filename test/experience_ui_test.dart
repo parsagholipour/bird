@@ -20,6 +20,7 @@ import 'package:push_up_bird/ui/play_screen.dart';
 import 'package:push_up_bird/ui/record_chase.dart';
 import 'package:push_up_bird/ui/components.dart';
 import 'package:push_up_bird/ui/flight_goals.dart';
+import 'package:push_up_bird/ui/match_hud.dart';
 import 'play_session_test.dart' show SessionSource, SilentAudio, startFlight;
 import 'daily_adventure_test.dart' show dailyRun;
 
@@ -125,7 +126,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       await capture(tester, 'home-classic');
-      expect(find.byKey(const ValueKey('push-up-mode')), findsOneWidget);
+      expect(find.byKey(const ValueKey('play')), findsOneWidget);
       await capture(tester, 'home-star-trail');
       if (player == 'new') {
         await tester.tap(find.text('Flight goals'));
@@ -141,7 +142,9 @@ void main() {
         );
         await tester.pumpAndSettle();
       }
-      await tester.tap(find.byKey(const ValueKey('push-up-mode')));
+      await tester.tap(find.byKey(const ValueKey('play')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Push-Up Flight'));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       expect(find.textContaining('Every 9 stars'), findsOneWidget);
@@ -189,20 +192,19 @@ void main() {
       game.pauseEngine();
       await tester.pump();
       expect(tester.takeException(), isNull);
-      expect(find.text('Shield ready'), findsOneWidget);
       expect(
-        tester.getRect(find.text('Shield ready')).left,
-        greaterThan(300),
+        tester
+            .widget<MatchMeter>(find.byKey(const ValueKey('match-shield')))
+            .label,
+        'Shield ready',
+      );
+      expect(
+        tester.getRect(find.byKey(const ValueKey('match-health'))).right,
+        lessThan(FlightSimulation.birdX * 1000 - 24),
         reason: 'The HUD must not cover the bird at the top of a push-up',
       );
-      expect(find.text('0:24'), findsOneWidget);
-      expect(find.text('1.06× pace'), findsOneWidget);
-      if (player == 'daily') {
-        expect(
-          tester.getRect(find.byKey(const ValueKey('flight-clock'))).left,
-          greaterThan(tester.getRect(find.byType(RecordChase)).right + 8),
-        );
-      }
+      expect(find.byKey(const ValueKey('flight-clock')), findsNothing);
+      expect(find.text('1.06× pace'), findsNothing);
       await capture(tester, 'star-trail-flight');
       final flightTime = sim.elapsed;
       sim.elapsed = 58;
@@ -218,8 +220,8 @@ void main() {
       await tester.pump(const Duration(milliseconds: 16));
       game.pauseEngine();
       await tester.pump();
-      expect(find.byType(FlightGoalHud), findsOneWidget);
-      expect(find.text('Wing earned!'), findsOneWidget);
+      expect(find.byType(FlightGoalHud), findsNothing);
+      expect(find.text('Wing earned!'), findsNothing);
       if (player == 'new') expect(audio.wings, 1);
       sim.completedTrios++;
       controller.notify();
@@ -232,7 +234,12 @@ void main() {
       sim.magnetCharge = 2;
       controller.notify();
       await tester.pump();
-      expect(find.text('2/3 perfect gates · charging magnet'), findsOneWidget);
+      expect(
+        tester
+            .widget<MatchMeter>(find.byKey(const ValueKey('match-magnet')))
+            .value,
+        closeTo(2 / 3, .001),
+      );
       expect(tester.takeException(), isNull);
       sim.magnetCharge = 0;
       sim.magnetUntil = sim.elapsed + 6;
@@ -242,7 +249,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 16));
       game.pauseEngine();
       await tester.pump();
-      expect(find.text('Star magnet · 6s'), findsOneWidget);
+      expect(find.text('6s'), findsOneWidget);
       expect(tester.takeException(), isNull);
       await capture(tester, 'star-trail-magnet-flight');
       sim.magnetUntil = 0;
@@ -254,7 +261,12 @@ void main() {
       await tester.pump(const Duration(milliseconds: 16));
       game.pauseEngine();
       await tester.pump();
-      expect(find.text('Recovering · 1.2s'), findsOneWidget);
+      expect(
+        tester
+            .widget<MatchMeter>(find.byKey(const ValueKey('match-shield')))
+            .label,
+        'Recovering',
+      );
       expect(tester.takeException(), isNull);
       await capture(tester, 'star-trail-recovery');
       if (player == 'new') expect(audio.wings, 1);
@@ -360,7 +372,7 @@ void main() {
       appRouter.go('/');
       await tester.pumpAndSettle();
       expect(
-        find.byKey(const ValueKey('push-up-mode')),
+        find.byKey(const ValueKey('play')),
         findsOneWidget,
         reason: 'Returning home should preserve the selected course',
       );

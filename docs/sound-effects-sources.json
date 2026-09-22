@@ -1,0 +1,143 @@
+{
+  "model": "eleven_text_to_sound_v2",
+  "flow": "https://elevenlabs.io/app/flows/HeHtzmiQYMI1natgMcoI",
+  "date": "2026-09-22",
+  "sources": {
+    "shoot": {
+      "node_id": "XvGqpWbbpdqJXZr3MhxI",
+      "prompt": "One punchy arcade projectile shot: a sharp dry crack with a solid midrange pop and a very short descending zap, immediate attack, powerful compact sound lasting 0.2 seconds, isolated on silence, no echoes, repeated shots, music or voices.",
+      "takes": [
+        {
+          "source": "shoot_punch.mp3",
+          "generation_id": "t7vYV0AkgQzTvrXxBHxQ",
+          "sha256": "dcf24bc9916f4e5cd3c9d0b973a9bf7c45909c18a226a39b70cfd75df3649a52"
+        }
+      ]
+    },
+    "enemy_death": {
+      "node_id": "25WRqs5vdj1XtZdbvV14",
+      "prompt": "One small fantasy creature vanishing in a soft crunchy pop and fluttering dust puff, playful satisfying impact with a short falling tail under half a second, isolated on silence, no voice or music.",
+      "takes": [
+        {
+          "source": "enemy_death.mp3",
+          "generation_id": "hQuDYclYazoCty9frACy",
+          "sha256": "20cf106a60ab8010878cd9dcd2570beecf4256cd8285bd02090ba1326b7312e4"
+        },
+        {
+          "source": "enemy_death_2.mp3",
+          "generation_id": "ryzUBn0DQmcN2irmL8br",
+          "sha256": "98c76028c37d72a59e2c7850cec0ab4073c04b443b235970ed2a43264729bb46"
+        },
+        {
+          "source": "enemy_death_3.mp3",
+          "generation_id": "Y0dNRXneSpKWXq0o9sj3",
+          "sha256": "6a1903601c2f3d8195219359b72f10c6cff7893233175208efc81f35cef5bbf3"
+        }
+      ]
+    },
+    "boss_roar": {
+      "node_id": "ZXK1D4htTqNIJ7k6N7Xw",
+      "prompt": "One deep menacing fantasy beast growl, rough resonant throaty rumble swelling into a powerful short roar then dying away in two seconds, isolated on silence, no speech or music.",
+      "takes": [
+        {
+          "source": "boss_roar.mp3",
+          "generation_id": "g2paPT2bJErILz5CCBxP",
+          "sha256": "c692fd0bb836f7b087658709c939bb493cd1c4b1752368759ebb955ac6909376"
+        }
+      ]
+    },
+    "boss_warning": {
+      "node_id": "hSVLVAhxujAs8uePm3A5",
+      "prompt": "A single ominous rising wind rush, low hollow turbulent air swelling toward a heavy arrival, brief two-second sound effect isolated on silence, no music or voices.",
+      "takes": [
+        {
+          "source": "boss_warning.mp3",
+          "generation_id": "nLkTySSiTBLLLd55Ytxc",
+          "sha256": "cd6bc02fdf0edb38dc550a497829173afd3b5cbc62d9b42391cf9c28077ed6d4"
+        }
+      ]
+    },
+    "boss_burst": {
+      "node_id": "ZTwiasLDpLWX9hFozEze",
+      "prompt": "One large fantasy shell exploding into brittle fragments, weighty low impact and crunchy crackling debris trailing away for one second, isolated on silence, no music or voices.",
+      "takes": [
+        {
+          "source": "boss_burst.mp3",
+          "generation_id": "UBIxCTqeh17sH9xzy3Lo",
+          "sha256": "508e59032dff1ada3e265a139f47ce807a07319efd2721fd2debd75ac30498da"
+        }
+      ]
+    },
+    "boss_charge": {
+      "node_id": "HpG4wDDh8kXHal9dlLTV",
+      "prompt": "One tense rising magical energy charge, resonant airy whirl tightening upward in pitch for half a second with a clean ending, isolated on silence, no music.",
+      "takes": [
+        {
+          "source": "boss_charge.mp3",
+          "generation_id": "ILi6aOmzXV7bbLPMEecd",
+          "sha256": "39a3a04dabf735b9e3c9bd36b08c6632e361c9c4cf94dc8bd55ce2b6a754db03"
+        }
+      ]
+    },
+    "boss_volley": {
+      "node_id": "mfSLhBLWz24spkZxxg5s",
+      "prompt": "One heavy magical projectile launching, deep rubbery thump and quick rasping air rush with a short tail, isolated on silence, no music or voices.",
+      "takes": [
+        {
+          "source": "boss_volley.mp3",
+          "generation_id": "tsiNG9ugNzUOqbnWOWuG",
+          "sha256": "aa5a68c8ea0ee1d37d5227f9b83d6d155e88f52a4869d29e5beecf97b173794f"
+        },
+        {
+          "source": "boss_volley_2.mp3",
+          "generation_id": "ner8EHUHeMz4BPC4dFXX",
+          "sha256": "d4f9e8733b024a2b973191eec8f5f6dfa7e2a8d6411767dcb5945551f1d58fad"
+        }
+      ]
+    },
+    "flap": {
+      "node_id": "kKFNXl3GBwbeyuw3IRpK",
+      "prompt": "One quick small bird wingbeat, soft feathery flutter and a light air swish, dry close-up, brief quarter-second sound isolated on silence, no chirping or music.",
+      "takes": [
+        {
+          "source": "flap.mp3",
+          "generation_id": "ccDIb7ivOyEZoChSv7pB",
+          "sha256": "3a5971a09dc5f46517c9289446897ede808cc981952dc266d120a2129bc82ae9"
+        },
+        {
+          "source": "flap_2.mp3",
+          "generation_id": "4QobazPpCqxJliAdqu9H",
+          "sha256": "70d710759bc6249f3c2efd468e8767da6394a4eb880b5162c32af7b93b6d1a50"
+        },
+        {
+          "source": "flap_3.mp3",
+          "generation_id": "kU99nQy58qdLguxbEsfn",
+          "sha256": "dc99afc618a17e048f80ffa89322d0f21a464bd131988dc465c9ba4419fad222"
+        }
+      ]
+    }
+  },
+  "superseded_sources": {
+    "shoot": {
+      "node_id": "NEzE161tOJKPJuc2Yc4r",
+      "prompt": "One short cartoon pebble spat through the air, crisp hollow wooden pop with a tight airy zip, dry close-up, fast attack and decay within 0.25 seconds, isolated on silence, no music.",
+      "takes": [
+        {
+          "source": "shoot.mp3",
+          "generation_id": "D22GjxtazacEqosHzMnF",
+          "sha256": "e6e90baf952c0739ad662241e1dd591b4f8887f0629e98a17bf726528da0c5da"
+        },
+        {
+          "source": "shoot_2.mp3",
+          "generation_id": "nMXYDHrLBcKO4AT1QmYp",
+          "sha256": "8c751a4e45463b31ab64c4f2eade221dc1618d7f9fd3295c7aec3ff161acde32"
+        },
+        {
+          "source": "shoot_3.mp3",
+          "generation_id": "6VVBuLI85flDrBuMvU1t",
+          "sha256": "a3a91b8137b13a0ec135db43efd9c05307be6f2bbef91c801676ce7c601a0e04"
+        }
+      ]
+    }
+  }
+}

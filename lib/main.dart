@@ -19,6 +19,9 @@ import 'ui/daily_adventure_screen.dart';
 import 'ui/flight_school_screen.dart';
 import 'data/providers.dart';
 import 'domain/daily_adventure.dart';
+import 'game/audio.dart';
+import 'ui/ui_sounds.dart';
+import 'data/progress_repository.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -116,11 +119,39 @@ class _PushUpBirdAppState extends ConsumerState<PushUpBirdApp>
     with WidgetsBindingObserver {
   Timer? _calendar;
   bool _refreshingDay = false;
+  late final SkyAudio _menuAudio;
+  bool _foreground = true;
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _menuAudio = ref.read(audioFactoryProvider)();
+    final lifecycle = WidgetsBinding.instance.lifecycleState;
+    _foreground = lifecycle == null || lifecycle == AppLifecycleState.resumed;
+    appRouter.routerDelegate.addListener(_syncMenuMusic);
+    ref.listenManual(
+      progressProvider,
+      (_, _) => _syncMenuMusic(),
+      fireImmediately: true,
+    );
     _calendar = Timer.periodic(const Duration(minutes: 1), (_) => _checkDay());
+  }
+
+  void _syncMenuMusic() {
+    final settings = ref.read(progressProvider).asData?.value.settings;
+    final path = appRouter.routerDelegate.currentConfiguration.uri.path;
+    final inGame =
+        path.startsWith('/play/') ||
+        path.startsWith('/replay/') ||
+        path == '/school' ||
+        path == '/lab';
+    unawaited(
+      _menuAudio.configure(
+        settings ?? const GameSettings(music: false),
+        active: _foreground && !inGame,
+        track: SkyMusic.menu,
+      ),
+    );
   }
 
   Future<void> _checkDay() async {
@@ -142,12 +173,17 @@ class _PushUpBirdAppState extends ConsumerState<PushUpBirdApp>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    _foreground = state == AppLifecycleState.resumed;
+    if (!_foreground) unawaited(_menuAudio.stopEffects());
+    _syncMenuMusic();
     if (state == AppLifecycleState.resumed) unawaited(_checkDay());
   }
 
   @override
   void dispose() {
     _calendar?.cancel();
+    appRouter.routerDelegate.removeListener(_syncMenuMusic);
+    unawaited(_menuAudio.dispose());
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -170,7 +206,12 @@ class _PushUpBirdAppState extends ConsumerState<PushUpBirdApp>
           data: mediaQuery.copyWith(
             disableAnimations: reducedMotion || mediaQuery.disableAnimations,
           ),
-          child: child!,
+          child: UiSounds(
+            play: (cue) {
+              if (_foreground) _menuAudio.effect(cue);
+            },
+            child: child!,
+          ),
         );
       },
     );

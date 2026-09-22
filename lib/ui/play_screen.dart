@@ -24,9 +24,10 @@ import 'setup_art.dart';
 import 'flight_portrait.dart';
 import 'flight_score.dart';
 import 'jump_glide_hud.dart';
-import 'record_chase.dart';
+import 'match_hud.dart';
 import 'flight_goals.dart';
 import 'cloud_friends.dart';
+import 'ui_sounds.dart';
 
 class PlayScreen extends ConsumerStatefulWidget {
   const PlayScreen({
@@ -48,6 +49,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
   late final SkyAudio audio;
   BirdGame? game;
   int previousScore = 0,
+      previousStars = 0,
       previousCount = 4,
       previousPerfects = 0,
       previousMultiplier = 1,
@@ -59,7 +61,6 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       previousCloudFriends = 0,
       previousHearts = 3;
   double previousFlightTime = 0;
-  double wingCelebrationUntil = 0;
   bool previousShield = true;
   bool awardSoundPlayed = false;
   bool leaving = false;
@@ -133,6 +134,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
           ref.read(progressProvider).asData?.value.settings ??
           const GameSettings();
       previousScore = 0;
+      previousStars = 0;
       previousPerfects = 0;
       previousMultiplier = 1;
       previousMagnets = 0;
@@ -141,7 +143,6 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       previousBumps = 0;
       previousWings = 0;
       previousCloudFriends = 0;
-      wingCelebrationUntil = 0;
       previousFlightTime = 0;
       previousHearts = 3;
       previousShield = true;
@@ -170,9 +171,6 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     if (sim != null) {
       final wings = FlightGoals.earned(FlightGoals.forSimulation(sim));
       final earnedWing = wings > previousWings;
-      if (earnedWing && sim.phase == RunPhase.playing) {
-        wingCelebrationUntil = sim.elapsed + 1.8;
-      }
       if (!widget.practice &&
           initialBest > 0 &&
           previousScore <= initialBest &&
@@ -194,16 +192,20 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         audio.effect('trio');
       } else if (sim.perfectPasses > previousPerfects) {
         audio.effect('perfect');
-      } else if (sim.score > previousScore) {
+      } else if (sim.collectsStars
+          ? sim.collectedStars > previousStars
+          : sim.score > previousScore) {
         audio.effect(sim.collectsStars ? 'star' : 'point');
       }
       previousScore = sim.score;
+      previousStars = sim.collectedStars;
       if (sim.courierBumps > previousBumps) audio.effect('bump');
       previousLetters = sim.lettersCollected;
       previousBumps = sim.courierBumps;
       previousWings = wings;
       previousCloudFriends = sim.cloudFriends.length;
       if (sim.isTrail && sim.hearts < previousHearts) audio.effect('bump');
+      if (sim.isTrail && sim.hearts > previousHearts) audio.effect('heart');
       if (sim.isTrail && sim.shield && !previousShield) audio.effect('shield');
       if (sim.isTrail && !sim.shield && previousShield) {
         audio.effect('shield_pop');
@@ -289,38 +291,43 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       },
       child: Scaffold(
         body: SkyBackdrop(
-          child: SceneLayout(
-            child: Stack(
-              children: [
-                if (!controller.isTouch &&
-                    Platform.isAndroid &&
-                    stage != PlayStage.setup &&
-                    stage != PlayStage.results)
-                  const Positioned(
-                    left: 28,
-                    top: 92,
-                    width: 540,
-                    height: 322,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.all(Radius.circular(24)),
-                      child: AndroidView(
-                        key: ValueKey('camera-preview'),
-                        viewType: 'push_up_bird/camera',
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              SceneLayout(
+                child: Stack(
+                  children: [
+                    if (!controller.isTouch &&
+                        Platform.isAndroid &&
+                        stage != PlayStage.setup &&
+                        stage != PlayStage.results)
+                      const Positioned(
+                        left: 28,
+                        top: 92,
+                        width: 540,
+                        height: 322,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.all(Radius.circular(24)),
+                          child: AndroidView(
+                            key: ValueKey('camera-preview'),
+                            viewType: 'push_up_bird/camera',
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                if (stage == PlayStage.setup)
-                  controller.isTouch ? _touchSetup() : _setup(p),
-                if (stage == PlayStage.starting ||
-                    stage == PlayStage.calibration ||
-                    stage == PlayStage.ready ||
-                    stage == PlayStage.error)
-                  _calibration(p),
-                if (stage == PlayStage.flying && game != null)
-                  Positioned.fill(child: _flight()),
-                if (stage == PlayStage.results) _results(p),
-              ],
-            ),
+                    if (stage == PlayStage.setup)
+                      controller.isTouch ? _touchSetup() : _setup(p),
+                    if (stage == PlayStage.starting ||
+                        stage == PlayStage.calibration ||
+                        stage == PlayStage.ready ||
+                        stage == PlayStage.error)
+                      _calibration(p),
+                    if (stage == PlayStage.results) _results(p),
+                  ],
+                ),
+              ),
+              if (stage == PlayStage.flying && game != null)
+                Positioned.fill(child: _flight()),
+            ],
           ),
         ),
       ),
@@ -380,7 +387,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                       Text(
                         widget.course.relaxed
                             ? 'Tap anywhere in the sky to flap upward.\nRelease and tap again to keep flying.'
-                            : 'Tap the sky for a stronger flap through tighter gaps.\nTap Shoot to spit a rock straight at the bats.',
+                            : 'Tap the sky to flap. Tap Shoot to fire at bats.\nBosses visit every so often: dodge their ammo and shoot to drain their HP!',
                         style: bodyText(18),
                       ),
                       const SizedBox(height: 8),
@@ -953,14 +960,14 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
 
   Widget _flight() {
     final sim = controller.simulation!;
-    final paused = sim.phase == RunPhase.paused;
-    final goals = FlightGoals.forSimulation(sim);
     return Stack(
       fit: StackFit.expand,
       children: [
         if (controller.isTouch)
           Semantics(
-            label: 'Tap to flap',
+            label: sim.boss == null
+                ? 'Tap to flap'
+                : 'Tap to flap. ${sim.boss!.name}: ${sim.boss!.hp} of ${sim.boss!.maxHp} health${sim.boss!.isMoth ? '. ${sim.boss!.shieldHint}' : ''}',
             button: true,
             onTap: controller.flap,
             child: Listener(
@@ -972,361 +979,172 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
           )
         else
           GameWidget(game: game!),
-        _flightReadout(
-          left: 24,
-          top: 20,
-          child: Pill(
-            widget.course.relaxed
-                ? 'CLOUD CRUISE'
-                : widget.practice
-                ? '${widget.course.title.toUpperCase()} · PRACTICE'
-                : widget.course == FlightCourse.starTrail
-                ? 'STAR TRAIL'
-                : widget.course == FlightCourse.skyCourier
-                ? 'SKY COURIER'
-                : widget.mode.title.toUpperCase(),
-            icon: widget.practice
-                ? Icons.spa_outlined
-                : Icons.local_fire_department_outlined,
-            color: SkyColors.cream,
-          ),
-        ),
-        _flightReadout(
-          top: 18,
-          left: 400,
-          right: 400,
-          child: FlightScore(
-            score: sim.score,
-            reducedMotion: controller.reducedMotion,
-          ),
-        ),
-        if (sim.discoversClouds)
+        // The sky fills the display; only controls use the safe, scaled layout.
+        SceneLayout(child: _flightHud()),
+      ],
+    );
+  }
+
+  Widget _flightHud() {
+    final sim = controller.simulation!;
+    final paused = sim.phase == RunPhase.paused;
+    final menu = MatchAction(
+      symbol: widget.practice ? MatchSymbol.pause : MatchSymbol.stop,
+      label: widget.practice ? 'Pause practice' : 'End scored flight',
+      onPressed: () {
+        UiSounds.effect(context, 'pause');
+        controller.pause();
+      },
+      reducedMotion: controller.reducedMotion,
+    );
+    if (sim.bossCutscene && sim.phase == RunPhase.playing) {
+      return Stack(children: [Positioned(top: 18, right: 24, child: menu)]);
+    }
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        if (sim.isTrail)
           _flightReadout(
-            top: 18,
-            left: 284,
-            width: 120,
-            child: CloudFriendsHud(friends: sim.cloudFriends),
-          ),
-        if (goals.isNotEmpty)
-          _flightReadout(
-            top: 18,
-            left: 284,
-            width: 120,
-            child: FlightGoalHud(
-              goals: goals,
-              celebrating: sim.elapsed < wingCelebrationUntil,
+            left: 24,
+            top: 20,
+            child: MatchHealth(
+              key: const ValueKey('match-health'),
+              hearts: sim.hearts,
+              shield: sim.shield,
+              charge: sim.shieldCharge,
+              recovering: sim.recoveryRemaining > 0,
               reducedMotion: controller.reducedMotion,
             ),
           ),
-        Positioned(
-          top: 20,
-          right: 24,
-          child: RoundButton(
-            icon: widget.practice ? Icons.pause_rounded : Icons.stop_rounded,
-            label: widget.practice ? 'Pause practice' : 'End scored flight',
-            onPressed: controller.pause,
-          ),
-        ),
-        if (!widget.practice && initialBest > 0)
+        if (sim.boss == null)
           _flightReadout(
             top: 18,
-            left: 600,
-            width: 188,
-            child: RecordChase(
-              best: initialBest,
+            left: 380,
+            right: 380,
+            child: FlightScore(
               score: sim.score,
+              multiplier: sim.collectsStars ? sim.multiplier : 1,
+              symbol: sim.isCourier ? MatchSymbol.letter : MatchSymbol.star,
               reducedMotion: controller.reducedMotion,
+            ),
+          ),
+        Positioned(top: 18, right: 24, child: menu),
+        // Endless flights do not need a running clock or a pace readout.
+        if (sim.timed)
+          _flightReadout(
+            top: 28,
+            right: 112,
+            child: MatchPlate(
+              key: const ValueKey('flight-clock'),
+              color: sim.remainingSeconds <= 10
+                  ? SkyColors.coral
+                  : SkyColors.cream,
+              child: Semantics(
+                label: '${sim.clockLabel} remaining',
+                excludeSemantics: true,
+                child: Text(sim.clockLabel, style: heading(24)),
+              ),
             ),
           ),
         _flightReadout(
           left: 24,
-          bottom: 20,
-          child: Pill(
-            widget.mode == PlayMode.pushUp
-                ? '${sim.repetitions} ${sim.repetitions == 1 ? 'push-up' : 'push-ups'}'
-                : widget.mode == PlayMode.squat
-                ? '${sim.repetitions} ${sim.repetitions == 1 ? 'squat' : 'squats'}'
-                : widget.mode == PlayMode.jump
-                ? '${sim.flaps} ${sim.flaps == 1 ? 'jump' : 'jumps'}'
-                : '${sim.flaps} ${sim.flaps == 1 ? 'flap' : 'flaps'}',
-            icon: widget.mode == PlayMode.pushUp
-                ? Icons.fitness_center_rounded
-                : controller.isTouch
-                ? Icons.touch_app_rounded
-                : Icons.accessibility_new_rounded,
-            color: SkyColors.cream,
-          ),
-        ),
-        _flightReadout(
-          right: 24,
-          bottom: 20,
-          child: Pill(
-            controller.isTouch
-                ? 'Tap the sky to flap'
-                : sim.trackingFresh(controller.nowMs)
-                ? 'Tracking you'
-                : 'Finding you…',
-            icon: controller.isTouch
-                ? Icons.touch_app_rounded
-                : sim.trackingFresh(controller.nowMs)
-                ? Icons.check_circle_outline
-                : Icons.visibility_outlined,
-            color: controller.isTouch || sim.trackingFresh(controller.nowMs)
-                ? SkyColors.mint
-                : SkyColors.yellow,
-          ),
-        ),
-        if (sim.supportsJumpGlide)
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: sim.isTrail || sim.isCourier || sim.isCruise ? 88 : 18,
-            child: IgnorePointer(
-              child: Center(
-                child: SizedBox(
-                  width: 240,
-                  child: JumpGlideHud(simulation: sim),
+          bottom: 24,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (sim.supportsJumpGlide) ...[
+                JumpGlideHud(
+                  simulation: sim,
+                  reducedMotion: controller.reducedMotion,
                 ),
-              ),
+                const SizedBox(width: 12),
+              ],
+              if (sim.supportsMagnet &&
+                  (sim.magnetActive || sim.magnetCharge > 0))
+                MatchPulse(
+                  value: (sim.magnetActive, sim.magnetCharge),
+                  reducedMotion: controller.reducedMotion,
+                  child: MatchPlate(
+                    color: sim.magnetActive
+                        ? SkyColors.lavender
+                        : SkyColors.cream,
+                    child: MatchMeter(
+                      key: const ValueKey('match-magnet'),
+                      symbol: MatchSymbol.magnet,
+                      value: sim.magnetActive
+                          ? sim.magnetRemaining /
+                                FlightSimulation.magnetDuration
+                          : sim.magnetCharge / 3,
+                      text: sim.magnetActive
+                          ? '${sim.magnetRemaining.ceil()}s'
+                          : null,
+                      label: sim.magnetActive
+                          ? 'Star magnet: ${sim.magnetRemaining.ceil()} seconds remaining'
+                          : 'Magnet charging: ${sim.magnetCharge} of 3 perfect gates',
+                      color: SkyColors.purple,
+                    ),
+                  ),
+                ),
+              if (sim.isCourier)
+                MatchPulse(
+                  value: sim.carryingLetter,
+                  reducedMotion: controller.reducedMotion,
+                  child: MatchPlate(
+                    color: sim.carryingLetter
+                        ? SkyColors.yellow
+                        : SkyColors.cream,
+                    child: Semantics(
+                      label: sim.carryingLetter
+                          ? 'Letter aboard. Find a postbox gate.'
+                          : 'Find a pickup gate to collect a letter.',
+                      excludeSemantics: true,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          MatchIcon(
+                            MatchSymbol.letter,
+                            muted: !sim.carryingLetter,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            sim.carryingLetter ? 'Deliver' : 'Pick up',
+                            style: heading(21),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        if (!controller.isTouch &&
+            !sim.trackingFresh(controller.nowMs) &&
+            sim.phase == RunPhase.playing)
+          _flightReadout(
+            right: 24,
+            bottom: 24,
+            child: const Pill(
+              'Finding you…',
+              icon: Icons.visibility_outlined,
+              color: SkyColors.yellow,
             ),
           ),
         if (sim.supportsCombat)
           Positioned(
             right: 24,
-            bottom: 76,
-            child: Listener(
-              // Consume touches across the entire control, including cooldown.
-              behavior: HitTestBehavior.opaque,
-              child: SizedBox(
-                width: 180,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(
-                      width: double.infinity,
-                      height: 88,
-                      child: SkyButton(
-                        key: const ValueKey('touch-shoot'),
-                        label: 'Shoot',
-                        icon: Icons.gps_fixed_rounded,
-                        color: SkyColors.coral,
-                        onPressed: sim.canShoot ? controller.shoot : null,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value:
-                            1 -
-                            sim.shotCooldownRemaining /
-                                FlightSimulation.shotCooldown,
-                        minHeight: 5,
-                        backgroundColor: SkyColors.cream,
-                        valueColor: const AlwaysStoppedAnimation(
-                          SkyColors.coralDeep,
-                        ),
-                        semanticsLabel: 'Rock ready',
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        _flightReadout(
-          left: sim.isTrail ? null : 24,
-          right: sim.isTrail ? 24 : null,
-          top: sim.isTrail ? 76 : 66,
-          child: Row(
-            children: [
-              if (sim.isTrail) ...[
-                Semantics(
-                  label: '${sim.hearts} hearts remaining',
-                  child: Row(
-                    children: [
-                      for (var i = 0; i < 3; i++)
-                        Padding(
-                          padding: const EdgeInsets.only(right: 4),
-                          child: Icon(
-                            i < sim.hearts
-                                ? Icons.favorite_rounded
-                                : Icons.favorite_border_rounded,
-                            color: i < sim.hearts
-                                ? SkyColors.coralDeep
-                                : SkyColors.muted,
-                            size: 22,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Pill(
-                  sim.recoveryRemaining > 0
-                      ? 'Recovering · ${sim.recoveryRemaining.toStringAsFixed(1)}s'
-                      : sim.shield
-                      ? 'Shield ready'
-                      : '${sim.shieldCharge}/9 recharge',
-                  icon: sim.shield
-                      ? Icons.shield_rounded
-                      : Icons.shield_outlined,
-                  color: sim.shield ? SkyColors.mint : SkyColors.cream,
-                ),
-              ] else
-                Pill(sim.regionName, color: SkyColors.cream),
-            ],
-          ),
-        ),
-        if (sim.timed || sim.endless)
-          _flightReadout(
-            top: 22,
-            right: 86,
-            child: Column(
-              key: const ValueKey('flight-clock'),
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Pill(
-                  sim.clockLabel,
-                  icon: sim.timed
-                      ? Icons.timer_outlined
-                      : Icons.all_inclusive_rounded,
-                  color: sim.timed && sim.remainingSeconds <= 10
-                      ? SkyColors.coral
-                      : SkyColors.cream,
-                ),
-                if (sim.endless)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 3, right: 8),
-                    child: Text(
-                      '${sim.paceMultiplier.toStringAsFixed(2)}× pace',
-                      style: bodyText(11, weight: FontWeight.w800),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        if (sim.isCourier)
-          _flightReadout(
-            left: 300,
-            right: 300,
             bottom: 24,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Pill(
-                  sim.carryingLetter
-                      ? 'Letter aboard · find a postbox gate'
-                      : 'Find a pickup gate to collect a letter',
-                  icon: sim.carryingLetter
-                      ? Icons.mark_email_read_outlined
-                      : Icons.local_post_office_outlined,
-                  color: sim.carryingLetter
-                      ? SkyColors.yellow
-                      : SkyColors.cream,
-                ),
-                if (sim.timed) ...[
-                  const SizedBox(height: 6),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: LinearProgressIndicator(
-                      value: sim.elapsed / sim.course.duration,
-                      minHeight: 5,
-                      backgroundColor: SkyColors.white.withValues(alpha: .6),
-                      valueColor: const AlwaysStoppedAnimation(SkyColors.teal),
-                    ),
-                  ),
-                ],
-              ],
+            child: MatchAction(
+              key: const ValueKey('touch-shoot'),
+              symbol: MatchSymbol.shot,
+              label: 'Shoot',
+              size: 100,
+              cooldown:
+                  1 - sim.shotCooldownRemaining / FlightSimulation.shotCooldown,
+              onPressed: sim.canShoot ? controller.shoot : null,
+              reducedMotion: controller.reducedMotion,
             ),
           ),
-        if (sim.isTrail) ...[
-          _flightReadout(
-            top: 84,
-            left: 400,
-            right: 400,
-            child: Center(
-              child: Pill(
-                '${sim.collectedStars} ${sim.collectedStars == 1 ? 'star' : 'stars'} · ${sim.multiplier}×',
-                icon: Icons.star_rounded,
-                color: sim.multiplier > 1 ? SkyColors.yellow : SkyColors.cream,
-              ),
-            ),
-          ),
-          _flightReadout(
-            bottom: 24,
-            left: 320,
-            right: 310,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Pill(
-                  sim.magnetActive
-                      ? 'Star magnet · ${sim.magnetRemaining.ceil()}s'
-                      : sim.supportsMagnet && sim.magnetCharge > 0
-                      ? '${sim.magnetCharge}/3 perfect gates · charging magnet'
-                      : sim.combo == 0
-                      ? 'Follow the stars. Find your streak.'
-                      : '${sim.combo} in a row${sim.multiplier < 3 ? ' · ${6 - sim.combo % 6} to ${sim.multiplier + 1}×' : ' · MAX MULTIPLIER'}',
-                  color: sim.magnetActive
-                      ? SkyColors.lavender
-                      : SkyColors.cream,
-                  icon: sim.magnetActive ? Icons.auto_awesome_rounded : null,
-                ),
-                const SizedBox(height: 6),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: LinearProgressIndicator(
-                    value: sim.magnetActive
-                        ? sim.magnetRemaining / FlightSimulation.magnetDuration
-                        : sim.magnetCharge / 3,
-                    semanticsLabel: sim.magnetActive
-                        ? 'Magnet time remaining'
-                        : 'Magnet charge',
-                    minHeight: 5,
-                    backgroundColor: SkyColors.white.withValues(alpha: .6),
-                    valueColor: AlwaysStoppedAnimation(
-                      sim.magnetActive ? SkyColors.purple : SkyColors.teal,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-        if (sim.isCruise) ...[
-          _flightReadout(
-            top: 84,
-            left: 360,
-            right: 360,
-            child: Center(
-              child: Pill(
-                '${sim.collectedStars} ${sim.collectedStars == 1 ? 'star' : 'stars'} · ${sim.multiplier}×',
-                icon: Icons.star_rounded,
-                color: SkyColors.yellow,
-              ),
-            ),
-          ),
-          _flightReadout(
-            bottom: 22,
-            left: 300,
-            right: 300,
-            child: Center(
-              child: Pill(
-                sim.magnetActive
-                    ? 'Star magnet · ${sim.magnetRemaining.ceil()}s'
-                    : sim.supportsMagnet && sim.magnetCharge > 0
-                    ? '${sim.magnetCharge}/3 perfect rings · charging magnet'
-                    : sim.discoversClouds && sim.cloudFriends.length < 3
-                    ? 'Fly close to meet a cloud friend.'
-                    : 'Open sky. Move at your pace.',
-                color: sim.magnetActive ? SkyColors.lavender : SkyColors.cream,
-                icon: sim.magnetActive ? Icons.auto_awesome_rounded : null,
-              ),
-            ),
-          ),
-        ],
         if (sim.phase == RunPhase.countdown)
           Center(
             child: Panel(
@@ -1395,6 +1213,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                         const SizedBox(width: 16),
                         SkyButton(
                           label: 'Keep flying',
+                          sound: 'resume',
                           onPressed: () => controller.resume(),
                         ),
                       ],

@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'sky_door.dart';
 
 enum CourierStop { pickup, postbox }
 
@@ -53,6 +54,7 @@ class Obstacle {
     this.bornAt = 0,
     this.fixedTarget = false,
     this.appearance = 0,
+    this.door,
   }) : width = width ?? kind.width,
        baseCenter = center,
        baseGap = gap,
@@ -65,12 +67,17 @@ class Obstacle {
   final int appearance;
   final ObstacleKind kind;
   final CourierStop? courierStop;
+  final SkyDoor? door;
   double _age = 0;
   bool scored = false, hit = false;
   double? courierActionAt;
   double maxDeviation = 0;
 
-  void advance(double elapsed) => _age = math.max(0, elapsed - bornAt);
+  void advance(double elapsed) {
+    _age = math.max(0, elapsed - bornAt);
+    door?.age = _age;
+  }
+
   double get angle => _age * math.pi * 2 / period + phaseOffset;
   double get motion => math.sin(angle);
   double get center =>

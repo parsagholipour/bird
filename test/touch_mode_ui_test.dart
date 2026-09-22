@@ -35,8 +35,10 @@ void main() {
     ) async {
       tester.view.physicalSize = Size(width, 360);
       tester.view.devicePixelRatio = 1;
+      tester.view.padding = FakeViewPadding(left: width == 800 ? 40 : 0);
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.view.resetPadding);
       final repo = SqliteProgressRepository(
         ProgressDatabase(NativeDatabase.memory()),
       );
@@ -74,9 +76,9 @@ void main() {
       await tester.pumpAndSettle();
       await capture(tester, 'touch-home-${width.toInt()}');
       expect(tester.takeException(), isNull);
-      await tester.tap(find.text('Other ways to play'));
+      await tester.tap(find.byKey(const ValueKey('play')));
       await tester.pumpAndSettle();
-      await capture(tester, 'other-ways-${width.toInt()}');
+      await capture(tester, 'mode-picker-${width.toInt()}');
       await tester.tap(find.text('Tap & Fly'));
       await tester.pumpAndSettle();
       expect(
@@ -134,18 +136,18 @@ void main() {
       expect(game.simulation.flaps, 1);
       await gesture.up();
       await tester.pump();
-      expect(find.text('1 flap'), findsOneWidget);
+      expect(find.text('1 flap'), findsNothing);
       await tester.tapAt(tapPosition);
       game.update(.06); // Include the HUD's 50 ms refresh interval.
       await tester.pump();
       expect(game.simulation.flaps, 2);
-      expect(find.text('2 flaps'), findsOneWidget);
-      expect(find.text('Tap the sky to flap'), findsOneWidget);
+      expect(find.text('2 flaps'), findsNothing);
+      expect(find.text('Tap the sky to flap'), findsNothing);
       expect(find.text('Tracking you'), findsNothing);
       for (final badge in [
-        find.text('Tap the sky to flap'),
+        find.byKey(const ValueKey('match-health')),
         find.text('${game.simulation.score}'),
-        find.text('Follow the stars. Find your streak.'),
+        find.byKey(const ValueKey('match-shield')),
       ]) {
         expect(badge, findsOneWidget);
         final flapsBefore = game.simulation.flaps;
@@ -165,7 +167,12 @@ void main() {
       await tester.pump();
       expect(game.simulation.flaps, 6);
       expect(game.simulation.shots, 2);
-      // Fly into the first approach so visual review includes bats/buildings.
+      // Check the first enemy before it can leave the narrower flight canvas.
+      expect(
+        game.simulation.enemies.length + game.simulation.enemiesDefeated,
+        greaterThan(0),
+      );
+      // Fly into the first approach so visual review includes buildings.
       for (var i = 0; i < 60; i++) {
         final sim = game.simulation;
         final target = sim.obstacles.first.target;
@@ -175,10 +182,6 @@ void main() {
         game.update(.04);
       }
       await tester.pump();
-      expect(
-        game.simulation.enemies.length + game.simulation.enemiesDefeated,
-        greaterThan(0),
-      );
       await tester.tap(shoot);
       expect(game.simulation.rocks, isNotEmpty);
       game.update(.04);
@@ -190,8 +193,27 @@ void main() {
       game.pauseEngine();
       await capture(tester, 'touch-flight-${width.toInt()}');
       expect(tester.takeException(), isNull);
+      expect(
+        tester.getRect(find.byType(GameWidget<BirdGame>)),
+        Offset.zero & Size(width, 360),
+        reason:
+            'The flight canvas must reach every screen edge, including '
+            'outside the safe area used by the HUD.',
+      );
+      for (final edge in [
+        const Offset(1, 180),
+        Offset(width - 1, 180),
+        Offset(width / 2, 1),
+        Offset(width / 2, 359),
+      ]) {
+        final flapsBefore = game.simulation.flaps;
+        await tester.tapAt(edge);
+        game.update(.02);
+        await tester.pump();
+        expect(game.simulation.flaps, flapsBefore + 1);
+      }
       final flapsBeforeStop = game.simulation.flaps;
-      await tester.tap(find.widgetWithIcon(IconButton, Icons.stop_rounded));
+      await tester.tap(find.byTooltip('End scored flight'));
       await tester.pumpAndSettle();
       expect(
         game.simulation.flaps,

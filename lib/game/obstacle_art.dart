@@ -3,6 +3,15 @@ import 'package:flutter/painting.dart';
 import '../domain/obstacle.dart';
 import '../ui/theme.dart';
 import 'gate_art.dart';
+import 'obstacle_designs/cruise_rings.dart';
+import 'obstacle_designs/crystal_steps.dart';
+import 'obstacle_designs/garden_gate.dart';
+import 'obstacle_designs/garden_structures.dart';
+import 'obstacle_designs/lantern_drift.dart';
+import 'obstacle_designs/petal_shutters.dart';
+import 'obstacle_designs/sun_wheels.dart';
+import 'obstacle_designs/switchback.dart';
+import 'obstacle_designs/wind_lift.dart';
 import 'sky_scenery.dart';
 
 /// Every solid uses the simulation's current geometry. Decoration is clipped
@@ -15,7 +24,20 @@ abstract final class ObstacleArt {
     required double seconds,
     required bool reducedMotion,
     required bool cleared,
+    bool refined = true,
   }) {
+    if (refined) {
+      CruiseRingsDesign.paint(
+        c,
+        bounds,
+        o,
+        seconds: seconds,
+        reducedMotion: reducedMotion,
+        cleared: cleared,
+        accent: accent(o, seconds),
+      );
+      return;
+    }
     final color = cleared ? SkyColors.teal : accent(o, seconds);
     c.drawOval(
       bounds,
@@ -118,10 +140,11 @@ abstract final class ObstacleArt {
     required bool reducedMotion,
     required bool cleared,
     required bool perfect,
+    bool refined = true,
+    bool gardenStructures = true,
   }) {
-    final color = cleared
-        ? Color.lerp(accent(o, seconds), SkyColors.mint, .35)!
-        : accent(o, seconds);
+    final region = accent(o, seconds);
+    final color = cleared ? Color.lerp(region, SkyColors.mint, .35)! : region;
     for (final p in o.passages) {
       for (final top in [true, false]) {
         final r = Rect.fromLTRB(
@@ -131,7 +154,20 @@ abstract final class ObstacleArt {
           top ? p.top * h : h + 10,
         );
         if (r.isEmpty) continue;
-        if (o.kind == ObstacleKind.garden) {
+        if (refined) {
+          _refinedTower(
+            c,
+            r,
+            top: top,
+            o: o,
+            region: region,
+            seconds: seconds,
+            reducedMotion: reducedMotion,
+            cleared: cleared,
+            perfect: perfect,
+            gardenStructures: gardenStructures,
+          );
+        } else if (o.kind == ObstacleKind.garden) {
           GateArt.paint(
             c,
             r,
@@ -163,7 +199,35 @@ abstract final class ObstacleArt {
       }
       c.save();
       c.translate(at.dx, at.dy);
-      if (o.kind == ObstacleKind.lanternDrift) {
+      if (refined) {
+        final body = Rect.fromCircle(center: Offset.zero, radius: radius);
+        c.save();
+        c.clipPath(Path()..addOval(body));
+        if (o.kind == ObstacleKind.lanternDrift) {
+          LanternDriftDesign.paint(
+            c,
+            radius,
+            accent: region,
+            appearance: o.appearance,
+            seconds: seconds,
+            reducedMotion: reducedMotion,
+            upper: orb.upper,
+            cleared: cleared,
+          );
+        } else {
+          SunWheelsDesign.paint(
+            c,
+            radius,
+            accent: region,
+            appearance: o.appearance,
+            seconds: seconds,
+            reducedMotion: reducedMotion,
+            upper: orb.upper,
+            cleared: cleared,
+          );
+        }
+        c.restore();
+      } else if (o.kind == ObstacleKind.lanternDrift) {
         _lantern(c, radius, color, o.appearance);
       } else {
         c.rotate(reducedMotion ? 0 : o.angle * (orb.upper ? 1 : -1));
@@ -177,6 +241,102 @@ abstract final class ObstacleArt {
       }
       c.restore();
     }
+  }
+
+  static void _refinedTower(
+    Canvas c,
+    Rect r, {
+    required bool top,
+    required Obstacle o,
+    required Color region,
+    required double seconds,
+    required bool reducedMotion,
+    required bool cleared,
+    required bool perfect,
+    required bool gardenStructures,
+  }) {
+    c.save();
+    c.clipRect(r);
+    switch (o.kind) {
+      case ObstacleKind.garden:
+        if (gardenStructures) {
+          GardenStructuresDesign.paint(
+            c,
+            r,
+            top: top,
+            seconds: seconds,
+            reducedMotion: reducedMotion,
+            cleared: cleared,
+            perfect: perfect,
+            appearance: o.appearance,
+            accent: region,
+          );
+          break;
+        }
+        GardenGateDesign.paint(
+          c,
+          r,
+          top: top,
+          seconds: seconds,
+          reducedMotion: reducedMotion,
+          cleared: cleared,
+          perfect: perfect,
+          appearance: o.appearance,
+          accent: region,
+        );
+      case ObstacleKind.windLift:
+        WindLiftDesign.paint(
+          c,
+          r,
+          top: top,
+          seconds: seconds,
+          reducedMotion: reducedMotion,
+          cleared: cleared,
+          perfect: perfect,
+          appearance: o.appearance,
+          accent: region,
+        );
+      case ObstacleKind.petalGate:
+        PetalShuttersDesign.paint(
+          c,
+          r,
+          top: top,
+          seconds: seconds,
+          reducedMotion: reducedMotion,
+          cleared: cleared,
+          perfect: perfect,
+          appearance: o.appearance,
+          accent: region,
+        );
+      case ObstacleKind.switchback:
+        SwitchbackDesign.paint(
+          c,
+          r,
+          top: top,
+          seconds: seconds,
+          reducedMotion: reducedMotion,
+          cleared: cleared,
+          perfect: perfect,
+          appearance: o.appearance,
+          accent: region,
+        );
+      case ObstacleKind.crystalSteps:
+        CrystalStepsDesign.paint(
+          c,
+          r,
+          top: top,
+          seconds: seconds,
+          reducedMotion: reducedMotion,
+          cleared: cleared,
+          perfect: perfect,
+          appearance: o.appearance,
+          accent: region,
+        );
+      case ObstacleKind.lanternDrift:
+      case ObstacleKind.sunWheels:
+        break;
+    }
+    c.restore();
   }
 
   static void _tower(

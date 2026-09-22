@@ -1,70 +1,242 @@
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/foundation.dart';
 import '../data/progress_repository.dart';
+import '../domain/game_rules.dart';
+import 'boss_audio_cues.dart';
+import 'combat_audio_cues.dart';
+import 'sound_bank.dart';
+
+enum SkyMusic {
+  menu('audio/sky_menu.ogg'),
+  flight('audio/sky_flight.ogg'),
+  boss('audio/sky_boss.ogg');
+
+  const SkyMusic(this.asset);
+  final String asset;
+}
 
 class SkyAudio {
+  SkyAudio({this._effectClock});
+  final int Function()? _effectClock;
+  int get _now => _effectClock?.call() ?? _clock.elapsedMilliseconds;
+  // Only the music player owns focus. Effects must mix without pausing it.
+  static final _effectContext = AudioContext(
+    android: const AudioContextAndroid(
+      usageType: AndroidUsageType.game,
+      contentType: AndroidContentType.sonification,
+      audioFocus: AndroidAudioFocus.none,
+    ),
+  );
+  final _bossCues = BossAudioCues();
+  final _combatCues = CombatAudioCues();
+  void syncCombat(FlightSimulation simulation, {bool silent = false}) {
+    if (_disposed) return;
+    for (final cue in _combatCues.advance(simulation, silent: silent)) {
+      effect(cue);
+    }
+    syncBoss(simulation.boss, silent: silent);
+  }
+
+  bool _bossPresent = false, _bossQuiet = false;
+  void syncBoss(SkyBoss? boss, {bool silent = false}) {
+    if (_disposed) return;
+    final present = boss != null;
+    final quiet = boss?.inCutscene == true;
+    if (_bossPresent != present || _bossQuiet != quiet) {
+      _bossPresent = present;
+      _bossQuiet = quiet;
+      // Silent replay seeks still select the next track, but cannot unpause it.
+      unawaited(_syncMusic());
+    }
+    for (final cue in _bossCues.advance(boss, silent: silent)) {
+      effect(cue);
+    }
+  }
+
   final _music = AudioPlayer();
-  final _effects = [AudioPlayer(), AudioPlayer(), AudioPlayer()];
+  final _effects = List.generate(8, (_) => _EffectVoice());
+  final _clock = Stopwatch()..start();
+  final _lastEffect = <String, int>{};
+  final _variations = <String, int>{};
+  double _rate = 1;
+  bool _effectsSuspended = false;
+  bool _preloaded = false;
   GameSettings _settings = const GameSettings();
-  int _next = 0;
+  SkyMusic _scene = SkyMusic.flight;
+  SkyMusic? _loadedTrack;
+  bool _active = false;
+  double? _volume;
   bool _playing = false, _disposed = false;
   Future<void> _configuration = Future.value();
   int _revision = 0;
-  Future<void> configure(GameSettings settings, {bool active = true}) {
+  Future<void> configure(
+    GameSettings settings, {
+    bool active = true,
+    SkyMusic track = SkyMusic.flight,
+  }) {
     _settings = settings;
+    _active = active;
+    _scene = track;
+    if (active) _effectsSuspended = false;
+    if (!_preloaded && settings.effects) {
+      _preloaded = true;
+      unawaited(
+        AudioCache.instance
+            .loadAll([
+              for (final entry in soundBank.entries)
+                for (var variant = 0; variant < entry.value.variants; variant++)
+                  soundAsset(entry.key, variant),
+            ])
+            .catchError((Object error) {
+              debugPrint('SkyAudio preload: $error');
+              return <Uri>[];
+            }),
+      );
+    }
+    if (!settings.effects) unawaited(stopEffects());
+    return _syncMusic();
+  }
+
+  Future<void> _syncMusic() {
     final revision = ++_revision;
-    // Rapid mute/play/pause changes must finish in their requested order.
+    // Boss state, settings and pause changes share one queue. Per-frame boss
+    // updates only enter it when the encounter or cinematic state changes.
     return _configuration = _configuration.then((_) async {
       if (_disposed || revision != _revision) return;
       try {
-        if (settings.music && active) {
-          if (!_playing) {
+        if (_settings.music && _active) {
+          final track = _scene == SkyMusic.flight && _bossPresent
+              ? SkyMusic.boss
+              : _scene;
+          final volume = _scene != SkyMusic.menu && _bossQuiet ? .035 : .20;
+          if (!_playing || _loadedTrack != track) {
+            if (_loadedTrack != null && _loadedTrack != track) {
+              await _music.stop();
+            }
             await _music.setReleaseMode(ReleaseMode.loop);
-            await _music.setVolume(.20);
-            await _music.play(AssetSource('audio/sky_club.wav'));
+            await _music.setVolume(volume);
+            _volume = volume;
+            if (_loadedTrack == track) {
+              await _music.resume();
+            } else {
+              await _music.play(AssetSource(track.asset));
+              _loadedTrack = track;
+            }
             _playing = true;
+          } else if (_volume != volume) {
+            await _music.setVolume(volume);
+            _volume = volume;
           }
         } else {
           await _music.pause();
           _playing = false;
         }
-      } catch (_) {
+      } catch (error) {
+        _playing = false;
+        _loadedTrack = null;
+        debugPrint('SkyAudio music: $error');
         // Audio availability never blocks camera or game controls.
       }
     });
   }
 
   void effect(String name) {
-    if (_disposed || !_settings.effects) return;
-    final player = _effects[_next++ % _effects.length];
-    unawaited(
-      player
-          .play(AssetSource('audio/$name.wav'), volume: .45)
-          .catchError((Object _) {}),
-    );
+    final spec = soundBank[name];
+    if (_disposed || _effectsSuspended || !_settings.effects || spec == null) {
+      return;
+    }
+    final now = _now;
+    final last = _lastEffect[name];
+    if (last != null && now - last < spec.cooldownMs / _rate) return;
+    // Free voices first. If full, steal only a less important sound. A shot
+    // can never truncate a roar, damage cue, death or victory celebration.
+    _EffectVoice? voice;
+    for (final candidate in _effects) {
+      if (candidate.until <= now) {
+        voice = candidate;
+        break;
+      }
+      if (candidate.priority < spec.priority &&
+          (voice == null ||
+              candidate.priority < voice.priority ||
+              (candidate.priority == voice.priority &&
+                  candidate.until < voice.until))) {
+        voice = candidate;
+      }
+    }
+    if (voice == null) return;
+    _lastEffect[name] = now;
+    final variant = (_variations[name] ?? 0) % spec.variants;
+    _variations[name] = variant + 1;
+    final selected = voice;
+    final revision = ++selected.revision;
+    selected.priority = spec.priority;
+    selected.until = now + (spec.seconds * 1000 / _rate).ceil() + 80;
+    selected.pending = selected.pending.then((_) async {
+      bool cancelled() =>
+          _disposed || revision != selected.revision || !_settings.effects;
+      if (cancelled()) return;
+      try {
+        await selected.player.stop();
+        if (!selected.initialized) {
+          await selected.player.setAudioContext(_effectContext);
+          await selected.player.setPlayerMode(PlayerMode.lowLatency);
+          await selected.player.setReleaseMode(ReleaseMode.stop);
+          selected.initialized = true;
+        }
+        await selected.player.setSource(AssetSource(soundAsset(name, variant)));
+        await selected.player.setVolume(spec.volume);
+        await selected.player.setPlaybackRate(_rate);
+        if (cancelled()) return;
+        // Reservation starts at playback, including slow first asset loads.
+        selected.until = _now + (spec.seconds * 1000 / _rate).ceil() + 30;
+        await selected.player.resume();
+        if (cancelled()) await selected.player.stop();
+      } catch (error) {
+        if (revision == selected.revision) selected.until = 0;
+        debugPrint('SkyAudio effect $name: $error');
+      }
+    });
   }
 
   Future<void> setRate(double rate) async {
     if (_disposed) return;
+    _rate = rate.clamp(.5, 2);
     try {
-      await _music.setPlaybackRate(rate);
-      for (final player in _effects) {
-        await player.setPlaybackRate(rate);
+      await _music.setPlaybackRate(_rate);
+      for (final voice in _effects) {
+        await voice.player.setPlaybackRate(_rate);
       }
     } catch (_) {}
   }
 
   Future<void> stopEffects() async {
     if (_disposed) return;
-    for (final player in _effects) {
-      try {
-        await player.stop();
-      } catch (_) {}
+    _lastEffect.clear();
+    final stops = <Future<void>>[];
+    for (final voice in _effects) {
+      ++voice.revision;
+      voice.until = 0;
+      voice.pending = voice.pending.then((_) async {
+        try {
+          await voice.player.stop();
+        } catch (_) {}
+      });
+      stops.add(voice.pending);
     }
+    await Future.wait(stops);
   }
 
-  Future<void> stop() => configure(_settings, active: false);
-  Future<void> resumeMusic() => configure(_settings);
+  Future<void> stop() async {
+    _effectsSuspended = true;
+    await Future.wait([
+      configure(_settings, active: false, track: _scene),
+      stopEffects(),
+    ]);
+  }
+
+  Future<void> resumeMusic() => configure(_settings, track: _scene);
 
   Future<void> dispose() async {
     _disposed = true;
@@ -72,7 +244,17 @@ class SkyAudio {
     await _configuration;
     await _music.dispose();
     for (final p in _effects) {
-      await p.dispose();
+      ++p.revision;
+      await p.pending;
+      await p.player.dispose();
     }
+    _clock.stop();
   }
+}
+
+class _EffectVoice {
+  final player = AudioPlayer();
+  Future<void> pending = Future.value();
+  int revision = 0, until = 0, priority = 0;
+  bool initialized = false;
 }

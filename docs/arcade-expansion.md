@@ -243,8 +243,12 @@ source at `design/cleared-gate.svg`.
 Pip leaves sunshine bubbles, Peaches leaves hearts, Minty leaves small leaves,
 and Orbit leaves stardust. These cosmetic marks use simulation time and have no
 effect on difficulty, collision or score. Multipliers still turn trails gold;
-each bird keeps its own shape. Reduced Motion freezes the decorative movement
-while keeping the bird's signature visible.
+each bird keeps its own shape. In flight the marks trace the line the bird
+actually flew, evenly spaced along it, so they swing through each flap and dip
+instead of trailing in a straight row. The simulation keeps that short line
+itself, so pause, replay and seeks show the same trail. Reduced Motion keeps the
+straight trail and freezes the decorative movement while keeping the bird's
+signature visible.
 
 The crew screen previews every trail and names it. Locked birds remain faded;
 unlocking and equipping still use the existing saved progression. Labels now

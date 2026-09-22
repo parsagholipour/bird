@@ -44,45 +44,40 @@ void main() {
       )..addFont(rootBundle.load('assets/fonts/$family.ttf'))).load();
     }
   });
-  testWidgets(
-    'home puts push-ups first and reveals secondary controls on demand',
-    (tester) async {
-      await _pumpHome(tester);
+  testWidgets('Play reveals every mode and dismisses back to the menu', (
+    tester,
+  ) async {
+    await _pumpHome(tester);
 
-      expect(find.text('STAR TRAIL'), findsNothing);
-      expect(find.byKey(const ValueKey('push-up-mode')), findsOneWidget);
-      expect(find.text('60s · 3 hearts'), findsNothing);
-      expect(find.text('Practice'), findsOneWidget);
-      expect(find.text('Tap & Fly'), findsNothing);
-      expect(find.text('Jump & Fly'), findsNothing);
-      expect(find.text('Other ways to play').hitTestable(), findsOneWidget);
-      await tester.tap(find.text('Other ways to play'));
-      await tester.pumpAndSettle();
-      expect(
-        find.text('Tap to flap. Shoot the bats. No camera needed.'),
-        findsOneWidget,
-      );
-      expect(find.text('Tap & Fly').hitTestable(), findsOneWidget);
-      expect(find.text('Jump & Fly').hitTestable(), findsOneWidget);
-      expect(find.text('Jump practice').hitTestable(), findsOneWidget);
-      await tester.tap(find.byTooltip('Close other ways to play'));
-      await tester.pumpAndSettle();
-      expect(find.text('Tap & Fly'), findsNothing);
-      expect(
-        find.byKey(const ValueKey('push-up-mode')).hitTestable(),
-        findsOneWidget,
-      );
-      expect(tester.takeException(), isNull);
-      expect(find.byKey(const ValueKey('course-classic')), findsNothing);
-      expect(find.byKey(const ValueKey('course-starTrail')), findsNothing);
-      expect(find.byKey(const ValueKey('course-skyCourier')), findsNothing);
-      expect(find.byKey(const ValueKey('course-cloudCruise')), findsNothing);
-      expect(find.text('Just drift'), findsNothing);
-      expect(find.text('Deliver some joy'), findsNothing);
-      expect(find.text('Let’s fly'), findsNothing);
-      expect(find.text('Classic'), findsNothing);
-      expect(find.text('Courier'), findsNothing);
-      expect(find.text('Cloud Cruise'), findsNothing);
-    },
-  );
+    expect(find.text('STAR TRAIL'), findsNothing);
+    expect(find.byKey(const ValueKey('play')), findsOneWidget);
+    expect(find.text('60s · 3 hearts'), findsNothing);
+    expect(find.text('Practice'), findsOneWidget);
+    expect(find.text('Tap & Fly'), findsNothing);
+    expect(find.text('Jump & Fly'), findsNothing);
+    expect(find.text('Other ways to play'), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('play')));
+    await tester.pumpAndSettle();
+    expect(find.text('Tap to flap.\nAim & shoot.'), findsOneWidget);
+    expect(find.text('Tap & Fly').hitTestable(), findsOneWidget);
+    expect(find.text('Jump & Fly').hitTestable(), findsOneWidget);
+    expect(find.text('Push-Up Flight').hitTestable(), findsOneWidget);
+    expect(find.text('Squat & Fly').hitTestable(), findsOneWidget);
+    expect(find.text('No camera'), findsOneWidget);
+    await tester.tap(find.byTooltip('Close mode picker'));
+    await tester.pumpAndSettle();
+    expect(find.text('Tap & Fly'), findsNothing);
+    expect(find.byKey(const ValueKey('play')).hitTestable(), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    expect(find.byKey(const ValueKey('course-classic')), findsNothing);
+    expect(find.byKey(const ValueKey('course-starTrail')), findsNothing);
+    expect(find.byKey(const ValueKey('course-skyCourier')), findsNothing);
+    expect(find.byKey(const ValueKey('course-cloudCruise')), findsNothing);
+    expect(find.text('Just drift'), findsNothing);
+    expect(find.text('Deliver some joy'), findsNothing);
+    expect(find.text('Let’s fly'), findsNothing);
+    expect(find.text('Classic'), findsNothing);
+    expect(find.text('Courier'), findsNothing);
+    expect(find.text('Cloud Cruise'), findsNothing);
+  });
 }

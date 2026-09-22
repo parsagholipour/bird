@@ -52,24 +52,41 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
-      expect(find.byKey(const ValueKey('push-up-mode')), findsOneWidget);
+      expect(find.byKey(const ValueKey('play')), findsOneWidget);
       expect(find.text('Jump & Fly'), findsNothing);
-      await tester.tap(find.text('Other ways to play'));
+      await tester.tap(find.byKey(const ValueKey('play')));
       await tester.pumpAndSettle();
       expect(find.text('Jump & Fly'), findsOneWidget);
-      await capture(tester, 'jump-mode-menu');
-      await tester.tap(find.byTooltip('Close other ways to play'));
+      await capture(tester, 'mode-picker');
+      await tester.tap(find.byTooltip('Close mode picker'));
       await tester.pumpAndSettle();
+      await capture(tester, 'home-play-menu');
       for (final (label, mode, practice) in [
-        ('Practice', 'push-up', true),
+        ('Push-Up Flight', 'push-up', false),
+        ('Tap & Fly', 'touch', false),
         ('Jump & Fly', 'jump', false),
-        ('Jump practice', 'jump', true),
         ('Squat & Fly', 'squat', false),
-        ('Squat practice', 'squat', true),
+        ('Push-Up Flight', 'push-up', true),
+        ('Tap & Fly', 'touch', true),
+        ('Jump & Fly', 'jump', true),
+        ('Squat & Fly', 'squat', true),
       ]) {
-        if (mode != 'push-up') {
-          await tester.tap(find.text('Other ways to play'));
-          await tester.pumpAndSettle();
+        await tester.tap(
+          practice ? find.text('Practice') : find.byKey(const ValueKey('play')),
+        );
+        await tester.pumpAndSettle();
+        expect(appRouter.routeInformationProvider.value.uri.path, '/');
+        expect(
+          find.text(practice ? 'Choose your practice' : 'Choose your mode'),
+          findsOneWidget,
+        );
+        for (final title in [
+          'Push-Up Flight',
+          'Tap & Fly',
+          'Jump & Fly',
+          'Squat & Fly',
+        ]) {
+          expect(find.text(title).hitTestable(), findsOneWidget);
         }
         await tester.ensureVisible(find.text(label));
         await tester.pumpAndSettle();

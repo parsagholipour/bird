@@ -111,6 +111,8 @@ class BirdPose {
           switch (event.kind) {
             FlightEventKind.starTrio ||
             FlightEventKind.enemyHit ||
+            FlightEventKind.bossDefeated ||
+            FlightEventKind.heart ||
             FlightEventKind.delivery ||
             FlightEventKind.letter ||
             FlightEventKind.cloudFriend ||

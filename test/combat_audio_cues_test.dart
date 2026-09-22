@@ -1,0 +1,86 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:push_up_bird/domain/game_rules.dart';
+import 'package:push_up_bird/game/boss_audio_cues.dart';
+import 'package:push_up_bird/game/combat_audio_cues.dart';
+import 'touch_combat_test.dart' show playing, tick;
+
+void main() {
+  test(
+    'accepted shots and actual kills each sound once; departures do not',
+    () {
+      final sim = playing();
+      final cues = CombatAudioCues()..advance(sim, silent: true);
+      expect(sim.shoot(), isTrue);
+      expect(cues.advance(sim), ['shoot']);
+      expect(sim.shoot(), isFalse);
+      expect(cues.advance(sim), isEmpty);
+      sim.enemies.add(SkyEnemy(x: 1.2, y: .5));
+      sim.rocks.add(BirdRock(x: 1.2, y: .5));
+      tick(sim, .001);
+      expect(cues.advance(sim), ['enemy_death']);
+      expect(cues.advance(sim), isEmpty);
+      sim.enemies.add(SkyEnemy(x: -.2, y: .5));
+      tick(sim, .001);
+      expect(cues.advance(sim), isEmpty);
+    },
+  );
+
+  test('warning, volley and projectile interception survive a frame', () {
+    final sim = playing();
+    final cues = CombatAudioCues()..advance(sim, silent: true);
+    final enemy = SkyEnemy(x: 1.7, y: .5, appearance: 1)..fireIn = .1;
+    sim.enemies.add(enemy);
+    tick(sim, .01);
+    expect(cues.advance(sim), ['enemy_charge']);
+    expect(cues.advance(sim), isEmpty);
+    tick(sim, .10);
+    expect(cues.advance(sim), ['enemy_shoot']);
+    sim.rocks.add(BirdRock(x: 1.1, y: .3));
+    sim.enemyAmmo.add(
+      EnemyAmmo(x: 1.1, y: .3, vx: -.4, vy: 0, attack: EnemyAttack.aimed),
+    );
+    tick(sim, .001);
+    expect(cues.advance(sim), ['deflect']);
+    expect(cues.advance(sim), isEmpty);
+  });
+
+  test('silent seeks, rewinds and new runs never play historical combat', () {
+    final sim = playing();
+    final cues = CombatAudioCues()..advance(sim);
+    sim.shots = 12;
+    sim.enemiesDefeated = 9;
+    sim.enemyShots = 20;
+    expect(cues.advance(sim, silent: true), isEmpty);
+    expect(cues.advance(sim), isEmpty);
+    sim.shots++;
+    expect(cues.advance(sim), ['shoot']);
+    expect(cues.advance(playing()), isEmpty);
+  });
+
+  test(
+    'boss blocks, summons, rage and complete death sequence are distinct',
+    () {
+      for (final kind in BossKind.values) {
+        final boss = SkyBoss(number: 1, x: 1.5, cinematic: true, kind: kind)
+          ..age = 5;
+        final cues = BossAudioCues()..advance(boss, silent: true);
+        boss.lastShieldHitAt = boss.age;
+        expect(cues.advance(boss), contains('boss_block'));
+        expect(cues.advance(boss), isEmpty);
+        boss.summons++;
+        expect(cues.advance(boss), ['boss_summon']);
+        boss.hp = boss.maxHp ~/ 2;
+        boss.enragedAt = boss.age;
+        expect(cues.advance(boss), contains('boss_enrage'));
+        boss.hp = 0;
+        boss.defeatedAt = boss.age;
+        expect(cues.advance(boss), ['boss_break']);
+        boss.age += .9;
+        expect(cues.advance(boss), ['boss_burst']);
+        boss.age += 1;
+        expect(cues.advance(boss), ['boss_victory']);
+        expect(cues.advance(boss), isEmpty);
+      }
+    },
+  );
+}
