@@ -5,15 +5,19 @@ import 'cloud_friends.dart';
 import 'bird_motion.dart';
 import 'flight_path.dart';
 import 'obstacle.dart';
+import 'power_shot.dart';
 import 'sky_boss.dart';
 import 'sky_enemy.dart';
 import 'sky_door.dart';
+import 'sprint.dart';
 export 'flight_course.dart';
 export 'flight_path.dart';
 export 'obstacle.dart';
+export 'power_shot.dart';
 export 'sky_boss.dart';
 export 'sky_enemy.dart';
 export 'sky_door.dart';
+export 'sprint.dart';
 
 enum RunPhase { countdown, playing, paused, ended }
 
@@ -44,6 +48,7 @@ enum FlightEventKind {
   cloudFriend,
   starTrio,
   enemyHit,
+  enemyRammed,
   bossDefeated,
   heart,
 }
@@ -97,15 +102,25 @@ class StarTrio {
 }
 
 class BirdRock {
-  BirdRock({required this.x, required this.y, this.damage = baseDamage}) {
+  BirdRock({
+    required this.x,
+    required this.y,
+    this.damage = baseDamage,
+    this.charge = 0,
+  }) {
     if (damage <= 0) throw ArgumentError.value(damage, 'damage');
+    if (!(charge >= 0 && charge <= 1)) {
+      throw ArgumentError.value(charge, 'charge');
+    }
   }
   double x;
   final double y;
   // A shot retains the weapon's damage at the instant it was fired.
   final int damage;
+  final double charge;
+  double get radius => baseRadius * PowerShot.radiusScale(charge);
   static const baseDamage = 10;
-  static const radius = .014, speed = 1.65;
+  static const baseRadius = .014, speed = 1.65;
 }
 
 /// A life pickup that follows the safe opening of its passage.
@@ -260,7 +275,7 @@ class FlightSimulation {
   final FlightCourse course;
 
   /// Replay journals keep the rules they were recorded with.
-  static const currentRulesVersion = 27;
+  static const currentRulesVersion = 29;
   final int rulesVersion;
   final math.Random random;
   final List<Obstacle> obstacles = [];
@@ -291,8 +306,71 @@ class FlightSimulation {
   // Presentation counters survive objects leaving the screen within a frame.
   // They do not affect physics, RNG or the recorded replay format.
   int rockImpacts = 0, projectilesDeflected = 0, enemyShots = 0;
+  int dryFires = 0;
+  double lastShotCharge = 0;
   double lastShotAt = double.negativeInfinity;
   static const shotCooldown = .28;
+  bool get supportsPowerShots => supportsCombat && rulesVersion >= 28;
+
+  /// Share of the ammo reserve left, from 0 to 1. See [PowerShot].
+  double ammo = 1;
+  double? chargeStartedAt;
+
+  /// Reserve at the moment the current press started. Refill changes [ammo]
+  /// while the button is held, and the 500 ms full-charge window has to
+  /// start from when the shot could first reach full power.
+  double? _chargeAmmo;
+
+  // A charge only exists while its press can still be released into a shot.
+  bool get charging => chargeStartedAt != null && phase == RunPhase.playing;
+  bool get outOfAmmo => supportsPowerShots && !PowerShot.canAfford(ammo);
+
+  /// Continuous power of the held shot, limited by what the reserve can pay.
+  double get shotCharge {
+    if (!charging) return 0;
+    final held = (elapsed - chargeStartedAt!) / PowerShot.fullChargeSeconds;
+    return math.min(held.clamp(0.0, 1.0), PowerShot.affordable(ammo));
+  }
+
+  /// When the held shot first reached charge 1, or null if it has not.
+  double? get _fullChargeAt {
+    final started = chargeStartedAt;
+    final ammoThen = _chargeAmmo;
+    if (!charging || started == null || ammoThen == null) return null;
+    final byTime = started + PowerShot.fullChargeSeconds;
+    final at = PowerShot.affordable(ammoThen) >= 1
+        ? byTime
+        : math.max(
+            byTime,
+            math.max(started, lastShotAt + PowerShot.refillDelay) +
+                (PowerShot.fullCost - ammoThen) / PowerShot.refillPerSecond,
+          );
+    return elapsed + 1e-9 >= at ? at : null;
+  }
+
+  /// 1 until the shot is fully charged, then the share of the 500 ms
+  /// window still left. At 0 the shot releases itself.
+  double get fullHoldLeft {
+    final at = _fullChargeAt;
+    if (at == null) return 1;
+    return ((PowerShot.maxFullHoldSeconds - (elapsed - at)) /
+            PowerShot.maxFullHoldSeconds)
+        .clamp(0.0, 1.0);
+  }
+
+  bool get _fullHoldExpired {
+    final at = _fullChargeAt;
+    return at != null &&
+        shotCharge >= 1 - 1e-9 &&
+        elapsed - at >= PowerShot.maxFullHoldSeconds - 1e-9;
+  }
+
+  void _endCharge() {
+    chargeStartedAt = null;
+    _chargeAmmo = null;
+  }
+
+  double get shotCost => PowerShot.cost(shotCharge);
   int _weaponDamage = BirdRock.baseDamage;
   int get weaponDamage => supportsWeaponDamage ? _weaponDamage : 1;
 
@@ -307,11 +385,28 @@ class FlightSimulation {
       rules.mode == PlayMode.touch && rulesVersion >= 7 && !isCruise;
   double get shotCooldownRemaining =>
       math.max(0, lastShotAt + shotCooldown - elapsed);
-  bool get canShoot =>
-      supportsCombat &&
-      !bossCutscene &&
-      phase == RunPhase.playing &&
-      shotCooldownRemaining == 0;
+  bool get _combatReady =>
+      supportsCombat && !bossCutscene && phase == RunPhase.playing;
+  bool get canShoot => _combatReady && shotCooldownRemaining == 0 && !outOfAmmo;
+
+  /// A press may start charging during the cooldown or while the reserve
+  /// refills; [shoot] decides at release whether the rock can be fired.
+  bool get canCharge => supportsPowerShots && _combatReady && !charging;
+
+  bool get supportsSprint => supportsCombat && rulesVersion >= 29;
+  double lastSprintAt = double.negativeInfinity;
+  int sprints = 0;
+  double get sprintAge => elapsed - lastSprintAt;
+  bool get sprinting => supportsSprint && sprintAge < Sprint.seconds;
+  double get sprintRemaining => sprinting ? Sprint.seconds - sprintAge : 0;
+  double get sprintCooldownRemaining => supportsSprint
+      ? math.max(0, lastSprintAt + Sprint.cooldown - elapsed)
+      : 0;
+  bool get canSprint =>
+      supportsSprint && _combatReady && sprintCooldownRemaining == 0;
+
+  /// Multiplies [speed] for everything that scrolls with the course.
+  double get sprintBoost => sprinting ? Sprint.boost(sprintAge) : 1;
   static const birdX = .47, birdRadius = .038;
   static const _enemyPassageLead = .55, _enemyEntryMargin = .15;
   RunPhase phase = RunPhase.countdown;
@@ -419,19 +514,64 @@ class FlightSimulation {
     return math.max(interval, mode.cycleSeconds / 2 + occupied / speed + .15);
   }
 
+  bool startCharge() {
+    if (!canCharge) return false;
+    chargeStartedAt = elapsed;
+    _chargeAmmo = ammo;
+    return true;
+  }
+
+  /// The cooldown runs from the press, on the same clock as the burst.
+  bool sprint() {
+    if (!canSprint) return false;
+    lastSprintAt = elapsed;
+    sprints++;
+    return true;
+  }
+
+  /// Releases the held charge, or fires a tapped rock when nothing is held.
+  /// A full charge also calls this on its own once it has been held for
+  /// [PowerShot.maxFullHoldSeconds].
   bool shoot({bool reducedMotion = false}) {
-    if (!canShoot) return false;
+    final charge = shotCharge;
+    _endCharge();
+    if (!canShoot) {
+      if (_combatReady && outOfAmmo) dryFires++;
+      return false;
+    }
+    final origin = shotOrigin(charge, reducedMotion: reducedMotion);
+    rocks.add(
+      BirdRock(
+        x: origin.x,
+        y: origin.y,
+        damage: supportsPowerShots
+            ? PowerShot.damage(weaponDamage, charge)
+            : weaponDamage,
+        charge: charge,
+      ),
+    );
+    if (supportsPowerShots) {
+      ammo = math.max(0, ammo - PowerShot.cost(charge));
+    }
+    lastShotAt = elapsed;
+    lastShotCharge = charge;
+    shots++;
+    return true;
+  }
+
+  /// A charging rock grows forward from the beak, so a larger rock covers no
+  /// more of the bird than a tapped one. It fires from where it was drawn.
+  ({double x, double y}) shotOrigin(
+    double charge, {
+    bool reducedMotion = false,
+  }) {
     final mouth = BirdFlightMotion.mouth(
       velocity: velocity,
       sinceFlap: elapsed - lastFlapAt,
       reducedMotion: reducedMotion,
     );
-    rocks.add(
-      BirdRock(x: birdX + mouth.x, y: birdY + mouth.y, damage: weaponDamage),
-    );
-    lastShotAt = elapsed;
-    shots++;
-    return true;
+    final lead = BirdRock.baseRadius * (PowerShot.radiusScale(charge) - 1);
+    return (x: birdX + mouth.x + lead, y: birdY + mouth.y);
   }
 
   String get regionName => switch ((elapsed / 20).floor() % 3) {
@@ -489,7 +629,12 @@ class FlightSimulation {
     }
   }
 
-  void tick(double dt, double nowMs, {double viewportWidth = 2.2}) {
+  void tick(
+    double dt,
+    double nowMs, {
+    double viewportWidth = 2.2,
+    bool reducedMotion = false,
+  }) {
     if (phase == RunPhase.ended || phase == RunPhase.paused) return;
     if (!dt.isFinite || dt <= 0) return;
     if (dt > .5 && phase == RunPhase.playing) {
@@ -559,7 +704,11 @@ class FlightSimulation {
         break;
       }
       final speed = this.speed;
-      distance += speed * step;
+      // A sprint covers the same course sooner, so spawning follows distance
+      // and passages keep their spacing.
+      final boost = sprintBoost;
+      final scroll = speed * boost;
+      distance += scroll * step;
       if (supportsBosses) _advanceBoss(step, viewportWidth);
       if (bossCutscene) {
         // Let the player watch the reveal and victory without falling into a
@@ -567,6 +716,7 @@ class FlightSimulation {
         birdY += (.52 - birdY) * (1 - math.exp(-step * 3));
         birdY = birdY.clamp(birdRadius + .001, 1 - birdRadius - .001);
         velocity = 0;
+        _endCharge();
       } else if (!rules.mode.controlsHeight) {
         if (smoothJumpDescent && velocity >= 0) {
           _advanceJumpDescent(step);
@@ -581,9 +731,9 @@ class FlightSimulation {
         }
         birdY += velocity * step;
       }
-      if (boss == null) _spawnIn -= step;
+      if (boss == null) _spawnIn -= step * boost;
       for (final obstacle in obstacles) {
-        obstacle.x -= speed * step;
+        obstacle.x -= scroll * step;
         obstacle.advance(elapsed);
       }
       if (boss == null && _spawnIn <= 0) {
@@ -616,6 +766,7 @@ class FlightSimulation {
       flightPath.record(distance, birdY);
       for (final o in obstacles) {
         if (phase == RunPhase.ended) break;
+        if (sprinting) _ramPanel(o);
         if (!isCruise && !o.hit && _touches(o)) {
           if (!isTrail && !isCourier) {
             end(EndReason.collision);
@@ -689,16 +840,17 @@ class FlightSimulation {
         }
       }
       if (collectsStars && phase == RunPhase.playing) {
-        _advanceStars(speed * step);
+        _advanceStars(scroll * step);
       }
       if (supportsHeartPickups && phase == RunPhase.playing) {
-        _advanceHearts(speed * step);
+        _advanceHearts(scroll * step);
       }
       if (supportsCombat && phase == RunPhase.playing) {
-        _advanceCombat(step, speed, viewportWidth);
+        _advanceCombat(step, scroll, viewportWidth, rush: scroll - speed);
+        if (_fullHoldExpired) shoot(reducedMotion: reducedMotion);
       }
       if (discoversClouds && phase == RunPhase.playing) {
-        _advanceClouds(speed * step);
+        _advanceClouds(scroll * step);
       }
       obstacles.removeWhere((o) => o.x + o.width < -.1);
       events.removeWhere((e) => elapsed - e.at > 2);
@@ -867,7 +1019,17 @@ class FlightSimulation {
     _glideRemaining = math.max(0, _glideRemaining - dt);
   }
 
-  void _advanceCombat(double dt, double scrollSpeed, double viewportWidth) {
+  /// [rush] is a sprint's extra scroll speed. Hostile ammo closes on the
+  /// charging bird that much faster, while a boss holds its place on screen.
+  void _advanceCombat(
+    double dt,
+    double scrollSpeed,
+    double viewportWidth, {
+    required double rush,
+  }) {
+    if (supportsPowerShots && elapsed - lastShotAt >= PowerShot.refillDelay) {
+      ammo = math.min(1, ammo + PowerShot.refillPerSecond * dt);
+    }
     for (final enemy in enemies) {
       enemy.x -= scrollSpeed * dt;
       if (supportsEnemyAttacks) enemy.age += dt;
@@ -886,7 +1048,7 @@ class FlightSimulation {
         (o) => _circleTouchesObstacle(
           rock.x,
           rock.y,
-          BirdRock.radius,
+          rock.radius,
           o,
           includeDoor: false,
         ),
@@ -896,7 +1058,7 @@ class FlightSimulation {
         continue;
       }
       for (final obstacle in obstacles) {
-        if (!_circleTouchesDoor(rock.x, rock.y, BirdRock.radius, obstacle)) {
+        if (!_circleTouchesDoor(rock.x, rock.y, rock.radius, obstacle)) {
           continue;
         }
         final seal = obstacle.door!;
@@ -909,7 +1071,7 @@ class FlightSimulation {
       if (spent.contains(rock)) continue;
       for (final enemy in enemies) {
         final dx = rock.x - enemy.x, dy = rock.y - enemy.y;
-        const radius = BirdRock.radius + SkyEnemy.radius;
+        final radius = rock.radius + SkyEnemy.radius;
         if (dx * dx + dy * dy > radius * radius) continue;
         spent.add(rock);
         enemy.takeDamage(supportsWeaponDamage ? rock.damage : enemy.hp);
@@ -918,25 +1080,14 @@ class FlightSimulation {
           break;
         }
         enemies.remove(enemy);
-        enemiesDefeated++;
-        final bonus = isTrail ? 3 : 0;
-        score += bonus;
-        events.add(
-          FlightEvent(
-            FlightEventKind.enemyHit,
-            elapsed,
-            enemy.y,
-            value: bonus,
-            gateWorldX: distance + enemy.x,
-          ),
-        );
+        _defeatEnemy(enemy);
         break;
       }
       final target = boss;
       if (!spent.contains(rock) && target?.phase == BossPhase.attacking) {
         final dx = rock.x - target!.x, dy = rock.y - target.y;
         final reach =
-            BirdRock.radius +
+            rock.radius +
             (target.shielded ? SkyBoss.shieldRadius : SkyBoss.radius);
         if (dx * dx + dy * dy <= reach * reach) {
           spent.add(rock);
@@ -956,7 +1107,9 @@ class FlightSimulation {
       final dx = birdX - enemy.x, dy = birdY - enemy.y;
       const radius = birdRadius + SkyEnemy.radius;
       if (dx * dx + dy * dy <= radius * radius) {
-        if (isTrail) {
+        if (sprinting) {
+          _defeatEnemy(enemy, rammed: true);
+        } else if (isTrail) {
           _damage();
         } else if (isCourier) {
           _dropLetter();
@@ -968,10 +1121,10 @@ class FlightSimulation {
       return enemy.x < -.1;
     });
     if (supportsEnemyAttacks) {
-      _advanceEnemyAttacks(dt, viewportWidth);
+      _advanceEnemyAttacks(dt, viewportWidth, rush);
     }
     bossAmmo.removeWhere((ammo) {
-      ammo.x += ammo.vx * dt;
+      ammo.x += (ammo.vx - rush) * dt;
       ammo.y += ammo.vy * dt;
       final dx = birdX - ammo.x, dy = birdY - ammo.y;
       const reach = birdRadius + BossAmmo.radius;
@@ -992,7 +1145,7 @@ class FlightSimulation {
     });
   }
 
-  void _advanceEnemyAttacks(double dt, double viewportWidth) {
+  void _advanceEnemyAttacks(double dt, double viewportWidth, double rush) {
     for (final enemy in enemies) {
       // An entire warning must be visible. Close or passed enemies stop
       // attacking; there are no off-screen or point-blank ambushes.
@@ -1029,7 +1182,7 @@ class FlightSimulation {
       enemy.fireIn += fan ? 3.2 : 2.4;
     }
     enemyAmmo.removeWhere((ammo) {
-      ammo.x += ammo.vx * dt;
+      ammo.x += (ammo.vx - rush) * dt;
       ammo.y += ammo.vy * dt;
       if (ammo.x < -.1 ||
           ammo.x > viewportWidth + .2 ||
@@ -1044,7 +1197,7 @@ class FlightSimulation {
       // while the player is lining up with a narrow gate.
       for (final rock in rocks) {
         final dx = rock.x - ammo.x, dy = rock.y - ammo.y;
-        const reach = BirdRock.radius + EnemyAmmo.radius;
+        final reach = rock.radius + EnemyAmmo.radius;
         if (dx * dx + dy * dy <= reach * reach) {
           rocks.remove(rock);
           projectilesDeflected++;
@@ -1185,6 +1338,32 @@ class FlightSimulation {
       current.lastSummonAt = current.age;
       current.summonIn += current.summonInterval;
     }
+  }
+
+  /// A ram ignores the enemy's remaining health; the reward is the same.
+  void _defeatEnemy(SkyEnemy enemy, {bool rammed = false}) {
+    enemiesDefeated++;
+    final bonus = isTrail ? 3 : 0;
+    score += bonus;
+    events.add(
+      FlightEvent(
+        rammed ? FlightEventKind.enemyRammed : FlightEventKind.enemyHit,
+        elapsed,
+        enemy.y,
+        value: bonus,
+        gateWorldX: distance + enemy.x,
+      ),
+    );
+  }
+
+  /// Only the panel breaks; the wall around it keeps its normal collision.
+  void _ramPanel(Obstacle o) {
+    final panel = o.door;
+    if (panel == null || !_circleTouchesDoor(birdX, birdY, birdRadius, o)) {
+      return;
+    }
+    panel.takeDamage(panel.hp, hitY: birdY);
+    doorsDestroyed++;
   }
 
   void _defeatBoss(SkyBoss current) {
@@ -1388,6 +1567,7 @@ class FlightSimulation {
     if (phase != RunPhase.paused) return;
     if (!practice && started) return;
     phase = RunPhase.countdown;
+    _endCharge();
     countdown = 3;
     _inputValid = false;
     _lastValidMs = double.negativeInfinity;

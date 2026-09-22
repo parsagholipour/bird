@@ -19,6 +19,7 @@ import 'combat_art.dart';
 import 'boss_art.dart';
 import 'heart_pickup_art.dart';
 import 'door_art.dart';
+import 'sprint_art.dart';
 
 class BirdGame extends FlameGame {
   BirdGame({
@@ -74,7 +75,12 @@ class BirdGame extends FlameGame {
     if (advance != null) {
       advance!(dt, nowMs(), size.x / size.y);
     } else {
-      simulation.tick(dt, nowMs(), viewportWidth: size.x / size.y);
+      simulation.tick(
+        dt,
+        nowMs(),
+        viewportWidth: size.x / size.y,
+        reducedMotion: reducedMotion,
+      );
     }
     _notify += dt;
     if (_notify >= .05 || simulation.phase == RunPhase.ended) {
@@ -129,6 +135,12 @@ class BirdGame extends FlameGame {
     }
     BossArt.backdrop(canvas, Size(w, h), simulation.boss, reducedMotion);
     ArrivalArt.gate(canvas, h, simulation, reducedMotion: reducedMotion);
+    SprintArt.streaks(
+      canvas,
+      Size(w, h),
+      simulation,
+      reducedMotion: reducedMotion,
+    );
     for (final o in simulation.obstacles) {
       final x = o.x * h, width = o.width * h;
       final cleared = o.scored && !o.hit;
@@ -441,6 +453,7 @@ class BirdGame extends FlameGame {
             ..strokeCap = StrokeCap.round,
         );
       }
+      SprintArt.aura(canvas, h, simulation, reducedMotion: reducedMotion);
       canvas.save();
       canvas.translate(cx, cy);
       canvas.rotate(pose.tilt);
@@ -454,6 +467,12 @@ class BirdGame extends FlameGame {
         expression: pose.expression,
       );
       canvas.restore();
+      CombatArt.paintCharge(
+        canvas,
+        h,
+        simulation,
+        reducedMotion: reducedMotion,
+      );
       if (pose.flapWake > 0) {
         final t = pose.flapWake;
         final fadeIn = (t / .18).clamp(0.0, 1.0);
@@ -628,6 +647,8 @@ class BirdGame extends FlameGame {
         FlightEventKind.starTrio => 'STAR TRIO +${event.value}!',
         FlightEventKind.enemyHit =>
           event.value > 0 ? 'NICE SHOT +${event.value}!' : 'NICE SHOT!',
+        FlightEventKind.enemyRammed =>
+          event.value > 0 ? 'SMASH +${event.value}!' : 'SMASH!',
         FlightEventKind.bossDefeated =>
           event.value > 0 ? 'BOSS DOWN +${event.value}!' : 'BOSS DOWN!',
         FlightEventKind.streak => '${event.value}× STAR POWER!',

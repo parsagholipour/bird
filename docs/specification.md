@@ -21,8 +21,8 @@ active multiplier), hearts and shield status. Magnet charge/duration and jump
 glide use compact icon meters; Courier shows only Pick up / Deliver. Endless
 flights omit elapsed time, pace, repetition counts, record targets, wing goals
 and standing instructions. Tracking feedback appears only when tracking is lost.
-Pause/stop and Shoot use illustrated circular controls; Shoot's outer ring shows
-cooldown without losing its icon. State changes use finite pulses, and controls
+Pause/stop and Shoot use illustrated circular controls; Shoot's rings show the
+ammo reserve and held charge without losing its icon. State changes use finite pulses, and controls
 compress on press. App and system Reduced Motion disable decorative animation.
 Passive readouts pass touches to the sky; control touches never flap, including
 during cooldown. Countdown teaching and post-flight statistics remain available.
@@ -121,6 +121,73 @@ uses normal wall collision damage. Destruction gives no extra score. Pause and
 replay preserve seeded placement, HP and debris timing. Reduced Motion retains
 the static damage stages without sparks or debris. Rules 1–26 retain the
 previous route with no breakable panels.
+
+### Power shots and ammo reserve (rules version 28)
+
+Pressing Shoot starts a charge; releasing fires. Charge is continuous: the
+held simulation time divided by one second, clamped to 0–1. A released charge
+`c` scales rock radius by `1 + 1.4c` and damage by `1 + 3c` (rounded), so a
+full charge is 2.4× as wide and deals 4× the current weapon damage. The rock
+keeps its captured damage and radius through every hit test, including walls,
+panels, enemies, enemy ammo and bosses.
+
+Every shot spends from one reserve that starts full (1.0). Cost is
+`0.10 + 0.35c`. The reserve refills at 0.40 per second only after 0.45 seconds
+without a fired shot, so repeated taps at the 280 ms cooldown receive no refill.
+Charge cannot exceed what the reserve can pay. Below one tap's cost, a release
+fires nothing, counts a dry fire and plays the empty cue; a held press keeps
+charging as the reserve refills. The cooldown still applies to releases.
+While the reserve cannot pay for a tap, hide the held rock at the beak and
+show “Reloading…” on Shoot with a muted icon and no charge ring. Keep that
+feedback while the button is held, returning to the charge preview as soon
+as enough ammo has refilled for a shot.
+
+A press may start during a cooldown or refill, and a control touch never flaps.
+Pause, background, flight end and a boss entrance cancel a held charge, and a
+resumed flight starts without one. The charging rock grows forward from the
+beak with a yellow glow. At full charge a white rim counts down the 500 ms
+that charge can stay held; when the window ends, the simulation fires
+the rock during the tick. A release after that does not fire again. A charge
+the reserve has not yet let reach full can be held until it does, and the
+500 ms start then. Shoot's outer ring shows the reserve, with the pending
+cost in yellow, and its inner ring shows the charge, then that same countdown.
+Semantics report ammo, charge, the remaining full-charge time, or refill
+state. Record `charge` on press and `shoot` on release, deriving charge from
+simulation time for deterministic seeks. An unreleased full charge needs no
+shoot event. Rules 1–27 reject `charge` events and keep unlimited
+cooldown-limited taps.
+
+### Sprint (rules version 29)
+
+Touch combat adds an 80 dp Sprint button to the left of Shoot. A press starts
+a 1.2-second burst and a 15-second cooldown measured from the press. The bird
+keeps its screen position while the course scrolls faster: the multiplier is
+`1 + 1.5e`, where `e` rises with a smoothstep over the first 0.15 seconds and
+falls with one over the last 0.40 seconds. Speed peaks at 2.5× and is back to
+normal when the burst ends. Spawning follows distance, so a sprint reaches the
+next passages sooner without shortening the spacing between them. Enemy and
+boss projectiles also move left by the extra scroll, so they reach the bird
+sooner in normal flight and boss fights. A boss holds its place on screen.
+Gravity and flapping are unchanged, and a Sprint press never flaps.
+
+During the burst, an enemy touching the bird is defeated regardless of its
+remaining HP. It counts as a normal defeat with the same score, uses a
+separate `enemyRammed` event and shows “SMASH”. A stone panel touching the bird
+loses all its HP and breaks with the usual debris and cue. The upper and lower
+wall sections, the course edges and enemy and boss projectiles still cause
+their normal damage. Countdowns, pauses, flight end and boss cutscenes block a
+sprint. Pausing freezes both the burst and the cooldown.
+
+When ready, the button is teal with a full ring and pulses. While sprinting,
+it turns gold and the ring drains with the burst. While recharging, it shows a
+muted icon, the whole seconds left and a teal ring that refills. Semantics
+report “Ready”, “Sprinting” or “Recharging, N seconds”. Light streaks cross the
+sky with the speed boost (omitted in Reduced Motion). Trailing wind lines and a
+bow wave in front of the bird last the whole burst; Reduced Motion keeps them
+without the pulse. A whoosh plays on each sprint and a chime plays when a used
+sprint recharges. Record `sprint` for accepted presses only. Rules 1–28 reject
+`sprint` events and have no Sprint button, and camera controls and Cloud Cruise
+never show one.
 
 ### Touch boss encounters (rules version 15)
 

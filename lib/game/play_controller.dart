@@ -251,13 +251,40 @@ class PlayController extends ChangeNotifier {
     }
   }
 
-  void shoot() {
+  /// Pressing Shoot starts a power shot; releasing it calls [shoot].
+  void startCharge() {
     if (_disposed ||
         stage != PlayStage.flying ||
-        simulation?.canShoot != true) {
+        simulation?.canCharge != true) {
+      return;
+    }
+    recorder?.command('charge');
+    notify();
+  }
+
+  void shoot() {
+    final sim = simulation;
+    // A rejected release is still journaled when it ends a held charge.
+    // Once a full charge has fired itself, lifting the button must not
+    // spend a second rock.
+    if (_disposed ||
+        stage != PlayStage.flying ||
+        sim == null ||
+        !(sim.supportsPowerShots ? sim.charging : sim.canShoot)) {
       return;
     }
     recorder?.command('shoot');
+    audio.syncCombat(sim);
+    notify();
+  }
+
+  void sprint() {
+    if (_disposed ||
+        stage != PlayStage.flying ||
+        simulation?.canSprint != true) {
+      return;
+    }
+    recorder?.command('sprint');
     audio.syncCombat(simulation!);
     notify();
   }

@@ -1,5 +1,71 @@
 # Validation ledger
 
+## 2026-09-23 sprint
+
+- Rules version 29 adds a touch Sprint button with a 1.2-second burst and a
+  15-second cooldown. The course scrolls up to 2.5× faster while the bird keeps
+  its screen position. During the burst, touching an enemy defeats it
+  regardless of HP, and touching a stone panel breaks it. Walls, course edges
+  and projectiles still hurt. Enemy and boss projectiles rush left by the
+  sprint's extra scroll while a boss holds its place.
+- `test/sprint_test.dart` checks the boost envelope, earlier arrival with
+  unchanged passage spacing, the cooldown from the press, pause freezing,
+  countdown and cutscene blocking, rams of enemies with any HP, panel breaks
+  with the walls still solid, and that enemy and boss ammo still hurt. It also
+  covers version 28, camera and Cloud Cruise gating, controller journaling,
+  and the whoosh and ready chime. In a boss fight, both kinds of ammo shift by
+  exactly the extra distance the sprint covers, during and after the burst,
+  while the boss matches a calm run. Exact forward/backward replay seeks
+  include real rams, sprints into boss fire and projectile positions in both
+  motion settings.
+  Widget checks cover taps, recharging taps that never flap, semantics and
+  keyboard activation.
+- The touch flight UI test taps the real Sprint button during play, checks
+  the burst, a 14-second countdown after 1.44 seconds and a rejected
+  recharging tap, and confirms that neither press flaps.
+  `flutter analyze lib test tool` reports no issues; `flutter test --no-pub`
+  passes all 555 tests.
+- Inspected `build/visual-review/sprint.png`, `sprint-reduced.png`,
+  `touch-sprint-{640,800}.png` and `touch-flight-{640,800}.png`
+  (`CAPTURE_VISUALS=true`). Captures show sky streaks, the bow wave and wind
+  lines, a “SMASH +3!” label, and the gold, recharging and ready button states.
+  Device playtesting remains pending.
+
+## 2026-09-23 empty-ammo feedback
+
+- The held-rock renderer previously drew a preview for unaffordable shots.
+  It now hides that preview, and Shoot shows “Reloading…” with a muted icon
+  until the reserve can pay for a shot, including while held.
+- `test/ammo_reload_test.dart` reproduces the original flash with raster checks
+  and verifies refill feedback, accessibility, and recovery in both motion
+  settings. All 23 reload, power-shot, and touch UI tests pass; analysis of
+  the changed Dart files reports no issues.
+
+## 2026-09-23 power shots and ammo reserve
+
+- Rules version 28 lets a held Shoot charge continuously for up to one second.
+  Radius, damage and reserve cost rise smoothly with charge (2.4× width,
+  4× damage, 10–45% of the reserve), and upgraded weapons scale the same way.
+  The reserve refills after 0.45 seconds without firing, so rapid fire drains it.
+  A shot at full charge fires itself after 500 ms. The window starts when
+  the charge actually reaches full, and lifting afterwards does not fire again.
+- `test/power_shot_test.dart` checks the continuous spectrum, the full-charge
+  cap, the 500 ms auto-release (including when a low reserve delays full
+  charge), drain and refill, reserve-limited charge, holding empty to refill,
+  cancellation by pause and boss cutscenes, charged hits that a tap would miss,
+  version 27 compatibility, controller journaling, a lift after auto-fire,
+  audio cues and exact forward/backward replay seeks in both motion settings.
+  Widget checks cover single-finger holds, lift/cancel/slide-off releases,
+  keyboard holds, semantic taps and ammo/charge/countdown announcements; Shoot
+  never flaps.
+- The touch flight UI test holds the real Shoot button during play and checks
+  the released rock's charge and damage. `flutter analyze --no-pub lib test`
+  reports no issues; `flutter test --no-pub` passes all 555 tests.
+- Inspected `build/visual-review/touch-charging-{640,800}.png` and
+  `touch-flight-{640,800}.png` (`CAPTURE_VISUALS=true`): the glowing rock grows
+  at the beak, the button's rings show reserve, pending cost and charge, and the
+  released rock is visibly larger than a tap. Device playtesting remains pending.
+
 ## 2026-09-22 random breakable wall openings
 
 - Rules version 27 adds a seeded 25% chance of a stone panel in a normal wall

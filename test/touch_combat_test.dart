@@ -118,32 +118,38 @@ void main() {
     () async {
       final controller = touchController(practice: true);
       addTearDown(controller.dispose);
-      controller.shoot();
+      // A tap is a press and a release. Holding is covered in power_shot_test.
+      void tap() {
+        controller.startCharge();
+        controller.shoot();
+      }
+
+      tap();
       await controller.fly();
-      controller.shoot();
+      tap();
       advance(controller, 150);
       final sim = controller.simulation!;
       expect(sim.shots, 0);
-      controller.shoot();
-      controller.shoot();
+      tap();
+      tap();
       expect(sim.shots, 1);
       advance(controller, 10);
-      controller.shoot();
+      tap();
       expect(sim.shots, 1);
       advance(controller, 5);
-      controller.shoot();
+      tap();
       expect(sim.shots, 2);
       controller.pause();
       final rockX = sim.rocks.first.x;
-      controller.shoot();
+      tap();
       advance(controller, 20);
       expect(sim.rocks.first.x, rockX);
       await controller.resume();
-      controller.shoot();
+      tap();
       advance(controller, 150);
       expect(sim.shots, 2);
       controller.endFlight();
-      controller.shoot();
+      tap();
       expect(sim.shots, 2);
       await controller.finish();
       await controller.retry();

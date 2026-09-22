@@ -187,6 +187,70 @@ void main() {
       game.update(.04);
       await tester.pump();
       expect(game.simulation.shots, 3);
+      final held = await tester.startGesture(tester.getCenter(shoot));
+      for (var i = 0; i < 30; i++) {
+        game.update(.02);
+      }
+      await tester.pump();
+      expect(game.simulation.shotCharge, greaterThan(.5));
+      expect(game.simulation.shots, 3);
+      game.resumeEngine();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 16));
+      game.pauseEngine();
+      await capture(tester, 'touch-charging-${width.toInt()}');
+      await held.up();
+      expect(game.simulation.shots, 4);
+      expect(game.simulation.rocks.last.charge, greaterThan(.5));
+      expect(
+        game.simulation.rocks.last.damage,
+        greaterThan(game.simulation.weaponDamage),
+      );
+      final sprint = find.byKey(const ValueKey('touch-sprint'));
+      expect(sprint, findsOneWidget);
+      expect(tester.getRect(sprint).overlaps(tester.getRect(shoot)), isFalse);
+      Future<void> steer(int frames) async {
+        for (var i = 0; i < frames; i++) {
+          final sim = game.simulation;
+          final ahead = sim.obstacles.where(
+            (o) => o.x + o.width > FlightSimulation.birdX,
+          );
+          final target = ahead.firstOrNull?.target ?? .5;
+          if (sim.birdY > target + .06 && sim.velocity > 0) {
+            await tester.tapAt(tapPosition);
+          }
+          game.update(.02);
+        }
+        await tester.pump();
+      }
+
+      var flapsBefore = game.simulation.flaps;
+      await tester.tap(sprint);
+      game.update(.02);
+      await tester.pump();
+      expect(game.simulation.sprints, 1);
+      expect(game.simulation.sprinting, isTrue);
+      expect(game.simulation.flaps, flapsBefore);
+      await steer(11);
+      game.resumeEngine();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 16));
+      game.pauseEngine();
+      await capture(tester, 'touch-sprint-${width.toInt()}');
+      await steer(60);
+      expect(game.simulation.sprinting, isFalse);
+      final secondsLeft = game.simulation.sprintCooldownRemaining.ceil();
+      expect(secondsLeft, 14);
+      expect(
+        find.descendant(of: sprint, matching: find.text('$secondsLeft')),
+        findsOne,
+      );
+      flapsBefore = game.simulation.flaps;
+      await tester.tap(sprint);
+      game.update(.02);
+      await tester.pump();
+      expect(game.simulation.sprints, 1, reason: 'Recharging');
+      expect(game.simulation.flaps, flapsBefore);
       game.resumeEngine();
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 16));

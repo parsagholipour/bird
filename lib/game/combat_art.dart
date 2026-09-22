@@ -5,6 +5,7 @@ import '../ui/theme.dart';
 import 'enemy_design.dart';
 import 'enemy_art.dart';
 import 'enemy_hit_art.dart';
+import 'stone_art.dart';
 
 abstract final class CombatArt {
   static void paint(
@@ -111,43 +112,18 @@ abstract final class CombatArt {
       EnemyArt.ammo(canvas, height, ammo);
     }
     for (final rock in sim.rocks) {
-      final center = Offset(rock.x * height, rock.y * height);
-      final r = BirdRock.radius * height;
-      canvas.drawLine(
-        center - Offset(r * 3.2, 0),
-        center,
-        Paint()
-          ..color = SkyColors.cream.withValues(alpha: .8)
-          ..strokeWidth = r * .9
-          ..strokeCap = StrokeCap.round,
-      );
-      final stone = Path()
-        ..moveTo(center.dx - r, center.dy - r * .35)
-        ..lineTo(center.dx - r * .3, center.dy - r)
-        ..lineTo(center.dx + r * .65, center.dy - r * .8)
-        ..lineTo(center.dx + r, center.dy + r * .25)
-        ..lineTo(center.dx + r * .25, center.dy + r)
-        ..lineTo(center.dx - r * .8, center.dy + r * .65)
-        ..close();
-      canvas.drawPath(stone, Paint()..color = SkyColors.rock);
-      canvas.drawPath(
-        stone,
-        Paint()
-          ..color = SkyColors.ink
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = height * .0025,
-      );
-      canvas.drawLine(
-        center + Offset(-r * .45, -r * .3),
-        center + Offset(r * .25, -r * .5),
-        Paint()
-          ..color = SkyColors.sand
-          ..strokeWidth = r * .35
-          ..strokeCap = StrokeCap.round,
+      StoneArt.paint(
+        canvas,
+        height,
+        rock,
+        seconds: sim.elapsed,
+        reducedMotion: reducedMotion,
       );
     }
     for (final event in sim.events.where(
-      (e) => e.kind == FlightEventKind.enemyHit,
+      (e) =>
+          e.kind == FlightEventKind.enemyHit ||
+          e.kind == FlightEventKind.enemyRammed,
     )) {
       final age = sim.elapsed - event.at;
       if (age < 0 || age > EnemyHitArt.defeatSeconds) continue;
@@ -182,5 +158,16 @@ abstract final class CombatArt {
         );
       }
     }
+  }
+
+  /// The held power shot, drawn in front of the bird's beak. Its size and
+  /// glow follow the same charge that sets the fired rock's size and damage.
+  static void paintCharge(
+    Canvas canvas,
+    double height,
+    FlightSimulation sim, {
+    required bool reducedMotion,
+  }) {
+    StoneArt.charge(canvas, height, sim, reducedMotion: reducedMotion);
   }
 }

@@ -15,6 +15,16 @@ class SoundSpec {
 const soundBank = <String, SoundSpec>{
   'flap': SoundSpec(volume: .22, priority: 0, seconds: .30, variants: 3),
   'shoot': SoundSpec(volume: .32, priority: 3, seconds: .24, cooldownMs: 65),
+  'power_shot': SoundSpec(
+    volume: .38,
+    priority: 3,
+    seconds: .42,
+    cooldownMs: 65,
+  ),
+  'shot_charged': SoundSpec(volume: .22, seconds: .38, cooldownMs: 250),
+  'ammo_empty': SoundSpec(volume: .30, seconds: .20, cooldownMs: 150),
+  'sprint': SoundSpec(volume: .40, priority: 3, seconds: .55, cooldownMs: 500),
+  'sprint_ready': SoundSpec(volume: .24, seconds: .45, cooldownMs: 500),
   'rock_hit': SoundSpec(volume: .23, priority: 1, seconds: .20),
   'deflect': SoundSpec(volume: .40, seconds: .35),
   'enemy_charge': SoundSpec(

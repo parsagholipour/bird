@@ -35,7 +35,7 @@ which matches version 15. Saved version 14 and 15 replays keep the earlier
 garden and enemy artwork.
 Patterns mix throughout the flight; calibrated push-up and squat pacing stays reachable.
 The match HUD keeps score, hearts and shield status visible, with compact
-magnet/glide meters when relevant and a round Shoot control with a cooldown ring.
+magnet/glide meters when relevant and a round Shoot control with ammo and charge rings.
 Custom illustrated icons, brief state-change pops and press feedback keep the
 sky clear; Reduced Motion disables the decorative movement. Endless flights
 omit the clock, pace, flap count and persistent instruction/goal cards. The
@@ -61,9 +61,10 @@ shortcuts lead to daily adventures, birds, the passport, records and flight goal
 **Tap & Fly**, in the **Play** mode picker, starts a full touch flight on Star Trail. Tap
 anywhere in the sky to rise, then release and tap again. Touch flights have a
 stronger flap, narrower openings and closer buildings. Tap **Shoot** to spit a
-rock straight from the bird's beak at bats ahead; aim by changing your height.
-Defeating an enemy earns +3 points on Star Trail; buildings block rocks, and each
-shot has a short cooldown. Bats use the same shield/heart collision rules as
+rock straight from the bird's beak at bats ahead, or hold it to charge a bigger
+rock; aim by changing your height. Defeating an enemy earns +3 points on Star
+Trail; buildings block rocks, and each shot has a short cooldown and spends
+ammo. Bats use the same shield/heart collision rules as
 buildings. Cloud Cruise stays free of enemies. Scored flights contribute
 to unlocks, daily adventures and flight goals, with separate touch bests in
 Records. Practice and Cloud Cruise can pause and resume; scored flights end
@@ -144,6 +145,34 @@ These walls keep the normal scrolling and collision rules. They never appear
 back-to-back, carry an extra enemy, or block a reward-heart gate. Earlier
 replays keep their original route. Reduced Motion keeps the static damage
 stages without flying debris.
+
+**Power shots (version 28):** hold **Shoot** (or Space/Enter) to charge the
+next rock, then release to fire. The charge builds smoothly over one second, so
+any hold gives an in-between shot. A full charge makes the rock 2.4× as wide
+and deals 4× the weapon damage (40 with the base weapon); upgrades scale the
+same way. A full charge fires on its own after 500 ms. The inner ring and
+the rim around the rock count that window down, and letting go afterwards
+does not shoot again. Every shot draws on one ammo reserve: a tap spends 10%,
+a full charge 45%, and the cost rises smoothly in between. The reserve refills
+at 40% per second after 0.45 seconds without firing, longer than the shot
+cooldown, so rapid fire empties it after about ten taps. A low reserve limits
+how far a charge can grow. With too little for a tap, releasing plays an empty
+click; keep holding to charge while it refills. The button's outer ring shows
+the reserve with the pending cost in yellow, and its inner ring shows the
+charge, then the countdown. The held rock grows and glows at the beak. Pauses
+and boss entrances cancel a charge. Replays record each press and release;
+a full charge that fires itself is part of the tick. Earlier replays keep
+unlimited taps.
+
+**Sprint (version 29):** tap **Sprint**, left of Shoot, to rush forward for
+1.2 seconds. The course surges to 2.5× speed and eases back before the burst
+ends. While sprinting, the bird smashes any bat it touches, whatever its
+health, for the usual reward, and breaks stone panels by flying into them.
+Walls, the course edges and projectiles still hurt. In a boss fight, the boss
+stays put while its shots and helpers rush at you faster. Sprint then
+recharges for 15 seconds from the press; the button counts down the seconds
+and chimes when ready. Pauses freeze the burst and the cooldown. Tapping
+Sprint never flaps. Earlier replays have no sprint.
 
 **Extra lives (version 24):** after each boss victory, one heart appears in a
 random safe opening before the next boss. Fly into it to gain one additional

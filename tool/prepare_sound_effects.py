@@ -110,6 +110,8 @@ NOTES = {
     'boss_victory': [293.66, 440, 587.33, 739.99, 880],
     'deflect': [1567.98, 1174.66], 'boss_block': [880, 1323],
     'boss_hit': [440, 1174.66], 'boss_shield': [293.66, 440, 587.33],
+    'shot_charged': [1318.51, 1760], 'ammo_empty': [293.66, 220],
+    'sprint_ready': [698.46, 1046.5, 1396.91],
 }
 
 
@@ -142,19 +144,39 @@ def menu_chime(name, seconds):
     return data
 
 
+def rush(data):
+    """Air tearing past: a fast swell of filtered noise over a rising body."""
+    rng = random.Random(29)
+    phase = 0.0
+    low = band = 0.0
+    seconds = len(data) / RATE
+    for i in range(len(data)):
+        t = i / RATE
+        noise = rng.uniform(-1, 1)
+        low += .20 * (noise - low)
+        band += .45 * (low - band)
+        env = min(1, t / .035) * math.exp(-t / (seconds * .32))
+        phase += 2 * math.pi * (240 + 760 * min(1, t / (seconds * .45))) / RATE
+        data[i] += env * (.60 * (low - band) + .30 * band + .14 * math.sin(phase))
+
+
 def synth(name, seconds, variant):
     if name in MENU_NOTES:
         return menu_chime(name, seconds)
     data = [0.0] * int(RATE * seconds)
+    if name == 'sprint':
+        rush(data)
+        impact(data, .10, .22)
+        return data
     notes = NOTES.get(name)
     if notes:
         step = min(.13, seconds * .55 / max(len(notes), 1))
         for i, hz in enumerate(notes):
             bell(data, hz * (1 + .025 * variant), i * step,
-                 seconds - i * step, warm=name.startswith('ui_') or name in ['ready', 'letter'])
+                 seconds - i * step, warm=name.startswith('ui_') or name in ['ready', 'letter', 'ammo_empty'])
         if name in ['magnet', 'shield', 'heart', 'boss_shield', 'unlock']:
             whoosh(data, seconds, .09)
-        if name in ['shield_pop', 'boss_block', 'boss_hit', 'deflect']:
+        if name in ['shield_pop', 'boss_block', 'boss_hit', 'deflect', 'ammo_empty']:
             impact(data, min(.16, seconds), .25)
         if name in ['complete', 'boss_victory', 'record', 'unlock']:
             for hz in [261.63, 329.63, 392]:
@@ -184,6 +206,37 @@ def projectile_snap(data):
         body = .25 * math.sin(phase) * math.exp(-t / .048)
         crack = .13 * (noise - low) * math.exp(-t / .012)
         data[i] += attack * (body + crack)
+
+
+def deepen(samples, ratio, count):
+    """Slower playback lowers a take's pitch while keeping its gesture."""
+    result = []
+    for i in range(count):
+        position = i * ratio
+        j = int(position)
+        if j + 1 >= len(samples):
+            result.append(0.0)
+            continue
+        result.append(samples[j] + (samples[j + 1] - samples[j]) * (position - j))
+    return result
+
+
+def power_launch(data):
+    """A deeper crack and a falling body in the phone-audible midrange."""
+    rng = random.Random(84)
+    phase = 0.0
+    low = 0.0
+    seconds = len(data) / RATE
+    for i in range(len(data)):
+        t = i / RATE
+        phase += 2 * math.pi * (190 + 900 * math.exp(-t / .035)) / RATE
+        noise = rng.uniform(-1, 1)
+        low += .18 * (noise - low)
+        attack = min(1, t / .0015)
+        body = .30 * math.sin(phase) * math.exp(-t / .09)
+        crack = .12 * (noise - low) * math.exp(-t / .02)
+        rush = .10 * low * math.sin(math.pi * t / seconds)
+        data[i] += attack * (body + crack) + rush
 
 
 def phone_presence(data):
@@ -241,26 +294,31 @@ def main():
         for variant in range(variants):
             stem = name + (f'_{variant+1}' if variant else '')
             source = args.sources / f'{stem}.mp3'
-            if name == 'shoot':
+            if name in ['shoot', 'power_shot']:
                 source = args.sources / 'shoot_punch.mp3'
             if name == 'boss_enrage':
                 source = args.sources / 'boss_roar.mp3'
             if source.exists():
-                data = excerpt(decode(source), seconds,
+                # A charged rock reuses the shot take a fourth slower and lower.
+                ratio = .75 if name == 'power_shot' else 1
+                data = excerpt(decode(source), seconds * ratio,
                                stretch=name in ['boss_warning', 'boss_roar', 'boss_enrage', 'boss_charge'],
-                               transient=name in ['shoot', 'flap', 'enemy_death', 'boss_volley', 'boss_burst'],
-                               attack_lead=.006 if name == 'shoot' else .07)
+                               transient=name in ['shoot', 'power_shot', 'flap', 'enemy_death', 'boss_volley', 'boss_burst'],
+                               attack_lead=.006 if name in ['shoot', 'power_shot'] else .07)
                 if name == 'shoot':
                     projectile_snap(data)
+                if name == 'power_shot':
+                    data = deepen(data, ratio, int(seconds * RATE))
+                    power_launch(data)
                 if name in ['enemy_death', 'boss_volley', 'boss_burst']:
                     impact(data, min(.20, seconds), .10, heavy=name == 'boss_burst')
                 origin = source.name
             else:
-                if name in ['shoot', 'enemy_death', 'flap', 'boss_warning', 'boss_roar', 'boss_enrage', 'boss_burst', 'boss_charge', 'boss_volley']:
+                if name in ['shoot', 'power_shot', 'enemy_death', 'flap', 'boss_warning', 'boss_roar', 'boss_enrage', 'boss_burst', 'boss_charge', 'boss_volley']:
                     raise FileNotFoundError(f'Missing generated source: {source}')
                 data = synth(name, seconds, variant)
                 origin = 'original synthesis'
-            targets = {'shoot': -15, 'boss_warning': -12, 'boss_reveal': -15, 'boss_roar': -14}
+            targets = {'shoot': -15, 'power_shot': -15, 'boss_warning': -12, 'boss_reveal': -15, 'boss_roar': -14}
             if name in ['boss_warning', 'boss_reveal', 'boss_roar']:
                 data = phone_presence(data)
             data = master(data, target_peak=.45 if name in MENU_NOTES else .70,

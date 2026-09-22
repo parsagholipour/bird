@@ -1,5 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import '../domain/power_shot.dart';
 import 'theme.dart';
 
 enum MatchSymbol {
@@ -12,6 +14,7 @@ enum MatchSymbol {
   stop,
   letter,
   wing,
+  sprint,
 }
 
 /// Small illustrated symbols share the world's rounded outlines and highlights.
@@ -249,6 +252,34 @@ class _MatchIconPainter extends CustomPainter {
             ..quadraticBezierTo(12, 17, 21, 11),
           color: SkyColors.white,
         );
+      case MatchSymbol.sprint:
+        line(
+          Path()
+            ..moveTo(1, 11)
+            ..lineTo(7, 11)
+            ..moveTo(2, 16)
+            ..lineTo(11, 16)
+            ..moveTo(1, 21)
+            ..lineTo(7, 21),
+          color: muted ? outline.color : SkyColors.cream,
+          width: 2.4,
+        );
+        for (final (x, color) in [
+          (8.0, SkyColors.cream),
+          (16.0, SkyColors.yellow),
+        ]) {
+          shape(
+            Path()
+              ..moveTo(x, 6)
+              ..lineTo(x + 6, 6)
+              ..lineTo(x + 14, 16)
+              ..lineTo(x + 6, 26)
+              ..lineTo(x, 26)
+              ..lineTo(x + 8, 16)
+              ..close(),
+            color,
+          );
+        }
     }
     canvas.restore();
   }
@@ -463,7 +494,6 @@ class MatchHealth extends StatelessWidget {
   );
 }
 
-/// An opaque hit target also consumes taps while the projectile is recharging.
 class MatchAction extends StatefulWidget {
   const MatchAction({
     super.key,
@@ -471,14 +501,12 @@ class MatchAction extends StatefulWidget {
     required this.label,
     required this.onPressed,
     required this.reducedMotion,
-    this.cooldown,
     this.size = 72,
   });
   final MatchSymbol symbol;
   final String label;
   final VoidCallback? onPressed;
   final bool reducedMotion;
-  final double? cooldown;
   final double size;
 
   @override
@@ -497,14 +525,12 @@ class _MatchActionState extends State<MatchAction> {
 
   @override
   Widget build(BuildContext context) {
-    final shoot = widget.symbol == MatchSymbol.shot;
     final disabled =
         widget.reducedMotion || MediaQuery.disableAnimationsOf(context);
     return Semantics(
       button: true,
       enabled: widget.onPressed != null,
       label: widget.label,
-      value: shoot ? (widget.onPressed == null ? 'Recharging' : 'Ready') : null,
       onTap: widget.onPressed,
       excludeSemantics: true,
       child: Tooltip(
@@ -536,12 +562,10 @@ class _MatchActionState extends State<MatchAction> {
                 ),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  gradient: LinearGradient(
+                  gradient: const LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: shoot
-                        ? [SkyColors.coral, SkyColors.coralDeep]
-                        : [SkyColors.white, SkyColors.cream],
+                    colors: [SkyColors.white, SkyColors.cream],
                   ),
                   border: Border.all(
                     color: _focused
@@ -551,19 +575,153 @@ class _MatchActionState extends State<MatchAction> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: (shoot ? SkyColors.coralDeep : SkyColors.ink)
-                          .withValues(alpha: .22),
+                      color: SkyColors.ink.withValues(alpha: .22),
                       offset: Offset(0, _pressed ? 1 : 4),
-                      blurRadius: shoot ? 12 : 0,
                     ),
                   ],
                 ),
-                child: CustomPaint(
-                  painter: widget.cooldown == null
-                      ? null
-                      : _MeterRing(widget.cooldown!, SkyColors.cream, inset: 7),
-                  child: Center(
-                    child: MatchIcon(widget.symbol, size: shoot ? 46 : 30),
+                child: Center(child: MatchIcon(widget.symbol, size: 30)),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Tap to sprint. While the burst lasts its ring drains; afterwards the ring
+/// refills over the cooldown under a seconds countdown. The opaque target
+/// consumes touches while recharging, so a press never flaps the bird.
+class MatchSprintButton extends StatefulWidget {
+  const MatchSprintButton({
+    super.key,
+    required this.label,
+    required this.recharge,
+    required this.burst,
+    required this.secondsLeft,
+    required this.onPressed,
+    required this.reducedMotion,
+    this.size = 80,
+  });
+  final String label;
+
+  /// Each from 0 to 1: progress toward the next sprint, and the share of the
+  /// current burst still to come.
+  final double recharge, burst;
+  final int secondsLeft;
+  final VoidCallback? onPressed;
+  final bool reducedMotion;
+  final double size;
+
+  @override
+  State<MatchSprintButton> createState() => _MatchSprintButtonState();
+}
+
+class _MatchSprintButtonState extends State<MatchSprintButton> {
+  bool _pressed = false, _focused = false;
+
+  @override
+  void didUpdateWidget(MatchSprintButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.onPressed == null) _pressed = false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final still =
+        widget.reducedMotion || MediaQuery.disableAnimationsOf(context);
+    final sprinting = widget.burst > 0;
+    final ready = !sprinting && widget.secondsLeft == 0;
+    final scale = _pressed && !still ? .92 : 1.0;
+    return Semantics(
+      button: true,
+      enabled: widget.onPressed != null,
+      label: widget.label,
+      value: sprinting
+          ? 'Sprinting'
+          : ready
+          ? 'Ready'
+          : 'Recharging, ${widget.secondsLeft} seconds',
+      hint: 'Rush ahead to smash bats and stone panels',
+      onTap: widget.onPressed,
+      excludeSemantics: true,
+      child: Tooltip(
+        message: widget.label,
+        child: Listener(
+          behavior: HitTestBehavior.opaque,
+          child: MatchPulse(
+            value: ready,
+            reducedMotion: widget.reducedMotion,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                customBorder: const CircleBorder(),
+                onTap: widget.onPressed,
+                onFocusChange: (value) => setState(() => _focused = value),
+                onHighlightChanged: (value) {
+                  if (widget.onPressed == null || _pressed == value) return;
+                  setState(() => _pressed = value);
+                },
+                child: AnimatedContainer(
+                  duration: still
+                      ? Duration.zero
+                      : const Duration(milliseconds: 100),
+                  width: widget.size,
+                  height: widget.size,
+                  transformAlignment: Alignment.center,
+                  transform: Matrix4.diagonal3Values(scale, scale, 1),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: sprinting
+                          ? const [SkyColors.yellow, SkyColors.gold]
+                          : ready
+                          ? const [SkyColors.mint, SkyColors.teal]
+                          : const [SkyColors.white, SkyColors.cream],
+                    ),
+                    border: Border.all(
+                      color: _focused
+                          ? SkyColors.ink
+                          : SkyColors.white.withValues(alpha: .9),
+                      width: 3,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: SkyColors.ink.withValues(alpha: .22),
+                        offset: Offset(0, _pressed ? 1 : 4),
+                        blurRadius: ready ? 10 : 0,
+                      ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(5),
+                    child: CustomPaint(
+                      painter: _MeterRing(
+                        sprinting ? widget.burst : widget.recharge,
+                        sprinting
+                            ? SkyColors.white
+                            : ready
+                            ? SkyColors.cream
+                            : SkyColors.teal,
+                      ),
+                      child: Center(
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            MatchIcon(
+                              MatchSymbol.sprint,
+                              size: 40,
+                              muted: !ready && !sprinting,
+                            ),
+                            if (!ready && !sprinting)
+                              Text('${widget.secondsLeft}', style: heading(26)),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -575,14 +733,258 @@ class _MatchActionState extends State<MatchAction> {
   }
 }
 
+/// Hold to charge a power shot, release to fire. The outer ring is the ammo
+/// reserve; while charging, its yellow tail is the share the release will
+/// spend, matching the inner charge ring. Once the shot is full, that inner
+/// ring counts down the 500 ms it can stay held. The opaque target
+/// consumes every touch, so a press during a cooldown or refill never flaps
+/// the bird.
+class MatchShotButton extends StatefulWidget {
+  const MatchShotButton({
+    super.key,
+    required this.label,
+    required this.reserve,
+    required this.charge,
+    required this.spend,
+    required this.charging,
+    required this.empty,
+    required this.onPress,
+    required this.onRelease,
+    required this.reducedMotion,
+    this.hold = 1,
+    this.size = 100,
+  });
+  final String label;
+
+  /// Each from 0 to 1: remaining reserve, held charge and the reserve share
+  /// the release would spend. [hold] is the share of the full-charge window
+  /// still left; it stays at 1 until the shot is full.
+  final double reserve, charge, spend, hold;
+  final bool charging, empty;
+  final VoidCallback? onPress;
+  final VoidCallback onRelease;
+  final bool reducedMotion;
+  final double size;
+
+  @override
+  State<MatchShotButton> createState() => _MatchShotButtonState();
+}
+
+class _MatchShotButtonState extends State<MatchShotButton> {
+  static final _activators = {
+    LogicalKeyboardKey.space,
+    LogicalKeyboardKey.enter,
+    LogicalKeyboardKey.numpadEnter,
+  };
+  int? _pointer;
+  bool _keyHeld = false, _focused = false;
+  bool get _held => _pointer != null || _keyHeld;
+
+  void _down(PointerDownEvent event) {
+    if (_held || widget.onPress == null) return;
+    setState(() => _pointer = event.pointer);
+    widget.onPress!();
+  }
+
+  // A cancelled touch still releases, so a charge never outlives its finger.
+  void _up(PointerEvent event) {
+    if (event.pointer != _pointer) return;
+    setState(() => _pointer = null);
+    widget.onRelease();
+  }
+
+  KeyEventResult _key(FocusNode node, KeyEvent event) {
+    if (!_activators.contains(event.logicalKey)) return KeyEventResult.ignored;
+    if (event is KeyDownEvent && !_held && widget.onPress != null) {
+      setState(() => _keyHeld = true);
+      widget.onPress!();
+    } else if (event is KeyUpEvent && _keyHeld) {
+      setState(() => _keyHeld = false);
+      widget.onRelease();
+    }
+    return KeyEventResult.handled;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final still =
+        widget.reducedMotion || MediaQuery.disableAnimationsOf(context);
+    final enabled = widget.onPress != null;
+    final showingCharge = widget.charging && !widget.empty;
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      label: widget.label,
+      value: widget.empty
+          ? 'Reloading…'
+          : showingCharge
+          ? widget.charge >= 1
+                ? 'Full charge, ${(widget.hold * PowerShot.maxFullHoldSeconds * 1000).round()} ms left'
+                : 'Charging ${(widget.charge * 100).round()}%'
+          : 'Ammo ${(widget.reserve * 100).round()}%',
+      hint: 'Hold to charge a bigger rock',
+      focusable: enabled,
+      focused: _focused,
+      onTap: enabled
+          ? () {
+              widget.onPress!();
+              widget.onRelease();
+            }
+          : null,
+      excludeSemantics: true,
+      child: Focus(
+        canRequestFocus: enabled,
+        includeSemantics: false,
+        onFocusChange: (value) => setState(() => _focused = value),
+        onKeyEvent: _key,
+        child: Listener(
+          behavior: HitTestBehavior.opaque,
+          onPointerDown: _down,
+          onPointerUp: _up,
+          onPointerCancel: _up,
+          child: AnimatedScale(
+            duration: still ? Duration.zero : const Duration(milliseconds: 100),
+            scale: _held && !still ? .94 : 1,
+            child: Container(
+              width: widget.size,
+              height: widget.size,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color.lerp(
+                      SkyColors.coral,
+                      SkyColors.gold,
+                      widget.charge * .5,
+                    )!,
+                    SkyColors.coralDeep,
+                  ],
+                ),
+                border: Border.all(
+                  color: _focused
+                      ? SkyColors.gold
+                      : SkyColors.white.withValues(alpha: .9),
+                  width: 3,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: SkyColors.coralDeep.withValues(alpha: .22),
+                    offset: Offset(0, _held ? 1 : 4),
+                    blurRadius: 12,
+                  ),
+                ],
+              ),
+              child: CustomPaint(
+                painter: _ShotMeter(
+                  reserve: widget.reserve,
+                  spend: widget.spend,
+                  charge: widget.charge,
+                  hold: widget.hold,
+                  charging: showingCharge,
+                ),
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Transform.scale(
+                        scale: still ? 1 : 1 + widget.charge * .2,
+                        child: MatchIcon(
+                          MatchSymbol.shot,
+                          size: widget.empty ? 32 : 46,
+                          muted: widget.empty,
+                        ),
+                      ),
+                      if (widget.empty) ...[
+                        const SizedBox(height: 4),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              'Reloading…',
+                              style: heading(12, color: SkyColors.white),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ShotMeter extends CustomPainter {
+  const _ShotMeter({
+    required this.reserve,
+    required this.spend,
+    required this.charge,
+    required this.hold,
+    required this.charging,
+  });
+  final double reserve, spend, charge, hold;
+  final bool charging;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4
+      ..strokeCap = StrokeCap.round;
+    void arc(Rect bounds, double from, double to, Color color) {
+      if (to <= from) return;
+      canvas.drawArc(
+        bounds,
+        -math.pi / 2 + math.pi * 2 * from,
+        math.pi * 2 * (to - from),
+        false,
+        paint..color = color,
+      );
+    }
+
+    final outer = (Offset.zero & size).deflate(7);
+    final left = reserve.clamp(0.0, 1.0);
+    final kept = (left - spend).clamp(0.0, left);
+    canvas.drawOval(
+      outer,
+      paint..color = SkyColors.cream.withValues(alpha: .2),
+    );
+    arc(outer, 0, kept, SkyColors.cream);
+    arc(outer, kept, left, SkyColors.yellow);
+    if (!charging) return;
+    final inner = (Offset.zero & size).deflate(17);
+    canvas.drawOval(
+      inner,
+      paint..color = SkyColors.yellow.withValues(alpha: .25),
+    );
+    final level = charge >= 1 ? hold.clamp(0.0, 1.0) : charge;
+    arc(inner, 0, level, charge >= 1 ? SkyColors.white : SkyColors.yellow);
+  }
+
+  @override
+  bool shouldRepaint(_ShotMeter oldDelegate) =>
+      reserve != oldDelegate.reserve ||
+      spend != oldDelegate.spend ||
+      charge != oldDelegate.charge ||
+      hold != oldDelegate.hold ||
+      charging != oldDelegate.charging;
+}
+
 class _MeterRing extends CustomPainter {
-  const _MeterRing(this.value, this.color, {this.inset = 2});
-  final double value, inset;
+  const _MeterRing(this.value, this.color);
+  final double value;
   final Color color;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final bounds = (Offset.zero & size).deflate(inset);
+    final bounds = (Offset.zero & size).deflate(2);
     final paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3
@@ -601,7 +1003,5 @@ class _MeterRing extends CustomPainter {
 
   @override
   bool shouldRepaint(_MeterRing oldDelegate) =>
-      value != oldDelegate.value ||
-      color != oldDelegate.color ||
-      inset != oldDelegate.inset;
+      value != oldDelegate.value || color != oldDelegate.color;
 }

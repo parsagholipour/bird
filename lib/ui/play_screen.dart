@@ -387,7 +387,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                       Text(
                         widget.course.relaxed
                             ? 'Tap anywhere in the sky to flap upward.\nRelease and tap again to keep flying.'
-                            : 'Tap the sky to flap. Tap Shoot to fire at bats.\nBosses visit every so often: dodge their ammo and shoot to drain their HP!',
+                            : 'Tap the sky to flap. Tap Shoot to fire at bats.\nHold Shoot for a bigger rock. Rapid fire drains ammo.\nSprint to smash bats and stone panels. Beware of bosses!',
                         style: bodyText(18),
                       ),
                       const SizedBox(height: 8),
@@ -1134,14 +1134,33 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
           Positioned(
             right: 24,
             bottom: 24,
-            child: MatchAction(
+            child: MatchShotButton(
               key: const ValueKey('touch-shoot'),
-              symbol: MatchSymbol.shot,
               label: 'Shoot',
-              size: 100,
-              cooldown:
-                  1 - sim.shotCooldownRemaining / FlightSimulation.shotCooldown,
-              onPressed: sim.canShoot ? controller.shoot : null,
+              reserve: sim.ammo,
+              charge: sim.shotCharge,
+              spend: sim.charging && !sim.outOfAmmo ? sim.shotCost : 0,
+              hold: sim.fullHoldLeft,
+              charging: sim.charging,
+              empty: sim.outOfAmmo,
+              onPress: sim.phase == RunPhase.playing
+                  ? controller.startCharge
+                  : null,
+              onRelease: controller.shoot,
+              reducedMotion: controller.reducedMotion,
+            ),
+          ),
+        if (sim.supportsSprint)
+          Positioned(
+            right: 140,
+            bottom: 34,
+            child: MatchSprintButton(
+              key: const ValueKey('touch-sprint'),
+              label: 'Sprint',
+              recharge: 1 - sim.sprintCooldownRemaining / Sprint.cooldown,
+              burst: sim.sprintRemaining / Sprint.seconds,
+              secondsLeft: sim.sprintCooldownRemaining.ceil(),
+              onPressed: sim.canSprint ? controller.sprint : null,
               reducedMotion: controller.reducedMotion,
             ),
           ),
@@ -1168,7 +1187,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                     (controller.isTouch || sim.trackingFresh(controller.nowMs))
                         ? (controller.isTouch
                               ? (sim.supportsCombat
-                                    ? 'Tap the sky to flap. Tap Shoot to fire a rock.'
+                                    ? 'Tap the sky to flap. Hold Shoot to charge. Sprint to smash!'
                                     : 'Tap to flap. Release between taps.')
                               : sim.isCruise
                               ? 'Breathe. Move. Follow the stars.'

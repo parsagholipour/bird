@@ -1,6 +1,6 @@
 # Sound effects
 
-The game bundles 56 short PCM effects and variations. All playback works offline
+The game bundles 61 short PCM effects and variations. All playback works offline
 and uses the existing **Sound effects** setting independently of music.
 
 ## Sound palette
@@ -8,6 +8,8 @@ and uses the existing **Sound effects** setting independently of music.
 | Action | Design |
 | --- | --- |
 | Flap / shooting | Three soft feather swishes / one consistent punchy projectile crack with a short falling body |
+| Power shots | Deeper 420 ms launch from the same take, a bright E6–A6 ping at full charge, and a soft falling D4–A3 click when the reserve is empty |
+| Sprint | A 550 ms rising air rush with a soft impact, and a bright F5–C6–F6 bell when the cooldown ends |
 | Enemy combat | Quiet charge, projectile launch, crunchy death puff (three takes) |
 | Projectile collisions | Stone impact and bright interception ping |
 | Boss arrival | Ominous wind warning, reveal impact, creature roar |
@@ -34,7 +36,7 @@ The tool extracts a single attack from repeating takes, fits long gestures to
 animation timing, removes DC offset, fades boundaries and masters peaks to
 -3.10 dBFS, with gentler menu cues at -6.94 dBFS. Output is mono 44.1 kHz,
 signed 16-bit PCM. Every file is smaller than Android SoundPool's decoded-buffer
-limit. The complete bank is 2.91 MB.
+limit. The complete bank is 3.00 MB.
 It writes durations, RMS levels and output SHA-256 hashes to
 `build/sound-effects/verification.json`.
 
@@ -47,7 +49,8 @@ Use `prepare_sound_effects.py` for the current assets.
 `sound_bank.dart` defines volume, duration, cooldown, priority and variation
 count. `SkyAudio` keeps at most eight effect voices, uses Android's low-latency
 SoundPool mode and preloads asset files. Repeated cues coalesce; subsequent
-flaps and kills rotate takes; every shot uses the same asset. A full mixer admits a new cue only if a
+flaps and kills rotate takes; shots do not. Releases below 35% charge play
+`shoot`, and stronger ones play `power_shot`. A full mixer admits a new cue only if a
 lower-priority voice can be replaced, so shots cannot interrupt a boss roar or
 death. Per-voice queues and cancellation revisions prevent stale native loads
 from playing after mute, stop or disposal. Effects never request Android audio
@@ -122,3 +125,33 @@ only the initial warning by 5.39 dB relative to that installed revision. The
 warning's soft-knee mastering target is now -12 dBFS RMS; its peak remains
 -3.10 dBFS. Hash checks confirm the warning is the only changed asset. All 18
 affected audio/combat/cinematic tests and static analysis pass.
+
+Power shots add three assets without changing existing ones. `power_shot`
+replays the ElevenLabs shot take at 0.75× speed for a lower crack, adds a
+deterministic 190 Hz falling body and plays at volume 0.38 with priority 3.
+`shot_charged` (volume 0.22) and `ammo_empty` (volume 0.30) are original
+syntheses; `CombatAudioCues` plays them once when a held charge reaches full
+and on each dry fire.
+
+| New asset | Duration | RMS before playback gain |
+| --- | ---: | ---: |
+| Power shot | 420 ms | -13.75 dBFS |
+| Shot charged | 380 ms | -16.19 dBFS |
+| Ammo empty | 200 ms | -17.20 dBFS |
+
+All three keep -3.10 dBFS peaks. Hash checks against the previous release APK
+confirm every earlier effect is byte-identical. The packaged-asset and combat
+cue tests pass.
+
+Sprint adds two original syntheses. `sprint` (volume 0.40, priority 3) layers
+a rising noise rush over a soft impact. `sprint_ready` (volume 0.24) is a short
+F5–C6–F6 bell. `CombatAudioCues` plays the rush once per accepted sprint and the bell
+once when a used sprint recharges, never at flight start.
+
+| New asset | Duration | RMS before playback gain |
+| --- | ---: | ---: |
+| Sprint | 550 ms | -18.55 dBFS |
+| Sprint ready | 450 ms | -15.16 dBFS |
+
+Both keep -3.10 dBFS peaks. SHA-256 checks against the 22 September release APK
+confirm that all 57 earlier effects are byte-identical.

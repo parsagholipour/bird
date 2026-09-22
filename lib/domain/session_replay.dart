@@ -107,6 +107,8 @@ class ReplayTape {
             'end',
             if (recordedVersion >= 7) 'shoot',
             if (recordedVersion >= 26) 'weaponDamage',
+            if (recordedVersion >= 28) 'charge',
+            if (recordedVersion >= 29) 'sprint',
           ].contains(event[1])) {
         throw const FormatException('Invalid replay timeline');
       }
@@ -175,7 +177,12 @@ class FlightRecorder {
       return;
     }
     _add('tick', [dt, now, viewportWidth], now);
-    simulation.tick(dt, now, viewportWidth: viewportWidth);
+    simulation.tick(
+      dt,
+      now,
+      viewportWidth: viewportWidth,
+      reducedMotion: tape.reducedMotion,
+    );
   }
 
   void command(String kind, [EndReason? reason]) {
@@ -223,7 +230,12 @@ void applyReplayEvent(
         n(3),
       );
     case 'tick':
-      simulation.tick(n(2), n(3), viewportWidth: n(4));
+      simulation.tick(
+        n(2),
+        n(3),
+        viewportWidth: n(4),
+        reducedMotion: reducedMotion,
+      );
     case 'break':
       simulation.takeBreak();
     case 'background':
@@ -232,8 +244,12 @@ void applyReplayEvent(
       simulation.resume();
     case 'end':
       simulation.end(EndReason.values.byName(e[2] as String));
+    case 'charge':
+      simulation.startCharge();
     case 'shoot':
       simulation.shoot(reducedMotion: reducedMotion);
+    case 'sprint':
+      simulation.sprint();
     case 'weaponDamage':
       simulation.setWeaponDamage(e[2] as int);
   }
