@@ -7,7 +7,7 @@ import 'tracking.dart';
 class ReplayTape {
   ReplayTape({
     required this.mode,
-    required bool practice,
+    required this.practice,
     required this.seed,
     required this.cycleSeconds,
     required this.bird,
@@ -17,8 +17,7 @@ class ReplayTape {
     this.recordedVersion = version,
     this.weaponDamage = BirdRock.baseDamage,
     List<List<dynamic>>? events,
-  }) : events = events ?? [],
-       practice = practice || course.relaxed;
+  }) : events = events ?? [];
   static const version = FlightSimulation.currentRulesVersion;
   final int recordedVersion;
   final FlightCourse course;
@@ -71,9 +70,7 @@ class ReplayTape {
     }
     final tape = ReplayTape(
       recordedVersion: recordedVersion,
-      course: FlightCourse.values.byName(
-        json['course'] as String? ?? 'classic',
-      ),
+      course: FlightCourse.named(json['course'] as String? ?? 'classic'),
       mode: PlayMode.fromName(json['mode'] as String),
       practice: json['practice'] as bool,
       seed: json['seed'] as int,

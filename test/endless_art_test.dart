@@ -135,39 +135,6 @@ void main() {
       title.paint(c, Offset(140 - title.width / 2, 356));
       c.restore();
     }
-    c.save();
-    c.translate(840, 400);
-    c.clipRect(const Rect.fromLTWH(10, 10, 260, 380));
-    SkyScenery.paint(c, const Size(280, 340), seconds: 5, reducedMotion: true);
-    for (final (i, kind) in [
-      ObstacleKind.lanternDrift,
-      ObstacleKind.crystalSteps,
-      ObstacleKind.petalGate,
-    ].indexed) {
-      final o = Obstacle(x: 0, center: .5, gap: .4, kind: kind, appearance: i);
-      ObstacleArt.ring(
-        c,
-        Rect.fromCenter(
-          center: Offset(70 + i * 70.0, i == 1 ? 145 : 205),
-          width: 42,
-          height: 95,
-        ),
-        o,
-        seconds: 5,
-        reducedMotion: true,
-        cleared: false,
-      );
-    }
-    c.drawRect(
-      const Rect.fromLTWH(10, 340, 260, 50),
-      Paint()..color = SkyColors.cream,
-    );
-    final cruiseTitle = TextPainter(
-      text: TextSpan(text: 'Cloud Cruise rings', style: heading(20)),
-      textDirection: TextDirection.ltr,
-    )..layout(maxWidth: 246);
-    cruiseTitle.paint(c, Offset(140 - cruiseTitle.width / 2, 356));
-    c.restore();
     final picture = recorder.endRecording();
     final image = await picture.toImage(1120, 800);
     if (const bool.fromEnvironment('CAPTURE_VISUALS')) {

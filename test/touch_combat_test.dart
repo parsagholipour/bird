@@ -196,7 +196,7 @@ void main() {
     sim.enemies.add(SkyEnemy(x: 1.1, y: .5));
     sim.shoot();
     tick(sim, .3);
-    expect(sim.rocks, isEmpty);
+    expect(sim.rocks.single.rebounding, isTrue);
     expect(sim.enemiesDefeated, 0);
     expect(sim.enemies, hasLength(1));
   });
@@ -224,16 +224,9 @@ void main() {
     tick(classic, .02);
     expect(classic.endReason, EndReason.collision);
     expect(classic.shoot(), isFalse);
-    final courier = playing(course: FlightCourse.skyCourier)
-      ..carryingLetter = true;
-    courier.enemies.add(SkyEnemy(x: FlightSimulation.birdX, y: .5));
-    tick(courier, .02);
-    expect(courier.lettersDropped, 1);
-    expect(courier.carryingLetter, isFalse);
-    expect(courier.phase, RunPhase.playing);
   });
 
-  test('combat is limited to new touch flights outside Cloud Cruise', () {
+  test('combat is limited to new touch flights', () {
     for (final mode in [
       JumpFlyMode(),
       PushUpFlightMode(cycleSeconds: 3),
@@ -248,7 +241,7 @@ void main() {
             rulesVersion: version,
           )..phase = RunPhase.playing;
           final enabled =
-              mode.mode == PlayMode.touch && !course.relaxed && version >= 7;
+              mode.mode == PlayMode.touch && version >= 7;
           expect(sim.shoot(), enabled);
         }
       }

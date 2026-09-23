@@ -4,6 +4,7 @@ import 'package:push_up_bird/domain/session_replay.dart';
 import 'package:push_up_bird/domain/tracking.dart';
 import 'package:push_up_bird/game/combat_audio_cues.dart';
 import 'boss_fight_test.dart' show arena, step, hover, snapshot;
+import 'recorded_flight.dart';
 import 'touch_combat_test.dart' show playing, tick;
 
 void main() {
@@ -195,7 +196,7 @@ void main() {
       final recorder = FlightRecorder(
         ReplayTape(
           mode: PlayMode.touch,
-          course: FlightCourse.skyCourier,
+          course: FlightCourse.starTrail,
           practice: true,
           seed: 7,
           cycleSeconds: 3,
@@ -218,7 +219,7 @@ void main() {
       for (var frame = 1; frame <= 1800; frame++) {
         now = frame * 50.0;
         recorder.apply(
-          MovementInput(valid: true, flap: sim.birdY > .5 && sim.velocity > 0),
+          MovementInput(valid: true, flap: rideTheSky(sim)),
           TrackingSample(
             mode: PlayMode.touch,
             timestampMs: now,

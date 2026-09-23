@@ -23,39 +23,6 @@ RunResult run(
 );
 void main() {
   test(
-    'Cloud Cruise is excluded from records, stamps and bird unlocks',
-    () async {
-      final repo = SqliteProgressRepository(
-        ProgressDatabase(NativeDatabase.memory()),
-      );
-      addTearDown(repo.close);
-      final cruise = RunResult(
-        id: 'cruise',
-        mode: PlayMode.pushUp,
-        practice: false,
-        course: FlightCourse.cloudCruise,
-        score: 400,
-        gates: 300,
-        stars: 300,
-        bestCombo: 100,
-        perfectPasses: 200,
-        repetitions: 8,
-        flaps: 0,
-        durationSeconds: 100,
-        reason: EndReason.breakTaken,
-        finishedAt: DateTime.now(),
-      );
-      expect(cruise.practice, isTrue);
-      await repo.saveRun(cruise);
-      final p = await repo.load();
-      expect(p.totalRuns, 0);
-      expect(p.totalStars, 0);
-      expect(p.totalPerfects, 0);
-      expect(p.totalObstacles, 0);
-      expect(p.unlocked, {0});
-    },
-  );
-  test(
     'Star Trail records stay separate and unlock birds with cleared gates',
     () async {
       final repo = SqliteProgressRepository(

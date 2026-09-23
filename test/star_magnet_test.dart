@@ -198,12 +198,6 @@ void main() {
     expect(flight.sim.magnetCharge, 0);
   });
 
-  test('Cloud Cruise earns magnets while remaining practice', () {
-    final flight = FlightHarness(course: FlightCourse.cloudCruise)..charge();
-    expect(flight.sim.magnetActive, isTrue);
-    expect(flight.sim.practice, isTrue);
-  });
-
   test(
     'version two journals retain their old rules even after serialization',
     () {

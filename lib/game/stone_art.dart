@@ -20,7 +20,17 @@ abstract final class StoneArt {
     canvas.save();
     canvas.translate(rock.x * height, rock.y * height);
     canvas.scale(rock.radius * height);
-    _trail(canvas, rock.charge, reducedMotion ? 0 : seconds);
+    if (rock.rebounding) {
+      if (!reducedMotion) {
+        final age = rock.reboundAge!;
+        // A brief impact squash opens into a tumbling, unpowered shell.
+        final squash = (1 - age / .1).clamp(0.0, 1.0) * .22;
+        canvas.scale(1 - squash, 1 + squash);
+        canvas.rotate(-age * 8);
+      }
+    } else {
+      _trail(canvas, rock.charge, reducedMotion ? 0 : seconds);
+    }
     _body(canvas, rock.charge);
     canvas.restore();
   }

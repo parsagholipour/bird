@@ -75,7 +75,7 @@ void main() {
     },
   );
 
-  for (final course in [FlightCourse.starTrail, FlightCourse.skyCourier]) {
+  for (final course in [FlightCourse.starTrail]) {
     test(
       '$course Reduced Motion removes flag flutter while the destination approaches',
       () async {
@@ -220,9 +220,6 @@ void main() {
         expect(medal, isNot(equals(plain)));
         await tester.pump(const Duration(seconds: 3));
         expect(await portraitPixels(tester), medal);
-        await tester.pumpWidget(portrait(FlightCourse.skyCourier));
-        await tester.pumpAndSettle();
-        expect(await portraitPixels(tester), isNot(equals(medal)));
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox());
       },

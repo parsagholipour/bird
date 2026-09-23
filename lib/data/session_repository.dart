@@ -195,7 +195,7 @@ Map<String, dynamic> _resultJson(RunResult r) => {
 RunResult _readResult(Map<String, dynamic> r) => RunResult(
   id: r['id'] as String,
   mode: PlayMode.fromName(r['mode'] as String),
-  course: FlightCourse.values.byName(r['course'] as String? ?? 'classic'),
+  course: FlightCourse.named(r['course'] as String? ?? 'classic'),
   gates: r['gates'] as int?,
   stars: r['stars'] as int? ?? 0,
   bestCombo: r['bestCombo'] as int? ?? 0,

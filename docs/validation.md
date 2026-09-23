@@ -1,5 +1,38 @@
 # Validation ledger
 
+## 2026-09-23 retire Courier and Cloud Cruise
+
+- Sky Courier and Cloud Cruise are no longer playable. Flight School, the
+  course picker and new flights offer Classic and Star Trail only. Saved
+  journals and launch links that name either retired course open as Star Trail.
+  Old score rows remain under their original course name and do not merge into
+  Star Trail bests. Lifetime exercise totals and the both-wings stamp no longer
+  count Courier-only runs.
+- `flutter analyze --no-pub lib test tool` reports no issues. The full
+  `flutter test --no-pub` suite passes all 503 tests. Device playtesting is
+  still pending.
+
+## 2026-09-23 wall rebound physics
+
+- The wall-hit branch immediately consumed player rocks. Rules version 31
+  keeps the spent shell visible, reflects its horizontal speed relative to
+  the scrolling wall with energy loss, and lets gravity pull it down after
+  a small upward kick. Breakable panels take damage once; returning shells
+  cannot damage enemies or cancel their ammo. Shells retire offscreen.
+- `test/rock_bounce_test.dart` first reproduced the disappearance, then
+  verified the rebound and accelerating fall, every obstacle family, charge
+  sizes, slow frames, clear openings, lethal and nonlethal panel hits,
+  single impact audio, offscreen cleanup, pause freezing, legacy rules, and
+  exact replay seeks in both motion settings. Existing floating-obstacle
+  and combat checks now expect a rebound on impact.
+- Render checks follow the visible stone through impact, return and fall.
+  Inspected `build/visual-review/rock-bounce.png` and its Reduced Motion
+  variant, generated with `CAPTURE_ROCK_BOUNCE=true`. Reduced Motion retains
+  the trajectory while omitting impact squash and tumble.
+- `flutter analyze --no-pub lib test tool` reports no issues; the full
+  `flutter test --no-pub` suite passes all 574 tests. Device playtesting is
+  still pending.
+
 ## 2026-09-23 sprint
 
 - Rules version 29 adds a touch Sprint button with a 1.2-second burst and a
@@ -1338,3 +1371,35 @@ The Android arm64 release APK also builds successfully with
   519 Flutter tests pass and static analysis is clean. A real tap flight was
   rendered at `build/visual-review/bird-trail-path.png`; no device testing was
   performed.
+
+## 2026-09-23 star-group aura
+
+Replaced connected constellations with a small gold halo at the last star of a
+fully collected group. It fades over 650 ms at that star's scrolling position;
+Reduced Motion keeps its size fixed. Partial/missed groups draw nothing extra.
+New flights have no charge slots, collection labels, orbiting
+stars or star-triggered bird expressions/trail changes. Group scoring matches
+version 29: all three stars in the same group are required for the flat +5.
+The original quiet pickup/group sounds remain. Pre-version-30 replays keep
+their previous presentation.
+
+Validation: all 562 tests pass; scoped source analysis (`flutter analyze
+--no-pub lib test tool pigeons`) reports no issues. Tests cover missed and
+separate groups, magnets, pauses, backwards replay seeks, legacy score parity,
+no drawing before completion, bounded aura size/lifetime, and pixel-identical
+bird appearance across star rewards and multiplier changes. Reviewed the
+rendered collection frame and generated a four-second gameplay preview at
+`build/visual-review/star-aura/star-aura-preview.mp4`. On-device playtesting
+of the revised effect remains pending.
+
+
+### Shrinking pickup animation restored
+
+Each collected star now moves into the bird and shrinks away over 220 ms.
+The small group aura remains at the last star's location, without a second
+stationary star underneath it. Charge slots and bird bursts remain removed.
+Pickup timestamps and heights are reconstructed by the simulation, so pauses
+and backwards replay seeks preserve the same animation. Reduced Motion fades
+pickups in place. All 32 focused collection, magnet, replay, art and small-phone
+UI checks pass; scoped source analysis is clean. Updated preview:
+`build/visual-review/star-aura/star-pickup-preview.mp4`.

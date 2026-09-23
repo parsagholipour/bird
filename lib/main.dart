@@ -95,15 +95,7 @@ final appRouter = GoRouter(
           _ => PlayMode.pushUp,
         },
         practice: state.uri.queryParameters['practice'] == 'true',
-        // Retire the crash-free jump diagnostic link in favor of the regular
-        // obstacle course. Saved replays retain their recorded course.
-        course: switch ((
-          state.pathParameters['mode'],
-          state.uri.queryParameters['course'],
-        )) {
-          ('jump' || 'smile', 'cloudCruise') => FlightCourse.starTrail,
-          (_, final course) => FlightCourse.named(course),
-        },
+        course: FlightCourse.named(state.uri.queryParameters['course']),
       ),
     ),
   ],

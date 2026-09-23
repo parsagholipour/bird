@@ -82,8 +82,11 @@ void main() {
       final through = BirdRock(x: .85, y: .5);
       sim.rocks.addAll([blocked, through]);
       step(sim, 200, dt: .2);
-      expect(sim.rocks, isNot(contains(blocked)));
+      expect(sim.rocks, contains(blocked));
+      expect(blocked.rebounding, isTrue);
+      expect(blocked.x, lessThan(o.x));
       expect(sim.rocks, contains(through));
+      expect(through.rebounding, isFalse);
     });
 
     test(
@@ -151,14 +154,16 @@ void main() {
       final sim = FlightSimulation(
         rules: PushUpFlightMode(cycleSeconds: 3),
         practice: true,
-        course: FlightCourse.cloudCruise,
+        course: FlightCourse.starTrail,
         random: Random(18),
       );
       final seen = <ObstacleKind>{};
       final appearances = <int>{};
       Obstacle? last;
       for (var frame = 0; frame < 15300; frame++) {
-        step(sim, (frame + 1) * 20.0, y: .5);
+        final ahead = sim.obstacles.where((o) => !o.scored);
+        final target = ahead.isEmpty ? .5 : ahead.first.target;
+        step(sim, (frame + 1) * 20.0, y: target);
         final current = sim.obstacles.lastOrNull;
         if (current == null || identical(current, last)) continue;
         if (sim.elapsed >= 18 && last != null) {

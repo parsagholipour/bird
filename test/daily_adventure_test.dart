@@ -73,7 +73,7 @@ void main() {
   );
 
   test(
-    'practice, relaxed flights, other dates and duplicate IDs cannot inflate a card',
+    'practice flights, other dates and duplicate IDs cannot inflate a card',
     () {
       final day = DateTime(2026, 9, 16);
       final one = dailyRun(
@@ -90,7 +90,6 @@ void main() {
         one,
         one,
         dailyRun('practice', day, practice: true, stars: 999),
-        dailyRun('cruise', day, course: FlightCourse.cloudCruise, stars: 999),
         dailyRun('yesterday', DateTime(2026, 9, 15, 23, 59, 59)),
         dailyRun('tomorrow', DateTime(2026, 9, 17)),
       ]);

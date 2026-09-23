@@ -8,7 +8,7 @@ FlightSimulation spitterArena({
   double width = 2.2,
   int version = FlightSimulation.currentRulesVersion,
 }) {
-  final sim = arena(version: version, course: FlightCourse.skyCourier)
+  final sim = arena(version: version, course: FlightCourse.starTrail)
     ..bossesDefeated = 1;
   step(sim, .02, width);
   for (var i = 0; i < 231; i++) {

@@ -149,10 +149,6 @@ class ProgressSnapshot {
     this.trailJump = const ModeRecord(),
     this.trailTouch = const ModeRecord(),
     this.trailSquat = const ModeRecord(),
-    this.courierPushUp = const ModeRecord(),
-    this.courierJump = const ModeRecord(),
-    this.courierTouch = const ModeRecord(),
-    this.courierSquat = const ModeRecord(),
     this.unlocked = const {0},
     this.recent = const [],
     this.adventures = const [],
@@ -165,11 +161,7 @@ class ProgressSnapshot {
       trailPushUp,
       trailJump,
       trailTouch,
-      trailSquat,
-      courierPushUp,
-      courierJump,
-      courierTouch,
-      courierSquat;
+      trailSquat;
   final Set<int> unlocked;
   final List<RunResult> recent;
 
@@ -179,9 +171,8 @@ class ProgressSnapshot {
   int get totalObstacles => allRecords.fold(0, (n, r) => n + r.obstacles);
   int get totalRuns => allRecords.fold(0, (n, r) => n + r.runs);
   int get totalRepetitions =>
-      pushUp.repetitions + trailPushUp.repetitions + courierPushUp.repetitions;
-  int get totalSquats =>
-      squat.repetitions + trailSquat.repetitions + courierSquat.repetitions;
+      pushUp.repetitions + trailPushUp.repetitions;
+  int get totalSquats => squat.repetitions + trailSquat.repetitions;
   List<ModeRecord> get allRecords => [
     pushUp,
     jump,
@@ -191,10 +182,6 @@ class ProgressSnapshot {
     trailJump,
     trailTouch,
     trailSquat,
-    courierPushUp,
-    courierJump,
-    courierTouch,
-    courierSquat,
   ];
   int get totalStars => allRecords.fold(0, (n, r) => n + r.stars);
   int get totalPerfects => allRecords.fold(0, (n, r) => n + r.perfectPasses);
@@ -208,21 +195,12 @@ class ProgressSnapshot {
   ModeRecord record(
     PlayMode mode, [
     FlightCourse course = FlightCourse.classic,
-  ]) => course.relaxed
-      ? const ModeRecord()
-      : course == FlightCourse.starTrail
+  ]) => course == FlightCourse.starTrail
       ? switch (mode) {
           PlayMode.pushUp => trailPushUp,
           PlayMode.jump => trailJump,
           PlayMode.touch => trailTouch,
           PlayMode.squat => trailSquat,
-        }
-      : course == FlightCourse.skyCourier
-      ? switch (mode) {
-          PlayMode.pushUp => courierPushUp,
-          PlayMode.jump => courierJump,
-          PlayMode.touch => courierTouch,
-          PlayMode.squat => courierSquat,
         }
       : switch (mode) {
           PlayMode.pushUp => pushUp,
@@ -327,10 +305,6 @@ class SqliteProgressRepository implements ProgressRepository {
       trailJump: await record(PlayMode.jump, FlightCourse.starTrail),
       trailTouch: await record(PlayMode.touch, FlightCourse.starTrail),
       trailSquat: await record(PlayMode.squat, FlightCourse.starTrail),
-      courierPushUp: await record(PlayMode.pushUp, FlightCourse.skyCourier),
-      courierJump: await record(PlayMode.jump, FlightCourse.skyCourier),
-      courierTouch: await record(PlayMode.touch, FlightCourse.skyCourier),
-      courierSquat: await record(PlayMode.squat, FlightCourse.skyCourier),
       unlocked: unlocked,
       recent: rows.map(_runResult).toList(),
       adventures: [
@@ -346,7 +320,7 @@ class SqliteProgressRepository implements ProgressRepository {
   RunResult _runResult(Run r) => RunResult(
     id: r.id,
     mode: PlayMode.values[r.mode],
-    course: FlightCourse.values.byName(r.course),
+    course: FlightCourse.named(r.course),
     gates: r.gates,
     stars: r.stars,
     bestCombo: r.bestCombo,

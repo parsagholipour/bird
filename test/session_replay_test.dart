@@ -17,15 +17,11 @@ List<Object?> state(FlightSimulation s) => [
   s.elapsed,
   s.distance,
   s.countdown,
-  s.carryingLetter,
-  s.lettersCollected,
-  s.lettersDropped,
-  s.courierBumps,
   s.glideRemaining,
   s.gliding,
   s.lastGlideStarAt,
   for (final o in s.obstacles)
-    [o.x, o.center, o.target, o.gap, o.scored, o.courierStop],
+    [o.x, o.center, o.target, o.gap, o.scored],
 ];
 
 FlightRecorder makeRecorder(PlayMode mode, double Function() now) =>
@@ -282,7 +278,7 @@ void main() {
         final loaded = await reopened.load(result.id);
         for (final summary in [loaded.result, (await reopened.list()).single]) {
           expect(summary.course, course);
-          expect(summary.practice, course.relaxed);
+          expect(summary.practice, isFalse);
           expect(summary.gates, 7);
           expect(summary.stars, 23);
           expect(summary.bestCombo, 13);

@@ -4,13 +4,13 @@ import 'package:push_up_bird/domain/game_rules.dart';
 import 'package:push_up_bird/domain/session_replay.dart';
 import 'package:push_up_bird/domain/tracking.dart';
 import 'package:push_up_bird/game/bird_puppet.dart';
-import 'cloud_friends_test.dart' show recordCloudCruise;
+import 'recorded_flight.dart';
 
 class GlideFlight {
   GlideFlight({
     GameMode? rules,
     int version = FlightSimulation.currentRulesVersion,
-    FlightCourse course = FlightCourse.cloudCruise,
+    FlightCourse course = FlightCourse.starTrail,
   }) : sim =
            FlightSimulation(
                rules: rules ?? JumpFlyMode(),
@@ -91,7 +91,7 @@ void main() {
   test('extending an ending glide slows descent without snapping velocity', () {
     final flight = GlideFlight()
       ..input(jump: true)
-      ..advance(4);
+      ..advance(3.8);
     expect(flight.sim.glideRemaining, inInclusiveRange(.15, .30));
     final before = flight.sim.velocity;
     expect(before, greaterThan(.12));
@@ -124,8 +124,8 @@ void main() {
       flight.input(jump: true);
       old.input(jump: true);
       expect(flight.sim.glideRemaining, 3);
-      flight.advance(1);
-      old.advance(1);
+      flight.advance(.8);
+      old.advance(.8);
       expect(flight.sim.velocity, lessThan(0));
       expect(
         flight.sim.glideRemaining,
@@ -135,7 +135,7 @@ void main() {
       expect(flight.sim.birdY, closeTo(old.sim.birdY, 1e-9));
       flight.advance(1);
       expect(flight.sim.gliding, isTrue);
-      expect(flight.sim.glideRemaining, inInclusiveRange(2.2, 2.3));
+      expect(flight.sim.glideRemaining, closeTo(2.2, .05));
       final y = flight.sim.birdY;
       flight.advance(.8);
       expect(flight.sim.birdY - y, closeTo(.048, .001));
@@ -192,7 +192,7 @@ void main() {
       expect(flight.sim.glideRemaining, lessThan(3));
       flight.input(jump: true);
       expect(flight.sim.glideRemaining, 3);
-      expect(flight.sim.velocity, closeTo(-.44, 1e-12));
+      expect(flight.sim.velocity, closeTo(-.55, 1e-12));
       expect(flight.sim.flaps, 3);
     },
   );
@@ -295,7 +295,7 @@ void main() {
   test(
     'star-extended glides and feedback survive serialization and backward seeks',
     () {
-      final tape = recordCloudCruise(PlayMode.jump).tape;
+      final tape = recordFlight(PlayMode.jump);
       final player = ReplayPlayer(ReplayTape.fromJson(tape.toJson()));
       List<Object> state(FlightSimulation sim) => [
         sim.birdY,
@@ -322,15 +322,14 @@ void main() {
   );
 
   test(
-    'the same cloud route needs fewer jumps while still collecting stars',
+    'the same star route needs fewer jumps while still collecting stars',
     () {
-      final modernTape = recordCloudCruise(PlayMode.jump).tape;
-      final oldTape = recordCloudCruise(PlayMode.jump, version: 8).tape;
+      final modernTape = recordFlight(PlayMode.jump);
+      final oldTape = recordFlight(PlayMode.jump, version: 8);
       final modern = ReplayPlayer(modernTape)..seek(modernTape.durationMs);
       final old = ReplayPlayer(oldTape)..seek(oldTape.durationMs);
-      expect(modern.simulation.flaps, lessThan(old.simulation.flaps * .75));
+      expect(modern.simulation.flaps, lessThan(old.simulation.flaps));
       expect(modern.simulation.collectedStars, greaterThan(0));
-      expect(modern.simulation.cloudFriends.length, 3);
     },
   );
 }

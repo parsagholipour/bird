@@ -40,11 +40,9 @@ void main() {
   for (final scenario in [
     (course: FlightCourse.classic, mode: PlayMode.pushUp, practice: false),
     (course: FlightCourse.starTrail, mode: PlayMode.jump, practice: false),
-    (course: FlightCourse.skyCourier, mode: PlayMode.pushUp, practice: false),
     (course: FlightCourse.starTrail, mode: PlayMode.pushUp, practice: true),
-    (course: FlightCourse.cloudCruise, mode: PlayMode.pushUp, practice: false),
   ]) {
-    final scored = !scenario.practice && !scenario.course.relaxed;
+    final scored = !scenario.practice;
     testWidgets(
       'record audio without persistent HUD: ${scenario.course} ${scenario.mode} $scored',
       (tester) async {
@@ -58,7 +56,7 @@ void main() {
           clock: () => now,
         );
         // Deliberately different records prove the target uses this control and course.
-        for (final course in FlightCourse.values.where((c) => !c.relaxed)) {
+        for (final course in FlightCourse.values) {
           for (final mode in PlayMode.values) {
             await repo.saveRun(
               RunResult(

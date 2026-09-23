@@ -3,7 +3,6 @@ import 'package:flutter/painting.dart';
 import '../domain/obstacle.dart';
 import '../ui/theme.dart';
 import 'gate_art.dart';
-import 'obstacle_designs/cruise_rings.dart';
 import 'obstacle_designs/crystal_steps.dart';
 import 'obstacle_designs/garden_gate.dart';
 import 'obstacle_designs/garden_structures.dart';
@@ -17,80 +16,6 @@ import 'sky_scenery.dart';
 /// Every solid uses the simulation's current geometry. Decoration is clipped
 /// inside that solid so a moving opening stays visually honest.
 abstract final class ObstacleArt {
-  static void ring(
-    Canvas c,
-    Rect bounds,
-    Obstacle o, {
-    required double seconds,
-    required bool reducedMotion,
-    required bool cleared,
-    bool refined = true,
-  }) {
-    if (refined) {
-      CruiseRingsDesign.paint(
-        c,
-        bounds,
-        o,
-        seconds: seconds,
-        reducedMotion: reducedMotion,
-        cleared: cleared,
-        accent: accent(o, seconds),
-      );
-      return;
-    }
-    final color = cleared ? SkyColors.teal : accent(o, seconds);
-    c.drawOval(
-      bounds,
-      Paint()
-        ..color = SkyColors.cream.withValues(alpha: .5)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 9,
-    );
-    c.drawOval(
-      bounds,
-      Paint()
-        ..color = color
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2,
-    );
-    final count = o.kind == ObstacleKind.petalGate ? 6 : 8;
-    final turn = reducedMotion || o.kind == ObstacleKind.garden
-        ? 0.0
-        : seconds * .16;
-    for (var i = 0; i < count; i++) {
-      final a = i * math.pi * 2 / count + turn;
-      final at =
-          bounds.center +
-          Offset(
-            math.cos(a) * bounds.width / 2,
-            math.sin(a) * bounds.height / 2,
-          );
-      final radius = bounds.width * .065;
-      if (o.kind == ObstacleKind.crystalSteps ||
-          o.kind == ObstacleKind.switchback) {
-        c.drawPath(
-          Path()
-            ..moveTo(at.dx, at.dy - radius * 1.6)
-            ..lineTo(at.dx + radius, at.dy)
-            ..lineTo(at.dx, at.dy + radius * 1.6)
-            ..lineTo(at.dx - radius, at.dy)
-            ..close(),
-          Paint()..color = color,
-        );
-      } else if (o.kind == ObstacleKind.sunWheels ||
-          o.kind == ObstacleKind.petalGate) {
-        c.drawPath(SkyScenery.star(at, radius * 1.5), Paint()..color = color);
-      } else {
-        c.drawCircle(at, radius, Paint()..color = color);
-        c.drawCircle(
-          at - Offset(radius * .2, radius * .2),
-          radius * .3,
-          Paint()..color = SkyColors.cream,
-        );
-      }
-    }
-  }
-
   static Color accent(Obstacle o, double seconds) {
     final colors = switch (o.kind) {
       ObstacleKind.windLift => [

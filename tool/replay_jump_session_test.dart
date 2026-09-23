@@ -25,8 +25,7 @@ void main() {
     final controller = PlayController(
       mode: PlayMode.jump,
       practice: true,
-      // Keep obstacles from ending the diagnostic replay before later inputs.
-      course: FlightCourse.cloudCruise,
+      course: FlightCourse.starTrail,
       source: source,
       audio: SilentAudio(),
       saveRun: (_) async {},

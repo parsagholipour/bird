@@ -49,21 +49,7 @@ void main() {
           expect(sim.elapsed, greaterThanOrEqualTo(18), reason: label);
           expect(sim.boss, isNull, reason: label);
           expect(flight.sawStars, course.collectsStars, reason: label);
-          expect(
-            flight.sawCourier,
-            course == FlightCourse.skyCourier,
-            reason: label,
-          );
-          expect(
-            flight.sawCloud,
-            course == FlightCourse.cloudCruise,
-            reason: label,
-          );
-          expect(
-            flight.sawEnemy,
-            mode == PlayMode.touch && !course.relaxed,
-            reason: label,
-          );
+          expect(flight.sawEnemy, mode == PlayMode.touch, reason: label);
         }
       }
     },
@@ -80,8 +66,6 @@ void main() {
       ('opening-classic', PlayMode.pushUp, FlightCourse.classic),
       ('opening-touch-combat', PlayMode.touch, FlightCourse.starTrail),
       ('opening-star-trail', PlayMode.pushUp, FlightCourse.starTrail),
-      ('opening-cloud-cruise', PlayMode.pushUp, FlightCourse.cloudCruise),
-      ('opening-sky-courier', PlayMode.pushUp, FlightCourse.skyCourier),
     ];
     for (final (name, mode, course) in scenes) {
       final flight = _fly(mode, course, seconds: 12, untilGateOnScreen: true);
@@ -132,13 +116,11 @@ class _Flight {
     required this.spawnX,
     required this.sawStars,
     required this.sawEnemy,
-    required this.sawCloud,
-    required this.sawCourier,
   });
   final FlightSimulation sim;
   final Set<ObstacleKind> openingKinds;
   final double spawnX;
-  final bool sawStars, sawEnemy, sawCloud, sawCourier;
+  final bool sawStars, sawEnemy;
 }
 
 _Flight _fly(
@@ -165,7 +147,7 @@ _Flight _fly(
   final aspect = _phone.width / _phone.height;
   final opening = <ObstacleKind>{};
   double? spawnX;
-  var sawStars = false, sawEnemy = false, sawCloud = false, sawCourier = false;
+  var sawStars = false, sawEnemy = false;
   for (
     var frame = 0;
     frame < 2500 && sim.phase != RunPhase.ended && sim.elapsed < seconds;
@@ -200,11 +182,9 @@ _Flight _fly(
     spawnX ??= sim.obstacles.isEmpty ? null : sim.obstacles.first.x;
     for (final obstacle in sim.obstacles) {
       if (obstacle.bornAt < 18) opening.add(obstacle.kind);
-      if (obstacle.courierStop != null) sawCourier = true;
     }
     if (sim.stars.isNotEmpty) sawStars = true;
     if (sim.enemies.isNotEmpty) sawEnemy = true;
-    if (sim.clouds.isNotEmpty) sawCloud = true;
     if (untilGateOnScreen &&
         sim.obstacles.any(
           (o) =>
@@ -220,8 +200,6 @@ _Flight _fly(
     spawnX: spawnX ?? 0,
     sawStars: sawStars,
     sawEnemy: sawEnemy,
-    sawCloud: sawCloud,
-    sawCourier: sawCourier,
   );
 }
 
@@ -249,29 +227,6 @@ Future<void> _expectRefinedRoute(
 
   void paintArt(Canvas canvas, {required bool refined}) {
     final h = size.y;
-    if (sim.isCruise) {
-      final width = gate.width * h;
-      final ring = Rect.fromCenter(
-        center: Offset(gate.x * h + width / 2, gate.target * h),
-        width: h * .12,
-        height:
-            math.min(
-              gate.gap * .68,
-              2 * (math.min(gate.target, 1 - gate.target) - .012),
-            ) *
-            h,
-      );
-      ObstacleArt.ring(
-        canvas,
-        ring,
-        gate,
-        seconds: sim.elapsed,
-        reducedMotion: false,
-        cleared: false,
-        refined: refined,
-      );
-      return;
-    }
     ObstacleArt.paint(
       canvas,
       gate,
@@ -289,20 +244,7 @@ Future<void> _expectRefinedRoute(
   final legacy = await raster((canvas) => paintArt(canvas, refined: false));
   final h = size.y;
   late final Rect probe;
-  if (sim.isCruise) {
-    final width = gate.width * h;
-    final ring = Rect.fromCenter(
-      center: Offset(gate.x * h + width / 2, gate.target * h),
-      width: h * .12,
-      height:
-          math.min(
-            gate.gap * .68,
-            2 * (math.min(gate.target, 1 - gate.target) - .012),
-          ) *
-          h,
-    );
-    probe = Rect.fromLTWH(ring.center.dx - 8, ring.top, 16, 14);
-  } else {
+  {
     final passage = gate.passages.reduce(
       (a, b) => (b.bottom - b.top) > (a.bottom - a.top) ? a : b,
     );

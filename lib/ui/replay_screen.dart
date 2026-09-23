@@ -20,7 +20,6 @@ import '../game/bird_game.dart';
 import 'theme.dart';
 import 'components.dart';
 import 'flight_goals.dart';
-import 'cloud_friends.dart';
 import 'replay_highlights.dart';
 
 enum ReplayView { corner, background, gameplay }
@@ -180,10 +179,7 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
   String? _error;
   String _videoMessage = '';
   List<ReplayHighlight>? _highlights;
-  bool get _scoreHudOnRight =>
-      _player!.simulation.boss != null ||
-      (_player!.simulation.discoversClouds &&
-          (_view != ReplayView.corner || _corner != 0));
+  bool get _scoreHudOnRight => _player!.simulation.boss != null;
 
   @override
   void initState() {
@@ -267,9 +263,6 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
     final oldWings = FlightGoals.earned(
       FlightGoals.forSimulation(_player!.simulation),
     );
-    final oldLetters = _player!.simulation.lettersCollected;
-    final oldCloudFriends = _player!.simulation.cloudFriends.length;
-    final oldBumps = _player!.simulation.courierBumps;
     final oldFlightTime = _player!.simulation.elapsed;
     final oldHearts = _player!.simulation.hearts;
     final oldShield = _player!.simulation.shield;
@@ -293,12 +286,6 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
       if (sim.phase == RunPhase.playing &&
           FlightGoals.earned(FlightGoals.forSimulation(sim)) > oldWings) {
         _audio.effect('wing');
-      } else if (sim.cloudFriends.length > oldCloudFriends) {
-        _audio.effect('cloud');
-      } else if (sim.isCourier && sim.score > oldScore) {
-        _audio.effect('delivery');
-      } else if (sim.lettersCollected > oldLetters) {
-        _audio.effect('letter');
       } else if (sim.magnetActivations > oldMagnets) {
         _audio.effect('magnet');
       } else if (sim.multiplier > oldMultiplier) {
@@ -314,7 +301,6 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
       }
       if (sim.isTrail && sim.hearts < oldHearts) _audio.effect('bump');
       if (sim.isTrail && sim.hearts > oldHearts) _audio.effect('heart');
-      if (sim.courierBumps > oldBumps) _audio.effect('bump');
       if (sim.isTrail && !sim.shield && oldShield) _audio.effect('shield_pop');
       if (sim.isTrail && sim.shield && !oldShield) _audio.effect('shield');
       if (sim.timed &&
@@ -655,8 +641,7 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                   widthFactor: 1,
                   child: Semantics(
                     label:
-                        'Score: ${_player!.simulation.score}'
-                        '${_player!.simulation.discoversClouds ? ', ${_player!.simulation.cloudFriends.length} of 3 cloud friends discovered' : ''}',
+                        'Score: ${_player!.simulation.score}',
                     excludeSemantics: true,
                     child: Container(
                       key: const ValueKey('replay-score'),
@@ -690,13 +675,6 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                                 size: 18,
                               ),
                             ),
-                          if (_player!.simulation.discoversClouds)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 3),
-                              child: CloudFriendsHud(
-                                friends: _player!.simulation.cloudFriends,
-                              ),
-                            ),
                           if (_player!.simulation.isTrail)
                             Text(
                               '${_player!.simulation.hearts} hearts · ${_player!.simulation.clockLabel}',
@@ -711,11 +689,6 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                             JumpGlideHud(
                               simulation: _player!.simulation,
                               compact: true,
-                            ),
-                          if (_player!.simulation.isCourier)
-                            Text(
-                              '${_player!.simulation.carryingLetter ? 'Letter aboard' : 'Find a pickup'} · ${_player!.simulation.clockLabel}',
-                              style: bodyText(11, color: SkyColors.yellow),
                             ),
                         ],
                       ),

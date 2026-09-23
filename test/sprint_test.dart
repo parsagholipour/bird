@@ -265,7 +265,7 @@ void main() {
     }
   });
 
-  test('rules before 29, camera controls and Cloud Cruise have no sprint', () {
+  test('rules before 29 and camera controls have no sprint', () {
     final old = flight(version: 28);
     expect(old.supportsSprint, isFalse);
     expect(old.sprint(), isFalse);
@@ -276,7 +276,7 @@ void main() {
     for (final (rules, course) in <(GameMode, FlightCourse)>[
       (PushUpFlightMode(cycleSeconds: 3), FlightCourse.starTrail),
       (JumpFlyMode(), FlightCourse.starTrail),
-      (TapFlyMode(), FlightCourse.cloudCruise),
+      (SquatFlyMode(cycleSeconds: 3), FlightCourse.starTrail),
     ]) {
       final sim = FlightSimulation(rules: rules, practice: true, course: course)
         ..phase = RunPhase.playing;
@@ -310,7 +310,7 @@ void main() {
       final recorder = FlightRecorder(
         ReplayTape(
           mode: PlayMode.touch,
-          course: FlightCourse.skyCourier,
+          course: FlightCourse.starTrail,
           practice: true,
           seed: 11,
           cycleSeconds: 3,
@@ -384,7 +384,7 @@ void main() {
 
   test('the controller journals accepted sprints only', () async {
     final controller = touchController(
-      course: FlightCourse.skyCourier,
+      course: FlightCourse.starTrail,
       practice: true,
     );
     addTearDown(controller.dispose);

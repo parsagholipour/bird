@@ -8,7 +8,7 @@ import 'package:push_up_bird/domain/session_replay.dart';
 import 'package:push_up_bird/domain/tracking.dart';
 import 'package:push_up_bird/game/bird_puppet.dart';
 import 'package:push_up_bird/ui/theme.dart';
-import 'cloud_friends_test.dart' show recordCloudCruise;
+import 'recorded_flight.dart';
 
 FlightSimulation flight() =>
     FlightSimulation(rules: JumpFlyMode(), practice: true)
@@ -48,9 +48,6 @@ void main() {
       final sim = flight();
       for (final kind in [
         FlightEventKind.starTrio,
-        FlightEventKind.delivery,
-        FlightEventKind.letter,
-        FlightEventKind.cloudFriend,
         FlightEventKind.magnet,
         FlightEventKind.milestone,
         FlightEventKind.streak,
@@ -66,7 +63,7 @@ void main() {
       sim.events.clear();
       sim.events.add(const FlightEvent(FlightEventKind.star, 3, .5));
       expect(expression(sim), BirdExpression.neutral);
-      sim.events.add(const FlightEvent(FlightEventKind.delivery, 4, .5));
+      sim.events.add(const FlightEvent(FlightEventKind.magnet, 4, .5));
       expect(
         expression(sim),
         BirdExpression.neutral,
@@ -79,7 +76,6 @@ void main() {
     for (final kind in [
       FlightEventKind.hit,
       FlightEventKind.shieldUsed,
-      FlightEventKind.letterLost,
     ]) {
       final sim = flight();
       sim.events.addAll([
@@ -125,7 +121,7 @@ void main() {
 
   for (final mode in PlayMode.values) {
     test('$mode expressions restore exactly when replaying backwards', () {
-      final tape = recordCloudCruise(mode).tape;
+      final tape = recordFlight(mode);
       final player = ReplayPlayer(tape);
       for (final at in [18000.0, 35000.0, 7000.0, 12000.0, 7840.0]) {
         player.seek(at);

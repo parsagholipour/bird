@@ -98,11 +98,7 @@ class _FlightSchoolScreenState extends ConsumerState<FlightSchoolScreen>
         .toSet();
     for (final (kind, sound) in [
       (FlightEventKind.hit, 'bump'),
-      (FlightEventKind.letterLost, 'bump'),
       (FlightEventKind.shieldUsed, 'shield_pop'),
-      (FlightEventKind.cloudFriend, 'cloud'),
-      (FlightEventKind.delivery, 'delivery'),
-      (FlightEventKind.letter, 'letter'),
       (FlightEventKind.magnet, 'magnet'),
       (FlightEventKind.streak, 'streak'),
       (FlightEventKind.starTrio, 'trio'),

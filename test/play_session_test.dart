@@ -128,15 +128,15 @@ Future<void> startFlight(
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   test(
-    'relaxed flights pause, restore music, and finish with saveable results',
+    'practice flights pause, restore music, and finish with saveable results',
     () async {
       final source = SessionSource();
       final audio = CountingAudio();
       RunResult? result;
       final controller = PlayController(
         mode: PlayMode.pushUp,
-        practice: false,
-        course: FlightCourse.cloudCruise,
+        practice: true,
+        course: FlightCourse.starTrail,
         source: source,
         audio: audio,
         saveRun: (run) async => result = run,
@@ -153,7 +153,7 @@ void main() {
       expect(controller.stage, PlayStage.results);
       expect(controller.canSaveSession, isTrue);
       expect(result!.practice, isTrue);
-      expect(result!.course, FlightCourse.cloudCruise);
+      expect(result!.course, FlightCourse.starTrail);
       expect(result!.reason, EndReason.breakTaken);
       controller.dispose();
       await Future<void>.delayed(Duration.zero);

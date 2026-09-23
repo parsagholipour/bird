@@ -9,8 +9,6 @@ import 'package:push_up_bird/ui/flight_portrait.dart';
 import 'package:push_up_bird/ui/flight_goals.dart';
 import 'package:push_up_bird/domain/flight_goals.dart';
 import 'package:push_up_bird/domain/flight_course.dart';
-import 'package:push_up_bird/domain/cloud_friends.dart';
-import 'package:push_up_bird/game/cloud_friend_art.dart';
 
 Future<List<int>> renderLandmarks({
   required double seconds,
@@ -70,43 +68,6 @@ Future<List<int>> trailPixels(int bird, double seconds, bool animate) async {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  test(
-    'cloud friends are distinct and their gentle motion can be disabled',
-    () async {
-      Future<List<int>> pixels(
-        CloudFriend friend,
-        double seconds,
-        bool reduced,
-      ) async {
-        final recorder = ui.PictureRecorder();
-        CloudFriendArt.inSky(
-          Canvas(recorder),
-          center: const Offset(120, 80),
-          height: 400,
-          friend: friend,
-          known: false,
-          seconds: seconds,
-          reducedMotion: reduced,
-        );
-        final picture = recorder.endRecording();
-        final image = await picture.toImage(240, 160);
-        final data = await image.toByteData();
-        image.dispose();
-        picture.dispose();
-        return data!.buffer.asUint8List();
-      }
-
-      List<int>? previous;
-      for (final friend in CloudFriend.values) {
-        final still = await pixels(friend, 0, true);
-        expect(await pixels(friend, 10, true), still);
-        expect(await pixels(friend, 1, false), isNot(equals(still)));
-        expect(await pixels(friend, 1, false), await pixels(friend, 1, false));
-        if (previous != null) expect(still, isNot(equals(previous)));
-        previous = still;
-      }
-    },
-  );
   test(
     'all signature trails freeze in Reduced Motion and replay exactly',
     () async {

@@ -26,16 +26,15 @@ import 'flight_score.dart';
 import 'jump_glide_hud.dart';
 import 'match_hud.dart';
 import 'flight_goals.dart';
-import 'cloud_friends.dart';
 import 'ui_sounds.dart';
 
 class PlayScreen extends ConsumerStatefulWidget {
   const PlayScreen({
     super.key,
     required this.mode,
-    bool practice = false,
+    this.practice = false,
     this.course = FlightCourse.starTrail,
-  }) : practice = practice || course == FlightCourse.cloudCruise;
+  });
   final FlightCourse course;
   final PlayMode mode;
   final bool practice;
@@ -55,10 +54,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       previousMultiplier = 1,
       previousMagnets = 0,
       previousTrios = 0,
-      previousLetters = 0,
-      previousBumps = 0,
       previousWings = 0,
-      previousCloudFriends = 0,
       previousHearts = 3;
   double previousFlightTime = 0;
   bool previousShield = true;
@@ -139,10 +135,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       previousMultiplier = 1;
       previousMagnets = 0;
       previousTrios = 0;
-      previousLetters = 0;
-      previousBumps = 0;
       previousWings = 0;
-      previousCloudFriends = 0;
       previousFlightTime = 0;
       previousHearts = 3;
       previousShield = true;
@@ -178,12 +171,6 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         audio.effect('record');
       } else if (earnedWing && sim.phase == RunPhase.playing) {
         audio.effect('wing');
-      } else if (sim.cloudFriends.length > previousCloudFriends) {
-        audio.effect('cloud');
-      } else if (sim.isCourier && sim.score > previousScore) {
-        audio.effect('delivery');
-      } else if (sim.lettersCollected > previousLetters) {
-        audio.effect('letter');
       } else if (sim.magnetActivations > previousMagnets) {
         audio.effect('magnet');
       } else if (sim.multiplier > previousMultiplier) {
@@ -199,11 +186,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       }
       previousScore = sim.score;
       previousStars = sim.collectedStars;
-      if (sim.courierBumps > previousBumps) audio.effect('bump');
-      previousLetters = sim.lettersCollected;
-      previousBumps = sim.courierBumps;
       previousWings = wings;
-      previousCloudFriends = sim.cloudFriends.length;
       if (sim.isTrail && sim.hearts < previousHearts) audio.effect('bump');
       if (sim.isTrail && sim.hearts > previousHearts) audio.effect('heart');
       if (sim.isTrail && sim.shield && !previousShield) audio.effect('shield');
@@ -377,17 +360,10 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        widget.course.relaxed
-                            ? 'A little tap. A lot of sky.'
-                            : 'Flap. Aim. Fire!',
-                        style: heading(32),
-                      ),
+                      Text('Flap. Aim. Fire!', style: heading(32)),
                       const SizedBox(height: 12),
                       Text(
-                        widget.course.relaxed
-                            ? 'Tap anywhere in the sky to flap upward.\nRelease and tap again to keep flying.'
-                            : 'Tap the sky to flap. Tap Shoot to fire at bats.\nHold Shoot for a bigger rock. Rapid fire drains ammo.\nSprint to smash bats and stone panels. Beware of bosses!',
+                        'Tap the sky to flap. Tap Shoot to fire at bats.\nHold Shoot for a bigger rock. Rapid fire drains ammo.\nSprint to smash bats and stone panels. Beware of bosses!',
                         style: bodyText(18),
                       ),
                       const SizedBox(height: 8),
@@ -564,8 +540,6 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                           ? 'Practice can pause. Save a local camera replay after your flight.'
                           : widget.course == FlightCourse.starTrail
                           ? 'Three hearts + a shield. A break or leaving ends the flight.'
-                          : widget.course == FlightCourse.skyCourier
-                          ? 'Bumps drop your letter. A break or leaving ends the route.'
                           : 'A collision, a break or leaving the app ends a scored flight.',
                       style: bodyText(13, color: SkyColors.muted),
                     ),
@@ -1024,7 +998,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
             child: FlightScore(
               score: sim.score,
               multiplier: sim.collectsStars ? sim.multiplier : 1,
-              symbol: sim.isCourier ? MatchSymbol.letter : MatchSymbol.star,
+              symbol: MatchSymbol.star,
               reducedMotion: controller.reducedMotion,
             ),
           ),
@@ -1082,36 +1056,6 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                           ? 'Star magnet: ${sim.magnetRemaining.ceil()} seconds remaining'
                           : 'Magnet charging: ${sim.magnetCharge} of 3 perfect gates',
                       color: SkyColors.purple,
-                    ),
-                  ),
-                ),
-              if (sim.isCourier)
-                MatchPulse(
-                  value: sim.carryingLetter,
-                  reducedMotion: controller.reducedMotion,
-                  child: MatchPlate(
-                    color: sim.carryingLetter
-                        ? SkyColors.yellow
-                        : SkyColors.cream,
-                    child: Semantics(
-                      label: sim.carryingLetter
-                          ? 'Letter aboard. Find a postbox gate.'
-                          : 'Find a pickup gate to collect a letter.',
-                      excludeSemantics: true,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          MatchIcon(
-                            MatchSymbol.letter,
-                            muted: !sim.carryingLetter,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            sim.carryingLetter ? 'Deliver' : 'Pick up',
-                            style: heading(21),
-                          ),
-                        ],
-                      ),
                     ),
                   ),
                 ),
@@ -1189,12 +1133,8 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                               ? (sim.supportsCombat
                                     ? 'Tap the sky to flap. Hold Shoot to charge. Sprint to smash!'
                                     : 'Tap to flap. Release between taps.')
-                              : sim.isCruise
-                              ? 'Breathe. Move. Follow the stars.'
                               : sim.isTrail
                               ? 'Follow the stars. Your shield is ready.'
-                              : sim.isCourier
-                              ? 'Pickup gate. Postbox gate. Make a delivery!'
                               : 'The sky is yours.')
                         : sim.trackingFeedback,
                     style: bodyText(16, color: SkyColors.muted),
@@ -1275,26 +1215,19 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       EndReason.breakTaken => 'A well-earned breather.',
       EndReason.quit => 'Until the next adventure.',
       EndReason.stalled => 'The game was interrupted.',
-      EndReason.completed =>
-        r.course == FlightCourse.skyCourier
-            ? 'Little letters. A sky full of joy.'
-            : 'A whole sky of stars. All yours.',
+      EndReason.completed => 'A whole sky of stars. All yours.',
     };
     return Padding(
       padding: const EdgeInsets.all(30),
       child: Column(
         children: [
           _header(
-            widget.course.relaxed
-                ? 'A little time among the clouds.'
-                : widget.practice
+            widget.practice
                 ? 'Practice makes a happy bird.'
                 : 'Every flight counts.',
             trailing: Pill(
               isBest
                   ? 'NEW PERSONAL BEST!'
-                  : widget.course.relaxed
-                  ? 'CRUISE COMPLETE'
                   : widget.practice
                   ? 'PRACTICE COMPLETE'
                   : 'FLIGHT COMPLETE',
@@ -1335,9 +1268,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                             : isBest
                             ? 'Look at you go!'
                             : r.reason == EndReason.completed
-                            ? r.course == FlightCourse.skyCourier
-                                  ? 'Welcome home!'
-                                  : 'Trail complete!'
+                            ? 'Trail complete!'
                             : 'Nice flying.',
                         style: heading(40),
                       ),
@@ -1421,11 +1352,6 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                           child: SingleChildScrollView(
                             child: Column(
                               children: [
-                                if (controller.simulation!.discoversClouds)
-                                  CloudFriendsAlbum(
-                                    friends:
-                                        controller.simulation!.cloudFriends,
-                                  ),
                                 if (goals.isNotEmpty)
                                   TextButton(
                                     key: const ValueKey('result-flight-goals'),
@@ -1470,12 +1396,8 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                                     ),
                                     Expanded(
                                       child: _stat(
-                                        widget.course.relaxed
-                                            ? 'STARS FOUND'
-                                            : 'PERSONAL BEST',
-                                        widget.course.relaxed
-                                            ? '${r.stars}'
-                                            : '${p.record(widget.mode, widget.course).best}',
+                                        'PERSONAL BEST',
+                                        '${p.record(widget.mode, widget.course).best}',
                                         large: true,
                                       ),
                                     ),
@@ -1518,13 +1440,6 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                                       Pill(
                                         '${r.bestCombo} best streak',
                                         icon: Icons.auto_awesome,
-                                        color: SkyColors.yellow,
-                                      )
-                                    else if (r.course ==
-                                        FlightCourse.skyCourier)
-                                      Pill(
-                                        '${r.gates} gates cleared',
-                                        icon: Icons.local_post_office_outlined,
                                         color: SkyColors.yellow,
                                       )
                                     else if (r.score >= 5)

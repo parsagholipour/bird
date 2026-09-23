@@ -1,56 +1,47 @@
 /// The activity controls the bird; the course defines the arcade objective.
-/// Star Trail is the only course new flights start. Other names remain so
-/// saved sessions and replay journals still load.
+/// Star Trail is the course new flights start. Classic remains so older
+/// sessions still load. Sky Courier and Cloud Cruise names map here so saved
+/// journals from those retired modes still open.
 enum FlightCourse {
   classic,
-  starTrail,
-  skyCourier,
-  cloudCruise;
+  starTrail;
+
+  static const retiredNames = {'skyCourier', 'cloudCruise'};
 
   static FlightCourse named(String? name, {FlightCourse orElse = starTrail}) {
+    if (retiredNames.contains(name)) return orElse;
     for (final course in values) {
       if (course.name == name) return course;
     }
     return orElse;
   }
 
-  bool get relaxed => this == cloudCruise;
-  bool get collectsStars => this == starTrail || this == cloudCruise;
+  bool get collectsStars => this == starTrail;
 
   /// The duration belongs only to saved, pre-endless replay rules.
-  bool get legacyTimed => this == starTrail || this == skyCourier;
-  double get duration => this == skyCourier ? 75 : 60;
-  String get shortTitle => this == skyCourier ? 'Courier' : title;
+  bool get legacyTimed => this == starTrail;
+  double get duration => 60;
+  String get shortTitle => title;
 
   String get title => switch (this) {
     classic => 'Classic',
     starTrail => 'Star Trail',
-    skyCourier => 'Sky Courier',
-    cloudCruise => 'Cloud Cruise',
   };
   String get subtitle => switch (this) {
     classic => 'Endless sky. One chance. Make it count.',
     starTrail => 'Endless stars. Three hearts. A sky that keeps changing.',
-    skyCourier => 'Endless deliveries. Pick up letters. Deliver little joys.',
-    cloudCruise => 'Cloud friends. Open sky. No crashes or clock.',
   };
   String get instructions => switch (this) {
     classic => 'Find the gaps. Follow the aiming marks for a perfect pass.',
     starTrail =>
-      'Collect a full star trio for +5 points. Chain stars for up to 3×. Every 9 stars restores a shield; three perfect gates earn an 8-second magnet!',
-    skyCourier =>
-      'Clear a pickup gate to carry a letter. Clear a postbox gate to deliver it. A collision drops the letter, but you keep flying.',
-    cloudCruise =>
-      'Meet a whale, bunny and turtle in the clouds. Fly close to discover them! Collect star trios for +5 points, earn magnets and pause whenever you like.',
+      'Collect all 3 stars in a group for +5. Chain stars for up to 3×. Every 9 stars restores a shield; three perfect gates earn an 8-second magnet!',
   };
   String get scoreLabel => switch (this) {
     classic => 'OBSTACLES',
-    skyCourier => 'DELIVERIES',
-    _ => 'STAR POINTS',
+    starTrail => 'STAR POINTS',
   };
   String get scoreUnit => switch (this) {
     classic => 'gates',
-    skyCourier => 'deliveries',
-    _ => 'star points',
+    starTrail => 'star points',
   };
 }

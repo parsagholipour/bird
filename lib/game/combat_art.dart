@@ -109,7 +109,13 @@ abstract final class CombatArt {
       canvas.restore();
     }
     for (final ammo in sim.enemyAmmo) {
-      EnemyArt.ammo(canvas, height, ammo);
+      EnemyArt.ammo(
+        canvas,
+        height,
+        ammo,
+        seconds: sim.elapsed,
+        reducedMotion: reducedMotion,
+      );
     }
     for (final rock in sim.rocks) {
       StoneArt.paint(

@@ -17,11 +17,6 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   const size = 200;
-  final ring = Rect.fromCenter(
-    center: const Offset(100, 100),
-    width: 46,
-    height: 96,
-  );
 
   Obstacle sample(ObstacleKind kind, {int appearance = 0}) {
     return Obstacle(
@@ -85,25 +80,6 @@ void main() {
     );
   }
 
-  Future<Uint8List> paintRing(
-    Obstacle obstacle, {
-    required bool refined,
-    required double seconds,
-    required bool reducedMotion,
-  }) {
-    return raster(
-      (canvas) => ObstacleArt.ring(
-        canvas,
-        ring,
-        obstacle,
-        seconds: seconds,
-        reducedMotion: reducedMotion,
-        cleared: false,
-        refined: refined,
-      ),
-    );
-  }
-
   int differingPixels(Uint8List a, Uint8List b) {
     expect(a.length, b.length);
     var count = 0;
@@ -134,7 +110,7 @@ void main() {
   }
 
   test(
-    'refined and legacy art differ for every family and cruise rings',
+    'refined and legacy art differ for every family',
     () async {
       for (final kind in ObstacleKind.values) {
         final obstacle = sample(kind);
@@ -154,23 +130,6 @@ void main() {
           differingPixels(refined, legacy),
           greaterThan(24),
           reason: '$kind artwork',
-        );
-        final refinedRing = await paintRing(
-          obstacle,
-          refined: true,
-          seconds: 5,
-          reducedMotion: true,
-        );
-        final legacyRing = await paintRing(
-          obstacle,
-          refined: false,
-          seconds: 5,
-          reducedMotion: true,
-        );
-        expect(
-          differingPixels(refinedRing, legacyRing),
-          greaterThan(24),
-          reason: '$kind ring',
         );
       }
     },
@@ -209,34 +168,6 @@ void main() {
           0,
           reason: '$kind reduced motion',
         );
-        final firstRing = await paintRing(
-          obstacle,
-          refined: true,
-          seconds: 5,
-          reducedMotion: true,
-        );
-        final repeatRing = await paintRing(
-          obstacle,
-          refined: true,
-          seconds: 5,
-          reducedMotion: true,
-        );
-        final laterRing = await paintRing(
-          obstacle,
-          refined: true,
-          seconds: 9,
-          reducedMotion: true,
-        );
-        expect(
-          differingPixels(firstRing, repeatRing),
-          0,
-          reason: '$kind ring repeat',
-        );
-        expect(
-          differingPixels(firstRing, laterRing),
-          0,
-          reason: '$kind ring reduced motion',
-        );
       }
     },
   );
@@ -252,16 +183,7 @@ void main() {
             reducedMotion: true,
           ),
       ];
-      final rings = [
-        for (var appearance = 0; appearance < 3; appearance++)
-          await paintRing(
-            sample(kind, appearance: appearance),
-            refined: true,
-            seconds: 5,
-            reducedMotion: true,
-          ),
-      ];
-      for (final frame in [...frames, ...rings]) {
+      for (final frame in frames) {
         expect(frame.any((pixel) => pixel != 0), isTrue, reason: '$kind');
       }
       for (var i = 0; i < 3; i++) {
@@ -269,11 +191,6 @@ void main() {
           differingPixels(frames[i], frames[(i + 1) % 3]),
           greaterThan(0),
           reason: '$kind appearance',
-        );
-        expect(
-          differingPixels(rings[i], rings[(i + 1) % 3]),
-          greaterThan(0),
-          reason: '$kind ring appearance',
         );
       }
     }
@@ -425,14 +342,6 @@ void main() {
         cleared: false,
         perfect: false,
       );
-      ObstacleArt.ring(
-        canvas,
-        const Rect.fromLTWH(2, 2, 3, 8),
-        narrow,
-        seconds: 5,
-        reducedMotion: true,
-        cleared: false,
-      );
     }
     final picture = recorder.endRecording();
     final image = await picture.toImage(64, 64);
@@ -481,7 +390,7 @@ void main() {
   });
 
   test(
-    'refined circles are filled with a drawn edge and rings stay open',
+    'refined circles are filled with a drawn edge',
     () async {
       for (final kind in [ObstacleKind.lanternDrift, ObstacleKind.sunWheels]) {
         final obstacle = sample(kind);
@@ -522,34 +431,6 @@ void main() {
           }
           expect(drawnEdges, greaterThanOrEqualTo(4), reason: '$kind rim');
         }
-      }
-
-      for (final kind in ObstacleKind.values) {
-        final bytes = await paintRing(
-          sample(kind),
-          refined: true,
-          seconds: 5,
-          reducedMotion: true,
-        );
-        for (var dy = -6; dy <= 6; dy++) {
-          for (var dx = -6; dx <= 6; dx++) {
-            expect(
-              alphaAt(bytes, 100 + dx, 100 + dy),
-              0,
-              reason: '$kind center',
-            );
-          }
-        }
-        var rim = 0;
-        for (var step = 0; step < 36; step++) {
-          final angle = step * math.pi * 2 / 36;
-          for (final scale in [.9, 1.0]) {
-            final x = (100 + math.cos(angle) * 23 * scale).round();
-            final y = (100 + math.sin(angle) * 48 * scale).round();
-            if (alphaAt(bytes, x, y) > 40) rim++;
-          }
-        }
-        expect(rim, greaterThan(8), reason: '$kind ring');
       }
     },
   );

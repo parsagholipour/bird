@@ -1,10 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import '../domain/cloud_friends.dart';
 import '../domain/flight_course.dart';
-import '../domain/game_rules.dart' show CourierStop;
-import '../game/cloud_friend_art.dart';
-import '../game/courier_art.dart';
 import '../game/sky_scenery.dart';
 import 'components.dart';
 import 'theme.dart';
@@ -27,9 +23,6 @@ class CoursePreview extends StatelessWidget {
       FlightCourse.classic => 'Classic: fly through the gaps.',
       FlightCourse.starTrail =>
         'Star Trail: collect stars with three hearts and a shield.',
-      FlightCourse.skyCourier => 'Sky Courier: carry letters to postboxes.',
-      FlightCourse.cloudCruise =>
-        'Cloud Cruise: meet a whale, bunny and turtle in the clouds.',
     },
     excludeSemantics: true,
     child: SizedBox(
@@ -65,31 +58,10 @@ class CoursePreview extends StatelessWidget {
             top: -8,
             child: BirdArt(bird: bird, size: 156, reducedMotion: reducedMotion),
           ),
-          if (course == FlightCourse.skyCourier)
-            const Positioned(
-              left: 179,
-              top: 105,
-              child: CustomPaint(
-                size: Size(38, 29),
-                painter: _CarriedLetterPainter(),
-              ),
-            ),
         ],
       ),
     ),
   );
-}
-
-class _CarriedLetterPainter extends CustomPainter {
-  const _CarriedLetterPainter();
-  @override
-  void paint(Canvas canvas, Size size) => CourierArt.letter(
-    canvas,
-    Offset(size.width / 2, size.height / 2),
-    size.width,
-  );
-  @override
-  bool shouldRepaint(_CarriedLetterPainter oldDelegate) => false;
 }
 
 class _CoursePainter extends CustomPainter {
@@ -134,38 +106,6 @@ class _CoursePainter extends CustomPainter {
             ..style = PaintingStyle.stroke
             ..strokeWidth = 3
             ..strokeCap = StrokeCap.round,
-        );
-      case FlightCourse.skyCourier:
-        CourierArt.letter(canvas, const Offset(51, 22), 48);
-        CourierArt.station(
-          canvas,
-          const Offset(46, 96),
-          480,
-          CourierStop.postbox,
-          carrying: true,
-        );
-        for (var i = 0; i < 4; i++) {
-          canvas.drawCircle(
-            Offset(72 + i * 10, 24 + i * 6),
-            2.2,
-            Paint()..color = SkyColors.teal.withValues(alpha: .7),
-          );
-        }
-      case FlightCourse.cloudCruise:
-        CloudFriendArt.paint(
-          canvas,
-          const Rect.fromLTWH(0, 2, 106, 76),
-          CloudFriend.whale,
-        );
-        CloudFriendArt.paint(
-          canvas,
-          const Rect.fromLTWH(240, -8, 104, 74),
-          CloudFriend.bunny,
-        );
-        CloudFriendArt.paint(
-          canvas,
-          const Rect.fromLTWH(4, 96, 100, 71),
-          CloudFriend.turtle,
         );
     }
     canvas.restore();

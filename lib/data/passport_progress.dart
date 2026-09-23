@@ -18,9 +18,9 @@ extension PassportProgress on ProgressSnapshot {
         SkyStamp.trailblazer => trailCompletions,
         SkyStamp.flockTogether => unlocked.length,
         SkyStamp.bothWings =>
-          (pushUp.runs + trailPushUp.runs + courierPushUp.runs > 0 ? 1 : 0) +
-              (jump.runs + trailJump.runs + courierJump.runs > 0 ? 1 : 0) +
-              (squat.runs + trailSquat.runs + courierSquat.runs > 0 ? 1 : 0),
+          (pushUp.runs + trailPushUp.runs > 0 ? 1 : 0) +
+              (jump.runs + trailJump.runs > 0 ? 1 : 0) +
+              (squat.runs + trailSquat.runs > 0 ? 1 : 0),
       }),
   ];
   int get earnedStamps => passport.where((s) => s.earned).length;

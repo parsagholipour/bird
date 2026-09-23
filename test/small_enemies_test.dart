@@ -159,7 +159,7 @@ void main() {
     expect(sim.enemyAmmo, isEmpty);
   });
 
-  test('pellets follow shield, heart, courier and classic collision rules', () {
+  test('pellets follow shield, heart and classic collision rules', () {
     final trail = _arena();
     trail.enemyAmmo.add(_pellet(FlightSimulation.birdX, .5));
     _step(trail, .01);
@@ -172,12 +172,6 @@ void main() {
     trail.enemyAmmo.add(_pellet(FlightSimulation.birdX, trail.birdY));
     _step(trail, .01);
     expect(trail.hearts, 2);
-    final courier = _arena(course: FlightCourse.skyCourier)
-      ..carryingLetter = true;
-    courier.enemyAmmo.add(_pellet(FlightSimulation.birdX, .5));
-    _step(courier, .01);
-    expect(courier.lettersDropped, 1);
-    expect(courier.phase, RunPhase.playing);
     final classic = _arena(course: FlightCourse.classic);
     classic.enemyAmmo.add(_pellet(FlightSimulation.birdX, .5));
     _step(classic, .01);
@@ -221,7 +215,7 @@ void main() {
           _hover(sim, 1.15);
           expect(
             sim.enemyAmmo.isNotEmpty,
-            version >= 18 && !course.relaxed && rules.mode == PlayMode.touch,
+            version >= 18 && rules.mode == PlayMode.touch,
           );
         }
       }
@@ -259,7 +253,7 @@ void main() {
       final recorder = FlightRecorder(
         ReplayTape(
           mode: PlayMode.touch,
-          course: FlightCourse.skyCourier,
+          course: FlightCourse.starTrail,
           practice: true,
           seed: 7,
           cycleSeconds: 3,

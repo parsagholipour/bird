@@ -28,7 +28,7 @@ void main() {
     'drag reaches the full range, clamps boundaries and ignores nonfinite input',
     () {
       final school = FlightSchool(
-        course: FlightCourse.cloudCruise,
+        course: FlightCourse.starTrail,
         control: SchoolControl.drag,
       );
       start(school);
@@ -49,7 +49,7 @@ void main() {
     'a tap creates one flap, while held frames and drag do not repeat it',
     () {
       final school = FlightSchool(
-        course: FlightCourse.cloudCruise,
+        course: FlightCourse.starTrail,
         control: SchoolControl.tap,
       );
       start(school);
@@ -69,7 +69,7 @@ void main() {
   );
   test('pause clears queued taps and resume needs a fresh countdown', () {
     final school = FlightSchool(
-      course: FlightCourse.cloudCruise,
+      course: FlightCourse.starTrail,
       control: SchoolControl.tap,
     );
     start(school);
@@ -108,10 +108,6 @@ void main() {
       if (course.collectsStars) {
         expect(school.simulation.completedTrios, greaterThan(0));
       }
-      if (course == FlightCourse.skyCourier) {
-        expect(school.simulation.score, greaterThan(2));
-      }
-      if (course.relaxed) expect(school.simulation.cloudFriends.length, 3);
     }
   });
 }

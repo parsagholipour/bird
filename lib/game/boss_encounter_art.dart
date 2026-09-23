@@ -6,6 +6,7 @@ import 'boss_motion.dart';
 import 'boss_rig.dart';
 import 'spitter_boss_rig.dart';
 import 'dusk_moth_boss_rig.dart';
+import 'boss_ammo_art.dart';
 import 'sky_scenery.dart';
 
 abstract final class BossEncounterArt {
@@ -107,6 +108,18 @@ abstract final class BossEncounterArt {
     final center = Offset(boss.x * h, boss.y * h) + m.offset * h;
     for (final ammo in sim.bossAmmo) {
       final at = Offset(ammo.x * h, ammo.y * h);
+      if (boss.isSpitter || boss.isMoth) {
+        BossAmmoArt.paint(
+          c,
+          center: at,
+          radius: BossAmmo.radius * h,
+          direction: math.atan2(ammo.vy, ammo.vx),
+          attack: boss.isSpitter ? EnemyAttack.aimed : EnemyAttack.fan,
+          seconds: sim.elapsed,
+          reducedMotion: m.reducedMotion,
+        );
+        continue;
+      }
       final direction = Offset(ammo.vx, ammo.vy);
       final unit = direction / direction.distance;
       final r = BossAmmo.radius * h;
@@ -120,28 +133,18 @@ abstract final class BossEncounterArt {
       c.drawCircle(at, r * 1.6, _fill(ammoColor, .16));
       c.drawCircle(at, r * 1.05, _fill(BossRig.ink));
       c.drawCircle(at, r * .88, _fill(ammoColor));
-      if (boss.isMoth) {
-        c.drawOval(
-          Rect.fromCenter(center: at, width: r * 1.4, height: r * .6),
-          _fill(ammoLight),
-        );
-        c.drawOval(
-          Rect.fromCenter(center: at, width: r * .6, height: r * 1.4),
-          _fill(ammoLight),
-        );
-      } else if (boss.isSpitter) {
-        c.drawCircle(
-          at - const Offset(1, 1) * r * .2,
-          r * .52,
-          _fill(ammoLight),
-        );
-      } else {
-        c.drawPath(SkyScenery.star(at, r * .75), _fill(ammoLight));
-      }
+      c.drawPath(SkyScenery.star(at, r * .75), _fill(ammoLight));
       c.drawCircle(at, r * .32, _fill(BossRig.cream));
     }
     if (boss.charge > 0 && !m.defeated) {
-      _charge(c, center + Offset(-boss.muzzleOffset * h, 0), h, boss, m);
+      _charge(
+        c,
+        center + Offset(-boss.muzzleOffset * h, 0),
+        h,
+        boss,
+        m,
+        sim.elapsed,
+      );
     }
     if (m.roar > 0 || m.rage > 0 || m.summon > 0) {
       final pulse = math.max(m.roar, math.max(m.rage, m.summon));
@@ -223,6 +226,7 @@ abstract final class BossEncounterArt {
     double h,
     SkyBoss boss,
     BossMotion m,
+    double seconds,
   ) {
     final charge = boss.charge;
     final color = _ammoColor(boss);
@@ -240,48 +244,52 @@ abstract final class BossEncounterArt {
         c.drawCircle(bubble, bubbleRadius, _fill(light, .18 + phase * .25));
         c.drawCircle(bubble, bubbleRadius, _line(light, h * .0012, phase));
       }
-      final foam = r * (.85 + charge * .15);
-      c.drawCircle(at, foam * 1.6, _fill(color, charge * .13));
-      c.drawCircle(at, foam, _fill(color, .8));
-      c.drawCircle(at - Offset(foam * .2, foam * .2), foam * .55, _fill(light));
+    } else {
       c.drawCircle(
-        at - Offset(foam * .32, foam * .35),
-        foam * .18,
-        _fill(BossRig.cream),
+        at,
+        r * 2.3,
+        Paint()
+          ..shader = RadialGradient(
+            colors: [
+              color.withValues(alpha: charge * .35),
+              color.withValues(alpha: 0),
+            ],
+          ).createShader(Rect.fromCircle(center: at, radius: r * 2.3)),
       );
-      return;
-    }
-    c.drawCircle(
-      at,
-      r * 2.3,
-      Paint()
-        ..shader = RadialGradient(
-          colors: [
-            color.withValues(alpha: charge * .35),
-            color.withValues(alpha: 0),
-          ],
-        ).createShader(Rect.fromCircle(center: at, radius: r * 2.3)),
-    );
-    for (var i = 0; i < 6; i++) {
-      final phase = m.reducedMotion ? .45 : (boss.age * 2 + i / 6) % 1;
-      final a = angle + i * math.pi / 3;
-      final distance = h * (.025 + (1 - phase) * .075) * charge;
-      c.drawCircle(
-        at + Offset(math.cos(a), math.sin(a)) * distance,
-        h * .0035 * phase,
-        _fill(light, phase),
+      for (var i = 0; i < 6; i++) {
+        final phase = m.reducedMotion ? .45 : (boss.age * 2 + i / 6) % 1;
+        final a = angle + i * math.pi / 3;
+        final distance = h * (.025 + (1 - phase) * .075) * charge;
+        c.drawCircle(
+          at + Offset(math.cos(a), math.sin(a)) * distance,
+          h * .0035 * phase,
+          _fill(light, phase),
+        );
+      }
+      c.drawArc(
+        Rect.fromCircle(center: at, radius: r * 1.55),
+        angle,
+        math.pi * 1.5,
+        false,
+        _line(light, h * .0025, charge),
       );
     }
-    c.drawArc(
-      Rect.fromCircle(center: at, radius: r * 1.55),
-      angle,
-      math.pi * 1.5,
-      false,
-      _line(light, h * .0025, charge),
-    );
-    c.drawCircle(at, r, _fill(color));
-    c.drawPath(SkyScenery.star(at, r * .8), _fill(light));
-    c.drawCircle(at, r * .32, _fill(BossRig.cream));
+    if (boss.isSpitter || boss.isMoth) {
+      BossAmmoArt.paint(
+        c,
+        center: at,
+        radius: boss.isSpitter ? r * (.85 + charge * .15) : r,
+        direction: math.pi,
+        attack: boss.isSpitter ? EnemyAttack.aimed : EnemyAttack.fan,
+        seconds: seconds,
+        reducedMotion: m.reducedMotion,
+        showTrail: false,
+      );
+    } else {
+      c.drawCircle(at, r, _fill(color));
+      c.drawPath(SkyScenery.star(at, r * .8), _fill(light));
+      c.drawCircle(at, r * .32, _fill(BossRig.cream));
+    }
   }
 
   static void _death(Canvas c, Offset at, double h, BossMotion m) {

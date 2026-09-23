@@ -1,19 +1,15 @@
 import 'dart:math' as math;
-import 'cloud_friends.dart';
 import 'game_rules.dart';
 import 'session_replay.dart';
 
 enum ReplayMomentKind {
   start,
   finish,
-  cloud,
-  delivery,
   magnet,
   streak,
   shield,
   perfect,
   milestone,
-  droppedLetter,
   starTrio,
 }
 
@@ -47,7 +43,7 @@ List<ReplayHighlight> buildReplayHighlights(ReplayTape tape) {
       moments.removeAt(sameFrame);
     }
     moments.add(moment);
-    // Keep memory and the eventual list bounded even for an hours-long Cruise.
+    // Keep memory and the eventual list bounded even for a long flight.
     if (moments.length > 12) {
       moments.sort((a, b) {
         final priority = b.priority.compareTo(a.priority);
@@ -76,24 +72,6 @@ List<ReplayHighlight> buildReplayHighlights(ReplayTape tape) {
     }
     for (final event in sim.events.where((e) => e.at > previousTime)) {
       final moment = switch (event.kind) {
-        FlightEventKind.cloudFriend => ReplayHighlight(
-          kind: ReplayMomentKind.cloud,
-          atMs: at,
-          title: CloudFriend.values[event.value].title,
-          detail: 'A new friend in the clouds.',
-          value: event.value,
-          priority: 90,
-        ),
-        FlightEventKind.delivery => ReplayHighlight(
-          kind: ReplayMomentKind.delivery,
-          atMs: at,
-          title: event.value == 1
-              ? 'First delivery'
-              : 'Delivery ${event.value}',
-          detail: 'A letter reaches its postbox.',
-          value: event.value,
-          priority: event.value == 1 ? 85 : 55,
-        ),
         FlightEventKind.magnet => ReplayHighlight(
           kind: ReplayMomentKind.magnet,
           atMs: at,
@@ -105,7 +83,9 @@ List<ReplayHighlight> buildReplayHighlights(ReplayTape tape) {
           kind: ReplayMomentKind.starTrio,
           atMs: at,
           title: 'First star trio',
-          detail: 'Three stars become a constellation. +5 points!',
+          detail: sim.subtleStarRewards
+              ? 'Every star in the group collected. +5 points!'
+              : 'Three stars become a constellation. +5 points!',
           priority: 65,
         ),
         FlightEventKind.streak => ReplayHighlight(
@@ -123,16 +103,14 @@ List<ReplayHighlight> buildReplayHighlights(ReplayTape tape) {
           detail: 'A close call, and another chance.',
           priority: 60,
         ),
-        FlightEventKind.perfect when !sim.collectsStars && !sim.isCourier =>
-          ReplayHighlight(
+        FlightEventKind.perfect when !sim.collectsStars => ReplayHighlight(
             kind: ReplayMomentKind.perfect,
             atMs: at,
             title: 'First perfect pass',
             detail: 'Right through the aiming mark.',
             priority: 65,
           ),
-        FlightEventKind.milestone when !sim.collectsStars && !sim.isCourier =>
-          ReplayHighlight(
+        FlightEventKind.milestone when !sim.collectsStars => ReplayHighlight(
             kind: ReplayMomentKind.milestone,
             atMs: at,
             title: '${event.value} gates cleared',
@@ -140,13 +118,6 @@ List<ReplayHighlight> buildReplayHighlights(ReplayTape tape) {
             value: event.value,
             priority: event.value == 5 ? 80 : 55,
           ),
-        FlightEventKind.letterLost => ReplayHighlight(
-          kind: ReplayMomentKind.droppedLetter,
-          atMs: at,
-          title: 'Letter dropped',
-          detail: 'See where the route got tricky.',
-          priority: 45,
-        ),
         _ => null,
       };
       if (moment != null) {
@@ -154,8 +125,7 @@ List<ReplayHighlight> buildReplayHighlights(ReplayTape tape) {
           ReplayMomentKind.magnet ||
           ReplayMomentKind.shield ||
           ReplayMomentKind.perfect ||
-          ReplayMomentKind.starTrio ||
-          ReplayMomentKind.droppedLetter => moment.kind.name,
+          ReplayMomentKind.starTrio => moment.kind.name,
           ReplayMomentKind.streak => 'streak-${moment.value}',
           _ => null,
         };

@@ -15,10 +15,10 @@ Deliver Android first, with shared game logic and interfaces designed for a late
 
 New flights have no time limit. Collision, tracking and voluntary-ending rules
 still apply. Replay rules version 12 starts at the familiar course speed, then
-smoothly approaches 1.65× over several minutes (1.25× in relaxed Cruise).
+smoothly approaches 1.65× over several minutes.
 Points do not change the pace. During a match, the HUD shows score (and an
 active multiplier), hearts and shield status. Magnet charge/duration and jump
-glide use compact icon meters; Courier shows only Pick up / Deliver. Endless
+glide use compact icon meters. Endless
 flights omit elapsed time, pace, repetition counts, record targets, wing goals
 and standing instructions. Tracking feedback appears only when tracking is lost.
 Pause/stop and Shoot use illustrated circular controls; Shoot's rings show the
@@ -42,12 +42,11 @@ they leave the screen.
 Version 13 gives each non-garden family three seeded color/detail variations.
 Wind lifts have brass rails and broad turbines; petal shutters have leaf layers
 and blossoms; switchbacks and crystal steps use faceted surfaces. Lantern ribs
-and sun-wheel blades stay inside their circular bodies. Cloud Cruise uses
-matching beaded, star and crystal rings. Decorative motion honors Reduced Motion.
+and sun-wheel blades stay inside their circular bodies. Decorative motion honors Reduced Motion.
 
 Version 14 keeps the version 13 movement, spawning, collision and cadence, and
-changes presentation only. All seven families, including garden gates, plus
-Cloud Cruise rings use the new authored detail variations. Saved version 13
+changes presentation only. All seven families, including garden gates, use
+the new authored detail variations. Saved version 13
 replays keep the previous obstacle artwork. Reduced Motion still freezes
 optional decoration while gameplay geometry moves as before.
 
@@ -66,7 +65,7 @@ leading star trio, the measured half-cycle and a reaction allowance. For flap
 controls, stars follow moving openings. Pauses freeze obstacle motion, and
 Reduced Motion removes decorative spin while keeping gameplay motion visible.
 
-The 60-second Star Trail and 75-second Courier wings are survival milestones;
+The 60-second Star Trail wing is a survival milestone;
 daily goals and Trailblazer count saved flights lasting at least 60 seconds.
 Pre-version-12 journals retain static gates, score-based speed and their timed
 finishes, including arrival art. Version-12 journals retain their four-pattern
@@ -121,6 +120,20 @@ uses normal wall collision damage. Destruction gives no extra score. Pause and
 replay preserve seeded placement, HP and debris timing. Reduced Motion retains
 the static damage stages without sparks or debris. Rules 1–26 retain the
 previous route with no breakable panels.
+
+### Wall rebounds (rules version 31)
+
+A rock hitting a solid wall or breakable panel stays visible. The wall absorbs
+energy, sending the shell back at 45% of its incoming speed relative to the
+scrolling wall. A small upward kick gives way to a gravity-driven fall. Remove
+it only after it leaves the left or bottom of the view. Panel damage and the
+impact sound occur once; returning shells cannot damage targets or cancel
+enemy ammo. Shots through a clear opening continue straight.
+
+Briefly squash the stone at impact, then tumble it without the forward flight
+trail. Reduced Motion keeps the rebound and fall while omitting squash and
+spin. Pause freezes the trajectory, and replay seeks reconstruct it exactly.
+Rules 1–30 retain their original consumed-on-impact behavior.
 
 ### Power shots and ammo reserve (rules version 28)
 
@@ -186,14 +199,13 @@ sky with the speed boost (omitted in Reduced Motion). Trailing wind lines and a
 bow wave in front of the bird last the whole burst; Reduced Motion keeps them
 without the pulse. A whoosh plays on each sprint and a chime plays when a used
 sprint recharges. Record `sprint` for accepted presses only. Rules 1–28 reject
-`sprint` events and have no Sprint button, and camera controls and Cloud Cruise
-never show one.
+`sprint` events and have no Sprint button, and camera controls never show one.
 
 ### Touch boss encounters (rules version 15)
 
-After 45 seconds of active touch flight in Star Trail, Classic or Sky Courier,
+After 45 seconds of active touch flight in Star Trail or Classic,
 clear normal gates, attached pickups, bats and rocks for Baron Bat. Preserve
-the star combo and carried letter. A 2.5-second entrance and warning precede
+the star combo. A 2.5-second entrance and warning precede
 combat; the boss then hovers on the right with a visible HP bar. Existing Shoot
 controls fire straight rocks: one rock deals one HP, and a bat in front can
 intercept it. The first boss has 12 HP; later bosses gain three HP up to 24.
@@ -276,7 +288,7 @@ intercepted by player rocks. Use normal course damage, shield and recovery
 rules. Limit active small-enemy ammo to 12, remove off-screen ammo, and clear
 it on boss arrival and defeat. Freeze attack clocks with the simulation;
 reconstruct active warnings, recoil and pellets on replay seeks. Versions
-before 18 keep their old enemy behavior and art. Cloud Cruise and movement
+before 18 keep their old enemy behavior and art. Movement
 control modes remain free of enemy attacks.
 
 ### Screen entry and missed stars (rules version 25)
@@ -468,7 +480,7 @@ Build the Android camera/calibration screen first and test it on the connected p
 
 **Jump & Fly**
 
-- Jump launches use the regular Star Trail course with buildings, stars and hearts, without enemies or shooting. Old Cloud Cruise diagnostic links also open Star Trail; saved replays preserve their recorded course.
+- Jump launches use the regular Star Trail course with buildings, stars and hearts, without enemies or shooting. Sky Courier and Cloud Cruise are retired. Old journals and diagnostic links that name them open as Star Trail.
 - Calibrate from one second of stable shoulder/hip observations, using a rolling median window that tolerates foot jitter and brief missing frames. Shoulders, hips, knees and a usable ankle or toe on each side establish full-body framing; the face does not need to be visible.
 - Detect a coordinated upward movement of hips and shoulders. Normalize the threshold to body size and measured standing noise, require upward speed and two confirming samples, then wait for the torso to settle before another boost. Feet establish framing, but their estimated motion cannot veto a jump.
 - Small hops and deliberate body bounces count; perfect airborne-foot verification is not required. Crouching, shoulder-only movements, isolated pose spikes and stale samples do not trigger boosts. A brief rejected frame preserves a previously confirmed landing but never triggers a boost itself; sustained tracking loss requires landing again.

@@ -7,7 +7,7 @@ import 'package:push_up_bird/domain/game_rules.dart';
 import 'package:push_up_bird/domain/session_replay.dart';
 import 'package:push_up_bird/domain/tracking.dart';
 import 'package:push_up_bird/game/bird_trail.dart';
-import 'cloud_friends_test.dart' show recordCloudCruise;
+import 'recorded_flight.dart';
 
 double gap(({double distance, double y}) a, ({double distance, double y}) b) =>
     sqrt(pow(a.distance - b.distance, 2) + pow(a.y - b.y, 2));
@@ -40,7 +40,7 @@ void main() {
         FlightSimulation(
             rules: TapFlyMode(),
             practice: true,
-            course: FlightCourse.cloudCruise,
+            course: FlightCourse.starTrail,
             random: Random(4),
           )
           ..phase = RunPhase.playing
@@ -83,7 +83,7 @@ void main() {
 
   for (final mode in PlayMode.values) {
     test('$mode flight path replays identically across backward seeks', () {
-      final tape = recordCloudCruise(mode).tape;
+      final tape = recordFlight(mode);
       final player = ReplayPlayer(tape);
       for (final at in [16000.0, 29000.0, 7000.0, 29100.0]) {
         player.seek(at);

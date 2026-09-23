@@ -11,7 +11,6 @@ class CombatAudioCues {
   final Set<SkyEnemy> _charging = {};
   double _elapsed = 0;
   bool _magnet = false, _fullCharge = false, _sprintReady = false;
-  int _lettersDropped = 0;
   int _doorsDestroyed = 0;
 
   List<String> advance(FlightSimulation sim, {bool silent = false}) {
@@ -41,7 +40,6 @@ class CombatAudioCues {
       if (_magnet && !sim.magnetActive && sim.phase == RunPhase.playing) {
         cues.add('magnet_end');
       }
-      if (sim.lettersDropped > _lettersDropped) cues.add('letter_lost');
       if (sim.enemies.any((e) => e.charge > 0 && !_charging.contains(e))) {
         cues.add('enemy_charge');
       }
@@ -58,7 +56,6 @@ class CombatAudioCues {
     _deflections = sim.projectilesDeflected;
     _enemyShots = sim.enemyShots;
     _magnet = sim.magnetActive;
-    _lettersDropped = sim.lettersDropped;
     _doorsDestroyed = sim.doorsDestroyed;
     _charging
       ..clear()

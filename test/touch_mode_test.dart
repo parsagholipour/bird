@@ -47,7 +47,7 @@ void main() {
         expect(controller.cameraActive, isFalse);
         expect(controller.simulation!.rules.mode, PlayMode.touch);
         expect(controller.simulation!.course, course);
-        expect(controller.simulation!.practice, course.relaxed);
+        expect(controller.simulation!.practice, isFalse);
         controller.flap(); // Countdown taps must not queue a flap at launch.
         advance(controller, 150);
         final sim = controller.simulation!;
@@ -158,7 +158,7 @@ void main() {
             id: course.name,
             mode: PlayMode.touch,
             course: course,
-            practice: course.relaxed,
+            practice: false,
             score: course == FlightCourse.starTrail ? 50 : 25,
             gates: 25,
             repetitions: 0,
@@ -173,16 +173,12 @@ void main() {
       for (final course in FlightCourse.values) {
         expect(
           progress.record(PlayMode.touch, course).best,
-          course.relaxed
-              ? 0
-              : course == FlightCourse.starTrail
-              ? 50
-              : 25,
+          course == FlightCourse.starTrail ? 50 : 25,
         );
         expect(progress.record(PlayMode.jump, course).runs, 0);
         expect(progress.record(PlayMode.pushUp, course).runs, 0);
       }
-      expect(progress.totalRuns, 3);
+      expect(progress.totalRuns, 2);
       expect(progress.trailCompletions, 1);
       expect(progress.recent.every((run) => run.flaps == 42), isTrue);
       expect(

@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:push_up_bird/domain/game_rules.dart';
 import 'package:push_up_bird/domain/session_replay.dart';
 import 'package:push_up_bird/domain/tracking.dart';
+import 'recorded_flight.dart';
 
 FlightSimulation arena({
   FlightCourse course = FlightCourse.starTrail,
@@ -63,7 +64,6 @@ Object snapshot(FlightSimulation sim) => [
   sim.velocity,
   sim.hearts,
   sim.shield,
-  sim.courierBumps,
   sim.gates,
   if (sim.boss case final boss?)
     [
@@ -103,7 +103,7 @@ void main() {
           step(sim);
           expect(
             sim.boss != null,
-            version >= 15 && rules.mode == PlayMode.touch && !course.relaxed,
+            version >= 15 && rules.mode == PlayMode.touch,
           );
         }
       }
@@ -146,7 +146,7 @@ void main() {
   test(
     'boss fires aimed ammo, spread volleys and helpers with bounded lifetimes',
     () {
-      final sim = arena(course: FlightCourse.skyCourier);
+      final sim = arena()..hearts = 500;
       step(sim);
       hover(sim, 3.65);
       expect(sim.boss!.phase, BossPhase.attacking);
@@ -208,12 +208,8 @@ void main() {
   test(
     'slow-frame ammo hits respect shields, recovery, hearts and course rules',
     () {
-      for (final course in [
-        FlightCourse.starTrail,
-        FlightCourse.classic,
-        FlightCourse.skyCourier,
-      ]) {
-        final sim = arena(course: course)..carryingLetter = true;
+      for (final course in [FlightCourse.starTrail, FlightCourse.classic]) {
+        final sim = arena(course: course);
         step(sim);
         void collide() {
           sim.birdY = .5;
@@ -227,10 +223,6 @@ void main() {
         if (course == FlightCourse.classic) {
           expect(sim.endReason, EndReason.collision);
           expect(sim.shoot(), isFalse);
-        } else if (course == FlightCourse.skyCourier) {
-          expect(sim.carryingLetter, isFalse);
-          expect(sim.lettersDropped, 1);
-          expect(sim.phase, RunPhase.playing);
         } else {
           expect(sim.shield, isFalse);
           expect(sim.hearts, 3);
@@ -289,7 +281,7 @@ void main() {
   );
 
   test('pause, resume countdown and ending freeze the encounter', () {
-    final sim = arena(course: FlightCourse.skyCourier);
+    final sim = arena()..hearts = 500;
     step(sim);
     hover(sim, 4);
     final before = snapshot(sim);
@@ -345,13 +337,14 @@ void main() {
         final recorder = FlightRecorder(
           ReplayTape(
             mode: PlayMode.touch,
-            course: FlightCourse.skyCourier,
+            course: FlightCourse.starTrail,
             practice: false,
             seed: 7,
             cycleSeconds: 3,
             bird: 0,
             reducedMotion: reduced,
             originMs: 0,
+            weaponDamage: 40,
           ),
           () => now,
         );
@@ -360,10 +353,7 @@ void main() {
         for (var frame = 1; frame <= 3400; frame++) {
           now = frame * 50.0;
           recorder.apply(
-            MovementInput(
-              valid: true,
-              flap: sim.birdY > .5 && sim.velocity > 0,
-            ),
+            MovementInput(valid: true, flap: rideTheSky(sim)),
             TrackingSample(
               mode: PlayMode.touch,
               timestampMs: now,

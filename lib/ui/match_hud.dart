@@ -12,7 +12,6 @@ enum MatchSymbol {
   shot,
   pause,
   stop,
-  letter,
   wing,
   sprint,
 }
@@ -207,30 +206,6 @@ class _MatchIconPainter extends CustomPainter {
             ),
           ),
           SkyColors.ink,
-        );
-      case MatchSymbol.letter:
-        shape(
-          Path()..addRRect(
-            RRect.fromRectAndRadius(
-              const Rect.fromLTWH(2, 6, 28, 21),
-              const Radius.circular(4),
-            ),
-          ),
-          SkyColors.yellow,
-        );
-        line(
-          Path()
-            ..moveTo(4, 9)
-            ..lineTo(16, 18)
-            ..lineTo(28, 9),
-        );
-        line(
-          Path()
-            ..moveTo(5, 24)
-            ..lineTo(11, 18)
-            ..moveTo(21, 18)
-            ..lineTo(27, 24),
-          color: SkyColors.gold,
         );
       case MatchSymbol.wing:
         shape(

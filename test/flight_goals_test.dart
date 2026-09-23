@@ -80,7 +80,7 @@ void main() {
   });
 
   test('endurance wings count time regardless of how the flight ends', () {
-    for (final course in [FlightCourse.starTrail, FlightCourse.skyCourier]) {
+    for (final course in [FlightCourse.starTrail]) {
       for (final reason in EndReason.values.where(
         (r) => r != EndReason.completed,
       )) {
@@ -113,45 +113,7 @@ void main() {
     }
   });
 
-  test('Courier wings use deliveries and never cleared gates', () {
-    expect(
-      FlightGoals.earned(
-        FlightGoals.forRun(flight(course: FlightCourse.skyCourier, gates: 50)),
-      ),
-      0,
-    );
-    for (final (deliveries, count) in [
-      (0, 0),
-      (1, 1),
-      (2, 1),
-      (3, 2),
-      (10, 2),
-    ]) {
-      expect(
-        FlightGoals.earned(
-          FlightGoals.forRun(
-            flight(course: FlightCourse.skyCourier, score: deliveries),
-          ),
-        ),
-        count,
-      );
-    }
-    expect(
-      FlightGoals.earned(
-        FlightGoals.forRun(
-          flight(
-            course: FlightCourse.skyCourier,
-            score: 3,
-            seconds: 75,
-            reason: EndReason.completed,
-          ),
-        ),
-      ),
-      3,
-    );
-  });
-
-  test('practice and Cruise never earn or display flight wings', () {
+  test('practice flights never earn or display flight wings', () {
     for (final course in FlightCourse.values) {
       expect(
         FlightGoals.forRun(
@@ -168,11 +130,6 @@ void main() {
         isEmpty,
       );
     }
-    expect(FlightGoals.forCourse(FlightCourse.cloudCruise), isEmpty);
-    expect(
-      FlightGoals.forRun(flight(course: FlightCourse.cloudCruise)),
-      isEmpty,
-    );
   });
 
   test('live, saved and replay-derived progress agree for either control', () {

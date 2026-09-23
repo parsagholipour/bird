@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 import 'tracking.dart';
 import 'flight_course.dart';
-import 'cloud_friends.dart';
 import 'bird_motion.dart';
 import 'flight_path.dart';
 import 'obstacle.dart';
@@ -42,10 +41,6 @@ enum FlightEventKind {
   milestone,
   finalStretch,
   magnet,
-  letter,
-  delivery,
-  letterLost,
-  cloudFriend,
   starTrio,
   enemyHit,
   enemyRammed,
@@ -84,6 +79,7 @@ class SkyStar {
   final StarTrio? trio;
   final int trioSlot;
   bool collected = false, missed = false;
+  double? collectedAt, collectedY;
   static const radius = .027;
 }
 
@@ -97,6 +93,8 @@ class StarTrio {
   int collectedMask = 0;
   bool missed = false;
   double? completedAt;
+  // Freeze the last star's height on collection; its aura still scrolls with x.
+  double? completedY;
   static const bonus = 5;
   bool collected(int slot) => collectedMask & (1 << slot) != 0;
 }
@@ -113,14 +111,34 @@ class BirdRock {
       throw ArgumentError.value(charge, 'charge');
     }
   }
-  double x;
-  final double y;
+  double x, y;
+  double velocityX = speed, velocityY = 0;
+  double? reboundAge;
+  bool get rebounding => reboundAge != null;
   // A shot retains the weapon's damage at the instant it was fired.
   final int damage;
   final double charge;
   double get radius => baseRadius * PowerShot.radiusScale(charge);
   static const baseDamage = 10;
   static const baseRadius = .014, speed = 1.65;
+  static const reboundGravity = 1.8;
+
+  /// The wall absorbs most of the shot's energy. Its spent shell falls away
+  /// without damaging another target or cancelling incoming ammo.
+  void rebound(double scrollSpeed) {
+    if (rebounding) return;
+    reboundAge = 0;
+    velocityX = -(speed + scrollSpeed) * .45 - scrollSpeed;
+    velocityY = -.18;
+  }
+
+  void advance(double dt) {
+    x += velocityX * dt;
+    if (!rebounding) return;
+    y += velocityY * dt + .5 * reboundGravity * dt * dt;
+    velocityY += reboundGravity * dt;
+    reboundAge = reboundAge! + dt;
+  }
 }
 
 /// A life pickup that follows the safe opening of its passage.
@@ -232,7 +250,7 @@ class RunResult {
   const RunResult({
     required this.id,
     required this.mode,
-    required bool practice,
+    required this.practice,
     required this.score,
     required this.repetitions,
     required this.flaps,
@@ -244,8 +262,7 @@ class RunResult {
     this.bestCombo = 0,
     this.perfectPasses = 0,
     int? gates,
-  }) : gates = gates ?? score,
-       practice = practice || course == FlightCourse.cloudCruise;
+  }) : gates = gates ?? score;
   final String id;
   final PlayMode mode;
   final bool practice;
@@ -261,13 +278,12 @@ class RunResult {
 class FlightSimulation {
   FlightSimulation({
     required this.rules,
-    required bool practice,
+    required this.practice,
     this.course = FlightCourse.classic,
     this.rulesVersion = currentRulesVersion,
     int weaponDamage = BirdRock.baseDamage,
     math.Random? random,
-  }) : random = random ?? math.Random(),
-       practice = practice || course.relaxed {
+  }) : random = random ?? math.Random() {
     setWeaponDamage(weaponDamage);
   }
   final GameMode rules;
@@ -275,15 +291,13 @@ class FlightSimulation {
   final FlightCourse course;
 
   /// Replay journals keep the rules they were recorded with.
-  static const currentRulesVersion = 29;
+  static const currentRulesVersion = 31;
   final int rulesVersion;
   final math.Random random;
   final List<Obstacle> obstacles = [];
   final List<SkyStar> stars = [];
   final List<StarTrio> starTrios = [];
   final List<SkyHeart> heartPickups = [];
-  final List<DriftingCloud> clouds = [];
-  final Set<CloudFriend> cloudFriends = {};
   final List<FlightEvent> events = [];
   final List<SkyEnemy> enemies = [];
   final List<EnemyAmmo> enemyAmmo = [];
@@ -382,7 +396,7 @@ class FlightSimulation {
   }
 
   bool get supportsCombat =>
-      rules.mode == PlayMode.touch && rulesVersion >= 7 && !isCruise;
+      rules.mode == PlayMode.touch && rulesVersion >= 7;
   double get shotCooldownRemaining =>
       math.max(0, lastShotAt + shotCooldown - elapsed);
   bool get _combatReady =>
@@ -431,12 +445,10 @@ class FlightSimulation {
   int completedTrios = 0;
   static const maxHearts = 5;
   int perfectPasses = 0, perfectStreak = 0, hearts = 3;
-  bool carryingLetter = false;
-  int lettersCollected = 0, lettersDropped = 0, courierBumps = 0;
   bool shield = true;
   double invulnerableUntil = 0;
   double get recoveryRemaining =>
-      isTrail || isCourier ? math.max(0, invulnerableUntil - elapsed) : 0;
+      isTrail ? math.max(0, invulnerableUntil - elapsed) : 0;
   int magnetCharge = 0, magnetActivations = 0;
   double magnetUntil = 0;
   static const magnetDuration = 8.0;
@@ -447,13 +459,11 @@ class FlightSimulation {
   double get pickupRadius => magnetActive ? .20 : .085;
   static const trailDuration = 60.0;
   bool get isTrail => course == FlightCourse.starTrail;
-  bool get isCruise => course.relaxed;
-  bool get discoversClouds => isCruise && rulesVersion >= 5;
-  bool get isCourier => course == FlightCourse.skyCourier;
   bool get endless => rulesVersion >= 12;
   bool get timed => !endless && course.legacyTimed;
   bool get collectsStars => course.collectsStars;
   bool get supportsStarTrios => collectsStars && rulesVersion >= 6;
+  bool get subtleStarRewards => collectsStars && rulesVersion >= 30;
   int get multiplier => 1 + (combo ~/ 6).clamp(0, 2);
   int get shieldCharge => collectedStars % 9;
   double get remainingSeconds => math.max(0, course.duration - elapsed);
@@ -466,42 +476,28 @@ class FlightSimulation {
   // Time, not points, gently increases the pace. A star bonus never causes a
   // sudden jump in speed; the asymptote keeps long flights physically playable.
   double get paceMultiplier =>
-      endless ? 1 + (isCruise ? .25 : .65) * (1 - math.exp(-elapsed / 240)) : 1;
+      endless ? 1 + .65 * (1 - math.exp(-elapsed / 240)) : 1;
   double get speed => endless
-      ? rules.speedFor(0) *
-            (isCruise
-                ? .75
-                : isTrail || isCourier
-                ? .9
-                : 1) *
-            paceMultiplier
-      : isCruise
-      ? rules.speedFor(0) * .75
-      : isTrail || isCourier
+      ? rules.speedFor(0) * (isTrail ? .9 : 1) * paceMultiplier
+      : isTrail
       ? rules.speedFor(gates) * .9
       : rules.speedFor(score);
   int get _difficulty => endless ? (elapsed / 20).floor() : gates;
-  double get gap => isCruise
-      ? .48
-      : supportsCombat
+  double get gap => supportsCombat
       ? rules.gapFor(_difficulty)
-      : isTrail || isCourier
+      : isTrail
       ? math.min(.48, rules.gapFor(_difficulty) + .09)
       : rules.gapFor(endless ? _difficulty : score);
-  // The leading constellation occupies .42 height units before its gate.
+  // The leading star group occupies .42 height units before its gate.
   // At the slowest trail speed, this allowance leaves at least a calibrated
   // half-cycle between clearing one gate and reaching the next pickup halo.
   double get spawnInterval {
     final interval =
-        rules.intervalFor(collectsStars || isCourier ? gates : score) +
+        rules.intervalFor(collectsStars ? gates : score) +
         (supportsCombat
             ? (isTrail ? .25 : 0)
             : isTrail
             ? 1.3
-            : isCruise
-            ? 1.6
-            : isCourier
-            ? .65
             : 0);
     final mode = rules;
     if (!endless || mode is! PushUpFlightMode) return interval;
@@ -619,7 +615,7 @@ class FlightSimulation {
         repetitions = math.max(0, input.repetitions - _repBaseline);
       }
     } else if (input.flap && phase == RunPhase.playing && !bossCutscene) {
-      velocity = isCruise ? rules.flapImpulse * .8 : rules.flapImpulse;
+      velocity = rules.flapImpulse;
       lastFlapAt = elapsed;
       flaps++;
       if (supportsJumpGlide) {
@@ -721,7 +717,7 @@ class FlightSimulation {
         if (smoothJumpDescent && velocity >= 0) {
           _advanceJumpDescent(step);
         } else {
-          velocity += rules.gravity * (isCruise ? .65 : 1) * step;
+          velocity += rules.gravity * step;
           if (gliding) {
             // The upward boost keeps its original height. Only the descent uses
             // the banked glide, so a player gets the full rest after takeoff.
@@ -750,34 +746,25 @@ class FlightSimulation {
         _spawnIn += spawnInterval;
       }
       if (birdY - birdRadius <= 0 || birdY + birdRadius >= 1) {
-        if (!collectsStars && !isCourier) {
+        if (!collectsStars) {
           end(EndReason.collision);
           break;
         }
-        if (isCourier) {
-          _dropLetter();
-        } else if (!isCruise) {
-          _damage();
-        }
-        final atBottom = birdY > .5;
+        _damage();
         birdY = birdY.clamp(birdRadius + .001, 1 - birdRadius - .001);
-        velocity = isCruise ? (atBottom ? -.18 : .12) : 0;
+        velocity = 0;
       }
       flightPath.record(distance, birdY);
       for (final o in obstacles) {
         if (phase == RunPhase.ended) break;
         if (sprinting) _ramPanel(o);
-        if (!isCruise && !o.hit && _touches(o)) {
-          if (!isTrail && !isCourier) {
+        if (!o.hit && _touches(o)) {
+          if (!isTrail) {
             end(EndReason.collision);
             break;
           }
           o.hit = true;
-          if (isCourier) {
-            _dropLetter();
-          } else {
-            _damage();
-          }
+          _damage();
         }
         if (o.x < birdX + birdRadius && o.x + o.width > birdX - birdRadius) {
           o.maxDeviation = math.max(o.maxDeviation, (birdY - o.target).abs());
@@ -786,39 +773,7 @@ class FlightSimulation {
           o.scored = true;
           if (!o.hit) {
             gates++;
-            if (isCourier) {
-              if (o.courierStop == CourierStop.pickup && !carryingLetter) {
-                carryingLetter = true;
-                lettersCollected++;
-                o.courierActionAt = elapsed;
-                events.add(
-                  FlightEvent(
-                    FlightEventKind.letter,
-                    elapsed,
-                    birdY,
-                    gateWorldX: distance + o.x + o.width / 2,
-                    gateY: o.target,
-                  ),
-                );
-              } else if (o.courierStop == CourierStop.postbox &&
-                  carryingLetter) {
-                carryingLetter = false;
-                score++;
-                o.courierActionAt = elapsed;
-                events.add(
-                  FlightEvent(
-                    FlightEventKind.delivery,
-                    elapsed,
-                    birdY,
-                    value: score,
-                    gateWorldX: distance + o.x + o.width / 2,
-                    gateY: o.target,
-                  ),
-                );
-              }
-            } else if (!collectsStars) {
-              score++;
-            }
+            if (!collectsStars) score++;
             if (o.maxDeviation <= .075) {
               perfectPasses++;
               perfectStreak++;
@@ -848,9 +803,6 @@ class FlightSimulation {
       if (supportsCombat && phase == RunPhase.playing) {
         _advanceCombat(step, scroll, viewportWidth, rush: scroll - speed);
         if (_fullHoldExpired) shoot(reducedMotion: reducedMotion);
-      }
-      if (discoversClouds && phase == RunPhase.playing) {
-        _advanceClouds(scroll * step);
       }
       obstacles.removeWhere((o) => o.x + o.width < -.1);
       events.removeWhere((e) => elapsed - e.at > 2);
@@ -904,9 +856,6 @@ class FlightSimulation {
       fixedTarget: rules.mode.controlsHeight,
       appearance: _obstacleAppearance(),
       door: hasDoor ? SkyDoor() : null,
-      courierStop: isCourier
-          ? (_index.isOdd ? CourierStop.pickup : CourierStop.postbox)
-          : null,
     );
     obstacles.add(obstacle);
     if (_heartPassagesRemaining case final remaining?) {
@@ -947,17 +896,6 @@ class FlightSimulation {
           appearance: _enemyAppearance(_index ~/ 2),
           maxHp: _enemyHealth(_enemyAppearance(_index ~/ 2)),
           flightPhase: rulesVersion >= 20 ? _index * 2.399963 : null,
-        ),
-      );
-    }
-    // A friend visits every third ring. The same calm endpoint reaches both
-    // the cloud and the stars; no additional movement or cadence is required.
-    if (discoversClouds && (_index - 1) % 3 == 0) {
-      clouds.add(
-        DriftingCloud(
-          friend: CloudFriend.values[((_index - 1) ~/ 3) % 3],
-          x: x + .07,
-          y: target.clamp(.23, .77),
         ),
       );
     }
@@ -1041,7 +979,21 @@ class FlightSimulation {
     }
     final spent = <BirdRock>{};
     for (final rock in rocks) {
-      rock.x += BirdRock.speed * dt;
+      final previousX = rock.x;
+      rock.advance(dt);
+      if (rock.rebounding) continue;
+      void hitWall() {
+        if (rulesVersion >= 31) {
+          // Back out of this substep's penetration before returning left.
+          // The wall has also scrolled since the previous clear position.
+          rock.x = previousX - scrollSpeed * dt;
+          rock.rebound(scrollSpeed);
+        } else {
+          spent.add(rock);
+        }
+        rockImpacts++;
+      }
+
       // The same small physics steps used for buildings also prevent rocks
       // tunneling through enemies, even when a rendered frame is slow.
       if (obstacles.any(
@@ -1053,8 +1005,7 @@ class FlightSimulation {
           includeDoor: false,
         ),
       )) {
-        spent.add(rock);
-        rockImpacts++;
+        hitWall();
         continue;
       }
       for (final obstacle in obstacles) {
@@ -1062,13 +1013,12 @@ class FlightSimulation {
           continue;
         }
         final seal = obstacle.door!;
-        spent.add(rock);
+        hitWall();
         seal.takeDamage(rock.damage, hitY: rock.y);
-        rockImpacts++;
         if (seal.destroyed) doorsDestroyed++;
         break;
       }
-      if (spent.contains(rock)) continue;
+      if (spent.contains(rock) || rock.rebounding) continue;
       for (final enemy in enemies) {
         final dx = rock.x - enemy.x, dy = rock.y - enemy.y;
         final radius = rock.radius + SkyEnemy.radius;
@@ -1101,7 +1051,10 @@ class FlightSimulation {
       }
     }
     rocks.removeWhere(
-      (rock) => spent.contains(rock) || rock.x > viewportWidth + .2,
+      (rock) =>
+          spent.contains(rock) ||
+          rock.x > viewportWidth + .2 ||
+          (rock.rebounding && (rock.x < -.2 || rock.y > 1.2)),
     );
     enemies.removeWhere((enemy) {
       final dx = birdX - enemy.x, dy = birdY - enemy.y;
@@ -1111,8 +1064,6 @@ class FlightSimulation {
           _defeatEnemy(enemy, rammed: true);
         } else if (isTrail) {
           _damage();
-        } else if (isCourier) {
-          _dropLetter();
         } else {
           end(EndReason.collision);
         }
@@ -1131,8 +1082,6 @@ class FlightSimulation {
       if (dx * dx + dy * dy <= reach * reach) {
         if (isTrail) {
           _damage();
-        } else if (isCourier) {
-          _dropLetter();
         } else {
           end(EndReason.collision);
         }
@@ -1196,6 +1145,7 @@ class FlightSimulation {
       // A well-timed shot can cancel a pellet instead of demanding a dodge
       // while the player is lining up with a narrow gate.
       for (final rock in rocks) {
+        if (rock.rebounding) continue;
         final dx = rock.x - ammo.x, dy = rock.y - ammo.y;
         final reach = rock.radius + EnemyAmmo.radius;
         if (dx * dx + dy * dy <= reach * reach) {
@@ -1209,8 +1159,6 @@ class FlightSimulation {
       if (dx * dx + dy * dy > reach * reach) return false;
       if (isTrail) {
         _damage();
-      } else if (isCourier) {
-        _dropLetter();
       } else {
         end(EndReason.collision);
       }
@@ -1393,31 +1341,6 @@ class FlightSimulation {
     });
   }
 
-  void _advanceClouds(double travel) {
-    for (final cloud in clouds) {
-      cloud.x -= travel;
-      if (cloud.discovered || cloud.passed) continue;
-      final dx = birdX - cloud.x, dy = birdY - cloud.y;
-      if (dx * dx + dy * dy <=
-          DriftingCloud.pickupRadius * DriftingCloud.pickupRadius) {
-        cloud.discovered = true;
-        if (cloudFriends.add(cloud.friend)) {
-          events.add(
-            FlightEvent(
-              FlightEventKind.cloudFriend,
-              elapsed,
-              cloud.y,
-              value: cloud.friend.index,
-            ),
-          );
-        }
-      } else if (cloud.x < birdX - DriftingCloud.pickupRadius) {
-        cloud.passed = true;
-      }
-    }
-    clouds.removeWhere((cloud) => cloud.x < -.25);
-  }
-
   void _advanceStars(double travel) {
     for (final trio in starTrios) {
       trio.x -= travel;
@@ -1431,6 +1354,8 @@ class FlightSimulation {
       if (dx * dx + dy * dy <= radius * radius) {
         final previousMultiplier = multiplier;
         star.collected = true;
+        star.collectedAt = elapsed;
+        star.collectedY = star.y;
         combo++;
         collectedStars++;
         if (hasGlideCharge) {
@@ -1453,6 +1378,7 @@ class FlightSimulation {
               trio.collectedMask == 7 &&
               trio.completedAt == null) {
             trio.completedAt = elapsed;
+            trio.completedY = trio.y;
             completedTrios++;
             score += StarTrio.bonus;
             _event(FlightEventKind.starTrio, StarTrio.bonus);
@@ -1487,20 +1413,6 @@ class FlightSimulation {
       hearts--;
       _event(FlightEventKind.hit);
       if (hearts <= 0) end(EndReason.collision);
-    }
-  }
-
-  void _dropLetter() {
-    if (elapsed < invulnerableUntil || phase == RunPhase.ended) return;
-    invulnerableUntil = elapsed + 1.5;
-    courierBumps++;
-    perfectStreak = 0;
-    if (carryingLetter) {
-      carryingLetter = false;
-      lettersDropped++;
-      _event(FlightEventKind.letterLost);
-    } else {
-      _event(FlightEventKind.hit);
     }
   }
 

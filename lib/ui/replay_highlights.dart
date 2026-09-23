@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import '../domain/cloud_friends.dart';
 import '../domain/replay_highlights.dart';
-import 'cloud_friends.dart';
 import 'theme.dart';
 
 Future<ReplayHighlight?> showReplayHighlights(
@@ -70,32 +68,20 @@ Future<ReplayHighlight?> showReplayHighlights(
                           ),
                         ),
                         const SizedBox(width: 6),
-                        if (moment.kind == ReplayMomentKind.cloud)
-                          CloudFriendIcon(
-                            friend: CloudFriend.values[moment.value],
-                            discovered: true,
-                            width: 40,
-                          )
-                        else
-                          Icon(switch (moment.kind) {
-                            ReplayMomentKind.start =>
-                              Icons.flight_takeoff_rounded,
-                            ReplayMomentKind.finish => Icons.flag_rounded,
-                            ReplayMomentKind.delivery =>
-                              Icons.mark_email_read_rounded,
-                            ReplayMomentKind.magnet =>
-                              Icons.auto_awesome_rounded,
-                            ReplayMomentKind.streak => Icons.star_rounded,
-                            ReplayMomentKind.starTrio =>
-                              Icons.auto_awesome_rounded,
-                            ReplayMomentKind.shield => Icons.shield_rounded,
-                            ReplayMomentKind.perfect => Icons.adjust_rounded,
-                            ReplayMomentKind.milestone =>
-                              Icons.emoji_events_rounded,
-                            ReplayMomentKind.droppedLetter =>
-                              Icons.mail_outline_rounded,
-                            ReplayMomentKind.cloud => Icons.cloud_rounded,
-                          }, color: SkyColors.teal),
+                        Icon(switch (moment.kind) {
+                          ReplayMomentKind.start =>
+                            Icons.flight_takeoff_rounded,
+                          ReplayMomentKind.finish => Icons.flag_rounded,
+                          ReplayMomentKind.magnet =>
+                            Icons.auto_awesome_rounded,
+                          ReplayMomentKind.streak => Icons.star_rounded,
+                          ReplayMomentKind.starTrio =>
+                            Icons.auto_awesome_rounded,
+                          ReplayMomentKind.shield => Icons.shield_rounded,
+                          ReplayMomentKind.perfect => Icons.adjust_rounded,
+                          ReplayMomentKind.milestone =>
+                            Icons.emoji_events_rounded,
+                        }, color: SkyColors.teal),
                       ],
                     ),
                   ),

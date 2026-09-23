@@ -105,12 +105,7 @@ class _PortraitPainter extends CustomPainter {
   @override
   void paint(Canvas c, Size size) {
     if (arrivedCourse != null) {
-      ArrivalArt.seal(
-        c,
-        Offset(size.width - 36, size.height - 44),
-        24,
-        arrivedCourse!,
-      );
+      ArrivalArt.seal(c, Offset(size.width - 36, size.height - 44), 24);
     }
     if (!celebrate) return;
     final center = Offset(size.width / 2, size.height * .48);

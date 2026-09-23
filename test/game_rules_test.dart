@@ -262,6 +262,7 @@ void main() {
   test('new flights resolve missing course names to Star Trail', () {
     expect(FlightCourse.named(null), FlightCourse.starTrail);
     expect(FlightCourse.named('unknown'), FlightCourse.starTrail);
-    expect(FlightCourse.named('skyCourier'), FlightCourse.skyCourier);
+    expect(FlightCourse.named('skyCourier'), FlightCourse.starTrail);
+    expect(FlightCourse.named('cloudCruise'), FlightCourse.starTrail);
   });
 }

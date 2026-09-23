@@ -6,6 +6,7 @@ import 'package:push_up_bird/domain/tracking.dart';
 import 'package:push_up_bird/game/combat_audio_cues.dart';
 
 import 'boss_fight_test.dart' show step, hover, snapshot;
+import 'recorded_flight.dart';
 
 FlightSimulation flight({
   int bosses = 2,
@@ -261,13 +262,14 @@ void main() {
       final recorder = FlightRecorder(
         ReplayTape(
           mode: PlayMode.touch,
-          course: FlightCourse.skyCourier,
+          course: FlightCourse.starTrail,
           practice: true,
           seed: 7,
           cycleSeconds: 3,
           bird: 0,
           reducedMotion: reduced,
           originMs: 0,
+          weaponDamage: 40,
         ),
         () => now,
       );
@@ -276,14 +278,8 @@ void main() {
       final checkpoints = <double, Object>{};
       for (var frame = 1; frame <= 5400; frame++) {
         now = frame * 50.0;
-        final panel = sim.obstacles
-            .where((o) => o.door != null && o.x > FlightSimulation.birdX)
-            .firstOrNull;
         recorder.apply(
-          MovementInput(
-            valid: true,
-            flap: sim.birdY > (panel?.center ?? .5) && sim.velocity > 0,
-          ),
+          MovementInput(valid: true, flap: rideTheSky(sim)),
           TrackingSample(
             mode: PlayMode.touch,
             timestampMs: now,
@@ -292,6 +288,9 @@ void main() {
           ),
           now,
         );
+        if (sim.bossesDefeated >= 2 && sim.weaponDamage > 10) {
+          recorder.setWeaponDamage(10);
+        }
         if (sim.canShoot) recorder.command('shoot');
         recorder.tick(.05, now, 2.2);
         for (final o in sim.obstacles) {

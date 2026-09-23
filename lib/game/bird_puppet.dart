@@ -98,11 +98,14 @@ class BirdPose {
     for (final event in sim.events.reversed) {
       final age = sim.elapsed - event.at;
       if (age < 0) continue;
+      if (sim.subtleStarRewards &&
+          (event.kind == FlightEventKind.starTrio ||
+              event.kind == FlightEventKind.streak)) {
+        continue;
+      }
       if (age < .5 &&
           switch (event.kind) {
-            FlightEventKind.hit ||
-            FlightEventKind.shieldUsed ||
-            FlightEventKind.letterLost => true,
+            FlightEventKind.hit || FlightEventKind.shieldUsed => true,
             _ => false,
           }) {
         return BirdExpression.startled;
@@ -114,9 +117,6 @@ class BirdPose {
             FlightEventKind.enemyRammed ||
             FlightEventKind.bossDefeated ||
             FlightEventKind.heart ||
-            FlightEventKind.delivery ||
-            FlightEventKind.letter ||
-            FlightEventKind.cloudFriend ||
             FlightEventKind.magnet ||
             FlightEventKind.milestone ||
             FlightEventKind.streak ||

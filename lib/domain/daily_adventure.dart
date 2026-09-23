@@ -62,9 +62,7 @@ class DailyAdventure {
     final key = localDayKey(day);
     final eligible = <String, RunResult>{
       for (final run in runs)
-        if (!run.practice &&
-            !run.course.relaxed &&
-            localDayKey(run.finishedAt) == key)
+        if (!run.practice && localDayKey(run.finishedAt) == key)
           run.id: run,
     }.values;
     var flights = 0,

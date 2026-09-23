@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 import '../domain/game_rules.dart';
 import '../ui/theme.dart';
+import 'enemy_ammo_art.dart';
 import 'enemy_hit_art.dart';
 import 'enemy_designs/aimed_enemy.dart';
 import 'enemy_designs/simple_bat.dart';
@@ -109,48 +110,19 @@ abstract final class EnemyArt {
     );
   }
 
-  static void ammo(Canvas canvas, double height, EnemyAmmo ammo) {
-    final aimed = ammo.attack == EnemyAttack.aimed;
-    final color = aimed ? SkyColors.teal : SkyColors.coralDeep;
-    final light = aimed ? SkyColors.mint : SkyColors.gold;
-    final radius = height * EnemyAmmo.radius;
-    canvas.save();
-    canvas.translate(ammo.x * height, ammo.y * height);
-    canvas.rotate(math.atan2(ammo.vy, ammo.vx));
-    // The tail points away from travel, so the shot's direction reads even
-    // without motion. A mint seed and amber diamond distinguish the volleys.
-    final trail = Path()
-      ..moveTo(-radius * 4.2, 0)
-      ..quadraticBezierTo(-radius * 1.4, -radius, 0, -radius * .65)
-      ..lineTo(0, radius * .65)
-      ..quadraticBezierTo(-radius * 1.4, radius, -radius * 4.2, 0);
-    canvas.drawPath(trail, Paint()..color = light.withValues(alpha: .40));
-    final core = aimed
-        ? (Path()..addOval(Rect.fromLTRB(-radius, -radius, radius, radius)))
-        : (Path()
-            ..moveTo(radius * 1.1, 0)
-            ..lineTo(0, -radius)
-            ..lineTo(-radius * 1.1, 0)
-            ..lineTo(0, radius)
-            ..close());
-    canvas.drawPath(core, Paint()..color = color);
-    canvas.drawPath(
-      core,
-      Paint()
-        ..color = SkyColors.ink
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = math.max(1, radius * .22),
+  static void ammo(
+    Canvas canvas,
+    double height,
+    EnemyAmmo ammo, {
+    required double seconds,
+    required bool reducedMotion,
+  }) {
+    EnemyAmmoArt.paint(
+      canvas,
+      height,
+      ammo,
+      seconds: seconds,
+      reducedMotion: reducedMotion,
     );
-    canvas.drawCircle(
-      Offset(radius * .14, -radius * .18),
-      radius * .48,
-      Paint()..color = light,
-    );
-    canvas.drawCircle(
-      Offset(radius * .3, -radius * .28),
-      radius * .18,
-      Paint()..color = SkyColors.cream,
-    );
-    canvas.restore();
   }
 }

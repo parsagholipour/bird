@@ -2,7 +2,6 @@ import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 import '../domain/game_rules.dart';
 import '../ui/theme.dart';
-import 'courier_art.dart';
 import 'sky_scenery.dart';
 
 /// A visual destination for timed routes; it has no collision or reward rules.
@@ -41,7 +40,7 @@ abstract final class ArrivalArt {
     final pose = ArrivalPose.forFlight(sim);
     if (pose == null || pose.reveal == 0) return;
     final x = pose.x * h;
-    final accent = sim.isCourier ? SkyColors.coral : SkyColors.yellow;
+    final accent = SkyColors.yellow;
     final alpha = pose.reveal;
     final wave = reducedMotion ? 0.0 : math.sin(sim.elapsed * 2.3) * h * .004;
     final pen = Paint()
@@ -106,7 +105,7 @@ abstract final class ArrivalArt {
     );
     final text = TextPainter(
       text: TextSpan(
-        text: sim.isCourier ? 'HOME' : 'FINISH',
+        text: 'FINISH',
         style: TextStyle(
           fontFamily: 'Fredoka',
           fontWeight: FontWeight.w600,
@@ -117,7 +116,7 @@ abstract final class ArrivalArt {
       textDirection: TextDirection.ltr,
     )..layout();
     text.paint(canvas, label.center - Offset(text.width / 2, text.height / 2));
-    seal(canvas, Offset(x, h * .95), h * .028, sim.course, alpha: alpha);
+    seal(canvas, Offset(x, h * .95), h * .028, alpha: alpha);
     if (pose.arrived) {
       // The saved replay's final frame keeps a calm, completed destination.
       final center = Offset(x + h * .12, sim.birdY * h);
@@ -140,13 +139,10 @@ abstract final class ArrivalArt {
   static void seal(
     Canvas canvas,
     Offset center,
-    double radius,
-    FlightCourse course, {
+    double radius, {
     double alpha = 1,
   }) {
-    final accent = course == FlightCourse.skyCourier
-        ? SkyColors.coral
-        : SkyColors.yellow;
+    final accent = SkyColors.yellow;
     for (final side in [-1.0, 1.0]) {
       canvas.drawPath(
         Path()
@@ -174,18 +170,9 @@ abstract final class ArrivalArt {
       radius * .79,
       Paint()..color = SkyColors.cream.withValues(alpha: alpha),
     );
-    if (course == FlightCourse.skyCourier) {
-      canvas.saveLayer(
-        Rect.fromCircle(center: center, radius: radius),
-        Paint()..color = Color.fromRGBO(255, 255, 255, alpha),
-      );
-      CourierArt.letter(canvas, center, radius * 1.05, gold: true);
-      canvas.restore();
-    } else {
-      canvas.drawPath(
-        SkyScenery.star(center, radius * .56),
-        Paint()..color = SkyColors.gold.withValues(alpha: alpha),
-      );
-    }
+    canvas.drawPath(
+      SkyScenery.star(center, radius * .56),
+      Paint()..color = SkyColors.gold.withValues(alpha: alpha),
+    );
   }
 }

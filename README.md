@@ -13,8 +13,8 @@ a new jump refreshes the base charge without losing time earned from stars. **Ta
 tap the screen to flap, with no camera or microphone needed. Records, settings and
 cosmetic unlocks stay in SQLite on the phone. After a flight, Save session keeps
 an input journal and any camera footage for replay in Records → Saved sessions.
-Replay **Flight highlights** lets you jump to discoveries, deliveries, streaks,
-power-ups and the final approach, with a short lead-in before each moment.
+Replay **Flight highlights** lets you jump to streaks, power-ups and the final
+approach, with a short lead-in before each moment.
 
 **Endless flights:** Star Trail keeps going with three hearts, a shield and
 streak multipliers. Every control has a gradual time-based speed increase,
@@ -23,9 +23,8 @@ and closing **Petal Shutters**, and two-column **Switchbacks**. Longer flights
 introduce swaying **Lantern Drift**, orbiting **Sun Wheels**, and three-column
 **Crystal Steps**. Floating obstacles use round collision shapes and leave open
 sky around them. Turbines, blossoms, faceted towers and regional color variations
-give each pattern a distinct look. Cloud Cruise gets matching decorative rings.
-Version 14 redraws all seven families, including garden gates, and those Cruise
-rings with authored detail variations. It changes presentation only: version 13
+give each pattern a distinct look. Version 14 redraws all seven families,
+including garden gates, with authored detail variations. It changes presentation only: version 13
 physics stay the same, and saved version 13 replays keep the previous artwork.
 Version 16 adds conservatory, terracotta blossom and bamboo garden structures,
 plus moon bat, armored beetle and dusk moth enemies. The first
@@ -43,13 +42,13 @@ omit the clock, pace, flap count and persistent instruction/goal cards. The
 so you can earn them and keep flying. Existing replay journals retain their original timing and physics,
 including the four-pattern version-12 flights.
 
-The saved **Classic**, **Sky Courier** (letter delivery), and **Cloud Cruise**
-(open sky, cloud friends, no crashes) courses also run endlessly in Flight School.
-Every course supports push-ups, squats, jumps and touch. Three changing
+**Classic** and **Star Trail** both run endlessly in Flight School. Sky Courier
+and Cloud Cruise are retired; a saved journal that names either one opens as
+Star Trail. Every course supports push-ups, squats, jumps and touch. Three changing
 sky regions with leafy stone, festival flags and lantern-lit gates,
 perfect-pass celebrations, bird trails and an eight-stamp
 **Sky Passport** give flights more character and goals. Each scored course keeps
-separate records for each control; Cloud Cruise is always practice. See the
+separate records for each control. See the
 [arcade update notes](docs/arcade-expansion.md) for rules, design links and checks.
 
 **Home** opens on a game title scene with your equipped bird and a prominent
@@ -65,9 +64,9 @@ rock straight from the bird's beak at bats ahead, or hold it to charge a bigger
 rock; aim by changing your height. Defeating an enemy earns +3 points on Star
 Trail; buildings block rocks, and each shot has a short cooldown and spends
 ammo. Bats use the same shield/heart collision rules as
-buildings. Cloud Cruise stays free of enemies. Scored flights contribute
+buildings. Scored flights contribute
 to unlocks, daily adventures and flight goals, with separate touch bests in
-Records. Practice and Cloud Cruise can pause and resume; scored flights end
+Records. Practice can pause and resume; scored flights end
 when interrupted. Save session keeps a gameplay replay without camera video,
 including shots and enemies. Existing replays keep their original flight rules.
 
@@ -131,7 +130,7 @@ Shoot to drain his visible health bar. He attacks faster below half health.
 Winning earns 30 Star Trail points and restores your shield, then normal flight
 resumes. Another boss arrives after 45 more seconds of normal flight. Baron
 Bat starts with 12 HP and reaches a maximum of 24 HP. Practice supports the same
-encounters; Cloud Cruise and movement controls stay free of bosses. Version 15
+encounters; movement controls stay free of bosses. Version 15
 replays preserve the whole fight, including pauses, shots and victories.
 Version 16 gives summoned enemies the new enemy artwork. Boss timing and damage
 stay on the version 15 rules.
@@ -238,9 +237,12 @@ passes grant eight seconds of extra pickup reach. Push-up aiming marks and stars
 follow the full calibrated top and bottom positions. Older saved replays retain
 their original targets and scoring rules.
 
-**Star trios:** collect every star in a connected set to form a constellation
-and earn five bonus points in Star Trail or Cruise. Missed sets leave the next
-trio available. Bonus points do not accelerate multipliers or shield charge.
+**Star groups (version 30):** collect all three stars in one group for +5
+points in Star Trail. Each pickup moves into the bird and shrinks
+away over 220 ms. A small gold aura fades at the last star's position when the
+group is complete. Groups have no connecting lines, charge slots or bird bursts.
+Missing a star forfeits that group's bonus; the next group starts fresh. Bonus points do not
+accelerate multipliers or shield charge. Older replays retain their artwork.
 
 **Daily adventures** rotate three small goals each local day. Complete them to
 stamp a Sky Club postcard; the last seven days stay visible. All four controls
@@ -248,7 +250,7 @@ work, progress is saved offline, and there is no streak penalty.
 
 Scored flights show a live **personal-best target** for that course and control,
 with a one-time celebration when you pass it. Cleared gates bloom with flowers;
-perfect passes earn a gold seal, and Cloud Cruise rings turn mint after a pass.
+perfect passes earn a gold seal.
 Each bird has a signature trail: Pip's bubbles, Peaches' hearts, Minty's leaves,
 and Orbit's stardust. Preview them in the crew screen; Reduced Motion freezes
 their decorative movement.
@@ -258,26 +260,12 @@ The crew also reacts with pleased eyes after rewards, a brief startled look for
 bumps, and occasional blinks. These expressions follow replay time and stay
 neutral under Reduced Motion.
 
-**Cloud friends:** meet Cloud Whale, Daydream Bunny and Sky Turtle during a
-Cruise. Fly close to discover each one in that flight's collection; missed
-friends drift back later. Results show who you met, and saved replays preserve
-the discoveries. They add no score requirement or timer.
-
-**Sky Courier:** clear a pickup gate to carry a letter, then a postbox gate to
-deliver it. Bumps drop your cargo without ending the route. Clean gates count
-toward bird unlocks; practice leaves records untouched. Saved replays preserve
-the cargo and delivery state when seeking backward.
-Letters now fly into the bird's pouch and arc into a postbox on delivery. A
-completed postbox raises its flag and releases hearts; Reduced Motion shows the
-finished state immediately.
-
-Timed routes now approach a visible destination in their last six seconds:
-gold finish pennants for Star Trail and coral home pennants for Courier.
-Completed routes add a matching ribbon medal to the result portrait.
+Pre-endless Star Trail journals approach gold finish pennants in their last six
+seconds. Completed routes add a matching ribbon medal to the result portrait.
 
 **Flight goals:** earn three wings in one scored flight. Classic rewards 5, 10
-and 25 gates; Star Trail rewards 12 stars, a six-star streak and a full trail;
-Courier rewards one delivery, three deliveries and a full route. Open Flight
+and 25 gates; Star Trail rewards 12 stars, a six-star streak and a full trail.
+Open Flight
 goals from Home to see the targets, or tap a result's wings for progress. Results
 keep Save session visible, then offer Watch replay directly after saving.
 

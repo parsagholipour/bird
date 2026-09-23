@@ -8,7 +8,7 @@ import 'package:push_up_bird/domain/session_replay.dart';
 import 'package:push_up_bird/domain/tracking.dart';
 import 'package:push_up_bird/game/bird_puppet.dart';
 import 'package:push_up_bird/ui/theme.dart';
-import 'cloud_friends_test.dart' show recordCloudCruise;
+import 'recorded_flight.dart';
 
 Future<ui.Image> renderBird(int bird, double wing) async {
   final recorder = ui.PictureRecorder();
@@ -158,7 +158,7 @@ void main() {
 
   for (final mode in PlayMode.values) {
     test('$mode wing poses replay identically across backward seeks', () {
-      final tape = recordCloudCruise(mode).tape;
+      final tape = recordFlight(mode);
       final player = ReplayPlayer(tape);
       for (final at in [16000.0, 29000.0, 7000.0, 29100.0]) {
         player.seek(at);

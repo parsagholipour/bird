@@ -1,8 +1,6 @@
 import 'dart:math' as math;
 import 'sky_door.dart';
 
-enum CourierStop { pickup, postbox }
-
 enum ObstacleKind {
   garden('Garden gate'),
   windLift('Wind lift'),
@@ -46,7 +44,6 @@ class Obstacle {
     required double gap,
     double? width,
     double? target,
-    this.courierStop,
     this.kind = ObstacleKind.garden,
     this.amplitude = 0,
     this.period = 7,
@@ -66,11 +63,9 @@ class Obstacle {
   final bool fixedTarget;
   final int appearance;
   final ObstacleKind kind;
-  final CourierStop? courierStop;
   final SkyDoor? door;
   double _age = 0;
   bool scored = false, hit = false;
-  double? courierActionAt;
   double maxDeviation = 0;
 
   void advance(double elapsed) {

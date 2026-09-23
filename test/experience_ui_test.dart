@@ -482,7 +482,10 @@ void main() {
       sim.events.add(FlightEvent(FlightEventKind.starTrio, 24.8, .5, value: 5));
       final approaching = StarTrio(x: 1.5, y: .7)..collectedMask = 1;
       sim.starTrios.addAll([
-        StarTrio(x: .3, y: .5)..completedAt = 24.8,
+        StarTrio(x: .3, y: .5)
+          ..collectedMask = 7
+          ..completedAt = 24.8
+          ..completedY = .5,
         approaching,
       ]);
       sim.stars.clear();
@@ -497,7 +500,7 @@ void main() {
       ]);
       await tester.pump(const Duration(milliseconds: 16));
       expect(tester.takeException(), isNull);
-      await capture(tester, 'star-trio-${reduced ? 'still' : 'motion'}');
+      await capture(tester, 'star-group-${reduced ? 'still' : 'motion'}');
       sim.starTrios.clear();
       sim.combo = 12;
       sim.birdY = .25;

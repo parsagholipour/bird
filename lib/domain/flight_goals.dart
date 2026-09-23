@@ -1,6 +1,6 @@
 import 'game_rules.dart';
 
-enum FlightGoalMetric { gates, stars, streak, deliveries, flightSeconds }
+enum FlightGoalMetric { gates, stars, streak, flightSeconds }
 
 class FlightGoal {
   const FlightGoal(this.title, this.description, this.metric, this.target);
@@ -58,27 +58,6 @@ abstract final class FlightGoals {
         60,
       ),
     ],
-    FlightCourse.skyCourier => const [
-      FlightGoal(
-        'First delivery',
-        'Deliver 1 letter.',
-        FlightGoalMetric.deliveries,
-        1,
-      ),
-      FlightGoal(
-        'Spreading joy',
-        'Deliver 3 letters.',
-        FlightGoalMetric.deliveries,
-        3,
-      ),
-      FlightGoal(
-        'Long-haul courier',
-        'Fly for 75 seconds in one route.',
-        FlightGoalMetric.flightSeconds,
-        75,
-      ),
-    ],
-    FlightCourse.cloudCruise => const [],
   };
 
   static List<FlightGoalProgress> forRun(RunResult run) => _progress(
@@ -111,14 +90,13 @@ abstract final class FlightGoals {
     required int score,
     required double duration,
   }) {
-    if (practice || course.relaxed) return const [];
+    if (practice) return const [];
     return [
       for (final goal in forCourse(course))
         FlightGoalProgress(goal, switch (goal.metric) {
           FlightGoalMetric.gates => gates,
           FlightGoalMetric.stars => stars,
           FlightGoalMetric.streak => streak,
-          FlightGoalMetric.deliveries => score,
           FlightGoalMetric.flightSeconds => duration.floor(),
         }),
     ];

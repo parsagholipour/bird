@@ -43,7 +43,6 @@ void main() {
         ('quit', 180.0, EndReason.quit, false, FlightCourse.starTrail),
         ('quit', 180.0, EndReason.quit, false, FlightCourse.starTrail),
         ('practice', 180.0, EndReason.quit, true, FlightCourse.starTrail),
-        ('courier', 180.0, EndReason.quit, false, FlightCourse.skyCourier),
       ]) {
         await repo.saveRun(
           RunResult(
@@ -111,7 +110,6 @@ void main() {
                 sim.obstacles.length +
                     sim.stars.length +
                     sim.starTrios.length +
-                    sim.clouds.length +
                     sim.events.length,
               );
             }
@@ -120,7 +118,6 @@ void main() {
             expect(sim.endReason, isNull);
             expect(sim.hearts, 3);
             expect(sim.shield, isTrue);
-            expect(sim.courierBumps, 0);
             expect(sim.speed, greaterThan(initialSpeed));
             expect(seen, ObstacleKind.values.toSet());
             expect(
@@ -133,9 +130,7 @@ void main() {
               expect(sim.collectedStars, greaterThan(30));
               expect(sim.bestCombo, sim.collectedStars);
             }
-            if (!course.relaxed) {
-              expect(FlightGoals.forSimulation(sim).last.earned, isTrue);
-            }
+            expect(FlightGoals.forSimulation(sim).last.earned, isTrue);
           },
         );
       }
@@ -174,9 +169,9 @@ void main() {
   );
 
   test(
-    'old trails and couriers retain their timer, finish cue and static gates',
+    'old trails retain their timer, finish cue and static gates',
     () {
-      for (final course in [FlightCourse.starTrail, FlightCourse.skyCourier]) {
+      for (final course in [FlightCourse.starTrail]) {
         final sim =
             FlightSimulation(
                 rules: PushUpFlightMode(cycleSeconds: 3),

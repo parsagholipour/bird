@@ -117,7 +117,7 @@ void main() {
               practice: practice,
               course: course,
               score: practice ? 100 : 15,
-              gates: 10,
+              gates: practice ? 10 : 13,
               stars: 12,
               repetitions: 4,
               flaps: 99,
@@ -129,13 +129,13 @@ void main() {
         }
       }
       final p = await repo.load();
-      expect(p.totalRuns, 3);
-      expect(p.totalObstacles, 30);
-      expect(p.totalSquats, 12);
+      expect(p.totalRuns, 2);
+      expect(p.totalObstacles, 26);
+      expect(p.totalSquats, 8);
       expect(p.totalRepetitions, 0);
       expect(p.trailCompletions, 1);
       expect(p.unlocked, contains(1));
-      for (final course in FlightCourse.values.where((c) => !c.relaxed)) {
+      for (final course in FlightCourse.values) {
         expect(p.record(PlayMode.squat, course).best, 15);
         expect(p.record(PlayMode.jump, course).best, 0);
         expect(p.record(PlayMode.pushUp, course).best, 0);

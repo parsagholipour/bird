@@ -10,6 +10,7 @@ import 'package:push_up_bird/game/combat_audio_cues.dart';
 import 'package:push_up_bird/ui/match_hud.dart';
 import 'boss_fight_test.dart' show arena, step, hover, snapshot;
 import 'touch_combat_test.dart' show tick;
+import 'recorded_flight.dart';
 import 'touch_mode_test.dart' show touchController, advance;
 
 FlightSimulation flight({
@@ -288,7 +289,7 @@ void main() {
         final recorder = FlightRecorder(
           ReplayTape(
             mode: PlayMode.touch,
-            course: FlightCourse.skyCourier,
+            course: FlightCourse.starTrail,
             practice: true,
             seed: 7,
             cycleSeconds: 3,
@@ -324,10 +325,7 @@ void main() {
         for (var frame = 1; frame <= 1800; frame++) {
           now = frame * 50.0;
           recorder.apply(
-            MovementInput(
-              valid: true,
-              flap: sim.birdY > .5 && sim.velocity > 0,
-            ),
+            MovementInput(valid: true, flap: rideTheSky(sim)),
             TrackingSample(
               mode: PlayMode.touch,
               timestampMs: now,
@@ -366,7 +364,7 @@ void main() {
     'the controller journals a press, its release and a paused release',
     () async {
       final controller = touchController(
-        course: FlightCourse.skyCourier,
+        course: FlightCourse.starTrail,
         practice: true,
       );
       addTearDown(controller.dispose);

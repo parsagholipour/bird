@@ -5,52 +5,6 @@ import 'package:push_up_bird/domain/session_replay.dart';
 import 'package:push_up_bird/domain/tracking.dart';
 
 void main() {
-  test(
-    'Cloud Cruise never crashes, has no time limit, and is always practice',
-    () {
-      final cruise = FlightSimulation(
-        rules: JumpFlyMode(),
-        practice: false,
-        course: FlightCourse.cloudCruise,
-        random: Random(4),
-      );
-      expect(cruise.practice, isTrue);
-      for (var i = 0; i < 4000; i++) {
-        final now = (i + 1) * 20.0;
-        cruise.apply(
-          const MovementInput(valid: true),
-          TrackingSample(
-            mode: PlayMode.jump,
-            timestampMs: now,
-            receivedMs: now,
-            joints: const [],
-          ),
-          now,
-        );
-        cruise.tick(.02, now);
-      }
-      expect(cruise.elapsed, greaterThan(60));
-      expect(cruise.phase, RunPhase.playing);
-      expect(cruise.hearts, 3);
-      expect(cruise.stars, isNotEmpty);
-      expect(
-        cruise.birdY,
-        inInclusiveRange(
-          FlightSimulation.birdRadius,
-          1 - FlightSimulation.birdRadius,
-        ),
-      );
-      cruise.tick(.016, 81000);
-      expect(
-        cruise.phase,
-        RunPhase.paused,
-        reason: 'Losing tracking pauses a relaxed flight',
-      );
-      cruise.resume();
-      expect(cruise.phase, RunPhase.countdown);
-    },
-  );
-
   late FlightSimulation sim;
   var now = 0.0;
   void tick([double dt = .016, double height = .5]) {

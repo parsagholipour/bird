@@ -3,8 +3,8 @@
 ## Courses and controls
 
 The movement activity and the arcade course are independent. New home flights
-use Star Trail with push-ups, squats, jumps or touch; Flight School and saved
-sessions retain the other courses. Version 12 makes every new flight endless,
+use Star Trail with push-ups, squats, jumps or touch. Flight School also offers
+Classic. Version 12 makes every new flight endless,
 adds a gradual speed ramp and mixes garden gates with Wind Lifts, Petal Shutters
 and split Switchbacks. Version 13 adds floating Lantern Drift, orbiting Sun
 Wheels and Crystal Steps, three visual variations per non-garden family, and
@@ -12,12 +12,15 @@ matching decorative Cruise rings. Earlier recordings keep their original rules
 and artwork. The current design sheet is generated from gameplay rendering at
 `build/visual-review/obstacle-variety.png`.
 
+Sky Courier and Cloud Cruise are retired. Flight School and new flights offer
+Classic and Star Trail only. A saved journal that names either retired course
+opens as Star Trail. Old score rows stay under their original course name, so
+they do not replace a Star Trail best.
+
 | Course | Objective | Collisions | Records |
 | --- | --- | --- | --- |
 | Classic | Clear as many gates as possible | One ends the flight | Separate best for each control |
 | Star Trail | Collect star points for as long as you can | Shield, then three hearts | Separate best for each control |
-| Sky Courier | Deliver letters along an endless route | Drop carried letter; keep flying | Separate delivery best for each control |
-| Cloud Cruise | Discover cloud friends and follow stars at your own pace | None; screen edges gently return the bird | Always practice |
 
 Classic retains its score units and collision behavior; all new courses use
 time-based acceleration and seeded obstacle patterns. A perfect pass means staying within 0.075 viewport heights
@@ -34,12 +37,6 @@ save or lost heart grants 1.5 seconds of protection, and a struck gate can only
 hit once. Struck gates do not earn cosmetic unlock progress. Star Trail's wider
 gaps, 10% slower scroll and extra 1.3 seconds between passages accommodate the
 leading constellation without requiring faster calibrated movement.
-
-Cloud Cruise has open rings, gentler smile gravity, 25% slower scroll, longer
-spacing and no end timer. The simulation, controller, results and replay journal
-all enforce practice status for this course. Tracking loss pauses; Resume counts
-you in again. Pause → Finish flight opens results, where a local replay can be
-saved. Cruise stars and gates cannot earn records, stamps or bird unlocks.
 
 ## Feedback and progression
 
@@ -456,7 +453,30 @@ pickups, Reduced Motion and replay seeking with both controls. The handoff sheet
 saved-replay renders and the [Figma Courier study](https://www.figma.com/design/3l8DyW2mxf917HzgXsQaz7?node-id=75-828)
 were visually reviewed. Its three editable SVG stages live in `design`.
 
-## Collect a constellation
+## Star-group aura (version 30)
+
+Collect all three stars in one approach to earn the existing flat +5 bonus.
+Each collected star moves into the bird and shrinks away over 220 ms.
+The last star of a completed group also leaves a small gold aura that expands
+slightly and fades over 650 ms. Reduced Motion keeps the aura size fixed and
+fades pickups in place. The aura scrolls with the course and keeps the collected star's height even when the passage subsequently moves.
+Partial or missed groups draw no additional art. There are no connecting lines,
+triangles, stored charge, slots or bird-centered bursts.
+Star collection and streaks no longer change the bird's face, trail color or
+add orbiting stars in new flights; the multiplier and other gameplay rewards
+still work. Star points appear in the score without floating collection labels
+around the bird. Pickup and complete-group sounds use the existing quiet mix.
+
+Scoring, physics and seeded routes match version 29. Missed stars forfeit only
+that group's bonus; different groups cannot complete each other. Version 6–29
+replays retain their original artwork and bird feedback. All animation follows
+simulation time through pauses and backwards seeks.
+
+Render a four-second gameplay preview with
+`flutter test --no-pub --dart-define=CAPTURE_STAR_AURA=true test/star_group_aura_test.dart`.
+Frames appear in `build/visual-review/star-aura/`.
+
+## Legacy constellations (versions 6–29)
 
 The three stars on each Star Trail or Cruise approach now form a connected set.
 Collect all three to earn a flat five-point bonus and unfold a small triangular

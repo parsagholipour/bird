@@ -3,20 +3,21 @@ import 'package:push_up_bird/domain/game_rules.dart';
 import 'package:push_up_bird/domain/replay_highlights.dart';
 import 'package:push_up_bird/domain/session_replay.dart';
 import 'package:push_up_bird/domain/tracking.dart';
-import 'cloud_friends_test.dart' show recordCloudCruise;
+import 'recorded_flight.dart';
 
 ReplayTape recordRoute(
   FlightCourse course, {
   bool pause = false,
   double seconds = 90,
   bool followGates = true,
+  bool practice = false,
   int rulesVersion = FlightSimulation.currentRulesVersion,
 }) {
   double now = 0;
   var paused = false;
   final tape = ReplayTape(
     mode: PlayMode.pushUp,
-    practice: course.relaxed,
+    practice: practice,
     seed: 17,
     cycleSeconds: 3,
     bird: 0,
@@ -29,7 +30,7 @@ ReplayTape recordRoute(
   final sim = recorder.simulation;
   while (sim.elapsed < seconds && sim.phase != RunPhase.ended) {
     now += 20;
-    if (pause && !paused && sim.elapsed > 8) {
+    if (pause && !paused && sim.elapsed > 2) {
       recorder.command('break');
       now += 15000;
       recorder.command('resume');
@@ -58,55 +59,26 @@ ReplayTape recordRoute(
 }
 
 void main() {
-  for (final mode in PlayMode.values) {
-    test(
-      '$mode cloud highlights use exact journal times without duplicates',
-      () {
-        final trip = recordCloudCruise(mode);
-        final before = trip.tape.toJson().toString();
-        final moments = buildReplayHighlights(trip.tape);
-        final clouds = moments
-            .where((m) => m.kind == ReplayMomentKind.cloud)
-            .toList();
-        expect(clouds, hasLength(3));
-        expect(clouds.map((m) => m.atMs), [
-          for (var i = 1; i <= 3; i++) trip.discoveredAt[i],
-        ]);
-        expect(moments.first.kind, ReplayMomentKind.start);
-        expect(moments.last.kind, ReplayMomentKind.finish);
-        for (final moment in clouds) {
-          final player = ReplayPlayer(trip.tape)..seek(moment.playFromMs);
-          final prior = player.simulation.cloudFriends.length;
-          player.seek(moment.atMs);
-          expect(player.simulation.cloudFriends.length, prior + 1);
-        }
-        expect(
-          trip.tape.toJson().toString(),
-          before,
-          reason: 'Indexing never changes the journal',
-        );
-      },
-    );
-  }
-
   test(
     'breaks and repeated countdowns shift highlight timestamps correctly',
     () {
       final plain = buildReplayHighlights(
-        recordRoute(FlightCourse.cloudCruise),
+        recordRoute(FlightCourse.starTrail, practice: true),
       );
-      final tape = recordRoute(FlightCourse.cloudCruise, pause: true);
+      final tape = recordRoute(
+        FlightCourse.starTrail,
+        pause: true,
+        practice: true,
+      );
       final withBreak = buildReplayHighlights(tape);
       expect(
         withBreak.where((m) => m.kind == ReplayMomentKind.start),
         hasLength(1),
       );
-      final a = plain.lastWhere((m) => m.kind == ReplayMomentKind.cloud);
-      final b = withBreak.lastWhere((m) => m.kind == ReplayMomentKind.cloud);
+      final a = plain.lastWhere((m) => m.kind == ReplayMomentKind.magnet);
+      final b = withBreak.lastWhere((m) => m.kind == ReplayMomentKind.magnet);
       expect(a.title, b.title);
       expect(b.atMs - a.atMs, closeTo(18000, 40));
-      final player = ReplayPlayer(tape)..seek(b.atMs);
-      expect(player.simulation.cloudFriends.length, 3);
     },
   );
 
@@ -129,21 +101,6 @@ void main() {
       moments.map((m) => m.atMs).toList()..sort(),
       moments.map((m) => m.atMs),
     );
-  });
-
-  test('Courier highlights identify actual deliveries', () {
-    final tape = recordRoute(FlightCourse.skyCourier);
-    final moments = buildReplayHighlights(tape);
-    final deliveries = moments
-        .where((m) => m.kind == ReplayMomentKind.delivery)
-        .toList();
-    expect(deliveries.length, greaterThan(2));
-    expect(deliveries.first.title, 'First delivery');
-    for (final delivery in deliveries) {
-      final player = ReplayPlayer(tape)..seek(delivery.atMs);
-      expect(player.simulation.score, delivery.value);
-      expect(player.simulation.carryingLetter, isFalse);
-    }
   });
 
   test('a shield highlight points to the actual close call', () {
@@ -179,17 +136,10 @@ void main() {
   );
 
   test(
-    'old Cruise journals have no new clouds and empty journals have no moments',
+    'empty journals have no moments',
     () {
-      final trip = recordCloudCruise(PlayMode.pushUp);
-      final old = ReplayTape.fromJson(trip.tape.toJson()..['version'] = 4);
-      expect(
-        buildReplayHighlights(
-          old,
-        ).where((m) => m.kind == ReplayMomentKind.cloud),
-        isEmpty,
-      );
-      final empty = ReplayTape.fromJson(trip.tape.toJson()..['events'] = []);
+      final tape = recordFlight(PlayMode.pushUp);
+      final empty = ReplayTape.fromJson(tape.toJson()..['events'] = []);
       expect(buildReplayHighlights(empty), isEmpty);
       empty.events.add([0, 'end', 'quit']);
       final stopped = buildReplayHighlights(empty);

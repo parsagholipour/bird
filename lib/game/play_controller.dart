@@ -18,7 +18,7 @@ enum PlayStage { setup, starting, calibration, ready, flying, results, error }
 class PlayController extends ChangeNotifier {
   PlayController({
     required this.mode,
-    required bool practice,
+    required this.practice,
     this.course = FlightCourse.starTrail,
     required this.source,
     required this.saveRun,
@@ -31,7 +31,6 @@ class PlayController extends ChangeNotifier {
     this.rememberRecordAudio,
     DateTime Function()? clock,
   }) : assert(mode == PlayMode.touch || source != null),
-       practice = practice || course.relaxed,
        clock = clock ?? DateTime.now {
     if (isTouch) return;
     _samples = source!.samples.listen(_onSample);

@@ -4,7 +4,7 @@ import 'package:push_up_bird/domain/session_replay.dart';
 import 'package:push_up_bird/domain/replay_highlights.dart';
 import 'package:push_up_bird/domain/tracking.dart';
 import 'star_magnet_test.dart' show FlightHarness;
-import 'cloud_friends_test.dart' show recordCloudCruise;
+import 'recorded_flight.dart';
 import 'replay_highlights_test.dart' show recordRoute;
 
 StarTrio addTrio(FlightHarness h) {
@@ -24,9 +24,18 @@ List<Object?> trioState(FlightSimulation sim) => [
   sim.completedTrios,
   sim.combo,
   for (final t in sim.starTrios)
-    [t.x, t.y, t.collectedMask, t.missed, t.completedAt],
+    [t.x, t.y, t.collectedMask, t.missed, t.completedAt, t.completedY],
   for (final s in sim.stars)
-    [s.x, s.y, s.collected, s.missed, s.trioSlot, s.trio?.collectedMask],
+    [
+      s.x,
+      s.y,
+      s.collected,
+      s.missed,
+      s.trioSlot,
+      s.trio?.collectedMask,
+      s.collectedAt,
+      s.collectedY,
+    ],
 ];
 
 void main() {
@@ -178,14 +187,14 @@ void main() {
       isEmpty,
     );
     expect(ReplayTape.fromJson(old.toJson()).recordedVersion, 5);
-    for (final course in [FlightCourse.classic, FlightCourse.skyCourier]) {
+    for (final course in [FlightCourse.classic]) {
       expect(FlightHarness(course: course).sim.supportsStarTrios, isFalse);
     }
   });
 
   for (final mode in PlayMode.values) {
     test('$mode trios replay, seek backwards and leave bounded state', () {
-      final tape = recordCloudCruise(mode).tape;
+      final tape = recordFlight(mode);
       final player = ReplayPlayer(ReplayTape.fromJson(tape.toJson()));
       for (final at in [120000.0, 13000.0, 3100.0, 60000.0, 120000.0]) {
         player.seek(at);

@@ -4,9 +4,10 @@ import 'package:push_up_bird/domain/game_rules.dart';
 import 'package:push_up_bird/domain/session_replay.dart';
 import 'package:push_up_bird/domain/tracking.dart';
 import 'boss_fight_test.dart' show arena, step, hover, hitBoss, snapshot;
+import 'recorded_flight.dart';
 
 FlightSimulation mothArena({double width = 2.2}) {
-  final sim = arena(version: 22, course: FlightCourse.skyCourier)
+  final sim = arena(version: 22, course: FlightCourse.starTrail)
     ..bossesDefeated = 2;
   step(sim, .02, width);
   for (var i = 0; i < 235; i++) {
@@ -251,13 +252,14 @@ void main() {
       final recorder = FlightRecorder(
         ReplayTape(
           mode: PlayMode.touch,
-          course: FlightCourse.skyCourier,
+          course: FlightCourse.starTrail,
           practice: true,
           seed: 7,
           cycleSeconds: 3,
           bird: 0,
           reducedMotion: true,
           originMs: 0,
+          weaponDamage: 22,
         ),
         () => now,
       );
@@ -267,7 +269,7 @@ void main() {
       for (var frame = 1; frame <= 6500; frame++) {
         now = frame * 50.0;
         recorder.apply(
-          MovementInput(valid: true, flap: sim.birdY > .5 && sim.velocity > 0),
+          MovementInput(valid: true, flap: rideTheSky(sim)),
           TrackingSample(
             mode: PlayMode.touch,
             timestampMs: now,
