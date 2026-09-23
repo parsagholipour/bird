@@ -63,6 +63,10 @@ flutter:
   assets:
     - assets/images/
     - assets/audio/
+    - assets/audio/sprint_voice_examples/sprint_03.mp3
+    - assets/audio/sprint_voice_examples/sprint_01.mp3
+    - assets/audio/sprint_voice_examples/sprint_08.mp3
+    - assets/audio/sprint_voice_examples/whee_no_laugh/whee_04.mp3
     - assets/fonts/Fredoka-LICENSE.txt
     - assets/fonts/Nunito-LICENSE.txt
   fonts:

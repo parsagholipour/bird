@@ -588,7 +588,15 @@ class PlayController extends ChangeNotifier {
       finishedAt: date,
     );
     stage = PlayStage.results;
-    audio.effect(game.endReason == EndReason.completed ? 'complete' : 'finish');
+    final endCue = switch (game.endReason!) {
+      EndReason.completed => 'complete',
+      EndReason.collision ||
+      EndReason.trackingLost ||
+      EndReason.postureLost ||
+      EndReason.stalled => 'game_over',
+      _ => 'finish',
+    };
+    audio.effect(endCue);
     notify();
     await _stopCamera();
     preparingReplay = false;
@@ -686,6 +694,7 @@ class PlayController extends ChangeNotifier {
   Future<void> retry() async {
     await _finishing;
     await _sessionSave;
+    await audio.stopEffects();
     if (saveError.isNotEmpty) {
       await persist();
       if (!saved) return;

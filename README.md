@@ -342,8 +342,9 @@ contains color and spacing variables, typography, buttons, four bird components,
 floating-island artwork and the home composition. Bird and island PNGs in
 `assets/images` were exported directly from those designs; SVG sources are in
 `design`. Fredoka and Nunito are bundled under their included OFL licenses.
-Menus play a relaxed ElevenLabs instrumental; flights switch to an adventurous
-orchestral loop, and bosses bring in a separate dark battle theme. Music returns
+Menus play a cheeky violin-led ElevenLabs instrumental; flights switch to a
+punchy orchestral variation of its insistent 3+3+2 hook, and bosses bring in a
+separate, darker version. Music returns
 to the flight theme after the boss departs. All tracks play offline and follow
 the music setting. Effects mix with the soundtrack, and boss cinematics lower
 the music volume.

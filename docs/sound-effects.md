@@ -148,6 +148,11 @@ a rising noise rush over a soft impact. `sprint_ready` (volume 0.24) is a short
 F5–C6–F6 bell. `CombatAudioCues` plays the rush once per accepted sprint and the bell
 once when a used sprint recharges, never at flight start.
 
+Each accepted sprint also starts one of four bundled bird voice clips. Selection
+is random among the three clips other than the last one played. A dedicated
+player prevents voice overlap, and pause, mute and replay seeking stop or
+suppress the voice with the other effects.
+
 | New asset | Duration | RMS before playback gain |
 | --- | ---: | ---: |
 | Sprint | 550 ms | -18.55 dBFS |
@@ -155,3 +160,11 @@ once when a used sprint recharges, never at flight start.
 
 Both keep -3.10 dBFS peaks. SHA-256 checks against the 22 September release APK
 confirm that all 57 earlier effects are byte-identical.
+
+The 2.98-second `game_over.wav` combines a comic "Oh no!" in the Scruffy
+Duck voice with three distinct low-piano hits about 0.7 seconds apart. The
+second and third hits were generated separately to give the phrase a sadder
+descent. Nine alternate timbres are in `assets/audio/game_over_examples/`. It plays for
+collision, tracking/posture loss, and stalled runs; the flight music pauses so
+the cue is clear. Completing a run keeps the existing celebration cue.
+The source generations are in the [ElevenLabs game-over flow](https://elevenlabs.io/app/flows/ReHuFoj4FSMRZVkcQtG6).

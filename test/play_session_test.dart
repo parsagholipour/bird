@@ -50,6 +50,13 @@ class CountingAudio extends SilentAudio {
   }
 }
 
+class RecordingAudio extends SilentAudio {
+  final effects = <String>[];
+
+  @override
+  void effect(String name) => effects.add(name);
+}
+
 class SessionSource extends NativeTrackingSource {
   double time = 1000;
   MicrophoneAccess micAccess = MicrophoneAccess.denied;
@@ -127,6 +134,30 @@ Future<void> startFlight(
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  test(
+    'failed run plays game over while a completed run plays victory',
+    () async {
+      for (final (reason, expectedCue) in [
+        (EndReason.collision, 'game_over'),
+        (EndReason.completed, 'complete'),
+      ]) {
+        final audio = RecordingAudio();
+        final controller = PlayController(
+          mode: PlayMode.touch,
+          practice: false,
+          source: null,
+          audio: audio,
+          saveRun: (_) async {},
+          saveSession: (_) async {},
+        );
+        await controller.fly();
+        controller.simulation!.end(reason);
+        await controller.finish();
+        expect(audio.effects, contains(expectedCue));
+        controller.dispose();
+      }
+    },
+  );
   test(
     'practice flights pause, restore music, and finish with saveable results',
     () async {

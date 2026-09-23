@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import '../data/progress_repository.dart';
@@ -17,8 +18,16 @@ enum SkyMusic {
 }
 
 class SkyAudio {
-  SkyAudio({this._effectClock});
+  SkyAudio({this._effectClock, Random? random}) : _random = random ?? Random();
   final int Function()? _effectClock;
+  final Random _random;
+  static const _sprintVoiceAssets = [
+    'audio/sprint_voice_examples/sprint_03.mp3',
+    'audio/sprint_voice_examples/sprint_01.mp3',
+    'audio/sprint_voice_examples/sprint_08.mp3',
+    'audio/sprint_voice_examples/whee_no_laugh/whee_04.mp3',
+  ];
+  int? _lastSprintVoice;
   int get _now => _effectClock?.call() ?? _clock.elapsedMilliseconds;
   // Only the music player owns focus. Effects must mix without pausing it.
   static final _effectContext = AudioContext(
@@ -56,6 +65,8 @@ class SkyAudio {
 
   final _music = AudioPlayer();
   final _effects = List.generate(8, (_) => _EffectVoice());
+  final _sprintVoice = _EffectVoice();
+  Iterable<_EffectVoice> get _allEffects => [..._effects, _sprintVoice];
   final _clock = Stopwatch()..start();
   final _lastEffect = <String, int>{};
   final _variations = <String, int>{};
@@ -87,6 +98,7 @@ class SkyAudio {
               for (final entry in soundBank.entries)
                 for (var variant = 0; variant < entry.value.variants; variant++)
                   soundAsset(entry.key, variant),
+              ..._sprintVoiceAssets,
             ])
             .catchError((Object error) {
               debugPrint('SkyAudio preload: $error');
@@ -109,7 +121,8 @@ class SkyAudio {
           final track = _scene == SkyMusic.flight && _bossPresent
               ? SkyMusic.boss
               : _scene;
-          final volume = _scene != SkyMusic.menu && _bossQuiet ? .035 : .20;
+          // Dominant bed; cinematic duck leaves roar and reveal cues in front.
+          final volume = _scene != SkyMusic.menu && _bossQuiet ? .14 : .70;
           if (!_playing || _loadedTrack != track) {
             if (_loadedTrack != null && _loadedTrack != track) {
               await _music.stop();
@@ -149,6 +162,7 @@ class SkyAudio {
     final now = _now;
     final last = _lastEffect[name];
     if (last != null && now - last < spec.cooldownMs / _rate) return;
+    if (name == 'sprint') _playSprintVoice();
     // Free voices first. If full, steal only a less important sound. A shot
     // can never truncate a roar, damage cue, death or victory celebration.
     _EffectVoice? voice;
@@ -166,6 +180,10 @@ class SkyAudio {
       }
     }
     if (voice == null) return;
+    if (name == 'game_over') {
+      _active = false;
+      unawaited(_syncMusic());
+    }
     _lastEffect[name] = now;
     final variant = (_variations[name] ?? 0) % spec.variants;
     _variations[name] = variant + 1;
@@ -200,12 +218,45 @@ class SkyAudio {
     });
   }
 
+  void _playSprintVoice() {
+    // Draw uniformly from the other three clips, so consecutive sprints never
+    // use the same line. A dedicated player keeps voices from overlapping.
+    final draw = _random.nextInt(_sprintVoiceAssets.length - 1);
+    final previous = _lastSprintVoice;
+    final index = previous != null && draw >= previous ? draw + 1 : draw;
+    _lastSprintVoice = index;
+    final voice = _sprintVoice;
+    final revision = ++voice.revision;
+    voice.pending = voice.pending.then((_) async {
+      bool cancelled() =>
+          _disposed || revision != voice.revision || !_settings.effects;
+      if (cancelled()) return;
+      try {
+        await voice.player.stop();
+        if (!voice.initialized) {
+          await voice.player.setAudioContext(_effectContext);
+          await voice.player.setPlayerMode(PlayerMode.lowLatency);
+          await voice.player.setReleaseMode(ReleaseMode.stop);
+          voice.initialized = true;
+        }
+        await voice.player.setSource(AssetSource(_sprintVoiceAssets[index]));
+        await voice.player.setVolume(.60);
+        await voice.player.setPlaybackRate(_rate);
+        if (cancelled()) return;
+        await voice.player.resume();
+        if (cancelled()) await voice.player.stop();
+      } catch (error) {
+        debugPrint('SkyAudio sprint voice: $error');
+      }
+    });
+  }
+
   Future<void> setRate(double rate) async {
     if (_disposed) return;
     _rate = rate.clamp(.5, 2);
     try {
       await _music.setPlaybackRate(_rate);
-      for (final voice in _effects) {
+      for (final voice in _allEffects) {
         await voice.player.setPlaybackRate(_rate);
       }
     } catch (_) {}
@@ -215,7 +266,7 @@ class SkyAudio {
     if (_disposed) return;
     _lastEffect.clear();
     final stops = <Future<void>>[];
-    for (final voice in _effects) {
+    for (final voice in _allEffects) {
       ++voice.revision;
       voice.until = 0;
       voice.pending = voice.pending.then((_) async {
@@ -243,7 +294,7 @@ class SkyAudio {
     ++_revision;
     await _configuration;
     await _music.dispose();
-    for (final p in _effects) {
+    for (final p in _allEffects) {
       ++p.revision;
       await p.pending;
       await p.player.dispose();

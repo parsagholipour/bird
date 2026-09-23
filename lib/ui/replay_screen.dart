@@ -290,8 +290,6 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
         _audio.effect('magnet');
       } else if (sim.multiplier > oldMultiplier) {
         _audio.effect('streak');
-      } else if (sim.completedTrios > oldTrios) {
-        _audio.effect('trio');
       } else if (sim.perfectPasses > oldPerfects) {
         _audio.effect('perfect');
       } else if (sim.collectsStars

@@ -175,8 +175,6 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         audio.effect('magnet');
       } else if (sim.multiplier > previousMultiplier) {
         audio.effect('streak');
-      } else if (sim.completedTrios > previousTrios) {
-        audio.effect('trio');
       } else if (sim.perfectPasses > previousPerfects) {
         audio.effect('perfect');
       } else if (sim.collectsStars

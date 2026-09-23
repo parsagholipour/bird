@@ -384,26 +384,26 @@ class Cloud extends StatelessWidget {
 class _CloudPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final p = Paint()..color = SkyColors.white;
+    final w = size.width, h = size.height;
+    canvas.drawOval(
+      Rect.fromLTWH(w * .08, h * .7, w * .84, h * .28),
+      Paint()..color = const Color(0xff8eb4c4).withValues(alpha: .28),
+    );
+    final body = Paint()..color = SkyColors.white;
     canvas.drawRRect(
       RRect.fromRectAndRadius(
-        Rect.fromLTWH(0, size.height * .5, size.width, size.height * .5),
-        Radius.circular(size.height * .25),
+        Rect.fromLTWH(0, h * .46, w, h * .44),
+        Radius.circular(h * .22),
       ),
-      p,
+      body,
     );
+    canvas.drawOval(Rect.fromLTWH(w * .05, h * .26, w * .32, h * .58), body);
+    canvas.drawOval(Rect.fromLTWH(w * .26, h * .04, w * .4, h * .72), body);
+    canvas.drawOval(Rect.fromLTWH(w * .54, h * .2, w * .3, h * .55), body);
+    canvas.drawOval(Rect.fromLTWH(w * .72, h * .34, w * .24, h * .42), body);
     canvas.drawOval(
-      Rect.fromLTWH(
-        size.width * .12,
-        size.height * .15,
-        size.width * .35,
-        size.height * .8,
-      ),
-      p,
-    );
-    canvas.drawOval(
-      Rect.fromLTWH(size.width * .37, 0, size.width * .38, size.height),
-      p,
+      Rect.fromLTWH(w * .36, h * .12, w * .16, h * .24),
+      Paint()..color = SkyColors.cream.withValues(alpha: .75),
     );
   }
 

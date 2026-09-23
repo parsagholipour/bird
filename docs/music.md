@@ -1,12 +1,15 @@
 # Menu, flight and boss music
 
-The app bundles three ElevenLabs Music v2 instrumentals:
+The game bundles three violin-led ElevenLabs Music v2 instrumentals. They were
+prompted around a repeated five-note idea and a 3+3+2 pulse, with a deliberately
+insistent, slightly mischievous feel. The boss track takes the same rhythmic
+idea in a darker, more threatening direction.
 
-| Scene | Asset | Loop | Style |
-| --- | --- | --- | --- |
-| Menus | `assets/audio/sky_menu.ogg` | 87.5 s | Relaxed marimba, strings and electric piano |
-| Flight | `assets/audio/sky_flight.ogg` | 82 s | Playful orchestral adventure, percussion and acoustic bass |
-| Boss | `assets/audio/sky_boss.ogg` | 88.125 s | Scary strings, low brass and pounding drums |
+| Scene | Asset | Loop | Arrangement |
+| --- | --- | ---: | --- |
+| Menus | `assets/audio/sky_menu.ogg` | 85.38 s | Pizzicato violin, bassoon, upright bass, handclaps and woodblock |
+| Flight | `assets/audio/sky_flight.ogg` | 85.71 s | Staccato violin, drums, bass, woodwinds and short brass replies |
+| Boss | `assets/audio/sky_boss.ogg` | 85.45 s | Low violin and viola, contrabass, bass clarinet, low brass and timpani |
 
 Menu music starts after the saved setting loads and continues across menu pages.
 Play, Flight School, replay and camera-lab routes pause it. Backgrounding pauses
@@ -14,7 +17,7 @@ it; returning to menus resumes it. The music toggle applies immediately.
 
 `SkyAudio.syncBoss` selects the boss track from arrival through defeat and
 departure for all three bosses, then returns to flight music. Per-frame updates
-do not restart the track. Music plays at 20%, reduced to 3.5% during boss
+do not restart the track. Music plays at 70%, reduced to 14% during boss
 cinematics so cues remain audible. Sound effects mix with it.
 
 Track selection, volume, pause and mute share a serialized queue. Silent replay
@@ -27,60 +30,53 @@ All files use stereo 44.1 kHz Ogg Vorbis, included by `assets/audio/` in
 
 ## Source
 
-Generated on 2026-09-22 using the connected account. The
+Generated on 2026-09-24 using the connected ElevenLabs account. The
 [ElevenLabs flow](https://elevenlabs.io/app/flows/HeHtzmiQYMI1natgMcoI) retains
-the variations. The first take of each node is bundled:
+all four variations for each scene. The bundled selections are:
 
-| Scene | Node | Generation |
-| --- | --- | --- |
-| Menu | `I9cKYdUCK8fPa8Gr4j2t` | `r1ExxzjflRIx9xlErKVU` |
-| Flight | `BnAn92kRbVuGC41HubpD` | `NcM4NxkBMmN44VbVSliq` |
-| Boss | `QadAZ0zyUFEzHGYGw8P7` | `6chjKdSjkmEf0E19Yr13` |
+| Scene | Node | Take | Generation | Source SHA-256 |
+| --- | --- | ---: | --- | --- |
+| Menu | `iqGb4oRmWsns9QSF5Ewx` | 2 | `cV9kod1czfEMP8BHzOPR` | `c2c542110f7bf739d3be1c8514a94e1a565f3674eb8b127c04bea41e941a2299` |
+| Flight | `64u42SU0d9949mLOP39S` | 2 | `XPAxw3OG3Q29pNfGrv8n` | `43e85bf36860ff677c59f946592660476b1c97553c57d6114d670c77cef3b80f` |
+| Boss | `YQ5UM0mnqKiq8ec3azCS` | 1 | `RY2JmPN28wwdZVVCh3uv` | `605093d4c1daef6b08c45e64f71a95ed781ff5c6af7328493abe1c4aacecf9c2` |
 
 Parameters: 90 seconds, `lyrics_type=instrumental`, `instrumental=true`.
-The adventure track replaces the earlier electronic flight take, retained in
-the flow and ignored `build/music/sky_flight-electronic-previous.ogg`.
-
-Flight prompt:
-
-> Playful adventurous instrumental orchestral game music at a lively steady 120 BPM in G major: nimble pizzicato and staccato strings, bouncing acoustic bass, syncopated hand percussion and snare, warm woodwind runs and bold but light French-horn phrases. Spirited, mischievous and propulsive with a catchy adventurous motif and space between phrases, crisp natural acoustic production; maintain engaging forward motion for 90 seconds with varied orchestration, no synthesizers, electronic dance beat, sugary marimba, vocals or sound effects. Begin immediately on the rhythmic groove and end on the opening harmony and rhythm for a repeating loop, without a slow introduction, dramatic ending, fade-out or silence.
-
-Boss prompt:
-
-> Dark, frightening instrumental orchestral boss-battle music at a driving 128 BPM in D minor: relentless low-string ostinatos, pounding deep toms and timpani, ominous low brass, tense tremolo strings, dissonant accents and a pulsing sub bass. Menacing and urgent with a strong continuous combat rhythm, clean spacious production and controlled peaks, no voices, singing, screams, jump-scare sound effects or cheerful melodies; maintain tension across 90 seconds with subtle variations. Start immediately in the full rhythmic texture and end on the opening harmony and groove so it can repeat, with no quiet intro, final cadence, fade-out or silence.
+Source MP3s and the prior Ogg files are retained under ignored
+`build/music/violin-earworm/` in this workspace.
 
 Menu prompt:
 
-> Warm whimsical instrumental menu music at a relaxed steady 96 BPM in C major,
-> with soft marimba plucks, gentle pizzicato strings, mellow electric piano
-> chords, airy pads, rounded bass and very light brushed percussion. A welcoming
-> memorable melody with ample space and polished gentle stereo production;
-> sustain an even calm upbeat mood for 90 seconds with subtle variations, no
-> vocals, speech or sound effects. Begin and end with the same flowing groove
-> and chord pattern for a repeating loop, with no dramatic build, intro, final
-> flourish, fade-out or silence.
+> Quirky chamber-pop instrumental at 104 BPM with close, slightly scratchy pizzicato violin, bassoon, plucked upright bass, handclaps and a dry woodblock. Repeat a cheeky five-note hook over a 3+3+2 rhythm until it becomes an earworm, with tiny offbeat interruptions and playful violin answers; bright and gently mischievous, crisp and light. Start on the groove and keep the same pulse and harmony at the end for a clean game loop, with no vocals, intro, fade or sound effects.
+
+Flight prompt:
+
+> Playful, mildly irritating-in-a-fun-way orchestral adventure instrumental at 126 BPM, driven by a prominent staccato violin five-note hook over a relentlessly catchy 3+3+2 hand-drum and snare pattern, bouncing acoustic bass, woodwinds and brief cheeky brass replies. Keep the tune short and repeated with small variations, urgent but buoyant, punchy and spacious enough for game sound effects; no vocals, synth dance beat or cinematic build. Begin immediately in the groove and return to the same harmony and rhythm for seamless looping.
+
+Boss prompt:
+
+> Unsettling orchestral boss instrumental at 132 BPM in a dark minor mode: sawed low violin and viola repeat the same five-note 3+3+2 hook as an obsessive sinister ostinato, backed by contrabass, bass clarinet, low brass, timpani and dry pounding toms. Make the rhythm insistently memorable and slightly nerve-grating while remaining frightening and forceful, with dissonant accents and controlled dynamics; no vocals, screams or sound effects. Start at full pulse and end on its starting harmony and rhythm for a seamless game loop.
 
 ## Preparation
 
 With Python 3 and FFmpeg (`ffprobe` and `libvorbis`) installed:
 
 ```sh
-python3 tool/prepare_music.py /path/to/sky_adventure-source.mp3 --start 2 --duration 84 --crossfade 2 --output assets/audio/sky_flight.ogg
-python3 tool/prepare_music.py /path/to/sky_boss-source.mp3 --crossfade 1.875 --output assets/audio/sky_boss.ogg
-python3 tool/prepare_music.py /path/to/sky_menu-source.mp3 --crossfade 2.5 --output assets/audio/sky_menu.ogg
+python3 tool/prepare_music.py build/music/violin-earworm/menu-2.mp3 --duration 87.6923077 --crossfade 2.3076923 --output assets/audio/sky_menu.ogg
+python3 tool/prepare_music.py build/music/violin-earworm/flight-2.mp3 --duration 87.6190476 --crossfade 1.9047619 --output assets/audio/sky_flight.ogg
+python3 tool/prepare_music.py build/music/violin-earworm/boss-1.mp3 --duration 87.2727273 --crossfade 1.8181818 --output assets/audio/sky_boss.ogg
 ```
 
-The adventure excerpt excludes a quiet source ending. The helper blends the
-tail into the head with an equal-power crossfade, puts that blend after the
-body, and applies constant gain targeting -16 LUFS with a -2 dBTP ceiling before
-Vorbis quality-5 encoding. Source downloads stay in ignored `build/music/`.
+The helper blends the source tail into its head with an equal-power crossfade,
+puts that blend after the body, and applies constant gain targeting -16 LUFS
+with a -2 dBTP ceiling before Vorbis quality-5 encoding. The prepared loops
+have no long silence and cross the repeat boundary without a large sample jump.
 `tool/generate_audio.py` does not overwrite these tracks.
 
-Source MP3 SHA-256:
-
-- Flight: `3e780c48aa36d5ade8aa36a57775324f9e502ab39acecf77195bd509ab6aa916`
-- Boss: `9c11c577396e1a08272ec1b18f99c29d0d594a00ca2a4dbfff5aa3c813c0e71b`
-- Menu: `2a6c198f2c65a550c3ec74fa71d4a647e3f3e95f5523a06917afe1a32335ad7f`
+| Asset | Bytes | Prepared SHA-256 |
+| --- | ---: | --- |
+| Menu | 1,485,508 | `2e4248ce16646b400cebe4dd4fcd08b17abc3534a5786086010f0cc247221c65` |
+| Flight | 1,784,012 | `ecdae5e66476e2b240b468f5ba06a4d7ed58ad921016b278145993e5a1760a39` |
+| Boss | 1,671,004 | `87ae485b0f1eb627e78d82316c605aa5ab6381eb71645b54b82c7449b1cd1103` |
 
 ## Android audio focus
 
@@ -99,28 +95,6 @@ python3 tool/check_music_playback.py --serial DEVICE
 It expects one active looping Vorbis player. Use `--silent` when muted or
 backgrounded. This catches native pauses that cached Dart state can miss.
 
-## Audio verification
-
-| Asset | Bytes | Loudness | True peak |
-| --- | ---: | ---: | ---: |
-| Flight | 1,461,579 | -17.71 LUFS | -1.95 dBTP |
-| Boss | 1,727,117 | -16.06 LUFS | -3.85 dBTP |
-| Menu | 1,573,392 | — | — |
-
-Both new loops decode successfully, with no silence longer than 100 ms at -55 dB.
-Prepared SHA-256:
-
-- Flight: `baaaa2516d4aaa32d5934383cf909f1543aa6fdcc4adb92103178b981dd6e72a`
-- Boss: `26f4aff5f013057f10bb98235fa38de034cdb6da93732999063c9ec4799ab61d`
-- Menu: `a0dee5d50ac3867394e7e416013894f0db585280b3a34bf14bf4a988401266f2`
-
 Regression coverage includes all three boss kinds, one switch per encounter,
 cinematic volume, return to flight, mute, paused replay seeks and stop/disposal
 while a transition is pending.
-
-Validation on 2026-09-22: all 480 Flutter tests and `flutter analyze --no-pub`
-passed. The release APK contains byte-identical copies of all three prepared
-tracks and was installed on the connected Android phone. Native player checks
-confirmed menu playback and the handoff to active flight music, with exactly
-one looping music player active. Boss transitions were verified by automated
-tests.

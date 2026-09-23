@@ -101,7 +101,6 @@ class _FlightSchoolScreenState extends ConsumerState<FlightSchoolScreen>
       (FlightEventKind.shieldUsed, 'shield_pop'),
       (FlightEventKind.magnet, 'magnet'),
       (FlightEventKind.streak, 'streak'),
-      (FlightEventKind.starTrio, 'trio'),
       (FlightEventKind.perfect, 'perfect'),
       (FlightEventKind.shieldReady, 'shield'),
       (FlightEventKind.heart, 'heart'),

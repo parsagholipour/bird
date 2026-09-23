@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
@@ -90,9 +91,13 @@ class AndroidAudioHost {
         return null;
       },
     );
-    for (final file in Directory('assets/audio').listSync().whereType<File>()) {
-      final asset = file.uri.pathSegments.last;
-      AudioCache.instance.loadedFiles['audio/$asset'] = file.absolute.uri;
+    for (final file in Directory(
+      'assets/audio',
+    ).listSync(recursive: true).whereType<File>()) {
+      final asset = file.path
+          .substring('assets${Platform.pathSeparator}'.length)
+          .replaceAll(Platform.pathSeparator, '/');
+      AudioCache.instance.loadedFiles[asset] = file.absolute.uri;
     }
   }
 
@@ -181,6 +186,43 @@ void main() {
     },
   );
 
+  test('sprints play one of four voices without repeating the last', () async {
+    final host = AndroidAudioHost()..install();
+    var now = 0;
+    final audio = SkyAudio(effectClock: () => now, random: Random(7));
+    addTearDown(audio.dispose);
+    await audio.configure(const GameSettings(music: false));
+    final voicePaths = <String>[];
+    for (var sprint = 0; sprint < 32; sprint++) {
+      audio.effect('sprint');
+      audio.effect('sprint'); // A duplicate cue cannot start another voice.
+      for (var i = 0; i < 100 && voicePaths.length <= sprint; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 2));
+        voicePaths
+          ..clear()
+          ..addAll(host.loads.where((path) => path.endsWith('.mp3')));
+      }
+      expect(voicePaths, hasLength(sprint + 1));
+      now += 15000;
+    }
+    final chosen = voicePaths.map((path) => Uri.parse(path).path).toList();
+    expect(chosen.map((path) => path.split('/').last).toSet(), {
+      'sprint_03.mp3',
+      'sprint_01.mp3',
+      'sprint_08.mp3',
+      'whee_04.mp3',
+    });
+    for (var i = 1; i < chosen.length; i++) {
+      expect(chosen[i], isNot(chosen[i - 1]));
+    }
+    expect(
+      host.sources.entries.where((entry) => entry.value.endsWith('.mp3')),
+      hasLength(1),
+    );
+    await audio.stopEffects();
+    expect(host.playing, isEmpty);
+  });
+
   test(
     'muting and disposal cancel effects still waiting for native loading',
     () async {
@@ -220,6 +262,22 @@ void main() {
     }
   });
 
+  test('game-over cue pauses flight music until the next run', () async {
+    final host = AndroidAudioHost()..install();
+    final audio = SkyAudio();
+    addTearDown(audio.dispose);
+    await audio.configure(const GameSettings());
+    final music = host.music;
+
+    audio.effect('game_over');
+    await drainAudio();
+    expect(host.playing, isNot(contains(music)));
+    expect(host.sources.values, contains(endsWith('game_over.wav')));
+
+    await audio.resumeMusic();
+    await waitForTrack(host, 'sky_flight.ogg');
+  });
+
   for (final kind in BossKind.values) {
     test(
       '$kind switches to boss music once and restores flight after departure',
@@ -232,13 +290,13 @@ void main() {
         final boss = SkyBoss(number: 1, x: 1, kind: kind, cinematic: true);
         audio.syncBoss(boss);
         await waitForTrack(host, 'sky_boss.ogg');
-        expect(host.volumes[music], .035);
+        expect(host.volumes[music], .14);
         boss.age = 5;
         for (var frame = 0; frame < 100; frame++) {
           audio.syncBoss(boss);
         }
         await drainAudio();
-        expect(host.volumes[music], .20);
+        expect(host.volumes[music], .70);
         expect(
           host.loads.where((s) => s.endsWith('sky_boss.ogg')),
           hasLength(1),
@@ -247,10 +305,10 @@ void main() {
         audio.syncBoss(boss);
         await drainAudio();
         expect(host.sources[music], endsWith('sky_boss.ogg'));
-        expect(host.volumes[music], .035);
+        expect(host.volumes[music], .14);
         audio.syncBoss(null);
         await waitForTrack(host, 'sky_flight.ogg');
-        expect(host.volumes[music], .20);
+        expect(host.volumes[music], .70);
       },
     );
   }
