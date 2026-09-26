@@ -53,7 +53,6 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       previousPerfects = 0,
       previousMultiplier = 1,
       previousMagnets = 0,
-      previousTrios = 0,
       previousWings = 0,
       previousHearts = 3;
   double previousFlightTime = 0;
@@ -134,7 +133,6 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       previousPerfects = 0;
       previousMultiplier = 1;
       previousMagnets = 0;
-      previousTrios = 0;
       previousWings = 0;
       previousFlightTime = 0;
       previousHearts = 3;
@@ -173,14 +171,14 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         audio.effect('wing');
       } else if (sim.magnetActivations > previousMagnets) {
         audio.effect('magnet');
+      } else if (sim.collectsStars && sim.collectedStars > previousStars) {
+        audio.effect('star');
       } else if (sim.multiplier > previousMultiplier) {
         audio.effect('streak');
       } else if (sim.perfectPasses > previousPerfects) {
         audio.effect('perfect');
-      } else if (sim.collectsStars
-          ? sim.collectedStars > previousStars
-          : sim.score > previousScore) {
-        audio.effect(sim.collectsStars ? 'star' : 'point');
+      } else if (!sim.collectsStars && sim.score > previousScore) {
+        audio.effect('point');
       }
       previousScore = sim.score;
       previousStars = sim.collectedStars;
@@ -196,7 +194,6 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       previousPerfects = sim.perfectPasses;
       previousMultiplier = sim.multiplier;
       previousMagnets = sim.magnetActivations;
-      previousTrios = sim.completedTrios;
       if (sim.timed &&
           previousFlightTime < sim.course.duration - 10 &&
           sim.elapsed >= sim.course.duration - 10) {

@@ -1,6 +1,6 @@
 # Sound effects
 
-The game bundles 61 short PCM effects and variations. All playback works offline
+The game bundles short PCM effects and variations. All playback works offline
 and uses the existing **Sound effects** setting independently of music.
 
 ## Sound palette
@@ -16,7 +16,7 @@ and uses the existing **Sound effects** setting independently of music.
 | Boss combat | Charge, heavy volley, hit, shield activation/block, summon and enrage |
 | Boss death | Breaking body, debris burst and victory flourish, timed to the animation |
 | Player damage / recovery | Padded impact, shield break/recharge and dedicated heart pickup |
-| Rewards | Bell and wood tones for stars, trios, perfect gates, combos, magnet, letters, deliveries and discoveries |
+| Rewards | Three rotating bell tones for stars, plus bell and wood tones for perfect gates, combos, magnet, letters, deliveries and discoveries |
 | Milestones | Wing, record, unlock, final stretch, completion and flight end |
 | Interface | Soft major-key plucks for buttons, back, toggles, pause and resume; ascending confirmation notes with rounded attacks and gentle tails |
 
@@ -120,6 +120,10 @@ disconnected before the follow-up native volume check, so the revised levels
 were verified from the mastered assets, playback configuration and automated
 tests rather than new device telemetry.
 
+Star pickups retain the original three rotating bell variants, now played at
+volume 0.08 instead of 0.10. Live play, replay and Flight School treat the last
+star in a trio as a normal pickup; trio completion plays no separate cue.
+
 The follow-up balance adjustment reduces the fixed shot by 6.55 dB and raises
 only the initial warning by 5.39 dB relative to that installed revision. The
 warning's soft-knee mastering target is now -12 dBFS RMS; its peak remains
@@ -162,9 +166,11 @@ Both keep -3.10 dBFS peaks. SHA-256 checks against the 22 September release APK
 confirm that all 57 earlier effects are byte-identical.
 
 The 2.98-second `game_over.wav` combines a comic "Oh no!" in the Scruffy
-Duck voice with three distinct low-piano hits about 0.7 seconds apart. The
-second and third hits were generated separately to give the phrase a sadder
-descent. Nine alternate timbres are in `assets/audio/game_over_examples/`. It plays for
+Duck voice with three varied low-piano hits about 0.58 seconds apart. Their
+pitches descend, their tone darkens, and their decays overlap. Nine alternate
+timbres are in `assets/audio/game_over_examples/`. It plays for
 collision, tracking/posture loss, and stalled runs; the flight music pauses so
 the cue is clear. Completing a run keeps the existing celebration cue.
 The source generations are in the [ElevenLabs game-over flow](https://elevenlabs.io/app/flows/ReHuFoj4FSMRZVkcQtG6).
+The active cue is rebuilt with `python3 tool/prepare_game_over.py`; its piano
+section is boosted and soft limited without changing the voice level.

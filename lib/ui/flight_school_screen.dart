@@ -100,11 +100,11 @@ class _FlightSchoolScreenState extends ConsumerState<FlightSchoolScreen>
       (FlightEventKind.hit, 'bump'),
       (FlightEventKind.shieldUsed, 'shield_pop'),
       (FlightEventKind.magnet, 'magnet'),
+      (FlightEventKind.star, 'star'),
       (FlightEventKind.streak, 'streak'),
       (FlightEventKind.perfect, 'perfect'),
       (FlightEventKind.shieldReady, 'shield'),
       (FlightEventKind.heart, 'heart'),
-      (FlightEventKind.star, 'star'),
     ]) {
       if (events.contains(kind)) {
         audio.effect(sound);

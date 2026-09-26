@@ -486,9 +486,9 @@ collision rules and magnet reach stay the same. Bonus points never add stars,
 advance a multiplier, charge a shield, heal a heart or count toward bird unlocks.
 Cruise remains practice. Scored Star Trail records include the bonus.
 
-The first completed trio appears in replay highlights. A short original chord
-plays once when a trio completes, unless a higher-priority reward shares that
-frame. Scrubbing is silent. The constellation follows simulation time and world
+The first completed trio appears in replay highlights. Its final star uses the
+normal rotating pickup sound; completing the trio adds no separate
+audio cue. Scrubbing is silent. The constellation follows simulation time and world
 position, freezes on pause, expires after 1.15 seconds and renders as a static
 triangle in Reduced Motion. Replay version 6 enables the bonus and connected
 sets; version 1–5 journals preserve their original scoring and movement.

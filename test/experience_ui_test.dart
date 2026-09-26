@@ -27,11 +27,13 @@ import 'daily_adventure_test.dart' show dailyRun;
 class WingAudio extends SilentAudio {
   int wings = 0;
   int clouds = 0;
+  int stars = 0;
   int trios = 0;
   @override
   void effect(String name) {
     if (name == 'wing') wings++;
     if (name == 'cloud') clouds++;
+    if (name == 'star') stars++;
     if (name == 'trio') trios++;
   }
 }
@@ -223,14 +225,17 @@ void main() {
       expect(find.byType(FlightGoalHud), findsNothing);
       expect(find.text('Wing earned!'), findsNothing);
       if (player == 'new') expect(audio.wings, 1);
+      sim.collectedStars++;
       sim.completedTrios++;
       controller.notify();
       await tester.pump();
-      final trioSounds = audio.trios;
-      expect(trioSounds, 1);
+      final starSounds = audio.stars;
+      expect(starSounds, 1);
+      expect(audio.trios, 0);
       controller.notify();
       await tester.pump();
-      expect(audio.trios, trioSounds, reason: 'A completed trio sounds once');
+      expect(audio.stars, starSounds, reason: 'The final star sounds once');
+      expect(audio.trios, 0, reason: 'No special final-star sound plays');
       sim.magnetCharge = 2;
       controller.notify();
       await tester.pump();

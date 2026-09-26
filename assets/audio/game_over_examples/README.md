@@ -1,10 +1,10 @@
 # Dramatic game-over alternatives
 
-Ten 2.98-second game-over clips. Each starts with the same "Oh no!" duck voice, followed by three slow musical beats. Option 1 is the active game sound: its first low-piano hit comes from the original ElevenLabs Music v2 take, and its second and third hits are separately generated piano notes, spaced about 0.7 seconds apart.
+Ten 2.98-second game-over clips. Each starts with the same "Oh no!" duck voice, followed by three slow musical beats. Option 1 is the active game sound: its three low-piano hits use the ElevenLabs Music v2 take at slightly different pitches, tones, and strengths, with overlapping decays. The piano is pushed louder with soft limiting while the voice stays at its original level. Rebuild it with `python3 tool/prepare_game_over.py`.
 
 | File | Music |
 | --- | --- |
-| `game_over_01.wav` | Three distinct low-piano hits, with longer pauses |
+| `game_over_01.wav` | Three varied low-piano hits |
 | `game_over_02.wav` | Cello and double bass |
 | `game_over_03.wav` | Bell and low strings |
 | `game_over_04.wav` | Pipe organ |

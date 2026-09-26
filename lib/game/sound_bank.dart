@@ -45,10 +45,11 @@ const soundBank = <String, SoundSpec>{
   'shield_pop': SoundSpec(volume: .50, priority: 3, seconds: .42),
   'shield': SoundSpec(volume: .42, priority: 3, seconds: .65),
   'star': SoundSpec(
-    volume: .32,
+    volume: .08,
     priority: 1,
-    seconds: .56,
+    seconds: .28,
     cooldownMs: 75,
+    variants: 3,
   ),
   'point': SoundSpec(volume: .30, priority: 1, seconds: .35),
   'perfect': SoundSpec(volume: .20, seconds: .45),

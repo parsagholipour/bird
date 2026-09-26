@@ -259,7 +259,6 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
     final oldStars = _player!.simulation.collectedStars;
     final oldMultiplier = _player!.simulation.multiplier;
     final oldMagnets = _player!.simulation.magnetActivations;
-    final oldTrios = _player!.simulation.completedTrios;
     final oldWings = FlightGoals.earned(
       FlightGoals.forSimulation(_player!.simulation),
     );
@@ -288,14 +287,14 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
         _audio.effect('wing');
       } else if (sim.magnetActivations > oldMagnets) {
         _audio.effect('magnet');
+      } else if (sim.collectsStars && sim.collectedStars > oldStars) {
+        _audio.effect('star');
       } else if (sim.multiplier > oldMultiplier) {
         _audio.effect('streak');
       } else if (sim.perfectPasses > oldPerfects) {
         _audio.effect('perfect');
-      } else if (sim.collectsStars
-          ? sim.collectedStars > oldStars
-          : sim.score > oldScore) {
-        _audio.effect(sim.collectsStars ? 'star' : 'point');
+      } else if (!sim.collectsStars && sim.score > oldScore) {
+        _audio.effect('point');
       }
       if (sim.isTrail && sim.hearts < oldHearts) _audio.effect('bump');
       if (sim.isTrail && sim.hearts > oldHearts) _audio.effect('heart');

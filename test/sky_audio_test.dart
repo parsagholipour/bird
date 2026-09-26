@@ -6,8 +6,10 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:push_up_bird/data/progress_repository.dart';
+import 'package:push_up_bird/domain/game_rules.dart';
+import 'package:push_up_bird/domain/tracking.dart';
 import 'package:push_up_bird/game/audio.dart';
-import 'package:push_up_bird/domain/sky_boss.dart';
+import 'package:push_up_bird/game/play_controller.dart';
 import 'package:push_up_bird/game/sound_bank.dart';
 
 // Model Android's per-player focus: a GAIN request pauses the previous owner.
@@ -262,6 +264,18 @@ void main() {
     }
   });
 
+  test('star pickups rotate the original cues without a trio variant', () {
+    expect(soundBank['star']!.variants, 3);
+    expect(soundBank.containsKey('trio'), isFalse);
+    for (var variant = 0; variant < 3; variant++) {
+      final selected = File(
+        'assets/${soundAsset('star', variant)}',
+      ).readAsBytesSync();
+      expect(String.fromCharCodes(selected.take(4)), 'RIFF');
+      expect(selected.length, greaterThan(20000));
+    }
+  });
+
   test('game-over cue pauses flight music until the next run', () async {
     final host = AndroidAudioHost()..install();
     final audio = SkyAudio();
@@ -276,6 +290,45 @@ void main() {
 
     await audio.resumeMusic();
     await waitForTrack(host, 'sky_flight.ogg');
+  });
+
+  test('losing a flight plays the game-over sound once', () async {
+    final host = AndroidAudioHost()..install();
+    final audio = SkyAudio();
+    final controller = PlayController(
+      mode: PlayMode.touch,
+      practice: false,
+      source: null,
+      audio: audio,
+      saveRun: (_) async {},
+      saveSession: (_) async {},
+    );
+    addTearDown(() async {
+      controller.dispose();
+      await audio.dispose();
+    });
+
+    await audio.configure(const GameSettings());
+    await controller.fly();
+    controller.simulation!.end(EndReason.collision);
+    await controller.finish();
+    await drainAudio();
+
+    final cueStarts = host.starts.where(
+      (id) => host.sources[id]?.endsWith('game_over.wav') ?? false,
+    );
+    expect(cueStarts, hasLength(1));
+    expect(host.playing, contains(cueStarts.single));
+    expect(host.playing, isNot(contains(host.music)));
+
+    await controller.finish();
+    await drainAudio();
+    expect(
+      host.starts.where(
+        (id) => host.sources[id]?.endsWith('game_over.wav') ?? false,
+      ),
+      hasLength(1),
+    );
   });
 
   for (final kind in BossKind.values) {
