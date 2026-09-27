@@ -173,6 +173,23 @@ recharges for 15 seconds from the press; the button counts down the seconds
 and chimes when ready. Pauses freeze the burst and the cooldown. Tapping
 Sprint never flaps. Earlier replays have no sprint.
 
+**Rush paths (version 32):** 22 seconds into a Star Trail flight, and between
+later bosses, the course turns into a rush path. A banner warns which kind is
+coming, and each brings danger from a different side:
+- “WILDFIRE!”: a wall of flame chases you from behind.
+- “SKYFALL!”: meteors rain onto your route from above.
+- “ERUPTION!”: lava vents below the route blast plumes up as you arrive.
+- “SWARM!”: flocks of bats stream at you from ahead, on and beside the route.
+
+Every four runs cover all four kinds in a shuffled order, so no two flights
+play the same. Fly through the gold sprint rings to rocket forward at 3×
+speed. Each ring caught in time keeps the speed going with no slowdown. At
+that speed you outrun the fire and the lava, and smash straight through stone
+barriers, walls, bats, meteors and the swarm, scoring for each one. Miss the
+rings and the rubble is solid, the fire catches up, the lava goes up under you
+and the meteors and bats hit you. Pass the last barrier to escape for +10
+points, or +20 if nothing touched you. Earlier replays have no rush paths.
+
 **Extra lives (version 24):** after each boss victory, one heart appears in a
 random safe opening before the next boss. Fly into it to gain one additional
 life, up to a maximum of five hearts. Missed hearts disappear; the HUD

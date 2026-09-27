@@ -200,7 +200,8 @@ void main() {
         player.seek(at);
         final independent = ReplayPlayer(tape)..seek(at);
         expect(trioState(player.simulation), trioState(independent.simulation));
-        expect(player.simulation.starTrios.length, lessThan(6));
+        // A touch rush path lays all of its beats at once.
+        expect(player.simulation.starTrios.length, lessThan(6 + Rush.beats));
       }
       expect(player.simulation.completedTrios, greaterThan(0));
       expect(player.simulation.practice, isTrue);

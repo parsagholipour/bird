@@ -19,7 +19,7 @@ import 'play_session_test.dart' show SilentAudio, SessionSource;
 class SchoolAudio extends SilentAudio {
   final cues = <String>[];
   @override
-  void effect(String name) => cues.add(name);
+  void effect(String name, {int? variant}) => cues.add(name);
 }
 
 void main() {

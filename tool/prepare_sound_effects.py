@@ -160,6 +160,21 @@ def rush(data):
         data[i] += env * (.60 * (low - band) + .30 * band + .14 * math.sin(phase))
 
 
+def crumble(data, seed, grains=9):
+    """Chunks landing after a break: short, darkening noise ticks."""
+    rng = random.Random(seed)
+    for g in range(grains):
+        at = .03 + rng.random() ** 1.6 * (len(data) / RATE - .1)
+        start = int(at * RATE)
+        gain = .30 * (1 - g / grains) + .08
+        low = 0.0
+        smooth = .18 + rng.random() * .35
+        for j in range(min(int(.035 * RATE), len(data) - start)):
+            t = j / RATE
+            low += smooth * (rng.uniform(-1, 1) - low)
+            data[start + j] += gain * min(1, t / .0008) * math.exp(-t * 110) * low
+
+
 def synth(name, seconds, variant):
     if name in MENU_NOTES:
         return menu_chime(name, seconds)
@@ -167,6 +182,47 @@ def synth(name, seconds, variant):
     if name == 'sprint':
         rush(data)
         impact(data, .10, .22)
+        return data
+    if name == 'sprint_ring':
+        # A bright double ping; each chained ring climbs a whole tone.
+        lift = 2 ** (2 * variant / 12)
+        for i, hz in enumerate([1318.51, 1975.53, 2637.02]):
+            bell(data, hz * lift, i * .045, seconds - i * .045, .20 - .04 * i)
+        whoosh(data, seconds * .8, .07, seed=31 + variant)
+        return data
+    if name == 'rubble_smash':
+        impact(data, .30, .62, seed=40 + variant, heavy=True)
+        whoosh(data, seconds * .6, .16, descending=True, seed=44 + variant)
+        crumble(data, 47 + variant)
+        return data
+    if name == 'lava_burst':
+        # A deep whump, then hissing spray and spatter falling back.
+        impact(data, .34, .58, seed=70 + variant, heavy=True)
+        rng = random.Random(73 + variant)
+        low = 0.0
+        for i in range(len(data)):
+            t = i / RATE
+            noise = rng.uniform(-1, 1)
+            low += .55 * (noise - low)
+            env = min(1, t / .04) * math.exp(-t / (seconds * .35))
+            data[i] += .22 * env * (noise - low)
+        crumble(data, 77 + variant, grains=7)
+        return data
+    if name == 'rush_alarm':
+        # Three urgent hi-lo stabs over a rising rumble: danger behind.
+        for i in range(3):
+            bell(data, 880, i * .30, .26, .24)
+            bell(data, 659.25, i * .30 + .13, .26, .22)
+        whoosh(data, seconds, .14, seed=53)
+        impact(data, .18, .30, seed=55, heavy=True)
+        return data
+    if name == 'rush_clear':
+        run = [523.25, 659.25, 783.99, 1046.5, 1318.51, 1567.98]
+        for i, hz in enumerate(run):
+            bell(data, hz, i * .055, seconds - i * .055, .18)
+        for hz in [523.25, 659.25, 783.99]:
+            bell(data, hz, .36, seconds - .36, .12, warm=True)
+        whoosh(data, seconds * .7, .10, descending=True, seed=61)
         return data
     notes = NOTES.get(name)
     if notes:
@@ -287,6 +343,8 @@ def main():
     records = []
     for match in re.finditer(r"'([a-z_]+)': SoundSpec\((.*?)\)", bank, re.S):
         name, fields = match.groups()
+        if name == 'game_over':
+            continue  # Built by tool/prepare_game_over.py from voice and piano takes.
         seconds_match = re.search(r'seconds: ([.\d]+)', fields)
         variants_match = re.search(r'variants: (\d+)', fields)
         seconds = float(seconds_match[1]) if seconds_match else .65

@@ -264,6 +264,39 @@ void main() {
     }
   });
 
+  test('chained sprint rings climb through their takes and hold', () async {
+    final host = AndroidAudioHost()..install();
+    var now = 0;
+    final audio = SkyAudio(effectClock: () => now);
+    addTearDown(audio.dispose);
+    await audio.configure(const GameSettings(music: false));
+    final sim = FlightSimulation(
+      rules: TapFlyMode(),
+      practice: true,
+      course: FlightCourse.starTrail,
+    );
+    audio.syncCombat(sim);
+    for (var chain = 1; chain <= 4; chain++) {
+      sim
+        ..ringSprints = chain
+        ..ringChain = chain;
+      audio.syncCombat(sim);
+      await drainAudio();
+      now += 500;
+    }
+    expect(
+      host.loads
+          .map((url) => Uri.parse(url).pathSegments.last)
+          .where((name) => name.startsWith('sprint_ring')),
+      [
+        'sprint_ring.wav',
+        'sprint_ring_2.wav',
+        'sprint_ring_3.wav',
+        'sprint_ring_3.wav',
+      ],
+    );
+  });
+
   test('star pickups rotate the original cues without a trio variant', () {
     expect(soundBank['star']!.variants, 3);
     expect(soundBank.containsKey('trio'), isFalse);

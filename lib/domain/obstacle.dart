@@ -52,6 +52,7 @@ class Obstacle {
     this.fixedTarget = false,
     this.appearance = 0,
     this.door,
+    this.rubble = false,
   }) : width = width ?? kind.width,
        baseCenter = center,
        baseGap = gap,
@@ -64,6 +65,13 @@ class Obstacle {
   final int appearance;
   final ObstacleKind kind;
   final SkyDoor? door;
+
+  /// A rush-path barrier that any sprint breaks. A ring sprint also smashes
+  /// ordinary walls; a smashed obstacle has no collision left.
+  final bool rubble;
+  double? smashedAt;
+  double smashY = .5;
+  bool get smashed => smashedAt != null;
   double _age = 0;
   bool scored = false, hit = false;
   double maxDeviation = 0;

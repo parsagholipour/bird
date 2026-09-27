@@ -105,7 +105,10 @@ class BirdPose {
       }
       if (age < .5 &&
           switch (event.kind) {
-            FlightEventKind.hit || FlightEventKind.shieldUsed => true,
+            FlightEventKind.hit ||
+            FlightEventKind.shieldUsed ||
+            FlightEventKind.scorched ||
+            FlightEventKind.rushWarning => true,
             _ => false,
           }) {
         return BirdExpression.startled;
@@ -120,7 +123,12 @@ class BirdPose {
             FlightEventKind.magnet ||
             FlightEventKind.milestone ||
             FlightEventKind.streak ||
-            FlightEventKind.perfect => true,
+            FlightEventKind.perfect ||
+            FlightEventKind.sprintRing ||
+            FlightEventKind.smashed ||
+            FlightEventKind.meteorSmashed ||
+            FlightEventKind.swarmSmashed ||
+            FlightEventKind.rushEscaped => true,
             _ => false,
           }) {
         pleased = true;

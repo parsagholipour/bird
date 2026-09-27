@@ -201,6 +201,140 @@ without the pulse. A whoosh plays on each sprint and a chime plays when a used
 sprint recharges. Record `sprint` for accepted presses only. Rules 1–28 reject
 `sprint` events and have no Sprint button, and camera controls never show one.
 
+### Rush paths (rules version 32)
+
+Touch Star Trail flights hand the course over to a short rush path between
+bosses. The first is laid 22 seconds into the flight; each later one 18
+seconds after a boss leaves. A run needs at least 18 seconds before the next
+boss is due, otherwise it waits for the victory. A boss waits for a run in
+progress and arrives no sooner than 8 seconds after its escape.
+
+Each run brings danger from one side: Wildfire from behind, Skyfall from
+above, Eruption from below and Swarm from ahead. Runs draw their kind from a
+bag holding all four in a seeded shuffle, so every four runs meet each kind
+once, in an order that differs between flights. When the bag refills, a kind
+that would repeat the last run moves to the back of the new round.
+
+Ordinary passages stop while a run is laid. It starts 0.45 after the last
+passage, and never before it is off screen. Six beats, 1.15 apart, each hold
+three stars in a trio leading into a gold sprint ring at the same height.
+Every other beat has a bat just after the ring. The beat ends with a rubble
+barrier 0.16 wide whose 0.36 opening sits at the next beat's height, so the
+rings and openings trace one route. The first height continues from the last
+passage, clamped to 0.3–0.7. Each beat moves 0.16–0.32 up or down, reflected to
+stay within 0.24–0.76. 1.6 before the bird reaches the first beat, a large
+banner naming the kind (“WILDFIRE!”, “SKYFALL!”, “ERUPTION!” or “SWARM!”) and
+an alarm give warning.
+
+**Ring sprints.** Flying within 0.08 of a ring starts a 2-second ring sprint.
+The course scrolls at `1 + 2e`, where `e` rises with a smoothstep over 0.15
+seconds and falls with one over the last 0.50, so speed peaks at 3×. A ring
+collected during a sprint restarts the 2 seconds from the current speed, so a
+chain holds top speed with no dip, and the chain count rises (“RUSH ×N!”).
+Rings never use the Sprint button or its cooldown. When both sprints overlap,
+the course takes the faster boost.
+
+Either sprint rams: it defeats bats and other small enemies it touches, and
+it breaks rubble. A ring sprint also breaks ordinary walls and their stone
+panels. A barrier breaks whole as the bird passes through its width, with a
+bow wave reaching 0.04 beyond the bird, whether the bird is in the opening or
+not. Each break scores 2 points and has no collision afterwards. A broken
+ordinary wall still counts as a passed gate. Rubble never counts as one.
+Consecutive breaks, rams, meteor smashes and swarm smashes during one sprint
+build a chain (“SMASH ×N!”). Without a sprint, rubble is a wall. Course edges,
+lava, and enemy and boss projectiles hurt as usual during either sprint.
+
+**Wildfire.** When the bird reaches the first beat, a wall of flame appears
+0.40 behind it and advances at 1.25× course speed, whatever the bird's own
+speed. A ring sprint drags the fire along no more than 0.46 behind, with its
+flames licking the left edge. When the flames reach the bird, the bird takes
+damage unless it is invulnerable, the label reads “SCORCHED!”, and the fire is
+knocked back to 0.75 behind, off screen. Ignoring every ring costs two or
+three hits in a run; missing one or two in a row costs none.
+
+**Skyfall.** The first meteor falls 0.5 seconds after the run starts and
+another every 0.8 seconds. Meteors start 0.35 above the view and drift 0.40
+left over a 1.25-second fall. They alternate between aimed and scattered:
+- An aimed meteor crosses the ring route's height where the bird would be
+  after 1.25 seconds at its current speed. A cruising bird on the route has to
+  dodge it, and a sprinting bird meets it.
+- A scattered meteor lands at a random height from 0.12 to 0.88, where a
+  cruising bird would be.
+
+A marker at the top edge shows each meteor while it is above the view. A meteor
+touching the bird hurts it, unless the bird is ramming: a ram smashes the
+meteor for 1 point, and the bow wave reaches 0.04 further. A rock that is not
+rebounding also smashes a meteor.
+
+**Eruption.** Every beat after the first has a lava vent 0.10 wide among its
+stars, 0.30 into the beat. Its plume stands 0.08 above that beat's route
+height, but its top never rises above 0.30, so a bird can always hop over it.
+A vent starts rumbling when the bird is 1 second away at course speed and
+erupts 1 second later, just as a cruising bird arrives. A bird that passes
+0.15 beyond a rumbling vent sets it off at once, so a ring sprinter sees the
+blast go up just behind it. The plume shoots up in 0.10 seconds and sinks over
+the last 0.25 of its 0.8 seconds. Touching the plume, from its top down to the
+ground, hurts unless the bird is invulnerable, and the label reads
+“SCORCHED!”. Lava cannot be smashed, and a sprint gives no protection from it.
+Missing a ring leaves the bird cruising into the next vent; flying over the
+plume's reach also avoids it.
+
+**Swarm.** From 0.3 seconds after the run starts, a flock of three bats
+arrives every 1.4 seconds. The bats enter 0.1 beyond the right edge, 0.11
+apart, and fly left 0.50 faster than the course scrolls. Flocks alternate
+between the ring route itself and 0.11 above or below it, on a random side.
+Each bat follows its lane through the barrier openings with a 0.012 bob. No bat
+spawns past the final barrier. A swarm bat touching the bird hurts it unless
+the bird is ramming: a ram smashes it for 1 point and extends the smash chain.
+From the route, the bow wave reaches the side lanes as well. A rock that is not
+rebounding also downs a swarm bat. A slower bird meets more flocks.
+
+**Escape.** Passing the final barrier escapes the run for 10 points, plus 10
+more if nothing hurt the bird after the run started (“ESCAPED! +10” or
+“FLAWLESS! +20”). The fire burns out over 1.6 seconds. Ordinary passages resume
+behind the final barrier, with their first opening continuing from its height.
+Replay highlights and the escape banner name each escape: “Outran the
+wildfire”, “Survived the skyfall”, “Beat the eruption” or “Plowed through the
+swarm”.
+
+**Presentation.** Each run has its own look:
+- Wildfire: a warm smoke band, sandstone barriers with ember seams, and flame
+  layers with embers.
+- Skyfall: a violet sky with falling streaks, violet stone barriers with teal
+  cracks, and meteors with fiery tails and magma seams.
+- Eruption: a red glow rising from the ground with ash and sparks, basalt
+  barriers with lava seams, and basalt vent mounds. Before a vent erupts, a
+  faint column with a red dashed cap marks the plume's reach. It brightens and
+  blinks while the vent rumbles and bubbles. The plume is a layered, wobbling
+  lava column with a rounded head, a glow and flung droplets.
+- Swarm: a dusk-indigo haze from the right with distant bats streaming left,
+  and mossy slate barriers with gold cracks. Flocks on the route are small
+  purple bats and flocks beside it are cave bats. All of them trail speed
+  streaks, and each smash bursts like a defeated bat.
+
+Barrier seams glow while the bird is ramming. Breaks burst into tumbling chunks
+and dust, and each break, ram, meteor smash, swarm smash or eruption shakes
+the camera, the fire or lava catching the bird the hardest. Rings slide
+chevrons and set off sonic-boom rings when collected. A ring sprint adds gold
+overdrive streaks, a bow wave and three gold afterimages.
+
+Reduced Motion omits the streaks, afterimages, debris, embers, ash, lava
+droplets, vent bubbles and camera shake. The flames, plumes and rings stay
+still, a rumbling vent brightens without blinking, and banners appear without
+a pop.
+
+**Audio and replay.** Audio cues:
+- A ring chime climbs a whole tone per chained ring, up to the third.
+- The first ring of a chain also plays the sprint whoosh and voice.
+- Breaks and meteor smashes crunch.
+- Each eruption plays a lava burst.
+- Swarm smashes play the enemy defeat sound.
+- The warning plays an alarm and an escape a fanfare.
+
+Rush paths are part of the seeded simulation, so replays and seeks reproduce
+them exactly with no extra events. Rules 1–31, camera modes and Classic have
+no rush paths.
+
 ### Touch boss encounters (rules version 15)
 
 After 45 seconds of active touch flight in Star Trail or Classic,

@@ -21,9 +21,32 @@ abstract final class Sprint {
     );
     return 1 + (peakBoost - 1) * envelope;
   }
+}
 
-  static double _smooth(double t) {
-    final x = t.clamp(0.0, 1.0);
-    return x * x * (3 - 2 * x);
+/// A sprint ring's stronger burst (rules version 32). It smashes everything
+/// it touches, ordinary walls included. Another ring before it ends extends
+/// it from the current speed, so a chain never dips.
+abstract final class RingSprint {
+  static const seconds = 2.0, peakBoost = 3.0;
+  static const surgeSeconds = .15, easeSeconds = .50;
+
+  static double envelope(double sinceStart, double remaining) {
+    if (!(sinceStart >= 0 && remaining > 0)) return 0;
+    return math.min(
+      _smooth(sinceStart / surgeSeconds),
+      _smooth(remaining / easeSeconds),
+    );
   }
+
+  /// How far into the surge the envelope equals [level]: the inverse of
+  /// smoothstep, so an extended burst continues from its current speed.
+  static double surgeAgeFor(double level) {
+    final e = level.clamp(0.0, 1.0);
+    return (.5 - math.sin(math.asin(1 - 2 * e) / 3)) * surgeSeconds;
+  }
+}
+
+double _smooth(double t) {
+  final x = t.clamp(0.0, 1.0);
+  return x * x * (3 - 2 * x);
 }

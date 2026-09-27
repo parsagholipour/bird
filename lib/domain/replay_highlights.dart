@@ -11,6 +11,7 @@ enum ReplayMomentKind {
   perfect,
   milestone,
   starTrio,
+  rush,
 }
 
 class ReplayHighlight {
@@ -118,6 +119,16 @@ List<ReplayHighlight> buildReplayHighlights(ReplayTape tape) {
             value: event.value,
             priority: event.value == 5 ? 80 : 55,
           ),
+        FlightEventKind.rushEscaped => ReplayHighlight(
+          kind: ReplayMomentKind.rush,
+          atMs: at,
+          title: (sim.lastRushKind ?? RushPathKind.wildfire).escape,
+          detail: event.value > Rush.escapeBonus
+              ? 'Not a scratch. +${event.value} points!'
+              : 'Sprint rings to safety. +${event.value} points!',
+          value: event.value,
+          priority: event.value > Rush.escapeBonus ? 90 : 78,
+        ),
         _ => null,
       };
       if (moment != null) {

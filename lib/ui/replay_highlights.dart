@@ -81,6 +81,7 @@ Future<ReplayHighlight?> showReplayHighlights(
                           ReplayMomentKind.perfect => Icons.adjust_rounded,
                           ReplayMomentKind.milestone =>
                             Icons.emoji_events_rounded,
+                          ReplayMomentKind.rush => Icons.bolt_rounded,
                         }, color: SkyColors.teal),
                       ],
                     ),

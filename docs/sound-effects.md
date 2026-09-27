@@ -157,6 +157,37 @@ is random among the three clips other than the last one played. A dedicated
 player prevents voice overlap, and pause, mute and replay seeking stop or
 suppress the voice with the other effects.
 
+Rush paths add four original syntheses:
+
+| Cue | Volume | Priority | Length | Sound |
+| --- | --- | --- | --- | --- |
+| `sprint_ring` | 0.34 | 3 | 0.42 s | E6–B6–E7 ping over a light whoosh; three takes |
+| `rubble_smash` | 0.46 | 3 | 0.40 s | Heavy impact, falling whoosh, debris clatter; three takes |
+| `rush_alarm` | 0.60 | 4 | 1.3 s | Three A5–E5 stabs over a rumble |
+| `rush_clear` | 0.48 | 4 | 1.1 s | C5–G6 run resolving on a warm C major chord |
+
+`sprint_ring` takes 2 and 3 are one and two whole tones higher. The rubble takes
+vary their seeded clatter. `CombatAudioCues` plays them as follows:
+- `sprint_ring` for every ring. `SkyAudio.syncCombat` picks the take from the
+  ring chain, so a chain climbs and holds at the third. The first ring of a
+  chain also plays `sprint` and its voice.
+- `rubble_smash` once per step in which any barrier breaks or a meteor is
+  smashed.
+- `rush_alarm` with each run's warning banner.
+- `rush_clear` on each escape.
+
+Regenerating the bank reproduced every earlier effect byte for byte. The
+script used to overwrite `game_over.wav` with a plain synthesis. It now skips
+that cue, which `tool/prepare_game_over.py` builds.
+
+Eruption runs add `lava_burst` (volume 0.40, priority 2, 0.70 s, 150 ms
+cooldown). It layers a heavy low impact, a high-passed hiss and a seven-grain
+rock crumble. The two takes vary the seeds of all three layers.
+`CombatAudioCues` plays it once per step in which any vent erupts. Swarm smashes
+reuse `enemy_death`, which now plays when the enemies defeated plus the swarm
+bats smashed rises. Regenerating the bank added `lava_burst.wav` and
+`lava_burst_2.wav` and left every other asset unchanged.
+
 | New asset | Duration | RMS before playback gain |
 | --- | ---: | ---: |
 | Sprint | 550 ms | -18.55 dBFS |

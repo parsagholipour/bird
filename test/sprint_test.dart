@@ -327,6 +327,9 @@ void main() {
         s.sprints,
         s.lastSprintAt,
         s.sprintBoost,
+        s.courseBoost,
+        s.ringSprints,
+        s.smashes,
         s.doorsDestroyed,
         s.obstacles.map((o) => [o.x, o.hit, o.scored, o.door?.hp]).toList(),
         s.enemies.map((e) => [e.x, e.hp]).toList(),
@@ -342,9 +345,18 @@ void main() {
             .where((e) => e.x > FlightSimulation.birdX)
             .firstOrNull;
         final gate = sim.obstacles
-            .where((o) => o.x + o.width > FlightSimulation.birdX)
+            .where((o) => !o.smashed && o.x + o.width > FlightSimulation.birdX)
             .firstOrNull;
-        final aim = (sim.sprinting ? prey?.y : null) ?? gate?.target ?? .5;
+        final ring = sim.sprintRings
+            .where((r) => !r.collected && r.x > FlightSimulation.birdX)
+            .firstOrNull;
+        final aim =
+            (sim.sprinting ? prey?.y : null) ??
+            (ring != null && (gate == null || ring.x < gate.x)
+                ? ring.y
+                : null) ??
+            gate?.target ??
+            .5;
         recorder.apply(
           MovementInput(valid: true, flap: sim.birdY > aim && sim.velocity > 0),
           TrackingSample(

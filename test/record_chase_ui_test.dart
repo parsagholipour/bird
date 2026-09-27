@@ -21,7 +21,7 @@ import 'play_session_test.dart' show SessionSource, SilentAudio, startFlight;
 class RecordAudio extends SilentAudio {
   final effects = <String>[];
   @override
-  void effect(String name) => effects.add(name);
+  void effect(String name, {int? variant}) => effects.add(name);
   int get records => effects.where((name) => name == 'record').length;
 }
 

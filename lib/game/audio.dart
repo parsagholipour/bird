@@ -42,7 +42,12 @@ class SkyAudio {
   void syncCombat(FlightSimulation simulation, {bool silent = false}) {
     if (_disposed) return;
     for (final cue in _combatCues.advance(simulation, silent: silent)) {
-      effect(cue);
+      effect(
+        cue,
+        variant: cue == 'sprint_ring'
+            ? (simulation.ringChain - 1).clamp(0, 2)
+            : null,
+      );
     }
     syncBoss(simulation.boss, silent: silent);
   }
@@ -154,7 +159,8 @@ class SkyAudio {
     });
   }
 
-  void effect(String name) {
+  /// [variant] picks a specific take; otherwise takes rotate.
+  void effect(String name, {int? variant}) {
     final spec = soundBank[name];
     if (_disposed || _effectsSuspended || !_settings.effects || spec == null) {
       return;
@@ -185,8 +191,8 @@ class SkyAudio {
       unawaited(_syncMusic());
     }
     _lastEffect[name] = now;
-    final variant = (_variations[name] ?? 0) % spec.variants;
-    _variations[name] = variant + 1;
+    final take = (variant ?? _variations[name] ?? 0) % spec.variants;
+    _variations[name] = take + 1;
     final selected = voice;
     final revision = ++selected.revision;
     selected.priority = spec.priority;
@@ -203,7 +209,7 @@ class SkyAudio {
           await selected.player.setReleaseMode(ReleaseMode.stop);
           selected.initialized = true;
         }
-        await selected.player.setSource(AssetSource(soundAsset(name, variant)));
+        await selected.player.setSource(AssetSource(soundAsset(name, take)));
         await selected.player.setVolume(spec.volume);
         await selected.player.setPlaybackRate(_rate);
         if (cancelled()) return;

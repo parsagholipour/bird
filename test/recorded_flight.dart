@@ -3,25 +3,52 @@ import 'package:push_up_bird/domain/session_replay.dart';
 import 'package:push_up_bird/domain/tracking.dart';
 
 /// Flap toward the next gap or boss, on a lane that incoming shots miss.
+/// On a rush path, fly the ring route: a ring sprint smashes the rubble.
+/// Without one, weave around meteors and flocks and hop over lava plumes.
 bool rideTheSky(FlightSimulation sim) {
   final ahead = sim.obstacles.where(
-    (o) => !o.scored && o.x + o.width > FlightSimulation.birdX - .05,
+    (o) =>
+        !o.scored &&
+        !o.smashed &&
+        !(o.rubble && sim.ramming) &&
+        o.x + o.width > FlightSimulation.birdX - .05,
   );
+  final ring = sim.sprintRings
+      .where((r) => !r.collected && r.x > FlightSimulation.birdX - .03)
+      .firstOrNull;
+  final chaseRing =
+      ring != null && (ahead.isEmpty || ring.x < ahead.first.x + .05);
   var preferred = .42;
   if (sim.boss != null) {
     preferred = sim.boss!.y;
+  } else if (chaseRing) {
+    // Flaps rise about .13 above the aim, so aim low to straddle the ring.
+    preferred = ring.y + .05;
   } else if (ahead.isNotEmpty) {
     preferred = ahead.first.target;
   }
 
-  final meets = <double>[];
-  void consider(double x, double y, double vx, double vy) {
+  final pace = sim.speed * sim.courseBoost;
+  // Each danger is a height and how far to stay from it. Whatever arrives
+  // after the next ring meets its sprint and is smashed instead.
+  final meets = <(double, double)>[];
+  final ringIn = chaseRing
+      ? (ring.x - FlightSimulation.birdX) / pace
+      : double.infinity;
+  void consider(
+    double x,
+    double y,
+    double vx,
+    double vy, {
+    double room = .24,
+    bool smashable = false,
+  }) {
     if (x < FlightSimulation.birdX - .02) return;
     final closing = -vx;
     if (closing < .05) return;
     final time = (x - FlightSimulation.birdX) / closing;
-    if (time < 0 || time > 1.25) return;
-    meets.add(y + vy * time);
+    if (time < 0 || time > 1.25 || (smashable && time > ringIn)) return;
+    meets.add((y + vy * time, room));
   }
 
   for (final shot in sim.bossAmmo) {
@@ -30,25 +57,73 @@ bool rideTheSky(FlightSimulation sim) {
   for (final shot in sim.enemyAmmo) {
     consider(shot.x, shot.y, shot.vx, shot.vy);
   }
+  if (!sim.ramming) {
+    for (final meteor in sim.meteors) {
+      consider(
+        meteor.x,
+        meteor.y,
+        meteor.vx - pace,
+        meteor.vy,
+        smashable: true,
+      );
+    }
+    // Flocks thread the barrier openings, so dodge within the opening.
+    for (final bat in sim.swarm) {
+      consider(
+        bat.x,
+        bat.y,
+        -pace - Rush.swarmSpeed,
+        0,
+        room: .13,
+        smashable: true,
+      );
+    }
+  }
   for (final enemy in sim.enemies) {
+    if (sim.ramming || (chaseRing && ring.x < enemy.x)) continue;
     if (enemy.x >= FlightSimulation.birdX &&
         enemy.x <= FlightSimulation.birdX + .45) {
-      meets.add(enemy.y);
+      meets.add((enemy.y, .24));
     }
+  }
+  // Hop over any plume standing when the bird reaches its vent, once
+  // through the barrier before it.
+  var ceiling = 1.0;
+  for (final vent in sim.lavaVents) {
+    final away = vent.x - FlightSimulation.birdX;
+    if (away < -.09 || away > .8) continue;
+    if (ahead.isNotEmpty && ahead.first.x < vent.x) continue;
+    final at = vent.eruptedAt ?? vent.fuseEndsAt;
+    final erupts = at == null
+        ? (away - sim.speed * Rush.ventFuse) / pace + Rush.ventFuse
+        : at - sim.elapsed;
+    final enter = (away - .09) / pace, leave = (away + .09) / pace;
+    if (leave < erupts || enter > erupts + Rush.plumeSeconds) continue;
+    final clear = vent.top - FlightSimulation.birdRadius - .05;
+    if (clear < ceiling) ceiling = clear;
   }
 
   double danger(double lane) {
     var cost = (lane - preferred).abs();
-    for (final y in meets) {
+    for (final (y, room) in meets) {
       final gap = (lane - y).abs();
-      if (gap < .24) cost += (.24 - gap) * 8;
+      if (gap < room) cost += (room - gap) * 8;
     }
+    if (lane > ceiling) cost += 2 + (lane - ceiling) * 8;
     return cost;
   }
 
   var target = preferred;
   var best = danger(preferred);
-  for (final lane in const [.32, .42, .5, .58, .68]) {
+  for (final lane in [
+    .32,
+    .42,
+    .5,
+    .58,
+    .68,
+    if (sim.rushPath != null) ...[preferred - .12, preferred + .12],
+    if (ceiling < 1) ceiling - .02,
+  ]) {
     final cost = danger(lane);
     if (cost < best) {
       best = cost;
@@ -58,6 +133,7 @@ bool rideTheSky(FlightSimulation sim) {
   // A flap rises about .13 and only settles a little below the aim point.
   // Keep that whole arc inside the opening, and off an enemy in the lane.
   if (sim.boss == null &&
+      !chaseRing &&
       ahead.isNotEmpty &&
       ahead.first.x < FlightSimulation.birdX + .9) {
     final gate = ahead.first;
@@ -77,7 +153,9 @@ bool rideTheSky(FlightSimulation sim) {
     target = high > low ? aim.clamp(low, high) : gate.target;
   }
   // Leave room for the flap arc so a dodge cannot strike the screen edge.
-  target = target.clamp(.30, .72);
+  // Only a plume's clearance can pull the aim higher.
+  if (target > ceiling) target = ceiling - .02;
+  target = target.clamp(ceiling < .32 ? ceiling - .02 : .30, .72);
   return sim.birdY > target && sim.velocity > 0;
 }
 

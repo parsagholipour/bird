@@ -21,7 +21,7 @@ class SilentAudio implements SkyAudio {
     SkyMusic track = SkyMusic.flight,
   }) async {}
   @override
-  void effect(String name) {}
+  void effect(String name, {int? variant}) {}
   @override
   Future<void> stop() async {}
   @override
@@ -54,7 +54,7 @@ class RecordingAudio extends SilentAudio {
   final effects = <String>[];
 
   @override
-  void effect(String name) => effects.add(name);
+  void effect(String name, {int? variant}) => effects.add(name);
 }
 
 class SessionSource extends NativeTrackingSource {

@@ -8,6 +8,8 @@ class CombatAudioCues {
   FlightSimulation? _simulation;
   int _shots = 0, _deaths = 0, _impacts = 0, _deflections = 0, _enemyShots = 0;
   int _dryFires = 0, _sprints = 0;
+  int _ringSprints = 0, _smashes = 0, _rushWarnings = 0, _rushEscapes = 0;
+  int _eruptions = 0;
   final Set<SkyEnemy> _charging = {};
   double _elapsed = 0;
   bool _magnet = false, _fullCharge = false, _sprintReady = false;
@@ -30,7 +32,21 @@ class CombatAudioCues {
       if (fullCharge && !_fullCharge) cues.add('shot_charged');
       if (sim.sprints > _sprints) cues.add('sprint');
       if (sprintReady && !_sprintReady) cues.add('sprint_ready');
-      if (sim.enemiesDefeated > _deaths) cues.add('enemy_death');
+      if (sim.ringSprints > _ringSprints) {
+        cues.add('sprint_ring');
+        // Only the start of a chain gets the sprint's whoosh and voice.
+        if (sim.ringChain == 1) cues.add('sprint');
+      }
+      if (sim.smashes + sim.meteorsSmashed > _smashes) {
+        cues.add('rubble_smash');
+      }
+      if (sim.ventsErupted > _eruptions) cues.add('lava_burst');
+      if (sim.rushWarnings > _rushWarnings) cues.add('rush_alarm');
+      if (sim.rushPathsEscaped > _rushEscapes) cues.add('rush_clear');
+      // Swarm bats go down like any bat.
+      if (sim.enemiesDefeated + sim.swarmSmashed > _deaths) {
+        cues.add('enemy_death');
+      }
       if (sim.rockImpacts > _impacts) cues.add('rock_hit');
       if (sim.projectilesDeflected > _deflections) cues.add('deflect');
       if (sim.enemyShots > _enemyShots) cues.add('enemy_shoot');
@@ -51,7 +67,12 @@ class CombatAudioCues {
     _fullCharge = fullCharge;
     _sprints = sim.sprints;
     _sprintReady = sprintReady;
-    _deaths = sim.enemiesDefeated;
+    _ringSprints = sim.ringSprints;
+    _smashes = sim.smashes + sim.meteorsSmashed;
+    _rushWarnings = sim.rushWarnings;
+    _rushEscapes = sim.rushPathsEscaped;
+    _eruptions = sim.ventsErupted;
+    _deaths = sim.enemiesDefeated + sim.swarmSmashed;
     _impacts = sim.rockImpacts;
     _deflections = sim.projectilesDeflected;
     _enemyShots = sim.enemyShots;

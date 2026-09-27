@@ -30,7 +30,7 @@ class WingAudio extends SilentAudio {
   int stars = 0;
   int trios = 0;
   @override
-  void effect(String name) {
+  void effect(String name, {int? variant}) {
     if (name == 'wing') wings++;
     if (name == 'cloud') clouds++;
     if (name == 'star') stars++;

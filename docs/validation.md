@@ -1,5 +1,117 @@
 # Validation ledger
 
+## 2026-09-26 eruption and swarm rush paths
+
+- Rules version 32 was not yet committed, so it gains two more rush path kinds
+  instead of a new version:
+  - Eruption: lava vents under the route blow plumes as a cruising bird
+    arrives.
+  - Swarm: flocks of bats stream down the route and beside it.
+
+  Runs now draw from a seeded shuffled bag of all four kinds, so every four
+  runs meet each kind once. A new round never opens with the kind that just
+  ran. Replay highlights and the escape banner name each kind's escape.
+- The shared `rideTheSky` autopilot probed six seeds per kind, with every
+  ring removed and with rings in place:
+  - Chasing the rings, it chained 5–6 per run and was never hurt in any kind.
+    It smashed 3–4 meteors in Skyfall and 3–8 bats in Swarm.
+  - Without rings, Wildfire cost 2 burns, Skyfall 4–5 meteor hits and Swarm
+    3–5 bat hits.
+  - Without rings, Eruption cost 0–2 hits from bats and walls. Lava never
+    hit, because the autopilot hops plumes. A route-following cruiser that
+    doesn't hop is burned at its first vent, as a test shows.
+- The probes led to these changes:
+  - A bird 0.15 past a rumbling vent sets it off at once. Before, a sprinter
+    was far off screen when vents blew, and vents could scroll away unerupted.
+  - `flockInterval` rose from 1.2 to 1.4 seconds, with little effect on hits.
+  - `rideTheSky` skips smashable hazards it will meet only after its next
+    ring, including the run's own bats. It no longer dodges enemies while
+    ramming. It aims 0.05 below a ring so its flap arc straddles the ring;
+    before, it often hovered above rings and missed them. It keeps under
+    the reach of vents that will be erupting as it passes, once the barrier
+    before the vent is behind it. It also considers a lane 0.12 either side of
+    the route.
+- Over 200 seeds, recorded flights opened with each kind 47–51 times. Five
+  of 40 recorded 50-second flights died on ordinary walls before their run
+  started, which is an existing weakness of the autopilot's gate following.
+- `test/rush_path_test.dart` now has 17 tests. The new ones cover:
+  - the bag order over 12 seeds;
+  - eruptions timed behind a sprinter and under a cruiser;
+  - clearing a plume by flying over it, and a button sprint giving no
+    protection inside one;
+  - swarm lanes, chained smashes and cruising hits;
+  - a rock downing a swarm bat.
+
+  The layout and render tests cover all four kinds. The replay test now
+  records seeds 8, 5, 3 and 30, which open with Wildfire, Skyfall, Eruption
+  and Swarm, and checks that seeks reproduce vents, flocks and the bag. The
+  audio test covers `lava_burst` and swarm smashes.
+- Inspected the Eruption, Swarm, Eruption-behind and Swarm-warning renders
+  in `build/visual-review/rush-*.png` and their `-reduced` variants. The
+  pending vent marker was too faint on the pale sky, so it now has a stronger
+  column and a deep-red dashed cap.
+- `python3 tool/prepare_sound_effects.py` adds `lava_burst` in two takes and
+  reproduces all 72 assets byte for byte on a second run.
+- `flutter analyze --no-pub lib test tool` reports no issues. The full
+  `flutter test --no-pub` suite passes all 526 tests. Device playtesting is
+  still pending for all four kinds, including the vent and flock tunables in
+  `Rush`.
+
+## 2026-09-26 rush paths
+
+- Rules version 32 adds touch Star Trail rush paths. Each is six beats of
+  stars, a sprint ring, bats and a rubble barrier on one route, chased by a
+  wildfire or showered by a skyfall. A ring starts a 2-second, 3× ring sprint.
+  Chained rings extend it from the current speed with no dip. Either sprint
+  breaks rubble as the bird passes. A ring sprint also breaks ordinary walls
+  and smashes meteors. Escaping pays +10, or +20 unhurt. Bosses wait for a run
+  in progress.
+- Scripted autopilots probed the balance over six seeds before the tests were
+  written:
+  - Following every ring escaped every run unhurt. It chained 4–6 rings, broke
+    the barriers, and smashed 3–4 meteors in Skyfall.
+  - Ignoring every ring cost about three wildfire catches or meteor hits.
+    Taking one ring cost about one hit in Wildfire and two in Skyfall.
+
+  The probes led to four changes:
+  - Aimed meteors now target the ring route at the bird's current speed, so a
+    ring sprint meets them instead of outrunning them.
+  - The fire is clamped close behind only during a ring sprint, keeping its
+    flames on screen. A catch knocks it farther back than that.
+  - Barriers break across their whole width.
+  - Bosses no longer start once ordinary passages resume near a run's end.
+- `test/rush_path_test.dart` has 12 tests:
+  - gating by version, mode and course;
+  - the route layout, with openings at the next ring's height, bats on
+    alternate beats and spawns held;
+  - the ring envelope, and chaining mid-surge and mid-ease;
+  - breaks of walls, rubble, bats and meteors with no damage, and damage
+    without a sprint;
+  - fire timing, knockback and trailing;
+  - a perfect run chaining all six rings at a constant 3×, breaking every
+    barrier, escaping flawless and resuming passages behind the last barrier;
+  - Skyfall smashing versus cruising hits;
+  - the boss waiting for a slow run;
+  - exact replay seeks with a replay highlight;
+  - audio cues;
+  - renders of both kinds in both motion settings.
+- Existing tests needed four updates:
+  - The shared `rideTheSky` autopilot now follows the ring route. Before that,
+    the boss, door, power-shot and damage recordings died to the fire.
+  - The sprint test's autopilot chases rings too.
+  - The trio bound allows one run's six trios.
+  - The audio fakes accept a take index.
+- A new `SkyAudio` test checks that chained rings play takes 1, 2, 3 and then
+  hold on 3.
+- Inspected `build/visual-review/rush-{wildfire,skyfall,warning,escape}.png`
+  and their `-reduced` variants, generated with `CAPTURE_VISUALS=true`.
+- `python3 tool/prepare_sound_effects.py` adds eight assets and reproduces
+  every earlier effect byte for byte. It no longer overwrites `game_over.wav`,
+  which `tool/prepare_game_over.py` builds.
+- `flutter analyze --no-pub lib test tool` reports no issues. The full
+  `flutter test --no-pub` suite passes all 521 tests. Device playtesting is
+  still pending, including the tunables in `Rush` and `RingSprint`.
+
 ## 2026-09-23 retire Courier and Cloud Cruise
 
 - Sky Courier and Cloud Cruise are no longer playable. Flight School, the

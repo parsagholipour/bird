@@ -5,6 +5,7 @@ import 'bird_motion.dart';
 import 'flight_path.dart';
 import 'obstacle.dart';
 import 'power_shot.dart';
+import 'rush_path.dart';
 import 'sky_boss.dart';
 import 'sky_enemy.dart';
 import 'sky_door.dart';
@@ -13,6 +14,7 @@ export 'flight_course.dart';
 export 'flight_path.dart';
 export 'obstacle.dart';
 export 'power_shot.dart';
+export 'rush_path.dart';
 export 'sky_boss.dart';
 export 'sky_enemy.dart';
 export 'sky_door.dart';
@@ -46,6 +48,13 @@ enum FlightEventKind {
   enemyRammed,
   bossDefeated,
   heart,
+  rushWarning,
+  sprintRing,
+  smashed,
+  meteorSmashed,
+  scorched,
+  rushEscaped,
+  swarmSmashed,
 }
 
 class FlightEvent {
@@ -291,7 +300,7 @@ class FlightSimulation {
   final FlightCourse course;
 
   /// Replay journals keep the rules they were recorded with.
-  static const currentRulesVersion = 31;
+  static const currentRulesVersion = 32;
   final int rulesVersion;
   final math.Random random;
   final List<Obstacle> obstacles = [];
@@ -419,8 +428,43 @@ class FlightSimulation {
   bool get canSprint =>
       supportsSprint && _combatReady && sprintCooldownRemaining == 0;
 
-  /// Multiplies [speed] for everything that scrolls with the course.
   double get sprintBoost => sprinting ? Sprint.boost(sprintAge) : 1;
+
+  bool get supportsRushPaths => supportsSprint && isTrail && rulesVersion >= 32;
+  RushPath? rushPath;
+  double _nextRushAt = Rush.firstAt;
+  final List<SprintRing> sprintRings = [];
+  final List<Meteor> meteors = [];
+  final List<LavaVent> lavaVents = [];
+  final List<SwarmBat> swarm = [];
+
+  /// Kinds still to run this round, drawn from the end by [Rush.nextKind]
+  /// with the flight's seeded random.
+  final List<RushPathKind> rushKinds = [];
+
+  /// The latest run's kind, which outlasts the run for its escape banner.
+  RushPathKind? lastRushKind;
+  int rushPathsRun = 0, rushWarnings = 0, rushPathsEscaped = 0;
+  int ringSprints = 0, ringChain = 0;
+  int smashes = 0, smashChain = 0, meteorsSmashed = 0;
+  int ventsErupted = 0, swarmSmashed = 0;
+  double ringSprintFrom = double.negativeInfinity;
+  double ringSprintUntil = double.negativeInfinity;
+  bool get ringSprinting =>
+      elapsed >= ringSprintFrom && elapsed < ringSprintUntil;
+  double get _ringEnvelope => ringSprinting
+      ? RingSprint.envelope(elapsed - ringSprintFrom, ringSprintUntil - elapsed)
+      : 0;
+  double get ringSprintBoost => 1 + (RingSprint.peakBoost - 1) * _ringEnvelope;
+  double get ringSprintRemaining =>
+      ringSprinting ? ringSprintUntil - elapsed : 0;
+
+  /// Multiplies [speed] for everything that scrolls with the course.
+  double get courseBoost => math.max(sprintBoost, ringSprintBoost);
+
+  /// Either sprint smashes bats, stone panels and rubble.
+  bool get ramming => sprinting || ringSprinting;
+  bool get _rushHoldsSpawns => rushPath?.holdsSpawns ?? false;
   static const birdX = .47, birdRadius = .038;
   static const _enemyPassageLead = .55, _enemyEntryMargin = .15;
   RunPhase phase = RunPhase.countdown;
@@ -702,7 +746,7 @@ class FlightSimulation {
       final speed = this.speed;
       // A sprint covers the same course sooner, so spawning follows distance
       // and passages keep their spacing.
-      final boost = sprintBoost;
+      final boost = courseBoost;
       final scroll = speed * boost;
       distance += scroll * step;
       if (supportsBosses) _advanceBoss(step, viewportWidth);
@@ -732,7 +776,7 @@ class FlightSimulation {
         obstacle.x -= scroll * step;
         obstacle.advance(elapsed);
       }
-      if (boss == null && _spawnIn <= 0) {
+      if (boss == null && !_rushHoldsSpawns && _spawnIn <= 0) {
         final center = rules.passageCenter(_index++, random, _previousCenter);
         _previousCenter = center;
         final spacing = speed * spawnInterval;
@@ -755,9 +799,13 @@ class FlightSimulation {
         velocity = 0;
       }
       flightPath.record(distance, birdY);
+      if (!ramming) smashChain = 0;
       for (final o in obstacles) {
         if (phase == RunPhase.ended) break;
-        if (sprinting) _ramPanel(o);
+        if (ramming) {
+          _ramPanel(o);
+          _smashObstacle(o);
+        }
         if (!o.hit && _touches(o)) {
           if (!isTrail) {
             end(EndReason.collision);
@@ -771,7 +819,7 @@ class FlightSimulation {
         }
         if (!o.scored && o.x + o.width < birdX - birdRadius) {
           o.scored = true;
-          if (!o.hit) {
+          if (!o.hit && !o.rubble) {
             gates++;
             if (!collectsStars) score++;
             if (o.maxDeviation <= .075) {
@@ -800,9 +848,15 @@ class FlightSimulation {
       if (supportsHeartPickups && phase == RunPhase.playing) {
         _advanceHearts(scroll * step);
       }
+      if (supportsRushPaths && phase == RunPhase.playing) {
+        _advanceRushPath(step, scroll, viewportWidth);
+      }
       if (supportsCombat && phase == RunPhase.playing) {
         _advanceCombat(step, scroll, viewportWidth, rush: scroll - speed);
         if (_fullHoldExpired) shoot(reducedMotion: reducedMotion);
+      }
+      if (supportsRushPaths && phase == RunPhase.playing) {
+        _scheduleRushPath(viewportWidth);
       }
       obstacles.removeWhere((o) => o.x + o.width < -.1);
       events.removeWhere((e) => elapsed - e.at > 2);
@@ -1060,7 +1114,7 @@ class FlightSimulation {
       final dx = birdX - enemy.x, dy = birdY - enemy.y;
       const radius = birdRadius + SkyEnemy.radius;
       if (dx * dx + dy * dy <= radius * radius) {
-        if (sprinting) {
+        if (ramming) {
           _defeatEnemy(enemy, rammed: true);
         } else if (isTrail) {
           _damage();
@@ -1168,7 +1222,8 @@ class FlightSimulation {
 
   void _advanceBoss(double dt, double viewportWidth) {
     if (boss == null) {
-      if (elapsed < _nextBossAt) return;
+      // Passages resume before a run ends; the boss waits for the escape.
+      if (elapsed < _nextBossAt || rushPath != null) return;
       final number = bossesDefeated + 1;
       final kind = rulesVersion >= 22
           ? BossKind.values[bossesDefeated % 3]
@@ -1195,6 +1250,11 @@ class FlightSimulation {
       rocks.clear();
       bossAmmo.clear();
       enemyAmmo.clear();
+      sprintRings.clear();
+      meteors.clear();
+      lavaVents.clear();
+      swarm.clear();
+      rushPath = null;
       events.clear();
     }
     final current = boss!;
@@ -1204,6 +1264,7 @@ class FlightSimulation {
         boss = null;
         // A full normal-flight interval follows the victory celebration.
         _nextBossAt = elapsed + bossInterval;
+        if (supportsRushPaths) _nextRushAt = elapsed + Rush.afterBoss;
         if (supportsHeartPickups) {
           // One of the next 2–7 gates carries the reward, leaving ample flight
           // time to reach it before the next boss. Use the replay's seeded RNG.
@@ -1291,6 +1352,7 @@ class FlightSimulation {
   /// A ram ignores the enemy's remaining health; the reward is the same.
   void _defeatEnemy(SkyEnemy enemy, {bool rammed = false}) {
     enemiesDefeated++;
+    if (rammed) smashChain++;
     final bonus = isTrail ? 3 : 0;
     score += bonus;
     events.add(
@@ -1312,6 +1374,394 @@ class FlightSimulation {
     }
     panel.takeDamage(panel.hp, hitY: birdY);
     doorsDestroyed++;
+  }
+
+  /// Any sprint breaks rubble; a ring sprint smashes ordinary walls too.
+  /// The bow wave breaks the whole barrier as the bird passes, through its
+  /// opening or not, so a sprint leaves nothing standing behind it.
+  void _smashObstacle(Obstacle o) {
+    if (o.smashed || !(o.rubble || ringSprinting)) return;
+    const reach = birdRadius + Rush.ramReach;
+    if (birdX + reach < o.x || birdX - reach > o.x + o.width) return;
+    o.smashedAt = elapsed;
+    o.smashY = birdY;
+    smashes++;
+    smashChain++;
+    score += Rush.smashPoints;
+    events.add(
+      FlightEvent(
+        FlightEventKind.smashed,
+        elapsed,
+        birdY,
+        value: smashChain,
+        gateWorldX: distance + o.x,
+      ),
+    );
+  }
+
+  /// Laid once everything else has scrolled this step, so its rings, bats
+  /// and barriers keep their spacing.
+  void _scheduleRushPath(double viewportWidth) {
+    if (rushPath != null || boss != null || elapsed < _nextRushAt) return;
+    _nextRushAt = double.infinity;
+    // Too close to a boss: the next run follows the victory instead.
+    if (_nextBossAt - elapsed >= Rush.bossLead) {
+      rushPath = _layRushPath(viewportWidth);
+    }
+  }
+
+  void _advanceRushPath(double dt, double scroll, double viewportWidth) {
+    final travel = scroll * dt;
+    sprintRings.removeWhere((ring) {
+      ring.x -= travel;
+      final dx = birdX - ring.x, dy = birdY - ring.y;
+      if (!ring.collected &&
+          dx * dx + dy * dy <=
+              SprintRing.pickupRadius * SprintRing.pickupRadius) {
+        ring.collected = true;
+        ring.collectedAt = elapsed;
+        _ringSprint();
+      }
+      return ring.x < -.2;
+    });
+    _advanceMeteors(dt, scroll);
+    _advanceVents(travel);
+    _advanceSwarm(dt, scroll);
+    final path = rushPath;
+    if (path == null) return;
+    if (!path.resumed && distance >= path.resumeDistance) {
+      path.resumed = true;
+      _spawnIn = 0;
+      _previousCenter = path.exitCenter;
+    }
+    final bird = distance + birdX;
+    switch (path.phase) {
+      case RushPhase.approach:
+        if (!path.warned && path.startDistance - bird <= Rush.warningLead) {
+          path.warned = true;
+          rushWarnings++;
+          _event(FlightEventKind.rushWarning, path.kind.index);
+        }
+        if (bird >= path.startDistance) {
+          path.phase = RushPhase.running;
+          path.startedAt = elapsed;
+          path.fireDistance = bird - Rush.fireStartGap;
+          path.meteorIn = Rush.firstMeteorDelay;
+          path.flockIn = Rush.firstFlockDelay;
+        }
+      case RushPhase.running:
+        switch (path.kind) {
+          case RushPathKind.wildfire:
+            _advanceFire(path, dt, bird);
+          case RushPathKind.skyfall:
+            _advanceSkyfall(path, dt, bird);
+          case RushPathKind.eruption:
+            // Vents are laid with the run and rumble on their own.
+            break;
+          case RushPathKind.swarm:
+            _releaseFlocks(path, dt, viewportWidth);
+        }
+        if (phase == RunPhase.playing && bird >= path.endDistance) {
+          _escape(path);
+        }
+      case RushPhase.escaped:
+        if (elapsed - path.escapedAt! >= Rush.burnOutSeconds) rushPath = null;
+    }
+  }
+
+  /// Six beats: a star group leads into a sprint ring at the same height,
+  /// then a rubble barrier whose gap sits at the next beat's height. Odd
+  /// beats put a bat right after the ring, where a ring sprint smashes it.
+  RushPath _layRushPath(double viewportWidth) {
+    final kind = lastRushKind = Rush.nextKind(rushKinds, random, lastRushKind);
+    final last = obstacles.lastOrNull;
+    final startX = math.max(
+      viewportWidth + .1,
+      last == null ? 0.0 : last.x + last.width + Rush.clearance,
+    );
+    var lane = _previousCenter.clamp(.3, .7);
+    final heights = [lane];
+    for (var i = 0; i < Rush.beats; i++) {
+      final change = .16 + random.nextDouble() * .16;
+      var next = lane + (random.nextBool() ? change : -change);
+      if (next < .24 || next > .76) next = 2 * lane - next;
+      lane = next.clamp(.24, .76);
+      heights.add(lane);
+    }
+    for (var i = 0; i < Rush.beats; i++) {
+      final base = startX + i * Rush.beatLength, y = heights[i];
+      final trio = StarTrio(x: base + .22, y: y);
+      starTrios.add(trio);
+      for (var k = 0; k < 3; k++) {
+        stars.add(
+          SkyStar(x: base + .05 + k * .17, y: y, trio: trio, trioSlot: k),
+        );
+      }
+      sprintRings.add(SprintRing(x: base + Rush.ringAt, y: y));
+      if (kind == RushPathKind.eruption && i > 0) {
+        lavaVents.add(
+          LavaVent(
+            x: base + Rush.ventAt,
+            top: math.max(y - Rush.ventOver, Rush.ventCeiling),
+          ),
+        );
+      }
+      if (i.isOdd) {
+        final appearance = (i ~/ 2).isEven
+            ? EnemyKind.simpleBat.index
+            : EnemyKind.caveBat.index;
+        enemies.add(
+          SkyEnemy(
+            x: base + Rush.batAt,
+            y: y,
+            appearance: appearance,
+            maxHp: _enemyHealth(appearance),
+            flightPhase: (rushPathsRun * 7 + i) * 2.399963,
+          ),
+        );
+      }
+      obstacles.add(
+        Obstacle(
+          x: base + Rush.barrierAt,
+          center: heights[i + 1],
+          gap: Rush.barrierGap,
+          width: Rush.barrierWidth,
+          target: heights[i + 1],
+          fixedTarget: true,
+          // The material follows the run: three shapes per path kind.
+          appearance: kind.index * 3 + i % 3,
+          bornAt: elapsed,
+          rubble: true,
+        ),
+      );
+    }
+    final start = distance + startX;
+    final end =
+        start +
+        (Rush.beats - 1) * Rush.beatLength +
+        Rush.barrierAt +
+        Rush.barrierWidth +
+        birdRadius;
+    rushPathsRun++;
+    return RushPath(
+      kind: kind,
+      number: rushPathsRun,
+      startDistance: start,
+      endDistance: end,
+      resumeDistance:
+          end + Rush.exitClearance - _passageEntryX(viewportWidth),
+      heights: heights,
+    );
+  }
+
+  void _ringSprint() {
+    final chained = ringSprinting;
+    ringSprintFrom = elapsed - RingSprint.surgeAgeFor(_ringEnvelope);
+    ringSprintUntil = elapsed + RingSprint.seconds;
+    ringSprints++;
+    ringChain = chained ? ringChain + 1 : 1;
+    rushPath?.rings++;
+    _event(FlightEventKind.sprintRing, ringChain);
+  }
+
+  /// A caught bird is hurt and knocks the fire back, so one catch cannot
+  /// repeat before it recovers. A ring sprint drags it along behind.
+  void _advanceFire(RushPath path, double dt, double bird) {
+    path.fireDistance += speed * Rush.fireChase * dt;
+    if (ringSprinting) {
+      path.fireDistance = math.max(path.fireDistance, bird - Rush.fireMaxGap);
+    }
+    if (bird - path.fireDistance > birdRadius) return;
+    path.fireDistance = bird - Rush.fireKnockback;
+    if (elapsed < invulnerableUntil) return;
+    path.catches++;
+    _damage();
+    _event(FlightEventKind.scorched);
+  }
+
+  /// Meteors alternate between the ring route and a random height. An aimed
+  /// meteor leads the bird at its current speed, so a cruising bird on the
+  /// route has to dodge and a sprinting one smashes through. The rest
+  /// scatter across the course where a cruising bird would be.
+  void _advanceSkyfall(RushPath path, double dt, double bird) {
+    path.meteorIn -= dt;
+    if (path.meteorIn > 0) return;
+    path.meteorIn += Rush.meteorInterval;
+    final aimed = path.meteors.isEven;
+    path.meteors++;
+    const lead = Rush.meteorLead;
+    final pace = speed * (aimed ? courseBoost : 1);
+    final targetY = aimed
+        ? path.routeY(bird + pace * lead).clamp(.12, .88)
+        : .12 + random.nextDouble() * .76;
+    meteors.add(
+      Meteor(
+        x: birdX + pace * lead + Rush.meteorDrift,
+        y: Rush.meteorTop,
+        vx: -Rush.meteorDrift / lead,
+        vy: (targetY - Rush.meteorTop) / lead,
+        aimed: aimed,
+      ),
+    );
+  }
+
+  void _advanceMeteors(double dt, double scroll) {
+    meteors.removeWhere((m) {
+      m.age += dt;
+      m.x += (m.vx - scroll) * dt;
+      m.y += m.vy * dt;
+      final dx = birdX - m.x, dy = birdY - m.y;
+      final reach =
+          birdRadius + Meteor.radius + (ramming ? Rush.ramReach : 0);
+      if (dx * dx + dy * dy <= reach * reach) {
+        if (ramming) {
+          smashChain++;
+          _smashMeteor(m, chain: smashChain);
+        } else {
+          _damage();
+        }
+        return true;
+      }
+      for (final rock in rocks) {
+        if (rock.rebounding) continue;
+        final rx = rock.x - m.x, ry = rock.y - m.y;
+        final hit = rock.radius + Meteor.radius;
+        if (rx * rx + ry * ry <= hit * hit) {
+          rocks.remove(rock);
+          rockImpacts++;
+          _smashMeteor(m);
+          return true;
+        }
+      }
+      return m.y > 1 + Meteor.radius || m.x < -.2;
+    });
+  }
+
+  void _smashMeteor(Meteor m, {int chain = 0}) {
+    meteorsSmashed++;
+    score += Rush.meteorPoints;
+    events.add(
+      FlightEvent(
+        FlightEventKind.meteorSmashed,
+        elapsed,
+        m.y,
+        value: chain,
+        gateWorldX: distance + m.x,
+      ),
+    );
+  }
+
+  /// Lava cannot be smashed, only outrun or flown over. The fuse is timed
+  /// from course speed, so a sprinting bird has passed before a vent blows.
+  void _advanceVents(double travel) {
+    lavaVents.removeWhere((vent) {
+      vent.x -= travel;
+      if (vent.rumbledAt == null && vent.x - birdX <= speed * Rush.ventFuse) {
+        vent.rumbledAt = elapsed;
+      }
+      if (vent.rumbling &&
+          (elapsed >= vent.fuseEndsAt! || birdX - vent.x >= Rush.ventBehind)) {
+        vent.eruptedAt = elapsed;
+        ventsErupted++;
+      }
+      final top = vent.plumeTop(elapsed);
+      if (top < 1 && elapsed >= invulnerableUntil) {
+        const half = LavaVent.width / 2;
+        final dx = birdX - birdX.clamp(vent.x - half, vent.x + half);
+        final dy = birdY - birdY.clamp(top, 1.0);
+        if (dx * dx + dy * dy <= birdRadius * birdRadius) {
+          rushPath?.catches++;
+          _damage();
+          _event(FlightEventKind.scorched);
+        }
+      }
+      return vent.x < -.2;
+    });
+  }
+
+  /// Flocks alternate between the ring route and a random side of it.
+  void _releaseFlocks(RushPath path, double dt, double viewportWidth) {
+    path.flockIn -= dt;
+    if (path.flockIn > 0) return;
+    path.flockIn += Rush.flockInterval;
+    final lane = path.flocks.isEven
+        ? 0.0
+        : random.nextBool()
+        ? Rush.flockLane
+        : -Rush.flockLane;
+    path.flocks++;
+    for (var k = 0; k < Rush.flockSize; k++) {
+      final x = viewportWidth + .1 + k * Rush.flockSpacing;
+      if (distance + x > path.endDistance) break;
+      swarm.add(
+        SwarmBat(
+          x: x,
+          y: path.routeY(distance + x) + lane,
+          route: path,
+          lane: lane,
+          phase: (path.flocks * Rush.flockSize + k) * 2.399963,
+        ),
+      );
+    }
+  }
+
+  void _advanceSwarm(double dt, double scroll) {
+    swarm.removeWhere((bat) {
+      bat.age += dt;
+      bat.x -= (scroll + Rush.swarmSpeed) * dt;
+      bat.y =
+          bat.route.routeY(distance + bat.x) +
+          bat.lane +
+          .012 * math.sin(bat.age * 9 + bat.phase);
+      final dx = birdX - bat.x, dy = birdY - bat.y;
+      final reach =
+          birdRadius + SwarmBat.radius + (ramming ? Rush.ramReach : 0);
+      if (dx * dx + dy * dy <= reach * reach) {
+        if (ramming) {
+          smashChain++;
+          _smashBat(bat, chain: smashChain);
+        } else {
+          _damage();
+        }
+        return true;
+      }
+      for (final rock in rocks) {
+        if (rock.rebounding) continue;
+        final rx = rock.x - bat.x, ry = rock.y - bat.y;
+        final hit = rock.radius + SwarmBat.radius;
+        if (rx * rx + ry * ry <= hit * hit) {
+          rocks.remove(rock);
+          rockImpacts++;
+          _smashBat(bat);
+          return true;
+        }
+      }
+      return bat.x < -.2;
+    });
+  }
+
+  void _smashBat(SwarmBat bat, {int chain = 0}) {
+    swarmSmashed++;
+    score += Rush.batPoints;
+    events.add(
+      FlightEvent(
+        FlightEventKind.swarmSmashed,
+        elapsed,
+        bat.y,
+        value: chain,
+        gateWorldX: distance + bat.x,
+      ),
+    );
+  }
+
+  void _escape(RushPath path) {
+    path.phase = RushPhase.escaped;
+    path.escapedAt = elapsed;
+    path.bonus = Rush.escapeBonus + (path.hurt ? 0 : Rush.flawlessBonus);
+    score += path.bonus;
+    rushPathsEscaped++;
+    _event(FlightEventKind.rushEscaped, path.bonus);
+    _nextBossAt = math.max(_nextBossAt, elapsed + Rush.bossDelayAfter);
   }
 
   void _defeatBoss(SkyBoss current) {
@@ -1406,6 +1856,7 @@ class FlightSimulation {
     combo = 0;
     perfectStreak = 0;
     invulnerableUntil = elapsed + 1.5;
+    if (rushPath?.phase == RushPhase.running) rushPath!.hurt = true;
     if (shield) {
       shield = false;
       _event(FlightEventKind.shieldUsed);
@@ -1423,7 +1874,7 @@ class FlightSimulation {
       _circleTouchesObstacle(birdX, birdY, birdRadius, o);
 
   bool _circleTouchesDoor(double x, double y, double radius, Obstacle o) {
-    if (o.door == null || o.door!.destroyed) return false;
+    if (o.door == null || o.door!.destroyed || o.smashed) return false;
     final dx = x - x.clamp(o.x, o.x + o.width);
     final dy = y - y.clamp(o.top, o.bottom);
     return dx * dx + dy * dy <= radius * radius;
@@ -1436,6 +1887,7 @@ class FlightSimulation {
     Obstacle o, {
     bool includeDoor = true,
   }) {
+    if (o.smashed) return false;
     if (includeDoor && _circleTouchesDoor(x, y, radius, o)) return true;
     bool circleRect(ObstaclePassage passage, double top, double bottom) {
       if (bottom <= top) return false;

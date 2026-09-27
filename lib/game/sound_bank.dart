@@ -25,6 +25,39 @@ const soundBank = <String, SoundSpec>{
   'ammo_empty': SoundSpec(volume: .30, seconds: .20, cooldownMs: 150),
   'sprint': SoundSpec(volume: .40, priority: 3, seconds: .55, cooldownMs: 500),
   'sprint_ready': SoundSpec(volume: .24, seconds: .45, cooldownMs: 500),
+  // Chained rings climb in pitch: the variant follows the chain, not rotation.
+  'sprint_ring': SoundSpec(
+    volume: .34,
+    priority: 3,
+    seconds: .42,
+    cooldownMs: 90,
+    variants: 3,
+  ),
+  'rubble_smash': SoundSpec(
+    volume: .46,
+    priority: 3,
+    seconds: .40,
+    cooldownMs: 60,
+    variants: 3,
+  ),
+  'lava_burst': SoundSpec(
+    volume: .40,
+    seconds: .70,
+    cooldownMs: 150,
+    variants: 2,
+  ),
+  'rush_alarm': SoundSpec(
+    volume: .60,
+    priority: 4,
+    seconds: 1.3,
+    cooldownMs: 1000,
+  ),
+  'rush_clear': SoundSpec(
+    volume: .48,
+    priority: 4,
+    seconds: 1.1,
+    cooldownMs: 1000,
+  ),
   'rock_hit': SoundSpec(volume: .23, priority: 1, seconds: .20),
   'deflect': SoundSpec(volume: .40, seconds: .35),
   'enemy_charge': SoundSpec(
