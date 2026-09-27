@@ -27,10 +27,12 @@ abstract final class WindLiftDesign {
     final light = Color.lerp(body, SkyColors.cream, .5)!;
     final shade = Color.lerp(body, SkyColors.ink, .28)!;
     final brass = Color.lerp(SkyColors.gold, palette.accent, .14)!;
-    final lip = r.height >= 8 ? 4.0 : math.min(3.0, r.height);
+    final lip = r.height >= 10
+        ? math.min(7.0, math.max(4.0, r.width * .07))
+        : math.min(3.0, r.height);
     final fanR = math.min((r.width - 10) / 2, (r.height - lip - 6) / 2);
     final showFan = fanR >= 8;
-    final reserve = lip + (showFan ? fanR * (variant == 1 ? 2.08 : 2) + 6 : 0);
+    final reserve = lip + (showFan ? fanR * (variant == 1 ? 2.12 : 2) + 6 : 0);
     final rail = r.width >= 18
         ? math.min(4.2, math.max(3.0, r.width * .08))
         : 0.0;
@@ -71,6 +73,7 @@ abstract final class WindLiftDesign {
         fanR,
         variant,
         body,
+        shade,
         brass,
         variant * .55 + (reducedMotion ? 0.0 : clock * .75),
         cleared,
@@ -84,21 +87,54 @@ abstract final class WindLiftDesign {
         3,
       );
     }
-    if (lip > 0) {
-      final y = top ? r.bottom - lip : r.top;
-      fill(Rect.fromLTWH(r.left, y, r.width, lip), SkyColors.cream);
-      if (lip >= 3) {
-        fill(
-          Rect.fromLTWH(r.left, top ? y + lip - 1 : y, r.width, 1),
-          SkyColors.white,
-        );
-        fill(
-          Rect.fromLTWH(r.left, top ? y : y + lip - 1, r.width, 1),
-          Color.lerp(brass, SkyColors.sand, .25)!,
-        );
-      }
-    }
+    if (lip > 0) _collar(c, r, top, lip, brass, perfect);
     c.restore();
+  }
+
+  /// The flight edge is a rounded brass bumper: a dark rim line against the
+  /// sky, a cream glint just inside it and a soft shadow onto the column.
+  static void _collar(
+    Canvas c,
+    Rect r,
+    bool top,
+    double lip,
+    Color brass,
+    bool perfect,
+  ) {
+    final y = top ? r.bottom - lip : r.top;
+    final band = Rect.fromLTWH(r.left, y, r.width, lip);
+    final deep = Color.lerp(brass, SkyColors.ink, .42)!;
+    if (lip < 4) {
+      c.drawRect(band, Paint()..color = SkyColors.cream);
+      return;
+    }
+    final glint = perfect
+        ? Color.lerp(SkyColors.yellow, SkyColors.cream, .35)!
+        : Color.lerp(brass, SkyColors.cream, .72)!;
+    c.drawRect(
+      Rect.fromLTWH(r.left, top ? y - 3 : y + lip, r.width, 3),
+      Paint()..color = SkyColors.ink.withValues(alpha: .13),
+    );
+    c.drawRect(
+      band,
+      Paint()
+        ..shader = LinearGradient(
+          begin: top ? Alignment.bottomCenter : Alignment.topCenter,
+          end: top ? Alignment.topCenter : Alignment.bottomCenter,
+          colors: [deep, glint, glint, brass, deep],
+          stops: const [0, .2, .38, .72, 1],
+        ).createShader(band),
+    );
+    if (r.width < 30) return;
+    // Two bolt heads mark the collar ends without cluttering the rim.
+    final bolt = Paint()..color = Color.lerp(brass, SkyColors.ink, .25)!;
+    final shine = Paint()..color = SkyColors.cream.withValues(alpha: .85);
+    final cy = y + lip * (top ? .42 : .58);
+    final s = math.min(1.5, lip * .22);
+    for (final x in [r.left + r.width * .16, r.right - r.width * .16]) {
+      c.drawCircle(Offset(x, cy), s, bolt);
+      c.drawCircle(Offset(x - s * .35, cy - s * .35), s * .4, shine);
+    }
   }
 
   static void _bellows(
@@ -119,7 +155,8 @@ abstract final class WindLiftDesign {
     final pitch = band.height < 30
         ? band.height
         : math.min(34.0, math.max(24.0, band.height / 3.5));
-    final count = math.min(12, (band.height / pitch).floor());
+    // Pleats run all the way to the far edge; the clip trims the last one.
+    final count = math.min(40, (band.height / pitch).ceil());
     if (count < 1) return;
     final inset = math.min(6.0, (right - left) * .16);
     final dark = Paint()..color = shade;
@@ -174,6 +211,7 @@ abstract final class WindLiftDesign {
     double radius,
     int variant,
     Color body,
+    Color shade,
     Color brass,
     double spin,
     bool cleared,
@@ -181,30 +219,75 @@ abstract final class WindLiftDesign {
   ) {
     final hub = Offset(
       r.center.dx,
-      top ? r.bottom - lip - radius - 1.5 : r.top + lip + radius + 1.5,
+      top ? r.bottom - lip - radius - 2 : r.top + lip + radius + 2,
     );
-    final bezel = Paint()..color = brass;
+    final deep = Color.lerp(brass, SkyColors.ink, .38)!;
+    final contact = Paint()..color = SkyColors.ink.withValues(alpha: .16);
     if (variant == 1) {
-      c.drawRRect(
-        RRect.fromRectAndRadius(
-          Rect.fromCircle(center: hub, radius: radius * 1.06),
-          Radius.circular(radius * .32),
-        ),
-        bezel,
+      // A squared cowl in the column's own shade keeps the brass ring round.
+      final cowl = RRect.fromRectAndRadius(
+        Rect.fromCircle(center: hub, radius: radius * 1.06),
+        Radius.circular(radius * .36),
       );
-    }
-    c.drawCircle(hub, radius, bezel);
-    if (variant == 2) {
-      c.drawCircle(
-        hub,
-        radius * .9,
+      c.drawRRect(cowl.shift(const Offset(0, 1.6)), contact);
+      c.drawRRect(cowl, Paint()..color = Color.lerp(shade, body, .35)!);
+      c.drawRRect(
+        cowl.deflate(1),
         Paint()
           ..style = PaintingStyle.stroke
-          ..strokeWidth = 2.2
-          ..color = Color.lerp(brass, SkyColors.cream, .35)!,
+          ..strokeWidth = 1.2
+          ..color = Color.lerp(body, SkyColors.cream, .35)!,
       );
+    } else {
+      c.drawCircle(hub + const Offset(0, 1.6), radius, contact);
     }
-    final disk = Rect.fromCircle(center: hub, radius: radius * .8);
+    final ringR = variant == 1 ? radius * .94 : radius;
+    c.drawCircle(hub, ringR, Paint()..color = brass);
+    // Bevel: a lit upper-left and a shaded lower-right on the brass ring.
+    final bevel = Rect.fromCircle(center: hub, radius: ringR - 1.1);
+    c.drawArc(
+      bevel,
+      math.pi * .9,
+      math.pi * .8,
+      false,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.6
+        ..color = Color.lerp(brass, SkyColors.cream, .55)!,
+    );
+    c.drawArc(
+      bevel,
+      -math.pi * .1,
+      math.pi * .8,
+      false,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.6
+        ..color = deep,
+    );
+    final well = radius * .8;
+    if (variant == 2 || perfect) {
+      c.drawCircle(
+        hub,
+        (ringR + well) / 2,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = perfect ? 2.2 : 1.6
+          ..color = perfect
+              ? SkyColors.yellow
+              : Color.lerp(brass, SkyColors.cream, .4)!,
+      );
+    } else if (radius >= 14) {
+      final bolt = Paint()..color = deep;
+      final at = (ringR + well) / 2;
+      final size = math.max(1.0, radius * .045);
+      for (var i = 0; i < 4; i++) {
+        final a =
+            math.pi / 4 + i * math.pi / 2 + (variant == 1 ? math.pi / 4 : 0);
+        c.drawCircle(hub + Offset(math.cos(a), math.sin(a)) * at, size, bolt);
+      }
+    }
+    final disk = Rect.fromCircle(center: hub, radius: well);
     c.drawOval(
       disk,
       Paint()
@@ -216,11 +299,22 @@ abstract final class WindLiftDesign {
           ],
         ).createShader(disk),
     );
-    final edge = radius * (variant == 1 ? 1.06 : 1);
+    // The recessed well casts a thin shadow just inside its rim.
+    c.drawArc(
+      disk.deflate(.9),
+      math.pi * 1.05,
+      math.pi * .9,
+      false,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.8
+        ..color = SkyColors.ink.withValues(alpha: .2),
+    );
+    final edge = variant == 1 ? radius * 1.06 : radius;
     final yoke = Paint()
       ..color = brass
       ..strokeWidth = math.max(2.6, math.min(4.2, r.width * .07))
-      ..strokeCap = StrokeCap.round;
+      ..strokeCap = StrokeCap.butt;
     c.drawLine(Offset(r.left, hub.dy), Offset(hub.dx - edge, hub.dy), yoke);
     c.drawLine(Offset(hub.dx + edge, hub.dy), Offset(r.right, hub.dy), yoke);
     final reach = radius * .74;
@@ -231,39 +325,42 @@ abstract final class WindLiftDesign {
       ..quadraticBezierTo(half * 1.15, -tip * .68, reach * .05, -tip)
       ..quadraticBezierTo(-half * .25, -tip * .6, -half * .7, -reach * .12)
       ..close();
-    c.save();
-    c.translate(hub.dx, hub.dy);
-    c.rotate(spin);
-    final bladePaint = Paint()..color = Color.lerp(SkyColors.cream, body, .1)!;
     const counts = [4, 3, 6];
-    for (var i = 0; i < counts[variant]; i++) {
-      c.drawPath(blade, bladePaint);
-      c.rotate(math.pi * 2 / counts[variant]);
+    final step = math.pi * 2 / counts[variant];
+    // Blade shadows fall down-right regardless of spin, then the lit blades.
+    for (final (offset, paint) in [
+      (
+        Offset(radius * .04, radius * .06),
+        Paint()..color = SkyColors.ink.withValues(alpha: .2),
+      ),
+      (Offset.zero, Paint()..color = Color.lerp(SkyColors.cream, body, .1)!),
+    ]) {
+      c.save();
+      c.translate(hub.dx + offset.dx, hub.dy + offset.dy);
+      c.rotate(spin);
+      for (var i = 0; i < counts[variant]; i++) {
+        c.drawPath(blade, paint);
+        c.rotate(step);
+      }
+      c.restore();
     }
-    c.restore();
     c.drawArc(
-      Rect.fromCircle(center: hub, radius: radius * .94),
-      math.pi * 1.15,
-      math.pi * .58,
+      Rect.fromCircle(center: hub, radius: radius * .68),
+      math.pi * 1.12,
+      math.pi * .42,
       false,
       Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.6
-        ..color = SkyColors.cream.withValues(alpha: .82),
+        ..strokeCap = StrokeCap.round
+        ..color = SkyColors.cream.withValues(alpha: .55),
     );
     _hub(c, hub, radius, variant, brass, body);
     if (cleared) {
-      _gem(
-        c,
-        hub,
-        perfect ? SkyColors.yellow : SkyColors.cream,
-        math.min(3.8, radius * .18),
-      );
-    }
-    if (!perfect) return;
-    final pip = Paint()..color = SkyColors.yellow;
-    for (final side in const [-1.0, 1.0]) {
-      c.drawCircle(Offset(hub.dx + side * radius * .58, hub.dy), 2.1, pip);
+      // An ink backing keeps the cleared gem legible on the brass hub.
+      final size = math.min(4.4, radius * .2);
+      _gem(c, hub, SkyColors.ink.withValues(alpha: .7), size + 1.4);
+      _gem(c, hub, perfect ? SkyColors.yellow : SkyColors.cream, size);
     }
   }
 

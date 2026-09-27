@@ -5,7 +5,12 @@ import 'package:flutter/painting.dart';
 import '../../ui/theme.dart';
 import '../sky_scenery.dart';
 
-/// Opaque quartz, amethyst, and peridot columns clipped to the solid.
+/// Opaque quartz, amethyst, and peridot prisms clipped to one solid column.
+///
+/// Each column reads as a three-faced crystal: a lit left face, a clear
+/// centre face, and a shaded right face. The rim end is cut into a bright
+/// faceted table above a dark girdle, so the collision edge always pops.
+/// Appearance picks the growth seams: chevrons, slants, or gold-flecked bands.
 abstract final class CrystalStepsDesign {
   static void paint(
     Canvas c,
@@ -26,8 +31,6 @@ abstract final class CrystalStepsDesign {
     final h = r.height;
 
     Color mix(Color a, Color b, double t) => Color.lerp(a, b, t)!;
-    double clampUnit(double value, double lo, double hi) =>
-        value < lo ? lo : (value > hi ? hi : value);
 
     var mineral = mix(
       accent,
@@ -39,25 +42,34 @@ abstract final class CrystalStepsDesign {
     } else if (cleared) {
       mineral = mix(mineral, SkyColors.mint, .2);
     }
-    final glow = mix(mix(mineral, SkyColors.cream, .4), sky.haze, .1);
-    final lit = mix(mix(mineral, SkyColors.cream, .14), sky.horizon, .08);
-    final shade = mix(mix(mineral, SkyColors.ink, .24), sky.land, .12);
-    final deep = mix(mix(mineral, SkyColors.ink, .46), sky.land, .16);
-    final ice = switch (v) {
-      1 => mix(SkyColors.cream, SkyColors.lavender, .4),
-      2 => mix(SkyColors.cream, SkyColors.gold, .34),
-      _ => mix(SkyColors.white, SkyColors.skyDeep, .18),
-    };
-    final flash = switch (v) {
-      1 => mix(SkyColors.cream, SkyColors.lavender, .26),
-      2 => mix(SkyColors.cream, SkyColors.gold, .32),
-      _ => mix(SkyColors.white, SkyColors.cream, .12),
+    final glow = mix(mix(mineral, SkyColors.cream, .5), sky.haze, .08);
+    final lit = mix(mix(mineral, SkyColors.cream, .24), sky.horizon, .06);
+    final shade = mix(mix(mineral, SkyColors.ink, .3), sky.land, .12);
+    final deep = mix(mix(mineral, SkyColors.ink, .5), sky.land, .14);
+    final seam = mix(deep, SkyColors.ink, .12);
+    final spark = switch (v) {
+      1 => mix(SkyColors.white, SkyColors.lavender, .16),
+      2 => mix(SkyColors.cream, SkyColors.gold, .5),
+      _ => SkyColors.white,
     };
     final lipH = math.min(4.0, h);
-    final shoulder = math.min(3.0, math.max(0.0, h - lipH));
+    final roomy = w >= 16 && h >= lipH + 16;
+    final capH = roomy ? (w * .13).clamp(5.0, 10.0) : 0.0;
+    final girdle = roomy ? math.min(2.0, w * .03).clamp(1.2, 2.0) : 0.0;
+    final bodyStart = lipH + capH + girdle;
     final origin = top ? r.bottom : r.top;
     final dir = top ? -1.0 : 1.0;
     double yAt(double inward) => origin + dir * inward;
+    Rect band(double from, double to, [double? left, double? right]) =>
+        Rect.fromLTRB(
+          left ?? r.left,
+          math.min(yAt(from), yAt(to)),
+          right ?? r.right,
+          math.max(yAt(from), yAt(to)),
+        );
+    // Facet boundaries of the prism, shared by the body and the cut table.
+    final xa = r.left + w * .27;
+    final xb = r.left + w * .71;
 
     void poly(List<Offset> pts, Color color) {
       final path = Path()..moveTo(pts[0].dx, pts[0].dy);
@@ -67,189 +79,248 @@ abstract final class CrystalStepsDesign {
       c.drawPath(path..close(), Paint()..color = color);
     }
 
+    void sparkle(Offset o, double s, Color color) => poly([
+      Offset(o.dx, o.dy - s),
+      Offset(o.dx + s * .24, o.dy - s * .24),
+      Offset(o.dx + s, o.dy),
+      Offset(o.dx + s * .24, o.dy + s * .24),
+      Offset(o.dx, o.dy + s),
+      Offset(o.dx - s * .24, o.dy + s * .24),
+      Offset(o.dx - s, o.dy),
+      Offset(o.dx - s * .24, o.dy - s * .24),
+    ], color);
+
     c.save();
     c.clipRect(r);
+    // One opaque base first, so facet overlays never leave seams in the solid.
     c.drawRect(
       r,
       Paint()
         ..shader = LinearGradient(
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
-          colors: [glow, mix(mineral, sky.land, .12), deep],
-          stops: const [0.0, 0.48, 1.0],
-        ).createShader(r),
+          colors: [mix(lit, mineral, .3), mineral],
+        ).createShader(Rect.fromLTRB(xa, r.top, xb, r.bottom)),
     );
+    if (w >= 10) {
+      c.drawRect(
+        Rect.fromLTRB(r.left, r.top, xa, r.bottom),
+        Paint()..color = lit,
+      );
+      c.drawRect(
+        Rect.fromLTRB(xb, r.top, r.right, r.bottom),
+        Paint()..color = shade,
+      );
+      final hair = math.min(1.2, w * .02);
+      c.drawRect(
+        Rect.fromLTWH(xa - hair / 2, r.top, hair, h),
+        Paint()..color = glow,
+      );
+      c.drawRect(
+        Rect.fromLTWH(xb - hair / 2, r.top, hair, h),
+        Paint()..color = mix(shade, deep, .5),
+      );
+    }
 
-    final span = math.max(18.0, w * const [1.65, 2.08, 1.24][v]);
-    if (w >= 10 && h >= 8) {
-      var i = 0;
-      for (var dist = 0.0; dist < h; dist += span) {
-        final fx = switch (v) {
-          1 => i.isEven ? .7 : .32,
-          2 => i.isEven ? .36 : .67,
-          _ => .5,
-        };
-        final fy = switch (v) {
-          1 => i.isEven ? .4 : .62,
-          2 => .32,
-          _ => .5,
-        };
-        final y0 = yAt(dist);
-        final y1 = yAt(dist + span);
-        final ax = r.left + fx * w;
-        final ay = yAt(dist + fy * span);
-        final apex = Offset(ax, ay);
-        poly([Offset(r.left, y0), Offset(r.right, y0), apex], glow);
-        poly([Offset(r.right, y0), Offset(r.right, y1), apex], shade);
-        poly([Offset(r.right, y1), Offset(r.left, y1), apex], deep);
-        poly([Offset(r.left, y1), Offset(r.left, y0), apex], lit);
-
-        final hw = w * (v == 1 ? .1 : .16);
-        final hh = span * (v == 1 ? .2 : .13);
-        final syMin = span <= 0
-            ? 1.0
-            : math.max(.36, (lipH + shoulder + hh + 1) / span);
-        final sx = clampUnit(fx + (i.isEven ? -.12 : .1), .38, .68);
-        final sy = clampUnit(v == 1 ? fy + .12 : fy - .02, syMin, .7);
-        final roomy =
-            hw >= 3.2 &&
-            hh >= 3.2 &&
-            syMin < .68 &&
-            sx * w - hw >= 1 &&
-            (1 - sx) * w - hw >= 1 &&
-            sy * span - hh >= 1 &&
-            (1 - sy) * span - hh >= 1;
-        if (roomy) {
-          Offset pt(double dx, double din) =>
-              Offset(r.left + sx * w + dx, yAt(dist + sy * span + din));
-          final tip = pt(i.isEven ? -hw * .2 : hw * .15, -hh);
-          final east = pt(hw * .95, hh * .08);
-          final foot = pt(hw * .12, hh * .82);
-          final west = pt(-hw * .78, hh * .16);
-          poly([tip, east, foot, west], ice);
-          poly([tip, east, pt(0, 0)], mix(SkyColors.cream, ice, .4));
-        }
-
-        final face = fy * span;
-        final fhw =
-            w *
-            (v == 1
-                ? .09
-                : v == 2
-                ? .16
-                : .13);
-        final fhh =
-            span *
-            (v == 1
-                ? .09
-                : v == 2
-                ? .048
-                : .07);
-        final minIn = lipH + (shoulder >= 1.5 ? shoulder : 0) + fhh + 1;
-        final maxIn = face - fhh - 1;
-        if (w >= 22 && maxIn > minIn && fhw >= 2.5 && fhh >= 2) {
-          final tin = (minIn + maxIn) / 2;
-          final u = (tin - dist) / face;
-          final room = (1 - u) * w / 2;
-          if (u > .12 && u < .86 && fhw < room - .5) {
-            final px = r.center.dx + (ax - r.center.dx) * u;
-            final py = yAt(dist + face * u);
+    // Growth seams step away from the rim; anchoring them to the rim keeps
+    // the three columns naturally staggered as their openings move.
+    final span = math.max(22.0, w * const [1.7, 2.1, 1.4][v]);
+    if (w >= 14 && h > bodyStart + 10) {
+      final dark = Paint()
+        ..color = seam
+        ..strokeWidth = math.min(1.8, w * .026);
+      final light = Paint()
+        ..color = mix(glow, SkyColors.cream, .3)
+        ..strokeWidth = math.min(1.2, w * .018);
+      final kink = w * .16;
+      final facet = mix(mineral, glow, .62);
+      final sparkS = math.min(3.6, w * .055);
+      var start = bodyStart;
+      for (var i = 0; start < h; i++) {
+        final end = start + span * (i == 0 ? .7 : 1);
+        final mid = (start + end) / 2;
+        // A reflected facet catches the light, alternating corners per step.
+        final seg = math.min(end, h) - start;
+        if (seg > 12) {
+          final cw = xb - xa;
+          if (i.isEven) {
             poly([
-              Offset(px, py - fhh),
-              Offset(px + fhw, py),
-              Offset(px, py + fhh),
-              Offset(px - fhw, py),
-            ], flash);
+              Offset(xa, yAt(start)),
+              Offset(xa + cw * .62, yAt(start)),
+              Offset(xa, yAt(start + seg * .5)),
+            ], facet);
+          } else {
             poly([
-              Offset(px - fhw, py),
-              Offset(px, py + (top ? -fhh : fhh)),
-              Offset(px + fhw, py),
-            ], mix(flash, mineral, .34));
+              Offset(xb, yAt(end)),
+              Offset(xb - cw * .56, yAt(end)),
+              Offset(xb, yAt(end - seg * .46)),
+            ], facet);
           }
         }
-
-        if (v == 2) {
-          final band = math.min(3.5, span * .1);
-          if (band >= 1.6) {
-            final far = dist + span;
-            final y = top ? yAt(far) : yAt(far) - band;
-            c.drawRect(
-              Rect.fromLTWH(r.left, y, w, band),
-              Paint()..color = mix(deep, SkyColors.ink, .32),
+        // A long glint rides the lit face on alternate segments.
+        if (i.isOdd && end - start > 18) {
+          final g0 = start + (end - start) * .2;
+          final g1 = start + (end - start) * .72;
+          final gw = math.max(1.4, w * .045);
+          poly([
+            Offset(r.left + w * .09, yAt(g1)),
+            Offset(r.left + w * .09 + gw, yAt(g1 - gw)),
+            Offset(r.left + w * .17 + gw, yAt(g0)),
+            Offset(r.left + w * .17, yAt(g0 + gw)),
+          ], glow);
+        }
+        if (sparkS >= 1.6 && !(i == 0 && cleared)) {
+          final sx = xa + (xb - xa) * (i.isEven ? .36 : .66);
+          final at = Offset(sx, yAt(mid + (i.isEven ? -1 : 1) * span * .08));
+          if (v == 2) {
+            // Peridot keeps a small gold inclusion instead of a star glint.
+            poly([
+              Offset(at.dx, at.dy - sparkS),
+              Offset(at.dx + sparkS * .7, at.dy),
+              Offset(at.dx, at.dy + sparkS),
+              Offset(at.dx - sparkS * .7, at.dy),
+            ], spark);
+          } else {
+            sparkle(at, sparkS * (i.isEven ? 1 : .8), spark);
+          }
+        }
+        if (end >= h) break;
+        // The ledge line: dark groove, then a thin highlight beneath it.
+        final lo = end + 1.6;
+        switch (v) {
+          case 1:
+            c.drawLine(
+              Offset(r.left, yAt(end)),
+              Offset(r.right, yAt(end + kink)),
+              dark,
             );
-          }
+            c.drawLine(
+              Offset(r.left, yAt(lo)),
+              Offset(r.right, yAt(lo + kink)),
+              light,
+            );
+          case 2:
+            c.drawLine(
+              Offset(r.left, yAt(end)),
+              Offset(r.right, yAt(end)),
+              dark,
+            );
+            c.drawLine(
+              Offset(r.left, yAt(lo)),
+              Offset(r.right, yAt(lo)),
+              light,
+            );
+          default:
+            final apex = r.left + w * .5;
+            c.drawLine(
+              Offset(r.left, yAt(end)),
+              Offset(apex, yAt(end + kink)),
+              dark,
+            );
+            c.drawLine(
+              Offset(apex, yAt(end + kink)),
+              Offset(r.right, yAt(end)),
+              dark,
+            );
+            c.drawLine(
+              Offset(r.left, yAt(lo)),
+              Offset(apex, yAt(lo + kink)),
+              light,
+            );
+            c.drawLine(
+              Offset(apex, yAt(lo + kink)),
+              Offset(r.right, yAt(lo)),
+              light,
+            );
         }
-        i++;
+        start =
+            end +
+            (v == 1
+                ? kink
+                : v == 0
+                ? kink * .5
+                : 0);
       }
     }
 
-    if (h >= 28 && w >= 16) {
-      final phase = reducedMotion ? .4 : ((clock * .12) % 1 + 1) % 1;
-      final sd = phase * h;
-      final bh = math.min(16.0, math.max(8.0, h * .1));
-      poly([
-        Offset(r.left + w * .06, yAt(sd)),
-        Offset(r.left + w * .24, yAt(sd + bh * .35)),
-        Offset(r.left + w * .2, yAt(sd + bh)),
-        Offset(r.left + w * .05, yAt(sd + bh * .62)),
-      ], mix(SkyColors.cream, glow, .22));
+    // A soft slanted shimmer drifts along the prism at a constant speed.
+    if (!reducedMotion && w >= 16 && h >= 28) {
+      final travel = w * 9;
+      final bh = w * .22;
+      final slope = w * .4;
+      final sd = ((clock * w * 1.1) % travel + travel) % travel - bh - slope;
+      if (sd + bh + slope > bodyStart && sd < h) {
+        poly([
+          Offset(r.left, yAt(sd + slope)),
+          Offset(r.right, yAt(sd)),
+          Offset(r.right, yAt(sd + bh)),
+          Offset(r.left, yAt(sd + slope + bh)),
+        ], SkyColors.cream.withValues(alpha: .2));
+      }
     }
 
-    final edge = math.min(3.0, w * .1);
-    if (edge >= 1.25) {
+    // Edge light and core shadow keep the prism rounded at phone scale.
+    final edge = math.min(2.5, w * .04);
+    if (edge >= 1) {
       c.drawRect(
         Rect.fromLTWH(r.left, r.top, edge, h),
-        Paint()..color = mix(SkyColors.cream, glow, .28),
+        Paint()..color = mix(SkyColors.cream, glow, .3),
       );
       c.drawRect(
         Rect.fromLTWH(r.right - edge, r.top, edge, h),
-        Paint()..color = mix(SkyColors.ink, deep, .3),
-      );
-    }
-    if (shoulder >= 1.5) {
-      final y = top ? r.bottom - lipH - shoulder : r.top + lipH;
-      c.drawRect(
-        Rect.fromLTWH(r.left, y, w, shoulder),
-        Paint()..color = mix(deep, SkyColors.ink, .2),
-      );
-    }
-    c.drawRect(
-      Rect.fromLTWH(r.left, top ? r.bottom - lipH : r.top, w, lipH),
-      Paint()..color = SkyColors.cream,
-    );
-    if (lipH >= 3) {
-      const hair = 1.15;
-      c.drawRect(
-        Rect.fromLTWH(r.left, top ? r.bottom - hair : r.top, w, hair),
-        Paint()..color = SkyColors.white,
+        Paint()..color = deep,
       );
     }
 
-    if (cleared && w >= 18 && h >= 20) {
-      var s = math.min(perfect ? 5.8 : 4.4, w * .15);
-      final gx = r.left + w * .74;
-      var gy = yAt(lipH + shoulder + s + 2);
-      bool fits(double rad, double cy) =>
-          gx - rad >= r.left + 1 &&
-          gx + rad <= r.right - 1 &&
-          cy - rad >= r.top + 1 &&
-          cy + rad <= r.bottom - 1;
-      if (!fits(s, gy)) {
-        s = math.min(s, (h - lipH - shoulder - 4) / 2);
-        if (s > 0) gy = yAt(lipH + shoulder + s + 2);
+    // The cut end: a faceted table narrows toward the rim over a dark girdle.
+    if (capH > 0) {
+      final o0 = lipH;
+      final o1 = lipH + capH;
+      final ta = r.left + w * .36;
+      final tb = r.left + w * .64;
+      var table = mix(glow, SkyColors.white, .55);
+      if (perfect) {
+        table = mix(table, SkyColors.yellow, .35);
+      } else if (cleared) {
+        table = mix(table, SkyColors.mint, .3);
       }
-      if (s >= 2.4 && fits(s, gy)) {
-        void gem(Offset o, double rad, Color color) => poly([
-          Offset(o.dx, o.dy - rad),
-          Offset(o.dx + rad * .7, o.dy),
-          Offset(o.dx, o.dy + rad),
-          Offset(o.dx - rad * .7, o.dy),
-        ], color);
-        if (perfect && fits(s + 1.3, gy)) {
-          gem(Offset(gx, gy), s + 1.3, SkyColors.gold);
-        }
-        gem(Offset(gx, gy), s, perfect ? SkyColors.yellow : SkyColors.cream);
-        gem(Offset(gx - s * .18, gy - s * .22), s * .26, SkyColors.white);
+      c.drawRect(band(o0, o1), Paint()..color = glow);
+      poly([
+        Offset(r.left, yAt(o0)),
+        Offset(ta, yAt(o0)),
+        Offset(xa, yAt(o1)),
+        Offset(r.left, yAt(o1)),
+      ], glow);
+      poly([
+        Offset(ta, yAt(o0)),
+        Offset(tb, yAt(o0)),
+        Offset(xb, yAt(o1)),
+        Offset(xa, yAt(o1)),
+      ], table);
+      poly([
+        Offset(tb, yAt(o0)),
+        Offset(r.right, yAt(o0)),
+        Offset(r.right, yAt(o1)),
+        Offset(xb, yAt(o1)),
+      ], mix(mineral, shade, .4));
+      c.drawRect(
+        band(o1, o1 + girdle),
+        Paint()..color = mix(deep, SkyColors.ink, .25),
+      );
+    }
+    c.drawRect(band(0, lipH), Paint()..color = SkyColors.cream);
+    if (lipH >= 3) {
+      const hair = 1.15;
+      c.drawRect(band(0, hair), Paint()..color = SkyColors.white);
+    }
+
+    if (cleared && capH > 0 && w >= 18) {
+      final s = math.min(perfect ? 6.5 : 5.0, w * .1);
+      final at = Offset((xa + xb) / 2, yAt(bodyStart + s + 4));
+      if (s >= 2.4 && bodyStart + 2 * s + 6 < h) {
+        if (perfect) sparkle(at, s + 1.8, SkyColors.gold);
+        sparkle(at, s, perfect ? SkyColors.yellow : SkyColors.cream);
+        c.drawCircle(at, s * .22, Paint()..color = SkyColors.white);
       }
     }
     c.restore();

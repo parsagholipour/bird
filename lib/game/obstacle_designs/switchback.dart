@@ -35,28 +35,34 @@ abstract final class SwitchbackDesign {
     )!;
     final light = Color.lerp(enamel, SkyColors.cream, .58)!;
     final deep = Color.lerp(enamel, SkyColors.ink, .24)!;
+    final side = Color.lerp(enamel, SkyColors.ink, .16)!;
+    final edge = Color.lerp(
+      Color.lerp(enamel, SkyColors.ink, .58)!,
+      sky.land,
+      .08,
+    )!;
     final bone = Color.lerp(SkyColors.cream, sky.haze, .12)!;
     final metal = Color.lerp(SkyColors.gold, sky.accent, .2)!;
-    final shade = Color.lerp(SkyColors.ink, sky.land, .46)!;
     final cloth = Color.lerp(light, SkyColors.sand, .3)!;
     final banner = Color.lerp(light, accent, .18)!;
-    final lip = r.height >= 8 ? 4.0 : math.min(3.0, r.height);
-    final bevelH = r.height - lip >= 3 ? 3.0 : 0.0;
-    final reserve = lip + bevelH;
+    // Outline, cream lip and a recessed seam frame the moving collision edge.
+    final ow = r.width >= 16 && r.height >= 10 ? 2.0 : 0.0;
+    final rimLine = r.height >= 12 ? 1.6 : 0.0;
+    final lip = r.height >= 8 ? 4.4 : math.min(3.0, r.height);
+    final bevelH = r.height - lip - rimLine >= 3 ? 3.0 : 0.0;
+    final reserve = rimLine + lip + bevelH;
     final cap = r.height >= reserve + 28 ? 6.0 : 0.0;
     final innerTop = top ? r.top + cap : r.top + reserve;
     final innerBottom = top ? r.bottom - reserve : r.bottom - cap;
     final body = innerBottom - innerTop >= 4
         ? Rect.fromLTRB(r.left, innerTop, r.right, innerBottom)
         : Rect.zero;
-    final rail = !body.isEmpty && body.width >= 18
-        ? math.min(3.5, body.width * .09)
-        : 0.0;
+    final inset = !body.isEmpty && body.width >= 18 ? ow : 0.0;
     final signH = !body.isEmpty && body.height >= 12 && body.width >= 14
         ? math.min(12.0, math.max(8.0, body.height * .2))
         : 0.0;
-    final field = _field(body, top, signH, rail);
-    final sign = _signZone(body, top, signH, rail);
+    final field = _field(body, top, signH, inset);
+    final sign = _signZone(body, top, signH, inset);
 
     c.save();
     c.clipRect(r);
@@ -66,22 +72,10 @@ abstract final class SwitchbackDesign {
         ..shader = LinearGradient(
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
-          colors: [light, enamel, shade],
-          stops: const [0, .58, 1],
+          colors: [light, enamel, enamel, side],
+          stops: const [0, .3, .66, 1],
         ).createShader(r),
     );
-    if (!body.isEmpty && rail >= 2) {
-      c.drawRect(
-        Rect.fromLTWH(body.right - rail, body.top, rail, body.height),
-        Paint()..color = shade,
-      );
-    }
-    if (!body.isEmpty && body.width >= 20 && body.height >= 8) {
-      c.drawRect(
-        Rect.fromLTWH(body.left, body.top, 2, body.height),
-        Paint()..color = bone,
-      );
-    }
     if (!field.isEmpty && field.width >= 10 && field.height >= 8) {
       switch (variant) {
         case 0:
@@ -95,10 +89,7 @@ abstract final class SwitchbackDesign {
     _sign(c, sign, top, sway, deep, metal);
     if (cap >= 4) {
       final y = top ? r.top : r.bottom - cap;
-      c.drawRect(
-        Rect.fromLTWH(r.left, y, r.width, cap),
-        Paint()..color = shade,
-      );
+      c.drawRect(Rect.fromLTWH(r.left, y, r.width, cap), Paint()..color = edge);
       final peg = math.min(2.2, cap * .34);
       if (peg >= 1.3 && r.width >= 16) {
         final cy = y + cap / 2;
@@ -106,49 +97,67 @@ abstract final class SwitchbackDesign {
         _rivet(c, Offset(r.left + r.width * .7, cy), peg, metal, bone);
       }
     }
+    final rim = top ? r.bottom : r.top;
+    final inward = top ? -1.0 : 1.0;
+    Rect band(double from, double depth) {
+      final a = rim + inward * from;
+      final b = a + inward * depth;
+      return Rect.fromLTRB(r.left, math.min(a, b), r.right, math.max(a, b));
+    }
+
     if (bevelH > 0) {
-      final y = top ? r.bottom - reserve : r.top + lip;
       c.drawRect(
-        Rect.fromLTWH(r.left, y, r.width, bevelH),
-        Paint()..color = Color.lerp(deep, SkyColors.rock, .35)!,
+        band(rimLine + lip, bevelH),
+        Paint()..color = Color.lerp(deep, SkyColors.ink, .3)!,
       );
     }
-    final lipY = top ? r.bottom - lip : r.top;
-    c.drawRect(
-      Rect.fromLTWH(r.left, lipY, r.width, lip),
-      Paint()..color = SkyColors.cream,
-    );
+    final lipRect = band(rimLine, lip);
+    c.drawRect(lipRect, Paint()..color = SkyColors.cream);
     if (lip >= 3) {
+      // Light always comes from above, so the sheen sits on the lip's top.
       c.drawRect(
-        Rect.fromLTWH(
-          r.left,
-          top ? lipY + lip - 1.15 : lipY,
-          r.width,
-          1.15,
-        ),
+        Rect.fromLTWH(r.left, lipRect.top, r.width, 1.2),
         Paint()..color = SkyColors.white,
       );
+      c.drawRect(
+        Rect.fromLTWH(r.left, lipRect.bottom - 1, r.width, 1),
+        Paint()..color = Color.lerp(SkyColors.cream, SkyColors.sand, .55)!,
+      );
+    }
+    if (rimLine > 0) {
+      c.drawRect(band(0, rimLine), Paint()..color = edge);
+    }
+    if (ow > 0) {
+      final outline = Paint()..color = edge;
+      c.drawRect(Rect.fromLTWH(r.left, r.top, ow, r.height), outline);
+      c.drawRect(Rect.fromLTWH(r.right - ow, r.top, ow, r.height), outline);
+      if (!body.isEmpty && r.width >= 24) {
+        c.drawRect(
+          Rect.fromLTWH(r.left + ow + 1.4, body.top, 1.6, body.height),
+          Paint()..color = bone.withValues(alpha: .6),
+        );
+      }
     }
     if ((cleared || perfect) && r.width >= 14 && r.height >= reserve + 12) {
-      _marks(c, r, top, reserve, perfect);
+      _marks(c, r, top, reserve, perfect, ow, sign);
     }
     c.restore();
   }
 
-  static Rect _field(Rect body, bool top, double signH, double rail) {
+  static Rect _field(Rect body, bool top, double signH, double inset) {
     if (body.isEmpty) return Rect.zero;
-    final right = body.right - 2 - rail;
-    final left = body.left + 2;
+    final right = body.right - 2 - inset;
+    final left = body.left + 2 + inset;
     final topY = top ? body.top : body.top + signH;
     final bottomY = top ? body.bottom - signH : body.bottom;
     if (right - left < 8 || bottomY - topY < 8) return Rect.zero;
     return Rect.fromLTRB(left, topY, right, bottomY);
   }
 
-  static Rect _signZone(Rect body, bool top, double signH, double rail) {
+  static Rect _signZone(Rect body, bool top, double signH, double inset) {
     if (body.isEmpty || signH < 8) return Rect.zero;
-    final right = body.right - 2 - rail;
-    final left = body.left + 2;
+    final right = body.right - 2 - inset;
+    final left = body.left + 2 + inset;
     if (right - left < 12) return Rect.zero;
     return Rect.fromLTRB(
       left,
@@ -167,22 +176,19 @@ abstract final class SwitchbackDesign {
     Color deep,
     Color metal,
   ) {
-    final n = _count(field.height, 34, 14);
+    const pitch = 34.0;
+    final n = _count(field.height, pitch, 14);
     if (n == 0) return;
-    final pitch = field.height / n;
     final gap = math.min(14.0, math.max(4.0, pitch * .36));
     final depth = math.min(22.0, pitch - gap);
     if (depth < 8) return;
     final plateW = math.min(field.width * .7, field.width - 3);
     if (plateW < 8) return;
+    final shadow = Color.lerp(deep, SkyColors.ink, .38)!;
     c.save();
     c.clipRect(field);
     c.drawRect(
-      Rect.fromCenter(
-        center: field.center,
-        width: 2.6,
-        height: field.height,
-      ),
+      Rect.fromCenter(center: field.center, width: 2.6, height: field.height),
       Paint()..color = metal,
     );
     for (var i = 0; i < n; i++) {
@@ -198,6 +204,13 @@ abstract final class SwitchbackDesign {
       if (plate.right > field.right + .1 || plate.left < field.left - .1) {
         continue;
       }
+      c.drawRRect(
+        RRect.fromRectAndRadius(
+          plate.shift(const Offset(0, 1.8)),
+          const Radius.circular(4),
+        ),
+        Paint()..color = shadow,
+      );
       c.drawRRect(
         RRect.fromRectAndRadius(plate, const Radius.circular(4)),
         Paint()..color = onLeft ? light : deep,
@@ -237,70 +250,67 @@ abstract final class SwitchbackDesign {
     Color metal,
     Color bone,
   ) {
-    final n = _count(field.height, 22, 12);
+    const pitch = 24.0;
+    final n = _count(field.height, pitch, 12);
     if (n == 0) return;
-    final pitch = field.height / n;
     final gap = math.min(8.0, math.max(3.0, pitch * .28));
     final depth = math.min(16.0, pitch - gap);
     if (depth < 8) return;
+    final shadow = Color.lerp(deep, SkyColors.ink, .38)!;
+    final sheen = Color.lerp(cloth, SkyColors.white, .5)!;
     c.save();
     c.clipRect(field);
     for (var i = 0; i < n; i++) {
       final slot = _span(field, top, i * pitch, depth);
       if (slot.height < 8 || slot.width < 8) continue;
       final fromLeft = i.isEven;
+      final sash = fromLeft ? deep : cloth;
+      c.drawRRect(
+        RRect.fromRectAndRadius(
+          slot.shift(const Offset(0, 1.8)),
+          const Radius.circular(3),
+        ),
+        Paint()..color = shadow,
+      );
       c.drawRRect(
         RRect.fromRectAndRadius(slot, const Radius.circular(3)),
-        Paint()..color = fromLeft ? deep : cloth,
+        Paint()..color = sash,
       );
-      final warpW = math.max(6.0, slot.width * .38);
-      if (warpW < slot.width - 2) {
-        final slack = math.min(2.2, (slot.width - warpW) / 2);
-        final base = fromLeft ? slot.left + slack : slot.right - warpW - slack;
-        final travel = i == 0 ? sway : 0.0;
+      if (slot.width >= 14) {
+        c.drawRect(
+          Rect.fromLTWH(slot.left + 3, slot.top + 1.6, slot.width - 6, 1.2),
+          Paint()..color = fromLeft ? cloth.withValues(alpha: .35) : sheen,
+        );
+      }
+      // The crossing warp strap alternates sides, so rows read as a weave.
+      final warpW = math.max(6.0, slot.width * .3);
+      if (warpW < slot.width - 6) {
+        final slack = math.min(5.0, (slot.width - warpW) / 4);
+        final base = fromLeft ? slot.right - warpW - slack : slot.left + slack;
+        final travel = i == 0 ? sway * .6 : 0.0;
         final left = math.max(
           slot.left,
           math.min(slot.right - warpW, base + travel),
         );
+        final strap = Rect.fromLTWH(
+          left,
+          slot.top - 1.4,
+          warpW,
+          slot.height + 2.8,
+        );
         c.drawRRect(
           RRect.fromRectAndRadius(
-            Rect.fromLTWH(left, slot.top, warpW, slot.height),
-            const Radius.circular(2),
+            strap.shift(const Offset(1.2, 0)),
+            const Radius.circular(2.5),
           ),
+          Paint()..color = shadow,
+        );
+        c.drawRRect(
+          RRect.fromRectAndRadius(strap, const Radius.circular(2.5)),
           Paint()..color = fromLeft ? bone : deep,
         );
-      }
-      if (slot.height >= 10 && slot.width >= 12) {
-        c.drawRRect(
-          RRect.fromRectAndRadius(
-            Rect.fromLTWH(
-              slot.left + 2,
-              slot.center.dy - 1.6,
-              slot.width - 4,
-              3.2,
-            ),
-            const Radius.circular(1.5),
-          ),
-          Paint()..color = metal,
-        );
-      }
-      final gapH = pitch - depth;
-      final tabW = math.min(5.0, field.width * .16);
-      if (i < n - 1 && gapH >= 2.5 && tabW >= 3) {
-        final gapRect = _span(field, top, i * pitch + depth, gapH);
-        if (gapRect.height >= 2) {
-          c.drawRRect(
-            RRect.fromRectAndRadius(
-              Rect.fromLTWH(
-                fromLeft ? field.left : field.right - tabW,
-                gapRect.top,
-                tabW,
-                gapRect.height,
-              ),
-              const Radius.circular(1.5),
-            ),
-            Paint()..color = metal,
-          );
+        if (slot.height >= 10) {
+          _rivet(c, strap.center, 1.8, metal, bone);
         }
       }
     }
@@ -317,13 +327,14 @@ abstract final class SwitchbackDesign {
     Color metal,
     Color bone,
   ) {
-    final n = _count(field.height, 30, 16);
+    const pitch = 30.0;
+    final n = _count(field.height, pitch, 16);
     if (n == 0) return;
-    final pitch = field.height / n;
     final gap = math.min(8.0, math.max(3.0, pitch * .24));
     final depth = math.min(26.0, pitch - gap);
     if (depth < 12) return;
     final step = math.min(6.0, field.width * .16);
+    final shadow = Color.lerp(deep, SkyColors.ink, .38)!;
     c.save();
     c.clipRect(field);
     for (var i = 0; i < n; i++) {
@@ -338,12 +349,14 @@ abstract final class SwitchbackDesign {
       );
       if (board.width < 10) continue;
       final point = math.min(8.0, board.height * .32);
+      final flag = _pennant(board, top, point);
+      c.save();
+      c.translate(0, 1.8);
+      c.drawPath(flag, Paint()..color = shadow);
+      c.restore();
+      c.drawPath(flag, Paint()..color = hitchLeft ? deep : banner);
       c.drawPath(
-        _pennant(board, top, point),
-        Paint()..color = hitchLeft ? deep : banner,
-      );
-      c.drawPath(
-        _pennant(board, top, point),
+        flag,
         Paint()
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1.35
@@ -363,7 +376,9 @@ abstract final class SwitchbackDesign {
       }
       final ringR = math.min(3.1, board.height * .18);
       if (ringR >= 1.6 && board.width >= 16) {
-        final gx = hitchLeft ? board.left + ringR + 1.5 : board.right - ringR - 1.5;
+        final gx = hitchLeft
+            ? board.left + ringR + 1.5
+            : board.right - ringR - 1.5;
         final gy = math.max(
           board.top + ringR + 1,
           math.min(
@@ -374,21 +389,6 @@ abstract final class SwitchbackDesign {
         final hole = hitchLeft ? deep : banner;
         c.drawCircle(Offset(gx, gy), ringR, Paint()..color = metal);
         c.drawCircle(Offset(gx, gy), ringR * .42, Paint()..color = hole);
-      }
-      final gapH = pitch - depth;
-      if (i < n - 1 && gapH >= 2.5) {
-        final gapRect = _span(field, top, i * pitch + depth, gapH);
-        if (gapRect.height >= 2) {
-          c.drawRect(
-            Rect.fromLTWH(
-              hitchLeft ? field.left : field.right - 3,
-              gapRect.top,
-              3,
-              gapRect.height,
-            ),
-            Paint()..color = metal,
-          );
-        }
       }
     }
     c.restore();
@@ -414,7 +414,10 @@ abstract final class SwitchbackDesign {
     final rim = badge.deflate(1.1);
     if (rim.width > 2 && rim.height > 2) {
       c.drawRRect(
-        RRect.fromRectAndRadius(rim, Radius.circular(math.max(1, rim.height / 2))),
+        RRect.fromRectAndRadius(
+          rim,
+          Radius.circular(math.max(1, rim.height / 2)),
+        ),
         Paint()
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1.15
@@ -474,13 +477,34 @@ abstract final class SwitchbackDesign {
     bool top,
     double reserve,
     bool perfect,
+    double inset,
+    Rect sign,
   ) {
+    final radius = perfect ? 2.6 : 2.4;
+    final badgeW = math.min(sign.width * .74, 30.0);
+    final room = sign.isEmpty ? 0.0 : (sign.width - badgeW) / 2 - 2;
+    if (room >= radius * 2 + 1) {
+      // Beads sit in the sign row beside the arrow badge, clear of the pattern.
+      final most = ((room - 1) / (radius * 2 + 1.6)).floor();
+      final n = perfect ? math.min(3, most) : 1;
+      for (var i = 0; i < n; i++) {
+        final x = sign.right - radius - 1 - i * (radius * 2 + 1.6);
+        _bead(
+          c,
+          Offset(x, sign.center.dy),
+          perfect
+              ? (i == 0 ? SkyColors.yellow : SkyColors.gold)
+              : SkyColors.mint,
+          radius,
+        );
+      }
+      return;
+    }
     final inward = top ? -1.0 : 1.0;
     final rim = top ? r.bottom : r.top;
-    final room = r.height - reserve - 6;
-    final n = perfect ? math.min(3, math.max(1, (room / 11).floor())) : 1;
-    final radius = perfect ? 2.8 : 2.4;
-    final x = r.right - radius - 1.6;
+    final lane = r.height - reserve - 6;
+    final n = perfect ? math.min(3, math.max(1, (lane / 11).floor())) : 1;
+    final x = r.right - inset - radius - 1.8;
     for (var i = 0; i < n; i++) {
       final y = rim + inward * (reserve + radius + 2 + i * 11);
       if (x - radius < r.left || x + radius > r.right) return;
@@ -519,14 +543,17 @@ abstract final class SwitchbackDesign {
   }
 
   static Rect _span(Rect field, bool top, double from, double depth) {
-    if (depth <= 0 || from < -0.1 || from + depth > field.height + 0.2) {
-      return Rect.zero;
-    }
+    if (depth <= 0 || from < -0.1 || from > field.height) return Rect.zero;
     final opening = top ? field.bottom : field.top;
     final inward = top ? -1.0 : 1.0;
     final a = opening + inward * from;
     final b = a + inward * depth;
-    return Rect.fromLTRB(field.left, math.min(a, b), field.right, math.max(a, b));
+    return Rect.fromLTRB(
+      field.left,
+      math.min(a, b),
+      field.right,
+      math.max(a, b),
+    );
   }
 
   static double _yAt(Rect field, bool top, double from) {
@@ -534,9 +561,11 @@ abstract final class SwitchbackDesign {
     return opening + (top ? -from : from);
   }
 
-  static int _count(double room, double preferred, double minRoom) {
-    if (room < minRoom || preferred <= 0) return 0;
-    return math.min(12, math.max(1, (room / preferred).floor()));
+  /// Rows keep a fixed pitch from the opening, so a sliding opening moves the
+  /// pattern rigidly instead of stretching it; the far end runs off-screen.
+  static int _count(double room, double pitch, double minRoom) {
+    if (room < minRoom || pitch <= 0) return 0;
+    return math.min(64, math.max(1, (room / pitch).ceil()));
   }
 
   static void _arrow(
@@ -557,7 +586,13 @@ abstract final class SwitchbackDesign {
     );
   }
 
-  static void _rivet(Canvas c, Offset p, double radius, Color metal, Color shine) {
+  static void _rivet(
+    Canvas c,
+    Offset p,
+    double radius,
+    Color metal,
+    Color shine,
+  ) {
     if (radius < 1.2) return;
     c.drawCircle(p, radius, Paint()..color = metal);
     c.drawCircle(

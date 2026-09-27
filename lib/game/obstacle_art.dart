@@ -113,14 +113,7 @@ abstract final class ObstacleArt {
       // Tethers point away from the flight lane and are visually distinct from
       // the filled collision bodies. Sun wheels are entirely free floating.
       if (o.kind == ObstacleKind.lanternDrift) {
-        final rope = Paint()
-          ..color = SkyColors.cream.withValues(alpha: .65)
-          ..strokeWidth = 1.5;
-        c.drawLine(
-          at + Offset(0, orb.upper ? -radius : radius),
-          Offset(at.dx, orb.upper ? 0 : h),
-          rope,
-        );
+        _rope(c, at, radius, orb.upper ? 0 : h, upper: orb.upper);
       }
       c.save();
       c.translate(at.dx, at.dy);
@@ -138,6 +131,7 @@ abstract final class ObstacleArt {
             reducedMotion: reducedMotion,
             upper: orb.upper,
             cleared: cleared,
+            perfect: perfect,
           );
         } else {
           SunWheelsDesign.paint(
@@ -149,6 +143,7 @@ abstract final class ObstacleArt {
             reducedMotion: reducedMotion,
             upper: orb.upper,
             cleared: cleared,
+            perfect: perfect,
           );
         }
         c.restore();
@@ -159,13 +154,98 @@ abstract final class ObstacleArt {
         _sunWheel(c, radius, color, o.appearance);
       }
       if (cleared) {
-        c.drawPath(
-          SkyScenery.star(Offset.zero, radius * .25),
-          Paint()..color = SkyColors.cream,
+        _clearedStar(
+          c,
+          radius,
+          region,
+          fill: perfect ? SkyColors.yellow : SkyColors.cream,
         );
       }
       c.restore();
     }
+  }
+
+  /// The cleared seal star on a floating orb: soft drop, [fill] body, a thin
+  /// ink outline tinted by the accent, and a small glint on the top point.
+  static void _clearedStar(
+    Canvas c,
+    double radius,
+    Color accent, {
+    required Color fill,
+  }) {
+    final size = radius * .25;
+    final star = SkyScenery.star(Offset.zero, size);
+    final drop = Offset(size * .06, size * .12);
+    c.drawPath(
+      star.shift(drop),
+      Paint()..color = SkyColors.ink.withValues(alpha: .3),
+    );
+    c.drawPath(star, Paint()..color = fill);
+    c.drawPath(
+      star,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeJoin = StrokeJoin.round
+        ..strokeWidth = math.max(1.0, size * .11)
+        ..color = Color.lerp(SkyColors.ink, accent, .22)!,
+    );
+    c.drawCircle(
+      Offset(-size * .1, -size * .42),
+      size * .12,
+      Paint()..color = SkyColors.white.withValues(alpha: .75),
+    );
+  }
+
+  /// A thin twisted cord: a dusky twine core reads on pale day skies and the
+  /// cream twist marks on it read at night. It tucks under the lantern's rim
+  /// (painted afterwards) with a small knot where it meets the hanger.
+  static void _rope(
+    Canvas c,
+    Offset at,
+    double radius,
+    double anchorY, {
+    required bool upper,
+  }) {
+    final side = upper ? -1.0 : 1.0;
+    final width = math.max(1.5, radius * .04);
+    final from = at + Offset(0, side * radius * .9);
+    final core = Color.lerp(SkyColors.ink, SkyColors.gold, .3)!;
+    c.drawLine(
+      from,
+      Offset(at.dx, anchorY),
+      Paint()
+        ..color = core.withValues(alpha: .85)
+        ..strokeWidth = width,
+    );
+    // Short slanted strands, stepped from the knot so the lay never crawls.
+    final step = width * 2.6, half = width * .32;
+    final twist = Path();
+    final start = at.dy + side * radius;
+    final length = (anchorY - start).abs();
+    for (var d = step * .5; d < length; d += step) {
+      final y = start + side * d;
+      twist
+        ..moveTo(at.dx - half, y - half * .9)
+        ..lineTo(at.dx + half, y + half * .9);
+    }
+    c.drawPath(
+      twist,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round
+        ..strokeWidth = width * .34
+        ..color = SkyColors.cream.withValues(alpha: .72),
+    );
+    final knot = at + Offset(0, side * (radius + width * .35));
+    c.drawOval(
+      Rect.fromCenter(center: knot, width: width * 2.3, height: width * 1.8),
+      Paint()..color = core,
+    );
+    c.drawCircle(
+      knot + Offset(-width * .35, -width * .3),
+      width * .34,
+      Paint()..color = SkyColors.cream.withValues(alpha: .65),
+    );
   }
 
   static void _refinedTower(

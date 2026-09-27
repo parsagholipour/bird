@@ -8,7 +8,9 @@ import '../sky_scenery.dart';
 /// Three opaque garden structures, clipped to the collision rectangle.
 ///
 /// `appearance % 3` selects a brass conservatory, a carved terracotta blossom
-/// column, or a tied bamboo shrine. Top and bottom solids share that identity.
+/// column, or a tied bamboo shrine. Top and bottom solids share that identity
+/// and mirror around the flight lane: every piece ends in a light capstone
+/// with an inked rim, so the solid edge reads first against any sky.
 abstract final class GardenStructuresDesign {
   static void paint(
     Canvas c,
@@ -27,224 +29,320 @@ abstract final class GardenStructuresDesign {
     final sky = SkyPalette.at(clock);
     final v = appearance % 3;
     final motif = v < 0 ? v + 3 : v;
+    final g = _Geo(r, top);
 
     c.save();
     c.clipRect(r);
-    switch (motif) {
-      case 0:
-        _conservatory(c, r, top, sway, cleared, perfect, accent, sky);
-      case 1:
-        _terracotta(c, r, top, sway, cleared, perfect, accent, sky);
-      default:
-        _bamboo(c, r, top, sway, cleared, perfect, accent, sky);
-    }
-    _badge(c, r, top, cleared, perfect);
-    _edge(c, r, top, perfect, motif);
+    final ink = switch (motif) {
+      0 => _conservatory(c, g, sway, cleared, perfect, accent, sky),
+      1 => _terracotta(c, g, sway, cleared, perfect, accent, sky),
+      _ => _bamboo(c, g, sway, cleared, perfect, accent, sky),
+    };
+    _seal(c, g, cleared, perfect);
+    _outline(c, g, ink);
     c.restore();
   }
 }
 
-Color _mix(Color a, Color b, double t) => Color.lerp(a, b, t)!;
+/// Shared measurements. Distances are measured from the rim (the collision
+/// edge facing the flight lane) toward the screen edge.
+class _Geo {
+  _Geo(this.r, this.top)
+    : line = (r.width * .022).clamp(1.5, 2.6),
+      cap = math.min((r.width * .11).clamp(6.0, 13.0), r.height * .45);
+  final Rect r;
+  final bool top;
+  final double line, cap;
 
-double _y(Rect r, bool top, double dist) =>
-    top ? r.bottom - dist : r.top + dist;
+  double get w => r.width;
+  double get h => r.height;
+  double y(double dist) => top ? r.bottom - dist : r.top + dist;
 
-Rect _band(Rect r, bool top, double a, double b, double left, double right) {
-  final y1 = _y(r, top, a);
-  final y2 = _y(r, top, b);
-  return Rect.fromLTRB(left, math.min(y1, y2), right, math.max(y1, y2));
+  Rect band(double a, double b, [double? left, double? right]) {
+    final y1 = y(a), y2 = y(b);
+    return Rect.fromLTRB(
+      left ?? r.left,
+      math.min(y1, y2),
+      right ?? r.right,
+      math.max(y1, y2),
+    );
+  }
 }
+
+Color _mix(Color a, Color b, double t) => Color.lerp(a, b, t)!;
 
 void _fill(Canvas c, Rect b, Color color) {
   if (!(b.width > 0) || !(b.height > 0)) return;
   c.drawRect(b, Paint()..color = color);
 }
 
-void _conservatory(
+/// Capstone at the rim: body, a lit bevel next to the edge, and a shadow
+/// where it meets the structure below.
+void _cap(Canvas c, _Geo g, Color body, Color lit, Color shade, Color ink) {
+  final cap = g.cap;
+  if (cap <= 0) return;
+  _fill(c, g.band(0, cap), body);
+  _fill(c, g.band(g.line, g.line + cap * .26), lit);
+  _fill(c, g.band(cap * .74, cap), shade);
+  if (g.h > cap + 1) {
+    _fill(c, g.band(cap, math.min(g.h, cap + g.line * .8)), ink);
+  }
+}
+
+/// Inked silhouette: both sides and, strongest, the collision edge.
+void _outline(Canvas c, _Geo g, Color ink) {
+  final r = g.r;
+  _fill(c, Rect.fromLTWH(r.left, r.top, g.line, r.height), ink);
+  _fill(c, Rect.fromLTWH(r.right - g.line, r.top, g.line, r.height), ink);
+  _fill(c, g.band(0, math.min(g.h, g.line * 1.2)), ink);
+}
+
+Color _conservatory(
   Canvas c,
-  Rect r,
-  bool top,
+  _Geo g,
   double sway,
   bool cleared,
   bool perfect,
   Color accent,
   SkyPalette sky,
 ) {
-  final w = r.width;
-  final h = r.height;
-  var jewel = _mix(_mix(SkyColors.teal, accent, .4), SkyColors.ink, .3);
-  var lit = _mix(jewel, SkyColors.mint, .42);
+  final r = g.r;
+  final w = g.w;
+  final h = g.h;
+  var glass = _mix(_mix(SkyColors.teal, accent, .3), SkyColors.ink, .22);
+  var lit = _mix(glass, SkyColors.mint, .5);
   if (perfect) {
-    jewel = _mix(jewel, SkyColors.gold, .1);
-    lit = _mix(lit, SkyColors.gold, .08);
+    glass = _mix(glass, SkyColors.gold, .1);
+    lit = _mix(lit, SkyColors.yellow, .14);
   } else if (cleared) {
-    jewel = _mix(jewel, SkyColors.mint, .16);
-    lit = _mix(lit, SkyColors.cream, .06);
+    glass = _mix(glass, SkyColors.mint, .18);
+    lit = _mix(lit, SkyColors.cream, .1);
   }
   lit = _mix(lit, sky.haze, .08);
-  final fan = _mix(lit, SkyColors.cream, .1);
-  final brass = _mix(SkyColors.gold, SkyColors.cream, perfect ? .3 : .14);
-  final brassDeep = _mix(SkyColors.gold, SkyColors.ink, perfect ? .26 : .4);
+  final deepGlass = _mix(glass, SkyColors.ink, .24);
+  final brass = _mix(SkyColors.gold, SkyColors.yellow, perfect ? .5 : .28);
+  final brassLit = _mix(brass, SkyColors.cream, .5);
+  final brassDeep = _mix(SkyColors.gold, SkyColors.ink, .34);
+  final ink = _mix(_mix(SkyColors.ink, SkyColors.gold, .18), sky.land, .1);
 
-  _fill(c, r, jewel);
-  if (w < 8 || h < 8) return;
+  c.drawRect(
+    r,
+    Paint()
+      ..shader = LinearGradient(
+        colors: [lit, glass, deepGlass],
+        stops: const [0, .45, 1],
+      ).createShader(r),
+  );
+  if (w < 8 || h < 8) return ink;
 
-  final stile = math.min(math.max(3.0, w * .16), w * .3);
+  final stile = (w * .12).clamp(3.0, w * .3);
   final glassL = r.left + stile;
   final glassR = r.right - stile;
   final glassW = glassR - glassL;
-  _fill(c, Rect.fromLTRB(r.left, r.top, r.center.dx, r.bottom), lit);
+  final mid = r.center.dx;
+  final bar = (w * .06).clamp(2.0, stile * .8);
+  final cap = g.cap;
 
-  final lip = math.min(4.0, h);
-  final usable = h - lip;
-  final crown = glassW < 8
+  // Fanlight: a half-round window of radiating panes right under the cap.
+  // Skip the fanlight when a short piece would squash it into a sliver.
+  final crownRoom = math.max(0.0, h - cap - bar) * .6;
+  final crown = glassW < 8 || crownRoom < glassW * .4
       ? 0.0
-      : math.min(26.0, math.min(usable * .7, glassW * .58));
-  final mid = (glassL + glassR) / 2;
-  if (crown >= 6) {
-    c.drawPath(
-      _arch(glassL, glassR, _y(r, top, lip), _y(r, top, lip + crown * 2)),
-      Paint()..color = fan,
+      : math.min(glassW * .5, crownRoom);
+  final pitch = math.max(36.0, w * .95);
+  final first = cap + (crown >= 6 ? crown + bar : pitch * .6);
+
+  // Diagonal sky reflections, one per pane, drawn before the mullions hide
+  // their ends. Tied to rows measured from the rim so they never tile oddly.
+  final glint = Paint()
+    ..color = _mix(lit, SkyColors.cream, .45)
+    ..strokeWidth = math.max(1.6, glassW * .09)
+    ..strokeCap = StrokeCap.round;
+  final thin = Paint()
+    ..color = _mix(lit, SkyColors.cream, .3)
+    ..strokeWidth = math.max(1.0, glassW * .04)
+    ..strokeCap = StrokeCap.round;
+  final paneW = (glassW - bar) / 2;
+  for (var d = first; d < h; d += pitch) {
+    final span = math.min(pitch - bar, h - d);
+    if (span < 8 || paneW < 4) break;
+    final rise = math.min(span * .5, paneW * 1.2);
+    final at = g.y(d + span * .3);
+    final x0 = glassL + paneW * .2 + sway * .6;
+    c.drawLine(
+      Offset(x0, at + rise * .5),
+      Offset(x0 + paneW * .55, at - rise * .5),
+      glint,
     );
-    final gleam = math.min(crown * .42, 12.0);
-    c.drawOval(
-      Rect.fromCenter(
-        center: Offset(
-          glassL + glassW * .3 + sway,
-          _y(r, top, lip + gleam * .45),
-        ),
-        width: math.min(glassW * .22, 10),
-        height: gleam,
-      ),
-      Paint()..color = _mix(fan, SkyColors.cream, .22),
+    c.drawLine(
+      Offset(x0 + paneW * .4, at + rise * .6),
+      Offset(x0 + paneW * .7, at + rise * .1),
+      thin,
     );
   }
 
+  // Frame: lit left stile, shaded right stile, mullion and transoms.
   _fill(c, Rect.fromLTWH(r.left, r.top, stile, h), brass);
+  _fill(c, Rect.fromLTWH(r.left + stile * .3, r.top, stile * .28, h), brassLit);
   _fill(c, Rect.fromLTWH(r.right - stile, r.top, stile, h), brassDeep);
-  final gleamW = math.min(2.4, stile * .34);
-  _fill(
-    c,
-    Rect.fromLTWH(r.left, r.top, gleamW, h),
-    _mix(brass, SkyColors.cream, .42),
-  );
-
-  if (glassW < 8) return;
-  final bar = math.min(stile * .72, math.max(2.6, w * .085));
-  _fill(c, Rect.fromLTWH(mid - bar / 2, r.top, bar, h), brass);
-
-  final pitch = math.max(40.0, w * 1.05);
-  final first = lip + (crown >= 6 ? crown : pitch);
-  for (var d = first; d < h - bar - 1; d += pitch) {
-    _fill(c, _band(r, top, d, math.min(h, d + bar), glassL, glassR), brass);
-  }
-  if (h > first + bar + 4) {
-    _fill(c, _band(r, top, h - bar, h, glassL, glassR), brass);
+  if (glassW >= 8) {
+    _fill(c, Rect.fromLTWH(mid - bar / 2, r.top, bar, h), brass);
+    _fill(c, Rect.fromLTWH(mid - bar / 2, r.top, bar * .35, h), brassLit);
+    for (var d = first; d < h; d += pitch) {
+      final b = g.band(d - bar, d, glassL, glassR);
+      _fill(c, b, brass);
+      _fill(c, g.band(d - bar, d - bar * .6, glassL, glassR), brassDeep);
+    }
   }
 
-  if (crown < 6) return;
-  final thick = math.min(math.max(bar * 1.25, 4.0), crown * .46);
-  final outer = _y(r, top, lip + crown * 2);
-  final inner = _y(r, top, lip + math.max(0.0, crown - thick) * 2);
-  final base = _y(r, top, lip);
-  c.drawPath(
-    Path()
-      ..moveTo(glassL, base)
-      ..quadraticBezierTo(mid, outer, glassR, base)
-      ..quadraticBezierTo(mid, inner, glassL, base)
-      ..close(),
-    Paint()..color = brass,
-  );
+  if (crown >= 6) {
+    final base = g.y(cap);
+    final apex = g.y(cap + crown);
+    final hub = Offset(mid, base);
+    final ring = Paint()
+      ..color = brass
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = bar;
+    final arc = Rect.fromCenter(
+      center: hub,
+      width: glassW - bar,
+      height: (crown - bar / 2) * 2,
+    );
+    // Spokes of the fanlight fan out from a small brass hub.
+    final spoke = Paint()
+      ..color = brass
+      ..strokeWidth = bar * .75;
+    for (final a in const [.28, .5, .72]) {
+      final t = a * math.pi;
+      c.drawLine(
+        hub,
+        Offset(
+          mid - math.cos(t) * glassW * .5,
+          base + (apex - base) * math.sin(t),
+        ),
+        spoke,
+      );
+    }
+    c.drawArc(arc, g.top ? math.pi : 0, math.pi, false, ring);
+    _fill(c, g.band(cap + crown, cap + crown + bar, glassL, glassR), brass);
+    c.drawCircle(hub, math.min(crown * .28, bar * 1.6), Paint()..color = brass);
+    c.drawCircle(
+      hub,
+      math.min(crown * .14, bar * .8),
+      Paint()..color = brassDeep,
+    );
+  }
+
+  _cap(c, g, brass, brassLit, brassDeep, ink);
+  // Rivets along the brass cap.
+  if (cap >= 7) {
+    final rivet = Paint()..color = brassDeep;
+    final shine = Paint()..color = brassLit;
+    final ry = g.y(cap * .55);
+    for (final fx in const [.2, .8]) {
+      final at = Offset(r.left + w * fx, ry);
+      c.drawCircle(at, cap * .14, rivet);
+      c.drawCircle(at - Offset(cap * .04, cap * .04), cap * .06, shine);
+    }
+  }
+  return ink;
 }
 
-Path _arch(double left, double right, double base, double control) => Path()
-  ..moveTo(left, base)
-  ..quadraticBezierTo((left + right) / 2, control, right, base)
-  ..close();
-
-void _terracotta(
+Color _terracotta(
   Canvas c,
-  Rect r,
-  bool top,
+  _Geo g,
   double sway,
   bool cleared,
   bool perfect,
   Color accent,
   SkyPalette sky,
 ) {
-  final w = r.width;
-  final h = r.height;
+  final r = g.r;
+  final w = g.w;
+  final h = g.h;
   var clay = _mix(SkyColors.sand, SkyColors.coral, .5);
-  var deep = _mix(SkyColors.coralDeep, SkyColors.ink, .34);
-  var highlight = _mix(
-    _mix(SkyColors.cream, SkyColors.sand, .46),
-    sky.haze,
-    .1,
-  );
+  var deep = _mix(SkyColors.coralDeep, SkyColors.ink, .3);
+  var highlight = _mix(_mix(SkyColors.cream, SkyColors.sand, .4), sky.haze, .1);
   if (perfect) {
     clay = _mix(clay, SkyColors.gold, .14);
     highlight = _mix(highlight, SkyColors.gold, .12);
   } else if (cleared) {
     clay = _mix(clay, SkyColors.mint, .1);
   }
-  final petal = _mix(SkyColors.coral, SkyColors.cream, .3);
-  final shade = _mix(SkyColors.coralDeep, SkyColors.sand, .18);
+  deep = _mix(deep, sky.land, .08);
+  final groove = _mix(clay, deep, .62);
+  final ridge = _mix(clay, SkyColors.cream, .42);
+  final stone = _mix(SkyColors.cream, SkyColors.sand, .3);
+  final stoneLit = _mix(SkyColors.cream, SkyColors.white, .4);
+  final stoneShade = _mix(SkyColors.sand, SkyColors.rock, .35);
+  final petal = _mix(SkyColors.coral, SkyColors.cream, .34);
+  final shade = _mix(SkyColors.coralDeep, SkyColors.sand, .12);
   final heart = perfect
       ? SkyColors.gold
       : (cleared ? _mix(accent, SkyColors.mint, .4) : accent);
+  final ink = _mix(_mix(SkyColors.ink, SkyColors.coralDeep, .32), sky.land, .1);
 
   c.drawRect(
     r,
     Paint()
       ..shader = LinearGradient(
-        begin: Alignment.centerLeft,
-        end: Alignment.centerRight,
         colors: [highlight, clay, deep],
-        stops: const [0, .48, 1],
+        stops: const [0, .45, 1],
       ).createShader(r),
   );
-  if (w < 8 || h < 8) return;
+  if (w < 8 || h < 8) return ink;
 
-  final fluteW = math.max(3.0, w * .085);
-  for (final fx in const [.1, .5, .9]) {
+  // Two carved flutes: a shadowed groove with a sunlit ridge on its right.
+  final fluteW = (w * .085).clamp(2.4, 9.0);
+  for (final fx in const [.3, .7]) {
+    final x = r.left + w * fx - fluteW / 2;
     c.drawRRect(
       RRect.fromRectAndRadius(
-        Rect.fromLTWH(r.left + w * fx - fluteW / 2, r.top - 2, fluteW, h + 4),
+        Rect.fromLTWH(x, r.top - fluteW, fluteW, h + fluteW * 2),
         Radius.circular(fluteW / 2),
       ),
-      Paint()..color = deep,
+      Paint()..color = groove,
+    );
+    _fill(
+      c,
+      Rect.fromLTWH(x + fluteW, r.top, math.max(1.0, fluteW * .4), h),
+      ridge,
     );
   }
 
-  final lip = math.min(4.0, h);
-  final margin = lip + (h > w * 1.15 ? 2.6 : .8);
-  final room = math.max(0.0, h - margin);
-  final radius = math.min(w * .42, room * .5);
-  if (radius >= 3.4) {
+  final cap = g.cap;
+  final collar = math.max(3.0, cap * .5);
+  final radius = math.min(w * .4, math.max(0.0, h - cap - collar) * .5 - 2);
+  final medallion = radius >= 4 ? radius * 2 + 6 : 0.0;
+  final top0 = cap + medallion;
+
+  // Stone collars pace the column, measured from the rim so the first always
+  // sits right under the medallion.
+  final step = math.max(w * 1.3, 44.0);
+  for (var d = top0; d + collar < h; d += step) {
+    _fill(c, g.band(d, d + collar), stone);
+    _fill(c, g.band(d, d + collar * .3), stoneLit);
+    _fill(c, g.band(d + collar * .7, d + collar), stoneShade);
+    _fill(c, g.band(d + collar, d + collar + g.line * .7), ink);
+    _fill(c, g.band(d - g.line * .7, d), ink);
+  }
+
+  if (radius >= 4) {
     _blossom(
       c,
-      Offset(r.center.dx, _y(r, top, margin + radius)),
+      Offset(r.center.dx, g.y(cap + 3 + radius)),
       radius,
       deep,
       petal,
       shade,
       heart,
       sway * .35,
+      ink,
     );
   }
 
-  final ringT = math.max(3.6, w * .1);
-  final step = math.max(w * 1.2, ringT + 18);
-  final cover = margin + math.max(radius, 0) * 2 + w * .08;
-  var rings = 0;
-  for (var d = cover; d + ringT < h && rings < 3; d += step, rings++) {
-    _fill(c, _band(r, top, d, d + ringT * .58, r.left, r.right), deep);
-    _fill(
-      c,
-      _band(r, top, d + ringT * .58, d + ringT, r.left, r.right),
-      highlight,
-    );
-  }
+  _cap(c, g, stone, stoneLit, stoneShade, ink);
+  return ink;
 }
 
 void _blossom(
@@ -256,283 +354,263 @@ void _blossom(
   Color shade,
   Color heart,
   double glint,
+  Color ink,
 ) {
-  c.drawCircle(at, radius, Paint()..color = bed);
+  c.drawCircle(at, radius, Paint()..color = ink);
+  c.drawCircle(at, radius * .9, Paint()..color = bed);
   c.save();
   c.translate(at.dx, at.dy);
+  final petalPaint = Paint();
   for (var i = 0; i < 6; i++) {
     c.save();
     c.rotate(i * math.pi / 3);
+    petalPaint.color = i.isEven ? petal : shade;
     c.drawOval(
       Rect.fromCenter(
-        center: Offset(glint, -radius * .4),
-        width: radius * .7,
-        height: radius * .86,
+        center: Offset(glint, -radius * .42),
+        width: radius * .66,
+        height: radius * .8,
       ),
-      Paint()..color = i.isEven ? petal : shade,
+      petalPaint,
     );
     c.restore();
   }
   c.restore();
+  c.drawCircle(at, radius * .3, Paint()..color = ink);
+  c.drawCircle(at, radius * .25, Paint()..color = heart);
   c.drawCircle(
-    at,
-    radius,
-    Paint()
-      ..color = bed
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = math.max(2.0, radius * .14),
-  );
-  c.drawCircle(at, radius * .28, Paint()..color = heart);
-  c.drawCircle(
-    at + Offset(-radius * .09 + glint, -radius * .1),
-    math.max(1.15, radius * .1),
+    at + Offset(-radius * .08 + glint * .4, -radius * .08),
+    math.max(1.0, radius * .08),
     Paint()..color = SkyColors.cream,
   );
 }
 
-void _bamboo(
+Color _bamboo(
   Canvas c,
-  Rect r,
-  bool top,
+  _Geo g,
   double sway,
   bool cleared,
   bool perfect,
   Color accent,
   SkyPalette sky,
 ) {
-  final w = r.width;
-  final h = r.height;
-  final thicket = _mix(_mix(SkyColors.teal, SkyColors.ink, .52), sky.land, .16);
-  final cane = _mix(_mix(SkyColors.yellow, SkyColors.sand, .38), sky.haze, .06);
-  final caneLit = _mix(SkyColors.cream, SkyColors.yellow, .32);
-  final caneDeep = _mix(SkyColors.gold, SkyColors.teal, .34);
-  final node = _mix(SkyColors.ink, SkyColors.rock, .38);
+  final r = g.r;
+  final w = g.w;
+  final h = g.h;
+  final thicket = _mix(_mix(SkyColors.teal, SkyColors.ink, .6), sky.land, .14);
+  var cane = _mix(_mix(SkyColors.yellow, SkyColors.mint, .42), sky.haze, .06);
+  if (perfect) {
+    cane = _mix(cane, SkyColors.yellow, .22);
+  } else if (cleared) {
+    cane = _mix(cane, SkyColors.mint, .2);
+  }
+  final caneLit = _mix(cane, SkyColors.cream, .5);
+  final caneDeep = _mix(cane, SkyColors.teal, .5);
+  final node = _mix(caneDeep, SkyColors.ink, .25);
   final leaf = perfect
-      ? _mix(_mix(SkyColors.mint, accent, .22), SkyColors.gold, .12)
-      : _mix(SkyColors.mint, accent, cleared ? .45 : .24);
-  final leafDeep = _mix(SkyColors.teal, SkyColors.ink, .28);
-  final rope = _mix(SkyColors.gold, SkyColors.sand, perfect ? .22 : .38);
-  final ropeDeep = _mix(SkyColors.gold, SkyColors.ink, .36);
+      ? _mix(_mix(SkyColors.mint, accent, .2), SkyColors.gold, .12)
+      : _mix(
+          _mix(SkyColors.teal, SkyColors.mint, .45),
+          accent,
+          cleared ? .3 : .12,
+        );
+  final leafLit = _mix(leaf, SkyColors.cream, .3);
+  final leafDeep = _mix(SkyColors.teal, SkyColors.ink, .3);
+  final rope = _mix(SkyColors.gold, SkyColors.sand, perfect ? .15 : .4);
+  final ropeLit = _mix(rope, SkyColors.cream, .45);
+  final ropeDeep = _mix(SkyColors.gold, SkyColors.ink, .4);
+  final ink = _mix(_mix(SkyColors.ink, SkyColors.teal, .2), sky.land, .1);
 
   _fill(c, r, thicket);
-  if (w < 8 || h < 8) return;
+  if (w < 8 || h < 8) return ink;
 
-  final culmW = w * .42;
-  const slots = [.17, .5, .83];
-  final colors = [caneLit, cane, caneDeep];
+  // Three culms with a cel-shaded highlight and a shaded side each; the dark
+  // thicket shows through the slim gaps between them.
+  final gap = math.max(1.4, w * .03);
+  final culmW = (w - g.line * 2 - gap * 2) / 3;
+  final caneFill = Paint()..color = cane;
+  final litFill = Paint()..color = caneLit;
+  final deepFill = Paint()..color = caneDeep;
+  final nodeGap = math.max(26.0, w * .8);
+  final nodeH = math.max(2.0, w * .035);
+  const stagger = [.2, .62, .38];
   for (var i = 0; i < 3; i++) {
-    final cx = r.left + w * slots[i];
-    final body = Rect.fromCenter(
-      center: Offset(cx, r.center.dy),
-      width: culmW,
-      height: h + culmW,
+    final left = r.left + g.line + i * (culmW + gap);
+    c.drawRect(Rect.fromLTWH(left, r.top, culmW, h), caneFill);
+    c.drawRect(
+      Rect.fromLTWH(left + culmW * .16, r.top, culmW * .16, h),
+      litFill,
     );
-    c.drawRRect(
-      RRect.fromRectAndRadius(body, Radius.circular(culmW / 2)),
-      Paint()..color = colors[i],
+    c.drawRect(
+      Rect.fromLTWH(left + culmW * .74, r.top, culmW * .26, h),
+      deepFill,
     );
-    c.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromCenter(
-          center: Offset(cx - culmW * .2, r.center.dy),
-          width: math.max(2.0, culmW * .16),
-          height: h + culmW,
+    for (var d = g.cap + nodeGap * stagger[i]; d < h; d += nodeGap) {
+      final b = g.band(d, d + nodeH, left, left + culmW);
+      _fill(c, b, node);
+      _fill(
+        c,
+        g.band(
+          d + nodeH,
+          d + nodeH + math.max(1.0, nodeH * .5),
+          left,
+          left + culmW,
         ),
-        const Radius.circular(4),
-      ),
-      Paint()..color = _mix(caneLit, SkyColors.yellow, .2),
-    );
-  }
-  for (final fx in const [.34, .67]) {
-    _fill(c, Rect.fromLTWH(r.left + w * fx - 1.15, r.top, 2.3, h), thicket);
-  }
-
-  final lip = math.min(4.0, h);
-  final nodeH = math.max(2.8, w * .06);
-  final nodeGap = math.max(18.0, w * .72);
-  for (var d = lip + nodeGap * .42; d < h - 1; d += nodeGap) {
-    for (final fx in slots) {
-      final cx = r.left + w * fx;
-      c.drawRRect(
-        RRect.fromRectAndRadius(
-          _band(r, top, d, d + nodeH, cx - culmW * .46, cx + culmW * .46),
-          Radius.circular(nodeH),
-        ),
-        Paint()..color = node,
+        caneLit,
       );
     }
   }
 
-  final spare = h - lip;
-  final beam = math.min(math.max(2.8, w * .1), spare * .42);
-  if (beam < 2.2 || spare < beam + 1) return;
-  final doubleBeam = spare > beam * 2 + 16;
-  final gap = math.max(1.6, beam * .38);
-  final tieSpan = doubleBeam ? beam * 2 + gap : beam;
-  _fill(c, _band(r, top, lip, lip + beam, r.left, r.right), rope);
-  _fill(
-    c,
-    _band(r, top, lip, lip + math.min(1.8, beam * .28), r.left, r.right),
-    ropeDeep,
-  );
-  if (doubleBeam) {
-    final far = lip + beam + gap;
-    _fill(c, _band(r, top, far, far + beam, r.left, r.right), rope);
-    _fill(
-      c,
-      _band(
-        r,
-        top,
-        far + beam - math.min(1.6, beam * .24),
-        far + beam,
-        r.left,
-        r.right,
-      ),
-      ropeDeep,
-    );
+  // Drooping leaf sprays grow from the outer culms' nodes, alternating
+  // sides. They hang with gravity on both pieces, like real bamboo.
+  final len = (w * .44).clamp(10.0, 40.0);
+  final leafRoom = nodeGap * 1.7;
+  var k = 0;
+  for (var d = g.cap + nodeGap * .55; d < h + len; d += leafRoom, k++) {
+    final right = k.isEven;
+    final x = right
+        ? r.left + g.line + culmW * .92
+        : r.right - g.line - culmW * .92;
+    final root = Offset(x, g.y(d));
+    final s = right ? sway : -sway;
+    for (var j = 0; j < 3; j++) {
+      final a = const [.2, .75, 1.25][j];
+      final angle = right ? a : math.pi - a;
+      _leaf(
+        c,
+        root,
+        angle,
+        len * const [1.0, .86, .7][j],
+        s * (1 - j * .3),
+        j == 1 ? leafDeep : leaf,
+        j == 1 ? leaf : leafLit,
+        ink,
+      );
+    }
+    c.drawCircle(root, math.max(1.2, len * .07), Paint()..color = node);
   }
-  final knotR = doubleBeam ? math.min(tieSpan * .34, beam) : beam * .42;
-  final knotY = _y(r, top, lip + tieSpan * .5);
-  c.drawCircle(Offset(r.center.dx, knotY), knotR, Paint()..color = ropeDeep);
-  c.drawCircle(
-    Offset(r.center.dx - knotR * .28, knotY - knotR * .22),
-    knotR * .38,
-    Paint()..color = _mix(rope, SkyColors.cream, .3),
-  );
 
-  final len = math.min(w * .92, h - (lip + tieSpan) - 1);
-  if (len < 8) return;
-  final dir = top ? -1.0 : 1.0;
-  final root = Offset(r.center.dx, _y(r, top, lip + tieSpan));
-  final half = math.min(w * .4, math.max(len * .9, w * .24));
-  _leaf(
-    c,
-    root,
-    dir,
-    len,
-    half,
-    1,
-    sway,
-    leaf,
-    _mix(leaf, SkyColors.cream, .26),
-    leafDeep,
-  );
-  if (len < 15) return;
-  _leaf(
-    c,
-    Offset(r.center.dx - w * .06, _y(r, top, lip + tieSpan + len * .08)),
-    dir,
-    len * .74,
-    half * .82,
-    -1,
-    -sway,
-    leafDeep,
-    _mix(leaf, SkyColors.cream, .18),
-    _mix(leafDeep, SkyColors.ink, .2),
-  );
+  // Rim: a tied crossbar pole with rope lashings over each culm.
+  _cap(c, g, cane, caneLit, caneDeep, ink);
+  final cap = g.cap;
+  if (cap >= 5) {
+    final ropePaint = Paint()..color = rope;
+    final ropeDeepPaint = Paint()
+      ..color = ropeDeep
+      ..strokeWidth = math.max(1.0, cap * .12);
+    final ropeLitPaint = Paint()
+      ..color = ropeLit
+      ..strokeWidth = math.max(.8, cap * .08);
+    final wrapW = math.min(culmW * .5, cap * 1.1);
+    for (var i = 0; i < 3; i++) {
+      final cx = r.left + g.line + i * (culmW + gap) + culmW / 2;
+      final b = g.band(
+        g.line,
+        cap + g.line * .8,
+        cx - wrapW / 2,
+        cx + wrapW / 2,
+      );
+      c.drawRect(b, ropePaint);
+      for (var t = .25; t < 1; t += .25) {
+        final x = b.left + b.width * t;
+        c.drawLine(
+          Offset(x - wrapW * .12, b.bottom),
+          Offset(x + wrapW * .12, b.top),
+          ropeDeepPaint,
+        );
+      }
+      c.drawLine(
+        Offset(b.left, b.top + 1),
+        Offset(b.right, b.top + 1),
+        ropeLitPaint,
+      );
+    }
+  }
+  return ink;
 }
 
 void _leaf(
   Canvas c,
   Offset root,
-  double dir,
+  double angle,
   double len,
-  double halfW,
-  double lean,
   double sway,
   Color fill,
   Color lite,
   Color vein,
 ) {
-  final tip = Offset(root.dx + sway, root.dy + dir * len);
+  // A slim willow-shaped blade from `root` along `angle` (screen radians).
+  final ux = math.cos(angle), uy = math.sin(angle);
+  final tip = Offset(root.dx + ux * len + sway, root.dy + uy * len);
+  final nx = -uy, ny = ux;
+  final bulge = len * .24;
+  Offset at(double t, double side) => Offset(
+    root.dx + ux * len * t + nx * side + sway * t,
+    root.dy + uy * len * t + ny * side,
+  );
+  final a = at(.45, bulge * 1.6), b = at(.45, -bulge * 1.6);
   c.drawPath(
     Path()
       ..moveTo(root.dx, root.dy)
-      ..quadraticBezierTo(
-        root.dx + lean * halfW + sway * .25,
-        root.dy + dir * len * .5,
-        tip.dx,
-        tip.dy,
-      )
-      ..quadraticBezierTo(
-        root.dx - lean * halfW * .42 + sway * .15,
-        root.dy + dir * len * .58,
-        root.dx,
-        root.dy,
-      )
+      ..quadraticBezierTo(a.dx, a.dy, tip.dx, tip.dy)
+      ..quadraticBezierTo(b.dx, b.dy, root.dx, root.dy)
       ..close(),
     Paint()..color = fill,
   );
+  final m = at(.5, 0);
   c.drawPath(
     Path()
-      ..moveTo(root.dx, root.dy + dir * len * .16)
-      ..quadraticBezierTo(
-        root.dx + lean * halfW * .58 + sway * .2,
-        root.dy + dir * len * .48,
-        tip.dx,
-        tip.dy - dir * 1.2,
-      )
-      ..quadraticBezierTo(
-        root.dx - lean * halfW * .18,
-        root.dy + dir * len * .5,
-        root.dx,
-        root.dy + dir * len * .16,
-      )
+      ..moveTo(root.dx, root.dy)
+      ..quadraticBezierTo(a.dx, a.dy, tip.dx, tip.dy)
+      ..quadraticBezierTo(m.dx, m.dy, root.dx, root.dy)
       ..close(),
     Paint()..color = lite,
   );
   c.drawLine(
     root,
-    tip,
+    at(.8, 0),
     Paint()
       ..color = vein
-      ..strokeWidth = math.max(1.6, halfW * .1)
+      ..strokeWidth = math.max(.9, len * .04)
       ..strokeCap = StrokeCap.round,
   );
 }
 
-void _badge(Canvas c, Rect r, bool top, bool cleared, bool perfect) {
-  if (!cleared || r.width < 16 || r.height < math.min(4.0, r.height) + 10) {
+/// Cleared pieces wear a small gem in the middle of the cap; a perfect pass
+/// turns it into a golden four-point star.
+void _seal(Canvas c, _Geo g, bool cleared, bool perfect) {
+  if (!cleared || g.w < 16 || g.cap < 6 || g.h < g.cap + 2) return;
+  final at = Offset(g.r.center.dx, g.y(g.cap * .5));
+  final rad = g.cap * (perfect ? .8 : .5);
+  if (perfect) {
+    final s = rad * .34;
+    final star = Path()
+      ..moveTo(at.dx, at.dy - rad)
+      ..quadraticBezierTo(at.dx + s * .3, at.dy - s * .3, at.dx + rad, at.dy)
+      ..quadraticBezierTo(at.dx + s * .3, at.dy + s * .3, at.dx, at.dy + rad)
+      ..quadraticBezierTo(at.dx - s * .3, at.dy + s * .3, at.dx - rad, at.dy)
+      ..quadraticBezierTo(at.dx - s * .3, at.dy - s * .3, at.dx, at.dy - rad)
+      ..close();
+    c.drawPath(star, Paint()..color = SkyColors.yellow);
+    c.drawPath(
+      star,
+      Paint()
+        ..color = SkyColors.gold
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1,
+    );
+    c.drawCircle(at, rad * .2, Paint()..color = SkyColors.cream);
     return;
   }
-  final lip = math.min(4.0, r.height);
-  final at = Offset(
-    r.right - math.max(5.0, r.width * .14),
-    _y(r, top, lip + math.min(10.0, (r.height - lip) * .36)),
-  );
-  final rad = perfect ? 3.2 : 2.5;
   c.drawCircle(
     at,
     rad,
-    Paint()..color = perfect ? SkyColors.yellow : SkyColors.mint,
+    Paint()..color = _mix(SkyColors.teal, SkyColors.ink, .2),
   );
+  c.drawCircle(at, rad * .74, Paint()..color = SkyColors.mint);
   c.drawCircle(
-    at,
-    rad * .4,
-    Paint()..color = perfect ? SkyColors.coralDeep : SkyColors.coral,
+    at - Offset(rad * .22, rad * .22),
+    rad * .26,
+    Paint()..color = SkyColors.cream,
   );
-}
-
-void _edge(Canvas c, Rect r, bool top, bool perfect, int motif) {
-  final lip = math.min(4.0, r.height);
-  if (lip <= 0) return;
-  final shoulderH = math.min(2.4, math.max(0.0, r.height - lip));
-  if (shoulderH >= 1) {
-    final shoulder = perfect
-        ? _mix(SkyColors.gold, SkyColors.cream, .2)
-        : switch (motif) {
-            0 => _mix(SkyColors.gold, SkyColors.ink, .42),
-            1 => _mix(SkyColors.coralDeep, SkyColors.ink, .3),
-            _ => _mix(SkyColors.teal, SkyColors.ink, .48),
-          };
-    _fill(c, _band(r, top, lip, lip + shoulderH, r.left, r.right), shoulder);
-  }
-  _fill(c, _band(r, top, 0, lip, r.left, r.right), SkyColors.cream);
-  if (lip >= 2.4) {
-    _fill(
-      c,
-      _band(r, top, 0, math.min(1.15, lip), r.left, r.right),
-      SkyColors.white,
-    );
-  }
 }

@@ -5,7 +5,8 @@ import 'package:flutter/painting.dart';
 import '../../ui/theme.dart';
 import '../sky_scenery.dart';
 
-/// Solid blossom column: overlapping petal plates, veins, and a warm heart.
+/// Solid blossom column: petal shingles overlap toward a scalloped rim collar
+/// that holds one turning bloom, so the open edge reads at a glance.
 abstract final class PetalShuttersDesign {
   static void paint(
     Canvas c,
@@ -18,72 +19,34 @@ abstract final class PetalShuttersDesign {
     required int appearance,
     required Color accent,
   }) {
-    if (r.isEmpty) return;
-    final raw = appearance % 3;
-    final v = raw < 0 ? raw + 3 : raw;
-    final palette = SkyPalette.at(seconds);
+    if (!r.isFinite || r.isEmpty) return;
+    final v = (appearance % 3 + 3) % 3;
+    Color mix(Color a, Color b, double t) => Color.lerp(a, b, t)!;
+    // Points from the rim into the solid; petals point back toward the rim.
     final dir = top ? -1.0 : 1.0;
     final rim = top ? r.bottom : r.top;
-    final far = top ? r.top : r.bottom;
-    final phase = seconds * 1.35 + appearance;
-    final sway = reducedMotion ? 0.0 : math.sin(phase) * 1.6;
-    final turn = (reducedMotion ? 0.0 : seconds) * .4 + v * .4;
-    final lip = math.min(4.0, r.height);
-    final room = r.height - lip;
-    final radius = room < 8 ? 0.0 : math.min(r.width * .44, room * .42);
-    final pale = Color.lerp(accent, SkyColors.cream, .6)!;
-    final deep = Color.lerp(accent, palette.land, .38)!;
-    final stemInk = Color.lerp(palette.land, SkyColors.ink, .34)!;
-    final bevel = Color.lerp(accent, SkyColors.gold, .45)!;
+    final w = r.width;
+    final t = reducedMotion ? 0.0 : seconds;
+    // Each tint shades toward its own deep hue, so yellow never turns olive.
+    final hue = [
+      mix(SkyColors.coralDeep, SkyColors.purple, .3),
+      SkyColors.purple,
+      mix(SkyColors.gold, SkyColors.coralDeep, .4),
+    ][v];
+    final plum = mix(hue, SkyColors.ink, .3);
+    final light = mix(accent, SkyColors.cream, .42);
+    final body = mix(accent, plum, .12);
+    final shade = mix(accent, plum, .42);
+    final petalA = mix(accent, SkyColors.cream, .5);
+    final petalB = mix(accent, SkyColors.cream, .24);
+    final shadow = mix(accent, plum, .5).withValues(alpha: .55);
+    final capDeep = mix(accent, plum, .58);
+    final capLight = mix(accent, SkyColors.cream, .74);
 
-    Paint stroke(Color color, double width) => Paint()
-      ..color = color
-      ..strokeWidth = width
-      ..strokeCap = StrokeCap.round
-      ..style = PaintingStyle.stroke;
-    void dot(Offset at, double rad, Color color) =>
-        c.drawCircle(at, rad, Paint()..color = color);
-    void bar(double y, double h, Color color) => c.drawRect(
-      Rect.fromLTWH(r.left, y, r.width, h),
+    void bar(double y0, double y1, Color color) => c.drawRect(
+      Rect.fromLTRB(r.left, math.min(y0, y1), r.right, math.max(y0, y1)),
       Paint()..color = color,
     );
-
-    void blade(double y, bool left, double slide, Color color, bool vein) {
-      final s = left ? 1.0 : -1.0;
-      final tip = (left ? r.left + 2 : r.right - 2) + s * slide;
-      final shoulder = r.center.dx - s * r.width * (v == 1 ? .3 : .18);
-      final inner = r.center.dx + s * 8;
-      final pinch = v == 1 ? 2.0 : 5.0;
-      c.drawPath(
-        Path()
-          ..moveTo(tip, y)
-          ..quadraticBezierTo(shoulder, y - 16, inner, y - pinch)
-          ..quadraticBezierTo(r.center.dx, y, inner, y + pinch)
-          ..quadraticBezierTo(shoulder, y + 16, tip, y)
-          ..close(),
-        Paint()..color = color,
-      );
-      if (vein) {
-        c.drawLine(
-          Offset(inner, y),
-          Offset(tip, y),
-          stroke(SkyColors.cream, 1.4),
-        );
-      }
-    }
-
-    void scale(double y, double bow, Color color) {
-      final g = -dir * bow;
-      final mid = r.center.dx;
-      c.drawPath(
-        Path()
-          ..moveTo(r.left + 2, y - g * .3)
-          ..quadraticBezierTo(mid, y - g * .7, r.right - 2, y - g * .3)
-          ..quadraticBezierTo(mid, y + g, r.left + 2, y - g * .3)
-          ..close(),
-        Paint()..color = color,
-      );
-    }
 
     c.save();
     c.clipRect(r);
@@ -91,160 +54,174 @@ abstract final class PetalShuttersDesign {
       r,
       Paint()
         ..shader = LinearGradient(
-          colors: [
-            Color.lerp(accent, SkyColors.cream, .46)!,
-            Color.lerp(accent, palette.land, .18)!,
-            Color.lerp(accent, SkyColors.ink, .3)!,
-          ],
-          stops: const [0, .46, 1],
+          colors: [light, body, shade],
+          stops: const [.08, .52, 1],
         ).createShader(r),
     );
 
-    final step = const [24.0, 34.0, 26.0][v];
-    final inset = lip + (radius >= 4 ? radius * 1.55 : 1);
-    final stop = rim + dir * inset;
-    var y = far - dir * 6;
-    for (var i = 0; i < 24 && (dir < 0 ? y < stop : y > stop); i++) {
-      final front = i.isEven;
-      if (v == 2) {
-        scale(y + dir * 7, 15, deep);
-        scale(y, 12 + sway.abs(), pale);
-      } else {
-        blade(y + dir * (v == 1 ? 8 : 5), !front, sway, deep, false);
-        blade(y, front, -sway, pale, v == 1);
-      }
-      y += step * -dir;
-    }
+    final cap = r.height < 12
+        ? math.min(4.0, r.height)
+        : math.min(9.0, r.height * .3);
+    final room = r.height - cap;
 
-    final stemEnd = rim + dir * (lip + (radius >= 4 ? radius * .35 : 2));
-    c.drawLine(
-      Offset(r.center.dx, far - dir * 3),
-      Offset(r.center.dx, stemEnd),
-      stroke(stemInk, v == 1 ? 3.0 : 2.2),
-    );
-    if (r.height > 92 && r.width > 18) {
-      final leaf = Paint()
-        ..color = Color.lerp(palette.land, SkyColors.mint, .48)!;
-      for (final side in [-1.0, 1.0]) {
-        final o = Offset(r.center.dx, far - dir * (30 + (side < 0 ? 0 : 20)));
-        final dx = side * r.width * (v == 1 ? .42 : .32);
-        final dy = dir * (v == 1 ? 12 : 8);
-        c.drawPath(
-          Path()
-            ..moveTo(o.dx, o.dy)
-            ..quadraticBezierTo(o.dx + dx * .6, o.dy + dy, o.dx + dx, o.dy)
-            ..quadraticBezierTo(o.dx + dx * .35, o.dy - dy, o.dx, o.dy)
-            ..close(),
-          leaf,
-        );
-      }
-    }
-    if (r.height >= 40) {
-      final y0 = far - dir * r.height * .2;
-      final y1 = rim + dir * (lip + math.max(radius, 6) + 12);
-      final vein = stroke(
-        SkyColors.cream.withValues(alpha: .72),
-        v == 1 ? 1.6 : 1.25,
-      );
-      for (final side in [-1.0, 1.0]) {
-        final x = r.center.dx + side * r.width * (v == 2 ? .2 : .28);
-        c.drawPath(
-          Path()
-            ..moveTo(r.center.dx, y0)
-            ..quadraticBezierTo(
-              r.center.dx + sway * side,
-              (y0 + y1) / 2,
-              x + sway,
-              y1,
-            ),
-          vein,
-        );
-      }
-    }
-
-    if (radius >= 4) {
-      final hub = Offset(r.center.dx, rim + dir * (lip + radius));
-      final n = const [6, 5, 8][v];
-      final under = Color.lerp(accent, palette.haze, .18)!;
-      final petal = Color.lerp(accent, SkyColors.cream, .7)!;
-      void bloom(double rad, double angle, Color color) {
-        c.save();
-        c.translate(hub.dx, hub.dy);
-        c.rotate(angle);
-        if (v == 1) {
-          c.drawPath(
-            Path()
-              ..moveTo(0, -rad)
-              ..quadraticBezierTo(rad * .34, -rad * .36, 0, rad * .02)
-              ..quadraticBezierTo(-rad * .34, -rad * .36, 0, -rad)
-              ..close(),
-            Paint()..color = color,
-          );
-        } else {
-          c.drawOval(
-            Rect.fromCenter(
-              center: Offset(0, -rad * .46),
-              width: rad * (v == 2 ? .4 : .56),
-              height: rad * .76,
-            ),
-            Paint()..color = color,
-          );
+    // Shingles: rows start just under the collar and stack away from it, each
+    // farther row overlapping the tips of the nearer one like a roof.
+    if (w >= 10 && room >= 6) {
+      final step = const [19.0, 23.0, 15.0][v];
+      final per = const [2, 1, 3][v];
+      final pitch = w / per;
+      final len = step * (v == 2 ? 1.7 : 1.55);
+      final veins = Path();
+      final shift = Offset(0, -dir * 2);
+      final rows = ((room + len) / step).ceil() + 1;
+      for (var k = 0; k < rows && k < 80; k++) {
+        final flutter = reducedMotion ? 0.0 : math.sin(t * 2.2 - k * .55) * 1.1;
+        final tip = rim + dir * (cap - 3 + k * step) - dir * flutter;
+        final base = tip + dir * len;
+        final odd = k.isOdd;
+        final row = Path();
+        final count = odd && per > 1 ? per + 1 : per;
+        for (var i = 0; i < count; i++) {
+          final cx = switch (v) {
+            1 => r.center.dx + (odd ? 1 : -1) * w * .16,
+            _ => r.left + pitch * (i + (odd ? 0 : .5)),
+          };
+          final hw = v == 1 ? w * .5 : pitch * .56;
+          // Rounded scales, tapered blades, or softly pointed petals.
+          final belly = const [.5, .62, .4][v];
+          final point = const [.34, .12, .55][v];
+          row
+            ..moveTo(cx - hw, base)
+            ..cubicTo(
+              cx - hw,
+              base - dir * len * belly,
+              cx - hw * point,
+              tip,
+              cx,
+              tip,
+            )
+            ..cubicTo(
+              cx + hw * point,
+              tip,
+              cx + hw,
+              base - dir * len * belly,
+              cx + hw,
+              base,
+            )
+            ..close();
+          final reach = math.min(step * .8, len * .5);
+          veins
+            ..moveTo(cx, tip + dir * 3)
+            ..lineTo(cx, tip + dir * (3 + reach));
         }
-        c.restore();
+        c.drawPath(row.shift(shift), Paint()..color = shadow);
+        c.drawPath(row, Paint()..color = odd ? petalB : petalA);
       }
+      c.drawPath(
+        veins,
+        Paint()
+          ..color = SkyColors.cream.withValues(alpha: .5)
+          ..strokeWidth = v == 1 ? 1.5 : 1.2
+          ..strokeCap = StrokeCap.round
+          ..style = PaintingStyle.stroke,
+      );
+      // Rounded volume: a lit left edge and a shaded right jamb.
+      c.drawRect(
+        Rect.fromLTWH(r.left, r.top, math.max(1.5, w * .05), r.height),
+        Paint()..color = SkyColors.cream.withValues(alpha: .28),
+      );
+      c.drawRect(
+        Rect.fromLTWH(r.right - w * .2, r.top, w * .2, r.height),
+        Paint()..color = plum.withValues(alpha: .2),
+      );
+    }
 
-      final warm = Color.lerp(SkyColors.gold, palette.accent, .28)!;
-      final sepal = Color.lerp(palette.land, SkyColors.mint, .42)!;
-      dot(hub, radius * .9, warm);
-      for (final side in [-1.0, 1.0]) {
-        c.drawOval(
+    // Collar: a deep band with scallops biting into the petals and a pale
+    // lip on the very edge, so the collision line is the brightest line.
+    final inside = rim + dir * cap;
+    bar(rim, inside, capDeep);
+    if (cap >= 6 && w >= 12) {
+      final count = math.max(2, (w / 16).round());
+      final pitch = w / count;
+      final bite = Path();
+      for (var i = 0; i < count; i++) {
+        bite.addOval(
           Rect.fromCenter(
-            center: hub + Offset(side * radius * .4, dir * radius * .46),
-            width: radius * .52,
-            height: radius * .28,
+            center: Offset(r.left + pitch * (i + .5), inside),
+            width: pitch,
+            height: pitch * .6,
           ),
-          Paint()..color = sepal,
         );
       }
+      c.drawPath(bite, Paint()..color = capDeep);
+    }
+    bar(rim, rim + dir * cap * .45, capLight);
+    if (cap >= 3) {
+      bar(rim, rim + dir * 1.2, SkyColors.white);
+      bar(rim + dir * cap * .45, rim + dir * (cap * .45 + 1), SkyColors.gold);
+    }
+
+    // Bloom resting against the collar, fully inside the column.
+    final radius = room < 12 ? 0.0 : math.min(w * .39, room * .4);
+    if (radius >= 4) {
+      final hub = Offset(r.center.dx, rim + dir * (cap + radius + 2));
+      final n = const [6, 5, 8][v];
+      final turn = t * .4 + v * .4;
+      final under = mix(accent, hue, .55);
+      final over = mix(accent, SkyColors.cream, .72);
+      final petal = Path();
+      final inner = Path();
       for (var i = 0; i < n; i++) {
-        final a = turn + i * math.pi * 2 / n;
-        bloom(radius, a, under);
-        bloom(radius * .72, a + math.pi / n, petal);
+        for (final outer in [true, false]) {
+          final a = turn + (i + (outer ? 0 : .5)) * math.pi * 2 / n;
+          final rad = radius * (outer ? 1 : .7);
+          final cs = math.cos(a), sn = math.sin(a);
+          Offset at(double x, double y) =>
+              hub + Offset(x * cs - y * sn, x * sn + y * cs);
+          final wd = rad * const [.4, .36, .26][v];
+          final lean = const [.95, .25, .8][v];
+          final l1 = at(-wd, -rad * .12), l2 = at(-wd * lean, -rad * 1.02);
+          final r1 = at(wd * lean, -rad * 1.02), r2 = at(wd, -rad * .12);
+          final tip = at(0, -rad), root = at(0, 0);
+          (outer ? petal : inner)
+            ..moveTo(root.dx, root.dy)
+            ..cubicTo(l1.dx, l1.dy, l2.dx, l2.dy, tip.dx, tip.dy)
+            ..cubicTo(r1.dx, r1.dy, r2.dx, r2.dy, root.dx, root.dy)
+            ..close();
+        }
       }
+      c.drawPath(petal.shift(Offset(0, -dir * 2)), Paint()..color = shadow);
+      c.drawPath(petal, Paint()..color = under);
+      c.drawPath(inner, Paint()..color = over);
       final heart = [SkyColors.coralDeep, SkyColors.coral, SkyColors.gold][v];
-      dot(hub, radius * (v == 2 ? .4 : .28), SkyColors.gold);
-      dot(hub, radius * (v == 2 ? .24 : .15), heart);
-      dot(
-        hub + Offset(-radius * .06, -radius * .07),
-        radius * .055,
-        SkyColors.cream,
+      c.drawCircle(hub, radius * .3, Paint()..color = SkyColors.gold);
+      c.drawCircle(hub, radius * .18, Paint()..color = heart);
+      c.drawCircle(
+        hub + Offset(-radius * .08, -radius * .09),
+        radius * .06,
+        Paint()..color = SkyColors.cream,
       );
       if (cleared) {
         c.drawCircle(
           hub,
-          radius * .58,
-          stroke(
-            perfect ? SkyColors.yellow : SkyColors.cream,
-            perfect ? 2.0 : 1.4,
-          ),
+          radius * .42,
+          Paint()
+            ..color = perfect ? SkyColors.yellow : SkyColors.cream
+            ..strokeWidth = perfect ? 2.2 : 1.5
+            ..style = PaintingStyle.stroke,
         );
-        final jewel = hub + Offset(0, dir * (radius + 6));
+        final jewel = hub + Offset(0, dir * (radius + 9));
         if (perfect && r.deflate(5).contains(jewel)) {
+          final star = SkyScenery.star(jewel, math.min(7.0, w * .12));
           c.drawPath(
-            SkyScenery.star(jewel, math.min(5.5, r.width * .12)),
-            Paint()..color = SkyColors.cream,
+            star.shift(Offset(0, -dir * 1.5)),
+            Paint()..color = capDeep,
           );
+          c.drawPath(star, Paint()..color = SkyColors.cream);
         }
       }
     }
 
-    final yLip = top ? r.bottom - lip : r.top;
-    bar(yLip, lip, SkyColors.cream);
-    if (lip >= 3) {
-      const hair = 1.15;
-      bar(top ? r.bottom - hair : r.top, hair, SkyColors.white);
-      bar(top ? yLip : yLip + lip - hair, hair, bevel);
-    }
     c.restore();
   }
 }

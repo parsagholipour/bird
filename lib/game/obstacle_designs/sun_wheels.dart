@@ -5,7 +5,8 @@ import 'package:flutter/painting.dart';
 import '../../ui/theme.dart';
 import '../sky_scenery.dart';
 
-/// Raised sun mechanism clipped to the circular collision body.
+/// Raised sun medallion clipped to the circular collision body: a dark-lined
+/// bezel marks the solid edge while a folded-paper rotor turns inside it.
 abstract final class SunWheelsDesign {
   static void paint(
     Canvas c,
@@ -16,12 +17,13 @@ abstract final class SunWheelsDesign {
     required bool reducedMotion,
     required bool upper,
     required bool cleared,
+    bool perfect = false,
   }) {
     if (!radius.isFinite || radius <= 0) return;
     final time = seconds.isFinite ? math.max(0.0, seconds) : 0.0;
     final variant = _variant(appearance);
     final sky = SkyPalette.at(time);
-    final tone = cleared ? _mix(accent, SkyColors.mint, .4) : accent;
+    final tone = cleared ? _cleared(accent) : accent;
     final bounds = Rect.fromCircle(center: Offset.zero, radius: radius);
 
     c.save();
@@ -32,12 +34,12 @@ abstract final class SunWheelsDesign {
       Paint()..shader = _face(bounds, tone, sky),
     );
     if (radius >= 8) {
-      _glaze(c, radius);
-      if (radius >= 12) _rings(c, radius, variant, tone);
+      if (radius >= 14) _dial(c, radius, variant, tone);
       _rotor(c, radius, variant, tone, time, reducedMotion, upper);
-      _hub(c, radius, variant, tone, time, reducedMotion, cleared);
+      _shade(c, bounds);
+      _hub(c, radius, variant, tone, time, reducedMotion, cleared, perfect);
     }
-    _rim(c, radius, tone);
+    _bezel(c, radius, variant, tone, perfect);
     c.restore();
   }
 
@@ -48,74 +50,53 @@ abstract final class SunWheelsDesign {
 
   static Color _mix(Color a, Color b, double t) => Color.lerp(a, b, t)!;
 
+  /// Cleared tint: turn the hue part way toward mint in HSL, lift it slightly
+  /// and add a touch of saturation, so complementary accents such as coral
+  /// stay bright instead of going muddy the way an RGB mix would.
+  static Color _cleared(Color accent) {
+    final a = HSLColor.fromColor(accent);
+    final mint = HSLColor.fromColor(SkyColors.mint);
+    final turn = ((mint.hue - a.hue + 540) % 360) - 180;
+    return a
+        .withHue((a.hue + turn * .15 + 360) % 360)
+        .withSaturation(math.min(1.0, a.saturation * 1.15))
+        .withLightness(a.lightness + (mint.lightness - a.lightness) * .25)
+        .toColor();
+  }
+
+  /// Warm dial face. It stays lighter than the bezel so the ring reads as the
+  /// raised, solid edge against pale day skies and dark night skies alike.
   static Shader _face(Rect bounds, Color tone, SkyPalette sky) {
     return RadialGradient(
-      center: const Alignment(-.3, -.36),
-      radius: 1.05,
+      center: const Alignment(-.28, -.34),
+      radius: .95,
       colors: [
         SkyColors.cream,
-        _mix(SkyColors.cream, sky.haze, .42),
-        _mix(SkyColors.cream, tone, .2),
-        _mix(tone, SkyColors.ink, .22),
+        _mix(_mix(SkyColors.cream, sky.haze, .3), tone, .12),
+        _mix(SkyColors.cream, tone, .42),
       ],
-      stops: const [0, .3, .7, 1],
+      stops: const [0, .42, 1],
     ).createShader(bounds);
   }
 
-  static void _glaze(Canvas c, double radius) {
-    c.drawOval(
-      Rect.fromCenter(
-        center: Offset(-radius * .28, -radius * .32),
-        width: radius * .4,
-        height: radius * .24,
-      ),
-      Paint()..color = SkyColors.white.withValues(alpha: .24),
-    );
-  }
-
-  static void _rings(Canvas c, double radius, int variant, Color tone) {
-    final ink = _mix(tone, SkyColors.ink, .4);
-    _groove(c, radius * .9, radius, ink);
-    if (variant == 1) {
-      _race(c, radius, ink);
-      return;
-    }
-    _groove(c, radius * (variant == 2 ? .46 : .5), radius, ink);
-    if (variant == 2) _groove(c, radius * .74, radius, ink);
-  }
-
-  static void _groove(Canvas c, double at, double radius, Color ink) {
-    final width = math.min(1.7, math.max(.65, radius * .036));
-    if (at <= width) return;
-    c.drawCircle(
-      Offset.zero,
-      at,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = width
-        ..color = ink.withValues(alpha: .82),
-    );
-    final lip = at - width * .65;
-    if (lip <= 0) return;
-    c.drawCircle(
-      Offset.zero,
-      lip,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = math.max(.45, width * .4)
-        ..color = SkyColors.cream.withValues(alpha: .8),
-    );
-  }
-
-  static void _race(Canvas c, double radius, Color ink) {
-    final paint = Paint()
+  /// Faint engraved rings on the dial, drawn beneath the rotor.
+  static void _dial(Canvas c, double radius, int variant, Color tone) {
+    final ink = _mix(tone, SkyColors.ink, .3).withValues(alpha: .3);
+    final line = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = math.min(2.4, math.max(.85, radius * .048))
-      ..strokeCap = StrokeCap.round
+      ..strokeWidth = math.min(1.2, math.max(.6, radius * .02))
       ..color = ink;
-    final rect = Rect.fromCircle(center: Offset.zero, radius: radius * .58);
-    for (var i = 0; i < 8; i++) {
-      c.drawArc(rect, i * math.pi / 4 - math.pi / 2, math.pi / 9, false, paint);
+    c.drawCircle(Offset.zero, radius * .6, line);
+    if (variant != 1) return;
+    // The cog variant gets a dotted timing track between its teeth.
+    final dot = Paint()..color = ink;
+    for (var i = 0; i < 12; i++) {
+      final angle = (i + .5) * math.pi / 6;
+      c.drawCircle(
+        Offset(math.cos(angle), math.sin(angle)) * radius * .7,
+        math.max(.6, radius * .018),
+        dot,
+      );
     }
   }
 
@@ -129,33 +110,47 @@ abstract final class SunWheelsDesign {
     bool upper,
   ) {
     final count = const [8, 6, 5][variant];
+    final fill = switch (variant) {
+      1 => _mix(tone, SkyColors.cream, .08),
+      2 => _mix(tone, SkyColors.cream, .12),
+      _ => _mix(tone, SkyColors.yellow, .3),
+    };
+    final fold = Paint()..color = _mix(fill, SkyColors.ink, .2);
+    final line = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = math.min(2.4, math.max(.8, radius * .036))
+      ..strokeJoin = StrokeJoin.round
+      ..color = _mix(tone, SkyColors.ink, .55);
+    final body = Paint()..color = fill;
+    final crease = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = math.min(1.4, math.max(.55, radius * .024))
+      ..strokeCap = StrokeCap.round
+      ..color = SkyColors.cream.withValues(alpha: .85);
+    final blade = _blade(radius, variant);
+    final half = Rect.fromLTRB(0, 0, radius, radius);
     c.save();
     c.rotate(_spin(time, reducedMotion, upper, count));
-    final fill = switch (variant) {
-      1 => _mix(tone, SkyColors.gold, .08),
-      2 => _mix(tone, SkyColors.cream, .22),
-      _ => _mix(tone, SkyColors.yellow, .16),
-    };
-    final shade = _mix(tone, SkyColors.ink, .46);
-    final bevel = math.min(3.0, math.max(.7, radius * .08));
     for (var i = 0; i < count; i++) {
       c.save();
       c.rotate(i * math.pi * 2 / count);
-      final path = _blade(radius, variant);
-      c.drawPath(
-        path,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = bevel
-          ..strokeJoin = StrokeJoin.round
-          ..color = shade,
-      );
-      c.drawPath(path, Paint()..color = fill);
-      _ridge(c, radius, variant);
-      if (variant == 1) _channel(c, radius, shade);
+      c.drawPath(blade, line);
+      c.drawPath(blade, body);
+      // One side of every blade is folded into shade, like a paper pinwheel,
+      // which gives the rotor volume without a light that spins with it.
+      c.save();
+      c.clipRect(half);
+      c.drawPath(blade, fold);
+      c.restore();
+      if (radius >= 12) {
+        c.drawLine(
+          Offset(radius * .38, -radius * .012),
+          Offset(radius * (variant == 1 ? .66 : .68), -radius * .012),
+          crease,
+        );
+      }
       c.restore();
     }
-    if (variant == 2 && radius >= 14) _sparks(c, radius);
     c.restore();
   }
 
@@ -168,87 +163,73 @@ abstract final class SunWheelsDesign {
     return upper ? rest + turn : rest - turn;
   }
 
-  static Path _blade(double radius, int variant) => switch (variant) {
-    1 => _tooth(radius),
-    2 => _scimitar(radius),
-    _ => _ray(radius),
-  };
+  static final _blades = <int, (double, Path)>{};
+
+  /// Blade outlines only depend on the orb size, which is fixed per viewport.
+  static Path _blade(double radius, int variant) {
+    final cached = _blades[variant];
+    if (cached != null && cached.$1 == radius) return cached.$2;
+    final path = switch (variant) {
+      1 => _tooth(radius),
+      2 => _petal(radius),
+      _ => _ray(radius),
+    };
+    _blades[variant] = (radius, path);
+    return path;
+  }
 
   static Path _ray(double r) => Path()
-    ..moveTo(r * .28, -r * .04)
-    ..quadraticBezierTo(r * .52, -r * .125, r * .82, 0)
-    ..quadraticBezierTo(r * .52, r * .125, r * .28, r * .04)
+    ..moveTo(r * .26, -r * .07)
+    ..quadraticBezierTo(r * .52, -r * .12, r * .82, 0)
+    ..quadraticBezierTo(r * .52, r * .12, r * .26, r * .07)
     ..close();
 
   static Path _tooth(double r) {
-    final inner = r * .28, outer = r * .76, root = r * .07, tip = r * .125;
-    final chamfer = r * .04;
+    final inner = r * .26, outer = r * .76, root = r * .09, tip = r * .12;
+    final round = r * .05;
     return Path()
       ..moveTo(inner, -root)
-      ..lineTo(outer - chamfer, -tip)
-      ..lineTo(outer, -tip + chamfer)
-      ..lineTo(outer, tip - chamfer)
-      ..lineTo(outer - chamfer, tip)
+      ..lineTo(outer - round, -tip)
+      ..quadraticBezierTo(outer, -tip, outer, -tip + round)
+      ..lineTo(outer, tip - round)
+      ..quadraticBezierTo(outer, tip, outer - round, tip)
       ..lineTo(inner, root)
       ..close();
   }
 
-  static Path _scimitar(double r) => Path()
-    ..moveTo(r * .3, -r * .02)
-    ..cubicTo(r * .46, -r * .135, r * .68, -r * .11, r * .82, 0)
-    ..quadraticBezierTo(r * .74, r * .05, r * .56, r * .032)
-    ..quadraticBezierTo(r * .4, r * .07, r * .3, r * .042)
+  static Path _petal(double r) => Path()
+    ..moveTo(r * .26, -r * .06)
+    ..cubicTo(r * .42, -r * .21, r * .7, -r * .17, r * .81, -r * .02)
+    ..cubicTo(r * .7, r * .1, r * .44, r * .15, r * .26, r * .06)
     ..close();
 
-  static void _ridge(Canvas c, double radius, int variant) {
-    final bend = switch (variant) {
-      2 => -radius * .04,
-      1 => radius * .015,
-      _ => 0.0,
-    };
-    final end = radius * (variant == 1 ? .62 : .68);
-    c.drawPath(
-      Path()
-        ..moveTo(radius * .4, bend * .25)
-        ..quadraticBezierTo(radius * .54, bend, end, 0),
+  /// Static volume over the turning rotor: a soft terminator toward the
+  /// lower right and a glaze toward the upper left.
+  static void _shade(Canvas c, Rect bounds) {
+    final radius = bounds.width / 2;
+    c.drawCircle(
+      Offset.zero,
+      radius,
       Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = math.min(1.5, math.max(.55, radius * .028))
-        ..strokeCap = StrokeCap.round
-        ..color = SkyColors.cream.withValues(alpha: .9),
+        ..shader = RadialGradient(
+          center: const Alignment(-.34, -.4),
+          radius: 1.1,
+          colors: [
+            SkyColors.ink.withValues(alpha: 0),
+            SkyColors.ink.withValues(alpha: 0),
+            SkyColors.ink.withValues(alpha: .16),
+          ],
+          stops: const [0, .6, 1],
+        ).createShader(bounds),
     );
-  }
-
-  static void _channel(Canvas c, double radius, Color shade) {
-    c.drawLine(
-      Offset(radius * .42, radius * .02),
-      Offset(radius * .62, radius * .02),
-      Paint()
-        ..strokeWidth = math.min(1.6, math.max(.6, radius * .032))
-        ..strokeCap = StrokeCap.round
-        ..color = shade,
+    c.drawOval(
+      Rect.fromCenter(
+        center: Offset(-radius * .34, -radius * .42),
+        width: radius * .5,
+        height: radius * .26,
+      ),
+      Paint()..color = SkyColors.white.withValues(alpha: .22),
     );
-  }
-
-  static void _sparks(Canvas c, double radius) {
-    final fill = Paint()..color = _mix(SkyColors.cream, SkyColors.yellow, .35);
-    final edge = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = math.max(.55, radius * .018)
-      ..color = _mix(SkyColors.gold, SkyColors.ink, .3);
-    for (var i = 0; i < 5; i++) {
-      final angle = (i + .5) * math.pi * 2 / 5;
-      c.save();
-      c.translate(
-        math.cos(angle) * radius * .58,
-        math.sin(angle) * radius * .58,
-      );
-      c.rotate(angle + math.pi / 2);
-      final gem = _ngon(4, radius * .055, -math.pi / 2);
-      c.drawPath(gem, fill);
-      c.drawPath(gem, edge);
-      c.restore();
-    }
   }
 
   static void _hub(
@@ -259,48 +240,53 @@ abstract final class SunWheelsDesign {
     double time,
     bool reducedMotion,
     bool cleared,
+    bool perfect,
   ) {
-    final plate = radius * .36;
+    final plate = radius * .32;
+    final brass = perfect
+        ? SkyColors.gold
+        : _mix(SkyColors.gold, SkyColors.ink, .4);
+    c.drawCircle(
+      Offset(radius * .02, radius * .035),
+      plate,
+      Paint()..color = SkyColors.ink.withValues(alpha: .18),
+    );
     c.drawCircle(
       Offset.zero,
       plate,
-      Paint()..color = _mix(SkyColors.sand, SkyColors.cream, .48),
+      Paint()..color = _mix(SkyColors.sand, SkyColors.cream, .5),
     );
     c.drawCircle(
       Offset.zero,
       plate,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = math.min(1.7, math.max(.55, radius * .034))
-        ..color = _mix(SkyColors.gold, SkyColors.ink, .4),
+        ..strokeWidth = math.min(2.0, math.max(.7, radius * .036))
+        ..color = brass,
     );
-    if (radius >= 12) {
+    if (radius >= 16) _balls(c, radius);
+    if (cleared) {
+      // A deep mint seat so the cream star painted over the orb stays legible.
       c.drawCircle(
         Offset.zero,
-        radius * .27,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = math.min(2.8, math.max(.75, radius * .07))
-          ..color = _mix(SkyColors.ink, tone, .58),
+        radius * .23,
+        Paint()..color = _mix(SkyColors.teal, SkyColors.ink, .3),
       );
+      return;
     }
-    if (radius >= 16) _balls(c, radius);
-    _jewel(c, radius, variant, tone, time, reducedMotion, cleared);
+    _jewel(c, radius, variant, tone, time, reducedMotion);
   }
 
   static void _balls(Canvas c, double radius) {
-    final orbit = radius * .27;
-    final ball = radius * .046;
-    final metal = _mix(SkyColors.sand, SkyColors.ink, .22);
+    final orbit = radius * .255;
+    final ball = radius * .04;
+    final metal = _mix(SkyColors.sand, SkyColors.ink, .28);
+    final shine = Paint()..color = SkyColors.cream;
     for (var i = 0; i < 4; i++) {
       final angle = i * math.pi / 2 + math.pi / 4;
       final at = Offset(math.cos(angle) * orbit, math.sin(angle) * orbit);
       c.drawCircle(at, ball, Paint()..color = metal);
-      c.drawCircle(
-        at + Offset(-ball * .28, -ball * .32),
-        ball * .36,
-        Paint()..color = SkyColors.cream,
-      );
+      c.drawCircle(at + Offset(-ball * .3, -ball * .3), ball * .38, shine);
     }
   }
 
@@ -311,9 +297,8 @@ abstract final class SunWheelsDesign {
     Color tone,
     double time,
     bool reducedMotion,
-    bool cleared,
   ) {
-    final size = radius * (variant == 2 ? .16 : .145);
+    final size = radius * (variant == 2 ? .15 : .14);
     if (size < .4) return;
     final shape = switch (variant) {
       1 => _ngon(6, size, -math.pi / 2),
@@ -322,25 +307,21 @@ abstract final class SunWheelsDesign {
     };
     c.drawCircle(
       Offset.zero,
-      size * 1.28,
-      Paint()..color = _mix(SkyColors.ink, SkyColors.gold, .28),
+      size * 1.34,
+      Paint()..color = _mix(SkyColors.ink, tone, .22),
     );
-    c.drawPath(
-      shape,
-      Paint()
-        ..color = _mix(tone, cleared ? SkyColors.cream : SkyColors.yellow, .38),
-    );
-    final gleam = reducedMotion ? .6 : _pulse(time);
+    c.drawPath(shape, Paint()..color = _mix(tone, SkyColors.yellow, .45));
+    final gleam = reducedMotion ? .7 : _pulse(time);
     c.save();
     c.clipPath(shape);
     c.drawCircle(
-      Offset(size * .3, size * .34),
-      size * .76,
-      Paint()..color = _mix(tone, SkyColors.ink, .34).withValues(alpha: .6),
+      Offset(size * .34, size * .38),
+      size * .78,
+      Paint()..color = _mix(tone, SkyColors.ink, .3).withValues(alpha: .55),
     );
     c.drawCircle(
-      Offset(-size * .28, -size * .32),
-      size * .22,
+      Offset(-size * .3, -size * .34),
+      size * .26,
       Paint()..color = SkyColors.white.withValues(alpha: gleam),
     );
     c.restore();
@@ -349,7 +330,7 @@ abstract final class SunWheelsDesign {
   static double _pulse(double time) {
     const period = math.pi * 2 / 2.15;
     final local = (time % period) * 2.15;
-    return .42 + .4 * (math.sin(local) * .5 + .5);
+    return .5 + .35 * (math.sin(local) * .5 + .5);
   }
 
   static Path _ngon(int sides, double radius, double turn) {
@@ -366,30 +347,107 @@ abstract final class SunWheelsDesign {
     return path..close();
   }
 
-  static void _rim(Canvas c, double radius, Color tone) {
-    final width = math.min(radius * .18, math.max(radius * .07, 1.25));
+  /// The collision edge: a saturated bezel band with a crisp ink outline, a
+  /// cream inner lip, lit and shaded arcs, and evenly spaced studs.
+  static void _bezel(
+    Canvas c,
+    double radius,
+    int variant,
+    Color tone,
+    bool perfect,
+  ) {
+    final outline = math.min(3.4, math.max(1.3, radius * .045));
+    final band = math.min(radius * .3, math.max(radius * .15, 2.2));
+    final bandAt = radius - band / 2;
     c.drawCircle(
       Offset.zero,
-      math.max(0.0, radius - width / 2),
+      math.max(0.0, bandAt),
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = width
-        ..color = _mix(tone, SkyColors.ink, .44),
+        ..strokeWidth = band
+        ..color = _mix(tone, SkyColors.ink, .12),
     );
-    final lip = math.min(width * .38, radius * .04);
-    final lipAt = radius - width - lip / 2;
-    if (lipAt <= 0 || lip <= 0) return;
+    if (radius >= 10) {
+      final arc = Rect.fromCircle(
+        center: Offset.zero,
+        radius: radius - outline - (band - outline) / 2,
+      );
+      final width = (band - outline) * .45;
+      c.drawArc(
+        arc,
+        math.pi * .8,
+        math.pi * .95,
+        false,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = width
+          ..strokeCap = StrokeCap.round
+          ..color = SkyColors.cream.withValues(alpha: .38),
+      );
+      c.drawArc(
+        arc,
+        -math.pi * .15,
+        math.pi * .8,
+        false,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = width
+          ..strokeCap = StrokeCap.round
+          ..color = SkyColors.ink.withValues(alpha: .16),
+      );
+    }
+    if (radius >= 18) _studs(c, radius, band, outline, variant, tone);
+    final lip = math.min(1.6, math.max(.6, radius * .022));
+    final lipAt = radius - band - lip / 2;
+    if (lipAt > 0) {
+      c.drawCircle(
+        Offset.zero,
+        lipAt,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = lip
+          ..color = _mix(tone, SkyColors.ink, .5),
+      );
+      c.drawCircle(
+        Offset.zero,
+        lipAt - lip,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = perfect ? lip * 1.6 : lip
+          // A perfect pass lights the inner lip in yellow, like a gilt bezel.
+          ..color = perfect
+              ? SkyColors.yellow
+              : SkyColors.cream.withValues(alpha: .8),
+      );
+    }
     c.drawCircle(
       Offset.zero,
-      lipAt,
+      math.max(0.0, radius - outline / 2),
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = lip
-        ..color = _mix(
-          SkyColors.cream,
-          SkyColors.yellow,
-          .3,
-        ).withValues(alpha: .92),
+        ..strokeWidth = outline
+        ..color = _mix(tone, SkyColors.ink, .62),
     );
+  }
+
+  static void _studs(
+    Canvas c,
+    double radius,
+    double band,
+    double outline,
+    int variant,
+    Color tone,
+  ) {
+    final count = const [12, 12, 10][variant];
+    final at = radius - outline / 2 - band / 2;
+    final size = math.min(band * .2, radius * .032);
+    final base = Paint()..color = _mix(tone, SkyColors.ink, .38);
+    final shine = Paint()..color = _mix(SkyColors.cream, tone, .2);
+    for (var i = 0; i < count; i++) {
+      final angle = i * math.pi * 2 / count;
+      final p = Offset(math.cos(angle), math.sin(angle)) * at;
+      c.drawCircle(p, size, base);
+      c.drawCircle(p + Offset(-size, -size) * .3, size * .5, shine);
+    }
   }
 }

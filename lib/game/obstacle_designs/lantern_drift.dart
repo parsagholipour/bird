@@ -5,8 +5,18 @@ import 'package:flutter/painting.dart';
 import '../../ui/theme.dart';
 import '../sky_scenery.dart';
 
-/// Spherical paper lantern clipped to the circular collision body.
+/// Round paper lantern clipped to the circular collision body. The paper is
+/// lit from inside, ribbed like a chōchin and capped with lacquered bands so
+/// both poles read clearly, while a solid rim marks the collision edge.
 abstract final class LanternDriftDesign {
+  /// Latitude of the lacquered caps as a fraction of the radius.
+  static const _capAt = .56;
+
+  /// How far a latitude line bows toward its pole, per unit of latitude.
+  /// The equator stays straight and lines bow more near the caps, the
+  /// classic storybook way of drawing a round lantern.
+  static const _bow = .24;
+
   static void paint(
     Canvas c,
     double radius, {
@@ -16,203 +26,230 @@ abstract final class LanternDriftDesign {
     required bool reducedMotion,
     required bool upper,
     required bool cleared,
+    bool perfect = false,
   }) {
     if (!radius.isFinite || radius <= 0) return;
     final time = seconds.isFinite ? math.max(0.0, seconds) : 0.0;
     final variant = (appearance % 3 + 3) % 3;
     final sky = SkyPalette.at(time);
-    final wave = reducedMotion ? 0.0 : math.sin(time * 2.4);
-    final body = _mix(
-      cleared ? _mix(accent, SkyColors.mint, .4) : accent,
-      sky.haze,
-      .08,
-    );
+    // Lanterns burn brighter as the sky darkens toward twilight.
+    final night = SkyPalette.regionWeight(time, 2);
+    final flicker = reducedMotion ? 0.0 : math.sin(time * 2.4);
+    final body = _mix(cleared ? _cleared(accent) : accent, sky.haze, .08);
+    final flame = cleared
+        ? _mix(SkyColors.cream, SkyColors.yellow, .45)
+        : switch (variant) {
+            1 => _mix(SkyColors.yellow, SkyColors.coral, .3),
+            2 => _mix(SkyColors.yellow, SkyColors.mint, .25),
+            _ => SkyColors.yellow,
+          };
     final bounds = Rect.fromCircle(center: Offset.zero, radius: radius);
-    c.drawCircle(Offset.zero, radius, Paint()..shader = _sphere(bounds, body));
 
     c.save();
     c.clipPath(Path()..addOval(bounds));
+    c.drawCircle(
+      Offset.zero,
+      radius,
+      Paint()..shader = _paper(bounds, body, flame, night),
+    );
     if (radius >= 8) {
-      _volume(c, radius, body, sky.haze, wave, variant, cleared);
-      if (radius >= 12) _framework(c, radius);
-      _caps(c, radius, upper);
+      _glow(c, radius, flame, night, flicker);
+      if (radius >= 12) _ribs(c, radius, body);
+      _shade(c, bounds, body);
+      _caps(c, radius, body, upper);
       if (radius >= 15) {
         _emblem(
           c,
           radius,
           variant,
           accent,
+          cleared,
+          perfect,
           reducedMotion ? 1 : .82 + .18 * math.sin(time * 3.1),
         );
       }
+      _sheen(c, radius);
     }
-    _edge(c, radius, body, cleared);
+    _edge(c, radius, body, cleared, perfect);
     c.restore();
   }
 
   static Color _mix(Color a, Color b, double t) => Color.lerp(a, b, t)!;
 
-  static Shader _sphere(Rect bounds, Color body) {
+  /// Cleared tint: turn the hue part way toward mint in HSL, lift it slightly
+  /// and add a touch of saturation, so complementary accents such as coral
+  /// stay bright instead of going muddy the way an RGB mix would.
+  static Color _cleared(Color accent) {
+    final a = HSLColor.fromColor(accent);
+    final mint = HSLColor.fromColor(SkyColors.mint);
+    final turn = ((mint.hue - a.hue + 540) % 360) - 180;
+    return a
+        .withHue((a.hue + turn * .15 + 360) % 360)
+        .withSaturation(math.min(1.0, a.saturation * 1.15))
+        .withLightness(a.lightness + (mint.lightness - a.lightness) * .25)
+        .toColor();
+  }
+
+  /// Paper lit from its centre: warm core, true accent midway, deeper edge.
+  static Shader _paper(Rect bounds, Color body, Color flame, double night) {
     return RadialGradient(
-      center: const Alignment(-.34, -.4),
-      radius: 1.06,
+      center: const Alignment(0, .05),
+      radius: .98,
       colors: [
-        _mix(SkyColors.cream, SkyColors.yellow, .18),
-        _mix(body, SkyColors.cream, .55),
+        _mix(_mix(body, SkyColors.cream, .5), flame, .3 + night * .12),
+        _mix(body, SkyColors.cream, .2),
         body,
-        _mix(body, SkyColors.ink, .26),
+        _mix(body, SkyColors.ink, .22),
       ],
-      stops: const [0, .24, .6, 1],
+      stops: const [0, .42, .78, 1],
     ).createShader(bounds);
   }
 
-  static void _volume(
+  static void _glow(
     Canvas c,
     double radius,
-    Color body,
-    Color haze,
-    double wave,
-    int variant,
-    bool cleared,
+    Color flame,
+    double night,
+    double flicker,
   ) {
-    c.drawCircle(
-      Offset(radius * .44, radius * .48),
-      radius * .74,
-      Paint()..color = _mix(body, SkyColors.ink, .55).withValues(alpha: .16),
-    );
-    c.drawOval(
-      Rect.fromCenter(
-        center: Offset(-radius * .4, radius * .02),
-        width: radius * .3,
-        height: radius * .52,
-      ),
-      Paint()..color = haze.withValues(alpha: .22),
-    );
-    final flame = cleared
-        ? _mix(SkyColors.cream, SkyColors.yellow, .45)
-        : switch (variant) {
-            1 => _mix(SkyColors.yellow, SkyColors.coral, .35),
-            2 => _mix(SkyColors.yellow, SkyColors.mint, .28),
-            _ => SkyColors.yellow,
-          };
-    final glow = radius * .56;
+    final glow = radius * (.6 + night * .08);
     c.drawCircle(
       Offset.zero,
       glow,
       Paint()
         ..shader = RadialGradient(
           colors: [
-            flame.withValues(alpha: .42 + wave * .08),
+            flame.withValues(alpha: .34 + night * .28 + flicker * .06),
             flame.withValues(alpha: 0),
           ],
         ).createShader(Rect.fromCircle(center: Offset.zero, radius: glow)),
     );
-    c.drawOval(
-      Rect.fromCenter(
-        center: Offset(-radius * .32, -radius * .34),
-        width: radius * .24,
-        height: radius * .12,
-      ),
-      Paint()..color = SkyColors.white.withValues(alpha: .75),
-    );
   }
 
-  static void _framework(Canvas c, double radius) {
-    final seam = Paint()
+  /// Bamboo hoops silhouetted by the inner light.
+  static void _ribs(Canvas c, double radius, Color body) {
+    final rib = Paint()
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
-      ..strokeWidth = math.max(1.35, radius * .05)
-      ..color = SkyColors.cream.withValues(alpha: .84);
+      ..strokeWidth = math.max(1.1, radius * .032)
+      ..color = _mix(body, SkyColors.ink, .45).withValues(alpha: .42);
     final crease = Paint()
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
-      ..strokeWidth = seam.strokeWidth
-      ..color = SkyColors.ink.withValues(alpha: .16);
-    final rib = Rect.fromCenter(
-      center: Offset.zero,
-      width: radius * .7,
-      height: radius * 1.9,
-    );
-    final nudge = Offset(radius * .025, radius * .012);
-    c.drawOval(rib.shift(nudge), crease);
-    c.drawOval(rib, seam);
-    c.drawLine(
-      Offset(nudge.dx, -radius * .64),
-      Offset(nudge.dx, radius * .64),
-      crease,
-    );
-    c.drawLine(Offset(0, -radius * .64), Offset(0, radius * .64), seam);
-
-    final hoop = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = math.max(1.7, radius * .062)
-      ..color = _mix(SkyColors.gold, SkyColors.cream, .18);
-    for (final side in const [-1.0, 1.0]) {
+      ..strokeWidth = math.max(.8, radius * .018)
+      ..color = SkyColors.cream.withValues(alpha: .38);
+    const steps = 6;
+    for (var i = 1; i < steps; i++) {
+      final t = _capAt * (2 * i / steps - 1);
+      final y = radius * t;
+      final half = radius * math.sqrt(math.max(0.0, 1 - t * t));
+      final sag = half * _bow * t.abs();
+      if (sag < .5) {
+        c.drawLine(Offset(-half, y), Offset(half, y), rib);
+        c.drawLine(
+          Offset(-half * .7, y + rib.strokeWidth * 1.1),
+          Offset(-half * .1, y + rib.strokeWidth * 1.1),
+          crease,
+        );
+        continue;
+      }
+      final hoop = Rect.fromCenter(
+        center: Offset(0, y),
+        width: half * 2,
+        height: sag * 2,
+      );
+      // Upper hoops show their top arc, lower hoops their bottom arc.
+      final start = t < 0 ? math.pi : 0.0;
+      c.drawArc(hoop, start, math.pi, false, rib);
       c.drawArc(
-        Rect.fromCenter(
-          center: Offset(0, side * radius * .46),
-          width: radius * 1.84,
-          height: radius * .32,
-        ),
-        side < 0 ? 0 : math.pi,
-        math.pi,
+        hoop.shift(Offset(0, rib.strokeWidth * 1.1)),
+        t < 0 ? math.pi * 1.18 : math.pi * .32,
+        math.pi * .5,
         false,
-        hoop,
+        crease,
       );
     }
   }
 
-  static void _caps(Canvas c, double radius, bool upper) {
+  /// Soft terminator on the lower right so the paper reads as a sphere.
+  static void _shade(Canvas c, Rect bounds, Color body) {
+    final dark = _mix(body, SkyColors.ink, .6);
+    c.drawRect(
+      bounds,
+      Paint()
+        ..shader = RadialGradient(
+          center: const Alignment(-.38, -.42),
+          radius: 1.34,
+          colors: [
+            dark.withValues(alpha: 0),
+            dark.withValues(alpha: 0),
+            dark.withValues(alpha: .26),
+          ],
+          stops: const [0, .6, 1],
+        ).createShader(bounds),
+    );
+  }
+
+  /// Lacquered bands at both poles, mirror images of each other. Their inner
+  /// edge bows like the hoops so the band wraps the sphere.
+  static void _caps(Canvas c, double radius, Color body, bool upper) {
+    final y0 = radius * _capAt;
+    final half = radius * math.sqrt(1 - _capAt * _capAt);
+    final sag = half * _bow * _capAt;
+    final light = _mix(body, SkyColors.ink, .36);
+    final dark = _mix(body, SkyColors.ink, .64);
+    final lacquer = Paint()
+      ..shader = LinearGradient(
+        colors: [light, _mix(light, dark, .45), dark],
+        stops: const [.12, .5, 1],
+      ).createShader(Rect.fromLTRB(-half, -radius, half, radius));
+    final trim = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = math.max(1.2, radius * .045)
+      ..color = _mix(SkyColors.gold, SkyColors.yellow, .25);
     final tether = upper ? -1.0 : 1.0;
+    final rim = math.max(radius * .07, 1.25);
     for (final side in const [-1.0, 1.0]) {
-      final primary = side == tether;
-      final width = radius * (primary ? .94 : .74);
-      final inner = side * radius * (primary ? .62 : .72);
-      final rect = Rect.fromLTRB(
-        -width / 2,
-        math.min(side * radius * 1.05, inner),
-        width / 2,
-        math.max(side * radius * 1.05, inner),
+      final y = side * y0;
+      final band = Rect.fromCenter(
+        center: Offset(0, y),
+        width: half * 2,
+        height: sag * 2,
       );
-      if (rect.width < 1 || rect.height < 1) continue;
-      c.drawRRect(
-        RRect.fromRectAndRadius(rect, Radius.circular(radius * .16)),
-        Paint()
-          ..shader = LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              _mix(SkyColors.gold, SkyColors.cream, side < 0 ? .5 : .14),
-              SkyColors.gold,
-              _mix(SkyColors.gold, SkyColors.coralDeep, side < 0 ? .2 : .5),
-            ],
-          ).createShader(rect),
+      // The arc runs from the left end through the pole-side bulge.
+      c.drawPath(
+        Path()
+          ..moveTo(-radius, y)
+          ..lineTo(-half, y)
+          ..arcTo(band, math.pi, -side * math.pi, false)
+          ..lineTo(radius, y)
+          ..lineTo(radius, side * radius)
+          ..lineTo(-radius, side * radius)
+          ..close(),
+        lacquer,
       );
       if (radius < 12) continue;
-      final lip = inner - side * radius * .02;
-      c.drawLine(
-        Offset(-width * .32, lip),
-        Offset(width * .32, lip),
-        Paint()
-          ..strokeCap = StrokeCap.round
-          ..strokeWidth = math.max(1, radius * .04)
-          ..color = SkyColors.ink.withValues(alpha: .18),
-      );
+      c.drawArc(band, side < 0 ? math.pi : 0, math.pi, false, trim);
+      // Visible band thickness on the centre line, inside the rim.
+      final inner = y0 + sag, outer = radius - rim;
       c.drawOval(
         Rect.fromCenter(
-          center: Offset(-radius * .1, side * radius * .8),
-          width: radius * .22,
-          height: radius * .065,
+          center: Offset(-half * .42, side * (inner + outer) / 2),
+          width: half * .4,
+          height: math.max(1.0, (outer - inner) * .26),
         ),
-        Paint()..color = SkyColors.cream.withValues(alpha: side < 0 ? .8 : .4),
+        Paint()
+          ..color = SkyColors.cream.withValues(alpha: side < 0 ? .45 : .26),
       );
-      if (!primary) continue;
+      if (side != tether) continue;
+      final eye = Offset(0, side * (inner + outer) / 2);
       c.drawCircle(
-        Offset(0, side * radius * .83),
-        radius * .055,
-        Paint()..color = _mix(SkyColors.ink, SkyColors.gold, .42),
+        eye,
+        radius * .062,
+        Paint()..color = _mix(SkyColors.gold, SkyColors.cream, .2),
       );
+      c.drawCircle(eye, radius * .03, Paint()..color = SkyColors.ink);
     }
   }
 
@@ -221,35 +258,65 @@ abstract final class LanternDriftDesign {
     double radius,
     int variant,
     Color accent,
+    bool cleared,
+    bool perfect,
     double starAlpha,
   ) {
-    final s = radius * .33;
-    final plate = switch (variant) {
-      1 => _mix(SkyColors.cream, SkyColors.yellow, .28),
-      2 => _mix(SkyColors.cream, SkyColors.mint, .22),
-      _ => SkyColors.cream,
-    };
+    final s = radius * .31;
+    final plate = cleared
+        ? _mix(SkyColors.teal, SkyColors.ink, .12)
+        : switch (variant) {
+            1 => _mix(SkyColors.cream, SkyColors.yellow, .22),
+            2 => _mix(SkyColors.cream, SkyColors.mint, .2),
+            _ => SkyColors.cream,
+          };
     c.drawCircle(
-      Offset(s * .06, s * .07),
-      s * 1.1,
-      Paint()..color = SkyColors.ink.withValues(alpha: .14),
+      Offset(s * .06, s * .1),
+      s * 1.08,
+      Paint()..color = SkyColors.ink.withValues(alpha: .16),
     );
     c.drawCircle(Offset.zero, s, Paint()..color = plate);
-    switch (variant) {
-      case 1:
-        _blossom(c, s, accent);
-      case 2:
-        _bird(c, s);
-      default:
-        _moon(c, s, starAlpha);
+    // Once cleared, the plate becomes a dark seal for the shared cream star.
+    if (!cleared) {
+      switch (variant) {
+        case 1:
+          _blossom(c, s, accent);
+        case 2:
+          _bird(c, s);
+        default:
+          _moon(c, s, starAlpha);
+      }
     }
     c.drawCircle(
       Offset.zero,
       s,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = math.max(1.6, s * .15)
+        ..strokeWidth = math.max(1.5, s * .14)
         ..color = SkyColors.gold,
+    );
+    if (perfect) {
+      // A perfect pass rings the seal in bright yellow just outside the gold.
+      final halo = math.max(1.2, s * .1);
+      c.drawCircle(
+        Offset.zero,
+        s * 1.07 + halo / 2,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = halo
+          ..color = SkyColors.yellow,
+      );
+    }
+    c.drawArc(
+      Rect.fromCircle(center: Offset.zero, radius: s * .8),
+      math.pi * 1.1,
+      math.pi * .45,
+      false,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round
+        ..strokeWidth = math.max(.9, s * .08)
+        ..color = SkyColors.white.withValues(alpha: cleared ? .3 : .7),
     );
   }
 
@@ -258,21 +325,21 @@ abstract final class LanternDriftDesign {
       Path()
         ..fillType = PathFillType.evenOdd
         ..addOval(
-          Rect.fromCircle(center: Offset(-s * .12, s * .02), radius: s * .58),
+          Rect.fromCircle(center: Offset(-s * .12, s * .04), radius: s * .56),
         )
         ..addOval(
-          Rect.fromCircle(center: Offset(s * .16, -s * .02), radius: s * .46),
+          Rect.fromCircle(center: Offset(s * .14, -s * .04), radius: s * .46),
         ),
       Paint()..color = SkyColors.gold,
     );
     c.drawPath(
-      _spark(Offset(s * .48, -s * .4), s * .24),
+      _spark(Offset(s * .42, -s * .36), s * .22),
       Paint()..color = SkyColors.coral.withValues(alpha: starAlpha),
     );
   }
 
   static void _blossom(Canvas c, double s, Color accent) {
-    final petal = Paint()..color = accent;
+    final petal = Paint()..color = _mix(accent, SkyColors.coral, .35);
     for (var i = 0; i < 5; i++) {
       final a = -math.pi / 2 + i * math.pi * 2 / 5;
       c.drawCircle(
@@ -334,34 +401,57 @@ abstract final class LanternDriftDesign {
       ..close();
   }
 
-  static void _edge(Canvas c, double radius, Color body, bool cleared) {
-    if (cleared && radius >= 8) {
-      c.drawCircle(
-        Offset.zero,
-        radius * .9,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = math.max(1.4, radius * .05)
-          ..color = SkyColors.mint.withValues(alpha: .9),
-      );
-    }
-    final width = math.min(radius * .42, math.max(1.35, radius * .06));
+  /// Paper sheen on the upper left, kept soft so it never reads as glass.
+  static void _sheen(Canvas c, double radius) {
+    c.drawOval(
+      Rect.fromCenter(
+        center: Offset(-radius * .5, -radius * .3),
+        width: radius * .2,
+        height: radius * .42,
+      ),
+      Paint()..color = SkyColors.white.withValues(alpha: .26),
+    );
+    c.drawOval(
+      Rect.fromCenter(
+        center: Offset(-radius * .52, -radius * .36),
+        width: radius * .09,
+        height: radius * .16,
+      ),
+      Paint()..color = SkyColors.white.withValues(alpha: .6),
+    );
+  }
+
+  static void _edge(
+    Canvas c,
+    double radius,
+    Color body,
+    bool cleared,
+    bool perfect,
+  ) {
+    final width = math.min(radius * .18, math.max(radius * .07, 1.25));
     c.drawCircle(
       Offset.zero,
       math.max(0.0, radius - width / 2),
       Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = width
-        ..color = _mix(SkyColors.ink, body, .48).withValues(alpha: .9),
+        ..color = _mix(body, SkyColors.ink, .56),
     );
     if (radius < 10) return;
+    final lip = math.min(width * .4, radius * .035);
+    final lipAt = radius - width - lip / 2;
+    if (lipAt <= 0) return;
     c.drawCircle(
       Offset.zero,
-      math.max(0.0, radius - width - radius * .018),
+      lipAt,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = math.max(.8, radius * .022)
-        ..color = SkyColors.cream.withValues(alpha: .72),
+        ..strokeWidth = lip
+        ..color = perfect
+            ? SkyColors.yellow
+            : (cleared ? SkyColors.mint : SkyColors.cream).withValues(
+                alpha: cleared ? .95 : .6,
+              ),
     );
   }
 }
