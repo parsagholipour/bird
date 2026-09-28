@@ -13,8 +13,8 @@ import 'experience_ui_test.dart' show capture;
 const _phone = Size(1000, 450);
 
 /// Flies a recorded Star Trail touch flight, steering for each opening, and
-/// captures real game frames as the world tour crosses from Egypt into
-/// Antarctica and then into the jungle.
+/// captures real game frames as the world tour crosses from the jungle into
+/// Antarctica.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(() async {
@@ -103,7 +103,7 @@ void main() {
         await capture(tester, 'regions/flight-${sim.elapsed.round()}s');
       }
     }
-    expect(regions, containsAll([WorldRegion.egypt, WorldRegion.antarctica]));
+    expect(regions, containsAll([WorldRegion.jungle, WorldRegion.antarctica]));
     await tester.pumpWidget(const SizedBox());
   });
 }

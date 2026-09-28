@@ -258,6 +258,123 @@ abstract final class Kit {
           s * .14,
           paint..color = const Color(0xccffffff),
         );
+      case WorldRegion.aztec:
+        // A jade mask: a green disc with dark eyes and a gold crown.
+        c.drawCircle(
+          Offset.zero,
+          s * .8,
+          paint..color = perfect ? gold : const Color(0xff2fb5a0),
+        );
+        c.drawRect(
+          Rect.fromLTRB(-s * .8, -s * .8, s * .8, -s * .5),
+          paint..color = perfect ? goldDeep : const Color(0xffe6b44c),
+        );
+        for (final dx in const [-.33, .33]) {
+          c.drawCircle(
+            Offset(dx * s, -s * .08),
+            s * .17,
+            paint..color = const Color(0xff1f3a3a),
+          );
+        }
+        c.drawRect(
+          Rect.fromCenter(
+            center: Offset(0, s * .4),
+            width: s * .7,
+            height: s * .16,
+          ),
+          paint..color = const Color(0xff1f3a3a),
+        );
+      case WorldRegion.paris:
+        // A golden star.
+        c.drawPath(
+          Path()
+            ..moveTo(0, -s)
+            ..lineTo(s * .28, -s * .28)
+            ..lineTo(s, 0)
+            ..lineTo(s * .28, s * .28)
+            ..lineTo(0, s)
+            ..lineTo(-s * .28, s * .28)
+            ..lineTo(-s, 0)
+            ..lineTo(-s * .28, -s * .28)
+            ..close(),
+          paint..color = perfect ? gold : const Color(0xffffe08a),
+        );
+        c.drawCircle(
+          Offset.zero,
+          s * .18,
+          paint..color = perfect ? goldDeep : const Color(0xffe8a73c),
+        );
+      case WorldRegion.brazil:
+        // A football: a white ball with a dark centre patch.
+        c.drawCircle(
+          Offset.zero,
+          s * .85,
+          paint..color = perfect ? gold : const Color(0xfff6f1e2),
+        );
+        final patch = paint..color = perfect ? goldDeep : const Color(0xff26303a);
+        c.drawPath(
+          Path()
+            ..moveTo(0, -s * .34)
+            ..lineTo(s * .32, -s * .1)
+            ..lineTo(s * .2, s * .28)
+            ..lineTo(-s * .2, s * .28)
+            ..lineTo(-s * .32, -s * .1)
+            ..close(),
+          patch,
+        );
+        for (var i = 0; i < 5; i++) {
+          final a = -math.pi / 2 + i * math.pi * 2 / 5;
+          c.drawLine(
+            Offset(math.cos(a), math.sin(a)) * s * .36,
+            Offset(math.cos(a), math.sin(a)) * s * .8,
+            Paint()
+              ..color = const Color(0xff26303a)
+              ..strokeWidth = math.max(.8, s * .09),
+          );
+        }
+      case WorldRegion.dubai:
+        // A sail-shaped tower spire on a turquoise disc.
+        c.drawCircle(
+          Offset.zero,
+          s * .82,
+          paint..color = perfect ? gold : const Color(0xff2fc4d6),
+        );
+        c.drawPath(
+          Path()
+            ..moveTo(0, -s * .85)
+            ..lineTo(s * .18, s * .7)
+            ..lineTo(-s * .18, s * .7)
+            ..close(),
+          paint..color = perfect ? goldDeep : const Color(0xfff6fbff),
+        );
+      case WorldRegion.rome:
+        // A laurel wreath ring around a red dot.
+        final leaf = paint..color = perfect ? gold : const Color(0xff7fa85a);
+        for (var i = 0; i < 8; i++) {
+          final a = -math.pi / 2 + i * math.pi / 4;
+          c.drawCircle(Offset(math.cos(a), math.sin(a)) * s * .7, s * .22, leaf);
+        }
+        c.drawCircle(
+          Offset.zero,
+          s * .34,
+          paint..color = perfect ? goldDeep : const Color(0xffb23a2c),
+        );
+      case WorldRegion.mexico:
+        // A marigold: two rings of round petals.
+        final petal = perfect ? gold : const Color(0xfff7a21b);
+        for (var i = 0; i < 8; i++) {
+          final a = i * math.pi / 4;
+          c.drawCircle(
+            Offset(math.cos(a), math.sin(a)) * s * .55,
+            s * .3,
+            paint..color = petal,
+          );
+        }
+        c.drawCircle(
+          Offset.zero,
+          s * .34,
+          paint..color = perfect ? goldDeep : const Color(0xffe6407a),
+        );
       case WorldRegion.sea:
         // A starfish.
         final path = Path();

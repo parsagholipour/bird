@@ -39,9 +39,9 @@ double difference(List<int> a, List<int> b) {
   return total / a.length;
 }
 
-/// Mid-hold seconds of regions that borrow each legacy look: warm Egypt,
+/// Mid-hold seconds of regions that borrow each legacy look: warm Aztec,
 /// night Antarctica and day Jungle.
-const warm = 8.0, night = 30.0, day = 52.0;
+const warm = 52.0, night = 30.0, day = 8.0;
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

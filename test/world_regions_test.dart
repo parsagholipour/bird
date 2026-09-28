@@ -60,28 +60,43 @@ void main() {
         expect(mid.t, closeTo(.5, 1e-9));
         expect(mid.crossing, isTrue);
       }
-      expect(WorldRegion.values.first, WorldRegion.egypt);
-      expect(WorldRegion.egypt.next, WorldRegion.antarctica);
-      expect(WorldRegion.sea.next, WorldRegion.egypt);
+      expect(WorldRegion.values.first, WorldRegion.jungle);
+      expect(WorldRegion.jungle.next, WorldRegion.antarctica);
+      expect(WorldRegion.antarctica.next, WorldRegion.aztec);
+      expect(WorldRegion.paris.next, WorldRegion.egypt);
+      expect(WorldRegion.sea.next, WorldRegion.jungle);
+      expect(
+        WorldRegion.values,
+        containsAll([
+          WorldRegion.egypt,
+          WorldRegion.aztec,
+          WorldRegion.mexico,
+          WorldRegion.paris,
+          WorldRegion.brazil,
+          WorldRegion.dubai,
+          WorldRegion.rome,
+        ]),
+      );
       expect(WorldTour.loop, WorldTour.leg * WorldRegion.values.length);
     });
 
     test('first hand-off comes early enough for short flights', () {
       // A first Classic flight often lasts half a minute; it should still see
-      // Egypt hand over to Antarctica, and a minute should show three regions.
+      // the jungle hand over to Antarctica, and a minute should show three
+      // regions.
       expect(
         WorldTour.at(WorldTour.hold + WorldTour.crossing).from,
         WorldRegion.antarctica,
       );
       expect(WorldTour.hold + WorldTour.crossing, lessThanOrEqualTo(25));
-      expect(WorldTour.at(60).from, WorldRegion.jungle);
-      expect(WorldTour.at(WorldTour.loop + 1).from, WorldRegion.egypt);
+      expect(WorldTour.at(60).from, WorldRegion.aztec);
+      expect(WorldTour.at(WorldTour.loop + 1).from, WorldRegion.jungle);
     });
 
     test('bad clocks fall back to the first region', () {
       for (final second in [-5.0, double.nan, double.infinity]) {
         final blend = WorldTour.at(second);
-        expect(blend.from, WorldRegion.egypt);
+        expect(blend.from, WorldRegion.jungle);
         expect(blend.t, 0);
       }
     });

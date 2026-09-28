@@ -7,7 +7,9 @@ import 'world_region.dart';
 /// The burst that celebrates a perfect pass or a gate milestone, in the
 /// region's own vocabulary: gold and faience sparkles in Egypt, snowflakes in
 /// Antarctica, leaves in the jungle, blossom petals in China, ticker tape in
-/// New York and bubbles at sea.
+/// New York and bubbles at sea; feathers and jade in Aztec lands, gold stars
+/// over Paris, confetti in Brazil, glitter in Dubai, laurel leaves in Rome and
+/// marigold petals in Mexico.
 abstract final class RegionBurst {
   static final _leaf = Path()
     ..moveTo(-1, 0)
@@ -109,6 +111,78 @@ abstract final class RegionBurst {
               height: size * 2,
             ),
             paint,
+          );
+        case WorldRegion.aztec:
+          paint.color = Sketch.fade(
+            gold || i % 3 == 0
+                ? const Color(0xffffc93f)
+                : (i.isOdd ? const Color(0xff2fb5a0) : const Color(0xffe0523a)),
+            alpha,
+          );
+          c.scale(size * 1.2, size * .7);
+          c.drawPath(_leaf, paint);
+        case WorldRegion.paris:
+          paint.color = Sketch.fade(
+            gold ? const Color(0xffffc93f) : const Color(0xfffff0b8),
+            alpha,
+          );
+          c.drawPath(
+            Sketch.poly([
+              0, -size * 1.3, size * .3, -size * .3, size * 1.3, 0, //
+              size * .3, size * .3, 0, size * 1.3, -size * .3, size * .3,
+              -size * 1.3, 0, -size * .3, -size * .3,
+            ]),
+            paint,
+          );
+        case WorldRegion.brazil:
+          const confetti = [
+            Color(0xffffdc2e),
+            Color(0xff2fb85a),
+            Color(0xff2f7de0),
+            Color(0xfff6f1e2),
+          ];
+          paint.color = Sketch.fade(
+            gold ? const Color(0xffffc93f) : confetti[i % confetti.length],
+            alpha,
+          );
+          c.drawRect(
+            Rect.fromCenter(
+              center: Offset.zero,
+              width: size * 1.5,
+              height: size * .8,
+            ),
+            paint,
+          );
+        case WorldRegion.dubai:
+          paint.color = Sketch.fade(
+            gold
+                ? const Color(0xffffd35a)
+                : (i.isOdd ? const Color(0xff7fe3ee) : const Color(0xfffff6dc)),
+            alpha,
+          );
+          c.drawPath(
+            Sketch.poly([0, -size, size * .6, 0, 0, size, -size * .6, 0]),
+            paint,
+          );
+        case WorldRegion.rome:
+          paint.color = Sketch.fade(
+            gold ? const Color(0xffffd35a) : const Color(0xff7fa85a),
+            alpha,
+          );
+          c.scale(size * 1.3, size * .7);
+          c.drawPath(_leaf, paint);
+        case WorldRegion.mexico:
+          paint.color = Sketch.fade(
+            gold
+                ? const Color(0xffffc93f)
+                : (i.isOdd ? const Color(0xfff7a21b) : const Color(0xffe6407a)),
+            alpha,
+          );
+          c.drawCircle(Offset.zero, size * .9, paint);
+          c.drawCircle(
+            Offset.zero,
+            size * .4,
+            paint..color = Sketch.fade(const Color(0xfffff1b0), alpha * .8),
           );
         case WorldRegion.sea:
           paint

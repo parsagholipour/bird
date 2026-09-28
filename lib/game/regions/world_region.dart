@@ -6,14 +6,22 @@ import '../../domain/obstacle.dart';
 /// skyline, weather and obstacle materials, painted procedurally.
 ///
 /// The order alternates warm and cold, day and night, so every hand-off is a
-/// strong contrast: desert noon, polar twilight, jungle morning, a Chinese
-/// dusk, a New York night and an ocean dawn that leads back to the desert.
+/// strong contrast. It opens on a neutral jungle morning, then polar
+/// twilight, an Aztec sunrise, a Paris night, Egyptian noon, a Chinese dusk,
+/// bright Brazil, a New York night, a Dubai morning, golden Rome, a Mexican
+/// dusk and an ocean dawn that leads back to the jungle.
 enum WorldRegion {
-  egypt('Egypt'),
-  antarctica('Antarctica'),
   jungle('Jungle'),
+  antarctica('Antarctica'),
+  aztec('Aztec'),
+  paris('Paris'),
+  egypt('Egypt'),
   china('China'),
+  brazil('Brazil'),
   newYork('New York'),
+  dubai('Dubai'),
+  rome('Ancient Rome'),
+  mexico('Mexico'),
   sea('Open Sea');
 
   const WorldRegion(this.title);
@@ -63,6 +71,48 @@ enum WorldRegion {
       Color(0xffffcdb0),
       Color(0xff3b86a9),
       Color(0xfff47d64),
+    ),
+    aztec => const SkyPalette(
+      Color(0xff6f8fc9),
+      Color(0xffffc27a),
+      Color(0xfff2b58f),
+      Color(0xff6d8a4a),
+      Color(0xff2fb5a0),
+    ),
+    paris => const SkyPalette(
+      Color(0xff1b2354),
+      Color(0xffe59a8a),
+      Color(0xff8a7ca8),
+      Color(0xff2c3050),
+      Color(0xffffd36b),
+    ),
+    brazil => const SkyPalette(
+      Color(0xff3aa0e0),
+      Color(0xffbff0ff),
+      Color(0xffd8f3f0),
+      Color(0xff3fbf7a),
+      Color(0xffffdc2e),
+    ),
+    dubai => const SkyPalette(
+      Color(0xff5fb0e6),
+      Color(0xfff6eede),
+      Color(0xffe6dccb),
+      Color(0xffd8c3a0),
+      Color(0xff2fc4d6),
+    ),
+    rome => const SkyPalette(
+      Color(0xff6a9fd2),
+      Color(0xffffd9a0),
+      Color(0xfff2c9a0),
+      Color(0xffb9905f),
+      Color(0xffb23a2c),
+    ),
+    mexico => const SkyPalette(
+      Color(0xff5b3a8a),
+      Color(0xffff9a5a),
+      Color(0xfff0a67a),
+      Color(0xff7a4a3a),
+      Color(0xffe6407a),
     ),
   };
 }
@@ -144,12 +194,12 @@ class RegionBlend {
 /// Endless flights run from half a minute (a first Classic attempt) to a few
 /// minutes (Star Trail with hearts and shields). A 16 second hold and a 6
 /// second crossing show the first hand-off at 16 s, three regions by the
-/// one-minute mark and the whole tour in 132 s before it loops.
+/// one-minute mark and the whole tour in 264 s before it loops.
 abstract final class WorldTour {
   static const hold = 16.0, crossing = 6.0, leg = hold + crossing;
 
   /// One leg per [WorldRegion].
-  static const loop = leg * 6;
+  static const loop = leg * 12;
 
   static RegionBlend at(double seconds) {
     final s = seconds.isFinite && seconds > 0 ? seconds : 0.0;

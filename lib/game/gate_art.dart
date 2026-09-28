@@ -130,11 +130,20 @@ abstract final class GateArt {
       final weight = blend.weight(region);
       if (weight == 0) continue;
       switch (region) {
-        case WorldRegion.jungle || WorldRegion.sea:
+        case WorldRegion.jungle ||
+            WorldRegion.sea ||
+            WorldRegion.brazil ||
+            WorldRegion.dubai:
           day += weight;
-        case WorldRegion.egypt || WorldRegion.china:
+        case WorldRegion.egypt ||
+            WorldRegion.china ||
+            WorldRegion.aztec ||
+            WorldRegion.rome ||
+            WorldRegion.mexico:
           warm += weight;
-        case WorldRegion.antarctica || WorldRegion.newYork:
+        case WorldRegion.antarctica ||
+            WorldRegion.newYork ||
+            WorldRegion.paris:
           night += weight;
       }
     }

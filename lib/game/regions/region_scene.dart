@@ -2,10 +2,16 @@ import 'dart:math' as math;
 import 'dart:ui';
 
 import 'antarctica.dart';
+import 'aztec.dart';
+import 'brazil.dart';
 import 'china.dart';
+import 'dubai.dart';
 import 'egypt.dart';
 import 'jungle.dart';
+import 'mexico.dart';
 import 'new_york.dart';
+import 'paris.dart';
+import 'rome.dart';
 import 'sea.dart';
 import 'weather.dart';
 import 'world_region.dart';
@@ -152,6 +158,12 @@ abstract class RegionScene {
     WorldRegion.china => const ChinaScene(),
     WorldRegion.newYork => const NewYorkScene(),
     WorldRegion.sea => const SeaScene(),
+    WorldRegion.aztec => const AztecScene(),
+    WorldRegion.paris => const ParisScene(),
+    WorldRegion.brazil => const BrazilScene(),
+    WorldRegion.dubai => const DubaiScene(),
+    WorldRegion.rome => const RomeScene(),
+    WorldRegion.mexico => const MexicoScene(),
   };
 }
 
