@@ -5,6 +5,7 @@ import '../ui/theme.dart';
 import 'sky_scenery.dart';
 import 'boss_motion.dart';
 import 'boss_encounter_art.dart';
+import 'boss_health_bar_art.dart';
 
 abstract final class BossArt {
   static Offset cameraOffset(SkyBoss? boss, bool reducedMotion) =>
@@ -221,75 +222,13 @@ abstract final class BossArt {
     canvas.restore();
   }
 
-  static void healthBar(Canvas canvas, Size size, SkyBoss boss) {
-    if (boss.cinematic) {
-      BossEncounterArt.healthBar(canvas, size, boss);
-      return;
-    }
-    final h = size.height;
-    final w = math.min(size.width * .33, h * .76);
-    final left = (size.width - w) / 2;
-    final defeated = boss.phase == BossPhase.defeated;
-    final arriving = boss.phase == BossPhase.arriving;
-    final title = defeated
-        ? '${boss.name.toUpperCase()} DEFEATED'
-        : '${arriving ? 'BOSS INCOMING' : boss.name.toUpperCase()}  ·  ${boss.hp}/${boss.maxHp}';
-    final panel = RRect.fromRectAndRadius(
-      Rect.fromLTWH(left - h * .025, h * .035, w + h * .05, h * .153),
-      Radius.circular(h * .025),
-    );
-    canvas.drawRRect(
-      panel,
-      Paint()..color = SkyColors.ink.withValues(alpha: .93),
-    );
-    void text(String label, double y, double fontSize, Color color) {
-      final painter = TextPainter(
-        text: TextSpan(
-          text: label,
-          style: heading(fontSize, color: color),
-        ),
-        textDirection: TextDirection.ltr,
-        maxLines: 1,
-      )..layout(maxWidth: w);
-      painter.paint(canvas, Offset((size.width - painter.width) / 2, y));
-    }
-
-    text(
-      title,
-      h * .052,
-      h * .033,
-      defeated ? SkyColors.mint : SkyColors.cream,
-    );
-    final track = Rect.fromLTWH(left, h * .098, w, h * .022);
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(track, Radius.circular(h * .011)),
-      Paint()..color = SkyColors.muted,
-    );
-    if (!defeated) {
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(
-          Rect.fromLTWH(
-            track.left,
-            track.top,
-            w * boss.hp / boss.maxHp,
-            track.height,
-          ),
-          Radius.circular(h * .011),
-        ),
-        Paint()..color = boss.enraged ? SkyColors.coral : SkyColors.yellow,
-      );
-    }
-    text(
-      defeated
-          ? 'Clear skies ahead!'
-          : arriving
-          ? 'Get ready to dodge & shoot'
-          : boss.enraged
-          ? 'FURIOUS!  Keep shooting'
-          : 'Dodge the fireballs · Shoot to hit',
-      h * .141,
-      h * .027,
-      SkyColors.cream,
-    );
-  }
+  /// The boss plate for both encounter styles; cinematic bosses hide it
+  /// during their arrival and victory cutscenes.
+  static void healthBar(
+    Canvas canvas,
+    Size size,
+    SkyBoss boss, {
+    bool reducedMotion = false,
+  }) =>
+      BossHealthBarArt.paint(canvas, size, boss, reducedMotion: reducedMotion);
 }

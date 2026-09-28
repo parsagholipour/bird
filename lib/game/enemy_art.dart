@@ -1,8 +1,7 @@
-import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 import '../domain/game_rules.dart';
-import '../ui/theme.dart';
 import 'enemy_ammo_art.dart';
+import 'enemy_health_bar_art.dart';
 import 'enemy_hit_art.dart';
 import 'enemy_designs/aimed_enemy.dart';
 import 'enemy_designs/simple_bat.dart';
@@ -22,29 +21,24 @@ abstract final class EnemyArt {
     final look = ((birdY - enemy.y) * 3).clamp(-1.0, 1.0);
     final time = enemy.wingTime;
     final hitAge = enemy.age - enemy.lastHitAt;
-    final reacting = hitAge >= 0 && hitAge < EnemyHitArt.hitSeconds;
+    final hit = EnemyHitArt.pose(hitAge, reducedMotion: reducedMotion);
     canvas.save();
     canvas.translate(enemy.x * height, enemy.y * height);
-    if (reacting && !reducedMotion) {
-      final t = hitAge / EnemyHitArt.hitSeconds;
-      final settle = math.pow(1 - t, 3).toDouble();
-      final squeeze = math.cos(t * math.pi * 2) * settle;
-      // Visual recoil stays within a few pixels of the unchanged hit circle.
-      canvas.translate(radius * .18 * settle, 0);
-      canvas.rotate(-.10 * squeeze);
-      canvas.scale(1 - .16 * squeeze, 1 + .13 * squeeze);
+    if (hit != null) {
+      // Rocks arrive from the bird's side: knock the body away from it. The
+      // hit circle itself never moves.
+      canvas.translate(radius * hit.shift, 0);
+      canvas.rotate(hit.tilt);
+      canvas.scale(hit.scaleX, hit.scaleY);
     }
     if (enemy.x < FlightSimulation.birdX) canvas.scale(-1, 1);
     if (!reducedMotion) canvas.rotate(enemy.flightBank);
-    final flash = !reducedMotion && hitAge >= 0 && hitAge < .095;
+    final flash = hit != null && hit.flash > 0;
     if (flash) {
+      // Only alive for the few frames of the pop.
       canvas.saveLayer(
         Rect.fromCircle(center: Offset.zero, radius: radius * 3),
-        Paint()
-          ..colorFilter = ColorFilter.mode(
-            SkyColors.cream.withValues(alpha: .85 * (1 - hitAge / .095)),
-            BlendMode.srcATop,
-          ),
+        Paint()..colorFilter = EnemyHitArt.flashFilter(hit.flash),
       );
     }
     final painter = switch (enemy.kind) {
@@ -66,49 +60,25 @@ abstract final class EnemyArt {
     canvas.restore();
     EnemyHitArt.paint(
       canvas,
-      Offset(enemy.x * height - radius * .65, enemy.y * height),
+      // Where the rock meets the front of the hit circle.
+      Offset(enemy.x * height - radius * .9, enemy.y * height),
       radius,
       age: hitAge,
       reducedMotion: reducedMotion,
     );
   }
 
-  static void healthBar(Canvas canvas, double height, SkyEnemy enemy) {
-    if (enemy.hp <= 0 || enemy.hp == enemy.maxHp) return;
-    final width = height * .10;
-    final track = Rect.fromLTWH(
-      enemy.x * height - width / 2,
-      (enemy.y - .085) * height,
-      width,
-      height * .011,
-    );
-    final radius = Radius.circular(track.height / 2);
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(track.inflate(height * .003), radius),
-      Paint()..color = SkyColors.ink,
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(track, radius),
-      Paint()..color = SkyColors.purple,
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTWH(
-          track.left,
-          track.top,
-          width * enemy.hp / enemy.maxHp,
-          track.height,
-        ),
-        radius,
-      ),
-      Paint()
-        ..color = enemy.age - enemy.lastHitAt < .15
-            ? SkyColors.cream
-            : enemy.hp <= enemy.maxHp / 2
-            ? SkyColors.coral
-            : SkyColors.mint,
-    );
-  }
+  static void healthBar(
+    Canvas canvas,
+    double height,
+    SkyEnemy enemy, {
+    bool reducedMotion = false,
+  }) => EnemyHealthBarArt.paint(
+    canvas,
+    height,
+    enemy,
+    reducedMotion: reducedMotion,
+  );
 
   static void ammo(
     Canvas canvas,

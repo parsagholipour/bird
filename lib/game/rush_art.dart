@@ -2,7 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 import '../domain/game_rules.dart';
 import '../ui/theme.dart';
-import 'enemy_hit_art.dart';
+import 'enemy_defeat_art.dart';
 import 'sky_scenery.dart';
 
 class _Stone {
@@ -2844,18 +2844,23 @@ abstract final class RushArt {
             seed,
             reducedMotion,
           );
-        case FlightEventKind.swarmSmashed when age < EnemyHitArt.defeatSeconds:
+        case FlightEventKind.swarmSmashed when age < EnemyDefeatArt.seconds:
           final at = Offset(
             (event.gateWorldX! - sim.distance) * h,
             event.y * h,
           );
-          EnemyHitArt.paint(
+          // Swarm bats go down like any bat: the same poof and fur, without
+          // the small enemy's own figure. A chain value means a sprint ram.
+          EnemyDefeatArt.paint(
             canvas,
             at,
             h * SwarmBat.radius,
             age: age,
             reducedMotion: reducedMotion,
-            defeated: true,
+            rammed: event.value > 0,
+            kind: EnemyKind.simpleBat,
+            ghost: false,
+            seed: (event.at * 1000).round() + (event.y * 997).round(),
           );
           _impactPlow(canvas, h, at, age, seed, reducedMotion);
         default:

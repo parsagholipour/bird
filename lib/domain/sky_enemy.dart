@@ -32,11 +32,18 @@ class SkyEnemy {
   final int maxHp;
   late int hp;
   double lastHitAt = double.negativeInfinity;
+
+  /// Health just before the latest damaging hit. Presentation only: the
+  /// health bar drains the lost chunk from this value.
+  late int hpBeforeLastHit = maxHp;
   int takeDamage(int damage) {
     if (damage <= 0) throw ArgumentError.value(damage, 'damage');
     final before = hp;
     hp = (hp - damage).clamp(0, maxHp);
-    if (hp < before) lastHitAt = age;
+    if (hp < before) {
+      lastHitAt = age;
+      hpBeforeLastHit = before;
+    }
     return before - hp;
   }
 
@@ -112,9 +119,38 @@ class EnemyAmmo {
     required this.vx,
     required this.vy,
     required this.attack,
+    this.bornAt = double.negativeInfinity,
   });
   double x, y;
   final double vx, vy;
   final EnemyAttack attack;
+
+  /// Simulation time at launch, for the launch pop only. Render-only: no
+  /// rule reads it, so it cannot change collisions, scoring or replays.
+  final double bornAt;
   static const radius = .016;
+}
+
+/// Why a pellet stopped short of leaving the screen.
+enum AmmoStop { blocked, deflected, struck }
+
+/// Where a pellet stopped, kept for a moment so it can splash instead of
+/// vanishing. Render-only: the rules write these but never read them.
+class EnemyAmmoImpact {
+  const EnemyAmmoImpact({
+    required this.x,
+    required this.y,
+    required this.worldX,
+    required this.birdY,
+    required this.direction,
+    required this.attack,
+    required this.stop,
+    required this.at,
+  });
+
+  /// Screen and world position at impact; a struck pellet follows the bird.
+  final double x, y, worldX, birdY;
+  final double direction, at;
+  final EnemyAttack attack;
+  final AmmoStop stop;
 }

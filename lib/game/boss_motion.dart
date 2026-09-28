@@ -60,6 +60,30 @@ class BossMotion {
   double get wingBeat => reducedMotion
       ? 0
       : (math.sin(boss.age * (boss.enraged ? 10 : 7)) * .18 - roar * .3);
+
+  /// The wingbeat as a stroke: -1 raised, 0 spread, 1 swept down. It keeps
+  /// [wingBeat]'s rates, but the phase stays continuous when fury speeds the
+  /// beat up; the roar throws the wings up.
+  double get wingStroke {
+    if (reducedMotion) return 0;
+    final since = boss.age - boss.enragedAt;
+    final phase = !boss.enraged
+        ? boss.age * 7
+        : since.isFinite
+        ? boss.age * 7 + since * 3
+        : boss.age * 10;
+    return (math.sin(phase) - roar * 1.7).clamp(-1.0, 1.0);
+  }
+
+  /// A brief deterministic blink every few seconds while combat idles.
+  double get blink {
+    if (reducedMotion || defeated || arriving) return 0;
+    return pulse(boss.age % 4.3 - 3.1, .16);
+  }
+
+  /// The flinch expression after a hit; an expression, not motion, so it also
+  /// plays under Reduced Motion.
+  double get wince => defeated ? 0 : ramp(hit, .2, .5);
   double get crownLift =>
       reducedMotion ? 0 : hit * .2 + recoil * .1 + roar * .14;
   double get mouth =>

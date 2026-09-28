@@ -47,7 +47,15 @@ class SpitterBossMotion {
       still ? 0 : breath * -.8 + recoil * .13 - charge * .035 + collapse * .16;
   double get slosh => still ? 0 : math.sin(time * 4.6) * .035 - recoil * .21;
   double get vents => motion.boss.enraged ? 1 : charge * .65;
-  double get pump => charge * .13 - recoil * .19;
+
+  /// The plunger works in quick strokes while pressure builds.
+  double get pump =>
+      charge * .13 +
+      (still ? 0 : math.sin(time * 17) * .035 * charge) -
+      recoil * .19;
+
+  /// The lid blows once when fury begins.
+  double get pop => still || motion.defeated ? 0 : motion.rage * .22;
   double bubble(int index) => still || motion.defeated
       ? (index * .29 + .15) % 1
       : (time * (.43 + index * .035) + index * .29) % 1;

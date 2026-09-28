@@ -507,7 +507,12 @@ class BirdGame extends FlameGame {
     canvas.restore();
     BossArt.foreground(canvas, Size(w, h), simulation, reducedMotion);
     if (simulation.boss case final boss?) {
-      BossArt.healthBar(canvas, Size(w, h), boss);
+      BossArt.healthBar(
+        canvas,
+        Size(w, h),
+        boss,
+        reducedMotion: reducedMotion,
+      );
     }
     RushArt.banner(canvas, Size(w, h), simulation, reducedMotion: reducedMotion);
   }

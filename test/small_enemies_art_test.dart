@@ -11,6 +11,7 @@ import 'package:push_up_bird/game/boss_art.dart';
 import 'package:push_up_bird/game/boss_ammo_art.dart';
 import 'package:push_up_bird/game/combat_art.dart';
 import 'package:push_up_bird/game/enemy_art.dart';
+import 'package:push_up_bird/game/enemy_defeat_art.dart';
 import 'package:push_up_bird/game/enemy_hit_art.dart';
 import 'package:push_up_bird/ui/theme.dart';
 
@@ -254,7 +255,7 @@ void main() {
           expect(later, isNot(equals(impact)));
           sim.elapsed = 2;
           expect(await burst(), impact, reason: 'seeking restores the effect');
-          sim.elapsed += EnemyHitArt.defeatSeconds;
+          sim.elapsed += EnemyDefeatArt.seconds;
           expect(await burst(), blank, reason: 'defeat particles expire');
           await raster(
             (c) => _hitFeedback(c, reducedMotion: reduced),

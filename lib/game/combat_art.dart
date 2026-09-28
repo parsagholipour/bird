@@ -3,8 +3,9 @@ import 'package:flutter/painting.dart';
 import '../domain/game_rules.dart';
 import '../ui/theme.dart';
 import 'enemy_design.dart';
+import 'enemy_ammo_impact_art.dart';
 import 'enemy_art.dart';
-import 'enemy_hit_art.dart';
+import 'enemy_defeat_art.dart';
 import 'stone_art.dart';
 
 abstract final class CombatArt {
@@ -24,7 +25,12 @@ abstract final class CombatArt {
           reducedMotion: reducedMotion,
         );
         if (sim.supportsWeaponDamage) {
-          EnemyArt.healthBar(canvas, height, enemy);
+          EnemyArt.healthBar(
+            canvas,
+            height,
+            enemy,
+            reducedMotion: reducedMotion,
+          );
         }
         continue;
       }
@@ -117,6 +123,7 @@ abstract final class CombatArt {
         reducedMotion: reducedMotion,
       );
     }
+    EnemyAmmoImpactArt.paint(canvas, height, sim, reducedMotion: reducedMotion);
     for (final rock in sim.rocks) {
       StoneArt.paint(
         canvas,
@@ -132,19 +139,21 @@ abstract final class CombatArt {
           e.kind == FlightEventKind.enemyRammed,
     )) {
       final age = sim.elapsed - event.at;
-      if (age < 0 || age > EnemyHitArt.defeatSeconds) continue;
+      if (age < 0) continue;
       final center = Offset(
         (event.gateWorldX! - sim.distance) * height,
         event.y * height,
       );
       if (sim.supportsWeaponDamage) {
-        EnemyHitArt.paint(
+        EnemyDefeatArt.paint(
           canvas,
           center,
           height * SkyEnemy.radius,
           age: age,
           reducedMotion: reducedMotion,
-          defeated: true,
+          rammed: event.kind == FlightEventKind.enemyRammed,
+          kind: event.enemyKind,
+          seed: (event.at * 1000).round(),
         );
         continue;
       }

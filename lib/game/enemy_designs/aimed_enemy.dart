@@ -1,17 +1,117 @@
 import 'dart:math' as math;
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/painting.dart';
 
 import '../../ui/theme.dart';
 
-/// A left-facing flying beetle, drawn in collision-radius units. Lifted hard
-/// wing cases frame the softer flight wings; the mint cheek stores its spit.
+/// A left-facing flying beetle, drawn in collision-radius units. Lifted wing
+/// cases frame a buzzing blur of flight wings; the mint cheek stores its spit.
+///
+/// The attack reads in three beats: the body coils back toward its tail while
+/// the cheek swells and glows (charge), it snaps forward with the mouth pinned
+/// to the projectile origin [muzzle] and bursts (spit), then springs back and
+/// settles (recoil). Everything is a pure function of the arguments.
 abstract final class AimedEnemyArt {
-  static const _deep = Color(0xff234e4c);
-  static const _shell = Color(0xff318876);
-  static const _light = Color(0xff8cd7b2);
+  /// Art-space launch point; `SkyEnemy.muzzleX` spawns the seed here.
+  static const muzzle = Offset(-1.05, 0);
+
+  static const _ink = SkyColors.ink;
+  static const _deep = Color(0xff1c4d45);
+  static const _jade = Color(0xff2a9474);
+  static const _leaf = Color(0xff7fd4a0);
+  static const _lime = Color(0xffc3eba2);
+  static const _gloss = Color(0xffe4fbd6);
   static const _mint = Color(0xffb3ffda);
+  static const _spit = Color(0xff58c69b);
+  static const _skin = Color(0xffa3dcab);
+
+  // Near wing hinge and the tip locus of a stroke: up (-1) to down (+1).
+  static const _hinge = Offset(.74, -.47);
+  static const _upAngle = -.62, _downAngle = .28;
+  static const _upReach = .9, _downReach = 1.02;
+
+  static final _head = Path()
+    ..moveTo(-1.0, -.13)
+    ..cubicTo(-1.03, -.43, -.86, -.64, -.6, -.64)
+    ..cubicTo(-.35, -.64, -.16, -.47, -.16, -.2)
+    ..cubicTo(-.16, .08, -.22, .31, -.42, .41)
+    ..cubicTo(-.62, .5, -.9, .38, -.99, .14)
+    ..quadraticBezierTo(-1.08, 0, -1.0, -.13)
+    ..close();
+
+  static final _thorax = Path()
+    ..moveTo(-.42, -.5)
+    ..cubicTo(-.2, -.74, .22, -.68, .32, -.36)
+    ..cubicTo(.42, -.04, .34, .32, .1, .44)
+    ..cubicTo(-.12, .54, -.38, .42, -.42, .2)
+    ..close();
+
+  static final _abdomen = Path()
+    ..moveTo(-.05, -.3)
+    ..cubicTo(.4, -.5, 1.12, -.44, 1.38, -.08)
+    ..cubicTo(1.56, .17, 1.38, .56, .96, .65)
+    ..cubicTo(.5, .75, .08, .63, -.1, .37)
+    ..close();
+
+  static final _plates = Path()
+    ..moveTo(.34, .2)
+    ..quadraticBezierTo(.28, .42, .36, .64)
+    ..moveTo(.68, .17)
+    ..quadraticBezierTo(.62, .41, .7, .64)
+    ..moveTo(1.02, .12)
+    ..quadraticBezierTo(.97, .34, 1.04, .54);
+
+  static final _elytron = Path()
+    ..moveTo(0, .02)
+    ..cubicTo(.1, -.36, .72, -.52, 1.26, -.28)
+    ..cubicTo(1.52, -.15, 1.66, .06, 1.58, .18)
+    ..cubicTo(1.14, .34, .46, .34, 0, .14)
+    ..close();
+
+  static final _elytronSeam = Path()
+    ..moveTo(.14, .1)
+    ..cubicTo(.56, .22, 1.14, .22, 1.52, .12);
+
+  static final _elytronGloss = Path()
+    ..moveTo(.2, -.14)
+    ..cubicTo(.4, -.32, .74, -.38, 1.02, -.26);
+
+  /// Unit-length membrane; scaled by reach and breadth per frame.
+  static final _membrane = Path()
+    ..moveTo(0, 0)
+    ..cubicTo(.22, -.5, .74, -.6, .97, -.16)
+    ..quadraticBezierTo(1.05, .04, .9, .14)
+    ..cubicTo(.62, .3, .26, .2, 0, 0)
+    ..close();
+
+  static Offset _tip(double stroke) {
+    final t = (stroke + 1) / 2;
+    final angle = _upAngle + (_downAngle - _upAngle) * t;
+    final reach =
+        _upReach + (_downReach - _upReach) * t + math.sin(t * math.pi) * .05;
+    return Offset(math.cos(angle), math.sin(angle)) * reach;
+  }
+
+  /// The swept area of a buzzing wing: a steady shape that never flickers.
+  static final Path _fan = () {
+    final path = Path()..moveTo(0, 0);
+    for (var i = 0; i <= 12; i++) {
+      final p = _tip(-1 + i / 6) * 1.04;
+      path.lineTo(p.dx, p.dy);
+    }
+    return path..close();
+  }();
+
+  static final Path _fanEdge = () {
+    final path = Path();
+    for (var i = 0; i <= 12; i++) {
+      final p = _tip(-1 + i / 6) * 1.04;
+      i == 0 ? path.moveTo(p.dx, p.dy) : path.lineTo(p.dx, p.dy);
+    }
+    return path;
+  }();
 
   static void paint(
     Canvas c,
@@ -23,414 +123,516 @@ abstract final class AimedEnemyArt {
     double recoil = 0,
   }) {
     if (!radius.isFinite || radius <= 0) return;
-    final time = seconds.isFinite ? seconds : 0.0;
+    final time = seconds.isFinite && !reducedMotion ? seconds : 0.0;
     final aim = lookY.isFinite ? lookY.clamp(-1.0, 1.0) : 0.0;
     final power = charge.isFinite ? charge.clamp(0.0, 1.0) : 0.0;
     final kick = recoil.isFinite ? recoil.clamp(0.0, 1.0) : 0.0;
-    final brace = power * power * (3 - 2 * power);
-    final phase = time * 25;
-    final nearStroke = reducedMotion ? .48 : math.sin(phase);
-    final farStroke = reducedMotion
-        ? -.25
-        : math.sin(phase + .95 + math.sin(time * 3) * .08);
-    final follow = reducedMotion
+
+    // Anticipation: a steady coil that holds, then tightens right before firing.
+    final wind = _smooth(0, .72, power) + .2 * _smooth(.86, 1, power);
+    // Action and reaction measured from the shot (0) to fully settled (1).
+    final after = kick > 0 ? 1 - kick : 1.0;
+    final thrust = kick > 0 ? math.pow(1 - after, 4).toDouble() : 0.0;
+    final spring = kick <= 0
         ? 0.0
-        : math.sin(phase - .85) * .018 + math.sin(time * 4.1) * .025;
-    // A damped counter-motion lets the plates and feet settle after the shot.
-    // No body bob is added here: the caller moves the hit circle and art together.
-    final spring = kick * math.cos((1 - kick) * math.pi * 1.6);
-    final hinge = reducedMotion ? 0.0 : math.sin(phase - .45) * .018;
+        : reducedMotion
+        ? math.sin(math.pi * after) * (1 - after) * 1.7
+        : math.exp(-4 * after) * math.sin(2.2 * math.pi * after) / .47;
+    final dx = .15 * wind + .13 * spring;
+    final dy = .015 * wind;
+    final tilt = .075 * wind - .03 * thrust + .07 * spring;
+    final sx = 1 - .06 * wind - .04 * spring;
+    final sy = 1 + .035 * wind - .04 * thrust + .04 * spring;
+
+    // Decorative motion freezes with Reduced Motion; the attack does not.
+    final buzz = time * math.pi * 2 * 11;
+    final sway = reducedMotion
+        ? 0.0
+        : math.sin(time * 3.4) * .06 + math.sin(time * 5.3 + 1) * .025;
+    final dangle = reducedMotion
+        ? 0.0
+        : math.sin(time * 3.4 - .9) * .05 + math.sin(time * 5.3) * .02;
+    // Secondary action: antennae and feet lag the coil and whip after the shot.
+    final lag = kick <= 0 || reducedMotion
+        ? 0.0
+        : math.exp(-3.4 * after) *
+              math.cos(math.pi * 2 * 1.5 * after) *
+              (1 - math.pow(after, 4));
+    final pull = math.sin(math.pi * _smooth(0, .8, power)) * (1 - power * .5);
+    final blink = reducedMotion || power > 0 || kick > 0 ? 0.0 : _blink(time);
 
     c.save();
     c.scale(radius);
-    _flightWing(c, farStroke, far: true);
-    _legs(c, follow, brace, spring, far: true);
-    _abdomen(c, brace, spring);
-    _wingCase(c, hinge, brace, spring, far: true);
-    _flightWing(c, nearStroke, far: false);
-    _wingCase(c, hinge, brace, spring, far: false);
-    _legs(c, follow, brace, spring, far: false);
-    _thorax(c, brace, spring);
-    _antennae(c, follow, brace, spring);
-    _head(c, aim, power, brace, spring);
-    c.restore();
-  }
-
-  static void _flightWing(Canvas c, double stroke, {required bool far}) {
     c.save();
-    c.translate(far ? -.04 : .06, far ? -.37 : -.32);
-    final reach = far ? 1.51 : 1.72;
-    final tipY = (far ? -.21 : -.12) - stroke * (far ? .46 : .49);
-    // Foreshortening makes the membrane turn edge-on at the end of each stroke.
-    final breadth = (far ? .105 : .14) + (1 - stroke * stroke) * .13;
-    final wing = Path()
-      ..moveTo(0, .025)
-      ..cubicTo(.34, tipY - .12, reach * .78, tipY - breadth, reach, tipY)
-      ..cubicTo(
-        reach + .13,
-        tipY + breadth * .8,
-        reach * .59,
-        tipY + breadth * 1.35,
-        0,
-        .025,
-      )
-      ..close();
-    c.drawPath(
-      wing,
-      Paint()
-        ..shader = ui.Gradient.linear(
-          const Offset(0, 0),
-          Offset(reach, tipY),
-          far
-              ? const [Color(0x999acfc2), Color(0xb8d9eee0)]
-              : const [Color(0xa889cbb9), Color(0xe6f2f7da)],
-        ),
+    c.translate(dx, dy);
+    c.translate(muzzle.dx, muzzle.dy);
+    c.rotate(tilt);
+    c.scale(sx, sy);
+    c.translate(-muzzle.dx, -muzzle.dy);
+
+    _wings(c, buzz, reducedMotion, far: true);
+    _shell(c, far: true, lift: wind * .02 - thrust * .06 + spring * .08);
+    _legs(c, dangle + .18 * wind - .3 * lag, wind, far: true);
+    _body(c);
+    _shell(c, far: false, lift: wind * .04 - thrust * .05 + spring * .07);
+    // The translucent near wing overlaps the shell so its blur reads on the
+    // dark value behind it, not only against the sky.
+    _wings(c, buzz, reducedMotion, far: false);
+    _neck(c);
+    _legs(c, dangle + .18 * wind - .3 * lag, wind, far: false);
+    _antennae(c, sway - .22 * pull + .32 * lag);
+    _face(
+      c,
+      aim: aim,
+      power: power,
+      wind: wind,
+      thrust: thrust,
+      after: after,
+      blink: blink,
+      time: time,
+      reducedMotion: reducedMotion,
     );
-    c.drawPath(
-      wing,
-      _line(far ? const Color(0xff679d8b) : _deep, far ? .035 : .045),
-    );
-    c.drawPath(
-      Path()
-        ..moveTo(.08, .015)
-        ..quadraticBezierTo(reach * .56, tipY + .01, reach * .94, tipY)
-        ..moveTo(reach * .42, tipY * .66)
-        ..lineTo(reach * .65, tipY - breadth * .55),
-      _line(const Color(0xff81b99d).withValues(alpha: far ? .6 : .8), .028),
-    );
-    if (!far) {
-      c.drawPath(
-        Path()
-          ..moveTo(reach * .49, tipY - breadth * .5)
-          ..quadraticBezierTo(
-            reach * .78,
-            tipY - breadth * .77,
-            reach * .95,
-            tipY - .025,
-          ),
-        _line(SkyColors.cream.withValues(alpha: .8), .045),
-      );
-    }
+    c.restore();
+    if (kick > 0) _burst(c, after, aim, reducedMotion);
     c.restore();
   }
 
-  static void _abdomen(Canvas c, double brace, double spring) {
-    c.save();
-    c.translate(spring * .055, -brace * .015);
-    final body = Path()
-      ..moveTo(-.19, -.38)
-      ..cubicTo(.29, -.57, .91, -.31, 1.04, .08)
-      ..cubicTo(1.2, .48, .82, .71, .44, .65)
-      ..cubicTo(.04, .62, -.29, .4, -.3, .07)
-      ..close();
-    c.drawPath(
-      body,
-      Paint()
-        ..shader = ui.Gradient.linear(
-          const Offset(.4, -.4),
-          const Offset(.65, .66),
-          const [Color(0xff6bab8f), _deep, Color(0xff1c3c40)],
-          const [0, .7, 1],
-        ),
-    );
-    c.drawPath(body, _line(SkyColors.ink, .065));
-    // Only the lower, flexible segments show beneath the rigid elytra.
-    for (final x in [.31, .59, .84]) {
-      c.drawPath(
-        Path()
-          ..moveTo(x, .12)
-          ..quadraticBezierTo(x - .07, .37, x + .07, .56),
-        _line(const Color(0xff78b594).withValues(alpha: .68), .05),
-      );
-    }
-    c.restore();
+  static double _smooth(double a, double b, double x) {
+    final t = ((x - a) / (b - a)).clamp(0.0, 1.0);
+    return t * t * (3 - 2 * t);
   }
 
-  static void _wingCase(
+  /// A quick lid close roughly every 3.3 s, derived from time alone.
+  static double _blink(double time) {
+    final t = (time + 1.3) % 3.3;
+    if (t > .16) return 0;
+    return math.sin(t / .16 * math.pi);
+  }
+
+  /// A steady translucent blur fan with a crisp membrane flicking inside it.
+  static void _wings(
     Canvas c,
-    double hinge,
-    double brace,
-    double spring, {
+    double buzz,
+    bool reducedMotion, {
     required bool far,
   }) {
     c.save();
-    c.translate(far ? -.13 : -.025, far ? -.41 : -.29);
-    c.rotate(
-      (far ? -.56 : -.3) +
-          hinge * (far ? -.7 : 1) -
-          brace * .045 +
-          spring * .09,
-    );
-    if (far) c.scale(.85, .75);
-    final shell = Path()
-      ..moveTo(.015, -.015)
-      ..cubicTo(.17, -.34, .68, -.4, 1.05, -.04)
-      ..quadraticBezierTo(1.21, .08, 1.2, .2)
-      ..cubicTo(.92, .43, .35, .31, .015, -.015)
-      ..close();
+    if (far) {
+      c.translate(_hinge.dx - .12, _hinge.dy - .07);
+      c.rotate(-.08);
+      c.scale(.94);
+    } else {
+      c.translate(_hinge.dx, _hinge.dy);
+    }
     c.drawPath(
-      shell,
+      _fan,
       Paint()
-        ..shader = ui.Gradient.linear(
-          const Offset(.44, -.29),
-          const Offset(.67, .33),
+        ..shader = ui.Gradient.radial(
+          Offset.zero,
+          1.4,
           far
-              ? const [Color(0xff8cc9a0), Color(0xff358878), _deep]
-              : const [Color(0xffb0e9bd), Color(0xff43a68a), _deep],
-          const [0, .47, 1],
+              ? const [Color(0x00ffffff), Color(0x30eafff3), Color(0x66eafff3)]
+              : const [Color(0x00ffffff), Color(0x48f4fff6), Color(0x99f4fff6)],
+          const [.25, .7, 1],
         ),
     );
-    c.drawPath(shell, _line(SkyColors.ink, far ? .06 : .075));
+    c.drawPath(_fanEdge, _line(_deep.withValues(alpha: far ? .22 : .34), .045));
+    final phase = far ? buzz - .8 : buzz;
+    final ghost = reducedMotion ? null : math.sin(phase - 1.25);
+    final stroke = reducedMotion ? (far ? -.55 : -.1) : math.sin(phase);
+    if (ghost != null) {
+      c.drawPath(
+        _membraneAt(ghost),
+        _fill(const Color(0xfff4fff6).withValues(alpha: far ? .22 : .32)),
+      );
+    }
+    final wing = _membraneAt(stroke);
     c.drawPath(
-      Path()
-        ..moveTo(.16, -.06)
-        ..cubicTo(.48, -.16, .88, -.03, 1.1, .18),
-      _line(far ? _shell : const Color(0xff237463), .045),
+      wing,
+      _fill(far ? const Color(0x99cfeee0) : const Color(0xbbeaf9e8)),
     );
-    if (!far) {
-      // A broad reflected edge survives at the 16px collision radius.
-      c.drawPath(
-        Path()
-          ..moveTo(.2, -.17)
-          ..cubicTo(.46, -.31, .76, -.23, .94, -.07),
-        _line(const Color(0xffd4f0c8), .085),
-      );
-      c.drawPath(
-        Path()
-          ..moveTo(.49, .16)
-          ..quadraticBezierTo(.86, .29, 1.12, .19),
-        _line(_light.withValues(alpha: .7), .045),
-      );
-    }
+    c.drawPath(wing, _line(_deep.withValues(alpha: far ? .5 : .75), .045));
+    final tip = _tip(stroke);
+    c.drawLine(
+      tip * .12,
+      tip * .82 + Offset(tip.dy, -tip.dx) * .12,
+      _line(SkyColors.cream.withValues(alpha: far ? .45 : .8), .05),
+    );
     c.restore();
   }
 
-  static void _legs(
-    Canvas c,
-    double follow,
-    double brace,
-    double spring, {
-    required bool far,
-  }) {
-    c.save();
-    if (far) c.translate(-.06, -.065);
-    final trail = follow * (far ? -.8 : 1);
-    final tuck = brace * .11 - spring * .095;
-    final feet = Path()
-      ..moveTo(-.27, .23)
-      ..quadraticBezierTo(-.37, .52 - tuck, -.19, .69 - tuck)
-      ..lineTo(.015 + trail, .68 - tuck)
-      ..moveTo(.13, .39)
-      ..quadraticBezierTo(.16, .68 - tuck, .38, .85 - tuck + trail)
-      ..lineTo(.62, .8 - tuck + trail)
-      ..moveTo(.55, .42)
-      ..quadraticBezierTo(.7, .76 - tuck, .96, .88 - tuck - trail)
-      ..lineTo(1.17, .75 - tuck - trail);
-    c.drawPath(feet, _line(far ? const Color(0xff528f7c) : _deep, .075));
-    if (!far) {
-      c.drawPath(
-        Path()
-          ..moveTo(.16, .48)
-          ..lineTo(.23, .65 - tuck)
-          ..moveTo(.69, .61)
-          ..lineTo(.83, .76 - tuck),
-        _line(_light, .033),
-      );
-    }
-    c.restore();
+  static Path _membraneAt(double stroke) {
+    final tip = _tip(stroke);
+    final angle = math.atan2(tip.dy, tip.dx);
+    final reach = tip.distance;
+    // Membranes turn edge-on as the stroke reverses.
+    final breadth = (.42 + .55 * (1 - stroke * stroke)) * reach;
+    final cs = math.cos(angle), sn = math.sin(angle);
+    return _membrane.transform(
+      Float64List.fromList([
+        cs * reach, sn * reach, 0, 0, //
+        -sn * breadth, cs * breadth, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1,
+      ]),
+    );
   }
 
-  static void _thorax(Canvas c, double brace, double spring) {
+  static void _shell(Canvas c, {required bool far, required double lift}) {
     c.save();
-    c.translate(spring * .04, 0);
-    final shoulder = Path()
-      ..moveTo(-.42, -.48)
-      ..quadraticBezierTo(-.07, -.66, .22, -.38)
-      ..quadraticBezierTo(.43, -.06, .21, .39 - brace * .03)
-      ..quadraticBezierTo(-.04, .56, -.38, .28)
-      ..close();
+    if (far) {
+      c.translate(-.1, -.46);
+      c.rotate(-.44 - lift * 1.3);
+      c.scale(.9, .76);
+    } else {
+      c.translate(-.2, -.42);
+      c.rotate(-.26 - lift);
+    }
     c.drawPath(
-      shoulder,
+      _elytron,
       Paint()
         ..shader = ui.Gradient.linear(
-          const Offset(-.21, -.51),
-          const Offset(.18, .44),
-          const [Color(0xff73c6a3), _shell, _deep],
-          const [0, .42, 1],
+          const Offset(.6, -.5),
+          const Offset(.8, .34),
+          far
+              ? const [Color(0xff5fae8c), Color(0xff256f5d), _deep]
+              : const [_leaf, _jade, _deep],
+          const [0, .5, 1],
         ),
     );
-    c.drawPath(shoulder, _line(SkyColors.ink, .07));
-    c.drawPath(
-      Path()
-        ..moveTo(-.14, -.42)
-        ..quadraticBezierTo(.17, -.29, .14, .06),
-      _line(_light, .065),
-    );
+    c.drawPath(_elytron, _line(_ink, far ? .085 : .075));
+    if (!far) {
+      c.drawPath(_elytronSeam, _line(_deep, .05));
+      c.drawPath(_elytronGloss, _line(_gloss, .1));
+      c.drawCircle(const Offset(1.18, -.14), .055, _fill(_gloss));
+    }
     c.restore();
   }
 
-  static void _antennae(Canvas c, double follow, double brace, double spring) {
-    final bend = follow + brace * .055 + spring * .07;
-    final farTip = Offset(-.75 - brace * .025, -1.055 + bend * .6);
-    final nearTip = Offset(-1.21 - brace * .025, -.86 + bend);
+  static void _body(Canvas c) {
+    // A light belly under the dark shell keeps the silhouette two-toned.
     c.drawPath(
-      Path()
-        ..moveTo(-.4, -.52)
-        ..cubicTo(-.38, -.83, -.52, -1.04, farTip.dx, farTip.dy),
-      _line(const Color(0xff518b76), .055),
-    );
-    c.drawOval(
-      Rect.fromCenter(center: farTip, width: .135, height: .085),
-      _fill(_light),
+      _abdomen,
+      Paint()
+        ..shader = ui.Gradient.linear(
+          const Offset(.7, -.2),
+          const Offset(.8, .7),
+          const [_lime, _leaf, Color(0xff3f9a7c)],
+          const [0, .5, 1],
+        ),
     );
     c.drawPath(
+      _plates,
+      _line(const Color(0xff3f9a7c).withValues(alpha: .7), .06),
+    );
+    c.drawPath(_abdomen, _line(_ink, .075));
+  }
+
+  static void _neck(Canvas c) {
+    c.drawPath(
+      _thorax,
+      Paint()
+        ..shader = ui.Gradient.linear(
+          const Offset(-.2, -.6),
+          const Offset(.1, .45),
+          const [_leaf, _jade, _deep],
+          const [0, .5, 1],
+        ),
+    );
+    c.drawPath(_thorax, _line(_ink, .075));
+    c.drawPath(
       Path()
-        ..moveTo(-.62, -.5)
-        ..cubicTo(-.73, -.79, -.97, -.97 + bend, nearTip.dx, nearTip.dy),
-      _line(_deep, .065),
+        ..moveTo(-.18, -.52)
+        ..quadraticBezierTo(.14, -.5, .2, -.22),
+      _line(_gloss.withValues(alpha: .8), .08),
     );
-    c.drawOval(
-      Rect.fromCenter(center: nearTip, width: .17, height: .105),
-      _fill(_light),
+  }
+
+  static void _legs(Canvas c, double swing, double wind, {required bool far}) {
+    c.save();
+    if (far) c.translate(.1, -.08);
+    final tuck = wind * .1;
+    final path = Path();
+    for (final (hip, knee, foot, lag) in const [
+      (Offset(-.22, .36), Offset(-.44, .62), Offset(-.26, .84), .6),
+      (Offset(.25, .52), Offset(.12, .78), Offset(.4, .92), 1.0),
+      (Offset(.74, .6), Offset(.76, .86), Offset(1.06, .9), 1.35),
+    ]) {
+      final k = knee + Offset(swing * lag * .4, -tuck);
+      final f = foot + Offset(swing * lag, -tuck * 1.6 - swing * lag * .2);
+      path
+        ..moveTo(hip.dx, hip.dy)
+        ..quadraticBezierTo(k.dx, k.dy, (k.dx + f.dx) / 2, (k.dy + f.dy) / 2)
+        ..lineTo(f.dx, f.dy);
+    }
+    if (far) {
+      c.drawPath(path, _line(_ink, .1));
+    } else {
+      c.drawPath(path, _line(_ink, .14));
+      c.drawPath(path, _line(const Color(0xff3c8b72), .06));
+    }
+    c.restore();
+  }
+
+  static void _antennae(Canvas c, double bend) {
+    for (final (base, tip, width, ball, far) in const [
+      (Offset(-.48, -.6), Offset(-1.0, -1.02), .07, .08, true),
+      (Offset(-.72, -.56), Offset(-1.38, -.9), .08, .095, false),
+    ]) {
+      final b = bend * (far ? .8 : 1);
+      final end = base + _rotate(tip - base, b);
+      final mid = base + _rotate(Offset(tip.dx - base.dx, -.34) * .55, b * .45);
+      final path = Path()
+        ..moveTo(base.dx, base.dy)
+        ..quadraticBezierTo(mid.dx, mid.dy, end.dx, end.dy);
+      final color = far ? const Color(0xff2d5f55) : _ink;
+      c.drawPath(path, _line(color, width));
+      c.drawCircle(end, ball, _fill(color));
+      c.drawCircle(end, ball - .035, _fill(far ? _leaf : _mint));
+    }
+  }
+
+  static Offset _rotate(Offset v, double angle) {
+    final c = math.cos(angle), s = math.sin(angle);
+    return Offset(v.dx * c - v.dy * s, v.dx * s + v.dy * c);
+  }
+
+  static void _face(
+    Canvas c, {
+    required double aim,
+    required double power,
+    required double wind,
+    required double thrust,
+    required double after,
+    required double blink,
+    required double time,
+    required bool reducedMotion,
+  }) {
+    c.drawPath(
+      _head,
+      Paint()
+        ..shader = ui.Gradient.linear(
+          const Offset(-.8, -.62),
+          const Offset(-.4, .42),
+          const [Color(0xffd3f3b8), Color(0xff8ad3a0), Color(0xff3f9c80)],
+          const [0, .5, 1],
+        ),
     );
+    c.drawPath(_head, _line(_ink, .075));
+
+    // Cheek sac: swells and glows through the charge, squeezes on the spit and
+    // jiggles back while the body recoils.
+    final jiggle = after >= 1
+        ? 0.0
+        : -.28 *
+              math.exp(-4.5 * after) *
+              math.cos(math.pi * 2 * 1.4 * after) *
+              (1 - math.pow(after, 4));
+    final throb = reducedMotion || power < .5
+        ? 0.0
+        : math.sin(time * (26 + 30 * power)) * .035 * power;
+    final swell = 1 + .75 * (1 - math.pow(1 - power, 2)) + jiggle + throb;
+    final sac = Rect.fromCenter(
+      center: Offset(-.66, .2 + (swell - 1) * .09),
+      width: .44 * swell,
+      height: .32 * swell,
+    );
+    final glow = _smooth(.1, 1, power);
+    if (glow > 0) {
+      c.drawCircle(
+        sac.center,
+        sac.width * .95,
+        Paint()
+          ..shader = ui.Gradient.radial(sac.center, sac.width * .95, [
+            _mint.withValues(alpha: .55 * glow),
+            _mint.withValues(alpha: 0),
+          ]),
+      );
+    }
+    c.drawOval(sac, _fill(Color.lerp(_spit, _mint, glow)!));
+    c.save();
+    c.clipPath(Path()..addOval(sac));
     c.drawOval(
       Rect.fromCenter(
-        center: nearTip + const Offset(-.025, -.02),
-        width: .075,
-        height: .035,
+        center: sac.center + Offset(-sac.width * .08, -sac.height * .12),
+        width: sac.width * .7,
+        height: sac.height * .55,
       ),
-      _fill(SkyColors.cream),
-    );
-  }
-
-  static void _head(
-    Canvas c,
-    double aim,
-    double power,
-    double brace,
-    double spring,
-  ) {
-    // All cheek squash pivots around the actual projectile origin. Neither
-    // tracking the player nor inflating the throat moves the launch point.
-    c.save();
-    c.translate(-1.05, 0);
-    c.scale(1 - brace * .025 + spring * .035, 1 + brace * .035 - spring * .055);
-    c.translate(1.05, 0);
-    final head = Path()
-      ..moveTo(-1.015, -.13)
-      ..quadraticBezierTo(-1.015, -.47, -.78, -.59)
-      ..cubicTo(-.5, -.75, -.2, -.5, -.2, -.23)
-      ..quadraticBezierTo(-.1, .08, -.3, .31)
-      ..quadraticBezierTo(-.52, .5, -.81, .29)
-      ..lineTo(-1.045, .095)
-      ..close();
-    c.drawPath(
-      head,
-      Paint()
-        ..shader = ui.Gradient.linear(
-          const Offset(-.81, -.61),
-          const Offset(-.31, .36),
-          const [Color(0xffc3e8bd), Color(0xff76c6a2), Color(0xff388e7b)],
-          const [0, .46, 1],
-        ),
-    );
-    c.drawPath(head, _line(SkyColors.ink, .07));
-
-    final throat = Rect.fromCenter(
-      center: Offset(-.57, .205 + brace * .025),
-      width: .49 + brace * .095,
-      height: .3 + brace * .16,
-    );
-    final sac = Path()..addOval(throat);
-    c.drawPath(sac, _fill(const Color(0xff4b9e88)));
-    c.save();
-    c.clipPath(sac);
-    c.drawRect(
-      Rect.fromLTRB(
-        throat.left,
-        throat.bottom - throat.height * (.22 + power * .78),
-        throat.right,
-        throat.bottom,
-      ),
-      Paint()
-        ..shader = ui.Gradient.linear(throat.topCenter, throat.bottomCenter, [
-          Color.lerp(_light, SkyColors.cream, power)!,
-          _mint,
-        ]),
+      _fill(Color.lerp(_mint, SkyColors.cream, glow)!),
     );
     c.restore();
-    c.drawPath(sac, _line(_deep.withValues(alpha: .65), .04));
-    c.drawPath(
-      Path()
-        ..moveTo(-.73, .14)
-        ..quadraticBezierTo(-.61, .08, -.49, .125),
-      _line(SkyColors.cream.withValues(alpha: .35 + power * .5), .05),
+    c.drawOval(sac, _line(_ink, .055 + glow * .01));
+    c.drawOval(
+      Rect.fromCenter(
+        center: sac.center + Offset(-sac.width * .16, -sac.height * .22),
+        width: sac.width * .26,
+        height: sac.height * .2,
+      ),
+      _fill(SkyColors.cream.withValues(alpha: .85)),
     );
 
-    // A tall near eye and a sliver of the far eye give a clear left profile.
-    c.drawOval(const Rect.fromLTWH(-1.015, -.365, .125, .23), _fill(_deep));
-    const eye = Rect.fromLTWH(-.925, -.515, .46, .46);
+    // Big eye under a sly slanted lid that narrows to aim, squeezes on the spit.
+    const eye = Rect.fromLTWH(-.96, -.55, .5, .55);
     c.drawOval(eye, _fill(SkyColors.cream));
-    c.drawOval(eye, _line(_deep, .055));
+    final pupil = Offset(-.78, -.23 + aim * .09);
+    c.save();
+    c.clipPath(Path()..addOval(eye));
     c.drawOval(
-      Rect.fromCenter(
-        center: Offset(-.773, -.281 + aim * .073),
-        width: .21,
-        height: .29,
-      ),
-      _fill(SkyColors.ink),
+      Rect.fromCenter(center: pupil, width: .24, height: .31),
+      _fill(_ink),
     );
     c.drawCircle(
-      Offset(-.803, -.34 + aim * .073),
-      .053,
+      pupil + const Offset(-.04, -.075),
+      .055,
       _fill(SkyColors.cream),
     );
-    c.drawPath(
-      Path()
-        ..moveTo(-.948, -.46 + brace * .025)
-        ..quadraticBezierTo(-.77, -.61, -.46, -.445 + brace * .025),
-      _line(_deep, .075),
-    );
+    final lid = (wind * .12 + thrust * .2 + blink * .62).clamp(0.0, .62);
+    final front = Offset(eye.left - .04, -.41 + lid);
+    final back = Offset(eye.right + .04, -.57 + lid * .75);
+    final lidPath = Path()
+      ..moveTo(front.dx, front.dy)
+      ..lineTo(back.dx, back.dy)
+      ..lineTo(back.dx, eye.top - .05)
+      ..lineTo(front.dx, eye.top - .05)
+      ..close();
+    c.drawPath(lidPath, _fill(_skin));
+    c.restore();
+    c.drawOval(eye, _line(_ink, .065));
+    c.drawLine(front + const Offset(-.02, .01), back, _line(_ink, .085));
 
-    // A short pursed lip, not a projecting snout. Its center is always (-1.05,0).
-    c.drawPath(
-      Path()
-        ..moveTo(-.91, -.095)
-        ..quadraticBezierTo(-1.115, -.12, -1.11, 0)
-        ..quadraticBezierTo(-1.11, .125, -.91, .095),
-      Paint()
-        ..color = _light
-        ..style = PaintingStyle.fill,
+    // Pursed lips; the opening is centered exactly on the muzzle.
+    final pucker = 1 + power * .22 + thrust * .3;
+    c.save();
+    c.translate(muzzle.dx, muzzle.dy);
+    c.scale(pucker);
+    final lips = Rect.fromCenter(
+      center: const Offset(-.01, 0),
+      width: .22,
+      height: .26,
     );
-    c.drawPath(
-      Path()
-        ..moveTo(-.925, -.095)
-        ..quadraticBezierTo(-1.12, -.135, -1.12, 0)
-        ..quadraticBezierTo(-1.12, .135, -.925, .095),
-      _line(_deep, .055),
+    c.drawOval(lips, _fill(_skin));
+    c.drawOval(lips, _line(_ink, .06 / pucker));
+    final hole = Rect.fromCenter(
+      center: Offset.zero,
+      width: .07 + power * .03 + thrust * .06,
+      height: .09 + power * .06 + thrust * .08,
     );
-    c.drawOval(
-      Rect.fromCenter(
-        center: const Offset(-1.05, 0),
-        width: .095 + power * .02,
-        height: .105 + power * .09 + math.max(0, spring) * .06,
-      ),
-      _fill(_deep),
-    );
-    if (power > 0) {
+    c.drawOval(hole, _fill(_ink));
+    if (power > 0 || thrust > 0) {
       c.drawOval(
         Rect.fromCenter(
-          center: const Offset(-1.057, 0),
-          width: .048 + power * .025,
-          height: .035 + power * .08,
+          center: Offset.zero,
+          width: hole.width * .6,
+          height: hole.height * .6,
         ),
-        _fill(_mint.withValues(alpha: power)),
+        _fill(_mint.withValues(alpha: math.max(glow, thrust))),
       );
-      c.drawCircle(
-        const Offset(-1.071, -.025),
-        .024,
-        _fill(SkyColors.cream.withValues(alpha: power)),
+    }
+    c.restore();
+
+    // A brief glint on the lip says "about to fire".
+    final glint = math.sin(math.pi * _smooth(.74, 1.04, power));
+    if (glint > .01) {
+      _sparkle(c, const Offset(-1.17, -.24), .3 * glint, glint);
+    }
+  }
+
+  static void _sparkle(Canvas c, Offset at, double size, double alpha) {
+    final star = Path()
+      ..moveTo(at.dx, at.dy - size)
+      ..quadraticBezierTo(
+        at.dx + size * .12,
+        at.dy - size * .12,
+        at.dx + size * .8,
+        at.dy,
+      )
+      ..quadraticBezierTo(
+        at.dx + size * .12,
+        at.dy + size * .12,
+        at.dx,
+        at.dy + size,
+      )
+      ..quadraticBezierTo(
+        at.dx - size * .12,
+        at.dy + size * .12,
+        at.dx - size * .8,
+        at.dy,
+      )
+      ..quadraticBezierTo(
+        at.dx - size * .12,
+        at.dy - size * .12,
+        at.dx,
+        at.dy - size,
+      )
+      ..close();
+    c.drawPath(star, _line(_deep.withValues(alpha: .85 * alpha), .07));
+    c.drawPath(star, _fill(SkyColors.cream.withValues(alpha: alpha)));
+  }
+
+  /// A lively eight-point pop with alternating long and short rays.
+  static final Path _pop = () {
+    final path = Path();
+    for (var i = 0; i < 16; i++) {
+      final angle = i * math.pi / 8 + .2;
+      final r = i.isOdd ? .56 : (i % 4 == 0 ? 1.0 : .78);
+      final p = Offset(math.cos(angle), math.sin(angle)) * r;
+      i == 0 ? path.moveTo(p.dx, p.dy) : path.lineTo(p.dx, p.dy);
+    }
+    return path..close();
+  }();
+
+  /// Muzzle burst left in the world where the seed was launched: a bright
+  /// pop behind the seed, an expanding ring and two droplets flung aside.
+  static void _burst(Canvas c, double after, double aim, bool reducedMotion) {
+    final life = (after / .55).clamp(0.0, 1.0);
+    if (life >= 1) return;
+    final grow = reducedMotion ? .4 : 1 - math.pow(1 - life, 3).toDouble();
+    final fade = math.pow(1 - life, 1.4).toDouble();
+    c.save();
+    c.translate(muzzle.dx, muzzle.dy);
+    c.rotate(aim * .3);
+    final flash = math.pow(1 - _smooth(0, .55, life), 2).toDouble();
+    if (flash > 0) {
+      c.save();
+      c.translate(-.07, 0);
+      c.scale(.56 * (1 - .2 * life));
+      c.drawPath(_pop, _line(_spit.withValues(alpha: flash), .14));
+      c.drawPath(
+        _pop,
+        Paint()
+          ..shader = ui.Gradient.radial(
+            Offset.zero,
+            1,
+            [
+              SkyColors.cream.withValues(alpha: flash),
+              _mint.withValues(alpha: flash),
+            ],
+            const [.45, 1],
+          ),
       );
+      c.restore();
+    }
+    final ring = .34 + .28 * grow;
+    final width = .09 * (1 - life) + .02;
+    c.drawCircle(
+      Offset.zero,
+      ring,
+      _line(_deep.withValues(alpha: .5 * fade), width + .05),
+    );
+    c.drawCircle(
+      Offset.zero,
+      ring,
+      _line(_mint.withValues(alpha: fade), width),
+    );
+    for (final side in const [-1.0, 1.0]) {
+      final angle = math.pi + side * 1.05;
+      final d = .34 + .38 * grow;
+      final at =
+          Offset(math.cos(angle), math.sin(angle)) * d +
+          Offset(0, reducedMotion ? 0 : life * life * .12);
+      final size = .1 * (1 - life * .5);
+      c.drawCircle(at, size + .04, _fill(_deep.withValues(alpha: .8 * fade)));
+      c.drawCircle(at, size, _fill(_mint.withValues(alpha: fade)));
     }
     c.restore();
   }

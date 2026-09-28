@@ -15,9 +15,14 @@ abstract final class DuskMothBossRig {
   // The attachment is the head's crest, not the rear edge of its fur collar.
   static const crownAnchor = Offset(-.76, -.635);
   static const crownBounds = Rect.fromLTRB(-.37, -.69, .32, .145);
-  static const _rose = Color(0xffb86e82), _velvet = Color(0xff513954);
+  static const _rose = Color(0xffc2687f), _velvet = Color(0xff54304f);
   static const _pearl = Color(0xfffff3da), _goldShadow = Color(0xffbe7f64);
+  // Shared with the small dusk moths so the queen reads as their elder.
+  static const _wine = Color(0xff8c3f62), _peach = Color(0xffffc6a4);
+  static const _ember = Color(0xffff9a4a);
 
+  static Color _lit(Color color, double flash) =>
+      flash <= 0 ? color : Color.lerp(color, _pearl, flash)!;
   static Paint _fill(Color color) => Paint()..color = color;
   static Paint _line(Color color, double width) => Paint()
     ..color = color
@@ -37,18 +42,48 @@ abstract final class DuskMothBossRig {
     final breath = math.sin(time * 3) * .022;
     final charge = BossMotion.ease(boss.charge);
     final recoil = m.reducedMotion ? 0.0 : m.recoil;
-    final glow = boss.enraged ? const Color(0xffffa16d) : pollen;
+    final glow = boss.enraged ? _ember : pollen;
     final moonlight = boss.shielded ? 1.0 : boss.shieldWarning * .6;
     final aim = lookY.isFinite ? lookY.clamp(-1.0, 1.0) : 0.0;
-
-    _wingPair(c, boss, m, far: true, breath: breath, moonlight: moonlight);
+    // Fury is a held state (warm wings, glare); the rage pulse only flares it.
+    final fury = boss.enraged && !m.defeated ? .8 + m.rage * .2 : 0.0;
+    // A struck flash brightens the fills while the ink outline holds, so the
+    // queen never reads as fading out. Crown pixels stay untouched.
+    final flash = m.reducedMotion || m.defeated ? 0.0 : m.hit * .55;
+    _wingPair(
+      c,
+      boss,
+      m,
+      far: true,
+      breath: breath,
+      moonlight: moonlight,
+      flash: flash,
+    );
     _legs(c, m, breath, far: true);
-    _abdomen(c, breath);
-    _wingPair(c, boss, m, far: false, breath: breath, moonlight: moonlight);
+    _abdomen(c, breath, fury, flash);
+    _wingPair(
+      c,
+      boss,
+      m,
+      far: false,
+      breath: breath,
+      moonlight: moonlight,
+      fury: fury,
+      flash: flash,
+    );
     _legs(c, m, breath, far: false);
-    _mantle(c, charge, breath);
-    _antennae(c, breath, recoil);
-    _head(c, aim, charge, recoil, boss.enraged);
+    _mantle(c, charge, breath, flash);
+    _antennae(c, breath, recoil, fury);
+    _head(
+      c,
+      aim,
+      charge,
+      recoil,
+      fury: fury,
+      wince: m.defeated ? 1 : m.hit,
+      mouth: m.defeated ? 0 : m.roar,
+      flash: flash,
+    );
     _glands(c, charge, recoil, glow);
     if (!m.defeated || m.death < .3) {
       c.save();
@@ -60,7 +95,7 @@ abstract final class DuskMothBossRig {
     }
   }
 
-  static void _abdomen(Canvas c, double breath) {
+  static void _abdomen(Canvas c, double breath, double fury, double flash) {
     final body = Path()
       ..moveTo(-.28, -.3)
       ..cubicTo(.37, -.48, 1.06, -.12, 1.43, .27 + breath)
@@ -68,12 +103,13 @@ abstract final class DuskMothBossRig {
       ..lineTo(1.3, .42 + breath)
       ..cubicTo(.71, .64, .13, .52, -.27, .3)
       ..close();
+    c.drawPath(body, _line(ink, .15));
     c.drawPath(
       body,
       _gradient(const Rect.fromLTRB(-.3, -.4, 1.4, .6), [
-        coral,
-        _rose,
-        _velvet,
+        _lit(Color.lerp(coral, _peach, fury * .5)!, flash),
+        _lit(_rose, flash),
+        _lit(_wine, flash),
       ]),
     );
     c.save();
@@ -84,17 +120,16 @@ abstract final class DuskMothBossRig {
         Path()
           ..moveTo(x, -.32)
           ..quadraticBezierTo(x + .3, .07, x + .04, .61),
-        _line(ink.withValues(alpha: .55), .065),
+        _line(_velvet.withValues(alpha: .7), .065),
       );
       c.drawPath(
         Path()
           ..moveTo(x + .06, -.1)
           ..quadraticBezierTo(x + .2, .07, x + .17, .24),
-        _line(silk.withValues(alpha: .4), .035),
+        _line(silk.withValues(alpha: .45), .035),
       );
     }
     c.restore();
-    c.drawPath(body, _line(ink, .055));
   }
 
   static void _wingPair(
@@ -104,6 +139,8 @@ abstract final class DuskMothBossRig {
     required bool far,
     required double breath,
     required double moonlight,
+    double fury = 0,
+    double flash = 0,
   }) {
     final still = m.reducedMotion || m.defeated;
     final beat = still
@@ -111,22 +148,54 @@ abstract final class DuskMothBossRig {
         : math.sin(boss.age * (boss.enraged ? 19 : 15) + (far ? 1.1 : 0));
     final fold = m.defeated ? .8 : m.folded;
     final recoil = m.reducedMotion ? 0.0 : m.recoil;
+    // The arrival roar throws the wings open like a mantle.
+    final flare = m.reducedMotion ? 0.0 : m.roar;
     final shelter =
         1 - (boss.shielded ? 1.0 : BossMotion.ease(boss.shieldWarning)) * .12;
     c.save();
-    c.translate(far ? -.09 : -.16, far ? -.12 : -.02);
-    c.rotate(far ? -.23 - beat * .04 : breath - recoil * .07);
-    c.scale(shelter);
-    c.scale(far ? .86 : 1.0, (1 - fold * .62) * (.88 + beat * .09));
+    // The far pair sits just behind and right of the near pair so only its
+    // apex and tail edge peek out, keeping one clean regal outline.
+    c.translate(far ? .04 : -.16, far ? -.17 : -.02);
+    c.rotate(
+      far
+          ? -.07 - beat * .04 - flare * .1
+          : breath - recoil * .07 - flare * .06,
+    );
+    c.scale(shelter * (1 + flare * .06));
+    c.scale(far ? .9 : 1.0, (1 - fold * .62) * (.88 + beat * .09));
     _wings(
       c,
       far: far,
       moonlight: moonlight,
       charge: boss.charge,
       recoil: recoil,
+      fury: fury,
+      flash: flash,
     );
     c.restore();
   }
+
+  // A falcate forewing and a luna-tailed hindwing give the queen a sweeping,
+  // regal outline that reads apart from the rounded small dusk moths.
+  static final _forewing = Path()
+    ..moveTo(0, -.06)
+    ..cubicTo(.06, -.8, .6, -1.5, 1.56, -1.64)
+    ..quadraticBezierTo(1.83, -1.68, 1.76, -1.44)
+    ..cubicTo(1.64, -1.18, 1.8, -.92, 1.58, -.68)
+    ..quadraticBezierTo(1.52, -.44, 1.24, -.36)
+    ..quadraticBezierTo(1.02, -.12, .72, -.15)
+    ..quadraticBezierTo(.32, .04, 0, -.06)
+    ..close();
+  static final _hindwing = Path()
+    ..moveTo(.02, .02)
+    ..cubicTo(.6, -.04, 1.24, .2, 1.44, .56)
+    ..quadraticBezierTo(1.6, .86, 1.3, .98)
+    ..quadraticBezierTo(1.22, 1.2, 1.42, 1.44)
+    ..quadraticBezierTo(1.52, 1.62, 1.33, 1.62)
+    ..quadraticBezierTo(1.06, 1.46, 1.0, 1.12)
+    ..quadraticBezierTo(.72, 1.13, .5, .96)
+    ..quadraticBezierTo(.12, .76, .02, .02)
+    ..close();
 
   static void _wings(
     Canvas c, {
@@ -134,111 +203,134 @@ abstract final class DuskMothBossRig {
     required double moonlight,
     required double charge,
     required double recoil,
+    double fury = 0,
+    double flash = 0,
   }) {
-    final upper = Path()
-      ..moveTo(0, -.02)
-      ..cubicTo(.11, -.72, .57, -1.52, 1.49, -1.62)
-      ..quadraticBezierTo(1.74, -1.63, 1.67, -1.34)
-      ..quadraticBezierTo(1.9, -1.18, 1.63, -.88)
-      ..quadraticBezierTo(1.79, -.61, 1.43, -.48)
-      ..quadraticBezierTo(1.45, -.23, 1.12, -.25)
-      ..quadraticBezierTo(.86, .04, .6, -.1)
-      ..quadraticBezierTo(.25, .1, 0, -.02)
-      ..close();
-    final lower = Path()
-      ..moveTo(.01, .04)
-      ..cubicTo(.63, .05, 1.26, .35, 1.51, .74)
-      ..quadraticBezierTo(1.67, 1.07, 1.34, .99)
-      ..quadraticBezierTo(1.38, 1.35, 1.13, 1.1)
-      ..quadraticBezierTo(1.06, 1.6, .86, 1.22)
-      ..quadraticBezierTo(.56, 1.48, .47, 1.05)
-      ..quadraticBezierTo(.15, .9, .01, .04)
-      ..close();
-    const bounds = Rect.fromLTRB(-.1, -1.65, 1.85, 1.5);
-    for (final path in [lower, upper]) {
+    final hem = Color.lerp(silk, _peach, fury)!;
+    for (final path in [_hindwing, _forewing]) {
+      final upper = identical(path, _forewing);
+      c.drawPath(path, _line(ink, far ? .12 : .16));
       c.drawPath(
         path,
-        _gradient(bounds, far ? [plum, _rose, _velvet] : [coral, _rose, plum]),
+        Paint()
+          ..shader = RadialGradient(
+            center: const Alignment(-.95, .0),
+            radius: 1.25,
+            colors: [
+              for (final color
+                  in far
+                      ? const [_wine, plum, _velvet]
+                      : [
+                          Color.lerp(coral, _ember, fury * .6)!,
+                          Color.lerp(_rose, const Color(0xffd9587a), fury)!,
+                          _wine,
+                          _velvet,
+                        ])
+                _lit(color, flash),
+            ],
+            stops: far ? const [0, .55, 1] : const [0, .3, .68, 1],
+          ).createShader(const Rect.fromLTRB(-.1, -1.7, 1.85, 1.7)),
       );
       c.save();
       c.clipPath(path);
-      // A broad velvet hem and pearl scallops survive the phone-size render.
-      c.drawPath(path, _line(_velvet, far ? .27 : .32));
-      c.drawPath(path, _line(far ? _rose : silk, far ? .1 : .13));
-      final band = Path()
-        ..moveTo(1.18, -1.76)
-        ..cubicTo(.65, -.77, .91, -.23, .64, .03)
-        ..quadraticBezierTo(.72, .64, 1.1, 1.43);
-      c.drawPath(band, _line(_velvet.withValues(alpha: .7), .13));
-      c.drawPath(band, _line(coral.withValues(alpha: .75), .035));
-      for (final tip in const [
-        Offset(1.52, -1.49),
-        Offset(1.56, -.98),
-        Offset(1.4, -.58),
-        Offset(1.39, .84),
-        Offset(1.12, 1.17),
-        Offset(.6, 1.1),
-      ]) {
-        c.drawPath(
-          Path()
-            ..moveTo(.07, -.03)
-            ..quadraticBezierTo(tip.dx * .57, tip.dy * .33, tip.dx, tip.dy),
-          _line(_velvet.withValues(alpha: far ? .25 : .4), .022),
-        );
-      }
+      // A deep velvet margin and a pearl hem survive the phone-size render.
+      c.drawPath(path, _line(_velvet, far ? .24 : .3));
+      c.drawPath(path, _line(far ? _rose : hem, far ? .07 : .11));
       if (!far) {
-        c.drawPath(
-          Path()
-            ..moveTo(.15, -.33)
-            ..quadraticBezierTo(.42, -1.06, 1.27, -1.47),
-          _line(_pearl.withValues(alpha: .6), .043),
-        );
-        // Sparse paired scales add fabric grain without a noisy dotted fill.
-        for (var i = 0; i < 4; i++) {
-          final at = Offset(.91 + i * .14, -1.23 + i * .2);
-          c.drawLine(
-            at,
-            at + const Offset(.045, -.047),
-            _line(silk.withValues(alpha: .6), .028),
+        // A delicate postmedian line follows the outer margin.
+        final band = upper
+            ? (Path()
+                ..moveTo(.42, -1.12)
+                ..cubicTo(1.0, -1.1, 1.3, -.72, 1.12, -.36))
+            : (Path()
+                ..moveTo(.62, .12)
+                ..cubicTo(1.1, .3, 1.24, .7, 1.02, .9));
+        c.drawPath(band, _line(silk.withValues(alpha: .38), .03));
+        for (final tip
+            in upper
+                ? const [
+                    Offset(1.5, -1.5),
+                    Offset(1.58, -.92),
+                    Offset(1.2, -.4),
+                  ]
+                : const [
+                    Offset(1.34, .66),
+                    Offset(1.25, 1.3),
+                    Offset(.62, 1.0),
+                  ]) {
+          c.drawPath(
+            Path()
+              ..moveTo(.07, 0)
+              ..quadraticBezierTo(tip.dx * .55, tip.dy * .3, tip.dx, tip.dy),
+            _line(_velvet.withValues(alpha: .4), .026),
+          );
+        }
+        if (upper) {
+          c.drawPath(
+            Path()
+              ..moveTo(.16, -.4)
+              ..quadraticBezierTo(.44, -1.14, 1.3, -1.5),
+            _line(_peach.withValues(alpha: .55), .045),
           );
         }
       }
       c.restore();
-      c.drawPath(path, _line(ink, far ? .045 : .06));
     }
+    // A pearl drop weights the tail tip, like the moth-queen's train.
+    c.drawCircle(
+      const Offset(1.33, 1.49),
+      far ? .05 : .075,
+      _fill(far ? _rose : Color.lerp(_pearl, veil, moonlight * .7)!),
+    );
+    c.drawCircle(const Offset(1.33, 1.49), far ? .05 : .075, _line(ink, .03));
     for (final lowerSpot in [false, true]) {
-      final at = lowerSpot ? const Offset(.72, .62) : const Offset(.71, -.81);
+      final at = lowerSpot ? const Offset(.8, .52) : const Offset(.92, -.9);
       c.save();
       c.translate(at.dx, at.dy);
-      c.rotate(lowerSpot ? .37 : -.4);
-      final scale = lowerSpot ? .82 : 1.0;
-      c.scale(scale);
-      final eye = Path()
-        ..moveTo(-.31, 0)
-        ..quadraticBezierTo(0, -.32, .34, 0)
-        ..quadraticBezierTo(0, .31, -.31, 0)
-        ..close();
-      c.drawPath(eye, _fill(_velvet));
-      c.drawPath(eye, _line(far ? coral : silk, .035));
+      c.rotate(lowerSpot ? .42 : -.52);
+      c.scale(lowerSpot ? .74 : 1.0);
+      final eye = _almond(.36, .24);
+      if (!far && fury > 0) {
+        c.drawCircle(
+          Offset.zero,
+          .5,
+          Paint()
+            ..shader = RadialGradient(
+              colors: [
+                _ember.withValues(alpha: .45 * fury),
+                _ember.withValues(alpha: 0),
+              ],
+            ).createShader(Rect.fromCircle(center: Offset.zero, radius: .5)),
+        );
+      }
+      c.drawPath(eye, _fill(far ? coral : hem));
+      c.drawPath(eye, _line(ink, .035));
+      c.drawPath(_almond(.28, .16), _fill(_velvet));
       if (!far) {
         // A cut crescent leaves the velvet eyespot visible through its opening.
-        c.drawPath(
-          _crescent(Offset.zero, .185),
-          _fill(Color.lerp(_pearl, veil, moonlight)!),
-        );
-        final gem = Offset(-.015 + recoil * .015, .014);
+        final moon = Color.lerp(
+          Color.lerp(_pearl, veil, moonlight)!,
+          pollen,
+          fury * (1 - moonlight),
+        )!;
+        c.drawPath(_crescent(Offset.zero, .15), _fill(moon));
+        final gem = Offset(.01 + recoil * .015, .012);
         c.drawCircle(
           gem,
-          .06 + charge * .023,
-          _fill(Color.lerp(coral, pollen, charge)!),
+          .055 + charge * .025,
+          _fill(Color.lerp(Color.lerp(coral, _ember, fury)!, pollen, charge)!),
         );
-        c.drawCircle(gem + const Offset(-.017, -.022), .02, _fill(_pearl));
-      } else {
-        c.drawOval(const Rect.fromLTRB(-.12, -.09, .12, .09), _fill(coral));
+        c.drawCircle(gem + const Offset(-.016, -.02), .019, _fill(_pearl));
       }
       c.restore();
     }
   }
+
+  static Path _almond(double w, double h) => Path()
+    ..moveTo(-w, 0)
+    ..quadraticBezierTo(0, -h * 1.9, w, 0)
+    ..quadraticBezierTo(0, h * 1.9, -w, 0)
+    ..close();
 
   static void _legs(
     Canvas c,
@@ -246,31 +338,34 @@ abstract final class DuskMothBossRig {
     double breath, {
     required bool far,
   }) {
-    for (var i = 0; i < 3; i++) {
+    // Three neat tucked legs per side; the far set only shows as a shadow.
+    for (var i = far ? 1 : 0; i < 3; i++) {
       final x = -.4 + i * .27 + (far ? .12 : 0);
       final lift = m.defeated ? -.28 : (i == 0 ? m.summon * -.32 : 0.0);
       final root = Offset(x, .23);
-      final knee = Offset(x + .09, .58 + lift);
-      final foot = Offset(x - .17 + breath, .78 + lift);
+      final knee = Offset(x + .09, .56 + lift);
+      final foot = Offset(x - .15 + breath, .74 + lift);
       final leg = Path()
         ..moveTo(root.dx, root.dy)
         ..lineTo(knee.dx, knee.dy)
         ..lineTo(foot.dx, foot.dy)
         ..quadraticBezierTo(
-          foot.dx - .13,
-          foot.dy + .03,
-          foot.dx - .13,
-          foot.dy - .045,
+          foot.dx - .1,
+          foot.dy + .02,
+          foot.dx - .11,
+          foot.dy - .04,
         );
-      c.drawPath(leg, _line(far ? plum : ink, far ? .042 : .061));
-      if (!far) {
-        c.drawLine(root, knee, _line(_rose, .029));
-        c.drawCircle(knee, .035, _fill(silk));
+      if (far) {
+        c.drawPath(leg, _line(plum, .05));
+      } else {
+        c.drawPath(leg, _line(ink, .075));
+        c.drawPath(leg, _line(_rose, .028));
+        c.drawCircle(knee, .033, _fill(silk));
       }
     }
   }
 
-  static void _mantle(Canvas c, double charge, double breath) {
+  static void _mantle(Canvas c, double charge, double breath, double flash) {
     final fur = Path()
       ..moveTo(-.68, -.4)
       ..quadraticBezierTo(-.53, -.66, -.37, -.62)
@@ -289,11 +384,15 @@ abstract final class DuskMothBossRig {
       ..quadraticBezierTo(-.68, .48, -.74, .24)
       ..quadraticBezierTo(-.86, -.12, -.68, -.4)
       ..close();
+    c.drawPath(fur, _line(ink, .15));
     c.drawPath(
       fur,
-      _gradient(const Rect.fromLTRB(-.7, -.6, .3, .65), [_pearl, silk, coral]),
+      _gradient(const Rect.fromLTRB(-.7, -.6, .3, .65), [
+        _pearl,
+        _lit(silk, flash),
+        _lit(coral, flash),
+      ]),
     );
-    c.drawPath(fur, _line(ink, .055));
     final shadow = Path()
       ..moveTo(-.54, -.32)
       ..quadraticBezierTo(-.23, -.37, -.1, -.18)
@@ -314,7 +413,7 @@ abstract final class DuskMothBossRig {
     );
   }
 
-  static void _antennae(Canvas c, double breath, double recoil) {
+  static void _antennae(Canvas c, double breath, double recoil, double fury) {
     for (final far in [true, false]) {
       final root = far ? const Offset(-.47, -.52) : const Offset(-.78, -.55);
       final bend = far ? const Offset(-.64, -.94) : const Offset(-1.12, -.72);
@@ -343,7 +442,13 @@ abstract final class DuskMothBossRig {
             at.dy - length,
           );
         c.drawPath(feathers, _line(ink, .055));
-        c.drawPath(feathers, _line(far ? coral : silk, .031));
+        c.drawPath(
+          feathers,
+          _line(
+            Color.lerp(far ? coral : silk, far ? _ember : _peach, fury * t)!,
+            .031,
+          ),
+        );
       }
     }
   }
@@ -352,9 +457,12 @@ abstract final class DuskMothBossRig {
     Canvas c,
     double aim,
     double charge,
-    double recoil,
-    bool furious,
-  ) {
+    double recoil, {
+    required double fury,
+    required double wince,
+    required double mouth,
+    double flash = 0,
+  }) {
     final head = Path()
       ..moveTo(-.52, -.56)
       ..cubicTo(-.85, -.76, -1.11, -.54, -1.1, -.23)
@@ -362,37 +470,33 @@ abstract final class DuskMothBossRig {
       ..quadraticBezierTo(-.92, .18, -.66, .08)
       ..quadraticBezierTo(-.35, -.12, -.52, -.56)
       ..close();
+    c.drawPath(head, _line(ink, .15));
     c.drawPath(
       head,
       _gradient(const Rect.fromLTRB(-1.12, -.68, -.43, .19), [
         _pearl,
-        coral,
-        _rose,
+        _lit(coral, flash),
+        _lit(_rose, flash),
       ]),
     );
-    c.drawPath(head, _line(ink, .055));
     c.drawPath(
       Path()
         ..moveTo(-1.04, -.49)
         ..quadraticBezierTo(-.86, -.66, -.62, -.53),
       _line(_pearl, .048),
     );
-    c.drawOval(
-      Rect.fromCenter(center: eyeCenter, width: .33, height: .35),
-      _fill(ink),
+    final socket = Rect.fromCenter(center: eyeCenter, width: .33, height: .35);
+    c.drawOval(socket, _fill(ink));
+    final white = Rect.fromCenter(
+      center: eyeCenter + const Offset(-.022, 0),
+      width: .235,
+      height: .265,
     );
-    c.drawOval(
-      Rect.fromCenter(
-        center: eyeCenter + const Offset(-.022, 0),
-        width: .235,
-        height: .265,
-      ),
-      _fill(_pearl),
-    );
+    c.drawOval(white, _fill(_pearl));
     final pupil = eyeCenter + Offset(-.064, aim * .052);
     c.drawOval(
       Rect.fromCenter(center: pupil, width: .11, height: .183),
-      _fill(plum),
+      _fill(fury > 0 ? Color.lerp(plum, _ember, fury * .55)! : plum),
     );
     c.drawOval(
       Rect.fromCenter(
@@ -403,12 +507,51 @@ abstract final class DuskMothBossRig {
       _fill(ink),
     );
     c.drawCircle(pupil + const Offset(-.02, -.05), .032, _fill(_pearl));
+    // A heavy upper lid: a regal glare in fury, a squeezed wince when struck;
+    // the roar opens the eye wide.
+    final lid = math.max(fury * .34, wince * .62) * (1 - mouth) + charge * .1;
+    if (lid > .01) {
+      final edge = white.top + white.height * lid;
+      final tilt = .05 + fury * .05;
+      final lidPath = Path()
+        ..moveTo(white.left - .05, white.top - .06)
+        ..lineTo(white.right + .05, white.top - .06)
+        ..lineTo(white.right + .05, edge + tilt)
+        ..quadraticBezierTo(
+          white.center.dx,
+          edge - .02,
+          white.left - .05,
+          edge - tilt,
+        )
+        ..close();
+      c.save();
+      c.clipPath(Path()..addOval(white));
+      c.drawPath(lidPath, _fill(Color.lerp(coral, _pearl, .25)!));
+      c.drawPath(
+        Path()
+          ..moveTo(white.left - .05, edge - tilt)
+          ..quadraticBezierTo(
+            white.center.dx,
+            edge - .02,
+            white.right + .05,
+            edge + tilt,
+          ),
+        _line(ink, .05),
+      );
+      c.restore();
+    }
+    final brow = fury * .07 + wince * .03;
     c.drawPath(
       Path()
-        ..moveTo(-1.05, -.52 - (furious ? .035 : 0))
-        ..quadraticBezierTo(-.89, -.49, -.7, -.46 + charge * .035)
+        ..moveTo(-1.06, -.53 - brow)
+        ..quadraticBezierTo(
+          -.89,
+          -.5 + brow * .2,
+          -.7,
+          -.46 + brow + charge * .03,
+        )
         ..lineTo(-.65, -.52),
-      _line(ink, .066),
+      _line(ink, .066 + fury * .012),
     );
     c.drawArc(
       const Rect.fromLTRB(-.79, -.12, -.49, .05),
@@ -417,27 +560,29 @@ abstract final class DuskMothBossRig {
       false,
       _line(_rose, .04),
     );
-    // A curled proboscis retracts into the same fixed pollen port on windup.
-    final curl = 1 - charge;
-    c.drawPath(
-      Path()
-        ..moveTo(-1.01, .015)
-        ..cubicTo(
-          -1.21,
-          .16 + curl * .16,
-          -.87,
-          .37 * curl + .06,
-          -.91,
-          .19 * curl + .05,
-        )
-        ..quadraticBezierTo(-.94, .12 * curl + .05, -1.01, .1 * curl + .01),
-      _line(ink, .055),
-    );
+    // A coiled proboscis tucks under the chin and winds into the fixed
+    // pollen port on windup or the roar.
+    final curl = 1 - math.max(charge, mouth);
+    if (curl > .02) {
+      final coil = Path()..moveTo(-1.03, .03);
+      for (var i = 1; i <= 24; i++) {
+        final t = i / 24;
+        final turn = t * math.pi * 2.6 * curl;
+        final r = .085 * curl * (1 - t * .72);
+        final center = Offset(-.99, .03 + .1 * curl);
+        coil.lineTo(
+          center.dx - math.sin(turn) * r,
+          center.dy - math.cos(turn) * r,
+        );
+      }
+      c.drawPath(coil, _line(ink, .062));
+      c.drawPath(coil, _line(_rose, .024));
+    }
     c.drawOval(
       Rect.fromCenter(
         center: const Offset(-1.05, 0),
-        width: .145,
-        height: .11 + charge * .14 + recoil * .035,
+        width: .145 + mouth * .03,
+        height: .11 + math.max(charge * .14, mouth * .15) + recoil * .035,
       ),
       _fill(ink),
     );
@@ -567,12 +712,27 @@ abstract final class DuskMothBossRig {
       const Offset(-.234, .06),
       _line(_pearl, .02),
     );
+    // A small crescent-moon finial crowns the forehead plate.
+    c.drawLine(
+      const Offset(-.288, -.34),
+      const Offset(-.29, -.41),
+      _line(ink, .05),
+    );
+    c.drawLine(
+      const Offset(-.288, -.34),
+      const Offset(-.29, -.41),
+      _line(pollen, .022),
+    );
     c.save();
-    c.translate(-.29, -.49);
-    c.scale(-.34, 1);
-    c.drawPath(_crescent(const Offset(-.045, 0), .17), _fill(_goldShadow));
-    c.drawPath(_crescent(Offset.zero, .17), _fill(_pearl));
-    c.drawPath(_crescent(Offset.zero, .17), _line(ink, .025));
+    c.translate(-.29, -.48);
+    c.rotate(-.35);
+    c.scale(.8, 1);
+    c.drawPath(_crescent(Offset.zero, .135), _line(ink, .05));
+    c.drawPath(_crescent(Offset.zero, .135), _fill(_pearl));
+    c.drawPath(
+      _crescent(const Offset(-.018, .012), .1),
+      _fill(Color.lerp(silk, veil, moonlight)!),
+    );
     c.restore();
     final gem = Path()
       ..moveTo(-.261, -.183)
@@ -626,9 +786,34 @@ abstract final class DuskMothBossRig {
       c.drawCircle(Offset.zero, .964, _line(silk.withValues(alpha: .64), .008));
       c.drawArc(bounds, math.pi * .88, .93, false, _line(_pearl, .029));
     }
+    if (!active) {
+      // A dashed, still-open ring: threads gathering, not yet a wall.
+      c.drawCircle(
+        Offset.zero,
+        1,
+        Paint()
+          ..shader = RadialGradient(
+            colors: [
+              veil.withValues(alpha: 0),
+              veil.withValues(alpha: 0),
+              veil.withValues(alpha: warning * .1),
+            ],
+            stops: const [0, .78, 1],
+          ).createShader(bounds),
+      );
+    }
     for (var i = 0; i < 12; i++) {
       final angle = i * math.pi / 6 + weave;
-      final sweep = active ? math.pi / 6 : .045 + warning * .38;
+      final sweep = active ? math.pi / 6 : .06 + warning * .3;
+      if (!active) {
+        c.drawArc(
+          bounds,
+          angle,
+          sweep,
+          false,
+          _line(ink.withValues(alpha: .18 + warning * .22), .036),
+        );
+      }
       c.drawArc(
         bounds,
         angle,
@@ -637,12 +822,12 @@ abstract final class DuskMothBossRig {
         _line(
           active
               ? silk.withValues(alpha: .84)
-              : veil.withValues(alpha: .3 + warning * .62),
-          active ? .009 : .014,
+              : veil.withValues(alpha: .45 + warning * .5),
+          active ? .009 : .016 + warning * .006,
         ),
       );
       // Crossing thread loops make a scalloped silk hem, keeping the face clear.
-      if (active || warning > .35) {
+      if (active) {
         final start = _polar(angle, .975);
         final end = _polar(angle + sweep, .975);
         final loop = Path()

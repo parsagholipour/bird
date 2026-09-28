@@ -65,12 +65,17 @@ class FlightEvent {
     this.value = 0,
     this.gateWorldX,
     this.gateY,
+    this.enemyKind,
   });
   final FlightEventKind kind;
   final double at, y;
   final int value;
   // Visual handoffs stay attached to their gate as the world scrolls.
   final double? gateWorldX, gateY;
+
+  /// Which small enemy a defeat removed. Only the defeat art reads it; it is
+  /// never recorded, replayed or used by the rules.
+  final EnemyKind? enemyKind;
 }
 
 class SkyStar {
@@ -310,6 +315,9 @@ class FlightSimulation {
   final List<FlightEvent> events = [];
   final List<SkyEnemy> enemies = [];
   final List<EnemyAmmo> enemyAmmo = [];
+
+  /// Render-only splashes where pellets stopped. The rules never read them.
+  final List<EnemyAmmoImpact> enemyAmmoImpacts = [];
   final List<BirdRock> rocks = [];
   SkyBoss? boss;
   int doorsDestroyed = 0;
@@ -1176,6 +1184,7 @@ class FlightSimulation {
             vx: math.cos(aim + offset) * speed,
             vy: math.sin(aim + offset) * speed,
             attack: enemy.attack,
+            bornAt: elapsed,
           ),
         );
       }
@@ -1184,16 +1193,20 @@ class FlightSimulation {
       enemy.lastShotAt = enemy.age;
       enemy.fireIn += fan ? 3.2 : 2.4;
     }
+    enemyAmmoImpacts.removeWhere((impact) => elapsed - impact.at > 1);
     enemyAmmo.removeWhere((ammo) {
       ammo.x += (ammo.vx - rush) * dt;
       ammo.y += ammo.vy * dt;
       if (ammo.x < -.1 ||
           ammo.x > viewportWidth + .2 ||
           ammo.y < -.1 ||
-          ammo.y > 1.1 ||
-          obstacles.any(
-            (o) => _circleTouchesObstacle(ammo.x, ammo.y, EnemyAmmo.radius, o),
-          )) {
+          ammo.y > 1.1) {
+        return true;
+      }
+      if (obstacles.any(
+        (o) => _circleTouchesObstacle(ammo.x, ammo.y, EnemyAmmo.radius, o),
+      )) {
+        _ammoImpact(ammo, AmmoStop.blocked);
         return true;
       }
       // A well-timed shot can cancel a pellet instead of demanding a dodge
@@ -1205,12 +1218,14 @@ class FlightSimulation {
         if (dx * dx + dy * dy <= reach * reach) {
           rocks.remove(rock);
           projectilesDeflected++;
+          _ammoImpact(ammo, AmmoStop.deflected);
           return true;
         }
       }
       final dx = birdX - ammo.x, dy = birdY - ammo.y;
       const reach = birdRadius + EnemyAmmo.radius;
       if (dx * dx + dy * dy > reach * reach) return false;
+      _ammoImpact(ammo, AmmoStop.struck);
       if (isTrail) {
         _damage();
       } else {
@@ -1219,6 +1234,19 @@ class FlightSimulation {
       return true;
     });
   }
+
+  void _ammoImpact(EnemyAmmo ammo, AmmoStop stop) => enemyAmmoImpacts.add(
+    EnemyAmmoImpact(
+      x: ammo.x,
+      y: ammo.y,
+      worldX: distance + ammo.x,
+      birdY: birdY,
+      direction: math.atan2(ammo.vy, ammo.vx),
+      attack: ammo.attack,
+      stop: stop,
+      at: elapsed,
+    ),
+  );
 
   void _advanceBoss(double dt, double viewportWidth) {
     if (boss == null) {
@@ -1250,6 +1278,7 @@ class FlightSimulation {
       rocks.clear();
       bossAmmo.clear();
       enemyAmmo.clear();
+      enemyAmmoImpacts.clear();
       sprintRings.clear();
       meteors.clear();
       lavaVents.clear();
@@ -1362,6 +1391,7 @@ class FlightSimulation {
         enemy.y,
         value: bonus,
         gateWorldX: distance + enemy.x,
+        enemyKind: enemy.kind,
       ),
     );
   }

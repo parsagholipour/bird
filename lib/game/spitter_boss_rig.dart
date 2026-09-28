@@ -6,7 +6,8 @@ import '../domain/sky_boss.dart';
 import 'boss_motion.dart';
 import 'spitter_boss_motion.dart';
 
-/// A heavy scarab acid brewer: copper shell, glass boiler and a battered hat.
+/// A heavy scarab acid brewer: brass-trimmed jade dome, glass boiler and a
+/// battered hat.
 /// Authored in hit-radius units, with the mouth fixed at (-1.05, 0).
 abstract final class SpitterBossRig {
   static const acid = Color(0xff6fe3a4), mint = Color(0xffd4ffc1);
@@ -17,6 +18,9 @@ abstract final class SpitterBossRig {
   static const _copper = Color(0xffc57a47), _rust = Color(0xff714833);
   static const _cream = Color(0xffffefcb), _hat = Color(0xff654f5d);
   static const _rage = Color(0xffffb65f);
+  // Shared with the spitter minion so the King reads as its grand relative.
+  static const _deep = Color(0xff1c4d45), _jade = Color(0xff2a9474);
+  static const _leaf = Color(0xff7fd4a0), _lime = Color(0xffc3eba2);
 
   static Paint _fill(Color color) => Paint()..color = color;
   static Paint _line(Color color, double width) => Paint()
@@ -33,6 +37,30 @@ abstract final class SpitterBossRig {
     ).createShader(rect);
 
   static void paint(Canvas c, SkyBoss boss, BossMotion m, {double lookY = 0}) {
+    // Hits brighten every part additively, so outlines survive the flash and
+    // the King never looks ghosted. Reduced Motion keeps a softer flash.
+    final flash = m.defeated ? 0.0 : m.hit * (m.reducedMotion ? .2 : .34);
+    if (flash > 0) {
+      final lift = flash * 255;
+      c.saveLayer(
+        _bounds,
+        Paint()
+          ..colorFilter = ColorFilter.matrix([
+            1, 0, 0, 0, lift, //
+            0, 1, 0, 0, lift * .96,
+            0, 0, 1, 0, lift * .82,
+            0, 0, 0, 1, 0,
+          ]),
+      );
+    }
+    _paintBody(c, boss, m, lookY);
+    if (flash > 0) c.restore();
+  }
+
+  /// Everything the rig can reach, poses and props included.
+  static const _bounds = Rect.fromLTRB(-2.1, -2.2, 2.4, 1.5);
+
+  static void _paintBody(Canvas c, SkyBoss boss, BossMotion m, double lookY) {
     final p = SpitterBossMotion(m);
     final glow = boss.enraged ? _rage : acid;
     final aim = lookY.isFinite ? lookY.clamp(-1.0, 1.0) : 0.0;
@@ -42,12 +70,12 @@ abstract final class SpitterBossRig {
       }
     }
     _legs(c, p, far: true);
+    _pumpArm(c, p);
     _shell(c, p, glow);
     _legs(c, p, far: false);
-    _pumpArm(c, p);
-    _tank(c, p, glow);
+    _tank(c, p, glow, fury: boss.enraged);
     _hose(c, p, glow);
-    _head(c, p, glow, aim);
+    _head(c, p, glow, aim, fury: boss.enraged);
     if (!m.defeated || m.death < .3) {
       c.save();
       c.translate(hatAnchor.dx, hatAnchor.dy - p.hatLift);
@@ -56,15 +84,6 @@ abstract final class SpitterBossRig {
       c.restore();
     }
     _gestureArm(c, p);
-    if (m.hit > 0 && !m.reducedMotion) {
-      c.drawArc(
-        const Rect.fromLTWH(-.42, -.23, 1.35, 1.03),
-        .1,
-        2.4,
-        false,
-        _line(_cream.withValues(alpha: m.hit * .8), .085),
-      );
-    }
   }
 
   static void _wing(
@@ -89,131 +108,150 @@ abstract final class SpitterBossRig {
     c.drawPath(
       wing,
       _gradient(Rect.fromLTWH(0, -width * 2, length, width * 3), [
-        Color(far ? 0xbba1cbbb : 0xeef5e9c7),
-        const Color(0xbb86c8b1),
+        Color(far ? 0x99cfeee0 : 0xddeaf9e8),
+        Color(far ? 0x8878b9a2 : 0xaa9fd6bf),
       ]),
     );
-    c.drawPath(wing, _line(far ? const Color(0xff4e7f76) : ink, .035));
+    c.drawPath(wing, _line(far ? const Color(0xff3f7a6c) : ink, .04));
     c.drawPath(
       Path()
         ..moveTo(.05, 0)
         ..quadraticBezierTo(.78, -.025, length + .06, -width * .37)
         ..moveTo(.53, -.01)
-        ..lineTo(.79, -width * .92)
-        ..moveTo(.88, -.045)
-        ..lineTo(1.1, width * .33),
-      _line(const Color(0xff689b89), .025),
+        ..lineTo(.79, -width * .92),
+      _line(const Color(0xff5f9a86).withValues(alpha: .8), .028),
     );
-    c.drawPath(
-      Path()
-        ..moveTo(.56, -width * .75)
-        ..quadraticBezierTo(1.14, -width * 1.45, length, -width * .75),
-      _line(_cream.withValues(alpha: .65), .04),
-    );
+    if (!far) {
+      c.drawPath(
+        Path()
+          ..moveTo(.56, -width * .75)
+          ..quadraticBezierTo(1.14, -width * 1.45, length, -width * .75),
+        _line(const Color(0xfff4fff6).withValues(alpha: .7), .045),
+      );
+    }
     c.restore();
   }
+
+  static final _shellPath = Path()
+    ..moveTo(-.34, -.32)
+    ..cubicTo(-.12, -.72, .77, -.57, 1.07, -.1)
+    ..cubicTo(1.36, .35, .97, .91, .4, .91)
+    ..cubicTo(-.16, .93, -.59, .54, -.5, .12)
+    ..close();
 
   static void _shell(Canvas c, SpitterBossMotion p, Color glow) {
     c.save();
     c.translate(p.recoil * .035, p.breath);
-    final shell = Path()
-      ..moveTo(-.34, -.32)
-      ..cubicTo(-.12, -.72, .77, -.57, 1.07, -.1)
-      ..cubicTo(1.36, .35, .97, .91, .4, .91)
-      ..cubicTo(-.16, .93, -.59, .54, -.5, .12)
-      ..close();
+    // A pale segmented belly under a dark jade dome: the minion's two-tone
+    // read, scaled up and trimmed in brass.
     c.drawPath(
-      shell,
-      _gradient(const Rect.fromLTWH(-.5, -.55, 1.7, 1.45), [
-        const Color(0xfff7c487),
-        _copper,
-        _rust,
+      _shellPath,
+      _gradient(const Rect.fromLTWH(-.5, 0, 1.7, .95), const [
+        _lime,
+        _leaf,
+        Color(0xff3f9a7c),
       ]),
     );
-    c.drawPath(shell, _line(ink, .075));
-    // Broad overlapping belly plates replace the little beetle's raised elytra.
+    c.save();
+    c.clipPath(_shellPath);
     for (var i = 0; i < 3; i++) {
-      final y = .32 + i * .18;
+      final x = -.12 + i * .3;
       c.drawPath(
         Path()
-          ..moveTo(-.29 + i * .04, y)
-          ..quadraticBezierTo(.37, y + .33, 1.03 - i * .11, y - .035),
-        _line(ink.withValues(alpha: .76), .048),
-      );
-      c.drawPath(
-        Path()
-          ..moveTo(-.21 + i * .07, y + .065)
-          ..quadraticBezierTo(.2, y + .245, .59, y + .17),
-        _line(const Color(0xffebad75), .035),
+          ..moveTo(x, .36 + i * .05)
+          ..quadraticBezierTo(x + .1, .66, x - .02, .98),
+        _line(const Color(0xff3f9a7c).withValues(alpha: .75), .055),
       );
     }
+    final dome = Path()
+      ..moveTo(-.7, -.8)
+      ..lineTo(-.7, .12)
+      ..cubicTo(-.2, .5, .75, .6, 1.4, .22)
+      ..lineTo(1.4, -.8)
+      ..close();
+    c.drawPath(
+      dome,
+      _gradient(const Rect.fromLTWH(-.5, -.6, 1.7, 1.1), const [
+        Color(0xff5fae8c),
+        _jade,
+        _deep,
+      ]),
+    );
+    final rim = Path()
+      ..moveTo(-.7, .12)
+      ..cubicTo(-.2, .5, .75, .6, 1.4, .22);
+    c.drawPath(rim, _line(ink, .1));
+    c.drawPath(
+      Path()
+        ..moveTo(-.62, .06)
+        ..cubicTo(-.18, .39, .72, .48, 1.34, .14),
+      _line(gold, .045),
+    );
+    // Brass rivets along the trim make the dome read as royal armour.
+    for (final t in const [.02, .38, .74]) {
+      final at = Offset(-.44 + t * 1.5, .27 + math.sin(t * math.pi) * .13);
+      c.drawCircle(at, .045, _fill(gold));
+    }
+    c.drawPath(
+      Path()
+        ..moveTo(-.28, -.3)
+        ..quadraticBezierTo(-.1, -.5, .22, -.5),
+      _line(const Color(0xffe4fbd6).withValues(alpha: .85), .085),
+    );
     // Pressure vents open before a volley and stay hot throughout fury.
     for (var i = 0; i < 3; i++) {
       c.save();
-      c.translate(.68 + i * .13, .12 - i * .035);
-      c.rotate(-.37);
+      c.translate(.7 + i * .15, .14 - i * .06);
+      c.rotate(-.5);
       c.drawRRect(
         RRect.fromRectAndRadius(
-          Rect.fromLTWH(-.035, -.08, .08, .19 + p.vents * .055),
-          const Radius.circular(.035),
+          Rect.fromLTWH(-.04, -.07, .085, .17 + p.vents * .05),
+          const Radius.circular(.04),
         ),
         _fill(ink),
       );
       c.drawLine(
-        const Offset(0, -.025),
-        Offset(0, .035 + p.vents * .11),
-        _line(glow.withValues(alpha: .25 + p.vents * .75), .035),
+        const Offset(0, -.02),
+        Offset(0, .03 + p.vents * .1),
+        _line(glow.withValues(alpha: .2 + p.vents * .8), .04),
       );
       c.restore();
     }
-    // Leather harness visibly carries the boiler's weight.
-    final strap = Path()
-      ..moveTo(.15, -.35)
-      ..quadraticBezierTo(.06, .43, .42, .83);
-    c.drawPath(strap, _line(ink, .15));
-    c.drawPath(strap, _line(_hat, .105));
-    c.drawRRect(
-      RRect.fromRectAndRadius(
-        const Rect.fromLTWH(.13, .39, .24, .23),
-        const Radius.circular(.04),
-      ),
-      _line(gold, .045),
-    );
-    c.drawLine(
-      const Offset(.23, .41),
-      const Offset(.28, .59),
-      _line(gold, .03),
-    );
+    c.restore();
+    c.drawPath(_shellPath, _line(ink, .08));
     c.restore();
   }
 
   static void _legs(Canvas c, SpitterBossMotion p, {required bool far}) {
     for (var i = 0; i < 3; i++) {
-      final root = Offset(-.25 + i * .43, .56);
+      final root = Offset(-.18 + i * .42, .74);
       final trail = p.breath * (i.isEven ? 2 : -2);
-      final tuck = p.charge * .12 - p.recoil * .09 + p.collapse * .2;
-      final knee = Offset(root.dx + .02 + i * .04, .9 - tuck);
+      final tuck = p.charge * .1 - p.recoil * .08 + p.collapse * .2;
+      final knee = Offset(root.dx + .1 + i * .03, .98 - tuck);
       final foot = Offset(
-        root.dx + .23 + trail - p.collapse * .24,
-        1.02 - tuck + (i == 1 ? .08 : 0),
+        root.dx + .3 + trail - p.collapse * .26,
+        1.08 - tuck + (i == 1 ? .05 : 0) - p.collapse * .1,
       );
       c.save();
-      if (far) c.translate(-.13, -.05);
+      if (far) c.translate(-.15, -.07);
       final leg = Path()
         ..moveTo(root.dx, root.dy)
         ..lineTo(knee.dx, knee.dy)
-        ..lineTo(foot.dx, foot.dy)
-        ..lineTo(foot.dx + .08, foot.dy - .08 - p.collapse * .07);
-      c.drawPath(leg, _line(ink, far ? .09 : .105));
-      if (!far) {
-        c.drawLine(root, knee, _line(_copper, .053));
-        c.drawCircle(knee, .055, _fill(gold));
-      }
+        ..lineTo(foot.dx, foot.dy);
+      c.drawPath(leg, _line(far ? const Color(0xff2d5f55) : ink, .15));
+      if (!far) c.drawPath(leg, _line(_deep, .075));
+      c.drawCircle(foot, .075, _fill(far ? const Color(0xff2d5f55) : ink));
+      if (!far) c.drawCircle(foot, .035, _fill(_leaf));
       c.restore();
     }
   }
 
-  static void _tank(Canvas c, SpitterBossMotion p, Color glow) {
+  static void _tank(
+    Canvas c,
+    SpitterBossMotion p,
+    Color glow, {
+    required bool fury,
+  }) {
     c.save();
     c.translate(.58, -.14);
     c.rotate(p.tankRock);
@@ -225,39 +263,33 @@ abstract final class SpitterBossRig {
       ..cubicTo(.62, .17, .78, -.5, .36, -.72)
       ..lineTo(.36, -.92)
       ..close();
-    c.drawPath(flask, _gradient(glass, [const Color(0xff527c6e), ink]));
+    c.drawPath(flask, _gradient(glass, [const Color(0xff4c7468), ink]));
     c.save();
     c.clipPath(flask);
-    final level = -.32 - p.charge * .2 + p.recoil * .16;
-    final liquid = Path()
+    final level = -.32 - p.charge * .22 + p.recoil * .16;
+    final surface = Path()
       ..moveTo(-.4, level + p.slosh)
-      ..cubicTo(-.02, level - .09, .24, level + .08, .7, level - p.slosh)
+      ..cubicTo(-.02, level - .09, .24, level + .08, .7, level - p.slosh);
+    final liquid = Path.from(surface)
       ..lineTo(.7, .3)
       ..lineTo(-.4, .3)
       ..close();
     c.drawPath(liquid, _gradient(glass, [mint, glow, const Color(0xff238276)]));
-    c.drawPath(
-      Path()
-        ..moveTo(-.4, level + p.slosh)
-        ..cubicTo(-.02, level - .09, .24, level + .08, .7, level - p.slosh),
-      _line(mint, .035),
-    );
+    c.drawPath(surface, _line(mint, .04));
     for (var i = 0; i < 4; i++) {
       c.drawCircle(
         Offset(-.11 + i * .17, .07 - p.bubble(i) * .58),
         .03 + i % 2 * .017,
-        _line(mint.withValues(alpha: .7), .018),
+        _line(mint.withValues(alpha: .75), .02),
       );
     }
     c.restore();
-    c.drawPath(flask, _line(ink, .07));
+    c.drawPath(flask, _line(ink, .09));
     c.drawPath(
       Path()
         ..moveTo(-.055, -.61)
-        ..quadraticBezierTo(-.2, -.42, -.12, -.17)
-        ..moveTo(-.095, -.065)
-        ..lineTo(-.07, -.025),
-      _line(_cream.withValues(alpha: .78), .06),
+        ..quadraticBezierTo(-.2, -.42, -.12, -.17),
+      _line(_cream.withValues(alpha: .8), .06),
     );
     // Rim, spring-mounted lid and pressure dial tell the attack story.
     c.drawRRect(
@@ -269,41 +301,64 @@ abstract final class SpitterBossRig {
     );
     c.drawRRect(
       RRect.fromRectAndRadius(
-        Rect.fromLTWH(-.115, -1.02 - p.pump, .54, .14),
-        const Radius.circular(.045),
+        const Rect.fromLTWH(-.135, -.9, .58, .13),
+        const Radius.circular(.04),
       ),
+      _line(ink, .04),
+    );
+    final lid = -1.02 - p.pump - p.pop;
+    c.drawLine(Offset(.15, lid + .08), const Offset(.15, -.8), _line(ink, .07));
+    c.drawLine(
+      Offset(.15, lid + .08),
+      const Offset(.15, -.8),
+      _line(gold, .03),
+    );
+    final cap = RRect.fromRectAndRadius(
+      Rect.fromLTWH(-.115, lid, .54, .14),
+      const Radius.circular(.05),
+    );
+    c.drawRRect(
+      cap,
       _gradient(const Rect.fromLTWH(-.1, -1.02, .5, .14), [gold, _copper]),
     );
-    c.drawLine(
-      Offset(.15, -.91 - p.pump),
-      const Offset(.15, -.8),
-      _line(ink, .065),
-    );
-    c.drawOval(const Rect.fromLTWH(-.24, -.04, .8, .2), _fill(_rust));
+    c.drawRRect(cap, _line(ink, .04));
+    const collar = Rect.fromLTWH(-.24, -.04, .8, .2);
+    c.drawOval(collar.inflate(.03), _fill(ink));
+    c.drawOval(collar, _gradient(collar, [_copper, _rust]));
     c.drawArc(
       const Rect.fromLTWH(-.24, -.04, .8, .2),
       0,
       math.pi,
       false,
-      _line(gold, .04),
+      _line(gold, .045),
     );
     const dial = Offset(.23, -.35);
     c.drawCircle(dial, .17, _fill(ink));
     c.drawCircle(dial, .135, _fill(_cream));
+    c.drawArc(
+      Rect.fromCircle(center: dial, radius: .1),
+      -math.pi / 2 + .5,
+      .55,
+      false,
+      _line(const Color(0xffe0655a), .035),
+    );
     final needle = -.8 + p.charge * 1.7 + p.vents * .3 - p.recoil * .6;
     c.drawLine(
       dial,
-      dial + Offset(math.sin(needle), -math.cos(needle)) * .10,
-      _line(_rust, .032),
+      dial + Offset(math.sin(needle), -math.cos(needle)) * .1,
+      _line(_rust, .035),
     );
-    c.drawCircle(dial, .026, _fill(ink));
-    if (p.vents > .1 && !p.motion.defeated) {
+    c.drawCircle(dial, .028, _fill(ink));
+    if ((p.vents > .1 || p.pop > 0) && !p.motion.defeated) {
+      final amount = math.max(p.vents, p.pop);
       for (var i = 0; i < 3; i++) {
         final rise = p.bubble(i);
         c.drawCircle(
-          Offset(.1 + i * .07 + rise * .12, -1.05 - p.pump - rise * .36),
-          .025 + rise * .055,
-          _fill(glow.withValues(alpha: (1 - rise) * p.vents * .55)),
+          Offset(.1 + i * .08 + rise * .14, lid - .05 - rise * .4),
+          .03 + rise * .06,
+          _fill(
+            (fury ? _cream : glow).withValues(alpha: (1 - rise) * amount * .6),
+          ),
         );
       }
     }
@@ -312,16 +367,22 @@ abstract final class SpitterBossRig {
 
   static void _hose(Canvas c, SpitterBossMotion p, Color glow) {
     final hose = Path()
-      ..moveTo(.77, -.02)
-      ..cubicTo(.92, .41, .07, .48 + p.pump, -.36, .24);
-    c.drawPath(hose, _line(ink, .145));
-    c.drawPath(hose, _line(const Color(0xff436958), .085));
-    c.drawPath(hose, _line(glow.withValues(alpha: .4 + p.charge * .6), .035));
-    c.drawCircle(const Offset(-.36, .24), .11, _fill(_rust));
-    c.drawCircle(const Offset(-.36, .24), .072, _fill(gold));
+      ..moveTo(.62, .04)
+      ..cubicTo(.55, .42, .02, .5 + p.pump * .6, -.36, .26);
+    c.drawPath(hose, _line(ink, .15));
+    c.drawPath(hose, _line(const Color(0xff3f6f5e), .085));
+    c.drawPath(hose, _line(glow.withValues(alpha: .35 + p.charge * .65), .035));
+    c.drawCircle(const Offset(-.36, .26), .1, _fill(ink));
+    c.drawCircle(const Offset(-.36, .26), .062, _fill(gold));
   }
 
-  static void _head(Canvas c, SpitterBossMotion p, Color glow, double aim) {
+  static void _head(
+    Canvas c,
+    SpitterBossMotion p,
+    Color glow,
+    double aim, {
+    required bool fury,
+  }) {
     final head = Path()
       ..moveTo(-1.02, -.09)
       ..cubicTo(-1.1, -.38, -.91, -.7, -.57, -.67)
@@ -336,79 +397,124 @@ abstract final class SpitterBossRig {
       ..close();
     c.drawPath(
       head,
-      _gradient(const Rect.fromLTWH(-1.05, -.7, .95, 1.2), [
-        const Color(0xffa1bf86),
-        const Color(0xff638b68),
-        const Color(0xff38584c),
+      _gradient(const Rect.fromLTWH(-1.05, -.7, .95, 1.2), const [
+        Color(0xffd3f3b8),
+        Color(0xff8ad3a0),
+        Color(0xff3f9c80),
       ]),
     );
-    c.drawPath(head, _line(ink, .07));
+    c.drawPath(head, _line(ink, .075));
+    // Cheek sac: the acid store swells and brightens through the windup.
     final cheek = Rect.fromCenter(
       center: Offset(-.62, .21 + p.charge * .055),
-      width: .53 + p.charge * .18 - p.recoil * .1,
-      height: .31 + p.charge * .23 - p.recoil * .07,
+      width: .53 + p.charge * .2 - p.recoil * .1,
+      height: .31 + p.charge * .25 - p.recoil * .07,
     );
-    c.drawOval(cheek, _gradient(cheek, [mint, glow, const Color(0xff498b66)]));
-    c.drawOval(cheek, _line(ink, .04));
-    c.drawArc(cheek.deflate(.07), 3.6, 1.35, false, _line(_cream, .04));
-    // The goggle's broad leather strap continues around the back of the head.
+    c.drawOval(
+      cheek,
+      _gradient(cheek, [
+        Color.lerp(mint, _cream, p.charge * .6)!,
+        glow,
+        fury ? const Color(0xffc9713e) : const Color(0xff3f9c80),
+      ]),
+    );
+    c.drawOval(cheek, _line(ink, .05));
+    c.drawArc(cheek.deflate(.07), 3.6, 1.35, false, _line(_cream, .045));
+    // The goggle's leather strap wraps back around the head.
     c.drawPath(
       Path()
-        ..moveTo(-.79, -.38)
-        ..quadraticBezierTo(-.28, -.46, -.125, -.32),
-      _line(_hat, .17),
+        ..moveTo(-.7, -.4)
+        ..quadraticBezierTo(-.28, -.47, -.1, -.3),
+      _line(ink, .2),
     );
-    c.drawOval(const Rect.fromLTWH(-1.025, -.46, .15, .25), _fill(_rust));
+    c.drawPath(
+      Path()
+        ..moveTo(-.7, -.4)
+        ..quadraticBezierTo(-.28, -.47, -.1, -.3),
+      _line(_hat, .13),
+    );
     const eye = Rect.fromLTWH(-.995, -.62, .62, .51);
-    c.drawOval(eye.inflate(.035), _fill(ink));
+    c.drawOval(eye.inflate(.04), _fill(ink));
     c.drawOval(eye, _gradient(eye, [gold, _copper]));
+    final lens = eye.deflate(.065);
     c.drawOval(
-      eye.deflate(.065),
-      _gradient(eye, [_cream, const Color(0xffb9dcba)]),
+      lens,
+      _gradient(lens, [
+        _cream,
+        fury ? const Color(0xffffd3a8) : const Color(0xffcdebc4),
+      ]),
     );
+    final squint = p.motion.defeated ? 0.0 : p.motion.hit;
     if (p.motion.defeated) {
       c.drawLine(
-        const Offset(-.84, -.45),
-        const Offset(-.61, -.25),
-        _line(ink, .055),
+        const Offset(-.82, -.47),
+        const Offset(-.58, -.25),
+        _line(ink, .06),
       );
       c.drawLine(
-        const Offset(-.83, -.25),
-        const Offset(-.62, -.45),
-        _line(ink, .055),
+        const Offset(-.82, -.25),
+        const Offset(-.58, -.47),
+        _line(ink, .06),
       );
     } else {
+      final look = Offset(-.74 - aim.abs() * .015, -.35 + aim * .085);
+      final size = fury ? .9 : 1.0;
       c.drawOval(
-        Rect.fromCenter(
-          center: Offset(-.77, -.35 + aim * .065),
-          width: .13,
-          height: .21,
-        ),
+        Rect.fromCenter(center: look, width: .16 * size, height: .23 * size),
         _fill(ink),
       );
-      c.drawCircle(Offset(-.795, -.395 + aim * .065), .032, _fill(_cream));
-      c.drawPath(
-        Path()
-          ..moveTo(-.96, -.545 + p.charge * .08)
-          ..lineTo(-.59, -.495 + p.charge * .025),
-        _line(ink, .065),
+      if (fury) {
+        c.drawOval(
+          Rect.fromCenter(center: look, width: .07, height: .11),
+          _fill(const Color(0xffe0655a)),
+        );
+      }
+      c.drawCircle(look + const Offset(-.035, -.06), .036, _fill(_cream));
+    }
+    c.save();
+    c.clipPath(Path()..addOval(lens));
+    if (squint > 0) {
+      final lid = lens.top + lens.height * (.15 + squint * .45);
+      c.drawRect(
+        Rect.fromLTRB(lens.left, lens.top - .1, lens.right, lid),
+        _fill(const Color(0xff3f9c80)),
+      );
+      c.drawLine(
+        Offset(lens.left, lid),
+        Offset(lens.right, lid - .04),
+        _line(ink, .05),
       );
     }
-    c.drawArc(eye.deflate(.025), 3.85, 1.6, false, _line(_cream, .032));
-    // Curled mandibles flare on recoil; the spit port stays at the muzzle origin.
+    c.restore();
+    c.drawArc(eye.deflate(.03), 3.85, 1.6, false, _line(_cream, .035));
+    if (!p.motion.defeated) {
+      // Fury drops the brow into a hard scowl.
+      final scowl = fury ? .1 : 0.0;
+      c.drawPath(
+        Path()
+          ..moveTo(-1.0, -.6 + p.charge * .07 - scowl * .4)
+          ..lineTo(-.56, -.51 + p.charge * .03 + scowl),
+        _line(ink, .085),
+      );
+    }
+    // A short mandible flares on recoil; the spit port stays at the muzzle.
     final jaw = Path()
-      ..moveTo(-.93, .12)
+      ..moveTo(-.96, .1)
       ..quadraticBezierTo(
-        -1.08 - p.recoil * .09,
-        .36,
-        -.9,
-        .46 + p.recoil * .06,
+        -1.07 - p.recoil * .08,
+        .3,
+        -.93,
+        .42 + p.recoil * .05,
       )
-      ..quadraticBezierTo(-.73, .41, -.79, .32);
-    c.drawPath(jaw, _line(ink, .11));
-    c.drawPath(jaw, _line(_copper, .067));
-    c.drawOval(const Rect.fromLTWH(-1.15, -.14, .25, .28), _fill(ink));
-    c.drawOval(const Rect.fromLTWH(-1.125, -.115, .20, .23), _fill(_copper));
+      ..quadraticBezierTo(-.86, .3, -.84, .16)
+      ..close();
+    c.drawPath(jaw, _fill(_deep));
+    c.drawPath(jaw, _line(ink, .05));
+    c.drawOval(const Rect.fromLTWH(-1.16, -.15, .27, .3), _fill(ink));
+    c.drawOval(
+      const Rect.fromLTWH(-1.125, -.115, .2, .23),
+      _gradient(const Rect.fromLTWH(-1.125, -.115, .2, .23), [gold, _copper]),
+    );
     c.drawOval(
       Rect.fromCenter(
         center: const Offset(-1.05, 0),
@@ -430,30 +536,30 @@ abstract final class SpitterBossRig {
   }
 
   static void _pumpArm(Canvas c, SpitterBossMotion p) {
-    final elbow = Offset(1.04, .52 - p.pump + p.collapse * .15);
+    final elbow = Offset(1.12, .5 - p.pump + p.collapse * .15);
     final hand = Offset(
-      1.19 - p.collapse * .12,
-      .18 - p.pump + p.collapse * .43,
+      1.24 - p.collapse * .12,
+      .16 - p.pump * 1.4 + p.collapse * .43,
     );
-    _arm(c, const Offset(.72, .42), elbow, hand, -.6 + p.collapse, far: true);
+    _arm(c, const Offset(.82, .4), elbow, hand, -.6 + p.collapse, far: true);
   }
 
   static void _gestureArm(Canvas c, SpitterBossMotion p) {
     final gesture = math.max(p.tip, p.summon);
     final elbow = Offset(
-      -.31 - gesture * .38,
-      .55 - gesture * .47 + p.collapse * .1,
+      -.24 - gesture * .42,
+      .62 - gesture * .5 + p.collapse * .1,
     );
     final hand = Offset(
-      -.64 - p.summon * .68 - p.tip * .33 + p.recoil * .12,
-      .48 - p.tip * 1.22 - p.summon * .96 + p.beckon + p.collapse * .17,
+      -.58 - p.summon * .72 - p.tip * .38 + p.recoil * .12,
+      .62 - p.tip * 1.34 - p.summon * 1.06 + p.beckon + p.collapse * .12,
     );
     _arm(
       c,
-      const Offset(-.11, .18),
+      const Offset(-.1, .3),
       elbow,
       hand,
-      -gesture * .65 + p.beckon + p.collapse * .8,
+      -gesture * .9 + p.beckon + p.collapse * .8 - .25,
     );
   }
 
@@ -469,22 +575,29 @@ abstract final class SpitterBossRig {
       ..moveTo(root.dx, root.dy)
       ..lineTo(elbow.dx, elbow.dy)
       ..lineTo(hand.dx, hand.dy);
-    c.drawPath(arm, _line(ink, .15));
-    c.drawPath(arm, _line(far ? _rust : _copper, .092));
-    c.drawCircle(root, .115, _fill(ink));
-    c.drawCircle(root, .075, _fill(far ? _rust : gold));
-    c.drawCircle(elbow, .081, _fill(ink));
-    c.drawCircle(elbow, .04, _fill(gold));
+    final shade = far ? const Color(0xff2d5f55) : ink;
+    c.drawPath(arm, _line(shade, .15));
+    if (!far) c.drawPath(arm, _line(_deep, .075));
     c.save();
     c.translate(hand.dx, hand.dy);
     c.rotate(turn);
-    c.drawOval(const Rect.fromLTWH(-.15, -.09, .23, .19), _fill(ink));
-    for (final side in [-1.0, 1.0]) {
-      final claw = Path()
-        ..moveTo(-.085, side * .045)
-        ..quadraticBezierTo(-.24, side * .2, -.32, side * .06);
-      c.drawPath(claw, _line(ink, .085));
-      c.drawPath(claw, _line(far ? _copper : gold, .043));
+    // A chunky two-fingered pincer, filled so it never reads as a ring.
+    final claw = Path()
+      ..moveTo(.05, -.1)
+      ..quadraticBezierTo(-.2, -.2, -.3, -.04)
+      ..quadraticBezierTo(-.19, -.07, -.1, -.015)
+      ..quadraticBezierTo(-.19, .06, -.27, .09)
+      ..quadraticBezierTo(-.16, .2, .05, .1)
+      ..close();
+    c.drawPath(claw, _fill(shade));
+    c.drawPath(claw, _line(shade, .06));
+    if (!far) {
+      c.drawPath(
+        Path()
+          ..moveTo(-.02, -.08)
+          ..quadraticBezierTo(-.15, -.13, -.22, -.06),
+        _line(_leaf, .035),
+      );
     }
     c.restore();
   }
