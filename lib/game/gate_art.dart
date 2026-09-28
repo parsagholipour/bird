@@ -18,9 +18,7 @@ abstract final class GateArt {
   }) {
     if (r.isEmpty) return;
     final palette = SkyPalette.at(seconds);
-    final sunrise = SkyPalette.regionWeight(seconds, 0);
-    final peach = SkyPalette.regionWeight(seconds, 1);
-    final twilight = SkyPalette.regionWeight(seconds, 2);
+    final (sunrise, peach, twilight) = legacyLooks(seconds);
     Color stone(Color day, Color warm, Color night) => Color.from(
       alpha: 1,
       red: day.r * sunrise + warm.r * peach + night.r * twilight,
@@ -120,6 +118,27 @@ abstract final class GateArt {
       }
     }
     c.restore();
+  }
+
+  /// Gates from the earliest replays keep their three looks: leafy day
+  /// stone, warm festival stone and blue night stone. Each world region
+  /// borrows the look closest to its light, crossfading with the tour.
+  static (double, double, double) legacyLooks(double seconds) {
+    final blend = WorldTour.at(seconds);
+    var day = 0.0, warm = 0.0, night = 0.0;
+    for (final region in WorldRegion.values) {
+      final weight = blend.weight(region);
+      if (weight == 0) continue;
+      switch (region) {
+        case WorldRegion.jungle || WorldRegion.sea:
+          day += weight;
+        case WorldRegion.egypt || WorldRegion.china:
+          warm += weight;
+        case WorldRegion.antarctica || WorldRegion.newYork:
+          night += weight;
+      }
+    }
+    return (day, warm, night);
   }
 
   static void _mechanism(

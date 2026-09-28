@@ -3,18 +3,17 @@ import 'package:flutter/painting.dart';
 import '../domain/obstacle.dart';
 import '../ui/theme.dart';
 import 'gate_art.dart';
-import 'obstacle_designs/crystal_steps.dart';
 import 'obstacle_designs/garden_gate.dart';
-import 'obstacle_designs/garden_structures.dart';
-import 'obstacle_designs/lantern_drift.dart';
-import 'obstacle_designs/petal_shutters.dart';
-import 'obstacle_designs/sun_wheels.dart';
-import 'obstacle_designs/switchback.dart';
-import 'obstacle_designs/wind_lift.dart';
+import 'obstacle_designs/kit.dart';
+import 'obstacle_designs/regional.dart';
 import 'sky_scenery.dart';
 
 /// Every solid uses the simulation's current geometry. Decoration is clipped
 /// inside that solid so a moving opening stays visually honest.
+///
+/// Current flights dress each obstacle in the materials of the world region
+/// it spawned in (see [WorldTour.of]); older replay rules keep their
+/// original gate artwork.
 abstract final class ObstacleArt {
   static Color accent(Obstacle o, double seconds) {
     final colors = switch (o.kind) {
@@ -70,6 +69,8 @@ abstract final class ObstacleArt {
   }) {
     final region = accent(o, seconds);
     final color = cleared ? Color.lerp(region, SkyColors.mint, .35)! : region;
+    final world = WorldTour.of(o);
+    final pass = PassState(cleared: cleared, perfect: perfect);
     for (final p in o.passages) {
       for (final top in [true, false]) {
         final r = Rect.fromLTRB(
@@ -79,19 +80,33 @@ abstract final class ObstacleArt {
           top ? p.top * h : h + 10,
         );
         if (r.isEmpty) continue;
-        if (refined) {
-          _refinedTower(
+        if (refined && (gardenStructures || o.kind != ObstacleKind.garden)) {
+          RegionalObstacles.column(
+            world,
+            c,
+            r,
+            kind: o.kind,
+            top: top,
+            seconds: seconds,
+            reducedMotion: reducedMotion,
+            pass: pass,
+            appearance: o.appearance,
+          );
+        } else if (refined) {
+          c.save();
+          c.clipRect(r);
+          GardenGateDesign.paint(
             c,
             r,
             top: top,
-            o: o,
-            region: region,
             seconds: seconds,
             reducedMotion: reducedMotion,
             cleared: cleared,
             perfect: perfect,
-            gardenStructures: gardenStructures,
+            appearance: o.appearance,
+            accent: region,
           );
+          c.restore();
         } else if (o.kind == ObstacleKind.garden) {
           GateArt.paint(
             c,
@@ -113,41 +128,33 @@ abstract final class ObstacleArt {
       // Tethers point away from the flight lane and are visually distinct from
       // the filled collision bodies. Sun wheels are entirely free floating.
       if (o.kind == ObstacleKind.lanternDrift) {
-        _rope(c, at, radius, orb.upper ? 0 : h, upper: orb.upper);
+        _rope(
+          c,
+          at,
+          radius,
+          orb.upper ? 0 : h,
+          upper: orb.upper,
+          cord: refined ? RegionalObstacles.tether(world) : null,
+        );
       }
       c.save();
       c.translate(at.dx, at.dy);
       if (refined) {
-        final body = Rect.fromCircle(center: Offset.zero, radius: radius);
-        c.save();
-        c.clipPath(Path()..addOval(body));
-        if (o.kind == ObstacleKind.lanternDrift) {
-          LanternDriftDesign.paint(
-            c,
-            radius,
-            accent: region,
-            appearance: o.appearance,
-            seconds: seconds,
-            reducedMotion: reducedMotion,
-            upper: orb.upper,
-            cleared: cleared,
-            perfect: perfect,
-          );
-        } else {
-          SunWheelsDesign.paint(
-            c,
-            radius,
-            accent: region,
-            appearance: o.appearance,
-            seconds: seconds,
-            reducedMotion: reducedMotion,
-            upper: orb.upper,
-            cleared: cleared,
-            perfect: perfect,
-          );
-        }
+        RegionalObstacles.orb(
+          world,
+          c,
+          radius,
+          kind: o.kind,
+          upper: orb.upper,
+          seconds: seconds,
+          reducedMotion: reducedMotion,
+          pass: pass,
+          appearance: o.appearance,
+        );
         c.restore();
-      } else if (o.kind == ObstacleKind.lanternDrift) {
+        continue;
+      }
+      if (o.kind == ObstacleKind.lanternDrift) {
         _lantern(c, radius, color, o.appearance);
       } else {
         c.rotate(reducedMotion ? 0 : o.angle * (orb.upper ? 1 : -1));
@@ -163,6 +170,39 @@ abstract final class ObstacleArt {
       }
       c.restore();
     }
+  }
+
+  /// The seal left at a cleared gate's aiming point: a cream badge holding
+  /// the region's emblem, ringed in gold after a perfect pass.
+  static void seal(
+    Canvas c,
+    Offset center,
+    double h,
+    WorldRegion region, {
+    required bool perfect,
+  }) {
+    final radius = h * .032;
+    c.drawCircle(
+      center + Offset(0, h * .003),
+      radius,
+      Paint()..color = SkyColors.ink.withValues(alpha: .18),
+    );
+    c.drawCircle(
+      center,
+      radius,
+      Paint()..color = SkyColors.cream.withValues(alpha: .92),
+    );
+    if (perfect) {
+      c.drawCircle(
+        center,
+        radius - 1.2,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2.2
+          ..color = SkyColors.gold,
+      );
+    }
+    Kit.emblem(c, region, center, radius * .56, perfect: perfect);
   }
 
   /// The cleared seal star on a floating orb: soft drop, [fill] body, a thin
@@ -205,11 +245,13 @@ abstract final class ObstacleArt {
     double radius,
     double anchorY, {
     required bool upper,
+    (Color, Color)? cord,
   }) {
     final side = upper ? -1.0 : 1.0;
     final width = math.max(1.5, radius * .04);
     final from = at + Offset(0, side * radius * .9);
-    final core = Color.lerp(SkyColors.ink, SkyColors.gold, .3)!;
+    final core = cord?.$1 ?? Color.lerp(SkyColors.ink, SkyColors.gold, .3)!;
+    final twistColor = cord?.$2 ?? SkyColors.cream;
     c.drawLine(
       from,
       Offset(at.dx, anchorY),
@@ -234,7 +276,7 @@ abstract final class ObstacleArt {
         ..style = PaintingStyle.stroke
         ..strokeCap = StrokeCap.round
         ..strokeWidth = width * .34
-        ..color = SkyColors.cream.withValues(alpha: .72),
+        ..color = twistColor.withValues(alpha: .72),
     );
     final knot = at + Offset(0, side * (radius + width * .35));
     c.drawOval(
@@ -246,102 +288,6 @@ abstract final class ObstacleArt {
       width * .34,
       Paint()..color = SkyColors.cream.withValues(alpha: .65),
     );
-  }
-
-  static void _refinedTower(
-    Canvas c,
-    Rect r, {
-    required bool top,
-    required Obstacle o,
-    required Color region,
-    required double seconds,
-    required bool reducedMotion,
-    required bool cleared,
-    required bool perfect,
-    required bool gardenStructures,
-  }) {
-    c.save();
-    c.clipRect(r);
-    switch (o.kind) {
-      case ObstacleKind.garden:
-        if (gardenStructures) {
-          GardenStructuresDesign.paint(
-            c,
-            r,
-            top: top,
-            seconds: seconds,
-            reducedMotion: reducedMotion,
-            cleared: cleared,
-            perfect: perfect,
-            appearance: o.appearance,
-            accent: region,
-          );
-          break;
-        }
-        GardenGateDesign.paint(
-          c,
-          r,
-          top: top,
-          seconds: seconds,
-          reducedMotion: reducedMotion,
-          cleared: cleared,
-          perfect: perfect,
-          appearance: o.appearance,
-          accent: region,
-        );
-      case ObstacleKind.windLift:
-        WindLiftDesign.paint(
-          c,
-          r,
-          top: top,
-          seconds: seconds,
-          reducedMotion: reducedMotion,
-          cleared: cleared,
-          perfect: perfect,
-          appearance: o.appearance,
-          accent: region,
-        );
-      case ObstacleKind.petalGate:
-        PetalShuttersDesign.paint(
-          c,
-          r,
-          top: top,
-          seconds: seconds,
-          reducedMotion: reducedMotion,
-          cleared: cleared,
-          perfect: perfect,
-          appearance: o.appearance,
-          accent: region,
-        );
-      case ObstacleKind.switchback:
-        SwitchbackDesign.paint(
-          c,
-          r,
-          top: top,
-          seconds: seconds,
-          reducedMotion: reducedMotion,
-          cleared: cleared,
-          perfect: perfect,
-          appearance: o.appearance,
-          accent: region,
-        );
-      case ObstacleKind.crystalSteps:
-        CrystalStepsDesign.paint(
-          c,
-          r,
-          top: top,
-          seconds: seconds,
-          reducedMotion: reducedMotion,
-          cleared: cleared,
-          perfect: perfect,
-          appearance: o.appearance,
-          accent: region,
-        );
-      case ObstacleKind.lanternDrift:
-      case ObstacleKind.sunWheels:
-        break;
-    }
-    c.restore();
   }
 
   static void _tower(

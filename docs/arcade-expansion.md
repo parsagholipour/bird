@@ -40,9 +40,10 @@ leading constellation without requiring faster calibrated movement.
 
 ## Feedback and progression
 
-- Sunrise Isles, Peach Horizon and Twilight Garden blend in a repeating cycle.
-  The scene uses procedural layers, clouds, distant birds, a sun/moon, stars,
-  floating islands and mossy stone gates; it needs no network or new image model.
+- Flights tour six world regions: Egypt, Antarctica, the Jungle, China, New
+  York and the Open Sea (see "A world tour" below). Every scene is procedural
+  parallax painting with its own light, landmarks, weather and obstacle
+  materials; it needs no network or new image model.
 - Star pickups glow. Shields surround the bird. Precision, milestones, shield
   saves and hits produce local bursts and text; each bird has a colored trail.
   Streak upgrades announce 2× and 3× star power, and the maximum multiplier adds
@@ -602,3 +603,59 @@ lanterns, Reduced Motion and distinct completion flowers. All three gameplay
 regions and the matching [Figma gate study](https://www.figma.com/design/3l8DyW2mxf917HzgXsQaz7?node-id=87-1045)
 were visually reviewed. Editable sources are `design/gates-sunrise.svg`,
 `design/gates-peach.svg` and `design/gates-twilight.svg`.
+
+
+## A world tour
+
+Endless flights now travel through six regions in a fixed loop: Egypt at a hot
+afternoon, Antarctica in polar twilight, a misty Jungle morning, a Chinese dusk,
+a rainy New York night and an Open Sea dawn that leads back to Egypt. Each
+region holds for 16 seconds and crosses into the next over 6, so the first
+hand-off (sand into snow) arrives at 16 seconds, a one-minute flight sees three
+regions and the whole tour takes 132 seconds. `WorldTour` in
+`lib/game/regions/world_region.dart` is the single clock that the scenery,
+obstacles, legacy gates and effects all read.
+
+Each region paints a sky and light, four parallax bands (far, mid, low, near)
+with its own landmarks, and weather:
+
+- **Egypt**: the Giza pyramids and Sphinx, a temple pylon with obelisks, the
+  Nile with palm groves and feluccas, papyrus, blowing sand and heat shimmer.
+- **Antarctica**: aurora over a low sun, pink-lit peaks, an ice shelf with a
+  far station, icebergs, an emperor penguin colony, a field hut and snowfall.
+- **Jungle**: a tepui with a waterfall, flowering emergent trees over a lit
+  canopy, a rope bridge, banana and monstera leaves, sun rays, macaws, drifting
+  leaves and fireflies.
+- **China**: karst towers in mist under a red sun, the Great Wall and a pagoda,
+  the Li River with a bamboo raft, a pine, plum blossom and a pavilion, rising
+  sky lanterns, geese and petals.
+- **New York**: the Empire State and Chrysler buildings, the Brooklyn Bridge,
+  rooftops with water towers, fire escapes and steam, searchlights and rain.
+- **Open Sea**: a tall ship, a lighthouse islet, a surfacing whale, swells with
+  foam and the sun's path, gulls and spray.
+
+All seven obstacle kinds are dressed in the region they spawned in, for
+example lotus-capital glyph columns, a saqiya wheel and gilded obelisks in
+Egypt; red-lacquer bracket columns, paper pinwheels and silk lanterns in China;
+fire-escape walk-ups, a clock tower and jazz records in New York. Every solid
+keeps its exact collision rectangle with an ink edge and a state lip (cream,
+mint when cleared, gold when perfect), and every region has its own cleared
+emblem, gate seal and perfect burst.
+
+Crossings are staged from the horizon forward. The light and palette travel
+together; in each band the old landmarks sink behind the ridge while the ridge
+morphs into the new terrain and the new landmarks rise; weather hands over
+particle by particle; obstacles switch materials a fifth of the way in, so new
+structures stream in from the right. Reduced Motion keeps every band still,
+freezes particles and fades landmarks in place.
+
+Static bands are recorded once per viewport into cached pictures. Far bands
+drift on the region's own clock so landmarks always enter where they were
+composed; nearer bands follow the flown distance. The floating islands left
+gameplay for grounded regions; the home screen keeps its island.
+
+Review renders are generated with:
+
+```sh
+flutter test --dart-define=CAPTURE_VISUALS=true test/world_regions_art_test.dart test/world_flight_art_test.dart
+```

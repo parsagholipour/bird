@@ -99,7 +99,7 @@ void main() {
       c.save();
       c.translate((i % 4) * 280.0, (i ~/ 4) * 400.0);
       c.clipRect(const Rect.fromLTWH(10, 10, 260, 380));
-      final seconds = [5.0, 25.0, 45.0][i % 3];
+      final seconds = WorldTour.leg * (i % WorldRegion.values.length) + 8;
       SkyScenery.paint(
         c,
         const Size(280, 340),
@@ -114,7 +114,8 @@ void main() {
         kind: kind,
         amplitude: .065,
         appearance: i % 3,
-      )..advance(1.75);
+        bornAt: seconds,
+      )..advance(seconds + 1.75);
       ObstacleArt.paint(
         c,
         o,
@@ -184,32 +185,35 @@ void main() {
         );
         await game.loaded;
       });
-      for (final family in [
-        ObstacleKind.values.take(4),
-        ObstacleKind.values.skip(4),
-      ]) {
-        sim.obstacles.clear();
-        for (final (i, kind) in family.indexed) {
-          sim.obstacles.add(
-            Obstacle(
-              x: .7 + i * .44,
-              center: i.isEven ? .42 : .62,
-              gap: .4,
-              width: kind.width,
-              kind: kind,
-              amplitude: kind == ObstacleKind.garden ? 0 : .065,
-              appearance: i,
-            ),
-          );
-        }
-        for (final time in [5.0, 25.0, 45.0]) {
+      for (final region in WorldRegion.values) {
+        final time = region.index * WorldTour.leg + 8;
+        for (final family in [
+          ObstacleKind.values.take(4),
+          ObstacleKind.values.skip(4),
+        ]) {
+          sim.obstacles.clear();
+          for (final (i, kind) in family.indexed) {
+            sim.obstacles.add(
+              Obstacle(
+                x: .7 + i * .44,
+                center: i.isEven ? .42 : .62,
+                gap: .4,
+                width: kind.width,
+                kind: kind,
+                amplitude: kind == ObstacleKind.garden ? 0 : .065,
+                appearance: i,
+                bornAt: time - 1,
+              ),
+            );
+          }
           sim.elapsed = time;
+          sim.distance = time * .36;
           for (final o in sim.obstacles) {
             o.advance(time);
           }
           await tester.pump(const Duration(milliseconds: 16));
           expect(tester.takeException(), isNull);
-          await capture(tester, 'variety-${family.first.name}-${time.toInt()}');
+          await capture(tester, 'variety-${region.name}-${family.first.name}');
         }
       }
       await tester.pumpWidget(const SizedBox());

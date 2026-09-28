@@ -444,9 +444,9 @@ void _gameplaySheet(Canvas c) {
     20,
   );
   final palettes = [
-    ('SUNRISE', SkyPalette.sunrise),
-    ('PEACH DUSK', SkyPalette.peach),
-    ('TWILIGHT', SkyPalette.twilight),
+    ('EGYPT NOON', WorldRegion.egypt.palette),
+    ('CHINA DUSK', WorldRegion.china.palette),
+    ('NEW YORK NIGHT', WorldRegion.newYork.palette),
   ];
   const r = 360 * SkyEnemy.radius;
   for (var p = 0; p < palettes.length; p++) {
@@ -489,7 +489,9 @@ void _gameplaySheet(Canvas c) {
 
 /// A real-renderer timeline: cruise → .75 s charge → volley → recoil → settle.
 void _strip(Canvas c, int sky) {
-  final palette = sky == 0 ? SkyPalette.sunrise : SkyPalette.peach;
+  final palette = sky == 0
+      ? WorldRegion.egypt.palette
+      : WorldRegion.china.palette;
   c.drawRect(
     const Rect.fromLTWH(0, 0, 1200, 640),
     Paint()
@@ -668,9 +670,9 @@ void _heroSheet(Canvas c) {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          SkyPalette.peach.top,
-          SkyPalette.peach.horizon,
-          SkyPalette.peach.haze,
+          WorldRegion.china.palette.top,
+          WorldRegion.china.palette.horizon,
+          WorldRegion.china.palette.haze,
         ],
       ).createShader(rect),
   );

@@ -1,10 +1,10 @@
 import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 import 'package:flame/game.dart';
-import 'package:flame/sprite.dart';
 import '../domain/game_rules.dart';
 import '../domain/bird_motion.dart';
 import '../ui/theme.dart';
+import 'regions/region_burst.dart';
 import 'sky_scenery.dart';
 import 'bird_trail.dart';
 import 'bird_puppet.dart';
@@ -40,7 +40,6 @@ class BirdGame extends FlameGame {
   final int bird;
   final bool reducedMotion;
   final void Function() onChanged;
-  Sprite? _island;
   double _notify = 0;
   // Decorative motion follows the simulation clock, including pause and seek.
   double get _time => simulation.elapsed;
@@ -57,12 +56,6 @@ class BirdGame extends FlameGame {
   @override
   Color backgroundColor() =>
       transparent ? const Color(0x00000000) : SkyColors.sky;
-  @override
-  Future<void> onLoad() async {
-    await super.onLoad();
-    _island = await loadSprite('island.png');
-  }
-
   @override
   void update(double dt) {
     super.update(dt);
@@ -113,28 +106,6 @@ class BirdGame extends FlameGame {
         distance: simulation.distance,
         reducedMotion: reducedMotion,
       );
-      if (_island != null) {
-        final scenicDistance = reducedMotion ? 0.0 : simulation.distance;
-        final x =
-            ((w * .73 + h * .5 - scenicDistance * h * .13) % (w + h * .5)) -
-            h * .5;
-        _island!.render(
-          canvas,
-          position: Vector2(x, h * .77),
-          size: Vector2(h * .5, h * .3125),
-          overridePaint: Paint()..color = const Color(0x77ffffff),
-        );
-        _island!.render(
-          canvas,
-          position: Vector2(
-            ((w * .18 + h * .32 - scenicDistance * h * .08) % (w + h * .32)) -
-                h * .32,
-            h * .86,
-          ),
-          size: Vector2(h * .32, h * .20),
-          overridePaint: Paint()..color = const Color(0x55ffffff),
-        );
-      }
     }
     BossArt.backdrop(canvas, Size(w, h), simulation.boss, reducedMotion);
     RushArt.backdrop(
@@ -226,7 +197,13 @@ class BirdGame extends FlameGame {
         DoorArt.paint(canvas, h, o, reducedMotion: reducedMotion);
       }
       if (cleared) {
-        _gateSeal(canvas, Offset(x + width / 2, o.target * h), h, perfect);
+        ObstacleArt.seal(
+          canvas,
+          Offset(x + width / 2, o.target * h),
+          h,
+          WorldTour.of(o),
+          perfect: perfect,
+        );
       }
       if (o.hit) canvas.restore();
       if (!o.scored) {
@@ -507,14 +484,14 @@ class BirdGame extends FlameGame {
     canvas.restore();
     BossArt.foreground(canvas, Size(w, h), simulation, reducedMotion);
     if (simulation.boss case final boss?) {
-      BossArt.healthBar(
-        canvas,
-        Size(w, h),
-        boss,
-        reducedMotion: reducedMotion,
-      );
+      BossArt.healthBar(canvas, Size(w, h), boss, reducedMotion: reducedMotion);
     }
-    RushArt.banner(canvas, Size(w, h), simulation, reducedMotion: reducedMotion);
+    RushArt.banner(
+      canvas,
+      Size(w, h),
+      simulation,
+      reducedMotion: reducedMotion,
+    );
   }
 
   void _magnet(Canvas canvas, double h) {
@@ -621,7 +598,21 @@ class BirdGame extends FlameGame {
         FlightEventKind.magnet => SkyColors.purple,
         _ => SkyColors.gold,
       };
-      if (!reducedMotion) {
+      final gate =
+          event.kind == FlightEventKind.perfect ||
+          event.kind == FlightEventKind.milestone;
+      if (!reducedMotion && gate) {
+        // Gate rewards burst in the materials of the region they happened in.
+        RegionBurst.paint(
+          canvas,
+          WorldTour.at(event.at).dominant,
+          center,
+          h,
+          t: t,
+          alpha: alpha,
+          perfect: event.kind == FlightEventKind.perfect,
+        );
+      } else if (!reducedMotion) {
         for (var i = 0; i < 8; i++) {
           final a = i * math.pi / 4;
           final radius = h * (.05 + t * .13);
@@ -702,33 +693,6 @@ class BirdGame extends FlameGame {
       text.paint(
         canvas,
         Offset(center.dx + h * .09, (labelY - rise).clamp(h * .16, h * .85)),
-      );
-    }
-  }
-
-  void _gateSeal(Canvas c, Offset center, double h, bool perfect) {
-    c.drawCircle(
-      center,
-      h * .032,
-      Paint()..color = SkyColors.cream.withValues(alpha: .85),
-    );
-    if (perfect) {
-      c.drawPath(
-        SkyScenery.star(center, h * .023),
-        Paint()..color = SkyColors.gold,
-      );
-    } else {
-      c.drawPath(
-        Path()
-          ..moveTo(center.dx - h * .014, center.dy)
-          ..lineTo(center.dx - h * .004, center.dy + h * .011)
-          ..lineTo(center.dx + h * .016, center.dy - h * .012),
-        Paint()
-          ..color = SkyColors.teal
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2.5
-          ..strokeCap = StrokeCap.round
-          ..strokeJoin = StrokeJoin.round,
       );
     }
   }

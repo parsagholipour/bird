@@ -6,11 +6,10 @@ import 'package:flutter/painting.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:push_up_bird/domain/obstacle.dart';
 import 'package:push_up_bird/game/obstacle_art.dart';
-import 'package:push_up_bird/game/obstacle_designs/crystal_steps.dart';
 import 'package:push_up_bird/game/obstacle_designs/garden_gate.dart';
-import 'package:push_up_bird/game/obstacle_designs/petal_shutters.dart';
-import 'package:push_up_bird/game/obstacle_designs/switchback.dart';
-import 'package:push_up_bird/game/obstacle_designs/wind_lift.dart';
+import 'package:push_up_bird/game/obstacle_designs/kit.dart';
+import 'package:push_up_bird/game/obstacle_designs/regional.dart';
+import 'package:push_up_bird/game/sky_scenery.dart';
 import 'package:push_up_bird/ui/theme.dart';
 
 void main() {
@@ -109,31 +108,28 @@ void main() {
     return gap;
   }
 
-  test(
-    'refined and legacy art differ for every family',
-    () async {
-      for (final kind in ObstacleKind.values) {
-        final obstacle = sample(kind);
-        final refined = await paintObstacle(
-          obstacle,
-          refined: true,
-          seconds: 5,
-          reducedMotion: true,
-        );
-        final legacy = await paintObstacle(
-          obstacle,
-          refined: false,
-          seconds: 5,
-          reducedMotion: true,
-        );
-        expect(
-          differingPixels(refined, legacy),
-          greaterThan(24),
-          reason: '$kind artwork',
-        );
-      }
-    },
-  );
+  test('refined and legacy art differ for every family', () async {
+    for (final kind in ObstacleKind.values) {
+      final obstacle = sample(kind);
+      final refined = await paintObstacle(
+        obstacle,
+        refined: true,
+        seconds: 5,
+        reducedMotion: true,
+      );
+      final legacy = await paintObstacle(
+        obstacle,
+        refined: false,
+        seconds: 5,
+        reducedMotion: true,
+      );
+      expect(
+        differingPixels(refined, legacy),
+        greaterThan(24),
+        reason: '$kind artwork',
+      );
+    }
+  });
 
   test(
     'fixed refined art repeats and Reduced Motion freezes animation at the same sky',
@@ -266,50 +262,22 @@ void main() {
         appearance: 2,
         accent: accent,
       );
-      WindLiftDesign.paint(
-        canvas,
-        rect,
-        top: top,
-        seconds: 5,
-        reducedMotion: false,
-        cleared: false,
-        perfect: true,
-        appearance: 1,
-        accent: accent,
-      );
-      PetalShuttersDesign.paint(
-        canvas,
-        rect,
-        top: top,
-        seconds: 9,
-        reducedMotion: true,
-        cleared: true,
-        perfect: false,
-        appearance: 0,
-        accent: accent,
-      );
-      SwitchbackDesign.paint(
-        canvas,
-        rect,
-        top: top,
-        seconds: 5,
-        reducedMotion: false,
-        cleared: false,
-        perfect: false,
-        appearance: 2,
-        accent: accent,
-      );
-      CrystalStepsDesign.paint(
-        canvas,
-        rect,
-        top: top,
-        seconds: 5,
-        reducedMotion: true,
-        cleared: true,
-        perfect: true,
-        appearance: 1,
-        accent: accent,
-      );
+      for (final region in WorldRegion.values) {
+        for (final kind in ObstacleKind.values) {
+          if (kind.floating) continue;
+          RegionalObstacles.column(
+            region,
+            canvas,
+            rect,
+            kind: kind,
+            top: top,
+            seconds: 5,
+            reducedMotion: kind.index.isEven,
+            pass: PassState(cleared: top, perfect: kind.index.isOdd),
+            appearance: kind.index,
+          );
+        }
+      }
     }
 
     final recorder = ui.PictureRecorder();
@@ -320,118 +288,116 @@ void main() {
         Rect.fromLTWH(8, 4, 24, .4),
         Rect.fromLTWH(40, 40, .25, .35),
         Rect.fromLTWH(0, 0, 0, 12),
+        Rect.fromLTWH(2, 2, 14, 9),
       ]) {
         paintThin(canvas, rect, top);
       }
     }
-    for (final kind in ObstacleKind.values) {
-      final narrow = Obstacle(
-        x: .2,
-        center: .5,
-        gap: .2,
-        width: .003,
-        kind: kind,
-        amplitude: 0,
-      );
-      ObstacleArt.paint(
-        canvas,
-        narrow,
-        80,
-        seconds: 5,
-        reducedMotion: true,
-        cleared: false,
-        perfect: false,
-      );
+    for (final region in WorldRegion.values) {
+      for (final kind in ObstacleKind.values) {
+        final narrow = Obstacle(
+          x: .2,
+          center: .5,
+          gap: .2,
+          width: .003,
+          kind: kind,
+          amplitude: 0,
+          bornAt: region.index * WorldTour.leg + 1,
+        );
+        ObstacleArt.paint(
+          canvas,
+          narrow,
+          80,
+          seconds: 5,
+          reducedMotion: true,
+          cleared: false,
+          perfect: false,
+        );
+      }
+      for (final radius in const [.2, 3.0, 9.0]) {
+        for (final kind in [
+          ObstacleKind.lanternDrift,
+          ObstacleKind.sunWheels,
+        ]) {
+          RegionalObstacles.orb(
+            region,
+            canvas,
+            radius,
+            kind: kind,
+            upper: radius > 1,
+            seconds: 5,
+            reducedMotion: false,
+            pass: const PassState(cleared: true, perfect: true),
+            appearance: 1,
+          );
+        }
+      }
     }
     final picture = recorder.endRecording();
     final image = await picture.toImage(64, 64);
     image.dispose();
     picture.dispose();
 
-    for (final (label, paint) in [
-      (
-        'garden',
-        (Canvas canvas, Rect rect) => GardenGateDesign.paint(
-          canvas,
-          rect,
-          top: true,
-          seconds: 5,
-          reducedMotion: true,
-          cleared: false,
-          perfect: false,
-          appearance: 0,
-          accent: SkyColors.teal,
-        ),
-      ),
-      (
-        'switchback',
-        (Canvas canvas, Rect rect) => SwitchbackDesign.paint(
-          canvas,
-          rect,
-          top: false,
-          seconds: 5,
-          reducedMotion: true,
-          cleared: false,
-          perfect: false,
-          appearance: 1,
-          accent: SkyColors.purple,
-        ),
-      ),
-    ]) {
-      final bytes = await raster((canvas) {
-        paint(canvas, const Rect.fromLTWH(4, 2, .8, 36));
-      }, 48);
-      expect(
-        bytes.any((pixel) => pixel != 0),
-        isTrue,
-        reason: '$label still paints a thin collision solid',
-      );
+    for (final region in WorldRegion.values) {
+      for (final kind in [ObstacleKind.garden, ObstacleKind.switchback]) {
+        final bytes = await raster((canvas) {
+          RegionalObstacles.column(
+            region,
+            canvas,
+            const Rect.fromLTWH(4, 2, .8, 36),
+            kind: kind,
+            top: kind == ObstacleKind.garden,
+            seconds: 5,
+            reducedMotion: true,
+            pass: const PassState(cleared: false, perfect: false),
+            appearance: 1,
+          );
+        }, 48);
+        expect(
+          bytes.any((pixel) => pixel != 0),
+          isTrue,
+          reason: '\${region.name} \${kind.name} still paints a thin solid',
+        );
+      }
     }
   });
 
-  test(
-    'refined circles are filled with a drawn edge',
-    () async {
-      for (final kind in [ObstacleKind.lanternDrift, ObstacleKind.sunWheels]) {
-        final obstacle = sample(kind);
-        final bytes = await paintObstacle(
-          obstacle,
-          refined: true,
-          seconds: 5,
-          reducedMotion: true,
-        );
-        expect(obstacle.orbs, isNotEmpty);
-        for (final orb in obstacle.orbs) {
-          final cx = orb.x * size;
-          final cy = orb.y * size;
-          final radius = orb.radius * size;
-          final centerX = cx.round();
-          final centerY = cy.round();
-          expect(alphaAt(bytes, centerX, centerY), 255, reason: '$kind center');
-          var drawnEdges = 0;
-          for (var step = 0; step < 8; step++) {
-            final angle = step * math.pi / 4;
-            final inwardX = (cx + math.cos(angle) * (radius - 1.6)).round();
-            final inwardY = (cy + math.sin(angle) * (radius - 1.6)).round();
-            final outwardX = (cx + math.cos(angle) * (radius + 3)).round();
-            final outwardY = (cy + math.sin(angle) * (radius + 3)).round();
-            expect(alphaAt(bytes, inwardX, inwardY), 255, reason: '$kind fill');
-            final tether =
-                kind == ObstacleKind.lanternDrift && (step == 2 || step == 6);
-            if (!tether) {
-              expect(
-                alphaAt(bytes, outwardX, outwardY),
-                0,
-                reason: '$kind edge',
-              );
-            }
-            if (channelGap(bytes, centerX, centerY, inwardX, inwardY) >= 12) {
-              drawnEdges++;
-            }
+  test('refined circles are filled with a drawn edge', () async {
+    for (final kind in [ObstacleKind.lanternDrift, ObstacleKind.sunWheels]) {
+      final obstacle = sample(kind);
+      final bytes = await paintObstacle(
+        obstacle,
+        refined: true,
+        seconds: 5,
+        reducedMotion: true,
+      );
+      expect(obstacle.orbs, isNotEmpty);
+      for (final orb in obstacle.orbs) {
+        final cx = orb.x * size;
+        final cy = orb.y * size;
+        final radius = orb.radius * size;
+        final centerX = cx.round();
+        final centerY = cy.round();
+        expect(alphaAt(bytes, centerX, centerY), 255, reason: '$kind center');
+        var drawnEdges = 0;
+        for (var step = 0; step < 8; step++) {
+          final angle = step * math.pi / 4;
+          final inwardX = (cx + math.cos(angle) * (radius - 1.6)).round();
+          final inwardY = (cy + math.sin(angle) * (radius - 1.6)).round();
+          final outwardX = (cx + math.cos(angle) * (radius + 3)).round();
+          final outwardY = (cy + math.sin(angle) * (radius + 3)).round();
+          expect(alphaAt(bytes, inwardX, inwardY), 255, reason: '$kind fill');
+          final tether =
+              kind == ObstacleKind.lanternDrift && (step == 2 || step == 6);
+          if (!tether) {
+            expect(alphaAt(bytes, outwardX, outwardY), 0, reason: '$kind edge');
           }
-          expect(drawnEdges, greaterThanOrEqualTo(4), reason: '$kind rim');
+          if (channelGap(bytes, centerX, centerY, inwardX, inwardY) >= 12) {
+            drawnEdges++;
+          }
         }
+        expect(drawnEdges, greaterThanOrEqualTo(4), reason: '$kind rim');
       }
-    },
-  );
+    }
+  });
 }

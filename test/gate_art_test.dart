@@ -39,13 +39,17 @@ double difference(List<int> a, List<int> b) {
   return total / a.length;
 }
 
+/// Mid-hold seconds of regions that borrow each legacy look: warm Egypt,
+/// night Antarctica and day Jungle.
+const warm = 8.0, night = 30.0, day = 52.0;
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test(
     'regional gates keep artwork out of openings, including short towers',
     () async {
-      for (final time in [5.0, 25.0, 45.0]) {
+      for (final time in [warm, night, day]) {
         for (final top in [true, false]) {
           for (final height in [1.0, 7.0, 30.0, 200.0]) {
             final rect = Rect.fromLTWH(40, 20, 54, height);
@@ -83,18 +87,23 @@ void main() {
   test(
     'regional artwork crossfades continuously and distinguishes each sky',
     () async {
-      final day = await pixels(5);
-      final warm = await pixels(25);
-      final night = await pixels(45);
-      expect(difference(day, warm), greaterThan(2));
-      expect(difference(warm, night), greaterThan(2));
-      expect(difference(night, day), greaterThan(2));
-      for (final boundary in [20.0, 40.0, 60.0]) {
-        expect(
-          difference(await pixels(boundary - .001), await pixels(boundary)),
-          lessThan(.1),
-          reason: 'No sudden colour or decoration jump at $boundary seconds',
-        );
+      final dayArt = await pixels(day);
+      final warmArt = await pixels(warm);
+      final nightArt = await pixels(night);
+      expect(difference(dayArt, warmArt), greaterThan(2));
+      expect(difference(warmArt, nightArt), greaterThan(2));
+      expect(difference(nightArt, dayArt), greaterThan(2));
+      for (var leg = 0; leg < 6; leg++) {
+        final start = leg * WorldTour.leg + WorldTour.hold;
+        for (final at in [start, start + 3, start + WorldTour.crossing]) {
+          // Mid-crossing, a millisecond may still tip 8-bit rounding across
+          // whole colour areas; a real pop differs by whole units.
+          expect(
+            difference(await pixels(at - .001), await pixels(at)),
+            lessThan(.3),
+            reason: 'No sudden colour or decoration jump at $at seconds',
+          );
+        }
       }
     },
   );
@@ -102,17 +111,24 @@ void main() {
   test(
     'lantern glow follows simulation time and honors Reduced Motion',
     () async {
-      final first = await pixels(45);
-      expect(await pixels(49), isNot(equals(first)));
-      expect(await pixels(45), first, reason: 'Pause and backwards seek agree');
-      expect(await pixels(45, reduced: true), await pixels(49, reduced: true));
-      expect(await pixels(5), await pixels(9));
-      expect(await pixels(25), await pixels(29));
+      final first = await pixels(night);
+      expect(await pixels(night + 4), isNot(equals(first)));
+      expect(
+        await pixels(night),
+        first,
+        reason: 'Pause and backwards seek agree',
+      );
+      expect(
+        await pixels(night, reduced: true),
+        await pixels(night + 4, reduced: true),
+      );
+      expect(await pixels(day), await pixels(day + 4));
+      expect(await pixels(warm), await pixels(warm + 4));
     },
   );
 
   test('clear and perfect flowers remain distinct in every region', () async {
-    for (final time in [5.0, 25.0, 45.0]) {
+    for (final time in [warm, night, day]) {
       final waiting = await pixels(time);
       final cleared = await pixels(time, cleared: true);
       final perfect = await pixels(time, cleared: true, perfect: true);
@@ -126,10 +142,11 @@ void main() {
       canvas.save();
       canvas.translate(i * 300.0, 0);
       canvas.clipRect(const Rect.fromLTWH(0, 0, 300, 360));
+      final seconds = [warm, night, day][i];
       SkyScenery.paint(
         canvas,
         const Size(300, 360),
-        seconds: 5 + i * 20.0,
+        seconds: seconds,
         reducedMotion: true,
       );
       for (var column = 0; column < 3; column++) {
@@ -138,7 +155,7 @@ void main() {
             canvas,
             Rect.fromLTWH(28 + column * 88.0, top ? 0 : 242, 44, 118),
             top: top,
-            seconds: 5 + i * 20.0,
+            seconds: seconds,
             reducedMotion: true,
             cleared: column > 0,
             perfect: column == 2,

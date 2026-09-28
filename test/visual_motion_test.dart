@@ -2,7 +2,6 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:push_up_bird/game/sky_landmarks.dart';
 import 'package:push_up_bird/game/sky_scenery.dart';
 import 'package:push_up_bird/game/bird_trail.dart';
 import 'package:push_up_bird/ui/flight_portrait.dart';
@@ -10,26 +9,21 @@ import 'package:push_up_bird/ui/flight_goals.dart';
 import 'package:push_up_bird/domain/flight_goals.dart';
 import 'package:push_up_bird/domain/flight_course.dart';
 
-Future<List<int>> renderLandmarks({
+Future<List<int>> renderScenery({
   required double seconds,
   required double distance,
   required bool reducedMotion,
-  required int region,
 }) async {
   final recording = ui.PictureRecorder();
-  final canvas = Canvas(recording);
-  SkyLandmarks.paint(
-    canvas,
-    const Size(800, 360),
+  SkyScenery.paint(
+    Canvas(recording),
+    const Size(400, 180),
     seconds: seconds,
     distance: distance,
     reducedMotion: reducedMotion,
-    sunrise: region == 0 ? 1 : 0,
-    peach: region == 1 ? 1 : 0,
-    twilight: region == 2 ? 1 : 0,
   );
   final picture = recording.endRecording();
-  final image = await picture.toImage(800, 360);
+  final image = await picture.toImage(400, 180);
   final data = await image.toByteData();
   image.dispose();
   picture.dispose();
@@ -81,66 +75,55 @@ void main() {
       }
     },
   );
-  test('landmark crossfades are continuous at all three region boundaries', () {
-    for (final boundary in [20.0, 40.0, 60.0]) {
-      for (var region = 0; region < 3; region++) {
+  test('region weights are continuous and always sum to one', () {
+    for (var second = 0.0; second <= WorldTour.loop * 2; second += .25) {
+      final blend = WorldTour.at(second);
+      final later = WorldTour.at(second + 1e-6);
+      var total = 0.0;
+      for (final region in WorldRegion.values) {
+        total += blend.weight(region);
         expect(
-          SkyPalette.regionWeight(boundary - .00001, region),
-          closeTo(SkyPalette.regionWeight(boundary, region), .00001),
+          later.weight(region),
+          closeTo(blend.weight(region), 1e-4),
+          reason: '\${region.name} at $second',
         );
       }
-    }
-    for (final second in [0.0, 17.5, 25.0, 38.0, 45.0, 58.5, 60.0]) {
-      expect(
-        List.generate(
-          3,
-          (i) => SkyPalette.regionWeight(second, i),
-        ).reduce((a, b) => a + b),
-        closeTo(1, 1e-10),
-      );
+      expect(total, closeTo(1, 1e-10));
     }
   });
 
-  for (var region = 0; region < 3; region++) {
+  for (final region in WorldRegion.values) {
     test(
-      'region $region landmarks freeze in Reduced Motion and replay exactly',
+      '\${region.title} scenery freezes in Reduced Motion and replays exactly',
       () async {
-        final still = await renderLandmarks(
-          seconds: 5,
+        final at = region.index * WorldTour.leg + 4;
+        final still = await renderScenery(
+          seconds: at,
           distance: 1,
           reducedMotion: true,
-          region: region,
         );
         expect(
-          await renderLandmarks(
-            seconds: 12,
+          await renderScenery(
+            seconds: at + 7,
             distance: 4,
             reducedMotion: true,
-            region: region,
           ),
           still,
         );
-        final frame = await renderLandmarks(
-          seconds: 5,
+        final frame = await renderScenery(
+          seconds: at,
           distance: 1,
           reducedMotion: false,
-          region: region,
         );
         expect(
-          await renderLandmarks(
-            seconds: 5,
-            distance: 1,
-            reducedMotion: false,
-            region: region,
-          ),
+          await renderScenery(seconds: at, distance: 1, reducedMotion: false),
           frame,
         );
         expect(
-          await renderLandmarks(
-            seconds: 12,
+          await renderScenery(
+            seconds: at + 7,
             distance: 4,
             reducedMotion: false,
-            region: region,
           ),
           isNot(equals(frame)),
         );

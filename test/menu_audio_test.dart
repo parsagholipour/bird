@@ -87,7 +87,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(menu.playing, isTrue);
     appRouter.go('/school');
-    await tester.pumpAndSettle();
+    // Flight School hosts a live game loop, which never settles.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
     expect(
       menu.playing,
       isFalse,
