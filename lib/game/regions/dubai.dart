@@ -8,9 +8,9 @@ import 'world_region.dart';
 
 /// Dubai on a bright, hazy morning: a glass skyline with the Burj Khalifa
 /// stepping into the sky beside a gold frame and slanted towers, the sail of
-/// the Burj Al Arab on its island in a turquoise gulf with a dhow crossing,
-/// and golden dunes with a camel caravan and date palms. A hot-air balloon
-/// drifts by and sand streaks over the dunes.
+/// the Burj Al Arab on its island in a turquoise gulf with a dhow crossing and
+/// yachts at their moorings, and golden dunes with a camel caravan and date
+/// palms. A hot-air balloon drifts by and sand streaks over the dunes.
 class DubaiScene extends RegionScene {
   const DubaiScene();
 
@@ -66,8 +66,10 @@ class DubaiScene extends RegionScene {
 
   @override
   double ridge(Depth d, double x, double clock) => switch (d) {
-    Depth.far => .68,
-    Depth.mid => .75,
+    Depth.far =>
+      .68 + Sketch.waves(x, const [(2.6, .004, .3), (1.1, .002, 1.7)]),
+    Depth.mid =>
+      .75 + Sketch.waves(x, const [(2.2, .006, 1.0), (.9, .003, .2)]),
     Depth.low => .83 + .004 * math.sin(x * math.pi * 4 + clock * 1.3),
     Depth.near =>
       .925 - .035 * Sketch.humps(x / 3 + .1) - .012 * Sketch.humps(x + .3),
@@ -83,46 +85,130 @@ class DubaiScene extends RegionScene {
 
   static Color _hazed(Color c, double t) => Scenery.hazed(c, _haze, t);
 
+  /// Where the Burj Khalifa stands on the mid band, and how tall it is.
+  Offset _burjBase(double w, double h) =>
+      Offset(w * .6, ridge(Depth.mid, w * .6 / h, 0) * h + h * .012);
+  static double _burjHeight(double h) => h * .66;
+
   @override
   void features(Canvas c, Depth d, Size size) {
     final w = size.width, h = size.height;
     final span = period(d) * h;
     switch (d) {
       case Depth.far:
+        // A haze-soft skyline running past both edges, so the drift never
+        // leaves the right side bare.
+        final paint = Paint()..color = _hazed(const Color(0xffaebdc9), .55);
+        final lit = Paint()..color = _hazed(const Color(0xffc3d0da), .55);
         var x = -h * .05;
         var i = 0;
-        while (x < w + h * .05) {
-          final bw = h * (.03 + .03 * Sketch.hash(i + 500));
-          final bh = h * (.05 + .13 * Sketch.hash(i + 501));
-          c.drawRect(
-            Rect.fromLTRB(x, h * .71 - bh, x + bw, h * .71),
-            Paint()..color = _hazed(const Color(0xffaebdc9), .55),
-          );
-          if (i % 4 == 1) {
+        while (x < w + h * .4) {
+          final bw = h * (.025 + .03 * Sketch.hash(i + 500));
+          final bh = h * (.05 + .12 * Sketch.hash(i + 501));
+          final base = ridge(d, (x + bw / 2) / h, 0) * h + h * .02;
+          final top = base - bh;
+          c.drawRect(Rect.fromLTRB(x, top, x + bw, base), paint);
+          c.drawRect(Rect.fromLTRB(x, top, x + bw * .38, base), lit);
+          if (i % 5 == 1) {
             c.drawRect(
-              Rect.fromLTRB(x + bw * .42, h * .71 - bh - h * .035, x + bw * .58, h * .71 - bh),
-              Paint()..color = _hazed(const Color(0xffaebdc9), .55),
+              Rect.fromLTRB(x + bw * .44, top - h * .035, x + bw * .56, top),
+              paint,
+            );
+          } else if (i % 5 == 3) {
+            c.drawRect(
+              Rect.fromLTRB(x + bw * .2, top - h * .012, x + bw * .8, top),
+              paint,
             );
           }
-          x += bw + h * .006;
+          x += bw + h * (.004 + .012 * Sketch.hash(i + 502));
           i++;
         }
       case Depth.mid:
-        _frame(c, Offset(w * .12, h * .76), h * .22);
-        _tower(c, w * .3, h * .76, h * .05, h * .32, 1);
-        _tower(c, w * .38, h * .76, h * .045, h * .26, 2);
-        _burj(c, Offset(w * .6, h * .76), h * .66);
-        _tower(c, w * .74, h * .76, h * .055, h * .3, 3);
-        _tower(c, w * .82, h * .76, h * .05, h * .22, 0);
-        _tower(c, w * .92, h * .76, h * .05, h * .34, 1);
+        final bx = _burjBase(w, h).dx;
+        final fs = h * .22, fx = math.max(w * .2, fs * .45);
+        double base(double x) => ridge(d, x / h, 0) * h + h * .012;
+        bool clear(double x) =>
+            (x - bx).abs() > h * .13 && (x - fx).abs() > h * .14;
+        // A paler back row first, then the front row, both running past the
+        // right edge for the drift.
+        var x = -h * .03;
+        var i = 0;
+        while (x < w + h * .5) {
+          if (clear(x)) {
+            _tower(
+              c,
+              x,
+              base(x),
+              h * (.032 + .02 * Sketch.hash(i + 540)),
+              h * (.1 + .12 * Sketch.hash(i + 541)),
+              (Sketch.hash(i + 543) * 4).floor(),
+              .5,
+            );
+          }
+          x += h * (.06 + .05 * Sketch.hash(i + 542));
+          i++;
+        }
+        x = h * .02;
+        i = 0;
+        while (x < w + h * .5) {
+          if (clear(x)) {
+            // Towers rise toward the Burj, like a real downtown.
+            final near = 1 - math.min(1.0, (x - bx).abs() / (h * .9));
+            _tower(
+              c,
+              x,
+              base(x),
+              h * (.038 + .02 * Sketch.hash(i + 521)),
+              h * (.14 + .2 * Sketch.hash(i + 522)) * (.8 + .35 * near),
+              (Sketch.hash(i + 523) * 4).floor(),
+              .2,
+            );
+          }
+          x += h * (.075 + .05 * Sketch.hash(i + 520));
+          i++;
+        }
+        // Small date palms line the waterfront.
+        x = h * .1;
+        i = 0;
+        while (x < w + h * .5) {
+          Sketch.palm(
+            c,
+            Offset(x, base(x)),
+            h * (.06 + .02 * Sketch.hash(i + 560)),
+            lean: (Sketch.hash(i + 562) - .5) * .2,
+            trunk: _hazed(const Color(0xff8c6a44), .3),
+            trunkShade: _hazed(const Color(0xff6f4f30), .3),
+            frond: _hazed(const Color(0xff4f8f4a), .35),
+            frondLit: _hazed(const Color(0xff86bf62), .35),
+            detail: false,
+          );
+          x += h * (.3 + .25 * Sketch.hash(i + 561));
+          i++;
+        }
+        _frame(c, Offset(fx, base(fx)), fs);
+        _burj(c, _burjBase(w, h), _burjHeight(h));
       case Depth.low:
+        // The Burj Al Arab on its island, with yachts at a marina mooring.
         final x = span * .55;
         final y = ridge(d, x / h, 0) * h;
+        final sand = Paint()..color = const Color(0xffe6cf9c);
         c.drawOval(
-          Rect.fromCenter(center: Offset(x, y + h * .012), width: h * .34, height: h * .05),
-          Paint()..color = const Color(0xffe6cf9c),
+          Rect.fromCenter(center: Offset(x, y), width: h * .4, height: h * .07),
+          Paint()..color = const Color(0xfffff3d6).withValues(alpha: .7),
         );
-        _sail(c, Offset(x, y + h * .006), h * .3);
+        c.drawOval(
+          Rect.fromCenter(
+            center: Offset(x, y - h * .002),
+            width: h * .34,
+            height: h * .05,
+          ),
+          sand,
+        );
+        _sail(c, Offset(x, y - h * .004), h * .3);
+        for (final (fx, s) in const [(.84, 1.0), (.89, .72), (.93, .85)]) {
+          final bx = span * fx;
+          _yacht(c, Offset(bx, ridge(d, bx / h, 0) * h + h * .002), h * .036 * s);
+        }
       case Depth.near:
         for (final (fx, s) in const [(.06, 1.0), (.78, .8)]) {
           final x = span * fx;
@@ -139,27 +225,80 @@ class DubaiScene extends RegionScene {
           );
         }
         for (var k = 0; k < 3; k++) {
-          final x = span * (.32 + k * .075);
-          _camel(c, Offset(x, ridge(d, x / h, 0) * h + h * .008), h * (.1 - k * .006));
+          final x = span * (.32 + k * .048);
+          _camel(c, Offset(x, ridge(d, x / h, 0) * h + h * .008), h * (.1 - k * .006), k);
         }
     }
   }
 
   @override
   void live(Canvas c, Depth d, SceneFrame f, int copy) {
+    final h = f.h;
+    if (d == Depth.mid) {
+      // The Burj's aviation beacon pulses on its needle.
+      final tip = _burjBase(f.w, h) - Offset(0, _burjHeight(h));
+      final on = .5 + .5 * math.sin(f.clock * 2.4);
+      c.drawCircle(tip, h * .012, Paint()..color = Sketch.fade(const Color(0xffff5a4a), .16 * on));
+      c.drawCircle(tip, h * .0032, Paint()..color = Sketch.fade(const Color(0xffff7a6a), .35 + .55 * on));
+      return;
+    }
     if (d != Depth.low) return;
-    final h = f.h, span = period(d) * h;
+    final span = period(d) * h;
+    // Wrapping inside the repeat hands the dhow to the next copy seamlessly.
     final x = (h * .4 + f.clock * h * .015) % span;
-    final y = ridge(d, x / h, f.clock) * h + h * .006;
     final s = h * .05;
+    c.save();
+    c.translate(x, ridge(d, x / h, f.clock) * h + s * .12);
+    c.rotate(math.sin(f.clock * 1.1 + copy) * .03);
+    // Hull, deck stripe and a lateen sail on a slanted yard.
     c.drawPath(
-      Sketch.poly([x - s, y - s * .32, x + s * 1.1, y - s * .5, x + s * .7, y + s * .1, x - s * .7, y + s * .1]),
+      Sketch.poly([-s, -s * .42, s * 1.2, -s * .62, s * .75, s * .34, -s * .7, s * .34]),
       Paint()..color = const Color(0xff7a4a2a),
     );
+    c.drawRect(
+      Rect.fromLTRB(-s * .95, -s * .42, s * 1.15, -s * .34),
+      Paint()..color = const Color(0xffd9a441),
+    );
     c.drawPath(
-      Sketch.poly([x + s * .05, y - s * 1.3, x + s * .95, y - s * .5, x + s * .05, y - s * .42]),
+      Sketch.poly([-s * .7, -s * .5, s * 1.0, -s * .6, s * .1, -s * 1.5]),
       Paint()..color = const Color(0xfffff6e0),
     );
+    c.drawPath(
+      Sketch.poly([s * .1, -s * 1.5, s * 1.0, -s * .6, s * .35, -s * .58]),
+      Paint()..color = const Color(0xffe6d6b4),
+    );
+    c.restore();
+  }
+
+  static final _foam = Paint()..strokeCap = StrokeCap.round;
+  static final _ripplePaint = Paint()
+    ..style = PaintingStyle.stroke
+    ..strokeCap = StrokeCap.round;
+  static double _rippleH = -1;
+  static Path? _rippleCache;
+
+  /// Slip-face ripples that follow the near dunes, built once per viewport.
+  Path _ripples(double h) {
+    final cached = _rippleCache;
+    if (cached != null && _rippleH == h) return cached;
+    final span = period(Depth.near) * h;
+    final path = Path();
+    for (var r = 0; r < 7; r++) {
+      final x0 = span * Sketch.hash(700 + r);
+      final len = h * (.16 + .2 * Sketch.hash(710 + r));
+      final dy = h * (.014 + .03 * Sketch.hash(720 + r));
+      for (var k = 0; k <= 8; k++) {
+        final x = x0 + len * k / 8;
+        final y = ridge(Depth.near, x / h, 0) * h + dy + math.sin(k / 8 * math.pi) * h * .004;
+        if (k == 0) {
+          path.moveTo(x, y);
+        } else {
+          path.lineTo(x, y);
+        }
+      }
+    }
+    _rippleH = h;
+    return _rippleCache = path;
   }
 
   @override
@@ -169,29 +308,32 @@ class DubaiScene extends RegionScene {
       case Depth.far:
         Sketch.mist(
           c,
-          Rect.fromCenter(center: Offset(f.w * .5, h * .7), width: f.w * 1.3, height: h * .09),
+          Rect.fromCenter(center: Offset(f.w * .5 + h * .2, h * .7), width: f.w * 1.3 + h, height: h * .09),
           const Color(0xfffff6e6),
           .8 * presence,
         );
       case Depth.mid:
         Sketch.mist(
           c,
-          Rect.fromCenter(center: Offset(f.w * .5, h * .76), width: f.w * 1.3, height: h * .1),
+          Rect.fromCenter(center: Offset(f.w * .5 + h * .2, h * .76), width: f.w * 1.3 + h, height: h * .1),
           const Color(0xfffff0d8),
           .6 * presence,
         );
       case Depth.low:
-        final foam = Paint()
-          ..color = Sketch.fade(const Color(0xffffffff), .45 * presence)
-          ..strokeWidth = h * .003
-          ..strokeCap = StrokeCap.round;
-        for (var i = 0; i < 8; i++) {
-          final x = (f.w + h) * Sketch.hash(i + 530) - h * .4;
-          final y = h * (.85 + .05 * Sketch.hash(i + 531));
-          c.drawLine(Offset(x, y), Offset(x + h * (.03 + .012 * math.sin(f.clock + i)), y), foam);
+        final span = period(d) * h;
+        _foam.strokeWidth = h * .003;
+        for (var i = 0; i < 12; i++) {
+          final x = span * Sketch.hash(i + 530);
+          final y = h * (.845 + .045 * Sketch.hash(i + 531));
+          final on = .6 + .4 * math.sin(f.clock * 1.3 + i * 2);
+          _foam.color = Sketch.fade(const Color(0xffffffff), .45 * on * presence);
+          c.drawLine(Offset(x, y), Offset(x + h * (.03 + .012 * math.sin(f.clock + i)), y), _foam);
         }
       case Depth.near:
-        break;
+        _ripplePaint
+          ..strokeWidth = math.max(1.0, h * .003)
+          ..color = Sketch.fade(const Color(0xffb98a48), .32 * presence);
+        c.drawPath(_ripples(h), _ripplePaint);
     }
   }
 
@@ -211,10 +353,33 @@ class DubaiScene extends RegionScene {
     }
   }
 
+  static const _gores = [
+    Color(0xffe94f6a),
+    Color(0xfffff6e0),
+    Color(0xff2fb5d8),
+    Color(0xfffff6e0),
+  ];
+
+  /// A hot-air balloon envelope in unit radius, centred on the origin.
+  static final _envelope = Path()
+    ..moveTo(-.3, 1.45)
+    ..cubicTo(-1.3, .75, -1.15, -1.05, 0, -1.05)
+    ..cubicTo(1.15, -1.05, 1.3, .75, .3, 1.45)
+    ..close();
+
+  static final _skyPaint = Paint();
+
   @override
   void sky(Canvas c, SceneFrame f, double presence) {
     final w = f.w, h = f.h;
-    for (final (fx, fy, fw) in const [(.3, .18, .5), (.8, .3, .35)]) {
+    // Warm glare behind the skyline where the sun burns off the morning haze.
+    Sketch.mist(
+      c,
+      Rect.fromCenter(center: Offset(w * .3, h * horizon), width: w * 1.6 + h, height: h * .16),
+      const Color(0xfffff0d0),
+      .5 * presence,
+    );
+    for (final (fx, fy, fw) in const [(.3, .18, .5), (.8, .3, .35), (.55, .1, .3)]) {
       final x = (w * fx - f.clock * h * .006) % (w + h * 1.2) - h * .6;
       Sketch.mist(
         c,
@@ -223,21 +388,32 @@ class DubaiScene extends RegionScene {
         .55 * presence,
       );
     }
-    // A hot-air balloon rises and drifts.
+    // A hot-air balloon drifts across, swaying under its envelope.
     final bx = (w * .45 + f.clock * h * .006) % (w + h * .4) - h * .1;
     final by = h * .3 + math.sin(f.clock * .4) * h * .012;
-    final r = h * .035;
-    final stripes = [const Color(0xffe94f6a), const Color(0xfffff6e0), const Color(0xff2fb5d8)];
-    for (var i = 0; i < 3; i++) {
-      c.drawOval(
-        Rect.fromCenter(center: Offset(bx + (i - 1) * r * .5, by), width: r, height: r * 1.3),
-        Paint()..color = Sketch.fade(stripes[i], presence),
-      );
+    final r = h * .034;
+    c.save();
+    c.translate(bx, by);
+    c.rotate(math.sin(f.clock * .5) * .04);
+    c.scale(r, r);
+    c.save();
+    c.clipPath(_envelope);
+    for (var i = 0; i < 6; i++) {
+      _skyPaint.color = Sketch.fade(_gores[i % 4], presence);
+      c.drawRect(Rect.fromLTWH(-1.3 + i * .44, -1.1, .44, 2.6), _skyPaint);
     }
-    c.drawRect(
-      Rect.fromCenter(center: Offset(bx, by + r * 1.2), width: r * .4, height: r * .3),
-      Paint()..color = Sketch.fade(const Color(0xff7a4a2a), presence),
-    );
+    _skyPaint.color = Sketch.fade(const Color(0xffffffff), .22 * presence);
+    c.drawOval(Rect.fromCenter(center: const Offset(-.45, -.3), width: .7, height: 1.3), _skyPaint);
+    c.restore();
+    _skyPaint
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1 / r
+      ..color = Sketch.fade(const Color(0xff7a4a2a), presence);
+    c.drawLine(const Offset(-.3, 1.45), const Offset(-.15, 1.85), _skyPaint);
+    c.drawLine(const Offset(.3, 1.45), const Offset(.15, 1.85), _skyPaint);
+    _skyPaint.style = PaintingStyle.fill;
+    c.drawRect(const Rect.fromLTWH(-.17, 1.85, .34, .26), _skyPaint);
+    c.restore();
   }
 
   /// The Burj Khalifa: a Y-shaped tower stepping in tiers to a slim spire.
@@ -245,35 +421,52 @@ class DubaiScene extends RegionScene {
     final body = _hazed(const Color(0xffb9cfe0), .18);
     final lit = _hazed(const Color(0xffe4f0fa), .15);
     final shade = _hazed(const Color(0xff8fa9c2), .18);
-    const tiers = [
-      (.09, .0, .16),
-      (.075, .16, .32),
-      (.06, .32, .5),
-      (.045, .5, .66),
-      (.032, .66, .8),
-      (.02, .8, .9),
+    // Half width and top of each setback, in tower heights.
+    const steps = [
+      (.11, .05),
+      (.085, .2),
+      (.07, .33),
+      (.056, .46),
+      (.043, .58),
+      (.032, .68),
+      (.022, .76),
+      (.014, .82),
+      (.006, .93),
     ];
-    for (final (half, from, to) in tiers) {
-      final r = Rect.fromLTRB(base.dx - half * s, base.dy - to * s, base.dx + half * s, base.dy - from * s);
-      c.drawRect(r, Paint()..color = body);
-      c.drawRect(Rect.fromLTRB(r.left, r.top, base.dx - half * s * .2, r.bottom), Paint()..color = lit);
-      c.drawRect(Rect.fromLTRB(base.dx + half * s * .35, r.top, r.right, r.bottom), Paint()..color = shade);
+    final right = <Offset>[];
+    var from = 0.0;
+    final shape = Path()..moveTo(base.dx - steps.first.$1 * s, base.dy);
+    for (final (half, top) in steps) {
+      shape
+        ..lineTo(base.dx - half * s, base.dy - from * s)
+        ..lineTo(base.dx - half * s, base.dy - top * s);
+      right
+        ..add(Offset(base.dx + half * s, base.dy - top * s))
+        ..add(Offset(base.dx + half * s, base.dy - from * s));
+      from = top;
     }
-    c.drawPath(
-      Sketch.poly([base.dx - s * .012, base.dy - s * .9, base.dx + s * .012, base.dy - s * .9, base.dx, base.dy - s]),
-      Paint()..color = body,
-    );
+    shape.lineTo(base.dx, base.dy - s);
+    for (final p in right.reversed) {
+      shape.lineTo(p.dx, p.dy);
+    }
+    shape.close();
+    c.drawPath(shape, Paint()..color = body);
+    c.save();
+    c.clipPath(shape);
+    c.drawRect(Rect.fromLTRB(base.dx - .12 * s, base.dy - s, base.dx - .012 * s, base.dy), Paint()..color = lit);
+    c.drawRect(Rect.fromLTRB(base.dx + .03 * s, base.dy - s, base.dx + .12 * s, base.dy), Paint()..color = shade);
+    c.restore();
   }
 
   /// A glass tower with a style of crown: 0 flat, 1 slanted, 2 pointed,
-  /// 3 twin blades.
-  static void _tower(Canvas c, double x, double baseY, double w, double hgt, int style) {
-    final body = _hazed(const Color(0xffa9c4d6), .2);
-    final lit = _hazed(const Color(0xffdcebf5), .18);
-    final shade = _hazed(const Color(0xff7f9db6), .2);
+  /// 3 twin blades. [haze] pushes it back into the distance.
+  static void _tower(Canvas c, double x, double baseY, double w, double hgt, int style, double haze) {
+    final body = _hazed(const Color(0xffa9c4d6), haze);
+    final lit = _hazed(const Color(0xffdcebf5), haze - .02);
+    final shade = _hazed(const Color(0xff7f9db6), haze);
     final top = baseY - hgt;
     final left = x - w / 2, right = x + w / 2;
-    Path shape;
+    final Path shape;
     switch (style) {
       case 1:
         shape = Sketch.poly([left, baseY, left, top + hgt * .08, right, top - hgt * .06, right, baseY]);
@@ -285,26 +478,32 @@ class DubaiScene extends RegionScene {
         shape = Sketch.poly([left, baseY, left, top, right, top, right, baseY]);
     }
     c.drawPath(shape, Paint()..color = body);
-    c.drawRect(Rect.fromLTRB(left, top + hgt * .1, x - w * .1, baseY), Paint()..color = lit);
-    c.drawRect(Rect.fromLTRB(x + w * .2, top + hgt * .1, right, baseY), Paint()..color = shade);
+    // Light and shade are clipped to the silhouette, so crowns stay clean.
+    c.save();
+    c.clipPath(shape);
+    c.drawRect(Rect.fromLTRB(left, top - hgt * .12, x - w * .1, baseY), Paint()..color = lit);
+    c.drawRect(Rect.fromLTRB(x + w * .2, top - hgt * .12, right, baseY), Paint()..color = shade);
     final line = Paint()
-      ..color = _hazed(const Color(0xffffffff), .3).withValues(alpha: .35)
+      ..color = _hazed(const Color(0xffffffff), haze + .1).withValues(alpha: .35)
       ..strokeWidth = math.max(.5, w * .012);
     for (var y = baseY - hgt * .06; y > top + hgt * .12; y -= hgt * .06) {
       c.drawLine(Offset(left, y), Offset(right, y), line);
     }
+    c.restore();
   }
 
   /// The Dubai Frame: two gold towers joined by a bridge at the top.
   static void _frame(Canvas c, Offset base, double s) {
     final gold = _hazed(const Color(0xffd9a441), .2);
     final deep = _hazed(const Color(0xffa8792c), .2);
+    final glass = _hazed(const Color(0xff7fb0c8), .25);
     final post = s * .08;
     for (final dx in const [-.3, .3]) {
       c.drawRect(Rect.fromLTRB(base.dx + dx * s - post / 2, base.dy - s, base.dx + dx * s + post / 2, base.dy), Paint()..color = gold);
       c.drawRect(Rect.fromLTRB(base.dx + dx * s, base.dy - s, base.dx + dx * s + post / 2, base.dy), Paint()..color = deep);
     }
     c.drawRect(Rect.fromLTRB(base.dx - s * .34, base.dy - s, base.dx + s * .34, base.dy - s * .92), Paint()..color = gold);
+    c.drawRect(Rect.fromLTRB(base.dx - s * .26, base.dy - s * .985, base.dx + s * .26, base.dy - s * .935), Paint()..color = glass);
     c.drawRect(Rect.fromLTRB(base.dx - s * .34, base.dy - s * .94, base.dx + s * .34, base.dy - s * .92), Paint()..color = deep);
   }
 
@@ -318,6 +517,16 @@ class DubaiScene extends RegionScene {
       ..quadraticBezierTo(base.dx + s * .02, base.dy - s * .4, base.dx + s * .22, base.dy)
       ..close();
     c.drawPath(path, Paint()..color = white);
+    // The curve of the fabric turns from the light on its lee edge.
+    c.drawPath(
+      Path()
+        ..moveTo(base.dx - s * .06, base.dy - s)
+        ..quadraticBezierTo(base.dx + s * .02, base.dy - s * .4, base.dx + s * .22, base.dy)
+        ..lineTo(base.dx + s * .1, base.dy)
+        ..quadraticBezierTo(base.dx - s * .01, base.dy - s * .45, base.dx - s * .06, base.dy - s)
+        ..close(),
+      Paint()..color = _hazed(const Color(0xffd3e2ee), .15),
+    );
     final line = Paint()
       ..color = rib
       ..strokeWidth = math.max(.6, s * .006);
@@ -325,21 +534,55 @@ class DubaiScene extends RegionScene {
       final y = base.dy - s * i / 6.5;
       c.drawLine(Offset(base.dx - s * (.1 - .004 * i), y), Offset(base.dx + s * (.2 - .04 * i), y), line);
     }
+    // The mast spar and the needle above the sail.
+    c.drawLine(
+      Offset(base.dx - s * .1, base.dy),
+      Offset(base.dx - s * .06, base.dy - s * 1.07),
+      Paint()
+        ..color = _hazed(const Color(0xff9fb6c8), .15)
+        ..strokeWidth = math.max(.8, s * .012)
+        ..strokeCap = StrokeCap.round,
+    );
     c.drawRect(Rect.fromLTRB(base.dx - s * .1, base.dy - s * .04, base.dx + s * .22, base.dy), Paint()..color = const Color(0xff2f8fc0));
     c.drawRect(Rect.fromLTRB(base.dx - s * .1, base.dy - s * .34, base.dx - s * .02, base.dy - s * .3), Paint()..color = rib);
   }
 
-  static void _camel(Canvas c, Offset base, double s) {
+  /// A moored yacht: a white hull, a cabin and a flybridge.
+  static void _yacht(Canvas c, Offset base, double s) {
+    final white = _hazed(const Color(0xfff8fbff), .1);
+    c.drawPath(
+      Sketch.poly([base.dx - s, base.dy - s * .4, base.dx + s * 1.15, base.dy - s * .5, base.dx + s * .8, base.dy + s * .5, base.dx - s * .75, base.dy + s * .5]),
+      Paint()..color = white,
+    );
+    c.drawRect(
+      Rect.fromLTRB(base.dx - s * .5, base.dy - s * .4 - s * .34, base.dx + s * .55, base.dy - s * .42),
+      Paint()..color = _hazed(const Color(0xffdfe9f2), .1),
+    );
+    c.drawRect(
+      Rect.fromLTRB(base.dx - s * .3, base.dy - s * .4 - s * .52, base.dx + s * .25, base.dy - s * .4 - s * .34),
+      Paint()..color = white,
+    );
+    c.drawRect(
+      Rect.fromLTRB(base.dx - s * .42, base.dy - s * .4 - s * .26, base.dx + s * .45, base.dy - s * .4 - s * .16),
+      Paint()..color = const Color(0xff4d7590),
+    );
+  }
+
+  static void _camel(Canvas c, Offset base, double s, int k) {
     const body = Color(0xff7a5636), shade = Color(0xff5a3f28);
     final leg = Paint()
       ..color = shade
       ..strokeWidth = math.max(1.0, s * .05)
       ..strokeCap = StrokeCap.round;
+    // Each camel is caught at a different point of its stride.
+    final stride = (k.isEven ? .05 : -.05) * s;
+    var n = 0;
     for (final dx in const [-.2, -.14, .14, .2]) {
-      c.drawLine(Offset(base.dx + dx * s, base.dy - s * .4), Offset(base.dx + dx * s * 1.05, base.dy), leg);
+      final swing = (n++).isEven ? stride : -stride;
+      c.drawLine(Offset(base.dx + dx * s, base.dy - s * .4), Offset(base.dx + dx * s * 1.05 + swing, base.dy), leg);
     }
     c.drawOval(Rect.fromCenter(center: Offset(base.dx, base.dy - s * .5), width: s * .6, height: s * .26), Paint()..color = body);
-    c.drawOval(Rect.fromCenter(center: Offset(base.dx - s * .05, base.dy - s * .66), width: s * .18, height: s * .16), Paint()..color = body);
+    c.drawOval(Rect.fromCenter(center: Offset(base.dx - s * .02, base.dy - s * .66), width: s * .2, height: s * .2), Paint()..color = body);
     c.drawLine(
       Offset(base.dx + s * .22, base.dy - s * .55),
       Offset(base.dx + s * .34, base.dy - s * .86),
