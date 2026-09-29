@@ -9,7 +9,8 @@ class CombatAudioCues {
   int _shots = 0, _deaths = 0, _impacts = 0, _deflections = 0, _enemyShots = 0;
   int _dryFires = 0, _sprints = 0;
   int _ringSprints = 0, _smashes = 0, _rushWarnings = 0, _rushEscapes = 0;
-  int _eruptions = 0;
+  int _eruptions = 0, _gusts = 0, _galeWarnings = 0, _galesWeathered = 0;
+  int _splashes = 0;
   final Set<SkyEnemy> _charging = {};
   double _elapsed = 0;
   bool _magnet = false, _fullCharge = false, _sprintReady = false;
@@ -43,11 +44,20 @@ class CombatAudioCues {
       if (sim.ventsErupted > _eruptions) cues.add('lava_burst');
       if (sim.rushWarnings > _rushWarnings) cues.add('rush_alarm');
       if (sim.rushPathsEscaped > _rushEscapes) cues.add('rush_clear');
+      // A gale shares the rush alarm and fanfare; each gust whistles as
+      // its warning goes up.
+      if (sim.galeWarnings > _galeWarnings) cues.add('rush_alarm');
+      if (sim.gusts > _gusts) cues.add('gust_warning');
+      if (sim.galesWeathered > _galesWeathered) cues.add('rush_clear');
       // Swarm bats go down like any bat.
       if (sim.enemiesDefeated + sim.swarmSmashed > _deaths) {
         cues.add('enemy_death');
       }
       if (sim.rockImpacts > _impacts) cues.add('rock_hit');
+      // Cannonballs and the bird hitting the Pirate Captain's sea.
+      if (sim.cannonSplashes + sim.birdSplashes > _splashes) {
+        cues.add('sea_splash');
+      }
       if (sim.projectilesDeflected > _deflections) cues.add('deflect');
       if (sim.enemyShots > _enemyShots) cues.add('enemy_shoot');
       if (sim.doorsDestroyed > _doorsDestroyed) {
@@ -72,8 +82,12 @@ class CombatAudioCues {
     _rushWarnings = sim.rushWarnings;
     _rushEscapes = sim.rushPathsEscaped;
     _eruptions = sim.ventsErupted;
+    _gusts = sim.gusts;
+    _galeWarnings = sim.galeWarnings;
+    _galesWeathered = sim.galesWeathered;
     _deaths = sim.enemiesDefeated + sim.swarmSmashed;
     _impacts = sim.rockImpacts;
+    _splashes = sim.cannonSplashes + sim.birdSplashes;
     _deflections = sim.projectilesDeflected;
     _enemyShots = sim.enemyShots;
     _magnet = sim.magnetActive;

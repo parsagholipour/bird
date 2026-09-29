@@ -73,7 +73,7 @@ void main() {
           WorldRegion.mexico,
           WorldRegion.paris,
           WorldRegion.brazil,
-          WorldRegion.dubai,
+          WorldRegion.arabia,
           WorldRegion.rome,
         ]),
       );

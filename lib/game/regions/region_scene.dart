@@ -2,10 +2,10 @@ import 'dart:math' as math;
 import 'dart:ui';
 
 import 'antarctica.dart';
+import 'arabia.dart';
 import 'aztec.dart';
 import 'brazil.dart';
 import 'china.dart';
-import 'dubai.dart';
 import 'egypt.dart';
 import 'jungle.dart';
 import 'mexico.dart';
@@ -161,7 +161,7 @@ abstract class RegionScene {
     WorldRegion.aztec => const AztecScene(),
     WorldRegion.paris => const ParisScene(),
     WorldRegion.brazil => const BrazilScene(),
-    WorldRegion.dubai => const DubaiScene(),
+    WorldRegion.arabia => const ArabiaScene(),
     WorldRegion.rome => const RomeScene(),
     WorldRegion.mexico => const MexicoScene(),
   };

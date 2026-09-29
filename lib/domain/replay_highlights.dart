@@ -12,6 +12,7 @@ enum ReplayMomentKind {
   milestone,
   starTrio,
   rush,
+  gale,
 }
 
 class ReplayHighlight {
@@ -105,20 +106,20 @@ List<ReplayHighlight> buildReplayHighlights(ReplayTape tape) {
           priority: 60,
         ),
         FlightEventKind.perfect when !sim.collectsStars => ReplayHighlight(
-            kind: ReplayMomentKind.perfect,
-            atMs: at,
-            title: 'First perfect pass',
-            detail: 'Right through the aiming mark.',
-            priority: 65,
-          ),
+          kind: ReplayMomentKind.perfect,
+          atMs: at,
+          title: 'First perfect pass',
+          detail: 'Right through the aiming mark.',
+          priority: 65,
+        ),
         FlightEventKind.milestone when !sim.collectsStars => ReplayHighlight(
-            kind: ReplayMomentKind.milestone,
-            atMs: at,
-            title: '${event.value} gates cleared',
-            detail: 'A little farther into the sky.',
-            value: event.value,
-            priority: event.value == 5 ? 80 : 55,
-          ),
+          kind: ReplayMomentKind.milestone,
+          atMs: at,
+          title: '${event.value} gates cleared',
+          detail: 'A little farther into the sky.',
+          value: event.value,
+          priority: event.value == 5 ? 80 : 55,
+        ),
         FlightEventKind.rushEscaped => ReplayHighlight(
           kind: ReplayMomentKind.rush,
           atMs: at,
@@ -128,6 +129,16 @@ List<ReplayHighlight> buildReplayHighlights(ReplayTape tape) {
               : 'Sprint rings to safety. +${event.value} points!',
           value: event.value,
           priority: event.value > Rush.escapeBonus ? 90 : 78,
+        ),
+        FlightEventKind.galeWeathered => ReplayHighlight(
+          kind: ReplayMomentKind.gale,
+          atMs: at,
+          title: 'Weathered the gale',
+          detail: event.value > Gale.weatherBonus
+              ? 'Not a scratch. +${event.value} points!'
+              : 'Dodged the flying debris. +${event.value} points!',
+          value: event.value,
+          priority: event.value > Gale.weatherBonus ? 90 : 78,
         ),
         _ => null,
       };

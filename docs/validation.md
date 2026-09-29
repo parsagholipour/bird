@@ -1,5 +1,55 @@
 # Validation ledger
 
+## 2026-09-29 gales
+
+- Rules version 33 adds gales to touch Star Trail flights. A gale follows each
+  Dusk Empress victory, 12 seconds after she leaves, and no other boss. Walls
+  stop, a tailwind lifts course speed to 1.6×, and debris flies at the bird
+  for 13 seconds. Each piece is warned 0.9 seconds before it appears, with a
+  "!" at its height. That interval's rush path follows 8 seconds after the
+  gale, and the boss waits for both. Version 34 (Pirate Captain, from another
+  change) builds on it.
+- The `rideTheSky` autopilot now dodges debris. It sees pieces 2 seconds
+  ahead, as a player reading the warnings would, and may fly 0.22–0.78 during
+  a gale.
+- Probes over 8 seeds, recorded with 60-damage rocks so the autopilot reaches
+  the third boss:
+  - With the old 1.25-second horizon and 0.30–0.72 band, 5 of 8 died in
+    the gale, touching 4–7 pieces each.
+  - With the warning-length horizon, all 8 weathered it, touching 0–3 of
+    about 16 pieces. One was flawless.
+  - With base damage, the autopilot usually dies before the third boss, so
+    the replay test records a 60-damage flight.
+- The first scheduling draft left the rush path exactly its 18-second lead
+  before the boss, and a substep's rounding made it skip the run. The boss
+  now waits one second more.
+- `test/gale_test.dart` has 11 tests covering:
+  - support by version and mode;
+  - only the moth bringing a gale, and its placement past the last wall;
+  - the warning lead and the 1.6× surge;
+  - aimed and paired gusts and their 0.9-second warning;
+  - no walls while it blows, then their return;
+  - hits while sprinting, dodge points and both bonuses;
+  - rocks glancing off debris;
+  - the rush path and boss afterwards;
+  - audio cues;
+  - an exact replay with a highlight;
+  - renders with and without Reduced Motion.
+
+  `dusk_moth_boss_test.dart` now checks that the boss after the moth waits
+  for the gale.
+- `python3 tool/prepare_sound_effects.py` added `gust_warning.wav` and
+  reproduced every other asset byte for byte.
+- Gale art (a separate design pass): warning lanes and "!" badges, four
+  debris shapes, region-aware wind, hit bursts, streamlines round the bird,
+  and the gale banners. The inspected renders are in
+  `build/visual-review/gale-*.png`. The "!" stands 0.6 in from the edge
+  because the pause, Shoot and Sprint controls cover the edge itself.
+- The full suite passed 632 tests. Two failures, `bird_trail_test` and a
+  `world_regions_test` timeout, were in files a concurrent change was
+  editing. Device playtesting is still pending, including the gust timing
+  and 1.6× tailwind in `Gale`.
+
 ## 2026-09-26 eruption and swarm rush paths
 
 - Rules version 32 was not yet committed, so it gains two more rush path kinds

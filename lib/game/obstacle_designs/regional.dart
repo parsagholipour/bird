@@ -3,10 +3,10 @@ import 'package:flutter/painting.dart';
 import '../../domain/obstacle.dart';
 import '../regions/world_region.dart';
 import 'antarctica.dart';
+import 'arabia.dart';
 import 'aztec.dart';
 import 'brazil.dart';
 import 'china.dart';
-import 'dubai.dart';
 import 'egypt.dart';
 import 'jungle.dart';
 import 'kit.dart';
@@ -41,7 +41,7 @@ abstract final class RegionalObstacles {
       WorldRegion.aztec => AztecObstacles.column,
       WorldRegion.paris => ParisObstacles.column,
       WorldRegion.brazil => BrazilObstacles.column,
-      WorldRegion.dubai => DubaiObstacles.column,
+      WorldRegion.arabia => ArabiaObstacles.column,
       WorldRegion.rome => RomeObstacles.column,
       WorldRegion.mexico => MexicoObstacles.column,
     };
@@ -79,7 +79,7 @@ abstract final class RegionalObstacles {
       WorldRegion.aztec => AztecObstacles.orb,
       WorldRegion.paris => ParisObstacles.orb,
       WorldRegion.brazil => BrazilObstacles.orb,
-      WorldRegion.dubai => DubaiObstacles.orb,
+      WorldRegion.arabia => ArabiaObstacles.orb,
       WorldRegion.rome => RomeObstacles.orb,
       WorldRegion.mexico => MexicoObstacles.orb,
     };
@@ -98,8 +98,9 @@ abstract final class RegionalObstacles {
   /// A lantern's tether: (cord, twist marks). Palm fibre in Egypt, a
   /// frosted line in Antarctica, a green vine in the jungle, red silk cord in
   /// China, a black iron chain in New York, tarred hemp at sea, a woven cord
-  /// in Aztec lands, a wrought-iron line in Paris, green braid in Brazil,
-  /// steel cable in Dubai, rope in Rome and papel picado string in Mexico.
+  /// in Aztec lands, a wrought-iron line in Paris, green braid in Brazil, a
+  /// brass chain in Ancient Arabia, rope in Rome and papel picado string in
+  /// Mexico.
   static (Color, Color) tether(WorldRegion region) => switch (region) {
     WorldRegion.egypt => (const Color(0xff8a5f38), const Color(0xffe9c58a)),
     WorldRegion.antarctica => (
@@ -113,7 +114,7 @@ abstract final class RegionalObstacles {
     WorldRegion.aztec => (const Color(0xff9a6a3a), const Color(0xff49c1b0)),
     WorldRegion.paris => (const Color(0xff2a2a3a), const Color(0xffffd36b)),
     WorldRegion.brazil => (const Color(0xff2f8f4a), const Color(0xffffdc2e)),
-    WorldRegion.dubai => (const Color(0xff8a8f9a), const Color(0xffe8f3ff)),
+    WorldRegion.arabia => (const Color(0xff94662a), const Color(0xffffe08e)),
     WorldRegion.rome => (const Color(0xff8a5a3a), const Color(0xffe6c98a)),
     WorldRegion.mexico => (const Color(0xffe6407a), const Color(0xffffc93f)),
   };

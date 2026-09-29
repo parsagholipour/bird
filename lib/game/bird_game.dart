@@ -11,6 +11,7 @@ import 'bird_puppet.dart';
 import 'star_trio_art.dart';
 import 'star_group_aura.dart';
 import 'star_pickup_art.dart';
+import 'star_art.dart';
 import 'arrival_art.dart';
 import 'gate_art.dart';
 import 'obstacle_art.dart';
@@ -18,6 +19,7 @@ import 'combat_art.dart';
 import 'boss_art.dart';
 import 'heart_pickup_art.dart';
 import 'door_art.dart';
+import 'gale_art.dart';
 import 'rush_art.dart';
 import 'sprint_art.dart';
 
@@ -91,7 +93,8 @@ class BirdGame extends FlameGame {
     canvas.clipRect(Rect.fromLTWH(0, 0, w, h));
     final shake =
         (BossArt.cameraOffset(simulation.boss, reducedMotion) +
-            RushArt.cameraOffset(simulation, reducedMotion)) *
+            RushArt.cameraOffset(simulation, reducedMotion) +
+            GaleArt.cameraOffset(simulation, reducedMotion)) *
         h;
     if (shake != Offset.zero) {
       canvas.translate(w / 2, h / 2);
@@ -109,6 +112,12 @@ class BirdGame extends FlameGame {
     }
     BossArt.backdrop(canvas, Size(w, h), simulation.boss, reducedMotion);
     RushArt.backdrop(
+      canvas,
+      Size(w, h),
+      simulation,
+      reducedMotion: reducedMotion,
+    );
+    GaleArt.backdrop(
       canvas,
       Size(w, h),
       simulation,
@@ -263,33 +272,15 @@ class BirdGame extends FlameGame {
           reducedMotion: reducedMotion,
         );
       }
-      if (star.collected || star.x * h > w + 30) continue;
-      final center = Offset(star.x * h, star.y * h);
-      final pulse = reducedMotion
-          ? 1.0
-          : 1 + math.sin(_time * 4 + star.x * 3) * .1;
-      canvas.drawCircle(
-        center,
-        h * .055 * pulse,
-        Paint()..color = SkyColors.yellow.withValues(alpha: .12),
-      );
-      canvas.drawCircle(
-        center,
-        h * .038,
-        Paint()..color = SkyColors.cream.withValues(alpha: .6),
-      );
-      canvas.drawPath(
-        SkyScenery.star(center + Offset(0, h * .004), h * SkyStar.radius),
-        Paint()..color = SkyColors.gold,
-      );
-      canvas.drawPath(
-        SkyScenery.star(center, h * SkyStar.radius),
-        Paint()..color = SkyColors.yellow,
-      );
-      canvas.drawCircle(
-        center - Offset(h * .005, h * .005),
-        h * .004,
-        Paint()..color = SkyColors.cream,
+      if (star.collected || star.x * h > w + h * StarArt.reach) continue;
+      StarArt.paint(
+        canvas,
+        Offset(star.x * h, star.y * h),
+        h * StarArt.radius,
+        seconds: _time,
+        reducedMotion: reducedMotion,
+        // A star's course position never changes, so neither does its rhythm.
+        phase: star.x + simulation.distance,
       );
     }
     for (final heart in simulation.heartPickups) {
@@ -308,6 +299,12 @@ class BirdGame extends FlameGame {
     CombatArt.paint(canvas, h, simulation, reducedMotion: reducedMotion);
     RushArt.swarm(canvas, Size(w, h), simulation, reducedMotion: reducedMotion);
     RushArt.meteors(
+      canvas,
+      Size(w, h),
+      simulation,
+      reducedMotion: reducedMotion,
+    );
+    GaleArt.debris(
       canvas,
       Size(w, h),
       simulation,
@@ -356,9 +353,12 @@ class BirdGame extends FlameGame {
           final sparkle =
               Offset(cx, cy) +
               Offset(math.cos(angle), math.sin(angle)) * h * .095;
-          canvas.drawPath(
-            SkyScenery.star(sparkle, h * .013),
-            Paint()..color = SkyColors.yellow,
+          // Small collectibles circle the bird, each point facing outward.
+          StarArt.mini(
+            canvas,
+            sparkle,
+            h * .015,
+            rotation: angle + math.pi / 2,
           );
         }
       }
@@ -381,6 +381,7 @@ class BirdGame extends FlameGame {
                       p.y * h,
                     ),
                 ],
+          flown: simulation.flightPath.flown * h,
         );
       }
       if (simulation.isTrail && simulation.shield) {
@@ -444,6 +445,7 @@ class BirdGame extends FlameGame {
           canvas.restore();
         },
       );
+      GaleArt.buffet(canvas, h, simulation, reducedMotion: reducedMotion);
       SprintArt.aura(canvas, h, simulation, reducedMotion: reducedMotion);
       paintBird(Offset(cx, cy));
       CombatArt.paintCharge(
@@ -479,7 +481,14 @@ class BirdGame extends FlameGame {
       }
     }
     RushArt.effects(canvas, h, simulation, reducedMotion: reducedMotion);
+    GaleArt.impacts(canvas, h, simulation, reducedMotion: reducedMotion);
     RushArt.fire(canvas, Size(w, h), simulation, reducedMotion: reducedMotion);
+    GaleArt.warnings(
+      canvas,
+      Size(w, h),
+      simulation,
+      reducedMotion: reducedMotion,
+    );
     _feedback(canvas, h);
     canvas.restore();
     BossArt.foreground(canvas, Size(w, h), simulation, reducedMotion);
@@ -567,9 +576,11 @@ class BirdGame extends FlameGame {
                       e.kind == FlightEventKind.streak)) &&
               !(simulation.boss?.cinematic == true &&
                   e.kind == FlightEventKind.bossDefeated) &&
-              // Rush banners are drawn large at the top of the screen.
+              // Rush and gale banners are drawn large at the top of the screen.
               e.kind != FlightEventKind.rushWarning &&
-              e.kind != FlightEventKind.rushEscaped,
+              e.kind != FlightEventKind.rushEscaped &&
+              e.kind != FlightEventKind.galeWarning &&
+              e.kind != FlightEventKind.galeWeathered,
         )
         .toList();
     final messages = active
@@ -617,9 +628,12 @@ class BirdGame extends FlameGame {
           final a = i * math.pi / 4;
           final radius = h * (.05 + t * .13);
           final pos = center + Offset(math.cos(a), math.sin(a)) * radius;
-          canvas.drawPath(
-            SkyScenery.star(pos, h * .009 * (1 - t)),
-            Paint()..color = color.withValues(alpha: alpha),
+          StarArt.sparkle(
+            canvas,
+            pos,
+            h * .01 * (1 - t),
+            color.withValues(alpha: alpha),
+            rotation: a + math.pi / 2,
           );
         }
       }
@@ -661,7 +675,10 @@ class BirdGame extends FlameGame {
               ? 'SMASH ×${event.value}!'
               : 'BAT +${Rush.batPoints}!',
         FlightEventKind.scorched => 'SCORCHED!',
-        FlightEventKind.rushWarning || FlightEventKind.rushEscaped => '',
+        FlightEventKind.rushWarning ||
+        FlightEventKind.rushEscaped ||
+        FlightEventKind.galeWarning ||
+        FlightEventKind.galeWeathered => '',
       };
       final text = TextPainter(
         text: TextSpan(

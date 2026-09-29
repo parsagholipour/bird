@@ -178,12 +178,14 @@ class _TrailPreview extends CustomPainter {
   const _TrailPreview({required this.bird});
   final int bird;
 
+  // Anchored a flight-sized step ahead of the art's tail, so the card shows
+  // the trail as it leaves the bird rather than only its faded end.
   @override
   void paint(Canvas canvas, Size size) => BirdTrail.paint(
     canvas,
     bird: bird,
-    anchor: Offset(size.width * .65, size.height * .5),
-    unit: 5.6,
+    anchor: Offset(size.width * .46, size.height * .5),
+    unit: 4.6,
     animate: false,
   );
 

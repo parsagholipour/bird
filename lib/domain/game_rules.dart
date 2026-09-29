@@ -3,6 +3,7 @@ import 'tracking.dart';
 import 'flight_course.dart';
 import 'bird_motion.dart';
 import 'flight_path.dart';
+import 'gale.dart';
 import 'obstacle.dart';
 import 'power_shot.dart';
 import 'rush_path.dart';
@@ -12,6 +13,7 @@ import 'sky_door.dart';
 import 'sprint.dart';
 export 'flight_course.dart';
 export 'flight_path.dart';
+export 'gale.dart';
 export 'obstacle.dart';
 export 'power_shot.dart';
 export 'rush_path.dart';
@@ -55,6 +57,8 @@ enum FlightEventKind {
   scorched,
   rushEscaped,
   swarmSmashed,
+  galeWarning,
+  galeWeathered,
 }
 
 class FlightEvent {
@@ -305,7 +309,7 @@ class FlightSimulation {
   final FlightCourse course;
 
   /// Replay journals keep the rules they were recorded with.
-  static const currentRulesVersion = 32;
+  static const currentRulesVersion = 34;
   final int rulesVersion;
   final math.Random random;
   final List<Obstacle> obstacles = [];
@@ -323,11 +327,18 @@ class FlightSimulation {
   int doorsDestroyed = 0;
   bool _lastPassageHadDoor = false;
   final List<BossAmmo> bossAmmo = [];
+
+  /// Render-only splashes where cannonballs and the bird met the Pirate
+  /// Captain's sea. The rules never read them.
+  final List<SeaSplash> seaSplashes = [];
   int bossesDefeated = 0;
   static const bossInterval = 45.0, bossBonus = 30;
   double _nextBossAt = bossInterval;
   int? _heartPassagesRemaining;
   bool get supportsBosses => supportsCombat && rulesVersion >= 15;
+
+  /// The Pirate Captain joins the boss cycle as its fourth encounter.
+  bool get supportsPirate => supportsBosses && rulesVersion >= 34;
   bool get supportsHeartPickups =>
       supportsBosses && isTrail && rulesVersion >= 24;
   bool get supportsEnemyAttacks => supportsCombat && rulesVersion >= 18;
@@ -337,6 +348,7 @@ class FlightSimulation {
   // Presentation counters survive objects leaving the screen within a frame.
   // They do not affect physics, RNG or the recorded replay format.
   int rockImpacts = 0, projectilesDeflected = 0, enemyShots = 0;
+  int cannonSplashes = 0, birdSplashes = 0;
   int dryFires = 0;
   double lastShotCharge = 0;
   double lastShotAt = double.negativeInfinity;
@@ -412,8 +424,7 @@ class FlightSimulation {
     _weaponDamage = damage;
   }
 
-  bool get supportsCombat =>
-      rules.mode == PlayMode.touch && rulesVersion >= 7;
+  bool get supportsCombat => rules.mode == PlayMode.touch && rulesVersion >= 7;
   double get shotCooldownRemaining =>
       math.max(0, lastShotAt + shotCooldown - elapsed);
   bool get _combatReady =>
@@ -467,8 +478,18 @@ class FlightSimulation {
   double get ringSprintRemaining =>
       ringSprinting ? ringSprintUntil - elapsed : 0;
 
+  bool get supportsGales => supportsRushPaths && rulesVersion >= 33;
+  Gale? gale;
+  double _nextGaleAt = double.infinity;
+  final List<GaleDebris> galeDebris = [];
+  int galesBlown = 0, galeWarnings = 0, galesWeathered = 0;
+  int gusts = 0, galeDodges = 0;
+  double get galeBoost => gale?.boost(elapsed) ?? 1;
+  bool get _galeHoldsSpawns => gale?.holdsSpawns ?? false;
+
   /// Multiplies [speed] for everything that scrolls with the course.
-  double get courseBoost => math.max(sprintBoost, ringSprintBoost);
+  double get courseBoost =>
+      math.max(math.max(sprintBoost, ringSprintBoost), galeBoost);
 
   /// Either sprint smashes bats, stone panels and rubble.
   bool get ramming => sprinting || ringSprinting;
@@ -784,7 +805,10 @@ class FlightSimulation {
         obstacle.x -= scroll * step;
         obstacle.advance(elapsed);
       }
-      if (boss == null && !_rushHoldsSpawns && _spawnIn <= 0) {
+      if (boss == null &&
+          !_rushHoldsSpawns &&
+          !_galeHoldsSpawns &&
+          _spawnIn <= 0) {
         final center = rules.passageCenter(_index++, random, _previousCenter);
         _previousCenter = center;
         final spacing = speed * spawnInterval;
@@ -805,6 +829,10 @@ class FlightSimulation {
         _damage();
         birdY = birdY.clamp(birdRadius + .001, 1 - birdRadius - .001);
         velocity = 0;
+      }
+      if (boss?.waterLevel case final sea? when !bossCutscene) {
+        if (birdY + birdRadius >= sea) _splashDown(sea);
+        if (phase == RunPhase.ended) break;
       }
       flightPath.record(distance, birdY);
       if (!ramming) smashChain = 0;
@@ -859,6 +887,9 @@ class FlightSimulation {
       if (supportsRushPaths && phase == RunPhase.playing) {
         _advanceRushPath(step, scroll, viewportWidth);
       }
+      if (supportsGales && phase == RunPhase.playing) {
+        _advanceGale(step, scroll, viewportWidth);
+      }
       if (supportsCombat && phase == RunPhase.playing) {
         _advanceCombat(step, scroll, viewportWidth, rush: scroll - speed);
         if (_fullHoldExpired) shoot(reducedMotion: reducedMotion);
@@ -866,6 +897,7 @@ class FlightSimulation {
       if (supportsRushPaths && phase == RunPhase.playing) {
         _scheduleRushPath(viewportWidth);
       }
+      if (supportsGales && phase == RunPhase.playing) _scheduleGale();
       obstacles.removeWhere((o) => o.x + o.width < -.1);
       events.removeWhere((e) => elapsed - e.at > 2);
     }
@@ -1096,6 +1128,14 @@ class FlightSimulation {
         break;
       }
       final target = boss;
+      if (!spent.contains(rock) &&
+          target?.phase == BossPhase.attacking &&
+          target!.hullBlocks(rock.x + rock.radius, rock.y)) {
+        // Shots below the rail glance off the armored hull.
+        hitWall();
+        target.lastHullHitAt = target.age;
+        continue;
+      }
       if (!spent.contains(rock) && target?.phase == BossPhase.attacking) {
         final dx = rock.x - target!.x, dy = rock.y - target.y;
         final reach =
@@ -1136,11 +1176,22 @@ class FlightSimulation {
     if (supportsEnemyAttacks) {
       _advanceEnemyAttacks(dt, viewportWidth, rush);
     }
+    final sea = boss?.waterLevel;
+    seaSplashes.removeWhere((splash) => elapsed - splash.at > 1.2);
+    for (final splash in seaSplashes) {
+      splash.x -= scrollSpeed * dt;
+    }
     bossAmmo.removeWhere((ammo) {
       ammo.x += (ammo.vx - rush) * dt;
+      ammo.vy += ammo.gravity * dt;
       ammo.y += ammo.vy * dt;
+      if (sea != null && ammo.vy > 0 && ammo.y >= sea) {
+        seaSplashes.add(SeaSplash(x: ammo.x, at: elapsed));
+        cannonSplashes++;
+        return true;
+      }
       final dx = birdX - ammo.x, dy = birdY - ammo.y;
-      const reach = birdRadius + BossAmmo.radius;
+      final reach = birdRadius + ammo.radius;
       if (dx * dx + dy * dy <= reach * reach) {
         if (isTrail) {
           _damage();
@@ -1149,9 +1200,10 @@ class FlightSimulation {
         }
         return true;
       }
+      // A lob may climb above the screen and fall back into view.
       return ammo.x < -.1 ||
           ammo.x > viewportWidth + .2 ||
-          ammo.y < -.1 ||
+          ammo.y < (ammo.cannonball ? -1.0 : -.1) ||
           ammo.y > 1.1;
     });
   }
@@ -1251,9 +1303,11 @@ class FlightSimulation {
   void _advanceBoss(double dt, double viewportWidth) {
     if (boss == null) {
       // Passages resume before a run ends; the boss waits for the escape.
-      if (elapsed < _nextBossAt || rushPath != null) return;
+      if (elapsed < _nextBossAt || rushPath != null || gale != null) return;
       final number = bossesDefeated + 1;
-      final kind = rulesVersion >= 22
+      final kind = supportsPirate
+          ? BossKind.values[bossesDefeated % 4]
+          : rulesVersion >= 22
           ? BossKind.values[bossesDefeated % 3]
           : rulesVersion >= 21 && bossesDefeated.isOdd
           ? BossKind.spitterBeetle
@@ -1277,6 +1331,7 @@ class FlightSimulation {
       enemies.clear();
       rocks.clear();
       bossAmmo.clear();
+      seaSplashes.clear();
       enemyAmmo.clear();
       enemyAmmoImpacts.clear();
       sprintRings.clear();
@@ -1284,6 +1339,7 @@ class FlightSimulation {
       lavaVents.clear();
       swarm.clear();
       rushPath = null;
+      galeDebris.clear();
       events.clear();
     }
     final current = boss!;
@@ -1294,6 +1350,11 @@ class FlightSimulation {
         // A full normal-flight interval follows the victory celebration.
         _nextBossAt = elapsed + bossInterval;
         if (supportsRushPaths) _nextRushAt = elapsed + Rush.afterBoss;
+        if (supportsGales && current.isMoth) {
+          // A gale follows the Dusk Empress, and the rush path waits for it.
+          _nextGaleAt = elapsed + Gale.afterBoss;
+          _nextRushAt = double.infinity;
+        }
         if (supportsHeartPickups) {
           // One of the next 2–7 gates carries the reward, leaving ample flight
           // time to reach it before the next boss. Use the replay's seeded RNG.
@@ -1308,6 +1369,10 @@ class FlightSimulation {
     // especially on narrow landscape phones.
     final targetX = current.isMoth
         ? math.max(birdX + .7, viewportWidth - .54)
+        : current.isPirate
+        // The bow and its cannon reach left of the captain, so the ship
+        // anchors further out to leave the lobs room to arc.
+        ? math.max(birdX + .72, viewportWidth - .5)
         : math.max(birdX + .55, viewportWidth - .72);
     final entrance =
         (current.cinematic
@@ -1316,18 +1381,40 @@ class FlightSimulation {
             .clamp(0.0, 1.0);
     final ease = 1 - math.pow(1 - entrance, 3);
     current.x = (viewportWidth + .3) * (1 - ease) + targetX * ease;
-    if (current.cinematic && current.phase == BossPhase.arriving) {
+    if (current.waterLevel case final sea?) {
+      // The ship sails in on the sea and rides every surge.
+      current.y = sea - SkyBoss.shipRide + math.sin(current.age * 1.7) * .008;
+    } else if (current.cinematic && current.phase == BossPhase.arriving) {
       current.y = .5 - .14 * math.sin(entrance * math.pi);
     }
     if (current.phase != BossPhase.attacking) return;
     final fightingFor = current.age - current.arrivalDuration;
-    current.y = current.isMoth
+    current.y = current.isPirate
+        ? current.y
+        : current.isMoth
         ? .5 + math.sin(fightingFor * 1.15) * .15
         : current.isSpitter
         ? .5 + math.sin(fightingFor * 1.05) * .13
         : .5 + math.sin(fightingFor * .85) * .10;
     current.fireIn -= dt;
-    if (current.fireIn <= 0) {
+    if (current.fireIn <= 0 && current.isPirate) {
+      for (final offset in current.volleyOffsets) {
+        final shot = current.cannonShot(birdX, birdY + offset);
+        bossAmmo.add(
+          BossAmmo(
+            x: shot.x,
+            y: shot.y,
+            vx: shot.vx,
+            vy: shot.vy,
+            gravity: SkyBoss.cannonGravity,
+            radius: BossAmmo.cannonballRadius,
+          ),
+        );
+      }
+      current.volleys++;
+      current.lastVolleyAt = current.age;
+      current.fireIn += current.volleyInterval;
+    } else if (current.fireIn <= 0) {
       final muzzleX = current.muzzleX;
       final aim = math.atan2(birdY - current.y, birdX - muzzleX);
       for (final offset in current.volleyOffsets) {
@@ -1432,7 +1519,12 @@ class FlightSimulation {
   /// Laid once everything else has scrolled this step, so its rings, bats
   /// and barriers keep their spacing.
   void _scheduleRushPath(double viewportWidth) {
-    if (rushPath != null || boss != null || elapsed < _nextRushAt) return;
+    if (rushPath != null ||
+        gale != null ||
+        boss != null ||
+        elapsed < _nextRushAt) {
+      return;
+    }
     _nextRushAt = double.infinity;
     // Too close to a boss: the next run follows the victory instead.
     if (_nextBossAt - elapsed >= Rush.bossLead) {
@@ -1578,8 +1670,7 @@ class FlightSimulation {
       number: rushPathsRun,
       startDistance: start,
       endDistance: end,
-      resumeDistance:
-          end + Rush.exitClearance - _passageEntryX(viewportWidth),
+      resumeDistance: end + Rush.exitClearance - _passageEntryX(viewportWidth),
       heights: heights,
     );
   }
@@ -1641,8 +1732,7 @@ class FlightSimulation {
       m.x += (m.vx - scroll) * dt;
       m.y += m.vy * dt;
       final dx = birdX - m.x, dy = birdY - m.y;
-      final reach =
-          birdRadius + Meteor.radius + (ramming ? Rush.ramReach : 0);
+      final reach = birdRadius + Meteor.radius + (ramming ? Rush.ramReach : 0);
       if (dx * dx + dy * dy <= reach * reach) {
         if (ramming) {
           smashChain++;
@@ -1794,6 +1884,133 @@ class FlightSimulation {
     _nextBossAt = math.max(_nextBossAt, elapsed + Rush.bossDelayAfter);
   }
 
+  /// Stops ordinary passages and places the start past the last one, so
+  /// the wind never pushes the bird into a wall.
+  void _scheduleGale() {
+    if (gale != null ||
+        rushPath != null ||
+        boss != null ||
+        elapsed < _nextGaleAt) {
+      return;
+    }
+    _nextGaleAt = double.infinity;
+    final last = obstacles.lastOrNull;
+    final start = math.max(
+      birdX + Gale.warningLead,
+      last == null ? 0.0 : last.x + last.width + Gale.clearance,
+    );
+    galesBlown++;
+    gale = Gale(number: galesBlown, startDistance: distance + start);
+  }
+
+  void _advanceGale(double dt, double scroll, double viewportWidth) {
+    _advanceGaleDebris(dt, scroll);
+    final current = gale;
+    if (current == null) return;
+    final bird = distance + birdX;
+    switch (current.phase) {
+      case GalePhase.approach:
+        if (!current.warned &&
+            current.startDistance - bird <= Gale.warningLead) {
+          current.warned = true;
+          galeWarnings++;
+          _event(FlightEventKind.galeWarning, current.number);
+        }
+        if (bird >= current.startDistance) {
+          current.phase = GalePhase.blowing;
+          current.startedAt = elapsed;
+          current.gustIn = Gale.firstGust;
+        }
+      case GalePhase.blowing:
+        final blowingFor = elapsed - current.startedAt!;
+        current.gustIn -= dt;
+        if (current.gustIn <= 0 &&
+            blowingFor < Gale.seconds - Gale.calmSeconds) {
+          _gust(current, scroll, viewportWidth);
+          current.gustIn += current.gustInterval(blowingFor);
+        }
+        if (blowingFor >= Gale.seconds) _weather(current);
+      case GalePhase.weathered:
+        if (elapsed - current.weatheredAt! >= Gale.fallSeconds) gale = null;
+    }
+  }
+
+  /// Every gust aims one piece at the bird's height as it is warned. Odd
+  /// gusts add a second piece above or below it, so the bird has to pick
+  /// the open side.
+  void _gust(Gale current, double scroll, double viewportWidth) {
+    final aimed = birdY.clamp(Gale.top, Gale.bottom);
+    final lanes = [aimed];
+    if (current.gusts.isOdd) {
+      final spread =
+          Gale.pairSpread + random.nextDouble() * Gale.pairSpreadRange;
+      var other = aimed + (random.nextBool() ? spread : -spread);
+      if (other < Gale.top || other > Gale.bottom) other = 2 * aimed - other;
+      lanes.add(other.clamp(Gale.top, Gale.bottom));
+    }
+    final x = GaleDebris.launchX(viewportWidth, scroll);
+    for (final (i, y) in lanes.indexed) {
+      galeDebris.add(
+        GaleDebris(
+          // A pair arrives slightly staggered, like one gust tearing loose.
+          x: x + i * .15,
+          y: y,
+          shape: (gusts * 3 + i * 5) % 4,
+          spin: (gusts.isEven ? 1 : -1) * (2.4 + (gusts * 7 + i) % 5 * .5),
+        ),
+      );
+    }
+    current.gusts++;
+    gusts++;
+  }
+
+  /// Debris hurts on contact, sprint or not. A rock glances off it. A piece
+  /// that gets past the bird untouched scores a dodge.
+  void _advanceGaleDebris(double dt, double scroll) {
+    galeDebris.removeWhere((d) {
+      d.age += dt;
+      d.x -= (GaleDebris.speed + scroll) * dt;
+      if (d.hitAt == null && !d.dodged) {
+        final dx = birdX - d.x, dy = birdY - d.y;
+        const reach = birdRadius + GaleDebris.radius;
+        if (dx * dx + dy * dy <= reach * reach) {
+          d.hitAt = elapsed;
+          gale?.hits++;
+          _damage();
+        } else if (d.x + GaleDebris.radius < birdX - birdRadius) {
+          d.dodged = true;
+          galeDodges++;
+          gale?.dodges++;
+          score += Gale.dodgePoints;
+        }
+      }
+      for (final rock in rocks) {
+        if (rock.rebounding) continue;
+        final rx = rock.x - d.x, ry = rock.y - d.y;
+        final reach = rock.radius + GaleDebris.radius;
+        if (rx * rx + ry * ry <= reach * reach) {
+          rock.rebound(scroll);
+          rockImpacts++;
+        }
+      }
+      return d.x < -.2;
+    });
+  }
+
+  void _weather(Gale current) {
+    current.phase = GalePhase.weathered;
+    current.weatheredAt = elapsed;
+    current.bonus = Gale.weatherBonus + (current.hurt ? 0 : Gale.flawlessBonus);
+    score += current.bonus;
+    galesWeathered++;
+    _event(FlightEventKind.galeWeathered, current.bonus);
+    _spawnIn = 0;
+    _previousCenter = birdY.clamp(.28, .72);
+    _nextRushAt = elapsed + Gale.rushAfter;
+    // Leave the rush path its full lead before the next boss.
+    _nextBossAt = math.max(_nextBossAt, _nextRushAt + Rush.bossLead + 1);
+  }
+
   void _defeatBoss(SkyBoss current) {
     current.defeatedAt = current.age;
     bossesDefeated++;
@@ -1887,6 +2104,7 @@ class FlightSimulation {
     perfectStreak = 0;
     invulnerableUntil = elapsed + 1.5;
     if (rushPath?.phase == RushPhase.running) rushPath!.hurt = true;
+    if (gale?.phase == GalePhase.blowing) gale!.hurt = true;
     if (shield) {
       shield = false;
       _event(FlightEventKind.shieldUsed);
@@ -1895,6 +2113,22 @@ class FlightSimulation {
       _event(FlightEventKind.hit);
       if (hearts <= 0) end(EndReason.collision);
     }
+  }
+
+  /// The Pirate Captain's sea hurts like a boundary. The bird splashes back
+  /// out with a free flap so a surge never pins it under.
+  void _splashDown(double sea) {
+    if (!collectsStars) {
+      end(EndReason.collision);
+      return;
+    }
+    if (elapsed >= invulnerableUntil) {
+      seaSplashes.add(SeaSplash(x: birdX, at: elapsed, bird: true));
+      birdSplashes++;
+    }
+    _damage();
+    birdY = sea - birdRadius - .001;
+    velocity = math.min(velocity, rules.flapImpulse * .8);
   }
 
   void _event(FlightEventKind kind, [int value = 0]) =>

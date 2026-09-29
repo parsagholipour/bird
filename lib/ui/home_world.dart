@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import '../game/sky_scenery.dart';
+import '../game/star_art.dart';
 import 'components.dart';
 import 'theme.dart';
 
@@ -119,28 +119,8 @@ class _WorldPainter extends CustomPainter {
       (const Offset(864, 159), 29.0, .15),
       (const Offset(845, 268), 14.0, .3),
     ]) {
-      canvas.save();
-      canvas.translate(position.dx, position.dy);
-      canvas.rotate(rotation);
-      canvas.drawCircle(
-        Offset.zero,
-        radius * 1.5,
-        paint..color = SkyColors.cream.withValues(alpha: .25),
-      );
-      canvas.drawPath(
-        SkyScenery.star(const Offset(0, 3), radius),
-        paint..color = SkyColors.gold,
-      );
-      canvas.drawPath(
-        SkyScenery.star(Offset.zero, radius),
-        paint..color = SkyColors.yellow,
-      );
-      canvas.drawCircle(
-        Offset(-radius * .17, -radius * .24),
-        radius * .12,
-        paint..color = SkyColors.cream,
-      );
-      canvas.restore();
+      // The same collectible the bird gathers in flight, at rest.
+      StarArt.paint(canvas, position, radius * 1.1, rotation: rotation);
     }
     for (final position in [
       const Offset(525, 118),

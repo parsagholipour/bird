@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../game/sky_scenery.dart';
+import '../game/star_art.dart';
 import 'theme.dart';
 
 enum MenuCollectible { adventure, passport, records, goals }
@@ -55,14 +55,9 @@ class _CollectiblePainter extends CustomPainter {
     );
   }
 
-  void _star(Canvas canvas, Offset center, double radius) {
-    _shape(
-      canvas,
-      SkyScenery.star(center, radius),
-      SkyColors.yellow,
-      width: 1.6,
-    );
-  }
+  // Emblem stars are the flight's collectible, inked to this art's weight.
+  void _star(Canvas canvas, Offset center, double radius) =>
+      StarArt.mini(canvas, center, radius * 1.1, outline: 1.6);
 
   @override
   void paint(Canvas canvas, Size size) {

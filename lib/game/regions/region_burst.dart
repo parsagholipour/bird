@@ -8,8 +8,8 @@ import 'world_region.dart';
 /// region's own vocabulary: gold and faience sparkles in Egypt, snowflakes in
 /// Antarctica, leaves in the jungle, blossom petals in China, ticker tape in
 /// New York and bubbles at sea; feathers and jade in Aztec lands, gold stars
-/// over Paris, confetti in Brazil, glitter in Dubai, laurel leaves in Rome and
-/// marigold petals in Mexico.
+/// over Paris, confetti in Brazil, tile stars in Ancient Arabia, laurel
+/// leaves in Rome and marigold petals in Mexico.
 abstract final class RegionBurst {
   static final _leaf = Path()
     ..moveTo(-1, 0)
@@ -153,17 +153,23 @@ abstract final class RegionBurst {
             ),
             paint,
           );
-        case WorldRegion.dubai:
+        case WorldRegion.arabia:
+          // Eight-point stars of two squares, in tile turquoise, cream
+          // and gilt.
           paint.color = Sketch.fade(
-            gold
-                ? const Color(0xffffd35a)
-                : (i.isOdd ? const Color(0xff7fe3ee) : const Color(0xfffff6dc)),
+            gold || i % 3 == 0
+                ? const Color(0xffffc93f)
+                : (i.isOdd ? const Color(0xff36d2c6) : const Color(0xfffff4dc)),
             alpha,
           );
-          c.drawPath(
-            Sketch.poly([0, -size, size * .6, 0, 0, size, -size * .6, 0]),
-            paint,
+          final square = Rect.fromCenter(
+            center: Offset.zero,
+            width: size * 1.45,
+            height: size * 1.45,
           );
+          c.drawRect(square, paint);
+          c.rotate(math.pi / 4);
+          c.drawRect(square, paint);
         case WorldRegion.rome:
           paint.color = Sketch.fade(
             gold ? const Color(0xffffd35a) : const Color(0xff7fa85a),

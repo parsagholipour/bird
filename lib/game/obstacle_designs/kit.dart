@@ -332,20 +332,34 @@ abstract final class Kit {
               ..strokeWidth = math.max(.8, s * .09),
           );
         }
-      case WorldRegion.dubai:
-        // A sail-shaped tower spire on a turquoise disc.
-        c.drawCircle(
-          Offset.zero,
-          s * .82,
-          paint..color = perfect ? gold : const Color(0xff2fc4d6),
+      case WorldRegion.arabia:
+        // A turquoise onion dome on a cream drum under a gilt finial.
+        c.drawRect(
+          Rect.fromLTRB(-s * .58, s * .36, s * .58, s * .8),
+          paint..color = perfect ? goldDeep : const Color(0xfff6e6d0),
         );
         c.drawPath(
           Path()
-            ..moveTo(0, -s * .85)
-            ..lineTo(s * .18, s * .7)
-            ..lineTo(-s * .18, s * .7)
+            ..moveTo(-s * .6, s * .4)
+            ..cubicTo(-s * 1.02, s * .2, -s * .8, -s * .36, -s * .22, -s * .52)
+            ..quadraticBezierTo(-s * .04, -s * .6, 0, -s * .8)
+            ..quadraticBezierTo(s * .04, -s * .6, s * .22, -s * .52)
+            ..cubicTo(s * .8, -s * .36, s * 1.02, s * .2, s * .6, s * .4)
             ..close(),
-          paint..color = perfect ? goldDeep : const Color(0xfff6fbff),
+          paint..color = perfect ? gold : const Color(0xff2fb3ae),
+        );
+        c.drawOval(
+          Rect.fromCenter(
+            center: Offset(s * .3, -s * .06),
+            width: s * .2,
+            height: s * .42,
+          ),
+          paint..color = const Color(0x88ffffff),
+        );
+        c.drawCircle(
+          Offset(0, -s * .92),
+          s * .13,
+          paint..color = perfect ? goldDeep : const Color(0xffffc93f),
         );
       case WorldRegion.rome:
         // A laurel wreath ring around a red dot.

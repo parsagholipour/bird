@@ -175,6 +175,55 @@ def crumble(data, seed, grains=9):
             data[start + j] += gain * min(1, t / .0008) * math.exp(-t * 110) * low
 
 
+def ship_bell(data, at, gain=.24):
+    """A struck brass ship's bell: inharmonic partials, long shimmer."""
+    start = int(at * RATE)
+    partials = [(1, 1, 1.9), (2.0, .55, 2.6), (2.76, .42, 4.2),
+                (5.4, .22, 7.5), (8.9, .10, 12)]
+    for j in range(len(data) - start):
+        t = j / RATE
+        strike = 1 - math.exp(-t / .0012)
+        value = sum(a * math.sin(2 * math.pi * 587.33 * r * t + r) * math.exp(-t * d)
+                    for r, a, d in partials)
+        # A slight beating between near partials makes it ring like metal.
+        value += .18 * math.sin(2 * math.pi * 591.2 * t) * math.exp(-t * 2.1)
+        data[start + j] += gain * strike * value
+
+
+def sea_noise(data, seed, start, seconds, gain, bright_from, bright_to,
+              attack=.2, release=.35):
+    """Moving water: two-pole filtered noise whose brightness sweeps."""
+    rng = random.Random(seed)
+    low = band = 0.0
+    first = int(start * RATE)
+    count = min(len(data) - first, int(seconds * RATE))
+    for j in range(count):
+        t = j / RATE
+        u = t / seconds
+        bright = bright_from + (bright_to - bright_from) * u
+        low += bright * (rng.uniform(-1, 1) - low)
+        band += bright * .6 * (low - band)
+        env = min(1, t / attack) * min(1, (seconds - t) / release)
+        # Slow swells so the water churns instead of hissing flat.
+        churn = .75 + .25 * math.sin(2 * math.pi * 3.1 * t + seed)
+        data[first + j] += gain * env * churn * (band + .45 * (low - band))
+
+
+def boom(data, seed, gain=.9, hz=58):
+    """Black powder: a bright crack, a falling chest thump, rolling smoke."""
+    rng = random.Random(seed)
+    phase = 0.0
+    low = 0.0
+    for i in range(len(data)):
+        t = i / RATE
+        crack = rng.uniform(-1, 1) * math.exp(-t / .006)
+        phase += 2 * math.pi * (hz + 140 * math.exp(-t * 26)) / RATE
+        thump = math.sin(phase) * math.exp(-t * 7.5) * min(1, t / .002)
+        low += .035 * (rng.uniform(-1, 1) - low)
+        rumble = low * 7 * min(1, t / .03) * math.exp(-t * 3.4)
+        data[i] += gain * (.55 * crack + thump + .6 * rumble)
+
+
 def synth(name, seconds, variant):
     if name in MENU_NOTES:
         return menu_chime(name, seconds)
@@ -215,6 +264,82 @@ def synth(name, seconds, variant):
             bell(data, 659.25, i * .30 + .13, .26, .22)
         whoosh(data, seconds, .14, seed=53)
         impact(data, .18, .30, seed=55, heavy=True)
+        return data
+    if name == 'gust_warning':
+        # A quick whistle climbing over a gust of air: something is coming.
+        phase = 0.0
+        for i in range(len(data)):
+            t = i / RATE
+            hz = 1046.5 * 2 ** (min(1, t / (seconds * .55)) * 7 / 12)
+            phase += 2 * math.pi * hz / RATE
+            env = min(1, t / .015) * math.exp(-t / (seconds * .3))
+            data[i] += .20 * env * (math.sin(phase) + .25 * math.sin(2 * phase))
+        whoosh(data, seconds, .22, descending=True, seed=83)
+        return data
+    if name == 'cannon_fuse':
+        # A lit fuse: fizzing sparks that crackle faster as it burns down.
+        rng = random.Random(91)
+        low = lower = 0.0
+        for i in range(len(data)):
+            t = i / RATE
+            u = t / seconds
+            # Band-limited so it sizzles rather than hisses like static.
+            low += .5 * (rng.uniform(-1, 1) - low)
+            lower += .12 * (low - lower)
+            hiss = low - lower
+            env = min(1, t / .03) * (.55 + .45 * u)
+            data[i] += .16 * env * hiss
+        for k in range(26):
+            at = (k / 26) ** .8 * (seconds - .03) + rng.uniform(0, .012)
+            start = int(at * RATE)
+            for j in range(min(int(.006 * RATE), len(data) - start)):
+                tt = j / RATE
+                data[start + j] += .32 * rng.uniform(-1, 1) * math.exp(-tt / .0012)
+        return data
+    if name == 'cannon_fire':
+        boom(data, 101 + variant, hz=58 - 6 * variant)
+        # The deck and carriage take the recoil: a short wooden knock.
+        bell(data, 196 - 12 * variant, .035, .22, .10, warm=True)
+        impact(data, .16, .20, seed=107 + variant, heavy=True)
+        return data
+    if name == 'tide_warning':
+        # Two strikes of the ship's bell over water swelling from below.
+        sea_noise(data, 111, 0, seconds, .5, .02, .09, attack=.6, release=.3)
+        phase = 0.0
+        for i in range(len(data)):
+            t = i / RATE
+            phase += 2 * math.pi * (46 + 10 * t / seconds) / RATE
+            env = min(1, t / .5) * min(1, (seconds - t) / .25)
+            data[i] += .26 * env * math.sin(phase)
+        ship_bell(data, 0, .24)
+        ship_bell(data, .34, .20)
+        return data
+    if name == 'tide_surge':
+        # The sea heaves up: a deep roar that brightens into foaming spray.
+        sea_noise(data, 121, 0, seconds, .75, .03, .30, attack=.12, release=.4)
+        sea_noise(data, 123, .18, seconds - .18, .35, .25, .55, attack=.3, release=.3)
+        phase = 0.0
+        for i in range(len(data)):
+            t = i / RATE
+            phase += 2 * math.pi * (38 + 34 * min(1, t / .6)) / RATE
+            data[i] += .34 * math.sin(phase) * min(1, t / .08) * math.exp(-t * 1.6)
+        return data
+    if name == 'sea_splash':
+        # A heavy plunge: the cavity's falling bloop, then spray and drips.
+        phase = 0.0
+        for i in range(len(data)):
+            t = i / RATE
+            phase += 2 * math.pi * (95 + (260 + 40 * variant) * math.exp(-t * 16)) / RATE
+            data[i] += .55 * math.sin(phase) * min(1, t / .004) * math.exp(-t * 11)
+        sea_noise(data, 131 + variant, 0, seconds * .8, .9, .55, .25, attack=.006, release=.3)
+        rng = random.Random(137 + variant)
+        for k in range(7):
+            at = .12 + rng.random() * (seconds - .2)
+            hz = 900 + rng.random() * 900
+            start = int(at * RATE)
+            for j in range(min(int(.05 * RATE), len(data) - start)):
+                tt = j / RATE
+                data[start + j] += .07 * math.sin(2 * math.pi * hz * (1 + 2.5 * tt) * tt) * math.exp(-tt * 70)
         return data
     if name == 'rush_clear':
         run = [523.25, 659.25, 783.99, 1046.5, 1318.51, 1567.98]
@@ -338,6 +463,8 @@ def master(data, target_peak=.70, rms_db=None):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--sources', type=Path, default=ROOT / 'build/sound-effects/source')
+    parser.add_argument('--only', nargs='+', metavar='NAME',
+                        help='render just these cues and leave the report alone')
     args = parser.parse_args()
     bank = (ROOT / 'lib/game/sound_bank.dart').read_text()
     records = []
@@ -345,6 +472,8 @@ def main():
         name, fields = match.groups()
         if name == 'game_over':
             continue  # Built by tool/prepare_game_over.py from voice and piano takes.
+        if args.only and name not in args.only:
+            continue
         seconds_match = re.search(r'seconds: ([.\d]+)', fields)
         variants_match = re.search(r'variants: (\d+)', fields)
         seconds = float(seconds_match[1]) if seconds_match else .65
@@ -393,6 +522,9 @@ def main():
                                 peak_db=round(20*math.log10(max(abs(v) for v in data)),2),
                                 rms_db=round(20*math.log10(max(rms, 1e-9)),2),
                                 sha256=hashlib.sha256(target.read_bytes()).hexdigest()))
+    if args.only:
+        print(f'Mastered {len(records)} effects: {", ".join(r["asset"] for r in records)}')
+        return
     report = ROOT / 'build/sound-effects/verification.json'
     report.parent.mkdir(parents=True, exist_ok=True)
     report.write_text(json.dumps(records, indent=2) + '\n')

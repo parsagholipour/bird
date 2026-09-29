@@ -52,6 +52,13 @@ const soundBank = <String, SoundSpec>{
     seconds: 1.3,
     cooldownMs: 1000,
   ),
+  // A rising whistle as each gust's warning goes up.
+  'gust_warning': SoundSpec(
+    volume: .30,
+    priority: 3,
+    seconds: .45,
+    cooldownMs: 120,
+  ),
   'rush_clear': SoundSpec(
     volume: .48,
     priority: 4,
@@ -164,6 +171,38 @@ const soundBank = <String, SoundSpec>{
     priority: 4,
     seconds: 1.65,
     cooldownMs: 1000,
+  ),
+  // Pirate Captain: fuse, cannon boom, the tide's bell and surge, splashes.
+  'cannon_fuse': SoundSpec(
+    volume: .30,
+    priority: 3,
+    seconds: .60,
+    cooldownMs: 300,
+  ),
+  'cannon_fire': SoundSpec(
+    volume: .55,
+    priority: 3,
+    seconds: .90,
+    cooldownMs: 120,
+    variants: 2,
+  ),
+  'tide_warning': SoundSpec(
+    volume: .62,
+    priority: 4,
+    seconds: 1.30,
+    cooldownMs: 1000,
+  ),
+  'tide_surge': SoundSpec(
+    volume: .50,
+    priority: 4,
+    seconds: 1.10,
+    cooldownMs: 1000,
+  ),
+  'sea_splash': SoundSpec(
+    volume: .36,
+    seconds: .55,
+    cooldownMs: 90,
+    variants: 2,
   ),
 };
 

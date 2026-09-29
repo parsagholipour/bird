@@ -42,12 +42,13 @@ bool rideTheSky(FlightSimulation sim) {
     double vy, {
     double room = .24,
     bool smashable = false,
+    double horizon = 1.25,
   }) {
     if (x < FlightSimulation.birdX - .02) return;
     final closing = -vx;
     if (closing < .05) return;
     final time = (x - FlightSimulation.birdX) / closing;
-    if (time < 0 || time > 1.25 || (smashable && time > ringIn)) return;
+    if (time < 0 || time > horizon || (smashable && time > ringIn)) return;
     meets.add((y + vy * time, room));
   }
 
@@ -78,6 +79,19 @@ bool rideTheSky(FlightSimulation sim) {
         smashable: true,
       );
     }
+  }
+  // Gale debris flies level, and a sprint gives no protection from it. Its
+  // warning shows the lane before it is on screen, so look further ahead.
+  for (final debris in sim.galeDebris) {
+    if (debris.hitAt != null || debris.dodged) continue;
+    consider(
+      debris.x,
+      debris.y,
+      -pace - GaleDebris.speed,
+      0,
+      room: FlightSimulation.birdRadius + GaleDebris.radius + .06,
+      horizon: 2,
+    );
   }
   for (final enemy in sim.enemies) {
     if (sim.ramming || (chaseRing && ring.x < enemy.x)) continue;
@@ -122,6 +136,7 @@ bool rideTheSky(FlightSimulation sim) {
     .58,
     .68,
     if (sim.rushPath != null) ...[preferred - .12, preferred + .12],
+    if (sim.gale != null) ...[.24, .76],
     if (ceiling < 1) ceiling - .02,
   ]) {
     final cost = danger(lane);
@@ -155,7 +170,11 @@ bool rideTheSky(FlightSimulation sim) {
   // Leave room for the flap arc so a dodge cannot strike the screen edge.
   // Only a plume's clearance can pull the aim higher.
   if (target > ceiling) target = ceiling - .02;
-  target = target.clamp(ceiling < .32 ? ceiling - .02 : .30, .72);
+  final gale = sim.gale != null;
+  target = target.clamp(
+    ceiling < .32 ? ceiling - .02 : (gale ? .22 : .30),
+    gale ? .78 : .72,
+  );
   return sim.birdY > target && sim.velocity > 0;
 }
 

@@ -2,7 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 import '../domain/game_rules.dart';
 import '../ui/theme.dart';
-import 'sky_scenery.dart';
+import 'star_art.dart';
 
 /// Approach markers and a finite constellation, driven only by replayable time.
 abstract final class StarTrioArt {
@@ -51,22 +51,14 @@ abstract final class StarTrioArt {
           ..strokeWidth = height * .005
           ..strokeJoin = StrokeJoin.round,
       );
-      for (final point in points) {
-        canvas.drawCircle(
+      for (final (i, point) in points.indexed) {
+        // The three pickups, in miniature, settle into the constellation.
+        StarArt.paint(
+          canvas,
           point,
-          height * .026,
-          Paint()..color = SkyColors.yellow.withValues(alpha: .18 * alpha),
-        );
-        canvas.drawPath(
-          SkyScenery.star(point, height * .019),
-          Paint()..color = SkyColors.yellow.withValues(alpha: alpha),
-        );
-        canvas.drawPath(
-          SkyScenery.star(point, height * .019),
-          Paint()
-            ..color = SkyColors.gold.withValues(alpha: alpha)
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = height * .0025,
+          height * .021,
+          opacity: alpha,
+          rotation: reducedMotion ? 0 : (1 - unfold) * (i - 1) * .8,
         );
       }
       return;
@@ -94,18 +86,25 @@ abstract final class StarTrioArt {
     }
     for (var i = 0; i < 3; i++) {
       if (!trio.collected(i)) continue;
+      // A small star keeps the collected slot, faded when the set is lost.
       final point = center + Offset((i - 1) * .17 * height, 0);
       canvas.drawCircle(
         point,
-        height * .012,
+        height * .014,
         Paint()
           ..color = SkyColors.cream.withValues(alpha: trio.missed ? .3 : .9),
       );
-      canvas.drawCircle(
-        point,
-        height * .006,
-        Paint()..color = SkyColors.gold.withValues(alpha: trio.missed ? .3 : 1),
-      );
+      if (trio.missed) {
+        // A flat faded star, so a lost set holds no layer on screen.
+        StarArt.sparkle(
+          canvas,
+          point,
+          height * .011,
+          SkyColors.gold.withValues(alpha: .3),
+        );
+      } else {
+        StarArt.mini(canvas, point, height * .011);
+      }
     }
   }
 }

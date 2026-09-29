@@ -99,11 +99,14 @@ void main() {
     test(
       '$kind accepts arbitrary damage, crosses half health, and pays once',
       () {
-        final sim = arena(version: 26)..bossesDefeated = kind.index;
+        // The pirate only exists from rules 34.
+        final sim = arena(version: kind == BossKind.pirate ? 34 : 26)
+          ..bossesDefeated = kind.index;
         step(sim);
         hover(sim, sim.boss!.arrivalDuration + .02);
         final boss = sim.boss!;
-        expect(boss.maxHp, [120, 180, 240][kind.index]);
+        expect(boss.kind, kind);
+        expect(boss.maxHp, [120, 180, 240, 300][kind.index]);
         final damage = boss.maxHp ~/ 2 + 3;
         sim.rocks.add(BirdRock(x: boss.x - .07, y: boss.y, damage: damage));
         step(sim);

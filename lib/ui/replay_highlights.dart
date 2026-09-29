@@ -72,8 +72,7 @@ Future<ReplayHighlight?> showReplayHighlights(
                           ReplayMomentKind.start =>
                             Icons.flight_takeoff_rounded,
                           ReplayMomentKind.finish => Icons.flag_rounded,
-                          ReplayMomentKind.magnet =>
-                            Icons.auto_awesome_rounded,
+                          ReplayMomentKind.magnet => Icons.auto_awesome_rounded,
                           ReplayMomentKind.streak => Icons.star_rounded,
                           ReplayMomentKind.starTrio =>
                             Icons.auto_awesome_rounded,
@@ -82,6 +81,7 @@ Future<ReplayHighlight?> showReplayHighlights(
                           ReplayMomentKind.milestone =>
                             Icons.emoji_events_rounded,
                           ReplayMomentKind.rush => Icons.bolt_rounded,
+                          ReplayMomentKind.gale => Icons.air_rounded,
                         }, color: SkyColors.teal),
                       ],
                     ),

@@ -14,6 +14,7 @@ and uses the existing **Sound effects** setting independently of music.
 | Projectile collisions | Stone impact and bright interception ping |
 | Boss arrival | Ominous wind warning, reveal impact, creature roar |
 | Boss combat | Charge, heavy volley, hit, shield activation/block, summon and enrage |
+| Pirate Captain | Crackling fuse, black-powder cannon boom with a wooden deck knock (two takes), a ship's bell over swelling water for the tide warning, a roaring surge, and a plunging splash (two takes) |
 | Boss death | Breaking body, debris burst and victory flourish, timed to the animation |
 | Player damage / recovery | Padded impact, shield break/recharge and dedicated heart pickup |
 | Rewards | Three rotating bell tones for stars, plus bell and wood tones for perfect gates, combos, magnet, letters, deliveries and discoveries |
@@ -183,6 +184,12 @@ that cue, which `tool/prepare_game_over.py` builds.
 Eruption runs add `lava_burst` (volume 0.40, priority 2, 0.70 s, 150 ms
 cooldown). It layers a heavy low impact, a high-passed hiss and a seven-grain
 rock crumble. The two takes vary the seeds of all three layers.
+
+Gales add `gust_warning` (volume 0.30, priority 3, 0.45 s, 120 ms cooldown): a
+whistle gliding from C6 up a fifth, with a touch of its octave, over a falling
+whoosh. `CombatAudioCues` plays it once per step in which a gust's warning goes
+up. A gale reuses `rush_alarm` for its warning banner and `rush_clear` when it
+is weathered.
 `CombatAudioCues` plays it once per step in which any vent erupts. Swarm smashes
 reuse `enemy_death`, which now plays when the enemies defeated plus the swarm
 bats smashed rises. Regenerating the bank added `lava_burst.wav` and

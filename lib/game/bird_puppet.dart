@@ -108,7 +108,8 @@ class BirdPose {
             FlightEventKind.hit ||
             FlightEventKind.shieldUsed ||
             FlightEventKind.scorched ||
-            FlightEventKind.rushWarning => true,
+            FlightEventKind.rushWarning ||
+            FlightEventKind.galeWarning => true,
             _ => false,
           }) {
         return BirdExpression.startled;
@@ -128,7 +129,8 @@ class BirdPose {
             FlightEventKind.smashed ||
             FlightEventKind.meteorSmashed ||
             FlightEventKind.swarmSmashed ||
-            FlightEventKind.rushEscaped => true,
+            FlightEventKind.rushEscaped ||
+            FlightEventKind.galeWeathered => true,
             _ => false,
           }) {
         pleased = true;

@@ -67,7 +67,7 @@ abstract final class BossArt {
 
     for (final ammo in sim.bossAmmo) {
       final center = Offset(ammo.x * h, ammo.y * h);
-      final radius = BossAmmo.radius * h;
+      final radius = ammo.radius * h;
       final direction = Offset(ammo.vx, ammo.vy);
       final tail = direction / direction.distance * radius * 3.4;
       canvas.drawLine(

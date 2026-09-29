@@ -62,6 +62,7 @@ abstract final class BossHealthBarArt {
     BossKind.baronBat => _baron,
     BossKind.spitterBeetle => _spitter,
     BossKind.duskMoth => _moth,
+    BossKind.pirate => _baron, // PLACEHOLDER
   };
 
   /// The strip, for layout checks.

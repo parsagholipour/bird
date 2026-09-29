@@ -8,8 +8,9 @@ import '../../domain/obstacle.dart';
 /// The order alternates warm and cold, day and night, so every hand-off is a
 /// strong contrast. It opens on a neutral jungle morning, then polar
 /// twilight, an Aztec sunrise, a Paris night, Egyptian noon, a Chinese dusk,
-/// bright Brazil, a New York night, a Dubai morning, golden Rome, a Mexican
-/// dusk and an ocean dawn that leads back to the jungle.
+/// bright Brazil, a New York night, a teal dawn over an ancient Arabian city,
+/// golden Rome, a Mexican dusk and an ocean dawn that leads back to the
+/// jungle.
 enum WorldRegion {
   jungle('Jungle'),
   antarctica('Antarctica'),
@@ -19,7 +20,7 @@ enum WorldRegion {
   china('China'),
   brazil('Brazil'),
   newYork('New York'),
-  dubai('Dubai'),
+  arabia('Ancient Arabia'),
   rome('Ancient Rome'),
   mexico('Mexico'),
   sea('Open Sea');
@@ -93,12 +94,12 @@ enum WorldRegion {
       Color(0xff3fbf7a),
       Color(0xffffdc2e),
     ),
-    dubai => const SkyPalette(
-      Color(0xff5fb0e6),
-      Color(0xfff6eede),
-      Color(0xffe6dccb),
-      Color(0xffd8c3a0),
-      Color(0xff2fc4d6),
+    arabia => const SkyPalette(
+      Color(0xff2f8196),
+      Color(0xffffd8bc),
+      Color(0xffeec3b4),
+      Color(0xffd79a80),
+      Color(0xff1fa3a6),
     ),
     rome => const SkyPalette(
       Color(0xff6a9fd2),

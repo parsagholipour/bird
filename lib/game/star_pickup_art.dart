@@ -1,8 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 import '../domain/game_rules.dart';
-import '../ui/theme.dart';
-import 'sky_scenery.dart';
+import 'star_art.dart';
 
 /// A collected star shrinks into the bird, using the replay's simulation clock.
 abstract final class StarPickupArt {
@@ -27,20 +26,19 @@ abstract final class StarPickupArt {
     final bird = Offset(FlightSimulation.birdX * height, sim.birdY * height);
     final travel = 1 - math.pow(1 - t, 3).toDouble();
     final center = reducedMotion ? origin : Offset.lerp(origin, bird, travel)!;
-    final radius = height * SkyStar.radius * (reducedMotion ? 1 : 1 - t);
-    final alpha = 1 - t;
-    canvas.drawPath(
-      SkyScenery.star(center + Offset(0, radius * .15), radius),
-      Paint()..color = SkyColors.gold.withValues(alpha: alpha),
-    );
-    canvas.drawPath(
-      SkyScenery.star(center, radius),
-      Paint()..color = SkyColors.yellow.withValues(alpha: alpha),
-    );
-    canvas.drawCircle(
-      center - Offset(radius * .18, radius * .18),
-      radius * .15,
-      Paint()..color = SkyColors.cream.withValues(alpha: alpha),
+    // A quick swell on contact, then the star shrinks and turns into the bird.
+    final size = reducedMotion
+        ? 1.0
+        : t < .25
+        ? 1 + .18 * math.sin(t / .25 * math.pi / 2)
+        : 1.18 * (1 - (t - .25) / .75 * .8);
+    StarArt.paint(
+      canvas,
+      center,
+      height * StarArt.radius * size,
+      opacity: 1 - t * t,
+      // The flight into the bird is the motion, so the idle life rests.
+      rotation: reducedMotion ? 0 : travel * .9,
     );
   }
 }

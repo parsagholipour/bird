@@ -13,14 +13,23 @@ class FlightPath {
   /// Newest point first.
   Iterable<({double distance, double y})> get recent => _points.reversed;
 
+  /// Length flown along the path up to its newest point, so trail marks can
+  /// stay where they were dropped while the path itself slides away.
+  double get flown => _flown;
+  double _flown = 0;
+
   void record(double distance, double y) {
     final point = (distance: distance, y: y);
-    if (_points.isNotEmpty && _gap(_points.last, point) < _spacing) return;
+    if (_points.isNotEmpty) {
+      final gap = _gap(_points.last, point);
+      if (gap < _spacing) return;
+      _flown += gap;
+    }
     _points.add(point);
-    var flown = 0.0;
+    var kept = 0.0;
     for (var i = _points.length - 1; i > 0; i--) {
-      flown += _gap(_points[i], _points[i - 1]);
-      if (flown >= reach) {
+      kept += _gap(_points[i], _points[i - 1]);
+      if (kept >= reach) {
         _points.removeRange(0, i - 1);
         return;
       }

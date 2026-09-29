@@ -42,7 +42,7 @@ void main() {
             final clearance = (dx * shot.vy - dy * shot.vx).abs() / speed;
             expect(
               clearance,
-              greaterThan(FlightSimulation.birdRadius + BossAmmo.radius + .02),
+              greaterThan(FlightSimulation.birdRadius + BossAmmo.baseRadius + .02),
               reason: 'Dodge lane at width $width, HP $hp, height $targetY',
             );
           }

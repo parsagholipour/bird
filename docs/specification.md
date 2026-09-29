@@ -205,7 +205,8 @@ sprint recharges. Record `sprint` for accepted presses only. Rules 1–28 reject
 
 Touch Star Trail flights hand the course over to a short rush path between
 bosses. The first is laid 22 seconds into the flight; each later one 18
-seconds after a boss leaves. A run needs at least 18 seconds before the next
+seconds after a boss leaves, or from rules version 33, 8 seconds after the
+gale that follows a Dusk Empress. A run needs at least 18 seconds before the next
 boss is due, otherwise it waits for the victory. A boss waits for a run in
 progress and arrives no sooner than 8 seconds after its escape.
 
@@ -334,6 +335,91 @@ a pop.
 Rush paths are part of the seeded simulation, so replays and seeks reproduce
 them exactly with no extra events. Rules 1–31, camera modes and Classic have
 no rush paths.
+
+### Gales (rules version 33)
+
+Touch Star Trail flights add a gale after each Dusk Empress victory and after
+no other boss. Ordinary walls return first. The gale is laid 12 seconds after the Dusk Empress leaves and replaces
+nothing: that interval's rush path waits for it.
+
+When the gale is laid, ordinary passages stop. The wind rises where the bird
+is 0.45 past the last passage, and never less than 1.2 ahead of the bird. A
+large “GALE!” banner and the rush alarm give warning 1.2 before that point.
+
+**Tailwind.** The course scrolls at `1 + 0.6w`, where the wind `w` rises with
+a smoothstep over 1.2 seconds, so speed peaks at 1.6×. The gale blows for 13
+seconds, then `w` falls with a smoothstep over 1.5 seconds. When both a sprint
+and the gale are active, the course takes the faster boost.
+
+**Debris.** The first gust comes 0.5 seconds after the wind rises. Gusts then
+follow every 1.2 seconds, shortening steadily to 0.85 seconds by the end. None
+start in the last 1.6 seconds, so the last pieces clear as the wind drops.
+- Every gust sends one piece at the bird's height at that moment, clamped to
+  0.12–0.88.
+- Odd gusts add a second piece 0.30–0.44 above or below it, reflected to stay
+  within 0.12–0.88, and 0.15 further back. The bird has to pick the open side.
+
+Each piece starts off screen and appears at the right edge 0.9 seconds later.
+Meanwhile a warning lane runs in from the right edge at its height. An
+exclamation mark stands at the lane's inner end, 0.6 in from the edge, clear
+of the pause, Shoot and Sprint controls, and a gust whistle plays. A piece flies level at 0.9 plus course speed, so it crosses a
+phone screen in about a second. Its hit circle has radius 0.05.
+
+Debris hurts on contact like a wall, sprinting or not. A shot rock glances off
+it without breaking it. Each piece that passes the bird untouched scores 1
+point. When the wind drops, the gale is weathered for +10 points, or +20 if
+nothing hurt the bird while it blew. A banner (“WEATHERED! +10” or
+“FLAWLESS! +20”) and the rush fanfare mark it. Ordinary passages resume at
+once, clear of the last debris.
+
+**Afterwards.** The rush path follows 8 seconds after the gale, and the next
+boss waits at least 27 seconds after it, so the rush path keeps its full lead.
+A boss never arrives during a gale.
+
+**Audio and replay.** The warning banner plays `rush_alarm`, each gust
+`gust_warning`, and the weathered banner `rush_clear`. A weathered gale is a
+replay highlight (“Weathered the gale”). Gales are part of the seeded
+simulation, so replays and seeks reproduce them exactly with no extra events.
+Rules 1–32, camera modes and Classic have no gales.
+
+### Pirate Captain (rules version 34)
+
+The Pirate Captain joins the touch boss cycle as its fourth encounter:
+Baron Bat, Spitter King, Dusk Empress, Pirate Captain, then the cycle repeats
+(bosses 4, 8, 12…). He starts at 300 HP with 30-HP steps, capped at 420, and
+summons no helpers. Rules 22–33 keep the three-boss cycle.
+
+**The sea.** His encounter fills the bottom of the screen with water. It
+rolls in during the first 55% of the arrival, from below the screen (1.12) to
+a surface at 0.9, and drains away over 80% of the departure. The bird is hurt
+when its bottom edge reaches the surface, like a course edge: Classic ends the
+flight; Star Trail takes a shield or heart, and the bird splashes back out
+with at least 80% of a flap's lift. The water never hurts during cutscenes.
+
+**The tide.** Combat time runs a fixed 10-second cycle: calm until 3.0 s, a
+1.3-second warning (the water does not move), a 0.9-second smoothstep rise to
+a surface at 0.56, a hold until 7.4 s, and a 1.1-second fall back to 0.9 by
+8.5 s. Fury never changes the cycle, and pause and seek restore it exactly.
+
+**The ship.** The ship anchors at `max(birdX + 0.72, width − 0.5)`. The
+captain's hit circle (the usual 0.115 radius) rides 0.2 above the water with
+a ±0.008 bob, so the ship rises with every surge. Shots whose leading edge
+reaches the hull (from 0.3 left to 0.34 right of the captain, below 0.1 under
+his center) glance off like walls without damage.
+
+**The cannon.** The cannon pivots 0.14 left of and 0.085 below the captain,
+with a 0.075 barrel. Each cannonball (radius 0.027) is lobbed at a horizontal
+0.5 per second (0.6 in fury) and falls at 0.8 per second², on the arc that
+passes the bird's column at the aimed height. The first shot comes 1.4 s into
+combat, then every 2.1 s (1.5 s in fury). Volleys alternate a single ball at
+the bird with a pair at ±0.16. In fury, every third volley is a broadside at
+0, ±0.26, which becomes the pair while the tide is up. Balls that climb above
+the screen come back down; balls that fall into the sea splash.
+
+**Audio and replay.** The fuse plays `cannon_fuse`, each volley
+`cannon_fire`, each warning `tide_warning` (a ship's bell over swelling
+water), each rise `tide_surge`, and cannonball or bird splashes
+`sea_splash`. Splashes are render-only; the rules never read them.
 
 ### Touch boss encounters (rules version 15)
 

@@ -47,6 +47,8 @@ abstract final class BossAmmoArt {
     BossKind.baronBat => BossAmmoStyle.ember,
     BossKind.spitterBeetle => BossAmmoStyle.acid,
     BossKind.duskMoth => BossAmmoStyle.pollen,
+    // PLACEHOLDER until the cannonball art lands.
+    BossKind.pirate => BossAmmoStyle.ember,
   };
 
   /// One in-flight boss shot at its simulated position, for [boss].
@@ -60,7 +62,7 @@ abstract final class BossAmmoArt {
   }) => paint(
     c,
     center: Offset(ammo.x * height, ammo.y * height),
-    radius: BossAmmo.radius * height,
+    radius: ammo.radius * height,
     direction: math.atan2(ammo.vy, ammo.vx),
     attack: EnemyAttack.none,
     kind: boss.kind,

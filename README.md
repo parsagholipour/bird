@@ -190,6 +190,25 @@ rings and the rubble is solid, the fire catches up, the lava goes up under you
 and the meteors and bats hit you. Pass the last barrier to escape for +10
 points, or +20 if nothing touched you. Earlier replays have no rush paths.
 
+**Gales (version 33):** some time after you beat the Dusk Empress, a
+“GALE!” banner warns of a windstorm. The walls stop and a tailwind sweeps you
+along at up to 1.6× speed while debris flies straight at you. A flashing **!**
+and a warning lane from the right edge mark the height of each piece a moment
+before it appears.
+Every gust aims at where you are, and every other gust sends a second piece
+above or below, so pick the open side. Debris hurts even while sprinting, and
+rocks bounce off it. Each dodged piece scores +1. Riding out the 13-second gale
+scores +10, or +20 if nothing hit you. The usual rush path follows the gale
+before the next boss. Earlier replays have no gales.
+
+**Pirate Captain (version 34):** the fourth boss sails in on a ship and
+brings the sea with him. Don't touch the water. He lobs cannonballs at you in
+arcs: single shots, pairs that bracket you, and in fury three-ball broadsides.
+Every ten seconds a ship's bell rings and the tide surges up to just past the
+middle of the screen, lifting his ship with it, so fly high until it falls
+back. His hull is armored: aim for the captain on deck. Earlier replays keep
+the three-boss cycle.
+
 **Extra lives (version 24):** after each boss victory, one heart appears in a
 random safe opening before the next boss. Fly into it to gain one additional
 life, up to a maximum of five hearts. Missed hearts disappear; the HUD

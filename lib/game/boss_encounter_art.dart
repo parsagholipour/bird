@@ -6,6 +6,9 @@ import 'boss_motion.dart';
 import 'boss_rig.dart';
 import 'spitter_boss_rig.dart';
 import 'dusk_moth_boss_rig.dart';
+import 'pirate_boss_rig.dart';
+import 'pirate_sea_art.dart';
+import 'pirate_ship_art.dart';
 import 'boss_ammo_art.dart';
 import 'boss_health_bar_art.dart';
 import 'sky_scenery.dart';
@@ -17,16 +20,19 @@ abstract final class BossEncounterArt {
     BossKind.baronBat => _lilac,
     BossKind.spitterBeetle => SpitterBossRig.acid,
     BossKind.duskMoth => DuskMothBossRig.coral,
+    BossKind.pirate => PirateBossRig.sea,
   };
   static Color _ammoColor(SkyBoss boss) => switch (boss.kind) {
     BossKind.baronBat => BossRig.ember,
     BossKind.spitterBeetle => SpitterBossRig.acid,
     BossKind.duskMoth => DuskMothBossRig.pollen,
+    BossKind.pirate => PirateBossRig.flame,
   };
   static Color _light(SkyBoss boss) => switch (boss.kind) {
     BossKind.baronBat => _gold,
     BossKind.spitterBeetle => SpitterBossRig.mint,
     BossKind.duskMoth => DuskMothBossRig.silk,
+    BossKind.pirate => PirateBossRig.flameCore,
   };
   static Paint _fill(Color color, [double opacity = 1]) =>
       Paint()
@@ -61,6 +67,10 @@ abstract final class BossEncounterArt {
           ],
         ).createShader(halo),
     );
+    if (boss.isPirate) {
+      _seaMood(c, size, boss, m);
+      return;
+    }
     // Orbiting cloud bands frame the silhouette without hiding the player's lane.
     for (var i = 0; i < 5; i++) {
       final radius = h * (.21 + i * .075);
@@ -102,8 +112,70 @@ abstract final class BossEncounterArt {
     }
   }
 
+  /// A moonlit sea haze for the pirate: mist banks rolling in low over the
+  /// water, gulls wheeling far off and a storm flash as the ship arrives.
+  static void _seaMood(Canvas c, Size size, SkyBoss boss, BossMotion m) {
+    final h = size.height, w = size.width;
+    final storm = m.storm;
+    final sea = boss.waterLevel ?? SkyBoss.seaHidden;
+    final t = m.reducedMotion ? 0.0 : boss.age;
+    // Mist banks drift left above the sea line.
+    for (var i = 0; i < 6; i++) {
+      final span = w + h;
+      final x = ((i * .31 * span - t * h * (.02 + i % 3 * .008)) % span + span) % span - h * .5;
+      final y = (math.min(sea, .92) - .06 - (i % 3) * .07) * h;
+      final bank = Rect.fromCenter(
+        center: Offset(x, y),
+        width: h * (.9 + (i % 2) * .5),
+        height: h * (.07 + (i % 3) * .02),
+      );
+      c.drawOval(
+        bank,
+        Paint()
+          ..shader = RadialGradient(
+            colors: [
+              _ice.withValues(alpha: storm * (.13 - (i % 3) * .025)),
+              _ice.withValues(alpha: 0),
+            ],
+          ).createShader(bank),
+      );
+    }
+    // Gulls glide far off over the swell.
+    for (var i = 0; i < 4; i++) {
+      final drift = t * h * (.03 + i * .006);
+      final x = ((w * (.22 + i * .23) - drift) % (w + h * .2) + w + h * .2) %
+              (w + h * .2) -
+          h * .1;
+      final y = h * (.2 + (i % 2) * .09 + math.sin(t * .7 + i) * .012);
+      final flap = m.reducedMotion ? .5 : math.sin(t * (3.4 + i * .5) + i);
+      final span = h * (.016 + (i % 2) * .005);
+      final gull = Path()
+        ..moveTo(x - span, y - span * .3 * flap)
+        ..quadraticBezierTo(x - span * .45, y - span * (.5 + .2 * flap), x, y)
+        ..quadraticBezierTo(x + span * .45, y - span * (.5 + .2 * flap), x + span, y - span * .3 * flap);
+      c.drawPath(gull, _line(_night, h * .004, storm * .38));
+    }
+    if (m.arriving && !m.reducedMotion) {
+      final bolt = BossMotion.pulse(boss.age - 1.28, .38);
+      if (bolt > 0) {
+        final x = (w / h - .5) * h;
+        final path = Path()
+          ..moveTo(x + h * .18, -h * .05)
+          ..lineTo(x + h * .05, h * .13)
+          ..lineTo(x + h * .11, h * .14)
+          ..lineTo(x - h * .04, h * .34);
+        c.drawPath(path, _line(_ice, h * .024, bolt * .18));
+        c.drawPath(path, _line(BossRig.cream, h * .004, bolt * .75));
+      }
+    }
+  }
+
   static void paint(Canvas c, Size size, FlightSimulation sim, BossMotion m) {
     final boss = m.boss, h = size.height;
+    if (boss.isPirate) {
+      _paintPirate(c, size, sim, m);
+      return;
+    }
     final ammoLight = _light(boss);
     final center = Offset(boss.x * h, boss.y * h) + m.offset * h;
     for (final ammo in sim.bossAmmo) {
@@ -208,6 +280,282 @@ abstract final class BossEncounterArt {
       );
     }
     if (m.defeated) _death(c, center, h, m);
+  }
+
+  /// The Pirate Captain's stage: the swell behind his ship, the ship itself
+  /// anchored to the sea, the captain on deck (the only part with character
+  /// motion), the cannon aimed exactly along the next launch, then the sea
+  /// in front of the hull and the tide's warning over everything.
+  static void _paintPirate(
+    Canvas c,
+    Size size,
+    FlightSimulation sim,
+    BossMotion m,
+  ) {
+    final boss = m.boss, h = size.height;
+    final unit = h * SkyBoss.radius;
+    final ship = Offset(boss.x * h, boss.y * h);
+    final center = ship + m.offset * h;
+    final shot = boss.cannonShot(FlightSimulation.birdX, sim.birdY);
+    final lookY = (sim.birdY - boss.y) * 3;
+    PirateSeaArt.back(c, size, sim, boss, m);
+    // Ship and captain sail in as one silhouette out of the dusk.
+    final silhouette = m.silhouette > .01;
+    if (silhouette) {
+      c.saveLayer(
+        Rect.fromLTRB(
+          ship.dx + PirateShipArt.bounds.left * unit,
+          ship.dy + PirateShipArt.bounds.top * unit,
+          ship.dx + PirateShipArt.bounds.right * unit,
+          ship.dy + PirateShipArt.bounds.bottom * unit,
+        ),
+        Paint()
+          ..colorFilter = ColorFilter.mode(
+            _night.withValues(alpha: m.silhouette * .97),
+            BlendMode.srcATop,
+          ),
+      );
+    }
+    c.save();
+    c.translate(ship.dx, ship.dy);
+    c.scale(unit);
+    PirateShipArt.back(c, boss, m);
+    c.restore();
+    final (_, fuse) = PirateShipArt.fuse(shot.angle);
+    const deck = PirateShipArt.rail;
+    void captainFrame() {
+      // Planted on the deck: he leans, puffs up and squashes about his
+      // feet, so the character motion never lifts him off the ship.
+      final grow = 1 + (m.bodyScale - 1) * .45;
+      c.translate(center.dx, center.dy);
+      c.scale(unit);
+      c.translate(0, deck);
+      c.rotate(m.rotation * .5);
+      c.scale(grow * (1 + m.stretch * .6), grow * (1 - m.stretch * .6));
+      c.translate(0, -deck);
+    }
+
+    if (m.opacity > 0) {
+      c.save();
+      captainFrame();
+      final layer = Paint()
+        ..color = const Color(0xffffffff).withValues(alpha: m.opacity);
+      if (m.defeated && !silhouette) {
+        final blow = 1 - BossMotion.ramp(m.death, .03, .12);
+        final overload = BossMotion.ease(BossMotion.ramp(m.death, .4, .84));
+        final white = math.max(blow, overload * .92);
+        if (white > .01) layer.colorFilter = _whiten(white);
+      }
+      c.saveLayer(PirateBossRig.bounds, layer);
+      PirateBossRig.paint(
+        c,
+        boss,
+        m,
+        lookY: lookY,
+        fuse: fuse - m.offset * h / unit,
+        parrot: !m.defeated || m.death < .3,
+      );
+      c.restore();
+      c.restore();
+    }
+    c.save();
+    c.translate(ship.dx, ship.dy);
+    c.scale(unit);
+    PirateShipArt.front(c, boss, m, aim: shot.angle);
+    c.restore();
+    if (silhouette) c.restore();
+    c.save();
+    c.translate(ship.dx, ship.dy);
+    c.scale(unit);
+    PirateShipArt.lights(c, boss, m);
+    c.restore();
+    if (m.silhouette > .25) {
+      // One eye glints out of the silhouette; the other is patched.
+      c.save();
+      captainFrame();
+      c.drawOval(
+        Rect.fromCenter(
+          center: PirateBossRig.eyeCenter,
+          width: .26,
+          height: .09,
+        ),
+        _fill(_gold, m.silhouette),
+      );
+      c.restore();
+    }
+    PirateShipArt.blast(
+      c,
+      h,
+      boss,
+      m,
+      muzzle: Offset(shot.x * h, shot.y * h),
+      aim: shot.angle,
+    );
+    for (final ammo in sim.bossAmmo) {
+      BossAmmoArt.shot(
+        c,
+        h,
+        ammo,
+        boss,
+        seconds: sim.elapsed,
+        reducedMotion: m.reducedMotion,
+      );
+    }
+    PirateSeaArt.front(
+      c,
+      size,
+      sim,
+      boss,
+      m,
+      bowX: boss.x + (PirateShipArt.bow + .12) * SkyBoss.radius,
+      sternX: boss.x + (PirateShipArt.stern - .22) * SkyBoss.radius,
+    );
+    PirateSeaArt.splashes(c, size, sim, boss, m);
+    PirateSeaArt.hullKnocks(c, h, sim, boss, m);
+    if (m.roar > 0) {
+      _roar(c, center, h, m);
+      _shout(c, center, h, m);
+    }
+    if (m.rage > 0 && !m.defeated) {
+      final rect = Rect.fromCenter(
+        center: center,
+        width: h * (.34 + m.rage * .26),
+        height: h * (.25 + m.rage * .15),
+      );
+      c.drawOval(rect, _line(BossRig.ink, h * .011, m.rage * .28));
+      c.drawOval(rect, _line(BossRig.ember, h * .006, m.rage * .8));
+    }
+    if (m.hit > 0 && !m.defeated) {
+      final t = BossMotion.ramp(boss.age - boss.lastHitAt, 0, .32);
+      _burst(c, center + Offset(-h * .06, -h * .02), h, t, 9, .08, m.reducedMotion);
+    }
+    if (m.defeated) {
+      _wreck(c, ship, h, m);
+      _death(c, center, h, m);
+      _parrotFlees(c, center, h, m);
+    }
+    PirateSeaArt.aimMarks(c, size, sim, boss, m);
+    PirateSeaArt.tideWarning(c, size, sim, boss, m);
+  }
+
+  /// "ARRR!" bursts out of the captain in a jagged speech bubble.
+  static void _shout(Canvas c, Offset center, double h, BossMotion m) {
+    final pop = m.reducedMotion
+        ? 1.0
+        : _outBack(BossMotion.ramp(m.boss.age - SkyBoss.roarAt, 0, .22));
+    final fade = BossMotion.ramp(m.roar, 0, .25);
+    if (pop <= 0 || fade <= 0) return;
+    final unit = h * SkyBoss.radius;
+    final at = center + Offset(-unit * 1.9, -unit * 1.55);
+    c.save();
+    c.translate(at.dx, at.dy);
+    c.scale(unit * pop);
+    c.rotate(-.12);
+    final bubble = Path();
+    for (var i = 0; i < 18; i++) {
+      final a = i * math.pi / 9;
+      final r = i.isEven ? 1.0 : .8;
+      final p = Offset(math.cos(a) * r * 1.02, math.sin(a) * r * .66);
+      i == 0 ? bubble.moveTo(p.dx, p.dy) : bubble.lineTo(p.dx, p.dy);
+    }
+    bubble.close();
+    final tail = Path()
+      ..moveTo(.25, .45)
+      ..lineTo(1.05, 1.15)
+      ..lineTo(.62, .3)
+      ..close();
+    c.drawPath(tail, _line(BossRig.ink, .12, fade)..strokeJoin = StrokeJoin.round);
+    c.drawPath(bubble, _line(BossRig.ink, .12, fade)..strokeJoin = StrokeJoin.round);
+    c.drawPath(tail, _fill(BossRig.cream, fade));
+    c.drawPath(bubble, _fill(BossRig.cream, fade));
+    c.restore();
+    _text(
+      c,
+      'ARRR!',
+      at + Offset(0, unit * .02),
+      unit * .62 * pop,
+      const Color(0xffc53b4d),
+      opacity: fade,
+      centered: true,
+      middle: true,
+      outline: unit * .1 * pop,
+    );
+  }
+
+  /// After the burst the hull splits and the wreck goes down with the sea:
+  /// splinters fly from the break and bubbles rise where it sank.
+  static void _wreck(Canvas c, Offset ship, double h, BossMotion m) {
+    final k = m.death - SkyBoss.burstAt;
+    if (k < 0) return;
+    final unit = h * SkyBoss.radius;
+    final seam = ship + Offset(.95 * unit, PirateShipArt.rail * unit);
+    final t = BossMotion.ramp(k, 0, 1.1);
+    if (t < 1) {
+      for (var i = 0; i < 14; i++) {
+        final a = -math.pi / 2 + (i - 6.5) * .3;
+        final v = h * (.3 + (i % 4) * .08);
+        final life = m.reducedMotion ? .3 : t * 1.1;
+        final p = seam +
+            Offset(math.cos(a) * v * life, math.sin(a) * v * life + h * .9 * life * life);
+        final fade = 1 - t;
+        c.save();
+        c.translate(p.dx, p.dy);
+        c.rotate(a + (m.reducedMotion ? 0 : life * (6 + i)));
+        final plank = Rect.fromCenter(
+          center: Offset.zero,
+          width: h * (.018 + (i % 3) * .006),
+          height: h * .0065,
+        );
+        c.drawRect(plank.inflate(h * .0018), _fill(const Color(0xff3f2119), fade));
+        c.drawRect(plank, _fill(const Color(0xffa8683f), fade));
+        c.restore();
+      }
+    }
+    final level = m.boss.waterLevel;
+    if (level == null || m.reducedMotion) return;
+    // Bubbles boil up where the halves went under.
+    for (var i = 0; i < 10; i++) {
+      final life = (k * 1.4 + i / 10) % 1;
+      final fade = BossMotion.ramp(k, .5, .9) * (1 - BossMotion.ramp(k, 2.2, 2.9));
+      if (fade <= 0) continue;
+      final x = ship.dx + ((i * .37) % 1 - .5) * unit * 4;
+      final y = level * h + h * .12 * (1 - life);
+      if (y < level * h) continue;
+      c.drawCircle(
+        Offset(x, y),
+        h * (.004 + (i % 3) * .002),
+        _line(PirateSeaArt.foam, h * .002, fade * (1 - life)),
+      );
+    }
+  }
+
+  /// The parrot has had enough: it takes off and flaps away up and out of
+  /// the fight, squawking.
+  static void _parrotFlees(Canvas c, Offset center, double h, BossMotion m) {
+    final t = m.death - .3;
+    if (t < 0) return;
+    final unit = h * SkyBoss.radius;
+    final fade = 1 - BossMotion.ramp(t, m.reducedMotion ? .6 : 1.6, m.reducedMotion ? 1 : 2.2);
+    if (fade <= 0) return;
+    final start = center + PirateBossRig.parrotAnchor * unit;
+    final travel = m.reducedMotion ? .15 : t;
+    final at = start +
+        Offset(unit * (1.6 * travel + .4 * travel * travel), -unit * (2.4 * travel - .3 * math.sin(travel * 9)));
+    final flap = m.reducedMotion ? .6 : .5 + .5 * math.sin(t * 24);
+    c.save();
+    c.translate(at.dx, at.dy);
+    c.scale(unit);
+    c.rotate(-.35);
+    c.saveLayer(PirateBossRig.parrotBounds.inflate(.4), _fill(const Color(0xffffffff), fade));
+    PirateBossRig.paintParrot(
+      c,
+      time: m.reducedMotion ? 0 : m.boss.age,
+      squawk: .5 + .5 * math.sin(t * 7).abs(),
+      flap: flap,
+      flying: true,
+    );
+    c.restore();
+    c.restore();
   }
 
   static void _charge(
@@ -346,9 +694,12 @@ abstract final class BossEncounterArt {
                   DuskMothBossRig.pollen,
                   DuskMothBossRig.silk,
                 ]
+              : boss.isPirate
+              ? const [PirateBossRig.gold, PirateBossRig.crimson, _gold]
               : const [BossRig.violet, _lilac, BossRig.plum],
           outlined: true,
           scales: boss.isMoth,
+          coins: boss.isPirate,
         );
       }
       if (!reduced) _twinkles(c, at, h, k);
@@ -503,6 +854,12 @@ abstract final class BossEncounterArt {
       const Color(0xffefc2b3),
       const Color(0xfffff2e7),
     ),
+    // Gunpowder smoke.
+    BossKind.pirate => (
+      const Color(0xff2f3444),
+      const Color(0xffb7bfcc),
+      const Color(0xfff6f3ec),
+    ),
   };
 
   /// Overlapping puffs share one outline: rims first, then shadowed bodies,
@@ -618,6 +975,8 @@ abstract final class BossEncounterArt {
         ? DuskMothBossRig.crownAnchor * h * SkyBoss.radius
         : m.boss.isSpitter
         ? SpitterBossRig.hatAnchor * h * SkyBoss.radius
+        : m.boss.isPirate
+        ? PirateBossRig.hatAnchor * h * SkyBoss.radius
         : Offset(0, -h * .13);
     Offset path(double f) =>
         at + base + Offset(h * .11 * f, h * (-.31 * f + .28 * f * f));
@@ -668,6 +1027,8 @@ abstract final class BossEncounterArt {
           ? DuskMothBossRig.crownBounds.inflate(.1)
           : m.boss.isSpitter
           ? SpitterBossRig.hatBounds.inflate(.1)
+          : m.boss.isPirate
+          ? PirateBossRig.hatBounds.inflate(.1)
           : const Rect.fromLTWH(-1, -2, 2, 2),
       _fill(const Color(0xffffffff), fade),
     );
@@ -675,6 +1036,8 @@ abstract final class BossEncounterArt {
       DuskMothBossRig.crown(c);
     } else if (m.boss.isSpitter) {
       SpitterBossRig.hat(c);
+    } else if (m.boss.isPirate) {
+      PirateBossRig.hat(c);
     } else {
       BossRig.crown(c);
     }
@@ -741,6 +1104,7 @@ abstract final class BossEncounterArt {
     List<Color> colors = const [_ice, _lilac],
     bool outlined = false,
     bool scales = false,
+    bool coins = false,
   }) {
     if (t >= 1) return;
     final travel = reduced ? .45 : math.pow(t, .65).toDouble();
@@ -767,7 +1131,17 @@ abstract final class BossEncounterArt {
         c.drawPath(star, _fill(_gold, fade));
       } else {
         final color = colors[i % colors.length];
-        if (scales) {
+        if (coins) {
+          // Spilled doubloons flip over as they fly.
+          final coin = Rect.fromCenter(
+            center: Offset.zero,
+            width: r * 2.4 * (reduced ? .8 : .25 + .75 * math.cos(t * 14 + i).abs()),
+            height: r * 2.4,
+          );
+          c.drawOval(coin.inflate(r * .3), ink);
+          c.drawOval(coin, _fill(color, fade));
+          c.drawOval(coin.deflate(r * .45), _line(const Color(0xffc9862b), r * .25, fade));
+        } else if (scales) {
           final scale = Rect.fromCenter(
             center: Offset.zero,
             width: r * 2.6,
@@ -857,6 +1231,8 @@ abstract final class BossEncounterArt {
       caption = boss.age > 3.5
           ? boss.isMoth
                 ? 'DODGE THE FANS  ·  FIRE WHEN THE VEIL DROPS'
+                : boss.isPirate
+                ? 'DODGE THE CANNON  ·  STAY OUT OF THE WATER'
                 : 'GET READY  ·  FLAP, DODGE, FIRE'
           : 'Your bird is coasting safely';
       if (boss.age > 3.5) captionColor = _gold;
@@ -904,6 +1280,8 @@ abstract final class BossEncounterArt {
           ? 'TWILIGHT TAKES WING'
           : boss.isSpitter
           ? 'SOMETHING IS BREWING'
+          : boss.isPirate
+          ? 'SAIL HO!'
           : 'A SHADOW APPROACHES',
       Offset(w * .5, h * .29),
       h * .045,
@@ -938,6 +1316,8 @@ abstract final class BossEncounterArt {
           ? 'A silken veil gathers in the dusk…'
           : boss.isSpitter
           ? 'The air is starting to fizz…'
+          : boss.isPirate
+          ? 'The sea is rising under you…'
           : 'The sky belongs to someone else…',
       Offset(w * .5, h * .372),
       h * .028,

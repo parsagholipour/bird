@@ -24,6 +24,7 @@ String _label(BossKind kind) => switch (kind) {
   BossKind.baronBat => 'Baron Bat · ember shot',
   BossKind.spitterBeetle => 'Spitter King · acid globule',
   BossKind.duskMoth => 'Dusk Empress · pollen rosette',
+  BossKind.pirate => 'Pirate Captain · cannonball',
 };
 
 double _speed(BossKind kind, bool enraged) =>
@@ -334,7 +335,7 @@ void _sheet(Canvas c, double seconds) {
     _shot(c, kind, Offset(610, top + 140), r, seconds: seconds, enraged: true);
     // The small-enemy sibling at the same detail scale for comparison.
     if (kind != BossKind.baronBat) {
-      final detail = r / BossAmmo.radius;
+      final detail = r / BossAmmo.baseRadius;
       EnemyArt.ammo(
         c,
         detail,
@@ -362,7 +363,7 @@ void _sheet(Canvas c, double seconds) {
       c.save();
       c.clipRRect(RRect.fromRectAndRadius(tile, const Radius.circular(14)));
       _background(c, tile, sky, hills: false);
-      const h = 360.0, pr = h * BossAmmo.radius;
+      const h = 360.0, pr = h * BossAmmo.baseRadius;
       for (var i = 0; i < 3; i++) {
         final a = (i - 1) * .3;
         _shot(
@@ -423,7 +424,7 @@ void _flightStrip(Canvas c, double start, {bool reduced = false}) {
         c,
         kind,
         cell.topLeft + const Offset(40, 168),
-        360 * BossAmmo.radius,
+        360 * BossAmmo.baseRadius,
         seconds: t,
         reduced: reduced,
       );
@@ -458,7 +459,7 @@ Future<void> _phoneZoom() async {
         c,
         kind,
         cell.centerLeft + const Offset(22, 0),
-        360 * BossAmmo.radius,
+        360 * BossAmmo.baseRadius,
         direction: math.pi - .15,
         enraged: enraged,
         seconds: 1.37,
@@ -515,7 +516,7 @@ void _headings(Canvas c) {
             c,
             kind,
             at,
-            360 * BossAmmo.radius,
+            360 * BossAmmo.baseRadius,
             direction: a,
             enraged: enraged,
             seconds: 1.3 + d / 900,

@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../domain/flight_course.dart';
-import '../game/sky_scenery.dart';
+import '../game/star_art.dart';
 import 'components.dart';
 import 'theme.dart';
 
@@ -82,19 +82,8 @@ class _CoursePainter extends CustomPainter {
           (const Offset(60, 83), 12.0),
           (const Offset(270, 19), 23.0),
         ]) {
-          canvas.drawCircle(
-            position,
-            radius * 1.5,
-            Paint()..color = SkyColors.cream.withValues(alpha: .5),
-          );
-          canvas.drawPath(
-            SkyScenery.star(position + const Offset(0, 3), radius),
-            Paint()..color = SkyColors.gold,
-          );
-          canvas.drawPath(
-            SkyScenery.star(position, radius),
-            Paint()..color = SkyColors.yellow,
-          );
+          // The Star Trail's collectible, as the bird meets it in flight.
+          StarArt.paint(canvas, position, radius * 1.1);
         }
         canvas.drawArc(
           const Rect.fromLTWH(86, -9, 152, 149),

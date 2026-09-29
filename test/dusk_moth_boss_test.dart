@@ -20,7 +20,7 @@ FlightSimulation mothArena({double width = 2.2}) {
 
 void main() {
   test(
-    'new flights cycle bat, beetle, moth with full intervals and rewards',
+    'new flights cycle bat, beetle, moth, pirate with intervals and rewards',
     () {
       final sim = arena(version: FlightSimulation.currentRulesVersion);
       step(sim);
@@ -28,12 +28,12 @@ void main() {
         (1, BossKind.baronBat, 12),
         (2, BossKind.spitterBeetle, 18),
         (3, BossKind.duskMoth, 24),
-        (4, BossKind.baronBat, 21),
-        (5, BossKind.spitterBeetle, 27),
-        (6, BossKind.duskMoth, 33),
-        (7, BossKind.baronBat, 24),
-        (8, BossKind.spitterBeetle, 30),
-        (9, BossKind.duskMoth, 36),
+        (4, BossKind.pirate, 30),
+        (5, BossKind.baronBat, 24),
+        (6, BossKind.spitterBeetle, 30),
+        (7, BossKind.duskMoth, 36),
+        (8, BossKind.pirate, 42),
+        (9, BossKind.baronBat, 24),
       ]) {
         final boss = sim.boss!;
         expect((boss.number, boss.kind, boss.hp), (number, kind, hp * 10));
@@ -52,6 +52,20 @@ void main() {
         hover(sim, boss.departureDuration + .1);
         expect(sim.boss, isNull);
         expect(sim.obstacles, isNotEmpty);
+        if (kind == BossKind.duskMoth) {
+          // A gale follows the Dusk Empress, and the next boss waits for it.
+          // gale_test.dart flies one through.
+          sim.elapsed += Gale.afterBoss;
+          step(sim);
+          expect(sim.gale, isNotNull);
+          sim.elapsed += FlightSimulation.bossInterval;
+          step(sim);
+          expect(sim.boss, isNull);
+          sim.gale = null;
+          step(sim);
+          expect(sim.boss!.phase, BossPhase.arriving);
+          continue;
+        }
         sim.elapsed += FlightSimulation.bossInterval - .3;
         step(sim);
         expect(sim.boss, isNull);

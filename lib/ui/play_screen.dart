@@ -936,7 +936,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
           Semantics(
             label: sim.boss == null
                 ? 'Tap to flap'
-                : 'Tap to flap. ${sim.boss!.name}: ${sim.boss!.hp} of ${sim.boss!.maxHp} health${sim.boss!.isMoth ? '. ${sim.boss!.shieldHint}' : ''}',
+                : 'Tap to flap. ${sim.boss!.name}: ${sim.boss!.hp} of ${sim.boss!.maxHp} health${sim.boss!.isMoth ? '. ${sim.boss!.shieldHint}' : sim.boss!.isPirate ? '. ${sim.boss!.tideHint}' : ''}',
             button: true,
             onTap: controller.flap,
             child: Listener(

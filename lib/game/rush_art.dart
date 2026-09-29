@@ -3,6 +3,7 @@ import 'package:flutter/painting.dart';
 import '../domain/game_rules.dart';
 import '../ui/theme.dart';
 import 'enemy_defeat_art.dart';
+import 'gale_art.dart';
 import 'sky_scenery.dart';
 
 class _Stone {
@@ -833,13 +834,12 @@ abstract final class RushArt {
     canvas.drawRect(
       body,
       Paint()
-        ..shader =
-            LinearGradient(
-              begin: down ? Alignment.topCenter : Alignment.bottomCenter,
-              end: down ? Alignment.bottomCenter : Alignment.topCenter,
-              colors: [ember, ember, mortar],
-              stops: const [0, .22, .95],
-            ).createShader(body),
+        ..shader = LinearGradient(
+          begin: down ? Alignment.topCenter : Alignment.bottomCenter,
+          end: down ? Alignment.bottomCenter : Alignment.topCenter,
+          colors: [ember, ember, mortar],
+          stops: const [0, .22, .95],
+        ).createShader(body),
     );
 
     var y = from, cut = .5;
@@ -1074,9 +1074,7 @@ abstract final class RushArt {
             impact +
             Offset(
               (a - .4) * h * (body ? .02 : .018 + drift * .06),
-              body
-                  ? (i - 1) * tall * .3
-                  : along * tall * (.62 + drift * 1.1),
+              body ? (i - 1) * tall * .3 : along * tall * (.62 + drift * 1.1),
             );
         canvas.drawPath(
           _dustBlob(
@@ -1184,10 +1182,7 @@ abstract final class RushArt {
       );
       final cut = corners.length ~/ 2 + 1;
       canvas.drawPath(
-        Path()..addPolygon([
-          ...corners.sublist(cut - 1),
-          corners.first,
-        ], true),
+        Path()..addPolygon([...corners.sublist(cut - 1), corners.first], true),
         Paint()
           ..color = Color.lerp(
             stone.dark,
@@ -3348,6 +3343,7 @@ abstract final class RushArt {
   // cool, has to shout off this plate over a pale sky.
   static const _bannerInk = Color(0xff14252e);
   static const _bannerLife = 1.9;
+  static const _galeBlue = Color(0xff5bc0eb);
 
   /// Announces a run and celebrates the escape, above everything else.
   static void banner(
@@ -3363,6 +3359,7 @@ abstract final class RushArt {
       final String title, detail;
       final Color accent;
       final RushPathKind? motif;
+      var wind = false;
       switch (event.kind) {
         case FlightEventKind.rushWarning:
           final kind = RushPathKind
@@ -3394,6 +3391,18 @@ abstract final class RushArt {
           final escape = (sim.lastRushKind ?? RushPathKind.wildfire).escape;
           detail = 'You ${escape[0].toLowerCase()}${escape.substring(1)}';
           accent = SkyColors.gold;
+        case FlightEventKind.galeWarning:
+          motif = null;
+          wind = true;
+          title = 'GALE!';
+          detail = 'Dodge the debris where the ! flashes!';
+          accent = _galeBlue;
+        case FlightEventKind.galeWeathered:
+          final flawless = event.value > Gale.weatherBonus;
+          motif = null;
+          title = '${flawless ? 'FLAWLESS' : 'WEATHERED'}! +${event.value}';
+          detail = 'You rode out the gale';
+          accent = SkyColors.gold;
         default:
           continue;
       }
@@ -3407,6 +3416,7 @@ abstract final class RushArt {
             detail: detail,
             accent: accent,
             motif: motif,
+            wind: wind,
             age: age,
             reducedMotion: reducedMotion,
           ) +
@@ -3425,9 +3435,10 @@ abstract final class RushArt {
     required RushPathKind? motif,
     required double age,
     required bool reducedMotion,
+    bool wind = false,
   }) {
     final h = size.height;
-    final celebrating = motif == null;
+    final celebrating = motif == null && !wind;
     final fade = math.min(
       (age / .09).clamp(0.0, 1.0),
       _smooth((_bannerLife - age) / .28),
@@ -3468,12 +3479,41 @@ abstract final class RushArt {
       Paint()
         ..color = Color.lerp(accent, _bannerInk, .62)!.withValues(alpha: fade),
     );
-    final line = type(
-      detail,
-      detailSize,
-      FontWeight.w600,
-      Paint()..color = SkyColors.cream.withValues(alpha: .94 * fade * reveal),
-    );
+    final detailPaint = Paint()
+      ..color = SkyColors.cream.withValues(alpha: .94 * fade * reveal);
+    final mark = wind ? detail.indexOf('!') : -1;
+    final TextPainter line;
+    if (mark < 0) {
+      line = type(detail, detailSize, FontWeight.w600, detailPaint);
+    } else {
+      // The gale's "!" wears the warning's own orange, so the card teaches
+      // the mark the player is about to watch for.
+      TextStyle style(Paint paint, FontWeight weight) => TextStyle(
+        fontFamily: 'Fredoka',
+        fontWeight: weight,
+        fontSize: detailSize,
+        letterSpacing: h * .002,
+        foreground: paint,
+      );
+      line = TextPainter(
+        text: TextSpan(
+          style: style(detailPaint, FontWeight.w600),
+          children: [
+            TextSpan(text: detail.substring(0, mark)),
+            TextSpan(
+              text: '!',
+              style: style(
+                Paint()
+                  ..color = GaleArt.warning.withValues(alpha: fade * reveal),
+                FontWeight.w700,
+              ),
+            ),
+            TextSpan(text: detail.substring(mark + 1)),
+          ],
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+    }
     final glyph = h * .04, gap = h * .028;
     final cardW =
         math.max(shade.width + (glyph * 2 + gap) * 2, line.width) + h * .1;
@@ -3518,6 +3558,33 @@ abstract final class RushArt {
         );
       }
       canvas.restore();
+    }
+
+    if (wind) {
+      // Gusts stream past behind the card and out either side of it, the
+      // way the gale is about to blow across the screen.
+      final drift = reducedMotion ? 0.0 : age * h * .1 + (1 - land) * h * .08;
+      final gust = Color.lerp(
+        accent,
+        _bannerInk,
+        .2,
+      )!.withValues(alpha: .85 * fade);
+      for (final (i, (y, curl, lead)) in const [
+        (-.62, -1, .05),
+        (.06, 0, .11),
+        (.66, 1, .02),
+      ].indexed) {
+        GaleArt.gust(
+          canvas,
+          Offset(-halfW - tail - h * lead - drift, halfH * y),
+          halfW * 2 + tail * 2 + h * (.16 + lead),
+          h * (i == 1 ? .0042 : .0052),
+          gust,
+          curl: curl == 0 ? 0 : h * .026,
+          turn: curl,
+          sway: i * 2.0,
+        );
+      }
     }
 
     final ribbon = halfH * .62 * unfurl;
@@ -3666,8 +3733,13 @@ abstract final class RushArt {
         side * (shade.width / 2 + gap + glyph),
         titleTop + shade.height * .5 + bob,
       );
-      canvas.scale(side * glyph * grow, glyph * grow);
-      _bannerMotif(canvas, motif, accent, fade);
+      // Wind badges both face the way the gale blows, not the title.
+      canvas.scale((wind ? -1 : side) * glyph * grow, glyph * grow);
+      if (wind) {
+        _windMotif(canvas, accent, fade);
+      } else {
+        _bannerMotif(canvas, motif, accent, fade);
+      }
       canvas.restore();
     }
 
@@ -3699,6 +3771,46 @@ abstract final class RushArt {
     return hsl
         .withLightness((hsl.lightness * amount).clamp(0.0, 1.0))
         .toColor();
+  }
+
+  /// Two gusts rolling over into curls, the way wind is drawn on a weather
+  /// map, in a unit box around the origin. The curls are big and left open
+  /// so at badge size they read as air rather than as bars.
+  static void _windMotif(Canvas canvas, Color accent, double alpha) {
+    final stroke = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = .28
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    canvas.drawPath(
+      Path()
+        ..moveTo(-1.05, -.1)
+        ..lineTo(.3, -.1)
+        ..arcTo(
+          Rect.fromCircle(center: const Offset(.3, -.48), radius: .38),
+          math.pi / 2,
+          -4.4,
+          false,
+        ),
+      stroke
+        ..color = Color.lerp(
+          accent,
+          SkyColors.cream,
+          .55,
+        )!.withValues(alpha: alpha),
+    );
+    canvas.drawPath(
+      Path()
+        ..moveTo(-.75, .38)
+        ..lineTo(0, .38)
+        ..arcTo(
+          Rect.fromCircle(center: const Offset(0, .7), radius: .32),
+          -math.pi / 2,
+          4.4,
+          false,
+        ),
+      stroke..color = accent.withValues(alpha: alpha),
+    );
   }
 
   /// The badge that flanks a title, drawn in a unit box around the origin.

@@ -141,6 +141,7 @@ String _kindName(BossKind kind) => switch (kind) {
   BossKind.baronBat => 'baron-bat',
   BossKind.spitterBeetle => 'spitter-king',
   BossKind.duskMoth => 'dusk-empress',
+  BossKind.pirate => 'pirate-captain',
 };
 
 /// Areas the Flutter flight HUD (SceneLayout 1000×450, contain-fit) keeps

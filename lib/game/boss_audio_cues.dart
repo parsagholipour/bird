@@ -5,7 +5,7 @@ class BossAudioCues {
   int? _number;
   double _age = -1, _death = -1, _hit = double.negativeInfinity;
   double _shieldHit = double.negativeInfinity;
-  int _volleys = 0, _summons = 0;
+  int _volleys = 0, _summons = 0, _tideSurges = 0, _tideRises = 0;
   bool _charging = false, _enraged = false, _shielded = false;
 
   List<String> advance(SkyBoss? boss, {bool silent = false}) {
@@ -18,6 +18,8 @@ class BossAudioCues {
       _hit = double.negativeInfinity;
       _volleys = 0;
       _summons = 0;
+      _tideSurges = 0;
+      _tideRises = 0;
       _shielded = false;
       _shieldHit = double.negativeInfinity;
       return const [];
@@ -42,8 +44,15 @@ class BossAudioCues {
       }
       if (boss.phase == BossPhase.attacking) {
         if (!_enraged && boss.enraged && !fresh) cues.add('boss_enrage');
-        if (!_charging && boss.charge > 0) cues.add('boss_charge');
-        if (boss.volleys > _volleys && !fresh) cues.add('boss_volley');
+        // The Pirate Captain lights a fuse and fires a cannon.
+        if (!_charging && boss.charge > 0) {
+          cues.add(boss.isPirate ? 'cannon_fuse' : 'boss_charge');
+        }
+        if (boss.volleys > _volleys && !fresh) {
+          cues.add(boss.isPirate ? 'cannon_fire' : 'boss_volley');
+        }
+        if (boss.tideSurges > _tideSurges && !fresh) cues.add('tide_warning');
+        if (boss.tideRises > _tideRises && !fresh) cues.add('tide_surge');
         if (boss.summons > _summons && !fresh) cues.add('boss_summon');
         if (boss.shielded && !_shielded && !fresh) cues.add('boss_shield');
         if (boss.lastShieldHitAt > _shieldHit &&
@@ -66,6 +75,8 @@ class BossAudioCues {
     _hit = boss.lastHitAt;
     _volleys = boss.volleys;
     _summons = boss.summons;
+    _tideSurges = boss.tideSurges;
+    _tideRises = boss.tideRises;
     _shieldHit = boss.lastShieldHitAt;
     _shielded = boss.shielded;
     _charging = boss.charge > 0;
