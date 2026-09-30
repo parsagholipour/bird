@@ -1,3 +1,8 @@
+// Scenery tests render every region's crossing frame by frame, so their work
+// grows with the tour.
+@Timeout(Duration(minutes: 2))
+library;
+
 import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
@@ -64,11 +69,16 @@ void main() {
       expect(WorldRegion.jungle.next, WorldRegion.antarctica);
       expect(WorldRegion.antarctica.next, WorldRegion.aztec);
       expect(WorldRegion.paris.next, WorldRegion.egypt);
+      // Egypt's hot noon hands over to the neon night of Cyberpunk City,
+      // which gives way to China's pastel dusk.
+      expect(WorldRegion.egypt.next, WorldRegion.cyberpunk);
+      expect(WorldRegion.cyberpunk.next, WorldRegion.china);
       expect(WorldRegion.sea.next, WorldRegion.jungle);
       expect(
         WorldRegion.values,
         containsAll([
           WorldRegion.egypt,
+          WorldRegion.cyberpunk,
           WorldRegion.aztec,
           WorldRegion.mexico,
           WorldRegion.paris,

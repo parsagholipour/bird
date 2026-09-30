@@ -63,6 +63,7 @@ flutter:
   assets:
     - assets/images/
     - assets/audio/
+    - assets/audio/story/
     - assets/audio/sprint_voice_examples/sprint_03.mp3
     - assets/audio/sprint_voice_examples/sprint_01.mp3
     - assets/audio/sprint_voice_examples/sprint_08.mp3

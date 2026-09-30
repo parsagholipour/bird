@@ -15,6 +15,7 @@ and uses the existing **Sound effects** setting independently of music.
 | Boss arrival | Ominous wind warning, reveal impact, creature roar |
 | Boss combat | Charge, heavy volley, hit, shield activation/block, summon and enrage |
 | Pirate Captain | Crackling fuse, black-powder cannon boom with a wooden deck knock (two takes), a ship's bell over swelling water for the tide warning, a roaring surge, and a plunging splash (two takes) |
+| Ember Dragon | A 1.45 s inhale that swells from near silence: air rushing in over a growl climbing 42–74 Hz, with embers crackling in the throat toward the end. A 1.6 s flame: a heavy ignition whump, then a turbulent roaring jet that holds and gutters out, with snapping embers. A 0.45 s ember split: a sharp pop and three hissing tongues. Charge and volley reuse the shared boss cues |
 | Boss death | Breaking body, debris burst and victory flourish, timed to the animation |
 | Player damage / recovery | Padded impact, shield break/recharge and dedicated heart pickup |
 | Rewards | Three rotating bell tones for stars, plus bell and wood tones for perfect gates, combos, magnet, letters, deliveries and discoveries |
@@ -25,6 +26,25 @@ Generated Foley was made with ElevenLabs `eleven_text_to_sound_v2`. Prompts,
 generation IDs and downloaded source hashes are in
 [sound-effects-sources.json](sound-effects-sources.json). The other cues are
 original deterministic compositions in `tool/prepare_sound_effects.py`.
+The Ember Dragon's `dragon_inhale`, `dragon_breath` and `ember_split` are
+among them. They use no external source and no network, and are built from
+seeded noise with the script's `flame`, `crackle` and `growl` helpers. To
+render only those three:
+
+```sh
+python3 tool/prepare_sound_effects.py --only dragon_inhale dragon_breath ember_split
+```
+
+The upgraded Baron Bat's `screech_warning` (1.45 s: falling sonar chirps
+that quicken from about 3 to 18 a second and climb in pitch, over a thin
+whistle drawing tight) and `sonic_screech` (1.2 s: a soft pressure thump,
+then a shrill, wavering two-voice shriek gliding down from 2.6 kHz over a
+descending rush of air) are synthesised the same way, with the script's
+`chirp` and `whistle` helpers:
+
+```sh
+python3 tool/prepare_sound_effects.py --only screech_warning sonic_screech
+```
 
 The source takes are kept in ignored `build/sound-effects/source/`. To reproduce
 the assets after restoring those source files:

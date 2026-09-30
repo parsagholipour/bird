@@ -310,14 +310,29 @@ class ParisScene extends RegionScene {
     // under the thing that casts it. The water lies between the ridge and the
     // near bank.
     final scroll = f.reducedMotion ? 0.0 : f.distance * Depth.low.parallax * h;
-    final start = WorldTour.at(f.seconds).startOf(WorldRegion.paris);
+    final start = f.blend.startOf(WorldRegion.paris);
     final far = f.reducedMotion
         ? 0.0
         : (f.seconds - start) * WorldBackdrop.cruise * Depth.mid.parallax * h;
+    // A campaign level repeats the far bank, so every copy casts its lamps
+    // and its tower, each inside its own stretch of the bank.
+    final copies = WorldBackdrop.copies(f, Depth.mid).toList();
+    void cast(void Function(double far) reflect) {
+      for (final copy in copies) {
+        if (f.held) {
+          c.save();
+          c.clipRect(Rect.fromLTRB(copy.from, 0, copy.to, h));
+        }
+        reflect(far - copy.shift);
+        if (f.held) c.restore();
+      }
+    }
+
     _seineSheen(c, f, scroll, presence);
     _seineRipples(c, w, h, clock, scroll, presence);
-    _seineFarBank(c, w, h, clock, far, presence);
-    _seineTower(c, w, h, clock, far, presence);
+    cast((far) => _seineFarBank(c, w, h, clock, far, presence));
+    _seineLights(c, w, h, far, presence);
+    cast((far) => _seineTower(c, w, h, clock, far, presence));
     _seineMoon(c, light.at.dx * w, h, clock, presence);
     _seineGlints(c, w, h, clock, scroll, presence);
   }
@@ -4167,6 +4182,16 @@ class ParisScene extends RegionScene {
           ..strokeWidth = h * (.0026 + .0004 * k),
       );
     }
+  }
+
+  /// Loose glints of the far bank's windows, wrapping with its drift.
+  static void _seineLights(
+    Canvas c,
+    double w,
+    double h,
+    double scroll,
+    double presence,
+  ) {
     _seineLight.reset();
     final span = w + h * .6;
     for (var m = 0; m < 12; m++) {

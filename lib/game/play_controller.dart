@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import '../domain/campaign.dart';
 import '../domain/session_replay.dart';
 import '../data/session_repository.dart';
 import 'package:flutter/foundation.dart';
@@ -12,8 +13,20 @@ import '../domain/game_rules.dart';
 import '../tracking/native_tracking_source.dart';
 import '../tracking/tracking_api.g.dart' show MicrophoneAccess;
 import 'audio.dart';
+import 'knockout_art.dart';
 
-enum PlayStage { setup, starting, calibration, ready, flying, results, error }
+/// [fallen] plays the knockout after a fatal collision; the run is already
+/// being saved while it does. [results] follows it (or any other ending).
+enum PlayStage {
+  setup,
+  starting,
+  calibration,
+  ready,
+  flying,
+  fallen,
+  results,
+  error,
+}
 
 class PlayController extends ChangeNotifier {
   PlayController({
@@ -29,8 +42,16 @@ class PlayController extends ChangeNotifier {
     this.reducedMotion = false,
     this.recordAudio = false,
     this.rememberRecordAudio,
+    this.level,
     DateTime Function()? clock,
   }) : assert(mode == PlayMode.touch || source != null),
+       assert(
+         level == null ||
+             (mode == PlayMode.touch &&
+                 course == FlightCourse.starTrail &&
+                 !practice),
+         'A campaign level is a scored Tap & Fly Star Trail',
+       ),
        clock = clock ?? DateTime.now {
     if (isTouch) return;
     _samples = source!.samples.listen(_onSample);
@@ -40,6 +61,8 @@ class PlayController extends ChangeNotifier {
         background();
         return;
       }
+      // The run has ended; the camera stopping must not interrupt the fall.
+      if (stage == PlayStage.fallen) return;
       message = issue.message;
       if (simulation?.phase == RunPhase.playing) {
         recorder?.command('end', EndReason.trackingLost);
@@ -69,6 +92,26 @@ class PlayController extends ChangeNotifier {
   final int bird;
   final int weaponDamage;
   final bool reducedMotion;
+
+  /// The campaign level flown, or null for endless. Every attempt, retries
+  /// included, flies the level's plan and fixed seed; the tape keeps the
+  /// plan and the result carries the level id.
+  final CampaignLevel? level;
+  bool get campaign => level != null;
+
+  /// Level stars (0–3) this flight earned: none until it crosses the
+  /// finish line (or beats a boss level's boss), then one for finishing and
+  /// one for each collection mark reached.
+  int get levelStars => simulation?.levelStars ?? 0;
+
+  /// Whether this flight finished its level. A level fails when the flight
+  /// ends any other way, such as a knockout or Finish flight in the pause
+  /// menu.
+  bool get levelComplete => campaign && result?.reason == EndReason.completed;
+
+  /// The level after this one, across chapters, or null after the last or
+  /// in endless. Whether it is unlocked is up to the saved progress.
+  CampaignLevel? get nextLevel => level == null ? null : Campaign.after(level!);
   final Future<void> Function(bool)? rememberRecordAudio;
   bool recordAudio, microphoneRequestPending = false;
   bool microphoneSettingsAvailable = false;
@@ -289,6 +332,10 @@ class PlayController extends ChangeNotifier {
   }
 
   void advance(double dt, double now, double width) {
+    if (stage == PlayStage.fallen) {
+      _advanceKnockout(dt);
+      return;
+    }
     if (isTouch) {
       if (_disposed ||
           stage != PlayStage.flying ||
@@ -531,6 +578,8 @@ class PlayController extends ChangeNotifier {
         weaponDamage: weaponDamage,
         reducedMotion: reducedMotion,
         originMs: nowMs,
+        // A level ignores the seed and lays its own fixed route.
+        plan: level?.plan,
       ),
       () => nowMs,
     );
@@ -549,7 +598,59 @@ class PlayController extends ChangeNotifier {
   void tick() {
     if (simulation?.phase == RunPhase.ended) {
       unawaited(finish());
+      // The knockout and its stage change only on their own transitions.
+      if (stage == PlayStage.fallen || stage == PlayStage.results) return;
     }
+    notify();
+  }
+
+  /// Seconds since a fatal bump while its knockout plays, then held at its
+  /// end under the game-over stage. Null for every other ending.
+  double? knockout;
+  Timer? _knockoutTimer;
+  double get knockoutSeconds =>
+      KnockoutArt.duration(reducedMotion: reducedMotion);
+
+  /// A tap may skip the rest of the knockout only after [KnockoutArt.skipAfter],
+  /// so frantic flapping cannot dismiss it by accident.
+  bool get canSkipKnockout =>
+      stage == PlayStage.fallen && (knockout ?? 0) >= KnockoutArt.skipAfter;
+
+  void skipKnockout() {
+    if (canSkipKnockout) _showStage();
+  }
+
+  void _startKnockout() {
+    knockout = 0;
+    _knockoutTimer?.cancel();
+    // The game loop drives the knockout; this only guards against frames
+    // stopping, so the stage can never be stranded.
+    _knockoutTimer = Timer(
+      Duration(milliseconds: ((knockoutSeconds + 1) * 1000).round()),
+      _showStage,
+    );
+  }
+
+  void _advanceKnockout(double dt) {
+    final before = knockout;
+    if (_disposed || before == null || !dt.isFinite || dt <= 0) return;
+    final now = before + dt;
+    knockout = now;
+    final splash = simulation == null
+        ? null
+        : KnockoutArt.splashAt(simulation!, reducedMotion: reducedMotion);
+    if (splash != null && before < splash && now >= splash) {
+      audio.effect('sea_splash');
+    }
+    if (now >= knockoutSeconds) _showStage();
+  }
+
+  void _showStage() {
+    _knockoutTimer?.cancel();
+    _knockoutTimer = null;
+    if (_disposed || stage != PlayStage.fallen) return;
+    knockout = knockoutSeconds;
+    stage = PlayStage.results;
     notify();
   }
 
@@ -586,8 +687,18 @@ class PlayController extends ChangeNotifier {
       durationSeconds: game.elapsed,
       reason: game.endReason!,
       finishedAt: date,
+      bird: bird,
+      levelId: game.levelId,
     );
-    stage = PlayStage.results;
+    // A fatal bump plays its knockout first; saving still starts right now.
+    if (game.endReason == EndReason.collision) {
+      stage = PlayStage.fallen;
+      _startKnockout();
+      // Star Trail's last lost heart already sounds its bump.
+      if (!game.isTrail) audio.effect('bump');
+    } else {
+      stage = PlayStage.results;
+    }
     final endCue = switch (game.endReason!) {
       EndReason.completed => 'complete',
       EndReason.collision ||
@@ -667,6 +778,9 @@ class PlayController extends ChangeNotifier {
     if (stage == PlayStage.flying) {
       recorder?.command('background');
       if (simulation?.phase == RunPhase.ended) unawaited(finish());
+    } else if (stage == PlayStage.fallen) {
+      // Coming back lands on the game-over stage, not a stale fall.
+      _showStage();
     } else if (stage == PlayStage.calibration ||
         stage == PlayStage.ready ||
         stage == PlayStage.starting) {
@@ -701,6 +815,9 @@ class PlayController extends ChangeNotifier {
     }
     await _discardClips();
     _finishing = null;
+    _knockoutTimer?.cancel();
+    _knockoutTimer = null;
+    knockout = null;
     cameraRecordingError = '';
     simulation = null;
     result = null;
@@ -718,6 +835,7 @@ class PlayController extends ChangeNotifier {
     _disposed = true;
     ++_operation;
     _refresh?.cancel();
+    _knockoutTimer?.cancel();
     _samples?.cancel();
     _issues?.cancel();
     unawaited(() async {

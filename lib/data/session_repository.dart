@@ -191,6 +191,9 @@ Map<String, dynamic> _resultJson(RunResult r) => {
   'duration': r.durationSeconds,
   'reason': r.reason.name,
   'finishedAt': r.finishedAt.toIso8601String(),
+  'bird': r.bird,
+  // The library names a campaign session after its level.
+  if (r.levelId != null) 'level': r.levelId,
 };
 RunResult _readResult(Map<String, dynamic> r) => RunResult(
   id: r['id'] as String,
@@ -207,4 +210,6 @@ RunResult _readResult(Map<String, dynamic> r) => RunResult(
   durationSeconds: (r['duration'] as num).toDouble(),
   reason: EndReason.values.byName(r['reason'] as String),
   finishedAt: DateTime.parse(r['finishedAt'] as String),
+  bird: r['bird'] as int? ?? 0,
+  levelId: r['level'] as String?,
 );

@@ -14,7 +14,37 @@ enum MatchSymbol {
   stop,
   wing,
   sprint,
+  clock,
+  eye,
 }
+
+/// The flight HUD's shared grid, in [SceneLayout] units. Every readout is a
+/// [MatchPlate] or a round sticker button of the same material, so the
+/// spacing below is measured between faces; outlines and lips hang outside.
+abstract final class MatchLayout {
+  /// Inset from the scene edges, and the standard face height of a plate.
+  static const edge = 16.0, height = 56.0;
+
+  /// Space between neighbouring faces in a row, and between stacked faces,
+  /// which also clears the lip of the one above.
+  static const gap = 12.0, stack = 20.0;
+}
+
+/// Bold Fredoka for every HUD number, drawn from the font's weight axis
+/// rather than a synthesized bold.
+TextStyle matchDigits(double size, {Color color = SkyColors.ink}) => heading(
+  size,
+  color: color,
+  weight: FontWeight.w700,
+).copyWith(fontVariations: const [FontVariation('wght', 700)]);
+
+/// A thin ink edge and drop under light text on a colored face, so white
+/// numbers hold on coral, gold and purple alike.
+List<Shadow> matchInkEdge(double width) => [
+  for (final (dx, dy) in [(-1, 0), (1, 0), (0, -1), (0, 1)])
+    Shadow(color: SkyColors.ink, offset: Offset(dx * width, dy * width)),
+  Shadow(color: SkyColors.ink, offset: Offset(0, width * 2)),
+];
 
 /// Small illustrated symbols share the world's rounded outlines and highlights.
 class MatchIcon extends StatelessWidget {
@@ -39,14 +69,19 @@ class _MatchIconPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     canvas.save();
     canvas.scale(size.width / 32, size.height / 32);
+    // Muted symbols become empty sockets: a faint ink fill and outline read
+    // as "not yet" on cream and colored faces alike.
     final outline = Paint()
-      ..color = muted ? SkyColors.muted.withValues(alpha: .35) : SkyColors.ink
+      ..color = muted ? SkyColors.ink.withValues(alpha: .38) : SkyColors.ink
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.6
+      ..strokeWidth = 2
       ..strokeJoin = StrokeJoin.round
       ..strokeCap = StrokeCap.round;
     void shape(Path path, Color color) {
-      canvas.drawPath(path, Paint()..color = muted ? SkyColors.sky : color);
+      canvas.drawPath(
+        path,
+        Paint()..color = muted ? SkyColors.ink.withValues(alpha: .1) : color,
+      );
       canvas.drawPath(path, outline);
     }
 
@@ -65,18 +100,21 @@ class _MatchIconPainter extends CustomPainter {
         final path = Path();
         for (var i = 0; i < 10; i++) {
           final angle = -math.pi / 2 + i * math.pi / 5;
-          final radius = i.isEven ? 13.0 : 6.4;
+          final radius = i.isEven ? 13.5 : 6.6;
           final x = 16 + math.cos(angle) * radius;
-          final y = 16 + math.sin(angle) * radius;
+          final y = 16.5 + math.sin(angle) * radius;
           i == 0 ? path.moveTo(x, y) : path.lineTo(x, y);
         }
         shape(path..close(), SkyColors.yellow);
-        line(
-          Path()
-            ..moveTo(12, 13)
-            ..lineTo(15, 8),
-          color: SkyColors.cream,
-        );
+        if (!muted) {
+          line(
+            Path()
+              ..moveTo(12, 13.5)
+              ..lineTo(15, 8.5),
+            color: SkyColors.white,
+            width: 2.2,
+          );
+        }
       case MatchSymbol.heart:
         shape(
           Path()
@@ -93,8 +131,8 @@ class _MatchIconPainter extends CustomPainter {
             Path()
               ..moveTo(7, 12)
               ..quadraticBezierTo(7, 7, 11, 8),
-            color: SkyColors.cream,
-            width: 2.4,
+            color: SkyColors.white,
+            width: 2.6,
           );
         }
       case MatchSymbol.shield:
@@ -144,7 +182,7 @@ class _MatchIconPainter extends CustomPainter {
             ..lineTo(11, 11)
             ..moveTo(21, 11)
             ..lineTo(27, 11),
-          color: SkyColors.white,
+          color: muted ? outline.color : SkyColors.white,
           width: 3,
         );
       case MatchSymbol.shot:
@@ -154,7 +192,7 @@ class _MatchIconPainter extends CustomPainter {
             ..lineTo(11, 15)
             ..moveTo(5, 26)
             ..lineTo(14, 21),
-          color: SkyColors.cream,
+          color: muted ? outline.color : SkyColors.cream,
           width: 2.8,
         );
         shape(
@@ -173,7 +211,7 @@ class _MatchIconPainter extends CustomPainter {
             ..moveTo(16, 14)
             ..lineTo(21, 11)
             ..lineTo(25, 13),
-          color: SkyColors.sand,
+          color: muted ? outline.color : SkyColors.sand,
           width: 2.2,
         );
         line(
@@ -182,16 +220,16 @@ class _MatchIconPainter extends CustomPainter {
             ..lineTo(25, 5)
             ..moveTo(29, 5)
             ..lineTo(31, 4),
-          color: SkyColors.cream,
+          color: muted ? outline.color : SkyColors.cream,
           width: 1.6,
         );
       case MatchSymbol.pause:
-        for (final x in [7.0, 20.0]) {
+        for (final x in [8.0, 19.0]) {
           shape(
             Path()..addRRect(
               RRect.fromRectAndRadius(
-                Rect.fromLTWH(x, 6, 6, 20),
-                const Radius.circular(2),
+                Rect.fromLTWH(x, 6, 5.5, 20),
+                const Radius.circular(2.75),
               ),
             ),
             SkyColors.ink,
@@ -225,7 +263,7 @@ class _MatchIconPainter extends CustomPainter {
           Path()
             ..moveTo(8, 23)
             ..quadraticBezierTo(12, 17, 21, 11),
-          color: SkyColors.white,
+          color: muted ? outline.color : SkyColors.white,
         );
       case MatchSymbol.sprint:
         line(
@@ -255,6 +293,57 @@ class _MatchIconPainter extends CustomPainter {
             color,
           );
         }
+      case MatchSymbol.clock:
+        shape(
+          Path()..addRRect(
+            RRect.fromRectAndRadius(
+              const Rect.fromLTWH(12.5, 2, 7, 5),
+              const Radius.circular(2),
+            ),
+          ),
+          SkyColors.coral,
+        );
+        shape(
+          Path()..addOval(
+            Rect.fromCircle(center: const Offset(16, 18.5), radius: 11.5),
+          ),
+          SkyColors.white,
+        );
+        line(
+          Path()
+            ..moveTo(16, 18.5)
+            ..lineTo(16, 11.5)
+            ..moveTo(16, 18.5)
+            ..lineTo(21, 21),
+          width: 2.6,
+        );
+      case MatchSymbol.eye:
+        shape(
+          Path()
+            ..moveTo(2.5, 16)
+            ..quadraticBezierTo(16, 1, 29.5, 16)
+            ..quadraticBezierTo(16, 31, 2.5, 16)
+            ..close(),
+          SkyColors.white,
+        );
+        shape(
+          Path()..addOval(
+            Rect.fromCircle(center: const Offset(16, 16), radius: 6.5),
+          ),
+          SkyColors.teal,
+        );
+        canvas.drawCircle(
+          const Offset(16, 16),
+          2.8,
+          Paint()..color = outline.color,
+        );
+        if (!muted) {
+          canvas.drawCircle(
+            const Offset(18.2, 13.8),
+            1.4,
+            Paint()..color = SkyColors.white,
+          );
+        }
     }
     canvas.restore();
   }
@@ -264,33 +353,180 @@ class _MatchIconPainter extends CustomPainter {
       symbol != oldDelegate.symbol || muted != oldDelegate.muted;
 }
 
+/// The HUD's one material, painted around a face that fills the layout box:
+/// a soft drop shadow, a chunky ink outline wrapped around the face and its
+/// darker lip, and a lit top rim. A light face with a dark edge keeps a
+/// clear silhouette over bright snow, neon nights and busy jungle alike.
+///
+/// [pressed] (0 to 1) sinks the face into its lip. The outline, lip and
+/// shadow paint outside the box, so sizes and hit targets stay exact.
+class _Surface extends CustomPainter {
+  const _Surface({
+    required this.color,
+    this.radius,
+    this.pressed = 0,
+    this.focused = false,
+    this.lip = 4,
+    this.outline = 2.5,
+  });
+  final Color color;
+
+  /// Corner radius; null makes a pill or, on a square box, a circle.
+  final double? radius;
+  final double pressed, lip, outline;
+  final bool focused;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final r = math.min(radius ?? size.height / 2, size.shortestSide / 2);
+    final base = RRect.fromRectAndRadius(
+      Offset(0, lip) & size,
+      Radius.circular(r),
+    );
+    final face = base.shift(Offset(0, -lip * (1 - pressed)));
+    canvas.drawRRect(
+      base.inflate(outline).shift(const Offset(0, 2)),
+      Paint()
+        ..color = SkyColors.ink.withValues(alpha: .3)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
+    );
+    if (focused) {
+      final ring = Paint()..color = SkyColors.gold;
+      canvas.drawRRect(base.inflate(outline + 3.5), ring);
+      canvas.drawRRect(face.inflate(outline + 3.5), ring);
+    }
+    final ink = Paint()..color = SkyColors.ink;
+    canvas.drawRRect(base.inflate(outline), ink);
+    canvas.drawRRect(face.inflate(outline), ink);
+    canvas.drawRRect(
+      base,
+      Paint()..color = Color.lerp(color, SkyColors.ink, .34)!,
+    );
+    final bounds = face.outerRect;
+    canvas.drawRRect(
+      face,
+      Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color.lerp(color, SkyColors.white, .5)!, color],
+          stops: const [0, .55],
+        ).createShader(bounds),
+    );
+    canvas.drawRRect(
+      face.deflate(1.2),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.6
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            SkyColors.white.withValues(alpha: .95),
+            SkyColors.white.withValues(alpha: 0),
+          ],
+          stops: const [0, .5],
+        ).createShader(bounds),
+    );
+  }
+
+  @override
+  bool shouldRepaint(_Surface oldDelegate) =>
+      color != oldDelegate.color ||
+      radius != oldDelegate.radius ||
+      pressed != oldDelegate.pressed ||
+      focused != oldDelegate.focused ||
+      lip != oldDelegate.lip ||
+      outline != oldDelegate.outline;
+}
+
+/// A readout plate in the HUD material. [radius] defaults to a pill.
 class MatchPlate extends StatelessWidget {
   const MatchPlate({
     super.key,
     required this.child,
     this.color = SkyColors.cream,
+    this.padding = const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+    this.radius,
   });
   final Widget child;
   final Color color;
+  final EdgeInsets padding;
+  final double? radius;
 
   @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-    decoration: BoxDecoration(
-      color: color.withValues(alpha: .94),
-      borderRadius: BorderRadius.circular(24),
-      border: Border.all(
-        color: SkyColors.white.withValues(alpha: .85),
-        width: 2,
-      ),
-      boxShadow: [
-        BoxShadow(
-          color: SkyColors.ink.withValues(alpha: .12),
-          offset: const Offset(0, 3),
+  Widget build(BuildContext context) => CustomPaint(
+    painter: _Surface(color: color, radius: radius),
+    child: Padding(padding: padding, child: child),
+  );
+}
+
+/// A small tilted sticker for a bonus, such as the score multiplier.
+class MatchTag extends StatelessWidget {
+  const MatchTag(this.text, {super.key, this.color = SkyColors.coral});
+  final String text;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => Transform.rotate(
+    angle: -.12,
+    child: CustomPaint(
+      painter: _Surface(color: color, radius: 11, lip: 3, outline: 2),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 1, 9, 3),
+        child: Text(
+          text,
+          style: matchDigits(
+            24,
+            color: SkyColors.white,
+          ).copyWith(shadows: matchInkEdge(1.2)),
         ),
-      ],
+      ),
     ),
+  );
+}
+
+/// Presses a round sticker face into its lip. Under reduced motion the face
+/// stays put and a held press shades it instead.
+class _PressedFace extends StatelessWidget {
+  const _PressedFace({
+    required this.size,
+    required this.color,
+    required this.pressed,
+    required this.still,
+    required this.focused,
+    required this.child,
+  });
+  final double size;
+  final Color color;
+  final bool pressed, still, focused;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => TweenAnimationBuilder<double>(
+    tween: Tween(end: pressed && !still ? 1 : 0),
+    duration: still ? Duration.zero : const Duration(milliseconds: 90),
+    curve: Curves.easeOut,
     child: child,
+    builder: (context, depth, child) => SizedBox.square(
+      dimension: size,
+      child: CustomPaint(
+        painter: _Surface(color: color, pressed: depth, focused: focused),
+        child: Transform.translate(
+          offset: Offset(0, 4 * depth),
+          child: DecoratedBox(
+            // Without motion, a held press still shades the face.
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: pressed && still
+                  ? SkyColors.ink.withValues(alpha: .1)
+                  : Colors.transparent,
+            ),
+            child: child,
+          ),
+        ),
+      ),
+    ),
   );
 }
 
@@ -320,13 +556,13 @@ class _MatchPulseState extends State<MatchPulse>
     TweenSequenceItem(
       tween: Tween(
         begin: 1.0,
-        end: 1.12,
+        end: 1.14,
       ).chain(CurveTween(curve: Curves.easeOut)),
       weight: 35,
     ),
     TweenSequenceItem(
       tween: Tween(
-        begin: 1.12,
+        begin: 1.14,
         end: 1.0,
       ).chain(CurveTween(curve: Curves.easeInOut)),
       weight: 65,
@@ -362,6 +598,9 @@ class _MatchPulseState extends State<MatchPulse>
       ScaleTransition(scale: _scale, child: widget.child);
 }
 
+/// A symbol inside a progress ring, with an optional value beside it.
+/// [segments] splits the ring into countable steps, such as the nine stars
+/// that restore a shield.
 class MatchMeter extends StatelessWidget {
   const MatchMeter({
     super.key,
@@ -371,6 +610,7 @@ class MatchMeter extends StatelessWidget {
     this.text,
     this.active = true,
     this.color = SkyColors.teal,
+    this.segments = 0,
   });
   final MatchSymbol symbol;
   final double value;
@@ -378,6 +618,7 @@ class MatchMeter extends StatelessWidget {
   final String? text;
   final bool active;
   final Color color;
+  final int segments;
 
   @override
   Widget build(BuildContext context) => Semantics(
@@ -389,20 +630,28 @@ class MatchMeter extends StatelessWidget {
         SizedBox.square(
           dimension: 44,
           child: CustomPaint(
-            painter: _MeterRing(value, color),
-            child: Center(child: MatchIcon(symbol, size: 27, muted: !active)),
+            painter: _MeterRing(value, color, segments: segments),
+            child: Center(child: MatchIcon(symbol, size: 26, muted: !active)),
           ),
         ),
         if (text != null) ...[
           const SizedBox(width: 6),
-          Text(text!, style: heading(21)),
+          Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: Text(text!, style: matchDigits(25)),
+          ),
         ],
       ],
     ),
   );
 }
 
-class MatchHealth extends StatelessWidget {
+/// Hearts and the shield. A lost heart bursts out of its socket and shakes
+/// the plate; a new heart pops in. Both are single, short reactions, and
+/// reduced motion shows the new state at once.
+const _v = int.fromEnvironment('MERGE_V');
+
+class MatchHealth extends StatefulWidget {
   const MatchHealth({
     super.key,
     required this.hearts,
@@ -415,60 +664,178 @@ class MatchHealth extends StatelessWidget {
   final bool shield, recovering, reducedMotion;
 
   @override
-  Widget build(BuildContext context) => MatchPlate(
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
+  State<MatchHealth> createState() => _MatchHealthState();
+}
+
+class _MatchHealthState extends State<MatchHealth>
+    with SingleTickerProviderStateMixin {
+  static const _heart = 32.0;
+  late final _reaction = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 460),
+  );
+
+  /// The socket that changed, and whether it filled or emptied.
+  int _slot = -1;
+  bool _gained = false;
+
+  bool get _still =>
+      widget.reducedMotion || MediaQuery.disableAnimationsOf(context);
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_still) _reaction.reset();
+  }
+
+  @override
+  void didUpdateWidget(MatchHealth oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (_still) {
+      _reaction.reset();
+    } else if (widget.hearts != oldWidget.hearts) {
+      _gained = widget.hearts > oldWidget.hearts;
+      _slot = _gained ? widget.hearts - 1 : widget.hearts;
+      _reaction.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _reaction.dispose();
+    super.dispose();
+  }
+
+  Widget _socket(int i, double t) {
+    final full = i < widget.hearts;
+    final heart = MatchIcon(MatchSymbol.heart, size: _heart, muted: !full);
+    if (i != _slot || !_reaction.isAnimating) return heart;
+    if (_gained) {
+      final pop = Curves.easeOutBack.transform(t);
+      return Transform.scale(scale: .35 + .65 * pop, child: heart);
+    }
+    // The lost heart swells and fades out of its now-empty socket.
+    return Stack(
+      alignment: Alignment.center,
       children: [
-        Semantics(
-          label: '$hearts hearts remaining',
-          excludeSemantics: true,
-          child: MatchPulse(
-            value: hearts,
-            reducedMotion: reducedMotion,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (hearts > 3) ...[
-                  const MatchIcon(MatchSymbol.heart),
-                  const SizedBox(width: 4),
-                  Text(
-                    '×$hearts',
-                    style: heading(24, color: SkyColors.coralDeep),
-                  ),
-                ] else
-                  for (var i = 0; i < 3; i++)
-                    MatchIcon(MatchSymbol.heart, size: 28, muted: i >= hearts),
-              ],
-            ),
-          ),
-        ),
-        Container(
-          width: 1,
-          height: 24,
-          margin: const EdgeInsets.symmetric(horizontal: 9),
-          color: SkyColors.ink.withValues(alpha: .12),
-        ),
-        MatchPulse(
-          value: (shield, recovering),
-          reducedMotion: reducedMotion,
-          child: MatchMeter(
-            key: const ValueKey('match-shield'),
-            symbol: MatchSymbol.shield,
-            value: shield || recovering ? 1 : charge / 9,
-            active: shield || recovering,
-            color: recovering ? SkyColors.gold : SkyColors.teal,
-            label: recovering
-                ? 'Recovering'
-                : shield
-                ? 'Shield ready'
-                : 'Shield charging: $charge of 9 stars',
+        heart,
+        Opacity(
+          opacity: (1 - t).clamp(0.0, 1.0),
+          child: Transform.scale(
+            scale: 1 + .7 * Curves.easeOut.transform(t),
+            child: const MatchIcon(MatchSymbol.heart, size: _heart),
           ),
         ),
       ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final hearts = widget.hearts;
+    final shield = widget.shield, recovering = widget.recovering;
+    final shieldMeter = MatchPulse(
+      value: (shield, recovering),
+      reducedMotion: widget.reducedMotion,
+      child: MatchMeter(
+        key: const ValueKey('match-shield'),
+        symbol: MatchSymbol.shield,
+        value: shield || recovering ? 1 : widget.charge / 9,
+        active: shield || recovering,
+        color: recovering ? SkyColors.gold : SkyColors.teal,
+        segments: shield || recovering ? 0 : 9,
+        label: recovering
+            ? 'Recovering'
+            : shield
+            ? 'Shield ready'
+            : 'Shield charging: ${widget.charge} of 9 stars',
+      ),
+    );
+    return AnimatedBuilder(
+      animation: _reaction,
+      builder: (context, _) {
+        final t = _reaction.value;
+        final shaking = _reaction.isAnimating && !_gained;
+        final heartRow = ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: _heart * 3),
+          child: SizedBox(
+            height: 34,
+            child: Semantics(
+              label: '$hearts hearts remaining',
+              excludeSemantics: true,
+              child: Center(
+                child: hearts > 3
+                    ? Transform.scale(
+                        scale: _reaction.isAnimating
+                            ? 1 + .15 * math.sin(t * math.pi)
+                            : 1,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const MatchIcon(
+                              MatchSymbol.heart,
+                              size: _heart + 4,
+                            ),
+                            const SizedBox(width: 3),
+                            Text(
+                              '×$hearts',
+                              style: matchDigits(
+                                27,
+                                color: SkyColors.coralDeep,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [for (var i = 0; i < 3; i++) _socket(i, t)],
+                      ),
+              ),
+            ),
+          ),
+        );
+        return Transform.translate(
+          offset: Offset(
+            shaking ? math.sin(t * math.pi * 6) * 6 * (1 - t) : 0,
+            0,
+          ),
+          child: MatchPlate(
+            radius: _v == 0
+                ? 32
+                : _v == 1
+                ? 28
+                : 24,
+            padding: const EdgeInsets.fromLTRB(11, 5, 11, 6),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [heartRow, const _Seam(), shieldMeter],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// A faint groove between two readouts that share one plate.
+class _Seam extends StatelessWidget {
+  const _Seam();
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: 84,
+    height: 2.5,
+    margin: const EdgeInsets.symmetric(vertical: 4),
+    decoration: BoxDecoration(
+      color: SkyColors.ink.withValues(alpha: .12),
+      borderRadius: BorderRadius.circular(2),
     ),
   );
 }
 
+/// A round sticker button. [hitSlop] widens the touch target around the
+/// face without making the face itself bigger.
 class MatchAction extends StatefulWidget {
   const MatchAction({
     super.key,
@@ -477,12 +844,13 @@ class MatchAction extends StatefulWidget {
     required this.onPressed,
     required this.reducedMotion,
     this.size = 72,
+    this.hitSlop = 0,
   });
   final MatchSymbol symbol;
   final String label;
   final VoidCallback? onPressed;
   final bool reducedMotion;
-  final double size;
+  final double size, hitSlop;
 
   @override
   State<MatchAction> createState() => _MatchActionState();
@@ -500,7 +868,7 @@ class _MatchActionState extends State<MatchAction> {
 
   @override
   Widget build(BuildContext context) {
-    final disabled =
+    final still =
         widget.reducedMotion || MediaQuery.disableAnimationsOf(context);
     return Semantics(
       button: true,
@@ -516,6 +884,9 @@ class _MatchActionState extends State<MatchAction> {
             color: Colors.transparent,
             child: InkWell(
               customBorder: const CircleBorder(),
+              highlightColor: Colors.transparent,
+              hoverColor: Colors.transparent,
+              focusColor: Colors.transparent,
               onTap: widget.onPressed,
               onFocusChange: (value) => setState(() => _focused = value),
               onHighlightChanged: (value) {
@@ -523,39 +894,18 @@ class _MatchActionState extends State<MatchAction> {
                 if (widget.onPressed == null || _pressed == value) return;
                 setState(() => _pressed = value);
               },
-              child: AnimatedContainer(
-                duration: disabled
-                    ? Duration.zero
-                    : const Duration(milliseconds: 100),
-                width: widget.size,
-                height: widget.size,
-                transformAlignment: Alignment.center,
-                transform: Matrix4.diagonal3Values(
-                  _pressed && !disabled ? .92 : 1,
-                  _pressed && !disabled ? .92 : 1,
-                  1,
-                ),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [SkyColors.white, SkyColors.cream],
+              child: Padding(
+                padding: EdgeInsets.all(widget.hitSlop),
+                child: _PressedFace(
+                  size: widget.size,
+                  color: SkyColors.cream,
+                  pressed: _pressed,
+                  still: still,
+                  focused: _focused,
+                  child: Center(
+                    child: MatchIcon(widget.symbol, size: widget.size * .54),
                   ),
-                  border: Border.all(
-                    color: _focused
-                        ? SkyColors.gold
-                        : SkyColors.white.withValues(alpha: .9),
-                    width: 3,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: SkyColors.ink.withValues(alpha: .22),
-                      offset: Offset(0, _pressed ? 1 : 4),
-                    ),
-                  ],
                 ),
-                child: Center(child: MatchIcon(widget.symbol, size: 30)),
               ),
             ),
           ),
@@ -608,7 +958,7 @@ class _MatchSprintButtonState extends State<MatchSprintButton> {
         widget.reducedMotion || MediaQuery.disableAnimationsOf(context);
     final sprinting = widget.burst > 0;
     final ready = !sprinting && widget.secondsLeft == 0;
-    final scale = _pressed && !still ? .92 : 1.0;
+    final recharging = !ready && !sprinting;
     return Semantics(
       button: true,
       enabled: widget.onPressed != null,
@@ -632,69 +982,55 @@ class _MatchSprintButtonState extends State<MatchSprintButton> {
               color: Colors.transparent,
               child: InkWell(
                 customBorder: const CircleBorder(),
+                highlightColor: Colors.transparent,
+                hoverColor: Colors.transparent,
+                focusColor: Colors.transparent,
                 onTap: widget.onPressed,
                 onFocusChange: (value) => setState(() => _focused = value),
                 onHighlightChanged: (value) {
                   if (widget.onPressed == null || _pressed == value) return;
                   setState(() => _pressed = value);
                 },
-                child: AnimatedContainer(
-                  duration: still
-                      ? Duration.zero
-                      : const Duration(milliseconds: 100),
-                  width: widget.size,
-                  height: widget.size,
-                  transformAlignment: Alignment.center,
-                  transform: Matrix4.diagonal3Values(scale, scale, 1),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: sprinting
-                          ? const [SkyColors.yellow, SkyColors.gold]
-                          : ready
-                          ? const [SkyColors.mint, SkyColors.teal]
-                          : const [SkyColors.white, SkyColors.cream],
-                    ),
-                    border: Border.all(
-                      color: _focused
-                          ? SkyColors.ink
-                          : SkyColors.white.withValues(alpha: .9),
-                      width: 3,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: SkyColors.ink.withValues(alpha: .22),
-                        offset: Offset(0, _pressed ? 1 : 4),
-                        blurRadius: ready ? 10 : 0,
-                      ),
-                    ],
-                  ),
+                child: _PressedFace(
+                  size: widget.size,
+                  color: sprinting
+                      ? SkyColors.yellow
+                      : ready
+                      ? SkyColors.teal
+                      : SkyColors.cream,
+                  pressed: _pressed,
+                  still: still,
+                  focused: _focused,
                   child: Padding(
-                    padding: const EdgeInsets.all(5),
+                    padding: const EdgeInsets.all(6),
                     child: CustomPaint(
-                      painter: _MeterRing(
-                        sprinting ? widget.burst : widget.recharge,
-                        sprinting
-                            ? SkyColors.white
-                            : ready
-                            ? SkyColors.cream
-                            : SkyColors.teal,
-                      ),
+                      painter: recharging || sprinting
+                          ? _MeterRing(
+                              sprinting ? widget.burst : widget.recharge,
+                              sprinting ? SkyColors.white : SkyColors.teal,
+                              width: 5,
+                            )
+                          : null,
                       child: Center(
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            MatchIcon(
-                              MatchSymbol.sprint,
-                              size: 40,
-                              muted: !ready && !sprinting,
-                            ),
-                            if (!ready && !sprinting)
-                              Text('${widget.secondsLeft}', style: heading(26)),
-                          ],
-                        ),
+                        child: recharging
+                            ? Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    '${widget.secondsLeft}',
+                                    style: matchDigits(widget.size * .36),
+                                  ),
+                                  MatchIcon(
+                                    MatchSymbol.sprint,
+                                    size: widget.size * .24,
+                                    muted: true,
+                                  ),
+                                ],
+                              )
+                            : MatchIcon(
+                                MatchSymbol.sprint,
+                                size: widget.size * .5,
+                              ),
                       ),
                     ),
                   ),
@@ -817,75 +1153,57 @@ class _MatchShotButtonState extends State<MatchShotButton> {
           onPointerDown: _down,
           onPointerUp: _up,
           onPointerCancel: _up,
-          child: AnimatedScale(
-            duration: still ? Duration.zero : const Duration(milliseconds: 100),
-            scale: _held && !still ? .94 : 1,
-            child: Container(
-              width: widget.size,
-              height: widget.size,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color.lerp(
-                      SkyColors.coral,
-                      SkyColors.gold,
-                      widget.charge * .5,
-                    )!,
-                    SkyColors.coralDeep,
-                  ],
-                ),
-                border: Border.all(
-                  color: _focused
-                      ? SkyColors.gold
-                      : SkyColors.white.withValues(alpha: .9),
-                  width: 3,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: SkyColors.coralDeep.withValues(alpha: .22),
-                    offset: Offset(0, _held ? 1 : 4),
-                    blurRadius: 12,
-                  ),
-                ],
+          child: _PressedFace(
+            size: widget.size,
+            color: widget.empty
+                ? Color.lerp(SkyColors.coral, SkyColors.muted, .35)!
+                : Color.lerp(
+                    SkyColors.coral,
+                    SkyColors.gold,
+                    widget.charge * .6,
+                  )!,
+            pressed: _held,
+            still: still,
+            focused: _focused,
+            child: CustomPaint(
+              painter: _ShotMeter(
+                reserve: widget.reserve,
+                spend: widget.spend,
+                charge: widget.charge,
+                hold: widget.hold,
+                charging: showingCharge,
               ),
-              child: CustomPaint(
-                painter: _ShotMeter(
-                  reserve: widget.reserve,
-                  spend: widget.spend,
-                  charge: widget.charge,
-                  hold: widget.hold,
-                  charging: showingCharge,
-                ),
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Transform.scale(
-                        scale: still ? 1 : 1 + widget.charge * .2,
-                        child: MatchIcon(
-                          MatchSymbol.shot,
-                          size: widget.empty ? 32 : 46,
-                          muted: widget.empty,
-                        ),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Transform.scale(
+                      scale: still ? 1 : 1 + widget.charge * .2,
+                      child: MatchIcon(
+                        MatchSymbol.shot,
+                        size: widget.size * (widget.empty ? .34 : .46),
+                        muted: widget.empty,
                       ),
-                      if (widget.empty) ...[
-                        const SizedBox(height: 4),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text(
-                              'Reloading…',
-                              style: heading(12, color: SkyColors.white),
-                            ),
+                    ),
+                    if (widget.empty) ...[
+                      const SizedBox(height: 2),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: widget.size * .16,
+                        ),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            'Reloading…',
+                            style: matchDigits(
+                              16,
+                              color: SkyColors.white,
+                            ).copyWith(shadows: matchInkEdge(1)),
                           ),
                         ),
-                      ],
+                      ),
                     ],
-                  ),
+                  ],
                 ),
               ),
             ),
@@ -911,7 +1229,7 @@ class _ShotMeter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 4
+      ..strokeWidth = 5
       ..strokeCap = StrokeCap.round;
     void arc(Rect bounds, double from, double to, Color color) {
       if (to <= from) return;
@@ -924,21 +1242,16 @@ class _ShotMeter extends CustomPainter {
       );
     }
 
-    final outer = (Offset.zero & size).deflate(7);
+    final outer = (Offset.zero & size).deflate(8);
     final left = reserve.clamp(0.0, 1.0);
     final kept = (left - spend).clamp(0.0, left);
-    canvas.drawOval(
-      outer,
-      paint..color = SkyColors.cream.withValues(alpha: .2),
-    );
+    // The reserve runs in a dark groove, so a low reserve still reads.
+    canvas.drawOval(outer, paint..color = SkyColors.ink.withValues(alpha: .28));
     arc(outer, 0, kept, SkyColors.cream);
     arc(outer, kept, left, SkyColors.yellow);
     if (!charging) return;
-    final inner = (Offset.zero & size).deflate(17);
-    canvas.drawOval(
-      inner,
-      paint..color = SkyColors.yellow.withValues(alpha: .25),
-    );
+    final inner = (Offset.zero & size).deflate(18);
+    canvas.drawOval(inner, paint..color = SkyColors.ink.withValues(alpha: .2));
     final level = charge >= 1 ? hold.clamp(0.0, 1.0) : charge;
     arc(inner, 0, level, charge >= 1 ? SkyColors.white : SkyColors.yellow);
   }
@@ -953,23 +1266,43 @@ class _ShotMeter extends CustomPainter {
 }
 
 class _MeterRing extends CustomPainter {
-  const _MeterRing(this.value, this.color);
+  const _MeterRing(this.value, this.color, {this.segments = 0, this.width = 4});
   final double value;
   final Color color;
+  final int segments;
+  final double width;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final bounds = (Offset.zero & size).deflate(2);
+    final bounds = (Offset.zero & size).deflate(width / 2 + .5);
     final paint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 3
+      ..strokeWidth = width
       ..strokeCap = StrokeCap.round;
-    canvas.drawOval(bounds, paint..color = color.withValues(alpha: .18));
-    if (value > 0) {
+    final track = SkyColors.ink.withValues(alpha: .14);
+    final level = value.clamp(0.0, 1.0);
+    if (segments > 1) {
+      // Countable steps: a gap wide enough to survive the round caps.
+      final step = math.pi * 2 / segments;
+      final gap = width / (bounds.width / 2) + .2;
+      final filled = (level * segments).round();
+      for (var i = 0; i < segments; i++) {
+        canvas.drawArc(
+          bounds,
+          -math.pi / 2 + i * step + gap / 2,
+          step - gap,
+          false,
+          paint..color = i < filled ? color : track,
+        );
+      }
+      return;
+    }
+    canvas.drawOval(bounds, paint..color = track);
+    if (level > 0) {
       canvas.drawArc(
         bounds,
         -math.pi / 2,
-        math.pi * 2 * value.clamp(0, 1),
+        math.pi * 2 * level,
         false,
         paint..color = color,
       );
@@ -978,5 +1311,8 @@ class _MeterRing extends CustomPainter {
 
   @override
   bool shouldRepaint(_MeterRing oldDelegate) =>
-      value != oldDelegate.value || color != oldDelegate.color;
+      value != oldDelegate.value ||
+      color != oldDelegate.color ||
+      segments != oldDelegate.segments ||
+      width != oldDelegate.width;
 }

@@ -1,3 +1,8 @@
+// Every region and crossing is rendered at full phone size, so the work
+// grows with the tour.
+@Timeout(Duration(minutes: 3))
+library;
+
 import 'dart:io';
 import 'dart:ui' as ui;
 

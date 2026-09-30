@@ -103,9 +103,9 @@ void main() {
     await tester.runAsync(() async {
       final crown = await _pixels(_boss(), crownOnly: true);
       for (final contact in const [
-        Offset(-.98, -.55),
-        Offset(-.76, -.635),
-        Offset(-.55, -.58),
+        Offset(-1.04, -.85),
+        Offset(-.76, -.9),
+        Offset(-.52, -.79),
       ]) {
         final x = (180 + contact.dx * 75).floor();
         final y = (180 + contact.dy * 75).floor();
@@ -254,7 +254,7 @@ void main() {
         reason: 'The shared projectile origin stays inside the dark mouth',
       );
       expect(
-        _changedIn(idle, recoil, const Rect.fromLTRB(-1.05, -.55, -.7, -.15)),
+        _changedIn(idle, recoil, const Rect.fromLTRB(-1.12, -.44, -.56, -.05)),
         greaterThan(40),
         reason: 'The pupil tracks the player independently of the pollen port',
       );
@@ -264,7 +264,7 @@ void main() {
         _changedIn(
           idle,
           await _pixels(boss),
-          const Rect.fromLTRB(-.82, -.04, -.3, .54),
+          const Rect.fromLTRB(-.86, .12, -.34, .58),
         ),
         greaterThan(250),
         reason: 'The glands visibly swell and glow before the fan',
@@ -357,9 +357,9 @@ void main() {
         ('DEFEAT · CROWN RELEASED', (b) => b.defeatedAt = 4.5),
       ];
       Future<void> sheet({required bool phone}) async {
-        final width = phone ? 220.0 : 320.0;
-        final height = phone ? 235.0 : 330.0;
-        final radius = phone ? 360 * SkyBoss.radius : 65.0;
+        final width = phone ? 250.0 : 360.0;
+        final height = phone ? 240.0 : 340.0;
+        final radius = phone ? 360 * SkyBoss.radius : 55.0;
         final recorder = ui.PictureRecorder();
         final canvas = Canvas(recorder)
           ..drawColor(const Color(0xff27243d), BlendMode.src);
@@ -381,7 +381,7 @@ void main() {
           _paint(
             canvas,
             boss,
-            Offset(left + width / 2, top + height * .56),
+            Offset(left + width * .38, top + height * .55),
             radius,
           );
         }
@@ -407,7 +407,7 @@ void main() {
       final recorder = ui.PictureRecorder();
       final canvas = Canvas(recorder)
         ..drawColor(const Color(0xff27243d), BlendMode.src);
-      _paint(canvas, _boss(), const Offset(335, 355), 230, reduced: true);
+      _paint(canvas, _boss(), const Offset(300, 330), 150, reduced: true);
       final picture = recorder.endRecording();
       final closeup = await picture.toImage(500, 400);
       File('build/visual-review/dusk-moth-crown-profile.png').writeAsBytesSync(

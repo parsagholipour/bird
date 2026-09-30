@@ -325,9 +325,12 @@ void main() {
           return const Offset(-1, -1);
         }
 
+        // The dragon's own card slams in on its roar (2.85 s), so it is
+        // judged once it is there.
+        final (cardA, cardB) = kind == BossKind.dragon ? (3.0, 3.5) : (2.0, 3.0);
         expect(
-          leftmost(await draw(boss(2.0), BossEncounterArt.foreground)).dx,
-          leftmost(await draw(boss(3), BossEncounterArt.foreground)).dx,
+          leftmost(await draw(boss(cardA), BossEncounterArt.foreground)).dx,
+          leftmost(await draw(boss(cardB), BossEncounterArt.foreground)).dx,
         );
         // The defeat burst holds its shape; it only fades.
         Future<Offset> centroid(double death) async {
@@ -340,6 +343,13 @@ void main() {
             final a = p[i + 3] / 255;
             if (a < .1) continue;
             final px = (i ~/ 4) % 640, py = (i ~/ 4) ~/ 640;
+            // The pirate's sea drains by the rules across the whole width;
+            // judge only his burst.
+            if (kind == BossKind.pirate &&
+                (Offset(px * 1.0, py * 1.0) - const Offset(360, 180)).distance >
+                    150) {
+              continue;
+            }
             sx += px * a;
             sy += py * a;
             n += a;

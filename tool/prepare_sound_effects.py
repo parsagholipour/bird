@@ -224,6 +224,97 @@ def boom(data, seed, gain=.9, hz=58):
         data[i] += gain * (.55 * crack + thump + .6 * rumble)
 
 
+def flame(data, seed, start, seconds, gain, attack=.05, release=.3,
+          flicker=11.0):
+    """A jet of fire: a dark roaring body under a bright hiss, torn up by
+    turbulence so it churns rather than whooshing flat."""
+    rng = random.Random(seed)
+    low = mid = hiss = 0.0
+    first = int(start * RATE)
+    count = min(len(data) - first, int(seconds * RATE))
+    for j in range(count):
+        t = j / RATE
+        noise = rng.uniform(-1, 1)
+        low += .045 * (noise - low)
+        mid += .22 * (noise - mid)
+        hiss = noise - mid
+        env = min(1, t / attack) * min(1, (seconds - t) / release)
+        # Two unsynchronised flutters make the flame lick and gutter.
+        churn = (.72 + .18 * math.sin(2 * math.pi * flicker * t + seed)
+                 + .10 * math.sin(2 * math.pi * flicker * 1.73 * t))
+        data[first + j] += gain * env * churn * (2.6 * low + 1.1 * (mid - low) + .07 * hiss)
+
+
+def crackle(data, seed, start, seconds, count, gain):
+    """Embers popping: tiny bright snaps scattered through a span."""
+    rng = random.Random(seed)
+    for _ in range(count):
+        at = start + rng.random() * seconds
+        first = int(at * RATE)
+        size = gain * (.4 + .6 * rng.random())
+        for j in range(min(int(.004 * RATE), len(data) - first)):
+            tt = j / RATE
+            data[first + j] += size * rng.uniform(-1, 1) * math.exp(-tt / .0009)
+
+
+def growl(data, start, seconds, hz_from, hz_to, gain, seed, swell=0.0):
+    """A great throat: a low saw-like drone with a slow, rough tremor.
+    [swell] starts it that much quieter and lets it build to full."""
+    rng = random.Random(seed)
+    phase = 0.0
+    first = int(start * RATE)
+    count = min(len(data) - first, int(seconds * RATE))
+    rough = 0.0
+    for j in range(count):
+        t = j / RATE
+        u = t / seconds
+        hz = hz_from + (hz_to - hz_from) * u
+        rough += .002 * (rng.uniform(-1, 1) - rough)
+        phase += 2 * math.pi * hz * (1 + 6 * rough) / RATE
+        tone = sum(math.sin(k * phase) / k for k in range(1, 7))
+        tremor = .7 + .3 * math.sin(2 * math.pi * 7.5 * t)
+        env = min(1, t / .12) * min(1, (seconds - t) / .08)
+        env *= 1 - swell + swell * u
+        data[first + j] += gain * env * tremor * tone
+
+
+def chirp(data, at, length, hz_from, hz_to, gain):
+    """One bat call: a quick falling sweep with a soft attack."""
+    start = int(at * RATE)
+    phase = 0.0
+    for j in range(min(int(length * RATE), len(data) - start)):
+        t = j / RATE
+        u = t / length
+        phase += 2 * math.pi * (hz_from + (hz_to - hz_from) * u) / RATE
+        env = math.sin(math.pi * u) ** 2
+        data[start + j] += gain * env * (math.sin(phase) + .25 * math.sin(2 * phase))
+
+
+def whistle(data, seed, start, seconds, hz_from, hz_to, gain, tremor=0.0,
+            swell=0.0):
+    """A shrill voice: a few detuned partials gliding from [hz_from] to
+    [hz_to], roughened by a fast [tremor] and a touch of breath noise.
+    [swell] starts it that much quieter and lets it build to full."""
+    rng = random.Random(seed)
+    first = int(start * RATE)
+    count = min(len(data) - first, int(seconds * RATE))
+    phases = [0.0, 0.0, 0.0]
+    breath = 0.0
+    for j in range(count):
+        t = j / RATE
+        u = t / seconds
+        hz = hz_from * (hz_to / hz_from) ** u
+        wobble = 1 + (.035 * math.sin(2 * math.pi * tremor * t) if tremor else 0)
+        tone = 0.0
+        for k, (detune, amp) in enumerate([(1, 1), (1.012, .6), (1.5, .28)]):
+            phases[k] += 2 * math.pi * hz * detune * wobble / RATE
+            tone += amp * math.sin(phases[k])
+        breath += .5 * (rng.uniform(-1, 1) - breath)
+        env = min(1, t / .025) * min(1, (seconds - t) / .25)
+        env *= 1 - swell + swell * u
+        data[first + j] += gain * env * (tone / 1.9 + .25 * breath)
+
+
 def synth(name, seconds, variant):
     if name in MENU_NOTES:
         return menu_chime(name, seconds)
@@ -340,6 +431,62 @@ def synth(name, seconds, variant):
             for j in range(min(int(.05 * RATE), len(data) - start)):
                 tt = j / RATE
                 data[start + j] += .07 * math.sin(2 * math.pi * hz * (1 + 2.5 * tt) * tt) * math.exp(-tt * 70)
+        return data
+    if name == 'dragon_inhale':
+        # A vast breath drawn in: air rushing into the jaws, brightening as
+        # the lungs fill, over a growl that climbs, and embers starting to
+        # crackle in the throat before the flame.
+        rng = random.Random(151)
+        low = band = 0.0
+        for i in range(len(data)):
+            t = i / RATE
+            u = t / seconds
+            bright = .015 + .09 * u * u
+            low += bright * (rng.uniform(-1, 1) - low)
+            band += bright * .7 * (low - band)
+            env = (u ** 1.6) * min(1, (seconds - t) / .06)
+            data[i] += .95 * env * (band + .5 * (low - band))
+        growl(data, .05, seconds - .05, 42, 74, .16, 153, swell=.75)
+        crackle(data, 157, seconds * .45, seconds * .5, 26, .20)
+        return data
+    if name == 'dragon_breath':
+        # The flame: a heavy ignition whump, then a roaring jet that holds
+        # and gutters out, with embers snapping all through it.
+        impact(data, .30, .70, seed=161, heavy=True)
+        flame(data, 163, 0, seconds, .55, attack=.04, release=.45)
+        flame(data, 165, .02, seconds * .7, .22, attack=.08, release=.3,
+              flicker=17.0)
+        growl(data, 0, seconds * .55, 70, 48, .10, 167)
+        crackle(data, 169, .1, seconds - .3, 40, .18)
+        return data
+    if name == 'ember_split':
+        # A fireball bursting: a sharp pop, three embers hissing away.
+        impact(data, .12, .55, seed=171)
+        for k in range(3):
+            flame(data, 173 + k, .02 + k * .025, seconds * .6, .12,
+                  attack=.01, release=.2, flicker=23.0 + 4 * k)
+        crackle(data, 179, .02, seconds * .6, 14, .22)
+        return data
+    if name == 'screech_warning':
+        # Echolocation: short falling chirps that quicken and climb as the
+        # Baron's ears flare, over a thin whistle drawing tight.
+        at, gap, k = 0.0, .30, 0
+        while at < seconds - .06:
+            u = at / seconds
+            chirp(data, at, .028, 1900 + 1500 * u, 1150 + 900 * u,
+                  .20 + .22 * u)
+            at += gap
+            gap = max(.055, gap * .80)
+            k += 1
+        whistle(data, 181, .1, seconds - .1, 2300, 3300, .07, swell=.9)
+        return data
+    if name == 'sonic_screech':
+        # The screech: a shrill, wavering shriek that tears out of the jaws
+        # and sweeps away, over a rush of air and a soft thump of pressure.
+        impact(data, .18, .35, seed=185, heavy=True)
+        whistle(data, 187, 0, seconds, 2600, 1500, .30, tremor=31.0)
+        whistle(data, 189, .01, seconds * .85, 1750, 1050, .16, tremor=23.0)
+        whoosh(data, seconds, .20, descending=True, seed=191)
         return data
     if name == 'rush_clear':
         run = [523.25, 659.25, 783.99, 1046.5, 1318.51, 1567.98]

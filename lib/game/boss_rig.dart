@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 import '../domain/sky_boss.dart';
+import 'baron_storm_art.dart';
+import 'baron_storm_pose.dart';
 import 'boss_motion.dart';
 import 'sky_scenery.dart';
 
@@ -74,6 +76,7 @@ abstract final class BossRig {
     BossMotion motion, {
     double lookY = 0,
     bool adorned = true,
+    BaronStormPose? storm,
   }) {
     final look = lookY.isFinite ? lookY.clamp(-1.0, 1.0) : 0.0;
     final fury = boss.enraged && !motion.defeated;
@@ -90,19 +93,29 @@ abstract final class BossRig {
     for (final side in [-1.0, 1.0]) {
       c.save();
       c.scale(side, 1);
-      _wing(c, wing, fury, adorned: adorned);
+      _wing(c, wing, fury, adorned: adorned, storm: storm);
       c.restore();
     }
-    if (adorned) _cape(c);
-    _ears(c);
+    if (storm != null) {
+      // The upgraded Baron: a storm-torn cape and great sonar ears.
+      if (adorned) BaronStormArt.cape(c);
+      BaronStormArt.ears(c, storm, fury: fury);
+    } else {
+      if (adorned) _cape(c);
+      _ears(c);
+    }
     _torso(c, adorned);
-    if (adorned) _breastplate(c, boss, motion, fury);
-    _face(c, boss, motion, look, fury);
+    if (adorned) _breastplate(c, boss, motion, fury, storm);
+    _face(c, boss, motion, look, fury, storm);
     if (adorned && motion.death < .3) {
       c.save();
       c.translate(0, -motion.crownLift);
       c.rotate(-motion.rotation * .55);
-      crown(c);
+      if (storm != null) {
+        BaronStormArt.crown(c, glow: storm.glow, fury: fury);
+      } else {
+        crown(c);
+      }
       c.restore();
     }
     if (flash > .01) c.restore();
@@ -155,6 +168,7 @@ abstract final class BossRig {
     List<Offset> wing,
     bool fury, {
     required bool adorned,
+    BaronStormPose? storm,
   }) {
     final [wrist, tip, f1, f2, f3] = wing;
     final arm = _bulge(_root, wrist, .16), hand = _bulge(wrist, tip, .07);
@@ -169,11 +183,16 @@ abstract final class BossRig {
     c.drawPath(path.shift(const Offset(.03, .07)), fill(ink));
     c.drawPath(
       path,
-      gradient(const Rect.fromLTRB(.6, -1.7, 2.4, .9), [
-        fury ? const Color(0xffd98fb4) : const Color(0xffb9a0e2),
-        fury ? const Color(0xff633a6e) : const Color(0xff5a4884),
-        fury ? const Color(0xff2e1a36) : const Color(0xff2b2140),
-      ]),
+      gradient(
+        const Rect.fromLTRB(.6, -1.7, 2.4, .9),
+        storm != null
+            ? BaronStormArt.wingColors(fury)
+            : [
+                fury ? const Color(0xffd98fb4) : const Color(0xffb9a0e2),
+                fury ? const Color(0xff633a6e) : const Color(0xff5a4884),
+                fury ? const Color(0xff2e1a36) : const Color(0xff2b2140),
+              ],
+      ),
     );
     final bones = Path();
     for (final finger in [f1, f2, f3]) {
@@ -184,16 +203,32 @@ abstract final class BossRig {
     for (var i = 0; adorned && i < 3; i++) {
       final at = Offset.lerp(wrist, [f1, f2, f3][i], .5 + i * .06)!;
       c.drawPath(
-        SkyScenery.star(at + const Offset(.04, .05), .06 - i * .008),
-        fill(gold.withValues(alpha: .55)),
+        storm != null
+            ? BaronStormArt.bolt(at + const Offset(.04, .05), .085 - i * .01)
+            : SkyScenery.star(at + const Offset(.04, .05), .06 - i * .008),
+        fill(gold.withValues(alpha: storm != null ? .7 : .55)),
       );
     }
     c.drawPath(path, line(ink, .065));
+    if (storm != null) {
+      // The upgraded Baron's leading edge crackles with lightning.
+      BaronStormArt.wingEdge(
+        c,
+        _root + const Offset(.04, .05),
+        arm + const Offset(0, .05),
+        wrist + const Offset(0, .05),
+        hand + const Offset(0, .04),
+        tip + const Offset(-.08, .04),
+        fury: fury,
+      );
+    }
     // The bright leading edge holds the span against dark skies.
     final edge = Path()..moveTo(_root.dx + .04, _root.dy + .05);
     _quad(edge, arm + const Offset(0, .05), wrist + const Offset(0, .05));
     _quad(edge, hand + const Offset(0, .04), tip + const Offset(-.08, .04));
-    c.drawPath(edge, line(fury ? ember : (adorned ? gold : violet), .05));
+    if (storm == null) {
+      c.drawPath(edge, line(fury ? ember : (adorned ? gold : violet), .05));
+    }
     // Thumb claw at the wrist.
     c.drawPath(
       Path()
@@ -301,8 +336,9 @@ abstract final class BossRig {
     Canvas c,
     SkyBoss boss,
     BossMotion motion,
-    bool fury,
-  ) {
+    bool fury, [
+    BaronStormPose? storm,
+  ]) {
     final armor = Path()
       ..moveTo(-.64, .4)
       ..quadraticBezierTo(0, .26, .64, .4)
@@ -324,6 +360,10 @@ abstract final class BossRig {
       line(gold.withValues(alpha: .45), .025),
     );
     final glow = motion.defeated ? 0.0 : math.max(boss.charge, motion.recoil);
+    if (storm != null) {
+      BaronStormArt.resonator(c, storm, charge: glow, fury: fury);
+      return;
+    }
     final gemColor = fury ? ember : _mint;
     c.drawPath(SkyScenery.star(const Offset(0, .64), .25), fill(ink));
     final gem = Path()
@@ -370,8 +410,9 @@ abstract final class BossRig {
     SkyBoss boss,
     BossMotion motion,
     double look,
-    bool fury,
-  ) {
+    bool fury, [
+    BaronStormPose? storm,
+  ]) {
     final charge = motion.defeated ? 0.0 : boss.charge;
     final wince = motion.wince, blink = motion.blink;
     final eyeShift = look * .09;
@@ -445,9 +486,11 @@ abstract final class BossRig {
       c.drawPath(lid, line(ink, .06));
     }
     // Tapered brows: steeper in fury, lifted and worried in defeat.
-    final tilt = motion.defeated
+    var tilt = motion.defeated
         ? -.16
         : (fury ? .07 : 0) + charge * .04 - wince * .05;
+    // The upgraded Baron scowls as the screech builds.
+    if (storm != null && !motion.defeated) tilt += storm.glow * .09;
     for (final side in [-1.0, 1.0]) {
       final outer = Offset(side * .76, -.64 - tilt * .4);
       final inner = Offset(side * .1, -.47 + tilt);
@@ -471,7 +514,7 @@ abstract final class BossRig {
         fill(ink),
       );
     }
-    _mouth(c, motion, charge, fury);
+    _mouth(c, motion, charge, fury, storm);
     if (fury) {
       // A popping anger mark on the temple away from the bird.
       final mark = Path();
@@ -491,13 +534,20 @@ abstract final class BossRig {
     }
   }
 
-  static void _mouth(Canvas c, BossMotion motion, double charge, bool fury) {
+  static void _mouth(
+    Canvas c,
+    BossMotion motion,
+    double charge,
+    bool fury, [
+    BaronStormPose? storm,
+  ]) {
     final open = motion.mouth.clamp(0.0, 1.0);
     const left = Offset(-.44, .02), right = Offset(.36, .07);
     const top = Offset(-.04, .14);
     Offset along(double t) =>
         left * ((1 - t) * (1 - t)) + top * (2 * t * (1 - t)) + right * (t * t);
-    final drop = open * .3;
+    // The upgraded Baron's jaw drops further for the screech.
+    final drop = open * (storm == null ? .3 : .55);
     final mouth = Path()
       ..moveTo(left.dx, left.dy)
       ..quadraticBezierTo(top.dx, top.dy, right.dx, right.dy)
@@ -517,16 +567,20 @@ abstract final class BossRig {
         fill((fury ? ember : gold).withValues(alpha: .75 * heat)),
       );
     }
-    c.drawOval(
-      Rect.fromCenter(
-        center: Offset(-.06, .3 + drop),
-        width: .22,
-        height: .08 + open * .05,
-      ),
-      fill(_tongue),
-    );
+    if (storm != null) BaronStormArt.throat(c, storm, drop, fury);
+    // Screeching, the upgraded Baron's throat is all sound.
+    if (storm == null || storm.jaw < .4) {
+      c.drawOval(
+        Rect.fromCenter(
+          center: Offset(-.06, .3 + drop),
+          width: .22,
+          height: .08 + open * .05,
+        ),
+        fill(_tongue),
+      );
+    }
     c.restore();
-    final fang = fury ? .16 : .14;
+    final fang = storm != null ? (fury ? .2 : .18) : (fury ? .16 : .14);
     for (final t in [.27, .72]) {
       final at = along(t);
       c.drawPath(

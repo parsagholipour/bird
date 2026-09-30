@@ -12,10 +12,10 @@ import 'sky_scenery.dart';
 /// inside that solid so a moving opening stays visually honest.
 ///
 /// Current flights dress each obstacle in the materials of the world region
-/// it spawned in (see [WorldTour.of]); older replay rules keep their
-/// original gate artwork.
+/// it spawned in (see [WorldTour.of]), or of the one region a campaign level
+/// has [held]; older replay rules keep their original gate artwork.
 abstract final class ObstacleArt {
-  static Color accent(Obstacle o, double seconds) {
+  static Color accent(Obstacle o, double seconds, {WorldRegion? held}) {
     final colors = switch (o.kind) {
       ObstacleKind.windLift => [
         SkyColors.teal,
@@ -51,7 +51,7 @@ abstract final class ObstacleArt {
     };
     return Color.lerp(
       colors[o.appearance % colors.length],
-      SkyPalette.at(seconds).land,
+      SkyPalette.at(seconds, held: held).land,
       .16,
     )!;
   }
@@ -66,10 +66,11 @@ abstract final class ObstacleArt {
     required bool perfect,
     bool refined = true,
     bool gardenStructures = true,
+    WorldRegion? held,
   }) {
-    final region = accent(o, seconds);
+    final region = accent(o, seconds, held: held);
     final color = cleared ? Color.lerp(region, SkyColors.mint, .35)! : region;
-    final world = WorldTour.of(o);
+    final world = WorldTour.of(o, held: held);
     final pass = PassState(cleared: cleared, perfect: perfect);
     for (final p in o.passages) {
       for (final top in [true, false]) {
@@ -100,6 +101,7 @@ abstract final class ObstacleArt {
             r,
             top: top,
             seconds: seconds,
+            held: held,
             reducedMotion: reducedMotion,
             cleared: cleared,
             perfect: perfect,
@@ -113,6 +115,7 @@ abstract final class ObstacleArt {
             r,
             top: top,
             seconds: seconds,
+            held: held,
             reducedMotion: reducedMotion,
             cleared: cleared,
             perfect: perfect,

@@ -6,6 +6,8 @@ class BossAudioCues {
   double _age = -1, _death = -1, _hit = double.negativeInfinity;
   double _shieldHit = double.negativeInfinity;
   int _volleys = 0, _summons = 0, _tideSurges = 0, _tideRises = 0;
+  int _breaths = 0, _breathBlasts = 0;
+  int _screechWarnings = 0, _screechBlasts = 0;
   bool _charging = false, _enraged = false, _shielded = false;
 
   List<String> advance(SkyBoss? boss, {bool silent = false}) {
@@ -20,6 +22,10 @@ class BossAudioCues {
       _summons = 0;
       _tideSurges = 0;
       _tideRises = 0;
+      _breaths = 0;
+      _breathBlasts = 0;
+      _screechWarnings = 0;
+      _screechBlasts = 0;
       _shielded = false;
       _shieldHit = double.negativeInfinity;
       return const [];
@@ -53,6 +59,18 @@ class BossAudioCues {
         }
         if (boss.tideSurges > _tideSurges && !fresh) cues.add('tide_warning');
         if (boss.tideRises > _tideRises && !fresh) cues.add('tide_surge');
+        // The Ember Dragon draws a rumbling breath, then looses the flame.
+        if (boss.breaths > _breaths && !fresh) cues.add('dragon_inhale');
+        if (boss.breathBlasts > _breathBlasts && !fresh) {
+          cues.add('dragon_breath');
+        }
+        // The upgraded Baron Bat's ears flare, then he screeches.
+        if (boss.screechWarnings > _screechWarnings && !fresh) {
+          cues.add('screech_warning');
+        }
+        if (boss.screechBlasts > _screechBlasts && !fresh) {
+          cues.add('sonic_screech');
+        }
         if (boss.summons > _summons && !fresh) cues.add('boss_summon');
         if (boss.shielded && !_shielded && !fresh) cues.add('boss_shield');
         if (boss.lastShieldHitAt > _shieldHit &&
@@ -77,6 +95,10 @@ class BossAudioCues {
     _summons = boss.summons;
     _tideSurges = boss.tideSurges;
     _tideRises = boss.tideRises;
+    _breaths = boss.breaths;
+    _breathBlasts = boss.breathBlasts;
+    _screechWarnings = boss.screechWarnings;
+    _screechBlasts = boss.screechBlasts;
     _shieldHit = boss.lastShieldHitAt;
     _shielded = boss.shielded;
     _charging = boss.charge > 0;

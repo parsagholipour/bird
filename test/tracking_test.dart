@@ -426,6 +426,86 @@ void main() {
     expect(observation.cues[DepthCue.rightElbow], lessThan(120));
     expect(observation.elbow, closeTo(180, .01));
   });
+  test('an upright body with hanging arms is not in push-up position', () {
+    // Facing the camera, arms straight and slightly away from the body, as
+    // recorded while the player knelt by the phone. Legs are out of view,
+    // so only the arms and torso can tell this from a straight-armed top.
+    TrackingSample upright(double roll) {
+      final radians = roll * math.pi / 180;
+      final joints = List.generate(33, (_) => const Joint(.5, .5, 0, 0));
+      void put(int id, double x, double y) {
+        final dx = x - .5, dy = y - .5;
+        joints[id] = Joint(
+          .5 + dx * math.cos(radians) - dy * math.sin(radians),
+          .5 + dx * math.sin(radians) + dy * math.cos(radians),
+          0,
+          1,
+        );
+      }
+
+      for (final (side, sign) in [(0, -1), (1, 1)]) {
+        put(11 + side, .5 + sign * .1, .2);
+        put(13 + side, .5 + sign * .175, .375);
+        put(15 + side, .5 + sign * .25, .55);
+        put(23 + side, .5 + sign * .07, .6);
+      }
+      return TrackingSample(
+        mode: PlayMode.pushUp,
+        timestampMs: 0,
+        receivedMs: 0,
+        joints: joints,
+        aspectRatio: 1,
+      );
+    }
+
+    for (final roll in [-45.0, 0.0, 45.0]) {
+      for (final view in [null, ...BodyPerspective.values]) {
+        final o = observeBody(upright(roll), 0, preferredPerspective: view);
+        expect(o.valid, isFalse, reason: '$roll° $view');
+      }
+      final o = observeBody(upright(roll), 0);
+      expect(o.feedback, contains('push-up position'), reason: '$roll°');
+    }
+    // Holding that pose never becomes a calibration top.
+    final c = BodyCalibrator();
+    for (var t = 0.0; t <= 3000; t += 40) {
+      final sample = upright(0);
+      c.add(
+        TrackingSample(
+          mode: PlayMode.pushUp,
+          timestampMs: t,
+          receivedMs: t,
+          joints: sample.joints,
+          aspectRatio: 1,
+        ),
+        t,
+      );
+    }
+    expect(c.step, BodyCalibrationStep.position);
+    expect(c.perspective, isNull);
+  });
+  test('a deep side-view bottom with the hands under the chest is valid', () {
+    // The arm is only ~41° from the torso, as close as an upright body's,
+    // but the hands sit a third of a torso behind the shoulder rather than
+    // down by the hips.
+    final joints = List.generate(33, (_) => const Joint(.5, .5, 0, 0));
+    joints[11] = const Joint(.3, .62, 0, 1);
+    joints[13] = const Joint(.4, .62, 0, 1);
+    joints[15] = const Joint(.4, .72, 0, 1);
+    joints[23] = const Joint(.6, .64, 0, 1);
+    final o = observeBody(
+      TrackingSample(
+        mode: PlayMode.pushUp,
+        timestampMs: 0,
+        receivedMs: 0,
+        joints: joints,
+        aspectRatio: 1,
+      ),
+      0,
+    );
+    expect(o.valid, isTrue, reason: o.feedback);
+    expect(o.perspective, BodyPerspective.side);
+  });
   test('looking down and one fully visible body side are valid', () {
     expect(observeBody(bodySample(0), 0).valid, isTrue);
     expect(observeBody(bodySample(0, down: true), 0).valid, isTrue);

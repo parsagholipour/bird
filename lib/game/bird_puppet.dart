@@ -3,22 +3,16 @@ import 'dart:ui' as ui;
 import 'package:flutter/painting.dart';
 import '../domain/bird_motion.dart';
 import '../domain/game_rules.dart';
-import '../ui/theme.dart';
 
 part 'bird_vector_paths.dart';
 
-enum _BirdTone { primary, secondary, cream, ink, coralDeep, coral, white }
+/// How a layer inside a bird's eye group reacts to an expression. Every eye
+/// layer hides while the eyes are closed; pupils and their catchlights shrink
+/// towards the pupil's centre when startled.
+enum _BirdEye { eye, nearPupil, farPupil, nearGlint, farGlint }
 
-enum _BirdEye {
-  farEye,
-  nearEye,
-  nearPupil,
-  farPupil,
-  nearCatchlight,
-  farCatchlight,
-}
-
-enum BirdExpression { neutral, blink, pleased, startled }
+/// [dazed] is the knockout face: pupils give way to dizzy spirals.
+enum BirdExpression { neutral, blink, pleased, startled, dazed }
 
 class _BirdLayer {
   const _BirdLayer(
@@ -28,14 +22,57 @@ class _BirdLayer {
     this.strokeWidth = 0,
     this.roundCap = false,
     this.roundJoin = false,
-    this.wing = false,
     this.eye,
+    this.clip,
   });
   final Path path;
-  final _BirdTone? fill, stroke;
+  final Color? fill, stroke;
   final double strokeWidth;
-  final bool roundCap, roundJoin, wing;
+  final bool roundCap, roundJoin;
   final _BirdEye? eye;
+
+  /// Markings are clipped to the body so they follow its outline exactly.
+  final Path? clip;
+
+  void paint(Canvas canvas) {
+    if (clip case final clip?) {
+      canvas.save();
+      canvas.clipPath(clip);
+    }
+    if (fill case final color?) {
+      canvas.drawPath(path, Paint()..color = color);
+    }
+    if (stroke case final color?) {
+      canvas.drawPath(
+        path,
+        Paint()
+          ..color = color
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = strokeWidth
+          ..strokeCap = roundCap ? StrokeCap.round : StrokeCap.butt
+          ..strokeJoin = roundJoin ? StrokeJoin.round : StrokeJoin.miter,
+      );
+    }
+    if (clip != null) canvas.restore();
+  }
+}
+
+/// One bird's artwork, compiled from its SVG in design/: the body layers, the
+/// wing that rotates around [wingPivot], and the face overlays each expression
+/// draws with that bird's own eye placement.
+class _BirdRig {
+  const _BirdRig({
+    required this.wingPivot,
+    required this.nearPupil,
+    required this.farPupil,
+    required this.body,
+    required this.wing,
+    required this.blink,
+    required this.pleased,
+    required this.startled,
+  });
+  final Offset wingPivot, nearPupil, farPupil;
+  final List<_BirdLayer> body, wing, blink, pleased, startled;
 }
 
 /// Visual pose derived only from replayable simulation state. It never changes
@@ -144,53 +181,49 @@ class BirdPose {
   }
 }
 
-/// Cached body and wing display lists preserve the original vector geometry.
+/// Cached body and wing display lists of each bird's compiled vector artwork.
 /// Each expression is cached per bird; wings are shared across expressions.
 /// There is no path parsing or recording per frame.
 abstract final class BirdPuppet {
   static final _bodies = <(int, BirdExpression), ui.Picture>{};
   static final _wings = <int, ui.Picture>{};
 
-  static Color _color(_BirdTone tone, int bird) => switch (tone) {
-    _BirdTone.primary => [
-      SkyColors.yellow,
-      SkyColors.coral,
-      SkyColors.mint,
-      SkyColors.lavender,
-    ][bird],
-    _BirdTone.secondary => [
-      SkyColors.gold,
-      SkyColors.coralDeep,
-      SkyColors.teal,
-      SkyColors.purple,
-    ][bird],
-    _BirdTone.cream => SkyColors.cream,
-    _BirdTone.ink => SkyColors.ink,
-    _BirdTone.coralDeep => SkyColors.coralDeep,
-    _BirdTone.coral => SkyColors.coral,
-    _BirdTone.white => SkyColors.white,
-  };
-
-  static ui.Picture _record(
-    int bird,
-    bool wing, [
-    BirdExpression expression = BirdExpression.neutral,
-  ]) {
+  static ui.Picture _recordBody(int bird, BirdExpression expression) {
+    final rig = _birdRigs[bird];
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
-    for (final layer in _birdLayers.where((layer) => layer.wing == wing)) {
-      if (layer.eye != null &&
-          (expression == BirdExpression.blink ||
-              expression == BirdExpression.pleased)) {
-        if (layer.eye == _BirdEye.farEye) _closedEyes(canvas, expression);
+    final closed = switch (expression) {
+      BirdExpression.blink => rig.blink,
+      BirdExpression.pleased => rig.pleased,
+      _ => null,
+    };
+    final startled = expression == BirdExpression.startled;
+    final dazed = expression == BirdExpression.dazed;
+    var closedDrawn = false;
+    for (final layer in rig.body) {
+      if (dazed && layer.eye != null && layer.eye != _BirdEye.eye) {
+        // Each pupil's place in the stack takes a spiral; glints go.
+        if (layer.eye == _BirdEye.nearPupil) {
+          _dizzy(canvas, rig, rig.nearPupil, 1);
+        } else if (layer.eye == _BirdEye.farPupil) {
+          _dizzy(canvas, rig, rig.farPupil, -1);
+        }
         continue;
       }
-      final pupilCenter = expression == BirdExpression.startled
+      if (layer.eye != null && closed != null) {
+        // Closed eyes take the place of the whole eye group.
+        if (!closedDrawn) {
+          for (final line in closed) {
+            line.paint(canvas);
+          }
+          closedDrawn = true;
+        }
+        continue;
+      }
+      final pupilCenter = startled
           ? switch (layer.eye) {
-              _BirdEye.nearPupil ||
-              _BirdEye.nearCatchlight => const Offset(146.5, 96.5),
-              _BirdEye.farPupil ||
-              _BirdEye.farCatchlight => const Offset(179, 96),
+              _BirdEye.nearPupil || _BirdEye.nearGlint => rig.nearPupil,
+              _BirdEye.farPupil || _BirdEye.farGlint => rig.farPupil,
               _ => null,
             }
           : null;
@@ -200,55 +233,62 @@ abstract final class BirdPuppet {
         canvas.scale(.63);
         canvas.translate(-pupilCenter.dx, -pupilCenter.dy);
       }
-      if (layer.fill case final tone?) {
-        canvas.drawPath(layer.path, Paint()..color = _color(tone, bird));
-      }
-      if (layer.stroke case final tone?) {
-        canvas.drawPath(
-          layer.path,
-          Paint()
-            ..color = _color(tone, bird)
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = layer.strokeWidth
-            ..strokeCap = layer.roundCap ? StrokeCap.round : StrokeCap.butt
-            ..strokeJoin = layer.roundJoin
-                ? StrokeJoin.round
-                : StrokeJoin.miter,
-        );
-      }
+      layer.paint(canvas);
       if (pupilCenter != null) canvas.restore();
     }
-    if (!wing && expression == BirdExpression.startled) {
-      canvas.drawPath(
-        Path()
-          ..moveTo(122, 62)
-          ..quadraticBezierTo(132, 55, 144, 58)
-          ..moveTo(166, 65)
-          ..quadraticBezierTo(175, 60, 183, 66),
-        Paint()
-          ..color = SkyColors.ink
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 3.5
-          ..strokeCap = StrokeCap.round,
-      );
+    if (startled) {
+      for (final brow in rig.startled) {
+        brow.paint(canvas);
+      }
     }
     return recorder.endRecording();
   }
 
-  static void _closedEyes(Canvas canvas, BirdExpression expression) {
-    final happy = expression == BirdExpression.pleased;
+  /// A dizzy spiral filling the smallest filled eye shape around [pupil]
+  /// (the white, or Orbit's iris). [turn] mirrors the far eye's spiral.
+  static void _dizzy(Canvas canvas, _BirdRig rig, Offset pupil, double turn) {
+    Rect? eye;
+    for (final layer in rig.body) {
+      if (layer.eye != _BirdEye.eye || layer.fill == null) continue;
+      final bounds = layer.path.getBounds();
+      if (!bounds.contains(pupil)) continue;
+      if (eye == null ||
+          bounds.width * bounds.height < eye.width * eye.height) {
+        eye = bounds;
+      }
+    }
+    if (eye == null) return;
+    final radius = eye.shortestSide / 2 * .8;
+    final turns = (radius / 7.2).clamp(1.4, 2.4);
+    final spiral = Path();
+    const steps = 64;
+    for (var i = 0; i <= steps; i++) {
+      final k = i / steps;
+      final angle = turn * (k * turns * 2 * math.pi - math.pi * .35);
+      final point =
+          eye.center + Offset(math.cos(angle), math.sin(angle)) * radius * k;
+      i == 0
+          ? spiral.moveTo(point.dx, point.dy)
+          : spiral.lineTo(point.dx, point.dy);
+    }
     canvas.drawPath(
-      Path()
-        ..moveTo(121, 98)
-        ..quadraticBezierTo(138, happy ? 78 : 109, 155, 98)
-        ..moveTo(164, 96)
-        ..quadraticBezierTo(174, happy ? 83 : 103, 184, 96),
+      spiral,
       Paint()
-        ..color = SkyColors.ink
+        ..color = const Color(0xff203b45)
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 4.5
-        ..strokeCap = StrokeCap.round,
+        ..strokeWidth = 4.2
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round,
     );
+  }
+
+  static ui.Picture _recordWing(int bird) {
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+    for (final layer in _birdRigs[bird].wing) {
+      layer.paint(canvas);
+    }
+    return recorder.endRecording();
   }
 
   static void paint(
@@ -261,15 +301,16 @@ abstract final class BirdPuppet {
     final body = _bodies.putIfAbsent((
       bird,
       expression,
-    ), () => _record(bird, false, expression));
-    final wingPicture = _wings.putIfAbsent(bird, () => _record(bird, true));
+    ), () => _recordBody(bird, expression));
+    final wingPicture = _wings.putIfAbsent(bird, () => _recordWing(bird));
+    final pivot = _birdRigs[bird].wingPivot;
     canvas.save();
     canvas.translate(bounds.left, bounds.top);
     canvas.scale(bounds.width / 256, bounds.height / 224);
     canvas.drawPicture(body);
-    canvas.translate(95, 122);
+    canvas.translate(pivot.dx, pivot.dy);
     canvas.rotate(wing);
-    canvas.translate(-95, -122);
+    canvas.translate(-pivot.dx, -pivot.dy);
     canvas.drawPicture(wingPicture);
     canvas.restore();
   }

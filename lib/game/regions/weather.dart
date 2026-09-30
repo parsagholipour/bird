@@ -4,8 +4,10 @@ import 'dart:ui';
 import 'region_scene.dart';
 import 'world_region.dart';
 
-/// Particle kinds a region can blow across its backdrop.
-enum Mote { sand, snow, leaf, firefly, petal, rain, spray }
+/// Particle kinds a region can blow across its backdrop. [drizzle] is fine
+/// rain tinted by neon light and [data] the glowing pixels that drift up
+/// through a cyberpunk city.
+enum Mote { sand, snow, leaf, firefly, petal, rain, spray, drizzle, data }
 
 /// A region's weather: a fixed list of slots, each holding one mote kind.
 ///
@@ -152,6 +154,60 @@ class Weather {
           ..color = Sketch.fade(const Color(0xffc9d6f2), .22 + .18 * z)
           ..strokeWidth = .9 + z * .6;
         c.drawLine(Offset(x, y), Offset(x - len * .2, y + len), paint);
+      case Mote.drizzle:
+        // Fine, fast rain: most drops catch the city's pale light, some the
+        // cyan and magenta of the signs they fall past.
+        final fall = h * (1.1 + .45 * z);
+        final spanY = h + margin * 2;
+        final y = _wrap(r2 * spanY + time * fall, spanY) - margin;
+        final x =
+            _wrap(r1 * spanX - time * h * .15 - travel * .22, spanX) - margin;
+        final len = h * (.018 + .02 * z) * scale;
+        final tint = switch (i % 5) {
+          0 => const Color(0xff8ff4ff),
+          1 => const Color(0xffff9fdc),
+          _ => const Color(0xffd6d8f8),
+        };
+        paint
+          ..color = Sketch.fade(tint, .2 + .24 * z)
+          ..strokeWidth = .7 + z * .5;
+        c.drawLine(Offset(x, y), Offset(x - len * .14, y + len), paint);
+      case Mote.data:
+        // Data motes: square pixels rising slowly on the warm air of the
+        // streets, blinking in steps like a signal refreshing.
+        final rise = h * (.022 + .03 * z);
+        final spanY = h + margin * 2;
+        final y = spanY - _wrap(r2 * spanY + time * rise, spanY) - margin;
+        final x =
+            _wrap(
+              r1 * spanX -
+                  time * h * .018 -
+                  travel * (.08 + .1 * z) +
+                  math.sin(time * .7 + i * 2.1) * h * .012,
+              spanX,
+            ) -
+            margin;
+        final on = Sketch.hash(i * 31 + (time * 2.5 + i * .37).floor()) > .3;
+        final tint = switch (i % 3) {
+          0 => const Color(0xff6ff6ff),
+          1 => const Color(0xffd4ff5a),
+          _ => const Color(0xffff6fd0),
+        };
+        final side = h * (.0034 + .003 * z) * scale;
+        paint.color = Sketch.fade(tint, (on ? .16 : .05) * scale);
+        c.drawRect(
+          Rect.fromCenter(
+            center: Offset(x, y),
+            width: side * 3.4,
+            height: side * 3.4,
+          ),
+          paint,
+        );
+        paint.color = Sketch.fade(tint, on ? .9 : .3);
+        c.drawRect(
+          Rect.fromCenter(center: Offset(x, y), width: side, height: side),
+          paint,
+        );
       case Mote.spray:
         // Droplets flung from the swells arc up and fall back.
         final period = 1.4 + z * 1.2;

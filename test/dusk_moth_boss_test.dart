@@ -20,20 +20,23 @@ FlightSimulation mothArena({double width = 2.2}) {
 
 void main() {
   test(
-    'new flights cycle bat, beetle, moth, pirate with intervals and rewards',
+    'new flights cycle bat, beetle, moth, pirate, dragon with intervals and '
+    'rewards',
     () {
       final sim = arena(version: FlightSimulation.currentRulesVersion);
       step(sim);
       for (final (number, kind, hp) in [
         (1, BossKind.baronBat, 12),
-        (2, BossKind.spitterBeetle, 18),
+        (2, BossKind.spitterBeetle, 21),
         (3, BossKind.duskMoth, 24),
         (4, BossKind.pirate, 30),
-        (5, BossKind.baronBat, 24),
-        (6, BossKind.spitterBeetle, 30),
-        (7, BossKind.duskMoth, 36),
-        (8, BossKind.pirate, 42),
-        (9, BossKind.baronBat, 24),
+        (5, BossKind.dragon, 36),
+        (6, BossKind.baronBat, 24),
+        (7, BossKind.spitterBeetle, 33),
+        (8, BossKind.duskMoth, 36),
+        (9, BossKind.pirate, 42),
+        (10, BossKind.dragon, 48),
+        (11, BossKind.baronBat, 24),
       ]) {
         final boss = sim.boss!;
         expect((boss.number, boss.kind, boss.hp), (number, kind, hp * 10));
@@ -202,6 +205,84 @@ void main() {
     expect(maxHelpers, lessThan(5));
   });
 
+  group('debut encounter (rules version 37)', () {
+    // The moth first appears after two bosses fall and returns every fifth
+    // (every fourth before the Ember Dragon joined in rules version 38).
+    FlightSimulation moth(int version, int bossesDefeated) {
+      final sim = arena(version: version, course: FlightCourse.starTrail)
+        ..bossesDefeated = bossesDefeated;
+      step(sim);
+      hover(sim, sim.boss!.arrivalDuration + .1);
+      expect(sim.boss!.isMoth, isTrue);
+      return sim;
+    }
+
+    test('the first moth fights without a shield', () {
+      final sim = moth(FlightSimulation.currentRulesVersion, 2);
+      final boss = sim.boss!;
+      expect((boss.number, boss.debut, boss.hasShield), (3, true, false));
+      // Sample two whole 8-second cycles: no warning, no shield.
+      for (var i = 0; i < 160; i++) {
+        boss.age = boss.arrivalDuration + i * .1;
+        expect(boss.shieldWarning, 0);
+        expect(boss.shielded, isFalse);
+      }
+      // Right where later moths raise the shield, a rock still lands.
+      boss.age = boss.arrivalDuration + SkyBoss.shieldStartsAt + .1;
+      final before = boss.hp;
+      hitBoss(sim);
+      expect(boss.hp, lessThan(before));
+      expect(boss.lastShieldHitAt.isFinite, isFalse);
+      expect(boss.shieldHint, startsWith('No veil yet'));
+    });
+
+    test('later moths bring the shield back', () {
+      for (final defeated in [7, 12]) {
+        final sim = moth(FlightSimulation.currentRulesVersion, defeated);
+        final boss = sim.boss!;
+        expect((boss.debut, boss.hasShield), (false, true));
+        boss.age = boss.arrivalDuration + SkyBoss.shieldStartsAt - .4;
+        expect(boss.shieldWarning, greaterThan(0));
+        boss.age = boss.arrivalDuration + SkyBoss.shieldStartsAt + .1;
+        expect(boss.shielded, isTrue);
+        final before = boss.hp;
+        hitBoss(sim);
+        expect(boss.hp, before);
+        expect(boss.lastShieldHitAt, closeTo(boss.age, .02));
+      }
+    });
+
+    test('helpers of the first moth drift slower than later ones', () {
+      double travel(int defeated) {
+        final sim = moth(FlightSimulation.currentRulesVersion, defeated);
+        sim.boss!.summonIn = .001;
+        step(sim);
+        final helper = sim.enemies.single;
+        final expected = defeated == 2 ? SkyEnemy.debutDrift : 1;
+        expect(helper.drift, expected);
+        final from = helper.x;
+        hover(sim, 1);
+        return from - helper.x;
+      }
+
+      // Same score, same course speed: only the drift differs.
+      expect(travel(2) / travel(7), closeTo(SkyEnemy.debutDrift, .01));
+    });
+
+    test('earlier rules keep the shield and the pace of the first moth', () {
+      for (final version in [22, 34, 36]) {
+        final sim = moth(version, 2);
+        final boss = sim.boss!;
+        expect((boss.debut, boss.hasShield), (false, true));
+        boss.age = boss.arrivalDuration + SkyBoss.shieldStartsAt + .1;
+        expect(boss.shielded, isTrue);
+        boss.summonIn = .001;
+        step(sim);
+        expect(sim.enemies.single.drift, 1);
+      }
+    });
+  });
+
   test(
     'pause and resume countdown freeze active shields and attack clocks',
     () {
@@ -274,6 +355,9 @@ void main() {
           reducedMotion: true,
           originMs: 0,
           weaponDamage: 22,
+          // From version 37 the first moth has no shield to replay; this
+          // journal keeps the original shielded debut.
+          recordedVersion: 36,
         ),
         () => now,
       );

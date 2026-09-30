@@ -19,38 +19,142 @@ FlightSimulation spitterArena({
   return sim;
 }
 
+/// Where [boss]'s open acid lane crosses the bird's column: the height a shot
+/// from that slot would pass, had the slot not been left out.
+double openLaneHeight(SkyBoss boss, double targetY) {
+  final aim = math.atan2(
+    targetY - boss.y,
+    FlightSimulation.birdX - boss.muzzleX,
+  );
+  final angle = aim + SkyBoss.acidFan[boss.openSlot];
+  return boss.y +
+      (FlightSimulation.birdX - boss.muzzleX) /
+          math.cos(angle) *
+          math.sin(angle);
+}
+
+/// Fires one full acid fan at a bird hovering at [targetY] and returns the
+/// height of its open lane.
+double fireFullFan(FlightSimulation sim, double targetY, double width) {
+  final boss = sim.boss!
+    ..volleys = 1
+    ..fireIn = .001;
+  sim.bossAmmo.clear();
+  sim.birdY = targetY;
+  sim.velocity = 0;
+  step(sim, 1 / 120, width);
+  return openLaneHeight(boss, targetY);
+}
+
 void main() {
   test('full acid fans leave a clear dodge lane on narrow phones', () {
+    final slots = <int>{};
     for (final width in [640 / 360, 800 / 360]) {
-      for (final hp in [180, 90]) {
+      for (final hp in [210, 105]) {
         for (final targetY in [.15, .5, .85]) {
           final sim = spitterArena(width: width);
-          final boss = sim.boss!
-            ..hp = hp
-            ..volleys = 1
-            ..fireIn = .001;
-          sim.birdY = targetY;
-          sim.velocity = 0;
-          step(sim, 1 / 120, width);
+          final boss = sim.boss!..hp = hp;
+          for (var volley = 0; volley < 24; volley++) {
+            final lane = fireFullFan(sim, targetY, width);
+            slots.add(boss.openSlot);
+            final reason =
+                'Lane $volley (slot ${boss.openSlot}) at width $width, '
+                'HP $hp, height $targetY';
 
-          // Measure each real trajectory's closest approach to the aim point.
-          // The open center must fit the bird, ammo, and some dodge margin.
-          for (final shot in sim.bossAmmo) {
-            final dx = FlightSimulation.birdX - shot.x;
-            final dy = targetY - shot.y;
-            final speed = math.sqrt(shot.vx * shot.vx + shot.vy * shot.vy);
-            final clearance = (dx * shot.vy - dy * shot.vx).abs() / speed;
+            // Measure each real trajectory's closest approach to the lane. It
+            // must fit the bird, ammo, and some dodge margin.
+            for (final shot in sim.bossAmmo) {
+              final dx = FlightSimulation.birdX - shot.x;
+              final dy = lane - shot.y;
+              final speed = math.sqrt(shot.vx * shot.vx + shot.vy * shot.vy);
+              final clearance = (dx * shot.vy - dy * shot.vx).abs() / speed;
+              expect(
+                clearance,
+                greaterThan(
+                  FlightSimulation.birdRadius + BossAmmo.baseRadius + .02,
+                ),
+                reason: reason,
+              );
+            }
+            // The lane never opens past the top or bottom of the sky.
             expect(
-              clearance,
-              greaterThan(FlightSimulation.birdRadius + BossAmmo.baseRadius + .02),
-              reason: 'Dodge lane at width $width, HP $hp, height $targetY',
+              lane,
+              greaterThan(FlightSimulation.birdRadius + .05),
+              reason: reason,
             );
+            expect(
+              lane,
+              lessThan(1 - FlightSimulation.birdRadius - .05),
+              reason: reason,
+            );
+            expect(sim.bossAmmo, hasLength(4), reason: reason);
+            expect(boss.fireIn, closeTo(hp == 105 ? 1.3 : 1.8, .01));
           }
-          expect(sim.bossAmmo, hasLength(4));
-          expect(boss.fireIn, closeTo(hp == 90 ? 1.3 : 1.8, .01));
         }
       }
     }
+    // The lane is no longer always the aimed center one.
+    expect(slots, {1, SkyBoss.centerSlot, 3});
+  });
+
+  test('a bird holding the open acid lane is never hit', () {
+    for (final width in [640 / 360, 800 / 360]) {
+      for (final hp in [210, 105]) {
+        final sim = spitterArena(width: width);
+        final boss = sim.boss!..hp = hp;
+        final slots = <int>{};
+        for (var volley = 0; volley < 18; volley++) {
+          // A slow drift of aim heights keeps lanes near the edges in play.
+          final targetY = [.15, .5, .85][volley % 3];
+          final lane = fireFullFan(sim, targetY, width);
+          slots.add(boss.openSlot);
+          final hearts = sim.hearts;
+          boss.fireIn = 100;
+          // Long enough for every shot to cross the bird's column.
+          for (var i = 0; i < 110; i++) {
+            sim.enemies.clear();
+            sim.birdY = lane;
+            sim.velocity = 0;
+            step(sim, .02, width);
+          }
+          expect(
+            sim.hearts,
+            hearts,
+            reason:
+                'Held lane $lane (slot ${boss.openSlot}) at width $width, '
+                'HP $hp, aim $targetY',
+          );
+        }
+        expect(slots.length, greaterThan(1));
+      }
+    }
+  });
+
+  test('version 36 acid fans keep the aimed center gap and 180 HP', () {
+    final sim = spitterArena(version: 36);
+    final boss = sim.boss!;
+    expect(boss.maxHp, 180);
+    for (var volley = 0; volley < 12; volley++) {
+      fireFullFan(sim, .5, 2.2);
+      expect(boss.openSlot, SkyBoss.centerSlot);
+      expect(sim.bossAmmo, hasLength(4));
+      boss.volleys = 1; // The fired volley advanced the counter to a 3-fan.
+      expect(boss.volleyOffsets, [-.60, -.30, .30, .60]);
+    }
+  });
+
+  test('the Spitter King starts at 210 HP from rules version 37', () {
+    expect(SkyBoss.healthFor(BossKind.spitterBeetle, 2), 210);
+    expect(SkyBoss.healthFor(BossKind.spitterBeetle, 6), 330);
+    expect(
+      SkyBoss.healthFor(BossKind.spitterBeetle, 2, tougherSpitter: false),
+      180,
+    );
+    expect(spitterArena().boss!.maxHp, 210);
+    expect(spitterArena(version: 36).boss!.maxHp, 180);
+    // The neighbouring bosses keep their health.
+    expect(SkyBoss.healthFor(BossKind.baronBat, 1), 120);
+    expect(SkyBoss.healthFor(BossKind.duskMoth, 3), 240);
   });
 
   test('version 21 keeps alternating bats and spitters at full intervals', () {
@@ -173,10 +277,10 @@ void main() {
     final interval = boss.summonIn;
     sim.enemies.clear();
     sim.rocks.addAll(
-      List.generate(9, (_) => BirdRock(x: boss.x - .07, y: boss.y)),
+      List.generate(11, (_) => BirdRock(x: boss.x - .07, y: boss.y)),
     );
     step(sim, .02, 640 / 360);
-    expect(boss.hp, 90);
+    expect(boss.hp, 100); // Past half of 210: fury.
     boss.summonIn = .001;
     step(sim, .02, 640 / 360);
     expect(sim.enemies.single.kind, EnemyKind.spitterBeetle);
@@ -206,7 +310,10 @@ void main() {
   });
 
   test('second boss can be defeated with normal flaps and legal shots', () {
+    // The open acid lane moves, so a bird that only hovers mid-screen no
+    // longer coasts through the fight; dodging is covered above.
     final sim = arena(version: FlightSimulation.currentRulesVersion)
+      ..hearts = 500
       ..bossesDefeated = 1;
     var now = sim.elapsed * 1000;
     for (var i = 0; i < 2500 && sim.bossesDefeated == 1; i++) {

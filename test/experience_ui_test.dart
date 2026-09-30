@@ -67,7 +67,7 @@ void main() {
     )..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'))).load();
   });
 
-  for (final player in ['new', 'returning', 'unlocking', 'daily']) {
+  for (final player in ['new', 'returning', 'choosing', 'daily']) {
     final returning = player != 'new';
     testWidgets('Star Trail fits a small phone for a $player player', (
       tester,
@@ -94,7 +94,7 @@ void main() {
             id: 'previous-flight',
             mode: PlayMode.pushUp,
             practice: false,
-            score: player == 'unlocking' ? 24 : 1,
+            score: 1,
             repetitions: 1,
             flaps: 0,
             durationSeconds: 10,
@@ -297,8 +297,6 @@ void main() {
         find.textContaining(
           player == 'daily'
               ? 'Today’s postcard stamped!'
-              : player == 'unlocking'
-              ? 'Peaches joined your flock!'
               : returning
               ? 'Next stamp: Constellation'
               : 'Stamp earned: First wings',
@@ -309,8 +307,6 @@ void main() {
         tester,
         player == 'daily'
             ? 'daily-card-celebration'
-            : player == 'unlocking'
-            ? 'new-bird-celebration'
             : returning
             ? 'star-trail-next-goal'
             : 'star-trail-results',
@@ -357,7 +353,7 @@ void main() {
       for (final name in BirdTrail.names) {
         expect(find.text(name), findsOneWidget);
       }
-      if (player == 'unlocking') {
+      if (player == 'choosing') {
         final card = find.ancestor(
           of: find.text('Peaches'),
           matching: find.byType(Panel),

@@ -25,6 +25,7 @@ String _label(BossKind kind) => switch (kind) {
   BossKind.spitterBeetle => 'Spitter King · acid globule',
   BossKind.duskMoth => 'Dusk Empress · pollen rosette',
   BossKind.pirate => 'Pirate Captain · cannonball',
+  BossKind.dragon => 'Ember Dragon · fireball',
 };
 
 double _speed(BossKind kind, bool enraged) =>
@@ -157,6 +158,44 @@ void main() {
           reason: '$kind rim',
         );
       }
+    });
+  });
+
+  testWidgets('the Spitter King\'s acid runs amber in fury, like his vat', (
+    tester,
+  ) async {
+    await tester.runAsync(() async {
+      Future<List<int>> shot(bool enraged) => _raster(
+        (c) => BossAmmoArt.paint(
+          c,
+          center: const Offset(100, 100),
+          radius: 40,
+          direction: math.pi,
+          attack: EnemyAttack.none,
+          kind: BossKind.spitterBeetle,
+          enraged: enraged,
+          seconds: 0,
+          reducedMotion: true,
+          showTrail: false,
+        ),
+        null,
+        200,
+        200,
+      );
+      int count(List<int> px, bool Function(int r, int g, int b) test) {
+        var n = 0;
+        for (var i = 0; i < px.length; i += 4) {
+          if (px[i + 3] > 200 && test(px[i], px[i + 1], px[i + 2])) n++;
+        }
+        return n;
+      }
+
+      bool amber(int r, int g, int b) =>
+          r > 200 && g > 120 && g < 215 && b < 130 && r - b > 100;
+      bool green(int r, int g, int b) => g > 150 && g - r > 40 && b < 220;
+      final calm = await shot(false), fury = await shot(true);
+      expect(count(fury, amber), greaterThan(count(calm, amber) + 1200));
+      expect(count(calm, green), greaterThan(count(fury, green) + 1200));
     });
   });
 

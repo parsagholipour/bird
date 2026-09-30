@@ -17,9 +17,10 @@ abstract final class GardenGateDesign {
     required bool perfect,
     required int appearance,
     required Color accent,
+    WorldRegion? held,
   }) {
     if (!r.isFinite || r.isEmpty) return;
-    final sky = SkyPalette.at(seconds);
+    final sky = SkyPalette.at(seconds, held: held);
     final motif = (appearance % 3 + 3) % 3;
     Color mix(Color a, Color b, double t) => Color.lerp(a, b, t)!;
     final light = mix(SkyColors.cream, sky.haze, .16);

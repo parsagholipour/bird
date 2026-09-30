@@ -78,11 +78,15 @@ void main() {
         sample(now),
         now,
       );
-  void start({bool practice = false}) {
+  void start({
+    bool practice = false,
+    int rulesVersion = FlightSimulation.currentRulesVersion,
+  }) {
     sim = FlightSimulation(
       rules: PushUpFlightMode(cycleSeconds: 3),
       practice: practice,
       random: Random(1),
+      rulesVersion: rulesVersion,
     );
     now = 0;
     for (var i = 0; i < 190; i++) {
@@ -188,28 +192,58 @@ void main() {
       expect(sim.score, 1);
     },
   );
-  test(
-    'scored breaks and backgrounds end a run; practice resumes with a countdown',
-    () {
-      start();
-      sim.takeBreak();
-      expect(sim.endReason, EndReason.breakTaken);
-      start();
-      sim.background();
-      expect(sim.endReason, EndReason.backgrounded);
-      start(practice: true);
-      final distance = sim.distance;
-      sim.takeBreak();
-      now += 1000;
-      sim.tick(.016, now);
-      expect(sim.distance, distance);
-      sim.resume();
-      expect(sim.phase, RunPhase.countdown);
-      expect(sim.countdown, 3);
-      sim.tick(.016, now);
-      expect(sim.countdown, 3);
-    },
-  );
+  test('rules before version 35 end a scored run on a break or background', () {
+    start(rulesVersion: 34);
+    sim.takeBreak();
+    expect(sim.endReason, EndReason.breakTaken);
+    start(rulesVersion: 34);
+    sim.background();
+    expect(sim.endReason, EndReason.backgrounded);
+    start(rulesVersion: 34);
+    sim.takeBreak();
+    expect(sim.phase, RunPhase.ended);
+    sim.resume();
+    expect(sim.phase, RunPhase.ended);
+  });
+  for (final practice in [false, true]) {
+    test(
+      '${practice ? 'practice' : 'scored'} flights pause on a break or background and resume with a countdown',
+      () {
+        for (final leave in [() => sim.takeBreak(), () => sim.background()]) {
+          start(practice: practice);
+          final distance = sim.distance;
+          final score = sim.score;
+          leave();
+          expect(sim.phase, RunPhase.paused);
+          expect(sim.endReason, isNull);
+          now += 1000;
+          sim.tick(.016, now);
+          expect(sim.distance, distance);
+          expect(sim.score, score);
+          sim.resume();
+          expect(sim.phase, RunPhase.countdown);
+          expect(sim.countdown, 3);
+          sim.tick(.016, now);
+          expect(sim.countdown, 3);
+          for (var i = 0; i < 190 && sim.phase == RunPhase.countdown; i++) {
+            now += 16;
+            input();
+            sim.tick(.016, now);
+          }
+          expect(sim.phase, RunPhase.playing);
+          expect(sim.distance, greaterThanOrEqualTo(distance));
+        }
+      },
+    );
+  }
+  test('a paused scored flight survives a background', () {
+    start();
+    sim.takeBreak();
+    sim.background();
+    expect(sim.phase, RunPhase.paused);
+    sim.resume();
+    expect(sim.phase, RunPhase.countdown);
+  });
   test(
     'practice tracking loss pauses and simulation stalls cannot freeze scored time',
     () {
@@ -239,11 +273,7 @@ void main() {
     var t = 0.0;
     for (var i = 0; i < 190; i++) {
       t += 16;
-      game.apply(
-        const MovementInput(valid: true),
-        sample(t, PlayMode.jump),
-        t,
-      );
+      game.apply(const MovementInput(valid: true), sample(t, PlayMode.jump), t);
       game.tick(.016, t);
     }
     final y = game.birdY;

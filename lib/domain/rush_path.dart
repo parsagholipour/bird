@@ -89,18 +89,19 @@ class LavaVent {
 
 /// A bat streaming down the ring route toward the bird, [lane] off the
 /// route, through the barrier openings. A ram smashes it; otherwise it
-/// hurts like any bat.
+/// hurts like any bat. A flock the Ember Dragon calls has no [route] and
+/// holds the [height] it was released at.
 class SwarmBat {
   SwarmBat({
     required this.x,
     required this.y,
-    required this.route,
+    this.route,
     required this.lane,
     required this.phase,
-  });
+  }) : height = y;
   double x, y;
-  final RushPath route;
-  final double lane, phase;
+  final RushPath? route;
+  final double height, lane, phase;
   double age = 0;
   static const radius = .036;
 }

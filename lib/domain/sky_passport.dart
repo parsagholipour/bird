@@ -3,7 +3,7 @@
 enum SkyStamp {
   firstWings('First wings', 'Finish your first scored flight.', 1),
   onTheDot('On the dot', 'Fly 10 perfect passes along the aiming marks.', 10),
-  starChaser('Star chaser', 'Collect 50 stars in Star Trail.', 50),
+  starChaser('Star chaser', 'Collect 50 stars.', 50),
   constellation(
     'Constellation',
     'Collect 12 stars in one unbroken streak.',
@@ -15,7 +15,7 @@ enum SkyStamp {
     'Fly at least 60 seconds in three Star Trails.',
     3,
   ),
-  flockTogether('Flock together', 'Unlock all four feathered friends.', 4),
+  flockTogether('Flock together', 'Take all four birds on a scored flight.', 4),
   bothWings('Both wings', 'Try scored flights with two movement controls.', 2);
 
   const SkyStamp(this.title, this.description, this.target);

@@ -12,6 +12,7 @@ class SkyEnemy {
     required this._y,
     this.appearance = 0,
     this.flightPhase,
+    this.drift = 1,
     int? maxHp,
   }) : maxHp = maxHp ?? healthFor(appearance) {
     if (this.maxHp <= 0) throw ArgumentError.value(this.maxHp, 'maxHp');
@@ -52,6 +53,11 @@ class SkyEnemy {
   // Null preserves the original straight flight in older recordings.
   final double? flightPhase;
   final int appearance;
+
+  /// Fraction of the scroll speed this enemy closes in at. Only the helpers
+  /// of a boss's debut encounter drift slower ([debutDrift]).
+  final double drift;
+  static const debutDrift = .6;
   static const radius = .045, warningSeconds = .75;
   double age = 0, fireIn = 1.1;
   double lastShotAt = double.negativeInfinity;
@@ -153,4 +159,29 @@ class EnemyAmmoImpact {
   final double direction, at;
   final EnemyAttack attack;
   final AmmoStop stop;
+}
+
+/// Where a charged rock shattered a pellet, kept for a moment so the blast
+/// can play out. Render-only: the rules write these but never read them.
+class AmmoShatter {
+  const AmmoShatter({
+    required this.x,
+    required this.y,
+    required this.worldX,
+    required this.reach,
+    required this.charge,
+    required this.direction,
+    required this.attack,
+    required this.at,
+  });
+
+  /// Screen and world position of the blast; it stays with the scenery.
+  final double x, y, worldX;
+
+  /// The blast radius. An enemy is caught when its hit circle touches it.
+  final double reach;
+
+  /// The shattering rock's charge and the pellet's heading when it broke.
+  final double charge, direction, at;
+  final EnemyAttack attack;
 }

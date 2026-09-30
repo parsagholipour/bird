@@ -15,10 +15,11 @@ abstract final class GateArt {
     required bool cleared,
     required bool perfect,
     ObstacleKind kind = ObstacleKind.garden,
+    WorldRegion? held,
   }) {
     if (r.isEmpty) return;
-    final palette = SkyPalette.at(seconds);
-    final (sunrise, peach, twilight) = legacyLooks(seconds);
+    final palette = SkyPalette.at(seconds, held: held);
+    final (sunrise, peach, twilight) = legacyLooks(seconds, held: held);
     Color stone(Color day, Color warm, Color night) => Color.from(
       alpha: 1,
       red: day.r * sunrise + warm.r * peach + night.r * twilight,
@@ -122,9 +123,13 @@ abstract final class GateArt {
 
   /// Gates from the earliest replays keep their three looks: leafy day
   /// stone, warm festival stone and blue night stone. Each world region
-  /// borrows the look closest to its light, crossfading with the tour.
-  static (double, double, double) legacyLooks(double seconds) {
-    final blend = WorldTour.at(seconds);
+  /// borrows the look closest to its light, crossfading with the tour, or
+  /// keeps the look of the one region a campaign level has [held].
+  static (double, double, double) legacyLooks(
+    double seconds, {
+    WorldRegion? held,
+  }) {
+    final blend = WorldTour.at(seconds, held: held);
     var day = 0.0, warm = 0.0, night = 0.0;
     for (final region in WorldRegion.values) {
       final weight = blend.weight(region);
@@ -139,7 +144,10 @@ abstract final class GateArt {
             WorldRegion.rome ||
             WorldRegion.mexico:
           warm += weight;
-        case WorldRegion.antarctica || WorldRegion.newYork || WorldRegion.paris:
+        case WorldRegion.antarctica ||
+            WorldRegion.newYork ||
+            WorldRegion.paris ||
+            WorldRegion.cyberpunk:
           night += weight;
       }
     }

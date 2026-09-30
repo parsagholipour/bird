@@ -1,14 +1,19 @@
 import '../domain/sky_passport.dart';
 import 'progress_repository.dart';
 
+/// Campaign flights count toward the flight, star and streak stamps; the
+/// Star Trail and camera stamps stay endless-only (docs/campaign.md).
 extension PassportProgress on ProgressSnapshot {
   List<StampProgress> get passport => [
     for (final stamp in SkyStamp.values)
       StampProgress(stamp, switch (stamp) {
-        SkyStamp.firstWings => totalRuns,
-        SkyStamp.onTheDot => totalPerfects,
-        SkyStamp.starChaser => totalStars,
-        SkyStamp.constellation => longestCombo,
+        SkyStamp.firstWings => flightsFlown,
+        SkyStamp.onTheDot => totalPerfects + campaignFlights.perfectPasses,
+        SkyStamp.starChaser => totalStars + campaignFlights.stars,
+        SkyStamp.constellation =>
+          campaignFlights.bestCombo > longestCombo
+              ? campaignFlights.bestCombo
+              : longestCombo,
         SkyStamp.skyCaptain => [
           trailPushUp,
           trailJump,
@@ -16,7 +21,7 @@ extension PassportProgress on ProgressSnapshot {
           trailSquat,
         ].fold(0, (best, record) => record.best > best ? record.best : best),
         SkyStamp.trailblazer => trailCompletions,
-        SkyStamp.flockTogether => unlocked.length,
+        SkyStamp.flockTogether => birdsFlown.length,
         SkyStamp.bothWings =>
           (pushUp.runs + trailPushUp.runs > 0 ? 1 : 0) +
               (jump.runs + trailJump.runs > 0 ? 1 : 0) +

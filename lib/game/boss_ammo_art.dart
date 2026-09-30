@@ -4,6 +4,8 @@ import 'package:flutter/painting.dart';
 
 import '../domain/game_rules.dart';
 import '../ui/theme.dart';
+import 'dragon_fireball_art.dart';
+import 'pirate_cannonball_art.dart';
 
 /// Which boss a projectile belongs to; each has its own silhouette so a
 /// volley reads as "that boss" even at a few pixels.
@@ -16,6 +18,14 @@ enum BossAmmoStyle {
 
   /// Dusk Empress: a spinning pollen rosette trailing silk and glitter.
   pollen,
+
+  /// Pirate Captain: a heavy iron cannonball trailing gunsmoke and sparks,
+  /// red-hot in fury.
+  cannonball,
+
+  /// Ember Dragon: a rolling fireball with a licking tail and smoke, white
+  /// hot in fury; the embers it bursts into are drawn from the shot itself.
+  fireball,
 }
 
 /// Boss shots: bigger, hotter siblings of the small-enemy pellets in
@@ -37,6 +47,9 @@ abstract final class BossAmmoArt {
   static const _acid = Color(0xff6fe3a4), _mint = Color(0xffd4ffc1);
   static const _jade = Color(0xff2f9f78), _bog = Color(0xff1d5f52);
   static const _acidInk = Color(0xff223437);
+  // The King's brew runs amber-hot in fury, like the vat it comes from.
+  static const _furyCore = Color(0xfffff0b8), _furyAmber = Color(0xffffb65f);
+  static const _furyDeep = Color(0xffd0602a), _furyBog = Color(0xffa8481f);
   // Dusk Empress.
   static const _pollen = Color(0xffffc96f), _silk = Color(0xffffe3ba);
   static const _coral = Color(0xffefaa91), _plum = Color(0xff704663);
@@ -47,8 +60,8 @@ abstract final class BossAmmoArt {
     BossKind.baronBat => BossAmmoStyle.ember,
     BossKind.spitterBeetle => BossAmmoStyle.acid,
     BossKind.duskMoth => BossAmmoStyle.pollen,
-    // PLACEHOLDER until the cannonball art lands.
-    BossKind.pirate => BossAmmoStyle.ember,
+    BossKind.pirate => BossAmmoStyle.cannonball,
+    BossKind.dragon => BossAmmoStyle.fireball,
   };
 
   /// One in-flight boss shot at its simulated position, for [boss].
@@ -59,18 +72,32 @@ abstract final class BossAmmoArt {
     SkyBoss boss, {
     required double seconds,
     required bool reducedMotion,
-  }) => paint(
-    c,
-    center: Offset(ammo.x * height, ammo.y * height),
-    radius: ammo.radius * height,
-    direction: math.atan2(ammo.vy, ammo.vx),
-    attack: EnemyAttack.none,
-    kind: boss.kind,
-    enraged: boss.enraged,
-    speed: math.sqrt(ammo.vx * ammo.vx + ammo.vy * ammo.vy),
-    seconds: seconds,
-    reducedMotion: reducedMotion,
-  );
+  }) {
+    if (boss.isDragon) {
+      // Embers and splitting fireballs carry more than a style.
+      DragonFireballArt.shot(
+        c,
+        height,
+        ammo,
+        boss,
+        seconds: seconds,
+        reducedMotion: reducedMotion,
+      );
+      return;
+    }
+    paint(
+      c,
+      center: Offset(ammo.x * height, ammo.y * height),
+      radius: ammo.radius * height,
+      direction: math.atan2(ammo.vy, ammo.vx),
+      attack: EnemyAttack.none,
+      kind: boss.kind,
+      enraged: boss.enraged,
+      speed: math.sqrt(ammo.vx * ammo.vx + ammo.vy * ammo.vy),
+      seconds: seconds,
+      reducedMotion: reducedMotion,
+    );
+  }
 
   /// Draws a boss shot centered on its hit circle of [radius] pixels.
   ///
@@ -125,6 +152,33 @@ abstract final class BossAmmoArt {
       case BossAmmoStyle.pollen:
         if (showTrail) _pollenWake(c, time, reach, enraged, fine);
         _pollenBody(c, time, edge, enraged, fine);
+      case BossAmmoStyle.cannonball:
+        if (showTrail) {
+          PirateCannonballArt.wake(c, time, reach, enraged, fine);
+        }
+        // Iron is lit from the sky, not along the flight: turn back to the
+        // screen before drawing the ball.
+        c.save();
+        if (math.cos(direction) < 0) c.scale(1, -1);
+        c.rotate(-direction);
+        PirateCannonballArt.body(
+          c,
+          time,
+          edge,
+          enraged,
+          fine,
+          direction + math.pi,
+        );
+        c.restore();
+      case BossAmmoStyle.fireball:
+        DragonFireballArt.unit(
+          c,
+          time: time,
+          edge: edge,
+          fine: fine,
+          fury: enraged,
+          trail: showTrail,
+        );
     }
     c.restore();
   }
@@ -337,14 +391,23 @@ abstract final class BossAmmoArt {
   // ------------------------------------------------------ Spitter acid --
 
   static final _acidHalo = _haloPaint(_acid, .62, 2.45);
-  static final _acidHaloFury = _haloPaint(_acid, .74, 2.75);
+  static final _acidHaloFury = _haloPaint(_furyAmber, .74, 2.75);
   static final _acidWakeOuter = _wakePaint(_acid, .9);
   static final _acidWakeInner = _wakePaint(_mint, 1);
+  static final _acidWakeOuterFury = _wakePaint(_furyAmber, .9);
+  static final _acidWakeInnerFury = _wakePaint(_furyCore, 1);
   static final _acidFill = Paint()
     ..shader = const RadialGradient(
       center: Alignment(.32, -.42),
       radius: 1.1,
       colors: [_mint, _acid, _jade],
+      stops: [0, .32, 1],
+    ).createShader(_bounds);
+  static final _acidFillFury = Paint()
+    ..shader = const RadialGradient(
+      center: Alignment(.32, -.42),
+      radius: 1.1,
+      colors: [_furyCore, _furyAmber, _furyDeep],
       stops: [0, .32, 1],
     ).createShader(_bounds);
 
@@ -367,7 +430,7 @@ abstract final class BossAmmoArt {
         ..cubicTo(-.3, -.9 + wag * .06, -.62, -.36 + wag * .2, -1, wag * .3)
         ..cubicTo(-.62, .44 + wag * .2, -.3, .98 - wag * .06, root, .95)
         ..close(),
-      _acidWakeOuter,
+      fury ? _acidWakeOuterFury : _acidWakeOuter,
     );
     c.drawPath(
       Path()
@@ -375,7 +438,7 @@ abstract final class BossAmmoArt {
         ..quadraticBezierTo(-.46, -.34 + wag * .14, -.78, wag * .24)
         ..quadraticBezierTo(-.46, .38 + wag * .14, root, .5)
         ..close(),
-      _acidWakeInner,
+      fury ? _acidWakeInnerFury : _acidWakeInner,
     );
     c.restore();
     // Drops pinch off the ribbon and sag earthward (local +y is always the
@@ -411,11 +474,14 @@ abstract final class BossAmmoArt {
           at.dy - size * 1.5,
         )
         ..close();
-      c.drawPath(drip, _fill(_jade.withValues(alpha: .95 * fade)));
+      c.drawPath(
+        drip,
+        _fill((fury ? _furyDeep : _jade).withValues(alpha: .95 * fade)),
+      );
       c.drawCircle(
         at + Offset(size * .2, -size * .1),
         size * .4,
-        _fill(_mint.withValues(alpha: fade)),
+        _fill((fury ? _furyCore : _mint).withValues(alpha: fade)),
       );
     }
     for (var i = 0; i < 3; i++) {
@@ -431,11 +497,15 @@ abstract final class BossAmmoArt {
           .4,
           4.6,
           false,
-          _stroke(_mint.withValues(alpha: (1 - life) * 5), .09),
+          _stroke(
+            (fury ? _furyCore : _mint).withValues(alpha: (1 - life) * 5),
+            .09,
+          ),
         );
       } else {
-        c.drawCircle(at, r, _fill(_mint.withValues(alpha: .28 * fade)));
-        c.drawCircle(at, r, _stroke(_mint.withValues(alpha: .95 * fade), .1));
+        final glint = fury ? _furyCore : _mint;
+        c.drawCircle(at, r, _fill(glint.withValues(alpha: .28 * fade)));
+        c.drawCircle(at, r, _stroke(glint.withValues(alpha: .95 * fade), .1));
       }
     }
   }
@@ -492,17 +562,18 @@ abstract final class BossAmmoArt {
       ..quadraticBezierTo(-1.15, .24 + wag * .06, -.5, .72)
       ..close();
     final ink = _stroke(_acidInk, rim * 2);
+    final light = fury ? _furyCore : _mint;
     c.drawPath(neck, ink);
     c.drawCircle(blob, blobR, ink);
     c.drawPath(shape, ink);
-    c.drawPath(neck, _fill(_acid));
-    c.drawCircle(blob, blobR, _fill(_acid));
+    c.drawPath(neck, _fill(fury ? _furyAmber : _acid));
+    c.drawCircle(blob, blobR, _fill(fury ? _furyAmber : _acid));
     c.drawCircle(
       blob + Offset(blobR * .2, -blobR * .35),
       blobR * .36,
-      _fill(_mint.withValues(alpha: .95)),
+      _fill(light.withValues(alpha: .95)),
     );
-    c.drawPath(shape, _acidFill);
+    c.drawPath(shape, fury ? _acidFillFury : _acidFill);
     c.save();
     c.clipPath(shape);
     // Bubbles rise through the brew and wrap around.
@@ -513,11 +584,11 @@ abstract final class BossAmmoArt {
         .75 - life * 1.4,
       );
       final r = (.13 + (i % 2) * .06) * (fine ? 1 : 1.25);
-      c.drawCircle(at, r, _fill(_mint.withValues(alpha: .38)));
+      c.drawCircle(at, r, _fill(light.withValues(alpha: .38)));
       c.drawCircle(
         at,
         r,
-        _stroke(_mint.withValues(alpha: .9), fine ? .05 : .08),
+        _stroke(light.withValues(alpha: .9), fine ? .05 : .08),
       );
     }
     // A darker toxic swirl turning in the middle.
@@ -531,7 +602,7 @@ abstract final class BossAmmoArt {
         ..cubicTo(.06, .36, -.28, .22, -.3, .04)
         ..cubicTo(-.46, .56, .6, .5, .5, -.1)
         ..close(),
-      _fill(_bog.withValues(alpha: fine ? .34 : .5)),
+      _fill((fury ? _furyBog : _bog).withValues(alpha: fine ? .34 : .5)),
     );
     c.restore();
     // Belly light bounced off the liquid.
@@ -539,7 +610,7 @@ abstract final class BossAmmoArt {
       Path()
         ..moveTo(-.64, .5)
         ..quadraticBezierTo(0, .92, .66, .46),
-      _stroke(_mint.withValues(alpha: .75), fine ? .12 : .16),
+      _stroke(light.withValues(alpha: .75), fine ? .12 : .16),
     );
     c.restore();
     // Glossy highlight on the sky side.
@@ -723,6 +794,8 @@ abstract final class BossAmmoArt {
     c.drawCircle(Offset.zero, pulse, _fill(_pearl));
     c.restore();
   }
+
+  // The Pirate Captain's cannonball is drawn by [PirateCannonballArt].
 
   static Paint _fill(Color color) => Paint()..color = color;
 

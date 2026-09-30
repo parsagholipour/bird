@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 /// Hold-to-charge tuning for touch combat (rules version 28).
 ///
 /// Charge is a continuous amount from 0 (a tap) to 1 (a full second held).
@@ -18,6 +20,25 @@ abstract final class PowerShot {
   static const refillDelay = .45, refillPerSecond = .40;
 
   static const fullDamageScale = 4.0, fullRadiusScale = 2.4;
+
+  /// From rules version 36 a rock charged at least this far shatters the
+  /// enemy pellet it meets instead of simply cancelling it. The blast reaches
+  /// [minShatterReach] at this charge and [fullShatterReach] at full charge,
+  /// and deals [shatterDamageShare] of the rock's damage to every enemy whose
+  /// hit circle it touches.
+  static const shatterCharge = .35;
+  static const minShatterReach = .12, fullShatterReach = .24;
+  static const shatterDamageShare = .5;
+
+  static bool shatters(double charge) => charge >= shatterCharge - 1e-9;
+
+  static double shatterReach(double charge) {
+    final t = ((charge - shatterCharge) / (1 - shatterCharge)).clamp(0.0, 1.0);
+    return minShatterReach + (fullShatterReach - minShatterReach) * t;
+  }
+
+  static int shatterDamage(int rockDamage) =>
+      math.max(1, (rockDamage * shatterDamageShare).round());
 
   static double cost(double charge) => tapCost + (fullCost - tapCost) * charge;
 

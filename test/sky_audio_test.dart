@@ -188,41 +188,108 @@ void main() {
     },
   );
 
-  test('sprints play one of four voices without repeating the last', () async {
-    final host = AndroidAudioHost()..install();
-    var now = 0;
-    final audio = SkyAudio(effectClock: () => now, random: Random(7));
-    addTearDown(audio.dispose);
-    await audio.configure(const GameSettings(music: false));
-    final voicePaths = <String>[];
-    for (var sprint = 0; sprint < 32; sprint++) {
-      audio.effect('sprint');
-      audio.effect('sprint'); // A duplicate cue cannot start another voice.
-      for (var i = 0; i < 100 && voicePaths.length <= sprint; i++) {
-        await Future<void>.delayed(const Duration(milliseconds: 2));
-        voicePaths
-          ..clear()
-          ..addAll(host.loads.where((path) => path.endsWith('.mp3')));
+  for (final (bird, name) in const [(0, 'pip'), (3, 'orbit')]) {
+    test('$name sprints with one of its own four calls, never the last one '
+        'again', () async {
+      final host = AndroidAudioHost()..install();
+      var now = 0;
+      final audio = SkyAudio(effectClock: () => now, random: Random(7));
+      addTearDown(audio.dispose);
+      await audio.configure(GameSettings(music: false, bird: bird));
+      bool isCall(String path) => path.contains('/story/sprint-');
+      final voicePaths = <String>[];
+      for (var sprint = 0; sprint < 32; sprint++) {
+        audio.effect('sprint');
+        audio.effect('sprint'); // A duplicate cue cannot start another voice.
+        for (var i = 0; i < 100 && voicePaths.length <= sprint; i++) {
+          await Future<void>.delayed(const Duration(milliseconds: 2));
+          voicePaths
+            ..clear()
+            ..addAll(host.loads.where(isCall));
+        }
+        expect(voicePaths, hasLength(sprint + 1));
+        now += 15000;
       }
-      expect(voicePaths, hasLength(sprint + 1));
-      now += 15000;
-    }
-    final chosen = voicePaths.map((path) => Uri.parse(path).path).toList();
-    expect(chosen.map((path) => path.split('/').last).toSet(), {
-      'sprint_03.mp3',
-      'sprint_01.mp3',
-      'sprint_08.mp3',
-      'whee_04.mp3',
+      final chosen = voicePaths.map((path) => Uri.parse(path).path).toList();
+      expect(chosen.map((path) => path.split('/').last).toSet(), {
+        'sprint-$name-woohoo.ogg',
+        'sprint-$name-turbo.ogg',
+        'sprint-$name-gravity.ogg',
+        'sprint-$name-whee.ogg',
+      });
+      for (var i = 1; i < chosen.length; i++) {
+        expect(chosen[i], isNot(chosen[i - 1]));
+      }
+      expect(
+        host.sources.entries.where((entry) => isCall(entry.value)),
+        hasLength(1),
+      );
+      await audio.stopEffects();
+      expect(host.playing, isEmpty);
     });
-    for (var i = 1; i < chosen.length; i++) {
-      expect(chosen[i], isNot(chosen[i - 1]));
-    }
-    expect(
-      host.sources.entries.where((entry) => entry.value.endsWith('.mp3')),
-      hasLength(1),
+  }
+
+  test('with voices off a sprint only whooshes', () async {
+    final host = AndroidAudioHost()..install();
+    final audio = SkyAudio(effectClock: () => 0);
+    addTearDown(audio.dispose);
+    await audio.configure(const GameSettings(music: false, voices: false));
+    audio.effect('sprint');
+    await drainAudio();
+    expect(host.loads, isNot(contains(contains('/story/'))));
+    expect(host.loads, contains(endsWith('sprint.wav')));
+  });
+
+  test('a spoken line ducks the music until it ends or is hushed', () async {
+    final host = AndroidAudioHost()..install();
+    final audio = SkyAudio(effectClock: () => 0);
+    addTearDown(audio.dispose);
+    await audio.configure(const GameSettings(), track: SkyMusic.menu);
+    await waitForTrack(host, 'sky_menu.ogg');
+    final music = host.sources.keys.singleWhere(
+      (id) => host.sources[id]!.endsWith('sky_menu.ogg'),
     );
-    await audio.stopEffects();
-    expect(host.playing, isEmpty);
+    expect(host.volumes[music], .70);
+    audio.speak('audio/story/before-1-1-1.ogg');
+    await drainAudio();
+    final speech = host.sources.keys.singleWhere(
+      (id) => host.sources[id]!.endsWith('before-1-1-1.ogg'),
+    );
+    expect(host.playing, containsAll([music, speech]));
+    expect(host.focus[speech], 0, reason: 'speech never takes focus');
+    expect(host.volumes[music], closeTo(.245, 1e-9));
+    // The next line cuts the first off on the same player.
+    audio.speak('audio/story/before-1-1-2-pip.ogg');
+    await drainAudio();
+    expect(host.sources[speech], endsWith('before-1-1-2-pip.ogg'));
+    expect(host.volumes[music], closeTo(.245, 1e-9));
+    // It ends by itself: the music comes back up.
+    host.messenger.handlePlatformMessage(
+      'xyz.luan/audioplayers/events/$speech',
+      const StandardMethodCodec().encodeSuccessEnvelope({
+        'event': 'audio.onComplete',
+      }),
+      (_) {},
+    );
+    await drainAudio();
+    expect(host.volumes[music], .70);
+    audio.speak('audio/story/before-1-1-3.ogg');
+    await drainAudio();
+    expect(host.volumes[music], closeTo(.245, 1e-9));
+    await audio.hush();
+    await drainAudio();
+    expect(host.playing, isNot(contains(speech)));
+    expect(host.volumes[music], .70);
+    // Nothing is said with voices off.
+    await audio.configure(
+      const GameSettings(voices: false),
+      track: SkyMusic.menu,
+    );
+    final loads = host.loads.length;
+    audio.speak('audio/story/before-1-1-4.ogg');
+    await drainAudio();
+    expect(host.loads, hasLength(loads));
+    expect(host.volumes[music], .70);
   });
 
   test(

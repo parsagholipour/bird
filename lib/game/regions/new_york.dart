@@ -1166,7 +1166,7 @@ class NewYorkScene extends RegionScene {
   /// The light the compositor is painting right now: New York's own moon
   /// while holding, blended with its neighbour's light during a crossing.
   static SkyLight _nightLight(SceneFrame f) {
-    final blend = WorldTour.at(f.seconds);
+    final blend = f.blend;
     final a = RegionScene.of(blend.from).light;
     if (!blend.crossing) return a;
     return SkyLight.lerp(a, RegionScene.of(blend.to).light, blend.stage(0, 1));

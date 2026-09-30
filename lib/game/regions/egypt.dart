@@ -1341,13 +1341,16 @@ class EgyptScene extends RegionScene {
 
   /// Seconds of drift for the sky, zero halfway through the hold (and always
   /// in Reduced Motion) where every drifting shape is laid out.
-  static double _afternoonDrift(SceneFrame f) =>
-      f.reducedMotion ? 0 : f.clock - 96;
+  static double _afternoonDrift(SceneFrame f) => f.reducedMotion
+      ? 0
+      : f.held
+      ? f.clock - WorldTour.hold / 2
+      : f.clock - 96;
 
   /// Where the compositor is drawing the sun right now: it slides from one
   /// region's light to the next during a crossing and the glare must follow.
   SkyLight _afternoonSun(SceneFrame f) {
-    final blend = WorldTour.at(f.seconds);
+    final blend = f.blend;
     if (!blend.crossing) return light;
     return SkyLight.lerp(
       RegionScene.of(blend.from).light,

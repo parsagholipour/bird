@@ -35,12 +35,14 @@ class JumpGlideHud extends StatelessWidget {
       reducedMotion: reducedMotion,
       child: MatchPlate(
         key: const ValueKey('jump-glide-meter'),
+        // A glide about to end warms the plate, like the flight clock.
+        color: low ? SkyColors.yellow : SkyColors.cream,
         child: MatchMeter(
           symbol: MatchSymbol.wing,
           value: active ? remaining / FlightSimulation.maxGlideSeconds : 0,
           active: active,
           text: active ? time : 'Jump',
-          color: low ? SkyColors.gold : SkyColors.teal,
+          color: low ? SkyColors.coralDeep : SkyColors.teal,
           label: active
               ? '${low ? 'Glide ending' : 'Glide'}, $time remaining'
               : 'Jump to charge a 3-second glide',

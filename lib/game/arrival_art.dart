@@ -2,20 +2,39 @@ import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 import '../domain/game_rules.dart';
 import '../ui/theme.dart';
+import 'finish_gate_art.dart';
 import 'sky_scenery.dart';
 
-/// A visual destination for timed routes; it has no collision or reward rules.
+/// A visual destination for timed routes and campaign levels; it has no
+/// collision or reward rules.
 class ArrivalPose {
   const ArrivalPose({
     required this.x,
     required this.reveal,
     required this.arrived,
+    this.finish = false,
   });
   final double x, reveal;
   final bool arrived;
+
+  /// Whether this is a campaign level's finish line, the goal of the whole
+  /// flight, drawn as [FinishGateArt]; a timed route's destination keeps the
+  /// quiet pennants.
+  final bool finish;
   static const approachSeconds = 6.0;
 
   static ArrivalPose? forFlight(FlightSimulation sim) {
+    // A campaign level's finish line is a place on its route, laid beyond
+    // the right edge: it scrolls in with the course and meets the bird as
+    // the rules complete the level. It stays in the world after a knockout.
+    if (sim.finishLine case final line?) {
+      return ArrivalPose(
+        x: line.x,
+        reveal: 1,
+        arrived: line.crossed,
+        finish: true,
+      );
+    }
     if (!sim.timed ||
         !sim.started ||
         sim.remainingSeconds > approachSeconds ||
@@ -39,6 +58,17 @@ abstract final class ArrivalArt {
   }) {
     final pose = ArrivalPose.forFlight(sim);
     if (pose == null || pose.reveal == 0) return;
+    if (pose.finish) {
+      FinishGateArt.paint(
+        canvas,
+        h,
+        x: pose.x * h,
+        seconds: sim.elapsed,
+        arrived: pose.arrived,
+        reducedMotion: reducedMotion,
+      );
+      return;
+    }
     final x = pose.x * h;
     final accent = SkyColors.yellow;
     final alpha = pose.reveal;

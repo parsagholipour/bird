@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:push_up_bird/domain/bird_motion.dart';
 import 'package:push_up_bird/domain/game_rules.dart';
 import 'package:push_up_bird/domain/session_replay.dart';
 import 'package:push_up_bird/domain/tracking.dart';
@@ -33,7 +34,7 @@ List<double> poseValues(BirdPose pose) => [
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  test('neutral vector puppets retain all four original bird designs', () async {
+  test('UI portraits show exactly each neutral vector puppet', () async {
     for (final (bird, name) in ['pip', 'peaches', 'minty', 'orbit'].indexed) {
       final data = await rootBundle.load('assets/images/$name.png');
       final codec = await ui.instantiateImageCodec(data.buffer.asUint8List());
@@ -46,11 +47,44 @@ void main() {
       for (var i = 0; i < before.length; i++) {
         difference += (after[i] - before[i]).abs();
       }
-      // Raster export and runtime curves have slightly different edge sampling.
-      expect(difference / before.length, lessThan(1.2), reason: name);
+      // Pip's portrait is the original raster export, whose edge sampling
+      // differs slightly from runtime curves. The other portraits are exported
+      // from the puppets by bird_portrait_export_test.dart.
+      expect(
+        difference / before.length,
+        lessThan(bird == 0 ? 1.2 : .05),
+        reason: name,
+      );
       original.dispose();
       painted.dispose();
       codec.dispose();
+    }
+  });
+
+  test("every bird keeps Pip's body footprint around its hitbox", () async {
+    // The collision circle is shared, so a bird that looked bigger or sat
+    // elsewhere would feel unfair. Crests and tails may stick out a little.
+    const center = Offset(512 * .48, 448 * .43);
+    const radius = FlightSimulation.birdRadius / BirdFlightMotion.size * 512;
+    int? pipArea;
+    for (var bird = 0; bird < 4; bird++) {
+      final image = await renderBird(bird, 0);
+      final alpha = (await image.toByteData())!.buffer.asUint8List();
+      image.dispose();
+      var area = 0, circle = 0, covered = 0;
+      for (var y = 0; y < 448; y++) {
+        for (var x = 0; x < 512; x++) {
+          final opaque = alpha[(y * 512 + x) * 4 + 3] > 127;
+          if (opaque) area++;
+          if ((Offset(x + .5, y + .5) - center).distance <= radius) {
+            circle++;
+            if (opaque) covered++;
+          }
+        }
+      }
+      pipArea ??= area;
+      expect(covered / circle, greaterThan(.95), reason: 'bird $bird');
+      expect(area / pipArea, closeTo(1, .08), reason: 'bird $bird');
     }
   });
 

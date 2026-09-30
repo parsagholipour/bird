@@ -21,6 +21,7 @@ const _kinds = [
   (BossKind.baronBat, 1),
   (BossKind.spitterBeetle, 2),
   (BossKind.duskMoth, 3),
+  (BossKind.pirate, 4),
 ];
 
 /// A boss [fight] seconds into its attack, with [hits] landing 1.5 s apart
@@ -142,6 +143,7 @@ String _kindName(BossKind kind) => switch (kind) {
   BossKind.spitterBeetle => 'spitter-king',
   BossKind.duskMoth => 'dusk-empress',
   BossKind.pirate => 'pirate-captain',
+  BossKind.dragon => 'ember-dragon',
 };
 
 /// Areas the Flutter flight HUD (SceneLayout 1000×450, contain-fit) keeps
@@ -338,6 +340,57 @@ void main() {
     }
   });
 
+  testWidgets('the Spitter King wears his flask crown on the crest', (
+    tester,
+  ) async {
+    await tester.runAsync(() async {
+      const size = Size(800, 360);
+      Future<Uint8List> frame(BossKind kind, int number) =>
+          rgba((c) => bar(c, size, bossAfter(kind, number)), size);
+      // The crest sits at the strip's left end; the crown glyph is drawn in
+      // the strip's own night color, so a dark mask isolates its shape.
+      Future<List<int>> glyph(BossKind kind, int number) async {
+        final strip = BossHealthBarArt.bounds(size, bossAfter(kind, number));
+        final pixels = await frame(kind, number);
+        final mask = <int>[];
+        for (var y = strip.top.floor(); y < strip.bottom.ceil(); y++) {
+          for (
+            var x = strip.left.floor() + 2;
+            x < strip.left.floor() + strip.height * 1.1;
+            x++
+          ) {
+            final i = (y * size.width.toInt() + x) * 4;
+            mask.add(
+              pixels[i] < 70 && pixels[i + 1] < 80 && pixels[i + 2] < 120
+                  ? 1
+                  : 0,
+            );
+          }
+        }
+        return mask;
+      }
+
+      final baron = await glyph(BossKind.baronBat, 1);
+      final spitter = await glyph(BossKind.spitterBeetle, 2);
+      var differing = 0, spitterInk = 0, baronInk = 0;
+      for (var i = 0; i < baron.length; i++) {
+        if (baron[i] != spitter[i]) differing++;
+        spitterInk += spitter[i];
+        baronInk += baron[i];
+      }
+      expect(
+        spitterInk,
+        greaterThan(baronInk ~/ 2),
+        reason: 'a crown is drawn',
+      );
+      expect(
+        differing,
+        greaterThan(15),
+        reason: 'the flasks are not the generic crown',
+      );
+    });
+  });
+
   testWidgets('bar is deterministic and shows the damage chip', (tester) async {
     await tester.runAsync(() async {
       const size = Size(800, 360);
@@ -425,7 +478,7 @@ void main() {
         final i = (p.dy.toInt() * size.width.toInt() + p.dx.toInt()) * 4;
         centers.add(pixels[i] << 16 | pixels[i + 1] << 8 | pixels[i + 2]);
       }
-      expect(centers, hasLength(3));
+      expect(centers, hasLength(_kinds.length));
 
       // Cinematic cutscenes hide the plate; the classic encounter shows it.
       final blank = await rgba((_) {}, size);

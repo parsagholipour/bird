@@ -304,6 +304,7 @@ void main() {
       (WorldRegion.mexico, .5),
       (WorldRegion.newYork, .55),
       (WorldRegion.paris, .38),
+      (WorldRegion.cyberpunk, .46),
     ];
     for (var bird = 0; bird < 4; bird++) {
       await sheet(

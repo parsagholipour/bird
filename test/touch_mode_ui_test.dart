@@ -277,7 +277,17 @@ void main() {
         expect(game.simulation.flaps, flapsBefore + 1);
       }
       final flapsBeforeStop = game.simulation.flaps;
-      await tester.tap(find.byTooltip('End scored flight'));
+      await tester.tap(find.byTooltip('Pause flight'));
+      await tester.pumpAndSettle();
+      expect(game.simulation.phase, RunPhase.paused);
+      expect(find.text('Take a breather.'), findsOneWidget);
+      await tester.tap(find.text('Keep flying'));
+      await tester.pumpAndSettle();
+      expect(game.simulation.phase, RunPhase.countdown);
+      await tester.tap(find.byTooltip('Pause flight'));
+      await tester.pumpAndSettle();
+      expect(game.simulation.phase, RunPhase.paused);
+      await tester.tap(find.text('Finish flight'));
       await tester.pumpAndSettle();
       expect(
         game.simulation.flaps,

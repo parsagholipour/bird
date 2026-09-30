@@ -7,6 +7,7 @@ import 'arabia.dart';
 import 'aztec.dart';
 import 'brazil.dart';
 import 'china.dart';
+import 'cyberpunk.dart';
 import 'egypt.dart';
 import 'jungle.dart';
 import 'kit.dart';
@@ -35,6 +36,7 @@ abstract final class RegionalObstacles {
       WorldRegion.egypt => EgyptObstacles.column,
       WorldRegion.antarctica => AntarcticaObstacles.column,
       WorldRegion.jungle => JungleObstacles.column,
+      WorldRegion.cyberpunk => CyberpunkObstacles.column,
       WorldRegion.china => ChinaObstacles.column,
       WorldRegion.newYork => NewYorkObstacles.column,
       WorldRegion.sea => SeaObstacles.column,
@@ -73,6 +75,7 @@ abstract final class RegionalObstacles {
       WorldRegion.egypt => EgyptObstacles.orb,
       WorldRegion.antarctica => AntarcticaObstacles.orb,
       WorldRegion.jungle => JungleObstacles.orb,
+      WorldRegion.cyberpunk => CyberpunkObstacles.orb,
       WorldRegion.china => ChinaObstacles.orb,
       WorldRegion.newYork => NewYorkObstacles.orb,
       WorldRegion.sea => SeaObstacles.orb,
@@ -96,13 +99,15 @@ abstract final class RegionalObstacles {
   }
 
   /// A lantern's tether: (cord, twist marks). Palm fibre in Egypt, a
-  /// frosted line in Antarctica, a green vine in the jungle, red silk cord in
-  /// China, a black iron chain in New York, tarred hemp at sea, a woven cord
-  /// in Aztec lands, a wrought-iron line in Paris, green braid in Brazil, a
+  /// fibre-optic cable with cyan light pulses in Cyberpunk City, a frosted
+  /// line in Antarctica, a green vine in the jungle, red silk cord in China,
+  /// a black iron chain in New York, tarred hemp at sea, a woven cord in
+  /// Aztec lands, a wrought-iron line in Paris, green braid in Brazil, a
   /// brass chain in Ancient Arabia, rope in Rome and papel picado string in
   /// Mexico.
   static (Color, Color) tether(WorldRegion region) => switch (region) {
     WorldRegion.egypt => (const Color(0xff8a5f38), const Color(0xffe9c58a)),
+    WorldRegion.cyberpunk => (const Color(0xff2a2350), const Color(0xff5ff4ff)),
     WorldRegion.antarctica => (
       const Color(0xff5d7896),
       const Color(0xfff1f8ff),

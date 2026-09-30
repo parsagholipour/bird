@@ -222,6 +222,31 @@ double? _armAngle(List<Joint> joints, int side, double aspect) {
   return angle >= _minimumElbowDegrees ? angle : null;
 }
 
+/// Standing or kneeling upright with straight arms reads as a push-up top to
+/// every depth cue, so it must not pass as a body in position. Upright, the
+/// arm hangs within 45° of a torso seen at full length (at least 80% of the
+/// arm), with the hand at least 45% of the way down towards the hip. A
+/// side-view plank holds the arm across the torso; a low front view
+/// foreshortens the torso to well under the arm (at most 0.77 of it in the
+/// phone's recordings, against 0.84 or more upright). Everything is measured
+/// against the body, so camera roll cannot change the answer.
+bool _armHangsBySide(
+  Joint s,
+  Joint w,
+  Joint h,
+  double aspect,
+  double torso,
+  double arm,
+  double armToTorso,
+) {
+  if (armToTorso >= 45 || torso < arm * .8) return false;
+  final along =
+      ((w.x - s.x) * (h.x - s.x) * aspect * aspect +
+          (w.y - s.y) * (h.y - s.y)) /
+      (torso * torso);
+  return along >= .45;
+}
+
 double _robustElbow(Map<DepthCue, double> cues, double fallback) {
   final left = cues[DepthCue.leftElbow], right = cues[DepthCue.rightElbow];
   if (left == null) return right ?? fallback;
@@ -255,6 +280,12 @@ BodyObservation _observeBodySide(
   // Compare the arm with the torso, not with the image horizon. A propped
   // phone and an oblique view can make a valid plank look almost vertical.
   final armToTorso = _angle(w, s, h, aspect);
+  if (_armHangsBySide(s, w, h, aspect, length, arm, armToTorso)) {
+    return const BodyObservation(
+      valid: false,
+      feedback: 'Get down into your push-up position',
+    );
+  }
   if (perspective == BodyPerspective.side &&
       (armToTorso < 20 || armToTorso > 165)) {
     return const BodyObservation(
@@ -505,12 +536,14 @@ class BodyCalibrator {
 
   final _spikes = _MedianFilter();
   final _smooth = _OneEuroFilter(minCutoffHz: 1.5, beta: 1);
-  final List<({double time, double angle})> _hold = [];
+  final List<({double time, double angle, BodyPerspective view})> _hold = [];
   final List<({double angle, Map<DepthCue, double> cues})> _cycle = [];
   final Map<DepthCue, List<double>> _tops = {}, _bottoms = {};
   final List<double> _ranges = [], _cycleTimes = [];
   double? _lastSample, _lastValid, _confirmSince, _descentStart;
   double? _peak, _trough;
+  // The view the completed cycles were measured in; survives restarts.
+  BodyPerspective? _learnedView;
   bool _shallow = false;
   double _length = 0, _arm = 0;
 
@@ -526,6 +559,13 @@ class BodyCalibrator {
     if (!o.valid) {
       if (_lastValid == null || now - _lastValid! > 200) {
         _confirmSince = null;
+      }
+      // A camera moved to another view never looks valid in the old one, so
+      // a long loss must release the view rather than wait for a valid frame.
+      if (_lastValid != null &&
+          sample.timestampMs - _lastValid! > 500 &&
+          (perspective != null || step != BodyCalibrationStep.position)) {
+        _restart();
       }
       feedback = o.feedback;
       return;
@@ -548,7 +588,7 @@ class BodyCalibrator {
       case BodyCalibrationStep.position:
         // A steady top gives the descent detector a trustworthy reference;
         // settling into the plank must not read as the first push-up.
-        _hold.add((time: time, angle: raw));
+        _hold.add((time: time, angle: raw, view: o.perspective));
         _hold.removeWhere((h) => time - h.time > _steadyMs * 1.25);
         final angles = _hold.map((h) => h.angle);
         final steady =
@@ -556,15 +596,37 @@ class BodyCalibrator {
             time - _hold.first.time >= _steadyMs &&
             angles.reduce(math.max) - angles.reduce(math.min) <= _steadySpread;
         if (steady) {
-          _length = o.bodyLength;
-          _arm = o.armLength;
-          perspective = o.perspective;
+          // The view is fixed for the rest of calibration and play, so one
+          // borderline frame must not choose it: the whole hold votes.
+          final front = _hold
+              .where((h) => h.view == BodyPerspective.front)
+              .length;
+          final view = front * 2 > _hold.length
+              ? BodyPerspective.front
+              : BodyPerspective.side;
+          final top = o.perspective == view
+              ? o
+              : observeBody(
+                  sample,
+                  now,
+                  preferredSide: side,
+                  preferredPerspective: view,
+                );
+          // Lock on a frame that is itself valid in the chosen view.
+          if (!top.valid) break;
+          if (_learnedView != null && _learnedView != view) {
+            // Cues from another camera placement do not share endpoints.
+            _forgetCycles();
+          }
+          perspective = _learnedView = view;
+          _length = top.bodyLength;
+          _arm = top.armLength;
           _peak = angle;
           _trough = null;
           _descentStart = null;
           _cycle
             ..clear()
-            ..add((angle: raw, cues: o.cues));
+            ..add((angle: raw, cues: top.cues));
           step = BodyCalibrationStep.lower;
         }
       case BodyCalibrationStep.lower:
@@ -642,12 +704,23 @@ class BodyCalibrator {
 
   void _restart() {
     step = BodyCalibrationStep.position;
+    // The player may have moved the phone or changed position; the next
+    // steady top decides the view again.
+    perspective = null;
     _peak = _trough = _confirmSince = _descentStart = null;
     _shallow = false;
     _spikes.reset();
     _smooth.reset();
     _hold.clear();
     _cycle.clear();
+  }
+
+  void _forgetCycles() {
+    cycles = 0;
+    _tops.clear();
+    _bottoms.clear();
+    _ranges.clear();
+    _cycleTimes.clear();
   }
 
   void _completeCycle(double time, double range) {

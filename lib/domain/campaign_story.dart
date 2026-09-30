@@ -1,0 +1,566 @@
+import 'campaign.dart';
+import 'sky_boss.dart' show BossKind;
+import 'world_region.dart';
+
+/// Who says a line. The courier is the equipped bird, under its own name;
+/// the boss is the scene's [StoryScene.boss]. A caption is nobody's voice:
+/// where the scene is, or the words of a letter being read.
+enum StorySpeaker { courier, postmaster, boss, caption }
+
+/// How a line is said, for the speaker's face.
+enum StoryMood { plain, happy, surprised, angry, sad }
+
+/// One line of a scene.
+class StoryLine {
+  const StoryLine.courier(this.text, [this.mood = StoryMood.plain])
+    : speaker = StorySpeaker.courier;
+  const StoryLine.bill(this.text, [this.mood = StoryMood.plain])
+    : speaker = StorySpeaker.postmaster;
+  const StoryLine.boss(this.text, [this.mood = StoryMood.plain])
+    : speaker = StorySpeaker.boss;
+  const StoryLine.caption(this.text)
+    : speaker = StorySpeaker.caption,
+      mood = StoryMood.plain;
+  final StorySpeaker speaker;
+  final String text;
+  final StoryMood mood;
+}
+
+/// A short conversation on the campaign map: the courier, Postmaster Bill
+/// and, at a lair, its boss.
+class StoryScene {
+  const StoryScene({
+    required this.id,
+    required this.lines,
+    this.region,
+    this.boss,
+  });
+
+  /// Saved once the scene has been watched, so it plays by itself once.
+  final String id;
+
+  /// Where it happens: a stop on the journey, or the Sky Club post when
+  /// null.
+  final WorldRegion? region;
+
+  /// The boss who speaks in it, if one does.
+  final BossKind? boss;
+  final List<StoryLine> lines;
+}
+
+/// The campaign's story, told in scenes between flights. See
+/// docs/campaign.md.
+///
+/// Five mail routes fall quiet on the courier's first day. Each boss took
+/// its route after a warm letter with a flame seal told it to; the letters
+/// came from the Ember Dragon, who lives past the end of every route and
+/// has never been sent one himself. The last delivery is the first letter
+/// addressed to him.
+abstract final class CampaignStory {
+  /// The name under the Postmaster's lines.
+  static const postmaster = 'Postmaster Bill';
+
+  /// The Sky Club's rule, which opens and closes the story.
+  static const motto = 'Every letter lands.';
+
+  /// The scene that comes before [level]: the prologue before 1-1, a
+  /// route's opening before its first level, an arrival at the first level
+  /// of each later region, and the words at the lair before a boss. Null
+  /// for every other level.
+  static StoryScene? before(CampaignLevel level) => _before[level.id];
+
+  /// The scene after [chapter]'s boss falls, ahead of its postcard.
+  static StoryScene after(CampaignChapter chapter) =>
+      _after[chapter.number - 1];
+
+  /// The scene that opens the campaign, on the map's first visit.
+  static StoryScene get prologue => _before['1-1']!;
+
+  /// Every scene, in the order the story tells them.
+  static final List<StoryScene> scenes = [
+    for (final chapter in Campaign.chapters) ...[
+      for (final level in chapter.levels) ?before(level),
+      after(chapter),
+    ],
+  ];
+
+  static StoryScene? scene(String id) {
+    for (final scene in scenes) {
+      if (scene.id == id) return scene;
+    }
+    return null;
+  }
+
+  static const _happy = StoryMood.happy, _sad = StoryMood.sad;
+  static const _surprised = StoryMood.surprised, _angry = StoryMood.angry;
+
+  static const _before = <String, StoryScene>{
+    // Chapter 1: The Canopy Route.
+    '1-1': StoryScene(
+      id: 'before-1-1',
+      lines: [
+        StoryLine.caption('The Sky Club post. Sunrise. Your first day.'),
+        StoryLine.bill(
+          'There you are, rookie! Postmaster Bill. Welcome to the Sky Club '
+          'post.',
+          _happy,
+        ),
+        StoryLine.courier('Ready to fly! Where does the mail go?', _happy),
+        StoryLine.bill(
+          'Everywhere. That’s the trouble. All five routes went quiet last '
+          'night.',
+          _sad,
+        ),
+        StoryLine.bill(
+          'Somebody has moved in on every one of them, and my couriers '
+          'can’t get through.',
+        ),
+        StoryLine.courier('Who would steal a mail route?', _surprised),
+        StoryLine.bill(
+          'Five somebodies. The nearest roosts in the jungle and calls '
+          'himself a Baron.',
+        ),
+        StoryLine.bill(
+          'Start small: one birthday card, one jungle. Club rule: every '
+          'letter lands.',
+          _happy,
+        ),
+        StoryLine.courier('Every letter lands. Got it!', _happy),
+      ],
+    ),
+    '1-4': StoryScene(
+      id: 'before-1-4',
+      region: WorldRegion.brazil,
+      lines: [
+        StoryLine.bill(
+          'Brazil! It’s carnival week, so half the mail is confetti.',
+          _happy,
+        ),
+        StoryLine.courier('And the other half?'),
+        StoryLine.bill(
+          'Bats. The Baron’s cousins never miss a party. Keep your beak up.',
+        ),
+        StoryLine.bill(
+          'And mind the petal gates. They open and shut to the music.',
+        ),
+      ],
+    ),
+    '1-6': StoryScene(
+      id: 'before-1-6',
+      region: WorldRegion.aztec,
+      lines: [
+        StoryLine.bill(
+          'The temple steps. The Baron roosts at the top, where the sun '
+          'comes up.',
+        ),
+        StoryLine.courier('He took a whole route just to roost?', _surprised),
+        StoryLine.bill(
+          'He says the morning post wakes him. His bedtime is our rush hour.',
+        ),
+        StoryLine.courier('Then we knock politely. With rocks.', _happy),
+      ],
+    ),
+    '1-8': StoryScene(
+      id: 'before-1-8',
+      region: WorldRegion.aztec,
+      boss: BossKind.baronBat,
+      lines: [
+        StoryLine.boss('WHO is flapping on my doorstep at sunrise?', _angry),
+        StoryLine.courier(
+          'Sky Club post! I have a letter for you, sir.',
+          _happy,
+        ),
+        StoryLine.boss('A letter? For me? …What does it say?', _surprised),
+        StoryLine.courier('Final notice. You’re roosting on a mail route.'),
+        StoryLine.boss('This route is my roost now, little courier!', _angry),
+        StoryLine.bill(
+          'He’s all screech, rookie. Dodge the fireballs and shoot back!',
+        ),
+      ],
+    ),
+
+    // Chapter 2: The Ancient Road.
+    '2-1': StoryScene(
+      id: 'before-2-1',
+      region: WorldRegion.rome,
+      lines: [
+        StoryLine.bill(
+          'The ancient road: Rome to the desert bazaars. The oldest route on '
+          'the map.',
+        ),
+        StoryLine.courier('What is that smell?', _surprised),
+        StoryLine.bill(
+          'Brewing. A beetle who calls himself King is boiling our letters.',
+          _sad,
+        ),
+        StoryLine.bill(
+          'And look what the Baron left behind: a scorched envelope with a '
+          'flame seal.',
+        ),
+        StoryLine.courier('So somebody is giving our routes away.'),
+        StoryLine.bill(
+          'One mystery at a time. His beetles spit seeds, so shoot them '
+          'down.',
+        ),
+      ],
+    ),
+    '2-4': StoryScene(
+      id: 'before-2-4',
+      region: WorldRegion.egypt,
+      lines: [
+        StoryLine.bill(
+          'Egypt! We’ve delivered here for four thousand years and lost one '
+          'letter.',
+          _happy,
+        ),
+        StoryLine.courier('Which one?'),
+        StoryLine.bill(
+          'The Sphinx won’t say. Mind the switchbacks: up one gap, down the '
+          'next.',
+        ),
+      ],
+    ),
+    '2-6': StoryScene(
+      id: 'before-2-6',
+      region: WorldRegion.arabia,
+      lines: [
+        StoryLine.bill(
+          'The bazaar at dawn. You can smell the King’s brew from here.',
+        ),
+        StoryLine.courier('What does he want with letters?'),
+        StoryLine.bill(
+          'Ink, they say. He boils the words right off the page.',
+          _sad,
+        ),
+        StoryLine.courier('Not on my route.', _angry),
+      ],
+    ),
+    '2-8': StoryScene(
+      id: 'before-2-8',
+      region: WorldRegion.arabia,
+      boss: BossKind.spitterBeetle,
+      lines: [
+        StoryLine.boss(
+          'A courier! Splendid. Is that fresh mail I smell?',
+          _happy,
+        ),
+        StoryLine.courier(
+          'One letter, and it’s for you. It says: stop boiling the post.',
+        ),
+        StoryLine.boss(
+          'But the recipe! One “Dear Grandma”, two “Wish you were here”, '
+          'stir…',
+        ),
+        StoryLine.courier('You’re cooking people’s words?', _surprised),
+        StoryLine.boss('Every letter on my road goes in the brew!', _angry),
+        StoryLine.bill(
+          'Shoot the seeds down, rookie. And don’t drink anything!',
+        ),
+      ],
+    ),
+
+    // Chapter 3: The Lamplight Line.
+    '3-1': StoryScene(
+      id: 'before-3-1',
+      region: WorldRegion.newYork,
+      lines: [
+        StoryLine.bill(
+          'New York, and not one lamp lit. The night mail can’t find a '
+          'single door.',
+          _sad,
+        ),
+        StoryLine.courier('Who puts a whole city to bed?', _surprised),
+        StoryLine.bill(
+          'The Dusk Empress. Her moths fire pollen in fans of three.',
+        ),
+        StoryLine.courier('And the flame seal?'),
+        StoryLine.bill('I’d bet my cap she has one. Fly by starlight, rookie.'),
+      ],
+    ),
+    '3-5': StoryScene(
+      id: 'before-3-5',
+      region: WorldRegion.paris,
+      lines: [
+        StoryLine.bill(
+          'Paris, the City of Light. Or it was, until last night.',
+        ),
+        StoryLine.courier('The rooftops look like crystal!', _happy),
+        StoryLine.bill(
+          'They are. Steps of it, three at a time. Pretty, and very pointy.',
+        ),
+      ],
+    ),
+    '3-8': StoryScene(
+      id: 'before-3-8',
+      region: WorldRegion.paris,
+      boss: BossKind.duskMoth,
+      lines: [
+        StoryLine.boss('Shh. You will wake the lamps.'),
+        StoryLine.courier('That’s the idea. The night mail can’t see a thing.'),
+        StoryLine.boss(
+          'My moths kept bumping into them. Bonk. Bonk. All night long.',
+          _sad,
+        ),
+        StoryLine.courier(
+          'So you put the lamps to bed? We could just add lampshades…',
+        ),
+        StoryLine.boss('Hush now. The night mail is sleeping.', _angry),
+        StoryLine.bill('Here come the fans, rookie. Slip between them!'),
+      ],
+    ),
+
+    // Chapter 4: The Tide Route.
+    '4-1': StoryScene(
+      id: 'before-4-1',
+      region: WorldRegion.mexico,
+      lines: [
+        StoryLine.bill(
+          'The tide route. Harbour bells ring when the post comes in. None '
+          'has rung all week.',
+          _sad,
+        ),
+        StoryLine.courier('Pirates?'),
+        StoryLine.bill(
+          'One pirate, one parrot, and every mailbag between here and the '
+          'horizon.',
+        ),
+        StoryLine.bill('Volcanoes first, then open water. Stay dry, rookie.'),
+      ],
+    ),
+    '4-4': StoryScene(
+      id: 'before-4-4',
+      region: WorldRegion.sea,
+      lines: [
+        StoryLine.bill('Open water. Nowhere to land, and the sea bites.'),
+        StoryLine.courier('What does a pirate want with mailbags?'),
+        StoryLine.bill(
+          'That’s the odd part. He throws the letters back and keeps the '
+          'envelopes.',
+        ),
+        StoryLine.courier('The envelopes?', _surprised),
+        StoryLine.bill(
+          'Ask him when you meet him. Until then, don’t touch the water.',
+        ),
+      ],
+    ),
+    '4-8': StoryScene(
+      id: 'before-4-8',
+      region: WorldRegion.sea,
+      boss: BossKind.pirate,
+      lines: [
+        StoryLine.boss(
+          'Ahoy! A mailbag, flyin’ itself straight to me ship!',
+          _happy,
+        ),
+        StoryLine.courier(
+          'It’s staying with me. What do you want with the mail?',
+        ),
+        StoryLine.boss(
+          'Not the mail, lad. The STAMPS. Tiny paper treasure from every '
+          'port!',
+        ),
+        StoryLine.courier('You’re a stamp collector?', _surprised),
+        StoryLine.boss('Arr! Every mailbag on these waves be mine!', _angry),
+        StoryLine.bill('Mind the cannon, rookie, and stay out of the water!'),
+      ],
+    ),
+
+    // Chapter 5: The Edge of the Map.
+    '5-1': StoryScene(
+      id: 'before-5-1',
+      region: WorldRegion.antarctica,
+      lines: [
+        StoryLine.bill('The edge of the map. No route has ever run past here.'),
+        StoryLine.courier('Then who lives out there?'),
+        StoryLine.bill(
+          'Somebody who has never been sent a letter. I checked the books '
+          'twice.',
+          _sad,
+        ),
+        StoryLine.courier(
+          'The dragon wrote to four strangers, and nobody ever wrote to him.',
+        ),
+        StoryLine.bill(
+          'Then we had better write one. You fly. I’ll find a pen.',
+          _happy,
+        ),
+      ],
+    ),
+    '5-3': StoryScene(
+      id: 'before-5-3',
+      region: WorldRegion.cyberpunk,
+      lines: [
+        StoryLine.bill('The neon city. Everything here is sent by wire.'),
+        StoryLine.courier('So nobody needs a courier?'),
+        StoryLine.bill(
+          'A wire can’t carry a parcel, rookie. Or a hug. Or noodles.',
+          _happy,
+        ),
+      ],
+    ),
+    '5-6': StoryScene(
+      id: 'before-5-6',
+      region: WorldRegion.china,
+      lines: [
+        StoryLine.bill(
+          'Red sun, red sky. His lair is just beyond those mountains.',
+        ),
+        StoryLine.courier('I have the letter. Everybody signed it.'),
+        StoryLine.bill(
+          'Even the Baron. He dotted his “i” with a tiny bat.',
+          _happy,
+        ),
+        StoryLine.courier(motto, _happy),
+      ],
+    ),
+    '5-8': StoryScene(
+      id: 'before-5-8',
+      region: WorldRegion.china,
+      boss: BossKind.dragon,
+      lines: [
+        StoryLine.boss('A courier, at the edge of the map. How unusual.'),
+        StoryLine.courier('You sent four letters. You gave our routes away.'),
+        StoryLine.boss(
+          'No route ever reached ME. If the mail can’t find me, let it find '
+          'no one!',
+          _angry,
+        ),
+        StoryLine.courier('Wait! I have something for you…', _surprised),
+        StoryLine.boss('The sky is mine. Your letters are kindling.', _angry),
+        StoryLine.bill(
+          'He won’t listen yet. Get through the fire first, rookie!',
+        ),
+      ],
+    ),
+  };
+
+  static const _after = [
+    StoryScene(
+      id: 'after-1',
+      region: WorldRegion.aztec,
+      boss: BossKind.baronBat,
+      lines: [
+        StoryLine.boss('My crown! …Oh, keep it. It always pinched.', _sad),
+        StoryLine.courier('Why did you take the route, Baron?'),
+        StoryLine.boss(
+          'Every dawn: flap, thump, “POST!” A bat needs his beauty sleep.',
+          _sad,
+        ),
+        StoryLine.boss(
+          'Then a letter came, warm as toast. “The canopy is yours. Take it.”',
+        ),
+        StoryLine.courier('Who sent it?', _surprised),
+        StoryLine.boss('No name. Only a seal shaped like a flame.'),
+        StoryLine.bill(
+          'Tell you what, Baron. From now on, we deliver the canopy at dusk.',
+          _happy,
+        ),
+        StoryLine.boss('Dusk! How civilised. …You may go.', _happy),
+      ],
+    ),
+    StoryScene(
+      id: 'after-2',
+      region: WorldRegion.arabia,
+      boss: BossKind.spitterBeetle,
+      lines: [
+        StoryLine.boss('My brew! It has gone all… minty.', _sad),
+        StoryLine.courier('What were you making?'),
+        StoryLine.boss(
+          'The perfect ink. One that never fades. I only needed a few '
+          'thousand letters.',
+        ),
+        StoryLine.courier('Did a warm letter tell you the road was yours?'),
+        StoryLine.boss('With a flame seal! How did you know?', _surprised),
+        StoryLine.bill(
+          'Two routes, two seals. Somebody is writing to every troublemaker '
+          'on the map.',
+        ),
+        StoryLine.bill(
+          'King, the club needs an ink-maker. No boiling the post. Tea is '
+          'allowed.',
+          _happy,
+        ),
+        StoryLine.boss('Royal ink-maker! I shall need a bigger flask.', _happy),
+      ],
+    ),
+    StoryScene(
+      id: 'after-3',
+      region: WorldRegion.paris,
+      boss: BossKind.duskMoth,
+      lines: [
+        StoryLine.boss('My crown has slipped. How very undignified.', _sad),
+        StoryLine.courier(
+          'Empress, did you get a warm letter with a flame seal?',
+        ),
+        StoryLine.boss(
+          'It promised me a city without lamps. It did not mention couriers.',
+        ),
+        StoryLine.bill(
+          'Three seals now. And every one posted from the edge of the map.',
+        ),
+        StoryLine.courier(
+          'About those lampshades. Soft ones. Would they help?',
+          _happy,
+        ),
+        StoryLine.boss(
+          'Shades… Yes. And I shall light the lamps myself, each dusk.',
+          _happy,
+        ),
+      ],
+    ),
+    StoryScene(
+      id: 'after-4',
+      region: WorldRegion.sea,
+      boss: BossKind.pirate,
+      lines: [
+        StoryLine.boss('Me hat! Me ship! Me stamp album… it’s soggy.', _sad),
+        StoryLine.courier('Let me guess. A warm letter. A flame seal.'),
+        StoryLine.boss(
+          'Aye. “The tide is yours,” it said. Fine stamp on it, too: a little '
+          'dragon.',
+        ),
+        StoryLine.bill('A dragon! At the edge of the map…', _surprised),
+        StoryLine.courier(
+          'Captain, give the mail back and the club will send you a stamp '
+          'from every route.',
+        ),
+        StoryLine.boss(
+          'Every route? …Parrot, strike the colours. We be collectors now!',
+          _happy,
+        ),
+      ],
+    ),
+    StoryScene(
+      id: 'after-5',
+      region: WorldRegion.china,
+      boss: BossKind.dragon,
+      lines: [
+        StoryLine.boss('Enough. I yield. Burn your own letters.', _sad),
+        StoryLine.courier('This one isn’t for burning. It’s addressed to you.'),
+        StoryLine.boss(
+          '“The Ember Dragon, Edge of the Map.” That… is me.',
+          _surprised,
+        ),
+        StoryLine.caption(
+          '“Dear Dragon. The Sky Club has a new route, and no one to light '
+          'the way.”',
+        ),
+        StoryLine.caption(
+          '“Come and keep our beacon. Signed: everyone. Even the Baron.”',
+        ),
+        StoryLine.boss(
+          'I wrote four letters, to feel part of the mail. This is the first '
+          'one back.',
+          _sad,
+        ),
+        StoryLine.bill(
+          'Route six, Dragon: the Edge of the Map. You light it. We deliver '
+          'it.',
+          _happy,
+        ),
+        StoryLine.boss('Then I had better learn to write back.', _happy),
+        StoryLine.courier(motto, _happy),
+      ],
+    ),
+  ];
+}

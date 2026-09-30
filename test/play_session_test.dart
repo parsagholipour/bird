@@ -32,6 +32,10 @@ class SilentAudio implements SkyAudio {
   Future<void> setRate(double rate) async {}
   @override
   Future<void> stopEffects() async {}
+  @override
+  void speak(String asset) {}
+  @override
+  Future<void> hush() async {}
 }
 
 class TestInterpreter implements MovementInterpreter {

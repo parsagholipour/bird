@@ -134,7 +134,7 @@ void main() {
       expect(p.totalSquats, 8);
       expect(p.totalRepetitions, 0);
       expect(p.trailCompletions, 1);
-      expect(p.unlocked, contains(1));
+      expect(p.birdsFlown, {0});
       for (final course in FlightCourse.values) {
         expect(p.record(PlayMode.squat, course).best, 15);
         expect(p.record(PlayMode.jump, course).best, 0);

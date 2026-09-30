@@ -13,7 +13,7 @@ void main() {
       progress.passport
           .singleWhere((p) => p.stamp == SkyStamp.flockTogether)
           .current,
-      1,
+      0,
     );
   });
   test(
@@ -29,7 +29,7 @@ void main() {
           perfectPasses: 6,
           completions: 3,
         ),
-        unlocked: {0, 1, 2, 3},
+        birdsFlown: {0, 1, 2, 3},
       );
       expect(progress.earnedStamps, 7);
       expect(
@@ -73,7 +73,7 @@ void main() {
           bestCombo: 12,
           completions: 3,
         ),
-        unlocked: {0, 1, 2, 3},
+        birdsFlown: {0, 1, 2, 3},
       );
       expect(complete.nextStamp, isNull);
     },

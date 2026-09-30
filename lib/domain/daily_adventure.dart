@@ -26,7 +26,7 @@ class DailyGoal {
   String get description => switch (task) {
     DailyTask.flights => 'Finish $target scored flights today.',
     DailyTask.gates => 'Clear $target gates across today’s scored flights.',
-    DailyTask.stars => 'Collect $target stars across today’s Star Trails.',
+    DailyTask.stars => 'Collect $target stars across today’s flights.',
     DailyTask.streak => 'Collect $target stars in one unbroken streak.',
     DailyTask.perfects => 'Fly $target perfect passes today.',
     DailyTask.finishTrail => 'Fly for at least 60 seconds in one Star Trail.',
@@ -62,8 +62,7 @@ class DailyAdventure {
     final key = localDayKey(day);
     final eligible = <String, RunResult>{
       for (final run in runs)
-        if (!run.practice && localDayKey(run.finishedAt) == key)
-          run.id: run,
+        if (!run.practice && localDayKey(run.finishedAt) == key) run.id: run,
     }.values;
     var flights = 0,
         gates = 0,
@@ -78,7 +77,10 @@ class DailyAdventure {
       if (run.course == FlightCourse.starTrail) {
         stars += run.stars;
         if (run.bestCombo > streak) streak = run.bestCombo;
-        if (run.durationSeconds >= FlightSimulation.trailDuration) {
+        // "The whole journey" is an endless Star Trail; a campaign level
+        // has its own finish line.
+        if (run.levelId == null &&
+            run.durationSeconds >= FlightSimulation.trailDuration) {
           finishes++;
         }
       }

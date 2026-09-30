@@ -81,9 +81,11 @@ never change an existing enemy's health when the weapon or encounter changes.
 Enemy and boss constructors also accept a positive `maxHp` override.
 
 Multiply the existing boss HP formulas by ten: Baron Bat starts at 120 HP,
-Spitter King at 180 HP and Dusk Empress at 240 HP, with 30-HP progression steps
-and caps of 240 / 300 / 360. This retains the earlier boss fight lengths with
-the base weapon while supporting upgrades smaller than one old hit point.
+Spitter King at 180 HP (210 HP from rules version 37) and Dusk Empress at
+240 HP, with 30-HP progression steps and caps of 240 / 300 / 360 (330 for the
+Spitter King from rules version 37). This retains the earlier boss fight
+lengths with the base weapon while supporting upgrades smaller than one old
+hit point.
 
 Each accepted shot captures the current positive weapon damage. A hit consumes
 the shot, subtracts its damage and clamps health to zero. Partial hits leave
@@ -112,14 +114,55 @@ hover, timer reset, or waiting at the panel.
 
 The panel has 40 HP: four base shots break it, and weapon upgrades may need
 fewer. Hits outside the gap strike the permanent wall without damaging the
-panel. At 75%, 50% and 25% health, add cracks, missing edge chunks and deeper
-fractures. Four health pips remain attached to the panel. On a lethal hit,
-clear the opening's collision immediately and play a short debris animation
-with one break/unlock cue. The surrounding walls remain solid; an intact panel
-uses normal wall collision damage. Destruction gives no extra score. Pause and
-replay preserve seeded placement, HP and debris timing. Reduced Motion retains
-the static damage stages without sparks or debris. Rules 1–26 retain the
-previous route with no breakable panels.
+panel. Damage, health and collision are unchanged by the artwork described
+below, which is a pure function of the panel's own clock and the blows it has
+taken (each blow's height, damage and whether it was a sprint ram), so pause,
+replay seeks and a second panel with the same seed paint identical frames.
+
+*Appearance.* A sealed stone gate plug: bevelled lilac-grey granite blocks,
+a raised keystone holding a gold sun-and-bird medallion, two dark iron straps
+with gold inlay (the upper one carries the four health gems, one per quarter of
+health), moss and weathering. It sits in a reinforced collar drawn over the
+wall ends (a stone band with gold trim, teeth and rivets, at most 0.046 of the
+view high, inside the wall bodies and never wider than the wall). All other
+panel artwork stays inside the opening. The sheen crossing the gold and the sun's
+slow glow are idle motion and are skipped in Reduced Motion.
+
+*Every blow.* A starburst, a shock ring and gold sparks fly back toward the rock,
+stone chips and a small puff of dust are thrown out (bigger for a charged shot),
+the slab shudders inside the opening, a crater is bitten out of the left face at
+the height of the hit and the cracks grow outward from it. At 75%, 50% and 25%
+health the panel therefore has one, two and three craters, back-face chips and a
+wider web of cracks, with the health gem for that quarter darkened. The
+reaction lasts about half a second; no solid artwork leaves the opening.
+
+*The killing blow* clears the opening's collision on the very step it lands and
+plays a 1.0 s animation from that instant (`SkyDoor.crumbleDuration`):
+
+- 0-50 ms: white-gold flash, a starburst and shock rings at the strike, the slab
+  strains and every crack races across it (hit-stop).
+- 50-120 ms: the slab lets go along its cracks into about 15 to 25 shards, from
+  chunky slabs to gravel; the two iron straps snap, rivets pop, the medallion
+  pops off and coin-flips out, dust blooms at the strike, both seats and the
+  far face, grit and pebbles spray.
+- 0.12-0.5 s: shards tumble under drag and gravity, closest pieces fastest;
+  the medallion twinkles as it falls; dust billows and rises.
+- 0.5-0.95 s: every piece shrinks away (no fading layers) and the last dust
+  thins out; the medallion bursts into sparkles.
+- Afterwards only the wall's chewed sockets remain, inside the wall bodies: a
+  jagged lip, fresh pale breaks, cracks, dust stains and the stubs of the
+  gold brackets. Nothing stays in the opening.
+
+A charged rock throws more and finer debris than a base rock, and a sprint ram
+throws bigger pieces further and higher. The shards are the cells of the same
+fracture pattern whose seams were drawn as cracks on the damaged panel, so the
+break continues the cracks already seen. The aiming mark returns once the debris
+has cleared (0.45 s). Destruction gives no extra score, a single break/unlock
+cue plays and the surrounding walls remain solid; an intact panel uses normal
+wall collision damage. Reduced Motion keeps the static damage stages (craters,
+cracks, gems) without shudder, sparks, dust, debris or sheen, and a destroyed
+panel disappears at once. Rules 1–26 retain the previous route with no
+breakable panels.
 
 ### Wall rebounds (rules version 31)
 
@@ -169,6 +212,29 @@ state. Record `charge` on press and `shoot` on release, deriving charge from
 simulation time for deterministic seeks. An unreleased full charge needs no
 shoot event. Rules 1–27 reject `charge` events and keep unlimited
 cooldown-limited taps.
+
+### Pellet shatter (rules version 36)
+
+A rock with charge `c ≥ 0.35` that meets a small-enemy pellet shatters it
+instead of just cancelling it. 0.35 is also the point where the fire cue
+changes to `power_shot`. The rock is spent as on any cancel, and the
+interception still counts as a deflection. The blast is centered on the pellet
+and has reach `0.12 + 0.12 × (c − 0.35) / 0.65` height units, so 0.12 at the
+threshold and 0.24 at full charge. Every small enemy whose 0.045-unit hit
+circle touches it takes `max(1, round(damage × 0.5))` of the rock's captured
+damage. That is 20 for a full charge with the base weapon, enough for bats and
+beetles; moths survive. Defeats award the usual reward and defeat event. An
+attacking boss inside the blast (its body, or the veil while shielded) takes
+the same damage, and a raised veil absorbs it instead. Blasts resolve after
+the tick's pellet sweep, so a blast that defeats the boss clears the remaining
+ammo as a normal victory does. Weaker rocks keep the plain cancel.
+
+Draw a burst that shows the blast reach, anchored in the world, in place of
+the deflect splash. Play `lava_burst` under the `deflect` cue. The record is
+render-only and pruned after one second. Boss arrival clears it. Reduced
+Motion shows a still mark. Blasts are part of the seeded simulation, so
+replays and seeks reproduce them with no extra events. Rules 1–35 keep the
+plain cancel.
 
 ### Sprint (rules version 29)
 
@@ -382,6 +448,77 @@ replay highlight (“Weathered the gale”). Gales are part of the seeded
 simulation, so replays and seeks reproduce them exactly with no extra events.
 Rules 1–32, camera modes and Classic have no gales.
 
+### Pause and resume (rules version 35)
+
+Scored flights can pause. The pause button (shown for every flight) opens the
+“Take a breather.” panel with **Finish flight** and **Keep flying**. Taking a
+break or backgrounding the app pauses a scored flight instead of ending it, and
+a flight already paused stays paused through a background. Keep flying starts the
+same three-second resume countdown as practice: tracking must be fresh, the
+camera restarts if the app left it, and a held charge is cancelled. Pauses freeze
+every clock, so they never change collision, attack or score timing. A collision,
+long tracking or posture loss and a simulation stall still end a scored flight,
+and Finish flight ends it with the break reason. Rules versions 1–34 keep ending
+scored flights on a break or background, so older replays reproduce exactly.
+
+### Knockout and game-over stage (presentation only)
+
+A flight that ends with `EndReason.collision` (the last heart, or any Classic
+collision) enters `PlayStage.fallen` before `PlayStage.results`, in scored and
+practice flights and every control mode. `_finish` still builds the
+`RunResult`, plays `game_over`, stops the camera and saves the run at the moment
+of the bump, so an app killed mid-animation keeps its run. The rules, journal,
+`RunResult` and replays do not change: the knockout has its own clock
+(`PlayController.knockout`), advanced by the game loop's frame time and passed
+to `BirdGame`. Every frame of `KnockoutArt` is a pure function of that time and
+the ended simulation. Replays pass no clock and keep the plain ended frame.
+
+- **0–0.1 s:** hit-stop. The frozen flight gets a white flash, a camera kick and
+  a starburst at the contact point. The bird squashes, wide-eyed and blown out
+  to white.
+- **0.1–0.5 s:** the bird pops up and back, grows slightly so it reads at
+  gameplay size, and switches to the `dazed` expression (dizzy spirals). Eight
+  feathers burst out in its colours, with Peaches' hearts and Orbit's
+  sparkles. Three stars circle its head.
+- **0.5–1.3 s:** it tumbles backwards and falls off the bottom of the screen.
+  During the Pirate Captain's encounter it plunges into the sea, making a crown
+  splash with sheets, drops, rings and bubbles, and plays `sea_splash`.
+- **To 1.9 s:** the feathers flutter down and fade. The world, dimmed and
+  desaturated under a lavender tint since the bump, settles into a still, and
+  the camera eases in 3.5%.
+
+The HUD hides for the whole sequence, and floating callouts and rush banners
+are not drawn. Taps before 0.6 s do nothing, including flaps. After that, a tap
+anywhere skips to the stage. Backgrounding jumps to the stage. Back or Home
+leaves after the in-progress save completes. If frames stop, a fallback timer
+shows the stage 1 s after the knockout should have ended. Reduced Motion swaps
+in the dazed face under three still stars and fades the bird out in place over
+1.2 s, with no spin, shake, flash, zoom or particles.
+
+The game-over stage (`GameOverStage`) sits over the frozen, dimmed world under
+a deeper vignette, and the flight's game loop pauses once its last frame is
+painted. It reads left to right. On the left, a **Bonk!** title (**Splash!**
+at sea) drops in letter by letter over a friendly caption on a cream plate. The
+dazed bird rides up on a cloud in a soft spotlight, with stars circling on a
+faint ring. It shakes it off and looks ready to go at about 4.2 s. On the
+right, an ink-framed scoreboard counts the score up beside a personal-best
+plaque. A new best keeps the old record on the plaque until the count lands.
+Then the plaque turns gold under a **NEW PERSONAL BEST!** ribbon. Below that
+come this flight's stats as tiles (reps or flaps, flight time, perfect passes,
+then streak or rank). A progress row follows, with flight wings (goal details
+on tap) and the postcard, stamp-earned or next-stamp link (with a progress
+bar). Last come save status with tap-to-retry, and session and camera messages.
+Practice tags the score, and its note takes the progress row's place.
+
+The actions sit under the scoreboard, in the same place after every flight.
+**Home** and **Save session / Watch replay** are cream keys. **Fly again** is
+the large coral key, in the home screen's physical key style. It pops in last.
+The actions arm once the entrance settles (about 0.9 s, or 0.3 s with Reduced
+Motion). Fly again hops with a glint when the bird looks ready. Reduced Motion
+fades the stage in with no drops, count-up, shake, hop or glint, and the bird
+stays dazed under three still stars. The award chime waits for the stage.
+Other endings still open the regular results panel.
+
 ### Pirate Captain (rules version 34)
 
 The Pirate Captain joins the touch boss cycle as its fourth encounter:
@@ -420,6 +557,534 @@ the screen come back down; balls that fall into the sea splash.
 `cannon_fire`, each warning `tide_warning` (a ship's bell over swelling
 water), each rise `tide_surge`, and cannonball or bird splashes
 `sea_splash`. Splashes are render-only; the rules never read them.
+
+### Ember Dragon (rules version 38)
+
+The Ember Dragon, **Sovereign of the Burning Sky**, joins the touch boss
+cycle as its fifth encounter: Baron Bat, Spitter King, Dusk Empress, Pirate
+Captain, Ember Dragon, then the cycle repeats (bosses 5, 10, 15…). Every
+other kind now returns every fifth boss (the Dusk Empress at 3, 8, 13…).
+Rules 34–37 keep the four-boss cycle, and every older version keeps its own.
+The dragon starts at 360 HP with 30-HP steps, capped at 480, so it has 360 HP
+at encounter 5 and 480 from encounter 10. It summons no helpers and adds no
+random draws: every choice it makes, its swarm flocks included, follows from
+the clock and the bird's recorded height.
+
+**The dragon.** It anchors at `max(birdX + 0.76, width − 0.5)` and hovers at
+`0.5 + 0.07 sin(0.8 t)` in combat time. During the cinematic arrival it
+swoops in low (`0.5 + 0.08 sin(πe)` over the entrance), so its raised head
+and the roar stay in view. Its hit circle (the usual 0.115 radius) is its
+heart, a molten core set in its chest. Wings, neck, head and tail are
+scenery: shots pass through them.
+
+**Fireballs.** Fireballs (radius 0.025) leave the jaws, 0.293 left of and
+0.215 above the heart. The first comes 1.3 s into combat, then every 2.0 s
+(1.55 s in fury), at 0.52 per second (0.62 in fury), aimed at the bird.
+Volleys alternate a single fireball at the bird and a pair at ±0.22 rad that
+brackets it. In fury, except on the debut, each single fireball splits 0.45 s
+after launch, well short of the bird, into three embers (radius 0.016). One
+keeps the fireball's heading and two fan out ±0.5 rad from it, all at its
+speed. A splitting fireball shows three swelling embers inside and a
+closing heat ring before it bursts.
+
+**The breath.** Combat time runs a fixed 11-second cycle:
+
+- calm until 4.0 s;
+- a 1.5-second inhale (the warning) until 5.5 s;
+- a 1.6-second blast until 7.1 s;
+- calm again.
+
+As the inhale begins, the dragon aims at the bird's height and picks one
+band of sky to burn. Below 0.36 it burns the high band (0–0.5), leaving the
+lower half safe. Above 0.64 it burns the low band (0.5–1), leaving the upper
+half safe. Otherwise it burns the middle (0.32–0.68), leaving strips above
+and below. The band is fixed until the next inhale. During the blast, a bird
+whose circle overlaps the band is hurt like a course edge: Classic ends the
+flight, and Star Trail takes a shield or a heart with the usual 1.5-second
+recovery. There are no fireball launches from 1.0 s before the inhale to the
+end of the blast, and the next one waits at least 0.9 s after it, so the
+last fireballs have passed when the warning asks the bird to move. Fury
+never changes the cycle, and pause and seek restore it exactly. Cutscenes
+never burn. From anywhere in the band at the start of the inhale, a bird
+tapping at most five times a second reaches the safe side before the blast
+and can hover there through it.
+
+**The open heart.** From the start of the inhale to the end of the flame
+the heart's guard parts. Every hit on it, whether a rock or a shatter blast,
+counts double. A bird hugging the flame's edge on the high and low breaths
+can still reach the heart, and that is the risk the reward pays for.
+
+**Swarm flocks (rules version 39).** 7.6 s into each breath cycle, half a
+second after the flame gutters out, the dragon calls a flock of three swarm
+bats, the same bats as the Swarm rush path's. They stream in from behind it,
+spawning at `width + 0.1 + 0.11k`, level at the bird's height as the call
+comes (clamped to 0.15–0.85). They fly left at course speed plus 0.5 with the
+usual small bob. In fury, except on the debut, a second flock follows 1.4 s
+later at the bird's height then. A flock bat behaves as it does on a rush
+path: touching one hurts the bird (Classic ends the flight, and Star Trail
+takes a shield or a heart). A sprint rams through it and a rock smashes it,
+for 1 point in Star Trail. Both flocks have flown past the bird before the
+next inhale, and the defeat clears any bats still flying. The flocks fly on
+Classic too, which has no rush paths. Rules 38 dragons call none.
+
+**Debut.** The first dragon of a flight (encounter 5) only ever burns one
+half of the sky: the high band for a bird above 0.5 and the low band
+otherwise, so the safe band is always a wide half. Its fury fireballs never
+split, and no second flock follows in fury. From encounter 10 it brings the
+whole fight. Replay derives the debut
+from the recorded rules version and the bosses already defeated.
+
+**Presentation.** The dragon faces the bird and fills the right of the
+screen:
+
+- obsidian-plum scales seamed with molten light and a banded amber belly,
+  all one skin under one ink outline, so the neck, head, tail and legs grow
+  out of the body with no seams;
+- a swan-S neck under a big horned head: a burning slit eye, a great horn
+  swept back and a gold circlet set with a ruby;
+- a breastplate of plum plates around a faceted heart-gem, which part when
+  the heart opens;
+- two crimson wings on tapered bony arms with backlit membranes and a real
+  wingbeat, where the wrist and fingers trail the elbow and the far wing
+  rides higher and dimmer;
+- clawed legs trailing in flight and a tail ending in a bone-and-membrane
+  blade.
+
+Every pose fits inside the screen at 640×360 and 800×360, and the dragon
+sets itself apart from dark and violet skies with a rim of light rather than
+relying on its ink alone.
+
+Its poses:
+
+- **Charging:** the jaws open over a forming fireball, and the idle sway
+  settles so the fireball leaves exactly from the rules' mouth point.
+- **Inhale:** it rears back, the heart blazes, fire climbs the throat
+  plates and embers spiral into the jaws. It holds a quarter second at the
+  top, then snaps forward as the flame ignites.
+- **Blast:** the head drives at the band.
+- **Call:** a winding-up and then a smaller roar, the head thrown back, as
+  each flock takes wing. A cool violet summoning cue (rings, a bat sigil
+  and bat motes) hangs ahead of the snout and never covers the face.
+- **Hit:** the fills blow toward near-white.
+- **Fury:** the body turns oxblood, the seams glow gold, the membranes run
+  hot, flames lick along the wing hems and a ring of fire rolls out at the
+  onset.
+
+The warning washes the band in ember red with hazard stripes, marches a
+dashed fire line along each edge the bird can cross, lights the safe side
+cool and points chevrons toward it. A tag at the left edge spells the dodge
+out (FLY LOW, FLY HIGH or CLIMB OR DIVE). It is sized to stay clear of the
+bird's column, and its gauge fills through the inhale. The flame pours from
+the jaws, widens to exactly the band and races across the sky. It reaches
+the bird's column as the rules start to burn, never after. Its visible fire
+covers the burn band to within a few pixels and never reaches past it, and
+it lights the scenery along its path. When the breath ends it tears free of
+the jaws and blows away. The health plate is obsidian with a lava gauge, a
+gold fang at the fury mark and a crown medallion. It reads HEART ×2 while
+the heart is open. The arrival warns THE SKY CATCHES FIRE, reveals a dark
+silhouette with a burning eye and heart, unfolds the wings and roars a plume
+of fire, and the name card slams in on the roar. The defeat whites out the
+body, bursts it into burning scales and embers under ash smoke, tumbles the
+circlet loose, and lets the heart-gem pop free and rise into a warm
+victory sun.
+Under Reduced Motion the wingbeat, sways and drifting particles hold still,
+and the body fades before the burst instead of flaring through it. The
+charge, inhale, flame, heart, hit and fury states stay visible.
+
+**Audio and replay.** The inhale plays `dragon_inhale` (a vast breath drawn
+in over a climbing growl), the blast `dragon_breath` (an ignition and a
+roaring jet), and a split `ember_split`. The charge and volley share
+`boss_charge` and `boss_volley`, each flock call plays `boss_summon`, and a
+downed flock bat plays the enemy defeat sound. For 2.5 s after a call the
+live semantics hint reads SWARM. Seeks replay silently. The burn and split
+counters are presentation only, and the rules never read them.
+
+### Baron Bat returns upgraded (rules version 40)
+
+The first Baron Bat of a flight (encounter 1) keeps his original fight.
+Every later one (encounters 6, 11, 16…) comes back upgraded, titled **THE
+STORM RETURNS**, with one special ability, the sonic screech, and his small
+bats sent two at a time. His health, position, hover, fireballs and fury
+threshold are unchanged. He adds no random draws: every choice follows from
+the clock and the bird's recorded height. Replay derives the upgrade from
+the recorded rules version and the bosses already defeated. Rules 39 and
+older keep the original Baron at every encounter.
+
+**The screech.** Combat time runs a fixed 10-second cycle:
+
+- calm until 5.0 s;
+- a 1.5-second warning until 6.5 s;
+- a 1.5-second sweep until 8.0 s;
+- calm again.
+
+As the warning begins, the Baron picks where the one gap in his wall of
+sound will open, from where the bird is. The sky has three gap places,
+centered at 0.27 (high), 0.5 (middle) and 0.73 (low), each 0.36 tall (0.30
+in fury). Like the dragon's aim, a bird below 0.385 counts as high, one
+above 0.615 as low, and one between them as middle. The gap never opens at the bird's own place: the
+first, third, fifth… screech sends a high bird to the low gap, a middle or
+low bird to the high gap; the others send a high or low bird to the middle
+gap and a middle bird to the low gap. The gap is fixed until the next
+warning.
+
+At 6.5 s the wall leaves the Baron's mouth (his fireball muzzle) and
+sweeps left at 1.2 per second, reaching 0.08 behind its leading edge. A
+bird whose circle overlaps that band and sticks out of the gap is hurt like
+a course edge: Classic ends the flight, and Star Trail takes a shield or a
+heart with the usual 1.5-second recovery. At the widest phone the wall has
+crossed the bird's column a second after it leaves. There are no fireballs
+from 1.5 s before the warning to the end of the sweep, and the next waits
+at least 0.6 s after it. Fury narrows the gap but never changes the cycle,
+and pause and seek restore it exactly. Cutscenes never screech. From
+anywhere in the sky at the start of the warning, calm or furious, at 1.78
+and 2.4 widths, a bird tapping at most five times a second reaches the gap
+before the wall arrives and holds it as the wall goes by.
+
+**Bat pairs.** The upgraded Baron no longer summons one helper at a time
+from the mixed lineup. As each screech fades (7.8 s into the cycle) he
+sends two simple purple bats together, one at 0.3 and one at 0.7, entering
+from the right like his ordinary helpers with the usual helper health. In
+fury a second pair follows at 8.8 s. Even at the slowest pace (0.36 per
+second) on the widest phone (2.4), a bat needs 6.0 s to fly past the bird,
+so both pairs are gone before the next warning.
+
+**Presentation.** The upgraded Baron keeps his character and adds a sonic
+pink accent for everything the screech touches. He wears a taller crown with
+a lightning spike and a pink gem, and his large ribbed ears reach past it
+and glow. A speaker-like resonator disc sits on his chest, gold lightning
+hems his darker wings, and his cape is torn into lightning points. In fury
+the pink runs hot. The warning pose flares the ears, swells the chest, lifts
+the wings and drops the jaw while pink rings gather into the mouth. The
+release lunges at the bird with a flash and a small camera jolt, and the
+jaw trembles through the sweep. His fireball charge stays hidden while his
+fire is held for the screech.
+
+The warning darkens the sky outside the gap with pink sound ripples rolling
+left. It lights the gap cool white between dashed edges, points chevrons
+into it, and pulses a ghost of the wall at his mouth. A tag at the left edge,
+inside the gap and clear of the bird, reads FLY TO THE GAP (HOLD THE GAP
+during the sweep), with a three-slot wall icon and a gauge that fills
+through the warning. The wall is a full-height magenta band with a white
+leading edge and a running waveform, bright edges at the gap and fading
+echoes behind it. It is drawn under the Baron and the bird. Its leading edge
+stays within 0.01 of the rules' front wherever it can meet the bird, and
+the drawn gap matches the rules' opening. A pink jolt ring marks a bird the
+wall catches. The arrival warns THE BARON RETURNS, roars in pink and
+captions WHEN HE SCREECHES · FLY TO THE GAP, and the defeat knocks loose the
+storm crown. Under Reduced Motion the ripples, chevrons, waveform, sways and
+jolt hold still, and the warning, wall and gap stay fully visible. The debut
+Baron's art is unchanged.
+
+**Audio and hint.** The warning plays `screech_warning` (sonar chirps that
+quicken and climb over a tightening whistle), and the sweep `sonic_screech`
+(a shrill, wavering shriek over a rush of air). Each pair plays
+`boss_summon` once. The live semantics hint names the gap (SONIC SCREECH ·
+Fly to the high gap!, then SCREECH · Hold the high gap), and otherwise
+reads Dodge the fireballs and bats · Watch for the screech, or FURY ·
+Faster fireballs, more bats. The screech-hit counter is presentation only,
+and the rules never read it.
+
+### Campaign (rules version 41)
+
+A Tap & Fly campaign of 40 levels in five chapters of eight, one chapter per
+boss in boss order, flies every region once (design, level tables and text:
+`docs/campaign.md`; level data: `lib/domain/campaign.dart`). Chapters 1 and 2
+(16 levels, 48 level stars) are playable. Chapters 3–5 are level data, shown
+on the map and locked as "Coming soon". Endless Star Trail does not change.
+
+**Flight plans.** `FlightSimulation` takes a `FlightPlan` (default
+`FlightPlan.endless`) and asks it for every schedule knob instead of checking
+what kind of flight it is:
+- the pace and schedule clocks;
+- the obstacle families and the stone-panel chance;
+- which passages carry an enemy, which enemy, and its toughness;
+- boss timing and the encounter;
+- heart pickups, rush paths and gales;
+- where passages resume after a boss or gale;
+- the course and set-piece randoms, the route and the level rating.
+
+`EndlessPlan` returns exactly what the rules hard-coded before plans existed.
+44 seeded endless flights and replays across rules 5–40 are pinned to digests
+(`test/fixtures/endless_plan_baseline.json`). Endless flights at rules 41 match
+rules 40 at every checkpoint. A `LevelPlan` flies only on a touch Star Trail at
+rules 41 or later; anything else throws `ArgumentError`.
+
+**Level data.** A `LevelPlan` holds:
+- an id ("1-1" to "5-8") and one region;
+- a length: cruising seconds to the finish, or the run-up before the boss;
+- a start: the endless-clock second its pace and openings start from;
+- a seed;
+- the obstacle families after the three opening garden gates;
+- the enemy lineup and cadence, and a toughness;
+- whether Shoot and Sprint exist, and the stone-panel chance;
+- the set pieces, the boss and the two star marks.
+
+`LevelPlan.problem` rejects a plan unless:
+- the id has 1–16 characters;
+- the length is 10–600 and the start 0–3600;
+- the families are non-empty with no repeats;
+- the cadence is 1–8, the toughness 0–4 and the panel chance 0–1;
+- every set piece lies within the length;
+- a boss level has a lineup and no set pieces;
+- 1 ≤ ★★ mark ≤ ★★★ mark.
+
+Level lengths are 60–90 s, or 30 s before a boss. Starts run from 0:00 (1-1)
+to 4:30 (5-7).
+
+**Route clock.** `routeSeconds` advances by each step times the course
+boost. It equals elapsed time while cruising and runs ahead during a sprint,
+a ring sprint or a gale, and pauses freeze it. A level's boss and set pieces
+follow the route clock, and its pace and openings follow `start +
+routeSeconds`.
+
+**The route.** Before the flight, `LevelRoute.lay` fixes the world position of
+every ordinary passage, set piece and the goal from the plan alone:
+- Passages are 1.95 cruising seconds apart. The first sits 3.1 ahead, past
+  the widest 2.4 screen with room for its enemy.
+- A set piece `at` seconds sits where a cruising bird is at that route
+  second. With `after`, it counts from where the previous piece ends. A rush
+  path ends where a cruising bird escapes its final barrier, 6.87 of course
+  after its start. A gale ends 20.44 route seconds after its start (13
+  seconds at up to 1.6×).
+- Passages stop 0.45 before a set piece. They resume 0.9 past a rush path's
+  end, and past a gale's end with 0.8 of room for a sprint in the tailwind.
+- The last passage ends at least `FinishLine.clearance` (0.45) before the
+  goal.
+
+A passage's opening and motion phase follow the route second at which it is
+3.1 from the screen's left edge, not the moment a screen lays it. Passages
+draw from the level's own `Random(seed)` in route order. The boss and each set
+piece draw from their own randoms, derived from the seed and the piece number.
+Passages after a rush path pick up from its exit, and after a gale or boss
+they resume centred at 0.5, not at the bird. So every attempt lays the same
+passages, whether or not the player sprints, at every screen width.
+
+**Hazards.**
+- **Families:** the first three passages are garden gates, then a shuffle bag
+  of the plan's families.
+- **Enemies:** cadence 2 (as endless) puts an enemy on passages 1, 3, 5…, and
+  cadence 4 (1-3 only) on passages 3, 7, 11…. The n-th enemy is `lineup[n mod
+  length]`, and boss helpers draw from the same lineup.
+- **Toughness:** chapter − 1. Small enemies gain 5 HP per point, so bats have
+  10–30 HP across chapters 1–5.
+- **Stone panels:** each eligible wall carries one with the plan's chance: 0
+  through 2-1, 0.35 in 2-2 and 0.25 from 2-3. Never on two walls in a row.
+- **No extras:** no heart pickups, and no rush paths or gales except the
+  plan's set pieces. A `shuffled` piece draws its kind from the endless
+  shuffle bag with its own random.
+- **Controls:** `offersShoot` is false in 1-1 and 1-2, and `offersSprint` in
+  1-1 to 1-4. Their buttons are hidden, and `canShoot`, `canCharge` and
+  `canSprint` refuse.
+
+**Finish line.** A `FinishLine` is laid at the route's goal once the goal is
+within the passage entry reach, the screen width plus an enemy's lead. It has
+no collision. When `distance + birdX` reaches its world x, `crossedAt` is set
+and the flight ends with `EndReason.completed`. `routeProgress` runs from 0 to
+1 at the goal, and `distanceToGo` gives the course left. The line reuses the
+arrival pennants and FINISH label. Its checker ribbon is drawn bolder than a
+timed route's (0.55 against 0.22), and the line stays in the world after a
+knockout.
+
+**Boss levels.** The boss arrives when the route clock reaches the length
+(30 s), as encounter number `kind.index + 1` in its debut version:
+- Baron Bat, 120 HP, not upgraded;
+- the Spitter King, 210 HP;
+- the Dusk Empress, 240 HP, with no veil and slow helpers;
+- the Pirate Captain, 300 HP;
+- the Ember Dragon, 360 HP, burning only half the sky, with no split
+  fireballs or second swarm flock.
+
+No other boss follows. Once the defeated boss has gone, the finish line is
+laid 0.2 past the right edge. From the boss's defeat until the line,
+`victoryGlide` holds the bird as the cinematic does (it eases to 0.52 with no
+velocity): flaps, shots and sprints are refused and nothing can hurt it, so a
+beaten boss always completes the level. On a boss level, `routeProgress`
+fills `FinishLine.bossMark` (0.85) over the run-up and the rest over the
+glide. After a gale, the boss waits only for a rush that is actually
+scheduled; a level plan never schedules one there.
+
+**Rating.** `levelStars` is 0 unless the flight ended `completed`. Otherwise
+it is 3 when the stars collected reach the ★★★ mark, 2 when they reach the ★★
+mark, and 1 below that. `LevelRoute.stars` counts three stars per passage and
+18 per rush path; a gale lays none. The marks are 45% and 75% of it in chapter
+1, and 50% and 80% from chapter 2, rounded to the nearest five. A boss level
+counts its run-up only. For example, 1-1 lays 81 stars (marks 35 and 60), and
+every boss run-up lays 36 (15/25 in chapter 1, then 20/30). A test pins all 40
+levels to this rule and checks ★★★ < route stars.
+
+**Progress.** A `LevelRecord` keeps a level's best stars, best stars
+collected, best score, plays, first-cleared and last-played times, and
+whether its postcard was seen. Only a finished flight sets the best stars
+collected and best score; every flight counts as a play and updates the
+last-played time. A level is cleared at 1 star or more:
+- 1-1 is open from the start. Any other level is open once the level before
+  it is cleared and its chapter is playable.
+- A chapter is complete once its boss level is cleared. Its postcard is due
+  until it is marked seen.
+- The current level is the first open level not yet cleared. Once every open
+  level is cleared, it is the one last played.
+
+**Saving (schema 5).** Drift schema 5 adds a nullable `runs.level` and the
+`level_progress` table, keyed by level: `best_stars` (0–3, checked),
+`best_collected`, `best_score`, `plays`, `first_cleared_at`, `last_played_at`
+and `postcard_seen`. Upgrading from any version below 5 adds both, and
+existing runs keep `level` null. `saveRun` with a `levelId` stores the run and
+merges its level row in one transaction, rating it with the level's marks at
+save time, so retuned marks never take stars away. A duplicate run id changes
+nothing. An unknown level id, a practice flight or anything but a touch Star
+Trail throws `ArgumentError`. Reset deletes `level_progress`.
+
+**Story.** The campaign's story is told on the map, between flights (the
+arc, cast and scene list: `docs/campaign.md`; the lines:
+`lib/domain/campaign_story.dart`). Nothing in it touches the rules, a flight
+or a replay tape.
+- A `StoryScene` has an id, a region (none for the Sky Club post), the boss
+  who speaks in it, if any, and three to nine `StoryLine`s. A line has a
+  speaker (the courier, Postmaster Bill, the boss, or a caption), text of at
+  most 100 characters and a mood (plain, happy, surprised, angry or sad).
+- `CampaignStory.before(level)` is the scene ahead of a level: the prologue
+  before 1-1, a route's opening before its first level, an arrival at the
+  first level of each later region, and the scene at a boss's lair.
+  `CampaignStory.after(chapter)` is the boss's last word. That makes 18
+  scenes before levels and 5 after bosses.
+- Each scene plays by itself once. `CampaignProgress.prologueDue` holds
+  until the prologue is watched or 1-1 is cleared. `sceneBefore(level)` is
+  due while the scene is unwatched and the level is not yet cleared.
+  `sceneAfter(chapter)` is due while the chapter's postcard is due and the
+  scene is unwatched.
+- Watched scene ids are saved in the `preferences` table under
+  `storyWatched`, joined by commas, so the schema stays at 5. Marking a scene
+  twice changes nothing. Reset clears it with the other preferences.
+- Every level has a `Delivery`: a cargo line of at most 42 characters for
+  its card, and a thank-you of at most 48 characters with a signer of at
+  most 24 for its result. A boss level's delivery is signed by its boss.
+
+**Counting.**
+- Endless records, totals, bests and the recent-flights list read only runs
+  with `level IS NULL`. Campaign flights have their own tally
+  (`campaignFlights`, whose completions are finished levels).
+- Daily adventures count campaign flights for flights, gates, stars, streak
+  and perfect passes, but not for "The whole journey".
+- The First wings (`flightsFlown`), On the dot, Star chaser, Constellation and
+  Flock together stamps count them. Sky captain, Trailblazer and Both wings do
+  not.
+- Star chaser reads "Collect 50 stars.", and the daily star goal reads
+  "Collect 18 stars across today’s flights."
+- Home's first-time greeting also uses `flightsFlown`.
+- A campaign flight earns no flight wings or record chime. Its marks take
+  the wings' place, with the same chime.
+
+**Replay.** From rules 41, a campaign `ReplayTape` writes `level` (the id)
+and `plan` (the whole `LevelPlan.toJson()`) after `weaponDamage`. Endless
+tapes and tapes before 41 have neither. Loading rebuilds the plan from the
+tape, not the catalog, so a retuned level replays as it was flown. It
+rejects a tape with only one of the two, a plan whose id differs from
+`level`, a malformed plan, or a plan on another mode or course. The tape's
+`seed` is ignored, because the plan's seed lays the route. Saved session
+summaries store `level`, and the library lists them as "1-3 · Bat Patrol".
+
+**Screens.** Routes:
+- `/campaign` opens the map;
+- `/campaign?level=<id>` opens the map on that level's stop with its card
+  open;
+- `/play/touch?level=<id>` flies the level. An unknown or locked level, or
+  another mode, redirects to `/campaign`.
+
+The screens:
+- **Home:** a mint Campaign key beside Play shows the level stars earned
+  ("12 / 48"). Play and Practice keep their pre-campaign size and place.
+  While the save loads or can't be read, the map's back key still leads
+  Home.
+- **Map:** one stop per region, with level nodes showing their stars. Tapping
+  an open node opens the level card. Tapping a locked one wiggles it, and a
+  note shows for 2.4 s: "Finish 1-2 to unlock" or "Beat Baron Bat to
+  unlock". On a stop marked "Coming soon", the ribbon flutters instead (still
+  under Reduced Motion). The map's keys, star total and stop titles hide
+  while a scene, level card or postcard is open, and the map holds its frame
+  under them.
+- **Story scene:** the map shows what is due in this order: the prologue, a
+  fallen boss's last word, that chapter's postcard, the scene before the
+  open level, then the level's card. A scene shows its region behind (the
+  Sky Club's mail room when it has none), the cast along the speech panel
+  and the line in the panel, written out over 26 ms a character
+  (0.26–1.7 s). A tap anywhere, Enter or Space finishes the line being
+  written, and the next one moves on; the last line ends the scene. Skip and
+  the back button end it at once. Ending a scene that played by itself saves
+  it as watched.
+  - The courier stands on the left with Bill facing it; at a lair the boss
+    takes the right and Bill stands behind the courier. The speaker is at
+    full size in a pool of light on its name tag, and listeners are 10%
+    smaller and shaded. A speaker change cross-fades over 260 ms.
+  - A line is set at 18 px on a 360-high screen and steps down to 15 px only
+    if it would not fit two rows; a line that wraps splits evenly. The stage
+    scales with the screen's height, between 0.85 and 1.25.
+  - A caption that names the place is set on a dark plate, and one in
+    quotes, a letter read aloud, on airmail paper. One pip per line shows
+    progress, and a cue appears once the line is whole.
+  - After its fall a boss appears without its headwear.
+  - System text scaling does not apply inside a scene, as on the map's
+    chrome, because the panel is fitted to the line.
+  - **Voices** (`docs/story-voices.md`): with the Character voices setting
+    on (the default), each line plays its recording through the menu's
+    `SkyAudio.speak` as it starts; a courier's line plays the equipped
+    bird's take. The line is then written out over 90% of the recording
+    (0.26–8 s) instead of 26 ms a character. Leaving the scene, by its last
+    tap, Skip or the back key, calls `hush`. Under Reduced Motion the line
+    shows whole and the voice still plays.
+- **Level card:** a parcel tag over the region picture shows the delivery's
+  cargo. On a level that has a scene, a story key under the close key plays
+  the scene again without saving anything. On a
+  beaten boss level it plays the scene at the lair and then the boss's last
+  word.
+- **Flight:** it counts straight in. `MatchLevelStars` replaces the score
+  plate with the stars collected and a track notched at both marks, and
+  `MatchRoute` (a dotted route, the bird's marker at `routeProgress` and a
+  finish flag) takes the clock's slot beside Pause. Both hide while a boss is
+  on screen. A boss level's route marks the lair with the boss's headwear,
+  and Shoot and Sprint hide during the victory glide. The countdown hint
+  names only the controls offered.
+- **Pause:** Map, Retry and Keep flying. Map, Retry and the back key save the
+  attempt, ended with `EndReason.breakTaken` and 0 stars.
+- **Knockout:** the knockout and game-over stage, with the stars against the
+  next mark, the share of the route flown (or the boss's health left), and
+  Map / Save session / Retry.
+- **Finish:** crossing the line plays the `complete` fanfare, and the level
+  result stages over the frozen finish, which leaves the flight's bird out
+  (`BirdGame.hideBird`) for the result's own courier. A flight that ends any
+  other way without a knockout, such as a stall, shows the result with 0
+  stars.
+- **Result:** the title reads "Delivered!", "Victory!" after a boss, or "Try
+  again!". Three stars land at 34%, 46% and 58% of a 1.9 s entrance, each
+  earned one with a chime, and the keys arm at 55%. Next shows when the next
+  level is playable and opens `/campaign?level=<next>`. Retry flies the same
+  level again straight into the countdown. A finished level shows its
+  delivery's thank-you, signed, on a note that drops in beside the courier
+  from 50% to 76% of the entrance, and its sender reads it out as it lands;
+  a flight that fell short shows none.
+- **Speech:** `SkyAudio.speak` plays one clip on a dedicated player that
+  never takes audio focus and ignores the flight's playback rate. A new line
+  cuts off the one before; `hush`, `stopEffects` and disposal stop it. The
+  music ducks to 35% of its level while a line plays and comes back when it
+  ends. Sprints call out in the equipped bird's own voice, one of four calls
+  and never the same twice in a row. The Character voices setting
+  (`SettingKey.voices`, saved as the `voices` preference) silences all of
+  it.
+- **Postcard:** when a chapter's postcard is due, the map shows it, after
+  the boss's last word, over everything else until Continue marks it seen. A beaten chapter's last stop
+  keeps it on the route to open again.
+
+**Regions.** A level holds `plan.region` for the whole flight:
+`WorldTour.at(seconds, held:)` returns that region and never crosses, and the
+backdrop, gates, gales and `bird_game` pass it. For long holds, the skyline
+bands repeat and landmarks recur. 235 endless scenery frames are pinned to
+pixel digests (`test/fixtures/endless_scenery_baseline.json`). The map and
+postcard paint their regions with `WorldBackdrop.still`.
+
+**Reduced Motion.** The map draws no bob, glow, pulse or glide, and changing
+stops jumps. The card and postcard appear without sliding, a scene's lines
+appear whole and its speakers hold still, and the finish pennants hold
+still. The level readouts don't pulse. The result fades in over
+0.5 s with every star in place.
 
 ### Touch boss encounters (rules version 15)
 
@@ -572,16 +1237,36 @@ fixed trajectories. Summon spitter beetles after four seconds, then every 4.8
 seconds (3.8 in fury), with enough approach distance for their visible windup
 on narrow screens. Hover through a slightly faster, wider vertical arc.
 
-Give the beetle boss a bespoke acid-brewer silhouette: a bulky copper shell,
-glass reservoir, feed hose, goggles, claw arms, four fan wings and a battered
-expedition hat. Do not use a crown or enlarge the small-enemy rig. Tip the
-hat and unfold the wings during the 4.6-second entrance. Pump the reservoir
-and swell the cheeks during charge, slosh the liquid on recoil, raise a claw
-to summon helpers and open the shell vents in fury. Keep the mouth origin
-fixed at local (-1.05r, 0). Tint the storm and projectiles green and introduce
-the boss as the Brewer of the Swarm, with its name in HP and semantics.
-The 3.8-second defeat loosens the body, throws its hat and releases an acid
-pressure burst with arcing droplets and popping bubbles.
+Give the beetle boss a bespoke alchemist-monarch design rather than an
+enlarged small-enemy rig: a jade monarch beetle with a monocled amber slit-pupil
+eye, a heavy gilded brow and a gilded cheek guard. Its regalia is brewing
+equipment: the crown is a brass band of three corked glass flasks with a rose
+jewel (replacing the earlier expedition hat and the earlier ban on crowns, so
+the King is unmistakably royal without wearing a generic crown), and its
+abdomen is a glass still in a brass cage with a pressure dial, a spring-loaded
+relief valve, a steaming tailpipe and a dripping tap. Two raised wing cases
+with gold-tipped thorns and a gilded drop crest form its mantle over two
+beating membrane wings. The mouth is a brass trumpet whose dark throat stays at
+local (-1.05r, 0); a jowl sac beneath the face stores the acid, fed by a hose
+from the still. Jade chitin, brass, glass and glowing acid are four distinct
+materials, lit from the upper left with a bounce-lit rim on the lower right, so
+the shared teal/mint family still reads as the small spitter's grand relative.
+
+The 4.6-second entrance rises from a dark silhouette with the wing cases
+folded, unfolds them and lifts the crown with a claw. Pump the still during
+charge: the acid level, glow, dial needle, valve, jowl and crown flasks rise
+together over the 0.65-second charge, the trumpet swells and its throat lights.
+The spit drops the level, kicks the crown and sloshes the vat. Raise a beckoning
+claw, flare the still and glint the jewel to summon helpers. In fury the whole
+brew, crown flasks and tap drips turn amber-hot, the iris turns red under a
+scowl, the valve blows, the tailpipe and crown steam, and hairline cracks glow
+through the glass. The boss also blinks, glints its jewel and drips from the
+tap when idle (all frozen under Reduced Motion). Keep the mouth origin fixed at
+local (-1.05r, 0). Tint the storm green (amber acid shots in fury) and
+introduce the boss as the Brewer of the Swarm, with its name in HP and
+semantics; its health-bar medallion carries the three-flask crown. The
+3.8-second defeat loosens the body, cracks the still, throws the crown and
+releases an acid pressure burst with arcing droplets and popping bubbles.
 Keep the bird coasting safely in cinematics, shared sound cues, pause behavior,
 course damage, victory cleanup and rewards. Reduced Motion freezes decorative
 animation; simulation movement and readable charge cues remain. Replay derives
@@ -593,6 +1278,20 @@ volleys alternate three shots at offsets [-0.30, 0, 0.30] and four shots at
 full fan's center shot leaves a dodge lane around the original aim point,
 including on narrow phones. Keep projectile speeds, attack intervals, charge
 cues and summons unchanged. Versions 21–22 replays retain the original fans.
+
+Rules version 37 makes the Spitter King sturdier and its full fan less
+predictable. The King starts at 210 HP instead of 180, keeping the 30-HP
+progression step and the cap (210 / 240 / 270 / 300 / 330), and stays below the
+Dusk Empress's 240 on the first cycle. The full fan is five slots at
+[-0.60, -0.30, 0, 0.30, 0.60] radians and leaves one out per volley, drawn
+from the flight's seeded random among the inner three, so the open lane sits
+on the aim point or one slot to either side. A side lane is skipped when it
+would cross the bird's column within 0.088 of the top or bottom of the sky, so
+the lane is always on screen; the aimed center lane always qualifies. The draw
+happens once per Spitter King volley as it fires, on the same random that
+drives the rest of the flight, so replays and seeks reproduce it. Three-shot
+volleys, speeds, intervals and summons are unchanged. Rules 23–36 keep the
+fixed center gap and 180 HP.
 
 ### Dusk moth boss (rules version 22)
 
@@ -619,10 +1318,13 @@ times the boss radius, and show a block reaction. Warning time remains a
 damage window. Fury does not reset or shorten the shield cycle. Cutscenes
 disable the shield; pause and resume countdown freeze it along with combat.
 
-Use a bespoke coral moth with four velvet rose wings, pearl scalloped hems,
-moon eyespots, a layered fur mantle, feathered antennae, three amber throat
-glands and a crescent diadem. Tint pollen gold, the storm coral and the shield
-pale blue. Give the shield a continuous collision-edge rim, woven silk loops,
+Use a bespoke coral moth-queen with four velvet rose wings that deepen to
+midnight violet (hooked falcate forewings, luna-tailed hindwings), pearl
+scalloped hems, glowing moon eyespots, a layered ermine fur mantle, tall
+plumed feather antennae swept back like a headdress, a glaring kohl-eyed face,
+three amber throat glands in a gold setting and a crescent diadem. In fury the
+wing veins, hems and eyespots ignite to ember and the fur bristles. Tint
+pollen gold, the storm coral and the shield pale blue. Give the shield a continuous collision-edge rim, woven silk loops,
 lunar clasps and localized block ripples. Keep its center transparent and its
 status hint blue even during fury. Seat the diadem over the head's crest with
 a lower rim fitted to the skull, sharing the head transform until defeat
@@ -636,6 +1338,19 @@ shared victory burst. HP hints and live semantics identify the shield state.
 Reduced Motion freezes decorative movement while retaining warning, shield,
 charge and fury cues. Replay reconstructs all state from the versioned input
 journal, including shield blocks and backward seeks.
+
+### Dusk moth debut (rules version 37)
+
+The first Dusk Empress of a flight, encounter 3, is a gentler introduction.
+She fights without her silk shield: no warning ring, no shield and no block
+reaction, so every rock that touches her counts. Her helpers close in at 60
+percent of the course scroll speed, giving the bird more time to line up a
+shot; their attack warnings and health are unchanged. The status hint reads
+"No veil yet" instead of the shield states. Every later Dusk Empress, encounters
+7, 11 and so on, brings the full shield cycle and helpers at the normal pace.
+Rules versions 22–36 keep the shield and the normal pace from the first
+encounter. Replay derives the debut from the recorded rules version and the
+number of bosses already defeated.
 
 ## Technology and architecture
 
@@ -656,7 +1371,7 @@ Create four clear extension points:
 - `TrackingSource`: starts/stops the selected detector and emits body samples, tracking status, and errors.
 - `MovementInterpreter`: converts samples into normalized height, completed repetitions, or individual flap events.
 - `GameMode`: defines controls, obstacle generation, scoring, and interruption rules.
-- `ProgressRepository`: stores settings, mode-specific records, run summaries, and cosmetic unlocks.
+- `ProgressRepository`: stores settings (including the equipped bird), mode-specific records, run summaries with the bird that flew (and the campaign level, if any), and each campaign level's bests.
 
 Keep movement interpretation and game rules independent of cameras and widgets so they can be tested using synthetic inputs.
 
@@ -696,7 +1411,7 @@ Build the Android camera/calibration screen first and test it on the connected p
 - Increase difficulty through tighter gaps and faster scrolling, while keeping transitions within the movement range and cadence established during calibration.
 - Award one point per cleared obstacle; count completed down/up cycles separately.
 - A collision ends the run. Hold the last input through tracking glitches of up to 0.5 seconds while simulation continues; longer tracking/posture loss ends the run.
-- Backgrounding or taking a break ends a scored run. Practice mode permits pausing and resumes after a countdown.
+- Taking a break or backgrounding pauses the run, scored or practice, and it resumes after a countdown; rules versions before 35 ended a scored run instead. Tracking loss and collisions still end a scored run.
 
 **Jump & Fly**
 
@@ -715,7 +1430,7 @@ Build the Android camera/calibration screen first and test it on the connected p
 - Learn hip height above the ankles at each endpoint. Require a visible hip drop of at least 10% of standing body height; map the learned comfortable range continuously to bird height. Squatting lowers the bird and standing raises it without gravity or jump boosts.
 - Use a three-frame median, 65 ms smoothing and 6% endpoint margins. Count one full standing–squat–standing cycle; jitter, a held position and interrupted cycles cannot add repetitions.
 - Reject missing/stale joints, changes in camera distance and lifted feet. Tracking interruptions restart calibration; during flight they use the existing hold, pause and end rules.
-- Use alternating high/low passages and spacing based on the calibrated cadence across every course. Save squat statistics separately from push-ups, jumps and touch; scored squats contribute to unlocks, daily goals and passport progress. Practice remains unscored.
+- Use alternating high/low passages and spacing based on the calibrated cadence across every course. Save squat statistics separately from push-ups, jumps and touch; scored squats contribute to daily goals and passport progress. Practice remains unscored.
 - Append the persisted mode at index 3, preserving existing records. Replay version 10 adds squat journals with height and repetition inputs; previous journals retain their rules.
 - Expose scored starts in the Play mode picker and unscored starts in the Practice mode picker, with grounded squat artwork, calibration feedback, a squat counter and a separate personal best.
 
@@ -727,21 +1442,22 @@ Use a playful cartoon direction: expressive chunky birds, layered skies and floa
 
 Build:
 
-- Animated home screen with both mode cards and personal bests.
+- Animated home screen: title lockup, a hero Play key with a Practice key on one side and a Campaign key on the other, the four control pictograms, the equipped bird on its island, a best-flight pill and a dock of five shortcuts. It is full-bleed on any phone shape, keeps every target at least 48 dp on typical phones, and is fully still with Reduced Motion.
 - Illustrated setup, camera permissions, calibration, and countdown.
 - Large gameplay graphics, score, and simple tracking feedback.
-- Results with score, best score, mode-specific statistics, and retry.
-- Bird collection with one default bird and three cosmetic unlocks.
+- Results with score, best score, mode-specific statistics, and retry. A fatal collision first plays a short cartoon knockout, then shows the same results on a game-over stage over the frozen flight (see Knockout and game-over stage).
+- Bird collection of four distinct birds, each with its own trail, all choosable from the start.
+- The campaign's world map, story scenes, level card, level result and chapter postcards (see Campaign).
 - Settings for music, effects, reduced motion, and resetting local progress.
 
-Unlock cosmetics at 25, 100, and 250 cumulative obstacles cleared in scored runs across either mode. Use original artwork and audio; bundle all assets and tracking models for offline operation.
+Birds are cosmetic only: they never change the collision circle, movement or scoring. The Flock together stamp is earned by taking all four birds on a scored flight. Use original artwork and audio; bundle all assets and tracking models for offline operation.
 
 ## Validation and delivery
 
 - Test calibration, height mapping, posture rejection, looking down, partial visibility, jitter, stale samples, and jump takeoff/landing hysteresis and replay compatibility.
 - Test collisions, obstacle reachability, scoring, interruption rules, practice behavior, and separation of mode records.
 - Verify camera denial/revocation, background/foreground transitions, mode switching, and camera cleanup.
-- Verify saved records and unlocks survive restart and database migrations.
+- Verify saved records and the equipped bird survive restart and database migrations.
 - Visually inspect all screens on the connected phone, including readability from the required exercise position.
 - Target 60 FPS rendering, at least 20 tracking updates/second, and p95 camera-to-control latency below 150 ms on the test phone. Measure these rather than assume them.
 - Run Flutter analysis, automated tests, Android builds, and native-library compatibility checks, including 16 KB page sizes. [Android compatibility guidance](https://developer.android.com/guide/practices/page-sizes)
@@ -777,7 +1493,8 @@ independent mute controls in all three views, including gameplay only. The equip
 
 CameraX writes camera-only MP4 files; no screen capture is used. Versioned JSON
 stores movement inputs and exact simulation steps, including timestamps, random
-seed, rule parameters and interruption commands. Replay version 1 uses the current
+seed, rule parameters and interruption commands, and for a campaign level its
+id and whole plan (see Campaign). Replay version 1 uses the current
 FlightSimulation rules; future rule changes must preserve that version or provide
 an explicit migration. Practice camera restarts create additional clips on the
 same monotonic timeline. Failed camera capture permits gameplay-only saves.

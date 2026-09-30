@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:push_up_bird/ui/flight_score.dart';
+import 'package:push_up_bird/ui/match_hud.dart';
 import 'package:push_up_bird/ui/theme.dart';
 
 Widget badge(int score, {bool reduced = false, bool disabled = false}) =>
@@ -39,18 +40,15 @@ void main() {
     expect(scale(tester), 1);
     final text = tester.widget<Text>(find.text('10'));
     expect(text.style!.fontFamily, 'Fredoka');
-    expect(text.style!.fontSize, 48);
+    expect(text.style!.fontSize, 56);
     expect(text.style!.fontWeight, FontWeight.w700);
-    final container = tester.widget<Container>(
+    final plate = tester.widget<MatchPlate>(
       find.descendant(
         of: find.byType(FlightScore),
-        matching: find.byType(Container),
+        matching: find.byType(MatchPlate),
       ),
     );
-    expect(
-      (container.decoration! as BoxDecoration).color,
-      SkyColors.cream.withValues(alpha: .94),
-    );
+    expect(plate.color, SkyColors.cream);
     expect(find.bySemanticsLabel('Score 10'), findsOneWidget);
     expect(find.bySemanticsLabel('10'), findsNothing);
     expect(

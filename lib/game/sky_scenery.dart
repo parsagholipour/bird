@@ -2,12 +2,14 @@ import 'dart:math' as math;
 import 'dart:ui';
 import 'regions/region_scene.dart';
 import 'regions/world_backdrop.dart';
+import 'regions/world_region.dart';
 
 export 'regions/world_region.dart'
-    show RegionBlend, SkyPalette, WorldRegion, WorldTour;
+    show RegionBlend, SkyPalette, WorldRegion, WorldRegionPalette, WorldTour;
 
 /// The flight backdrop: the world tour of regions behind every gameplay
-/// layer, driven only by the replayable clock and the flown distance.
+/// layer, driven only by the replayable clock and the flown distance. A
+/// campaign level passes the one region it holds as `held`.
 class SkyScenery {
   static void paint(
     Canvas c,
@@ -15,6 +17,7 @@ class SkyScenery {
     double seconds = 0,
     double distance = 0,
     bool reducedMotion = false,
+    WorldRegion? held,
   }) {
     WorldBackdrop.paint(
       c,
@@ -23,6 +26,7 @@ class SkyScenery {
         seconds: seconds.isFinite ? seconds : 0,
         distance: distance.isFinite ? distance : 0,
         reducedMotion: reducedMotion,
+        region: held,
       ),
     );
   }

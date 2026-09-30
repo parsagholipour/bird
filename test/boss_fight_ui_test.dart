@@ -90,7 +90,9 @@ void main() {
           game.update(.02);
         }
         final sim = game.simulation;
-        sim.bossesDefeated = bossNumber - 1;
+        // The first Dusk Empress fights without her shield, so stage her
+        // second encounter to cover the shield states.
+        sim.bossesDefeated = bossNumber == 3 ? 6 : bossNumber - 1;
         sim.elapsed = FlightSimulation.bossInterval;
         game.update(.06);
         await tester.pump();

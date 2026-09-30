@@ -33,8 +33,8 @@ class CollectionScreen extends ConsumerWidget {
                           Text('Meet your flight crew.', style: heading(36)),
                           const Spacer(),
                           Pill(
-                            '${p.totalObstacles} gates cleared',
-                            icon: Icons.auto_awesome,
+                            '${p.birdsFlown.length} of ${birdNames.length} flown',
+                            icon: Icons.flutter_dash_rounded,
                             color: SkyColors.yellow,
                           ),
                         ],
@@ -43,7 +43,7 @@ class CollectionScreen extends ConsumerWidget {
                       Padding(
                         padding: const EdgeInsets.only(left: 66),
                         child: Text(
-                          'Four personalities, four trails. Unlock your crew by clearing scored gates.',
+                          'Four personalities, four trails. Pick who flies with you next.',
                           style: bodyText(16, color: SkyColors.muted),
                         ),
                       ),
@@ -51,7 +51,7 @@ class CollectionScreen extends ConsumerWidget {
                       Expanded(
                         child: Row(
                           children: [
-                            for (var i = 0; i < 4; i++) ...[
+                            for (var i = 0; i < birdNames.length; i++) ...[
                               if (i > 0) const SizedBox(width: 16),
                               Expanded(
                                 child: _BirdCard(index: i, progress: p),
@@ -95,7 +95,6 @@ class _BirdCardState extends ConsumerState<_BirdCard> {
   Widget build(BuildContext context) {
     final i = widget.index,
         p = widget.progress,
-        unlocked = p.unlocked.contains(i),
         selected = p.settings.bird == i;
     return Panel(
       padding: const EdgeInsets.all(16),
@@ -103,37 +102,25 @@ class _BirdCardState extends ConsumerState<_BirdCard> {
       child: Column(
         children: [
           Pill(
-            selected
-                ? 'YOUR CO-PILOT'
-                : unlocked
-                ? 'READY TO FLY'
-                : '${unlockThresholds[i]} GATES',
-            icon: selected
-                ? Icons.check_rounded
-                : unlocked
-                ? Icons.favorite_outline
-                : Icons.lock_outline,
+            selected ? 'YOUR CO-PILOT' : 'READY TO FLY',
+            icon: selected ? Icons.check_rounded : Icons.favorite_outline,
             color: selected ? SkyColors.yellow : SkyColors.white,
           ),
           Expanded(
             child: Center(
-              child: Opacity(
-                opacity: unlocked ? 1 : .42,
-                child: FittedBox(
-                  fit: BoxFit.contain,
-                  child: SizedBox(
-                    width: 188,
-                    height: 120,
-                    child: CustomPaint(
-                      painter: _TrailPreview(bird: i),
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: BirdArt(
-                          bird: i,
-                          size: 132,
-                          bob: unlocked,
-                          reducedMotion: p.settings.reducedMotion,
-                        ),
+              child: FittedBox(
+                fit: BoxFit.contain,
+                child: SizedBox(
+                  width: 188,
+                  height: 120,
+                  child: CustomPaint(
+                    painter: _TrailPreview(bird: i),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: BirdArt(
+                        bird: i,
+                        size: 132,
+                        reducedMotion: p.settings.reducedMotion,
                       ),
                     ),
                   ),
@@ -152,17 +139,11 @@ class _BirdCardState extends ConsumerState<_BirdCard> {
           SizedBox(
             width: double.infinity,
             child: SkyButton(
-              label: selected
-                  ? 'Equipped'
-                  : unlocked
-                  ? 'Fly with me'
-                  : '${unlockThresholds[i] - p.totalObstacles} to unlock',
+              label: selected ? 'Equipped' : 'Fly with me',
               icon: selected
                   ? Icons.check_rounded
-                  : unlocked
-                  ? Icons.arrow_forward_rounded
-                  : Icons.lock_outline,
-              onPressed: unlocked && !selected && !busy ? equip : null,
+                  : Icons.arrow_forward_rounded,
+              onPressed: !selected && !busy ? equip : null,
               color: SkyColors.yellow,
               compact: true,
               busy: busy,

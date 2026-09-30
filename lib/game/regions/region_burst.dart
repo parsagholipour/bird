@@ -5,8 +5,8 @@ import 'region_scene.dart';
 import 'world_region.dart';
 
 /// The burst that celebrates a perfect pass or a gate milestone, in the
-/// region's own vocabulary: gold and faience sparkles in Egypt, snowflakes in
-/// Antarctica, leaves in the jungle, blossom petals in China, ticker tape in
+/// region's own vocabulary: gold and faience sparkles in Egypt, glitching
+/// pixel shards in Cyberpunk City, snowflakes in Antarctica, leaves in the jungle, blossom petals in China, ticker tape in
 /// New York and bubbles at sea; feathers and jade in Aztec lands, gold stars
 /// over Paris, confetti in Brazil, tile stars in Ancient Arabia, laurel
 /// leaves in Rome and marigold petals in Mexico.
@@ -56,6 +56,52 @@ abstract final class RegionBurst {
             Sketch.poly([0, -size, size * .6, 0, 0, size, -size * .6, 0]),
             paint,
           );
+        case WorldRegion.cyberpunk:
+          // A pixel block tearing like a bad signal: its magenta and cyan
+          // ghosts split apart as it flies, and every third one trails a
+          // torn scan line. Pixels stay square to the screen.
+          const neon = [
+            Color(0xff5ff4ff),
+            Color(0xffff5fcf),
+            Color(0xffd4ff5a),
+            Color(0xfff4f0ff),
+          ];
+          c.rotate(-spin);
+          final block = Rect.fromCenter(
+            center: Offset.zero,
+            width: size * 1.8,
+            height: size * 1.8,
+          );
+          final split = size * (.25 + .7 * t);
+          paint.color = Sketch.fade(const Color(0xffff3fb4), alpha * .85);
+          c.drawRect(block.shift(Offset(-split, -split * .2)), paint);
+          paint.color = Sketch.fade(const Color(0xff3fe8ff), alpha * .85);
+          c.drawRect(block.shift(Offset(split, split * .2)), paint);
+          final core = gold ? const Color(0xffffc93f) : neon[i % neon.length];
+          paint.color = Sketch.fade(core, alpha);
+          c.drawRect(block, paint);
+          paint.color = Sketch.fade(const Color(0xffffffff), alpha * .8);
+          c.drawRect(
+            Rect.fromLTWH(
+              block.left,
+              block.top,
+              block.width * .45,
+              block.height * .45,
+            ),
+            paint,
+          );
+          if (i % 3 == 0) {
+            paint.color = Sketch.fade(core, alpha * .6);
+            c.drawRect(
+              Rect.fromLTWH(
+                -size * (1.8 + t),
+                size * 1.2,
+                size * (3 + t * 2),
+                math.max(1.0, size * .3),
+              ),
+              paint,
+            );
+          }
         case WorldRegion.antarctica:
           paint
             ..color = Sketch.fade(

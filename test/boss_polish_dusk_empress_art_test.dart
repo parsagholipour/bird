@@ -85,7 +85,7 @@ void _paintBoss(
       BlendMode.srcATop,
     );
   }
-  c.saveLayer(const Rect.fromLTWH(-3, -2.3, 6, 4), layer);
+  c.saveLayer(DuskMothBossRig.layerBounds, layer);
   DuskMothBossRig.paint(c, boss, m, lookY: aim);
   c.restore();
   c.restore();
@@ -182,7 +182,7 @@ void _sheet(
     _paintBoss(
       c,
       boss,
-      Offset(left + cellW * .5, top + cellH * .56),
+      Offset(left + cellW * .4, top + cellH * .55),
       radius,
       aim: aim,
     );
@@ -250,13 +250,13 @@ void main() {
       const columns = 6, rows = 3;
       await _save(
         'pose-sheet-large',
-        280 * columns,
-        290 * rows,
+        330 * columns,
+        330 * rows,
         (c) => _sheet(
           c,
-          cellW: 280,
-          cellH: 290,
-          radius: 62,
+          cellW: 330,
+          cellH: 330,
+          radius: 52,
           scene: false,
           font: 15,
         ),
@@ -265,12 +265,12 @@ void main() {
       const phoneRadius = 360 * SkyBoss.radius;
       await _save(
         'pose-sheet-phone',
-        170 * columns,
-        176 * rows,
+        220 * columns,
+        220 * rows,
         (c) => _sheet(
           c,
-          cellW: 170,
-          cellH: 176,
+          cellW: 220,
+          cellH: 220,
           radius: phoneRadius,
           scene: true,
           font: 10,
@@ -283,9 +283,9 @@ void main() {
           ..hp = _boss().maxHp ~/ 3
           ..fireIn = .08;
         final shielded = _boss()..age = _boss().arrivalDuration + 5.2;
-        _paintBoss(c, calm, const Offset(260, 330), 118, reduced: true);
-        _paintBoss(c, fury, const Offset(760, 330), 118, reduced: true);
-        _paintBoss(c, shielded, const Offset(1250, 330), 118, reduced: true);
+        _paintBoss(c, calm, const Offset(230, 330), 105, reduced: true);
+        _paintBoss(c, fury, const Offset(780, 330), 105, reduced: true);
+        _paintBoss(c, shielded, const Offset(1290, 330), 105, reduced: true);
       });
       // The rig inside the real encounter layer at landscape phone size.
       for (final (name, setup) in <(String, void Function(SkyBoss))>[
@@ -306,20 +306,20 @@ void main() {
           );
         });
       }
-      await _save('crown-closeup', 900, 420, (c) {
+      await _save('crown-closeup', 900, 520, (c) {
         c.drawColor(const Color(0xff27243d), BlendMode.src);
-        _paintBoss(c, _boss(), const Offset(330, 360), 250, reduced: true);
+        _paintBoss(c, _boss(), const Offset(395, 400), 200, reduced: true);
         final fury = _boss()..hp = _boss().maxHp ~/ 3;
         c.save();
-        c.clipRect(const Rect.fromLTWH(450, 0, 450, 420));
-        _paintBoss(c, fury, const Offset(780, 360), 250, reduced: true);
+        c.clipRect(const Rect.fromLTWH(450, 0, 450, 520));
+        _paintBoss(c, fury, const Offset(845, 400), 200, reduced: true);
         c.restore();
       });
-      await _save('reduced-motion', 170 * columns, 176 * rows, (c) {
-        _sceneBackground(c, const Rect.fromLTWH(0, 0, 1020, 528));
+      await _save('reduced-motion', 220 * columns, 220 * rows, (c) {
+        _sceneBackground(c, const Rect.fromLTWH(0, 0, 1320, 660));
         for (var i = 0; i < _poses.length; i++) {
           final (name, setup, aim) = _poses[i];
-          final left = i % columns * 170.0, top = i ~/ columns * 176.0;
+          final left = i % columns * 220.0, top = i ~/ columns * 220.0;
           _label(
             c,
             name,
@@ -332,7 +332,7 @@ void main() {
           _paintBoss(
             c,
             boss,
-            Offset(left + 85, top + 98),
+            Offset(left + 88, top + 119),
             phoneRadius,
             reduced: true,
             aim: aim,

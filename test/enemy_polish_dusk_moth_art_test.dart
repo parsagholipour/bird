@@ -47,7 +47,7 @@ void main() {
       ];
       await _save(folder, 'closeup-cycle', 1600, 560, _cycleSheet);
       await _save(folder, 'closeup-attack', 1600, 560, _attackSheet);
-      await _save(folder, 'gameplay-size', 1200, 700, _gameplaySheet);
+      await _save(folder, 'gameplay-size', 1200, 910, _gameplaySheet);
       await _save(folder, 'strip-dusk', 1200, 640, (c) => _strip(c, 1));
       await _save(folder, 'strip-day', 1200, 640, (c) => _strip(c, 0));
       await _save(folder, 'strip-closeup', 1600, 900, _closeStrip);
@@ -447,6 +447,7 @@ void _gameplaySheet(Canvas c) {
     ('EGYPT NOON', WorldRegion.egypt.palette),
     ('CHINA DUSK', WorldRegion.china.palette),
     ('NEW YORK NIGHT', WorldRegion.newYork.palette),
+    ('CYBERPUNK NEON', WorldRegion.cyberpunk.palette),
   ];
   const r = 360 * SkyEnemy.radius;
   for (var p = 0; p < palettes.length; p++) {

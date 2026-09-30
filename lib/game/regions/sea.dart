@@ -296,8 +296,22 @@ class SeaScene extends RegionScene {
       );
     }
     for (final (kind, speed) in const [(3, .005), (4, .0075)]) {
+      final drift = -(t - 8) * speed * h;
+      if (f.held) {
+        // A campaign level outlasts the drift across one sky, so the deck
+        // comes round again from the right.
+        final span = w + h * .8;
+        final x = Sketch.wrap(drift, h * .4 - span, span);
+        for (final dx in [x, x + span]) {
+          c.save();
+          c.translate(dx, 0);
+          c.drawPicture(_dawnPicture(f.size, kind, 0));
+          c.restore();
+        }
+        continue;
+      }
       c.save();
-      c.translate(-(t - 8) * speed * h, 0);
+      c.translate(drift, 0);
       c.drawPicture(_dawnPicture(f.size, kind, 0));
       c.restore();
     }
@@ -335,7 +349,8 @@ class SeaScene extends RegionScene {
   /// measured from here, so every lap composes the sky the same way.
   static double _dawnTime(SceneFrame f) {
     if (f.reducedMotion) return 8;
-    const loop = WorldTour.loop;
+    if (f.held) return f.clock;
+    final loop = WorldTour.loop;
     return (f.clock - _dawnStart + loop / 2) % loop - loop / 2;
   }
 
@@ -956,6 +971,10 @@ class SeaScene extends RegionScene {
   static void _dawnBirds(Canvas c, SceneFrame f, Offset sun, double t, double presence) {
     final w = f.w, h = f.h;
     final dt = t - 8;
+    // A campaign level outlasts one pass of each bird, so each comes round
+    // again from the side it left by.
+    double wrap(double x, double margin) =>
+        f.held ? Sketch.wrap(x, -margin, w + margin * 2) : x;
     Color tone(Offset p, Color far) {
       // Against the glare a bird is a warm silhouette, up high it is pale.
       final near = (1 - (p - sun).distance / (h * .55)).clamp(0.0, 1.0);
@@ -963,7 +982,10 @@ class SeaScene extends RegionScene {
     }
 
     // Flock of terns in a loose V, heading with the bird.
-    final lead = Offset(w * .2 + dt * h * .024, h * .072 - dt * h * .0008);
+    final lead = Offset(
+      wrap(w * .2 + dt * h * .024, h * .12),
+      h * .072 - (f.held ? math.sin(dt * .05) * 10 : dt) * h * .0008,
+    );
     for (var i = 0; i < 7; i++) {
       final rank = (i + 1) ~/ 2;
       final side = i.isOdd ? 1.0 : -1.0;
@@ -982,7 +1004,7 @@ class SeaScene extends RegionScene {
       _dawnBird(c, p, h * (.024 - i * .004), flap, ink, Sketch.fade(const Color(0xff6c6478), presence * .8));
     }
     // The albatross soars on long stiff wings, hardly flapping.
-    final soar = Offset(w * .5 - dt * h * .012, h * .175 + math.sin(f.clock * .35) * h * .008);
+    final soar = Offset(wrap(w * .5 - dt * h * .012, h * .1), h * .175 + math.sin(f.clock * .35) * h * .008);
     _dawnBird(
       c,
       soar,
@@ -999,7 +1021,7 @@ class SeaScene extends RegionScene {
     final specks = Path();
     for (var i = 0; i < 9; i++) {
       final p = Offset(
-        w * (.08 + .3 * Sketch.hash(i + 1900)) + dt * h * .01,
+        wrap(w * (.08 + .3 * Sketch.hash(i + 1900)) + dt * h * .01, h * .02),
         h * (.475 + .07 * Sketch.hash(i + 1910)) + math.sin(f.clock * .7 + i) * h * .002,
       );
       final s = h * (.004 + .003 * Sketch.hash(i + 1920));
@@ -2618,7 +2640,7 @@ class SeaScene extends RegionScene {
   /// arrives together with the rock it breaks on.
   static double _lighthouseShow(SceneFrame f, double presence) {
     if (f.reducedMotion) return presence;
-    final blend = WorldTour.at(f.seconds);
+    final blend = f.blend;
     if (!blend.crossing) return 1;
     final u = ((blend.t - .12) / (.74 - .12)).clamp(0.0, 1.0);
     if (blend.from == WorldRegion.sea) return 1 - RegionBlend.smooth(u / .52);
@@ -2701,6 +2723,10 @@ class SeaScene extends RegionScene {
   static double _whaleLocal(double clock) =>
       ((clock - _whaleLegStart + 6) % WorldTour.loop) - 6;
 
+  /// [_whaleLocal] for a campaign level, which never leaves the sea: the
+  /// actors keep their cycles from the moment Reduced Motion shows.
+  static double _whaleHeld(double clock) => clock + _whaleLocal(0);
+
   /// Time inside a repeating [period]; [ref] is the moment shown at clock 0.
   static double _whaleCycle(double local, double period, double ref) =>
       (local - _whaleLocal(0) + ref) % period;
@@ -2733,7 +2759,7 @@ class SeaScene extends RegionScene {
   /// only drawn while they can be on screen.
   void _whaleLive(Canvas c, SceneFrame f, int copy) {
     final h = f.h;
-    final local = _whaleLocal(f.clock);
+    final local = f.held ? _whaleHeld(f.clock) : _whaleLocal(f.clock);
     final scroll = f.reducedMotion ? 0.0 : f.distance * Depth.low.parallax * h;
     final off = copy * period(Depth.low) * h - scroll;
     bool onScreen(double x, double reach) {
@@ -3667,8 +3693,10 @@ class SeaScene extends RegionScene {
     c.drawPath(pale, _swellInk..color = Sketch.fade(const Color(0xfffff0e0), .42 * presence));
     // The far band drifts on the region clock; follow it to keep the glints
     // under the (screen-fixed) sun.
-    final start = WorldTour.at(f.seconds).startOf(WorldRegion.sea);
-    final drift = f.reducedMotion ? 0.0 : (f.seconds - start) * _swellCruise * Depth.far.parallax * h;
+    // A campaign level repeats the band; each copy finds the sun from its
+    // own place.
+    final start = f.blend.startOf(WorldRegion.sea);
+    final drift = (f.reducedMotion ? 0.0 : (f.seconds - start) * _swellCruise * Depth.far.parallax * h) - f.bandShift;
     final sx = f.w * light.at.dx + drift;
     final glint = Path();
     for (var r = 0; r < 4; r++) {

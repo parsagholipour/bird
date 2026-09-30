@@ -85,21 +85,38 @@ class SkyButton extends StatefulWidget {
     this.icon = Icons.arrow_forward_rounded,
     this.compact = false,
     this.busy = false,
+    this.autofocus = false,
     this.sound = 'ui_tap',
   });
   final String label;
   final VoidCallback? onPressed;
   final Color color;
   final IconData? icon;
-  final bool compact, busy;
+  final bool compact, busy, autofocus;
   final String sound;
   @override
   State<SkyButton> createState() => _SkyButtonState();
 }
 
 class _SkyButtonState extends State<SkyButton> {
-  bool pressed = false;
+  bool pressed = false, hasFocus = false;
   bool get enabled => widget.onPressed != null && !widget.busy;
+
+  @override
+  void initState() {
+    super.initState();
+    FocusManager.instance.addHighlightModeListener(highlightModeChanged);
+  }
+
+  @override
+  void dispose() {
+    FocusManager.instance.removeHighlightModeListener(highlightModeChanged);
+    super.dispose();
+  }
+
+  void highlightModeChanged(FocusHighlightMode mode) {
+    if (hasFocus) setState(() {});
+  }
 
   @override
   void didUpdateWidget(covariant SkyButton oldWidget) {
@@ -132,18 +149,28 @@ class _SkyButtonState extends State<SkyButton> {
             color: SkyColors.ink.withValues(alpha: .16),
             width: 1.5,
           ),
-          boxShadow: pressed
-              ? []
-              : [
-                  BoxShadow(
-                    color: SkyColors.ink.withValues(alpha: .16),
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+          boxShadow: [
+            // The same keyboard ring as the Play key; pointer focus stays quiet.
+            if (hasFocus &&
+                FocusManager.instance.highlightMode ==
+                    FocusHighlightMode.traditional) ...const [
+              BoxShadow(color: SkyColors.ink, spreadRadius: 5),
+              BoxShadow(color: SkyColors.cream, spreadRadius: 3),
+            ],
+            if (!pressed)
+              BoxShadow(
+                color: SkyColors.ink.withValues(alpha: .16),
+                offset: const Offset(0, 4),
+              ),
+          ],
         ),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
+            autofocus: widget.autofocus,
+            onFocusChange: (v) {
+              if (mounted) setState(() => hasFocus = v);
+            },
             borderRadius: BorderRadius.circular(16),
             onTap: enabled
                 ? () {

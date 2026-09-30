@@ -621,6 +621,15 @@ with its own landmarks, and weather:
 
 - **Egypt**: the Giza pyramids and Sphinx, a temple pylon with obelisks, the
   Nile with palm groves and feluccas, papyrus, blowing sand and heat shimmer.
+- **Cyberpunk City** (between Egypt's noon and China's dusk): a neon night
+  under a pale moon and an orbital ring. A space-elevator arcology splits
+  around a core of light, with halo terraces, climbers riding its tether and
+  a holographic koi circling it. Hyper-spires and arcology towers carry light
+  strips and warning beacons. A maglev glides past giant screens, flying
+  traffic and an advertising airship cross the sky, and a freeway streams
+  with lights over neon-signed canal fronts that double in the water. The
+  rooftops hold fans, dishes, holo projectors, billboards, drones and neon
+  frames. Neon drizzle and data motes drift over it all.
 - **Antarctica**: aurora over a low sun, pink-lit peaks, an ice shelf with a
   far station, icebergs, an emperor penguin colony, a field hut and snowfall.
 - **Jungle**: a tepui with a waterfall, flowering emergent trees over a lit
@@ -637,10 +646,11 @@ with its own landmarks, and weather:
 All seven obstacle kinds are dressed in the region they spawned in, for
 example lotus-capital glyph columns, a saqiya wheel and gilded obelisks in
 Egypt; red-lacquer bracket columns, paper pinwheels and silk lanterns in China;
-fire-escape walk-ups, a clock tower and jazz records in New York. Every solid
-keeps its exact collision rectangle with an ink edge and a state lip (cream,
-mint when cleared, gold when perfect), and every region has its own cleared
-emblem, gate seal and perfect burst.
+fire-escape walk-ups, a clock tower and jazz records in New York; pale alloy
+arcology pylons, a ducted turbine, server racks, hover drones and energy rings
+in Cyberpunk City. Every solid keeps its exact collision rectangle with an ink
+edge and a state lip (cream, mint when cleared, gold when perfect), and every
+region has its own cleared emblem, gate seal and perfect burst.
 
 Crossings are staged from the horizon forward. The light and palette travel
 together; in each band the old landmarks sink behind the ridge while the ridge

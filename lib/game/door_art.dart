@@ -1,16 +1,28 @@
 import 'dart:math' as math;
+
 import 'package:flutter/painting.dart';
+
 import '../domain/obstacle.dart';
 import '../domain/sky_door.dart';
 import '../ui/theme.dart';
+import 'door_break_art.dart';
+import 'door_fracture.dart';
+import 'door_parts.dart';
+import 'door_slab.dart';
 
-/// The panel exactly fills its parent wall's opening. Chips and fractures
-/// reveal its damage; a lethal hit clears collision immediately as debris falls.
+/// The breakable panel that plugs a wall opening, and everything that happens
+/// to it: a sealed stone gate with a reinforced collar where it meets the
+/// wall, a shudder, chip-and-dust reaction for every blow, cracks that grow
+/// from each strike, and the choreographed shatter of the killing blow.
+///
+/// The panel exactly fills its parent wall's opening (its collision box). All
+/// of its own artwork stays inside that box; only the wall-end collars (drawn
+/// over the wall bodies) and short-lived decoration reach outside. Painting is
+/// a pure function of the door's state and clock, so pausing, seeking and
+/// replays are exact.
 abstract final class DoorArt {
-  static const _dark = Color(0xff3e3934);
-  static const _stone = Color(0xffaf9e81);
-  static const _light = Color(0xffeadbb9);
-  static const _gold = Color(0xffffce70);
+  /// How far the collars reach into the wall bodies, in viewport heights.
+  static const collarReach = DoorLook.collar;
 
   static void paint(
     Canvas canvas,
@@ -20,197 +32,224 @@ abstract final class DoorArt {
   }) {
     final door = obstacle.door!;
     final w = obstacle.width, h = obstacle.bottom - obstacle.top;
+    if (!(w > 0) || !(h > .08) || !height.isFinite || height <= 0) return;
+    // Reduced Motion drops the broken panel at once, with all its dust.
+    if (door.destroyed && reducedMotion) return;
+    final look = DoorLook(door, obstacle);
     canvas.save();
     canvas.scale(height);
     canvas.translate(obstacle.x, obstacle.top);
     if (door.destroyed) {
-      if (!reducedMotion) _debris(canvas, door, w, h);
-      canvas.restore();
-      return;
-    }
-    final stage = door.damageStage;
-    final hitAge = door.age - door.lastHitAt;
-    final impact = (1 - hitAge / .2).clamp(0.0, 1.0);
-    // All solid artwork stays inside the collision rectangle, including hits.
-    canvas.clipRect(Rect.fromLTWH(0, 0, w, h));
-    final slab = Path()
-      ..moveTo(0, 0)
-      ..lineTo(w, 0);
-    for (var row = 0; row < 4; row++) {
-      final y = row * h / 4;
-      final chip = stage >= 2 && row.isOdd ? w * .065 * stage : 0.0;
-      slab
-        ..lineTo(w, y + h * .05)
-        ..lineTo(w - chip, y + h * .1)
-        ..lineTo(w - chip * .4, y + h * .18)
-        ..lineTo(w, y + h * .25);
-    }
-    slab.lineTo(0, h);
-    for (var row = 3; row >= 0; row--) {
-      final y = row * h / 4;
-      final chip = stage >= 2 && row.isEven ? w * .065 * stage : 0.0;
-      slab
-        ..lineTo(0, y + h * .21)
-        ..lineTo(chip, y + h * .15)
-        ..lineTo(chip * .5, y + h * .06)
-        ..lineTo(0, y);
-    }
-    slab.close();
-    canvas.save();
-    canvas.clipPath(slab);
-    canvas.drawPath(
-      slab,
-      Paint()
-        ..shader = const LinearGradient(
-          colors: [_light, _stone, Color(0xff7f7464)],
-          stops: [0, .2, 1],
-        ).createShader(Rect.fromLTWH(0, 0, w, h)),
-    );
-    for (var row = 0; row < 4; row++) {
-      final y = row * h / 4;
-      canvas.drawLine(Offset(0, y), Offset(w, y + .003), _stroke(_dark, .006));
-      canvas.drawLine(
-        Offset(.005, y + .008),
-        Offset(w - .005, y + .008),
-        _stroke(_light, .003),
-      );
-      final joint = row.isEven ? w * .32 : w * .68;
-      canvas.drawLine(
-        Offset(joint, y + .006),
-        Offset(joint, y + h / 4),
-        _stroke(_dark.withValues(alpha: .4), .003),
-      );
-    }
-    // Dark iron brackets distinguish the shootable insert from its walls.
-    for (final y in [h * .15, h * .81]) {
-      canvas.drawRect(Rect.fromLTWH(0, y, w, .021), Paint()..color = _dark);
-      canvas.drawRect(
-        Rect.fromLTWH(.004, y + .004, w - .008, .013),
-        Paint()..color = _gold,
-      );
-      for (final x in [w * .15, w * .85]) {
-        canvas.drawCircle(Offset(x, y + .01), .003, Paint()..color = _dark);
-      }
-    }
-    final center = Offset(w / 2, h / 2);
-    final radius = math.min(w * .35, h * .18);
-    canvas.drawCircle(
-      center + const Offset(.002, .004),
-      radius * 1.12,
-      Paint()..color = _dark,
-    );
-    canvas.drawCircle(center, radius, Paint()..color = _gold);
-    canvas.drawCircle(center, radius * .81, Paint()..color = _dark);
-    final gem = Path()
-      ..moveTo(center.dx, center.dy - radius * .67)
-      ..lineTo(center.dx + radius * .4, center.dy)
-      ..lineTo(center.dx, center.dy + radius * .67)
-      ..lineTo(center.dx - radius * .4, center.dy)
-      ..close();
-    canvas.drawPath(gem, Paint()..color = stage >= 2 ? SkyColors.coral : _gold);
-    const cracks = [
-      [
-        Offset(0, .29),
-        Offset(.3, .35),
-        Offset(.23, .43),
-        Offset(.52, .5),
-        Offset(.75, .63),
-        Offset(1, .68),
-      ],
-      [
-        Offset(.85, 0),
-        Offset(.61, .15),
-        Offset(.7, .27),
-        Offset(.43, .38),
-        Offset(.52, .5),
-      ],
-      [
-        Offset(.52, .5),
-        Offset(.31, .67),
-        Offset(.48, .76),
-        Offset(.21, .86),
-        Offset(.35, 1),
-      ],
-    ];
-    for (var i = 0; i < stage; i++) {
-      final path = Path()
-        ..addPolygon(
-          cracks[i].map((p) => Offset(p.dx * w, p.dy * h)).toList(),
-          false,
-        );
-      canvas.drawPath(
-        path.shift(const Offset(.002, .002)),
-        _stroke(_light, .006),
-      );
-      canvas.drawPath(path, _stroke(_dark, .003 + stage * .0015));
+      DoorBreakArt.paint(canvas, look);
+    } else {
+      _intact(canvas, look, reducedMotion);
     }
     canvas.restore();
-    canvas.drawPath(slab, _stroke(_dark, .005));
-    // Four health pips are attached to the panel, so several walls can each
-    // show their own damage without taking over the match HUD.
-    final barY = h * .26;
-    for (var i = 0; i < 4; i++) {
-      final cell = Rect.fromLTWH(w * .12 + i * w * .2, barY, w * .16, .01);
-      canvas.drawRect(cell, Paint()..color = _dark);
-      final fill = (door.hp / SkyDoor.maxHp * 4 - i).clamp(0.0, 1.0);
-      if (fill > 0) {
-        canvas.drawRect(
-          Rect.fromLTWH(cell.left, cell.top, cell.width * fill, cell.height),
-          Paint()..color = stage >= 2 ? SkyColors.coral : _gold,
-        );
-      }
+  }
+
+  static void _intact(Canvas c, DoorLook k, bool reduced) {
+    final door = k.door;
+    final w = k.w, h = k.h;
+    final stress = k.damage;
+    final last = door.lastHit;
+    final since = last == null ? double.infinity : door.age - last.at;
+    final live = !reduced && since >= 0 && since < _fxSeconds;
+
+    // ---- crack growth --------------------------------------------------
+    double target(int blow, double damage) =>
+        .028 + .17 * damage + .03 * (k.blows[blow].power);
+    final birth = live ? DoorMath.outCubic(since / .14) : 1.0;
+    final before = last == null
+        ? 0.0
+        : (SkyDoor.maxHp - door.hp - math.min(last.damage, SkyDoor.maxHp)) /
+              SkyDoor.maxHp;
+    double reach(int blow) {
+      final now = target(blow, k.damage);
+      if (blow == k.blows.length - 1 && last != null) return now * birth;
+      final was = target(blow, math.max(0, before));
+      return was + (now - was) * birth;
     }
-    canvas.restore();
-    if (!reducedMotion && impact > 0) {
-      canvas.save();
-      canvas.scale(height);
-      for (var i = 0; i < 6; i++) {
-        final t = 1 - impact;
-        final at = Offset(
-          obstacle.x - .004 - t * (.04 + i * .008),
-          door.lastHitY + (i - 3) * .01 * t + t * t * .04,
-        );
-        canvas.drawCircle(
-          at,
-          .0035 * impact,
-          Paint()..color = _gold.withValues(alpha: impact),
-        );
-      }
-      canvas.restore();
+
+    final lateScale = .3 + .45 * k.damage;
+
+    // ---- recoil ---------------------------------------------------------
+    var recoil = 0.0;
+    if (live && since < .16) {
+      recoil = (.0032 + .003 * last!.power) * math.sin(math.pi * since / .16);
+    }
+    // ---- idle glint and glow (Reduced Motion keeps the still face) -------
+    var glint = -1.0, pulse = 0.0;
+    if (!reduced) {
+      final phase = (door.age + DoorMath.hash(k.seed, 2) * 3.4) % 3.4;
+      if (phase < .75) glint = phase / .75;
+      pulse = .5 + .5 * math.sin(door.age * 3.1 + k.seed);
+    }
+
+    c.save();
+    c.clipRect(k.rect);
+    if (recoil > 0) {
+      c.drawRect(
+        Rect.fromLTWH(0, 0, recoil + .002, h),
+        DoorParts.fill(DoorPalette.socket),
+      );
+      c.translate(recoil, 0);
+    }
+    final flash = live && since < .06 ? .34 * (1 - since / .06) : 0.0;
+    DoorSlab.paint(
+      c,
+      k,
+      reach: reach,
+      lateScale: lateScale,
+      glint: glint,
+      pulse: pulse,
+      flash: flash,
+    );
+    _spalls(c, k);
+    c.restore();
+
+    // The collars sit over the wall ends, framing the plug.
+    DoorParts.collar(c, k, upper: true, stress: stress);
+    DoorParts.collar(c, k, upper: false, stress: stress);
+
+    if (live) _hitFx(c, k);
+    assert(w > 0);
+  }
+
+  static const _fxSeconds = .55;
+
+  /// Small chips knocked out of the panel's back face by the heavier hits.
+  static void _spalls(Canvas c, DoorLook k) {
+    final f = k.fracture;
+    if (f == null || k.door.damageStage < 2) return;
+    for (var i = 1; i < f.blows.length && i < 4; i++) {
+      final y = f.blows[i].y + (i.isEven ? .028 : -.024);
+      final x = k.w;
+      final s = .011 + .004 * DoorMath.hash(k.seed, 7, i);
+      final tri = Path()
+        ..moveTo(x + .002, y - s * 1.2)
+        ..lineTo(x - s, y + s * .1)
+        ..lineTo(x + .002, y + s);
+      c.drawPath(tri, DoorParts.fill(DoorPalette.socket));
+      c.drawPath(
+        Path()
+          ..moveTo(x - s * .1, y - s * 1.0)
+          ..lineTo(x - s * .9, y + s * .1)
+          ..lineTo(x - s * .1, y + s * .8),
+        DoorParts.stroke(DoorPalette.fresh.withValues(alpha: .85), .003),
+      );
     }
   }
 
-  static void _debris(Canvas canvas, SkyDoor door, double w, double h) {
-    final t = (door.destructionAge / SkyDoor.crumbleDuration).clamp(0.0, 1.0);
-    if (t >= 1) return;
+  /// Decoration that follows a blow: starburst, shock ring, gold sparks, chips
+  /// and a puff of dust. It reaches out to the left of the wall, where the rock
+  /// came from, and is gone within half a second.
+  static void _hitFx(Canvas c, DoorLook k) {
+    final f = k.fracture;
+    if (f == null) return;
+    final door = k.door;
+    // Earlier blows may still be finishing; later blows draw on top.
+    for (var i = 0; i < door.hits.length && i < f.origins.length; i++) {
+      final hit = door.hits[i];
+      final a = door.age - hit.at;
+      if (a < 0 || a >= _fxSeconds) continue;
+      _blowFx(c, k, f.origins[i], hit.power, a, i);
+    }
+  }
+
+  static void _blowFx(
+    Canvas c,
+    DoorLook k,
+    Offset origin,
+    double power,
+    double a,
+    int index,
+  ) {
+    final face = Offset(-.004, origin.dy);
+    final seed = k.seed * 7 + index * 31;
+    // Starburst: full size at once, a small swell, then it snaps shut.
+    final burstLife = .1;
+    if (a < burstLife) {
+      final t = a / burstLife;
+      final size =
+          (.036 + .018 * power) *
+          (t < .3
+              ? 1 + .18 * math.sin(t / .3 * math.pi)
+              : 1 - DoorMath.inQuad((t - .3) / .7));
+      DoorParts.burst(c, face, size, (DoorMath.hash(seed, 1) - .5) * .7);
+    }
+    // Shock ring.
+    final ringLife = .17;
+    if (a < ringLife) {
+      final t = a / ringLife;
+      c.drawCircle(
+        face,
+        .014 + (.062 + .03 * power) * DoorMath.outCubic(t),
+        DoorParts.stroke(
+          SkyColors.white.withValues(alpha: .95 * (1 - t) * (1 - t)),
+          .0075 * (1 - t) + .0015,
+        ),
+      );
+    }
+    // Gold sparks thrown back toward the rock.
     for (var i = 0; i < 8; i++) {
-      final column = i % 2, row = i ~/ 2;
-      canvas.save();
-      canvas.translate(
-        w * (.25 + column * .5) + (column == 0 ? -1 : 1) * t * .06,
-        h * (.125 + row * .25) + (row - 1.5) * t * .015 + t * t * .1,
+      final u = DoorMath.hash(seed, 10, i), v = DoorMath.hash(seed, 20, i);
+      final life = .2 + .16 * v;
+      if (a >= life) continue;
+      final angle = math.pi + (i - 3.5) * .3 + (u - .5) * .3;
+      final speed = .7 + .7 * v + .35 * power;
+      final reach = speed * (1 - math.exp(-8 * a)) / 8;
+      final dir = Offset(math.cos(angle), math.sin(angle));
+      final at = face + dir * reach + Offset(0, .5 * 1.5 * a * a);
+      final t = a / life;
+      final tail = at - dir * (.034 * (1 - t));
+      c.drawLine(
+        tail,
+        at,
+        DoorParts.stroke(
+          DoorPalette.goldDeep.withValues(alpha: 1 - t * t),
+          .0075 * (1 - t) + .0015,
+        ),
       );
-      canvas.rotate((i.isEven ? -1 : 1) * t * 1.4);
-      final chunk = Path()
-        ..moveTo(-w * .19, -h * .09)
-        ..lineTo(w * .1, -h * .11)
-        ..lineTo(w * .21, h * .03)
-        ..lineTo(w * .05, h * .1)
-        ..lineTo(-w * .15, h * .06)
-        ..close();
-      canvas.drawPath(
-        chunk,
-        Paint()..color = (i % 3 == 0 ? _gold : _stone).withValues(alpha: 1 - t),
+      c.drawLine(
+        tail,
+        at,
+        DoorParts.stroke(
+          DoorPalette.goldLight.withValues(alpha: 1 - t * t),
+          .0038 * (1 - t) + .0008,
+        ),
       );
-      canvas.drawPath(chunk, _stroke(_dark.withValues(alpha: 1 - t), .003));
-      canvas.restore();
     }
+    // Stone chips: bigger for a harder blow.
+    final chips = 3 + (power * 3).round();
+    for (var i = 0; i < chips; i++) {
+      final u = DoorMath.hash(seed, 30, i), v = DoorMath.hash(seed, 40, i);
+      final life = .3 + .2 * v;
+      if (a >= life) continue;
+      final angle = math.pi + (u - .5) * 2.1;
+      final speed = .28 + .42 * v + .15 * power;
+      final reach = speed * (1 - math.exp(-5 * a)) / 5;
+      final at =
+          face +
+          Offset(
+            math.cos(angle) * reach,
+            math.sin(angle) * reach + .5 * 1.9 * a * a,
+          );
+      final t = a / life;
+      final size =
+          (.0085 + .004 * u + .003 * power) *
+          (1 - DoorMath.inQuad((t - .55) / .45));
+      DoorParts.chip(c, at, size, (u - .5) * 14 * a, i + index);
+    }
+    // A small puff of dust that rises and thins.
+    DoorBreakArt.puff(
+      c,
+      Offset(.004, origin.dy),
+      .026 + .01 * power,
+      a,
+      .5,
+      seed,
+      delay: .02,
+      lift: .03,
+    );
   }
-
-  static Paint _stroke(Color color, double width) => Paint()
-    ..color = color
-    ..style = PaintingStyle.stroke
-    ..strokeWidth = width
-    ..strokeCap = StrokeCap.round
-    ..strokeJoin = StrokeJoin.round;
 }

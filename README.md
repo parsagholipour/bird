@@ -11,7 +11,7 @@ Its boost reaches roughly three times the old smile flap height, followed by
 active charge, capped at **5 seconds**. The glide meter shows when to jump again;
 a new jump refreshes the base charge without losing time earned from stars. **Tap & Fly** lets you
 tap the screen to flap, with no camera or microphone needed. Records, settings and
-cosmetic unlocks stay in SQLite on the phone. After a flight, Save session keeps
+your chosen bird stay in SQLite on the phone. After a flight, Save session keeps
 an input journal and any camera footage for replay in Records → Saved sessions.
 Replay **Flight highlights** lets you jump to streaks, power-ups and the final
 approach, with a short lead-in before each moment.
@@ -51,11 +51,18 @@ perfect-pass celebrations, bird trails and an eight-stamp
 separate records for each control. See the
 [arcade update notes](docs/arcade-expansion.md) for rules, design links and checks.
 
-**Home** opens on a game title scene with your equipped bird and a prominent
-**Play** button that opens a mode picker for Push-Up Flight, Tap & Fly, Jump & Fly
-and Squat & Fly on Star Trail. **Practice** is directly below and opens the same
-picker for unscored flights. The five collectible
-shortcuts lead to daily adventures, birds, the passport, records and flight goals.
+**Home** opens on a sunny title scene: your equipped bird hops on its island
+under turning sun rays, and a dotted star trail leads from the **Play** button to
+it. **Play** opens a mode picker for Push-Up Flight, Tap & Fly, Jump & Fly and
+Squat & Fly on Star Trail; the **Practice** key beside it opens the same picker
+for unscored flights. The mint **Campaign** key on Play's other side opens the
+campaign map and shows the level stars earned. A row of pictograms shows the four ways to fly (push-ups,
+squats, jumps, taps). The bird greets you by name, a pill shows your best flight
+(or welcomes a first-time player), and a dock of five shortcuts leads to today's
+adventure, birds, the passport, records and flight goals. The adventure tile
+glows with its 0/3 count and turns gold when all three goals are done. Clouds
+drift, stars twinkle and the screen assembles itself on launch; with Reduced
+Motion the whole scene is still.
 
 **Tap & Fly**, in the **Play** mode picker, starts a full touch flight on Star Trail. Tap
 anywhere in the sky to rise, then release and tap again. Touch flights have a
@@ -65,9 +72,9 @@ rock; aim by changing your height. Defeating an enemy earns +3 points on Star
 Trail; buildings block rocks, and each shot has a short cooldown and spends
 ammo. Bats use the same shield/heart collision rules as
 buildings. Scored flights contribute
-to unlocks, daily adventures and flight goals, with separate touch bests in
-Records. Practice can pause and resume; scored flights end
-when interrupted. Save session keeps a gameplay replay without camera video,
+to the passport, daily adventures and flight goals, with separate touch bests in
+Records. Any flight can pause and resume after a short countdown; scored flights
+still end on a collision or lost tracking. Save session keeps a gameplay replay without camera video,
 including shots and enemies. Existing replays keep their original flight rules.
 
 **Enemy health and weapon damage (version 26):** each shot carries 10 damage by
@@ -136,14 +143,19 @@ Version 16 gives summoned enemies the new enemy artwork. Boss timing and damage
 stay on the version 15 rules.
 
 **Breakable wall openings (version 27):** after boss 2, random normal walls
-have a stone panel blocking the gap between their upper and lower sections.
-Keep flying and shoot the panel four times with the base weapon to drain its
-40 HP. It cracks at 30 HP, chips at 20 HP and crumbles at 10 HP before shattering
-and clearing the opening immediately. Four small health pips show its condition.
-These walls keep the normal scrolling and collision rules. They never appear
-back-to-back, carry an extra enemy, or block a reward-heart gate. Earlier
-replays keep their original route. Reduced Motion keeps the static damage
-stages without flying debris.
+have a sealed stone plug blocking the gap between their upper and lower sections:
+granite blocks, iron straps, a gold sun-and-bird medallion and four health
+gems, set in a reinforced collar. Keep flying and shoot the panel four times with
+the base weapon to drain its 40 HP. Every hit sparks, chips and dusts, bites a
+crater out of the stone at the height you hit and grows cracks from it (visible
+damage at 30, 20 and 10 HP). The last blow clears the opening immediately and
+the plug shatters along those cracks over one second: flash and shock rings, a
+spray of stone shards, snapping straps, the medallion coin-flipping off in a
+shower of twinkles and billows of dust, leaving the wall's sockets chewed. A
+charged shot or a sprint ram breaks it harder. These walls keep the normal
+scrolling and collision rules. They never appear back-to-back, carry an extra
+enemy, or block a reward-heart gate. Earlier replays keep their original route.
+Reduced Motion keeps the static damage stages, without sparks, dust or debris.
 
 **Power shots (version 28):** hold **Shoot** (or Space/Enter) to charge the
 next rock, then release to fire. The charge builds smoothly over one second, so
@@ -162,6 +174,15 @@ charge, then the countdown. The held rock grows and glows at the beak. Pauses
 and boss entrances cancel a charge. Replays record each press and release;
 a full charge that fires itself is part of the tick. Earlier replays keep
 unlimited taps.
+
+**Shattering pellets (version 36):** any rock cancels an enemy pellet it
+meets. Hold Shoot for at least 0.35 seconds (long enough for the heavier
+shot sound) and the rock shatters the pellet instead. The pellet bursts into a
+blast that deals half the rock's damage to every enemy it reaches. A full
+charge's blast reaches twice as far and deals 20 damage with the base weapon,
+enough for bats and beetles. The boss takes blast damage too, unless the Dusk
+Empress's veil is up. The rock is spent either way. Earlier replays keep the
+plain cancel.
 
 **Sprint (version 29):** tap **Sprint**, left of Shoot, to rush forward for
 1.2 seconds. The course surges to 2.5× speed and eases back before the burst
@@ -209,17 +230,111 @@ middle of the screen, lifting his ship with it, so fly high until it falls
 back. His hull is armored: aim for the captain on deck. Earlier replays keep
 the three-boss cycle.
 
+**Baron Bat returns (version 40):** the first Baron Bat of a flight fights as
+before, but every later one comes back upgraded (THE STORM RETURNS). Every
+ten seconds his ears flare and a tag marks the one gap he'll leave, then he
+screeches a wall of sound across the whole sky. Fly into the gap and hold it
+as the wall goes by, like flying through a gate. The gap never opens where
+you already are, and it narrows in fury. His small bats now come two at a
+time, one high and one low, as each screech fades, and a second pair joins
+them in fury. Earlier replays keep the original Baron.
+
+**Campaign (version 41):** the **Campaign** key on Home opens a world map of
+Tap & Fly levels. The campaign is one trip around the world in five chapters,
+one per boss, in boss order:
+- The Canopy Route: Jungle, Brazil and Aztec, ending with Baron Bat.
+- The Ancient Road: Ancient Rome, Egypt and Ancient Arabia, ending with the
+  Spitter King.
+- The Lamplight Line: New York and Paris, ending with the Dusk Empress.
+- The Tide Route: Mexico and the Open Sea, ending with the Pirate Captain.
+- The Edge of the Map: Antarctica, Cyberpunk City and China, ending with the
+  Ember Dragon.
+
+Each region is a stop on the map, painted with its own scenery, and each
+level flies that one region from start to finish. Chapters 1 and 2 (16
+levels) are playable. Chapters 3–5 sit on the map, locked, as "Coming soon".
+Endless Star Trail stays the high-score mode, unchanged. See the
+[campaign design](docs/campaign.md).
+
+Levels are generated from data, not built by hand. Each has a fixed seed,
+its region, 60–90 seconds of flight to a gold FINISH line, the hazards it
+allows and the endless pace it starts from. Every attempt lays the same route
+on every phone, however you fly it. Mechanics arrive gently. Chapter 1 brings
+flying, stars, Shoot and bats (from 1-3) and Sprint (from 1-5). Chapter 2
+brings spitter beetles, stone panels and rush paths. A level that brings
+something new says so on its card. The last level of a chapter is 30 seconds
+of flight and then the boss's debut fight. The boss says one line of story on
+its name card, and the finish line follows its defeat.
+
+The campaign tells a story between flights. You are the Sky Club post's
+newest courier, and on your first morning all five mail routes go quiet.
+**Postmaster Bill**, the old pelican who runs the post, sends you out, and
+short scenes play on the map as the trip goes on: the prologue on your first
+visit, a few lines when you reach a new region, a word with each boss at its
+lair and another once it is beaten. Every beaten boss admits that a letter
+with a flame seal told it to take its route, and the trail leads to the edge
+of the map. Tap to move a scene on, or press **Skip**; each scene plays by
+itself once, and the story key on a level's card plays it again. Every level
+is also a delivery: its card says what you are carrying and for whom, and
+the result of a finished level brings back a signed thank-you.
+
+Every character speaks. The scenes, the thank-you notes and each bird's
+sprint calls are recorded voice-over made with ElevenLabs Eleven v4: Bill,
+the five bosses, a voice for each of the four birds and some thirty voices
+for the people you deliver to. The music ducks under a spoken line, and
+**Settings → Character voices** turns them off. See
+[story voices](docs/story-voices.md).
+
+Reaching the finish earns ★. Collecting the level's first and second marks
+earns ★★ and ★★★. The marks are 45% and 75% of the stars on the route in
+chapter 1, and 50% and 80% after that, rounded to fives. In
+flight, the stars you have collected fill a track toward the two marks, and a
+route line shows how far it is to the finish. Losing your last heart fails
+the level with the Bonk! stage, and Retry goes straight back to the
+countdown. Finishing a level unlocks the next one. Beating a boss opens the
+next chapter, and a postcard from the route arrives on the map. Each level
+keeps its best stars, star count and score, and the level stars are saved
+for a future upgrade shop.
+
+Campaign flights never count as endless records, bests or flight wings. They
+do count toward daily adventures (except "The whole journey") and toward the
+First wings, On the dot, Star chaser, Constellation and Flock together
+stamps. A saved session keeps the level's whole plan, so it replays exactly
+even after the level is retuned. The library names it after the level, such
+as "1-3 · Bat Patrol". Progress lives in database schema 5, whose migration
+keeps every existing flight. Reduced Motion stills the map, the finish
+pennants and the result's stars.
+
+To render the campaign for review, run these tests with their capture flags:
+- `flutter test --no-pub --dart-define=CAPTURE_CAMPAIGN_ART=true test/campaign_art_test.dart`
+  writes the map stops and postcards to `build/visual-review/campaign/map/`
+  and `postcards/`.
+- `CAPTURE_CAMPAIGN_FLIGHT=true` with `test/campaign_flight_art_test.dart`
+  writes the level HUD, the finish line and the boss name cards to
+  `build/visual-review/campaign/flight/`.
+- `CAPTURE_CAMPAIGN_REGIONS=true` with `test/campaign_regions_art_test.dart`
+  writes long single-region flights to `build/visual-review/campaign/regions/`.
+- `CAPTURE_CAMPAIGN_SCREENS=true` with `test/campaign_screens_test.dart`
+  writes Home, the map, story scenes, level cards, results, the game-over
+  and pause stages and the postcard to
+  `build/visual-review/campaign/screens/`.
+- `CAPTURE_POLISH=true` with `test/polish_story_scene_test.dart` writes the
+  story's cast sheets (Postmaster Bill, the four birds and the five bosses in
+  every mood) and every scene to
+  `build/visual-review/campaign/polish/story/`.
+
 **Extra lives (version 24):** after each boss victory, one heart appears in a
 random safe opening before the next boss. Fly into it to gain one additional
 life, up to a maximum of five hearts. Missed hearts disappear; the HUD
 shows the full life count. Older replays retain their original rules.
 
-**Spitter King (version 21):** the second boss is a bulky acid brewer with
-18 HP, a battered expedition hat, goggles, copper shell and bubbling glass
-tank. His bespoke body has four fan wings, a feed hose and articulated claws.
-He tips his hat on arrival, pumps acid into his cheeks, sloshes on recoil,
-gestures to summon helpers and opens his vents in fury. Defeat releases a
-spray of droplets and bubbles and sends his hat tumbling. Dodge faster
+**Spitter King (version 21):** the second boss is an alchemist-monarch beetle
+with 18 HP, a crown of three glowing flasks, a monocled amber eye, thorned wing
+cases and a glass still for a belly, with a brass trumpet mouth, a feed hose
+and articulated claws. He lifts his crown on arrival, pumps acid up through
+his still, crown and jowl, sloshes on recoil, beckons to summon helpers and
+turns amber-hot, steaming and cracked in fury. Defeat releases a spray of
+droplets and bubbles and sends his crown tumbling. Dodge faster
 acid fans alternating between three and four shots, plus summoned beetles.
 Version 23 widens the spacing to 0.30 radians and removes the center shot from
 full fans to leave a clear dodge lane. At half health, every volley has four
@@ -236,8 +351,10 @@ health every fan has seven shots, with faster attacks and summons. Her silk
 shield warns for 0.8 seconds before blocking shots for 1.6 seconds, starting
 five seconds into combat and repeating every eight seconds. Watch the pale
 blue veil and HP-bar hint, dodge while it is up, then fire when it drops.
-Later moth encounters reach 36 HP. Her crescent diadem, velvet rose wings with
-pearl hems, layered fur and glowing throat glands give her a distinct silhouette.
+Later moth encounters reach 36 HP. Her crescent diadem, plumed antennae, hooked
+velvet wings with pearl-lace hems, moon eyespots and luna tails, ermine ruff and
+glowing throat glands give her a distinct silhouette; in fury her wing veins and
+eyespots ignite to ember.
 The shield has a woven silk edge, lunar clasps and ripples where shots are blocked.
 Her animation and shield reactions follow simulation time in play and replay;
 Reduced Motion keeps charge and shield cues visible without decorative motion.
@@ -265,7 +382,7 @@ This writes `build/visual-review/spitter-boss-cinematic-preview.mp4`.
 **Flight school** on Home lets you explore every course with touch controls:
 drag to steer or tap to flap. Learn the actual stars, gates, letters and cloud
 friends without a camera. Lessons can pause or restart freely and never change
-records, unlocks, daily adventures or saved sessions. When ready, jump directly
+records, the passport, daily adventures or saved sessions. When ready, jump directly
 into push-up or jump practice for the selected course.
 
 Perfect gates now charge a **Star Magnet** in the star courses: three perfect
@@ -305,10 +422,27 @@ Open Flight
 goals from Home to see the targets, or tap a result's wings for progress. Results
 keep Save session visible, then offer Watch replay directly after saving.
 
+**Knockouts:** losing your last heart plays a short cartoon knockout. The flight
+freezes for a beat with a flash and a camera kick. The bird's eyes turn to dizzy
+spirals, feathers in its own colours burst out and stars circle its head as it
+tumbles off the bottom of the screen. In the Pirate Captain's sea it splashes in
+instead. The world settles into a dim lavender still. After 1.9 seconds a
+**Bonk!** (or **Splash!**) game-over stage drops in over the frozen flight. The
+dazed bird rides up on a cloud, the score counts up, a new personal best gets
+a ribbon, and **Fly again** leads Home and Save session. Wings, stats, passport
+and postcard links and save retries all stay on the stage. Taps in the first
+0.6 seconds are ignored; after that a tap skips to the stage, whose buttons
+respond once they have landed. Reduced Motion fades the dazed bird out in place
+instead. The run is saved the moment it ends, and replays are unchanged. Other
+endings, such as Finish flight, still open the regular results. Run
+`flutter test --no-pub --dart-define=CAPTURE_VISUALS=true test/knockout_art_test.dart test/game_over_stage_test.dart`
+to render review frames into `build/visual-review/death/`.
+
 **Status:** tracking has regression replays from the OnePlus CPH2585's actual
 landmarks, including the latest scored game's missed top, false calibration
 cycles during a held top, calibration asking to push back up while both arms
-were already straight, and the bird dropping to mid-screen on a slight bend.
+were already straight, the bird dropping to mid-screen on a slight bend, and a
+calibration top (and side view) taken while the player was still standing.
 The depth estimator was rebuilt around calibrated, reliability-weighted cues
 (see below); it is installed as a diagnostics build (`make diag`) and needs a
 physical retry.
@@ -342,7 +476,8 @@ The same lab is available through Settings. After opening the lab, run
 packet delivery. The lab logs compact posture measurements once per second;
 `adb logcat -s flutter PushUpBird` displays them. No camera images are logged.
 
-Regenerate typed native bindings and database code after schema changes:
+Regenerate typed native bindings and database code after schema changes
+(`make generate` runs both; the database is at schema 5):
 
 ```sh
 dart run pigeon --input pigeons/tracking_api.dart
@@ -391,10 +526,15 @@ combat, boss cinematics, pickups and menus. See
 
 The body controller deliberately ignores facial landmarks. Side views need one
 tracked shoulder, elbow, wrist and hip. Front views need both shoulders plus one
-arm and hip. The view is fixed during calibration so occlusion cannot change the
-measurement system mid-flight. All measurements tolerate camera roll. Uncertain
-knees and ankles do not block calibration. This is a gameplay check, not a form
-assessment.
+arm and hip. Standing or kneeling upright never counts as being in position,
+even with straight arms: then the arm hangs within 45° of a torso seen at full
+length, with the hand down towards the hip, while a plank holds the arm across
+the torso (side view) or foreshortens the torso well below the arm (front view).
+The frames of the first steady top vote on the view, which is then fixed so
+occlusion cannot change the measurement system mid-flight; a tracking loss over
+0.5 s during calibration releases it, and a changed view relearns both cycles.
+All measurements tolerate camera roll. Uncertain knees and ankles do not block
+calibration. This is a gameplay check, not a form assessment.
 
 Push-up depth is not read from one hand-picked projection. Each frame yields
 a small set of depth cues: the projected elbow angle of each visible arm and,

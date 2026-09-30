@@ -3,6 +3,8 @@ import 'progress_repository.dart';
 import 'session_repository.dart';
 import '../game/audio.dart';
 import '../tracking/native_tracking_source.dart';
+import '../domain/campaign.dart';
+import '../domain/campaign_story.dart';
 import '../domain/game_rules.dart';
 
 final appClockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
@@ -53,8 +55,20 @@ class ProgressController extends AsyncNotifier<ProgressSnapshot> {
     if (ref.mounted) state = AsyncData(progress);
   }
 
+  /// Saves a scored flight. A campaign flight also updates its level on
+  /// the map ([ProgressSnapshot.campaign]).
   Future<void> save(RunResult run) async {
     await _repo.saveRun(run);
+    await refresh();
+  }
+
+  Future<void> postcardSeen(CampaignChapter chapter) async {
+    await _repo.markPostcardSeen(chapter);
+    await refresh();
+  }
+
+  Future<void> storyWatched(StoryScene scene) async {
+    await _repo.markStoryWatched(scene);
     await refresh();
   }
 

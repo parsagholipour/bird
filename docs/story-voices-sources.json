@@ -1,0 +1,2780 @@
+{
+ "model": "eleven_v4",
+ "generations": 1,
+ "flow": "https://elevenlabs.io/app/flows/aO9NKhIYwMqvPrxxU2tH",
+ "date": "2026-09-30",
+ "clips": [
+  {
+   "name": "before-1-1-0",
+   "text": "The Sky Club post. Sunrise. Your first day.",
+   "prompt": "[softly] The Sky Club post. [pause] Sunrise. [pause] Your first day.",
+   "voice_id": "Qz7YNvloEr5RXwYE3NCH",
+   "voice": "Twinkle - Narration & Acting",
+   "generation_id": "KMHoREoAY3DqisEVUh3D",
+   "source_sha256": "5a7e66a8c6a0b3427d2923c7d17902b54227fb54eaedb536cc8ef34dc5c2eb0b"
+  },
+  {
+   "name": "before-1-1-1",
+   "text": "There you are, rookie! Postmaster Bill. Welcome to the Sky Club post.",
+   "prompt": "[cheerfully] There you are, rookie! [chuckles] Postmaster Bill. Welcome to the Sky Club post.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "UysfLzHl68MIorRDjpAY",
+   "source_sha256": "7a3acf27f156198132737d14132b5a9966f3296f6a70c3586273c29077ad3106"
+  },
+  {
+   "name": "before-1-1-2-pip",
+   "text": "Ready to fly! Where does the mail go?",
+   "prompt": "[excited] Ready to fly! Where does the mail go?",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "ZR7eyWNW27c1XghzA44D",
+   "source_sha256": "7e61d824a8078c01dd1e5f82a859c9173ab1c72fc051318188984bfb40270493"
+  },
+  {
+   "name": "before-1-1-2-peaches",
+   "text": "Ready to fly! Where does the mail go?",
+   "prompt": "[excited] Ready to fly! Where does the mail go?",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "Qe71x4xcfsubw9DqUnYb",
+   "source_sha256": "30f77e4fa02cebbb87e28fed6a6a09ff980a5b2d12b096ec619631454711acad"
+  },
+  {
+   "name": "before-1-1-2-minty",
+   "text": "Ready to fly! Where does the mail go?",
+   "prompt": "[excited] Ready to fly! Where does the mail go?",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "DKlCtRhT8WkWfgzSfOF8",
+   "source_sha256": "c6c0bc0373103bd264fe7b34edcbb3283fa1b0795928628261af433feeda9033"
+  },
+  {
+   "name": "before-1-1-2-orbit",
+   "text": "Ready to fly! Where does the mail go?",
+   "prompt": "[excited] Ready to fly! Where does the mail go?",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "PnHuXWjh7NOvAlHYlS7M",
+   "source_sha256": "1c5bb758e3d09295c04a1d43646ea93643b6f4fb0139513a5eea436b5d19b100"
+  },
+  {
+   "name": "before-1-1-3",
+   "text": "Everywhere. That’s the trouble. All five routes went quiet last night.",
+   "prompt": "[sighs] Everywhere. That’s the trouble. [sadly] All five routes went quiet last night.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "SyNpXEmxsNpS84U79ZTz",
+   "source_sha256": "5653015278fdd989e3dcea92c319c184122b0192c9b9931279f5cf0d782e9e6c"
+  },
+  {
+   "name": "before-1-1-4",
+   "text": "Somebody has moved in on every one of them, and my couriers can’t get through.",
+   "prompt": "[worried] Somebody has moved in on every one of them, and my couriers can’t get through.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "Hd5XVyOog6YAWByABJyg",
+   "source_sha256": "54fc5a876b7e4e456757307fc828632fd7e58d29a5abb989fb25a1bab422e6bb"
+  },
+  {
+   "name": "before-1-1-5-pip",
+   "text": "Who would steal a mail route?",
+   "prompt": "[surprised] Who would steal a mail route?",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "xdNdbtV1CW23gu9SQkY1",
+   "source_sha256": "72b6fa8d0ad7150a3982a4823f67d750798c0616ee6df3f02e6901f4d51c9deb"
+  },
+  {
+   "name": "before-1-1-5-peaches",
+   "text": "Who would steal a mail route?",
+   "prompt": "[surprised] Who would steal a mail route?",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "2HWQFB4a1Bz6EiFAdao5",
+   "source_sha256": "bbaf9af3eb64db67cc4f98ed1bdf81c119bcca5c1bca877569d4fcec82d1f40b"
+  },
+  {
+   "name": "before-1-1-5-minty",
+   "text": "Who would steal a mail route?",
+   "prompt": "[surprised] Who would steal a mail route?",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "RDdANqkkFYt0BfQmEdCV",
+   "source_sha256": "c42afc3b1ffdff05f68f179adabb66781815d7d3c0e278fbf93fc4e048f3f48c"
+  },
+  {
+   "name": "before-1-1-5-orbit",
+   "text": "Who would steal a mail route?",
+   "prompt": "[surprised] Who would steal a mail route?",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "QZoWS1vC4BOMyvxACeZ2",
+   "source_sha256": "d5c1dc1fec6d2e54f2c5dad4dcd8696502153d0bb362a96f8b489709eaffada3"
+  },
+  {
+   "name": "before-1-1-6",
+   "text": "Five somebodies. The nearest roosts in the jungle and calls himself a Baron.",
+   "prompt": "[dramatically] Five somebodies. [amused] The nearest roosts in the jungle and calls himself a Baron.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "AhvRPLhKtM7Y8AsaxLYH",
+   "source_sha256": "bbc654bbefe818869efe186703163838b0f140f8199106cc60cb522b394220f5"
+  },
+  {
+   "name": "before-1-1-7",
+   "text": "Start small: one birthday card, one jungle. Club rule: every letter lands.",
+   "prompt": "[warmly] Start small: one birthday card, one jungle. [proudly] Club rule: every letter lands.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "jIlwLk2CVlEd9CMoKIfP",
+   "source_sha256": "a0f69fee304f80ae323af8210b01a1d32665593523e68f34515fe05a5a3b46b8"
+  },
+  {
+   "name": "before-1-1-8-pip",
+   "text": "Every letter lands. Got it!",
+   "prompt": "[excited] Every letter lands. Got it!",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "fw0uppi6L1EAeEnUeeBF",
+   "source_sha256": "28ec0e2dc55b40123a3284bfbad555e0d16d3c9fee760ecec0a5957539f5ff41"
+  },
+  {
+   "name": "before-1-1-8-peaches",
+   "text": "Every letter lands. Got it!",
+   "prompt": "[excited] Every letter lands. Got it!",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "4lRc1AtKeegxTSZkoITo",
+   "source_sha256": "f65f777fa88ebed2359938b282a7d6cded595716c98ba5a671c269b6d53f1a02"
+  },
+  {
+   "name": "before-1-1-8-minty",
+   "text": "Every letter lands. Got it!",
+   "prompt": "[excited] Every letter lands. Got it!",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "Lee59pPQptx0e8iVRhfV",
+   "source_sha256": "1be9f2973232114ce520b97b1fbb108b343e32ea75e08a29ef225cadb1bad3e4"
+  },
+  {
+   "name": "before-1-1-8-orbit",
+   "text": "Every letter lands. Got it!",
+   "prompt": "[excited] Every letter lands. Got it!",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "2CSi958FxATzrZxPeKth",
+   "source_sha256": "38dbe2bb9fc4a905441cdcda6378e6fbf43c155fa580bd742e7d21a505a60e5f"
+  },
+  {
+   "name": "before-1-4-0",
+   "text": "Brazil! It’s carnival week, so half the mail is confetti.",
+   "prompt": "[cheerfully] Brazil! It’s carnival week, so half the mail is confetti.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "zO5Zq4UGTHHjV71sJgnn",
+   "source_sha256": "ad9e7d539f71eca1bf69bb43a88e865a5de77281a6b2f53819645ec97bf00d5e"
+  },
+  {
+   "name": "before-1-4-1-pip",
+   "text": "And the other half?",
+   "prompt": "[curious] And the other half?",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "haq4KLHo4I4AEhUWmcDM",
+   "source_sha256": "74a8bbb8cfb4f6c5445d3b8b6ea3f3487a45348788d3fd6d277e5bf409e2bf46"
+  },
+  {
+   "name": "before-1-4-1-peaches",
+   "text": "And the other half?",
+   "prompt": "[curious] And the other half?",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "9Avd1Jyj2MAZ248GWAhq",
+   "source_sha256": "2017deaedff1a12e4ceeb77b8a69154a844dcc69ddd99757c35947c43a6a3763"
+  },
+  {
+   "name": "before-1-4-1-minty",
+   "text": "And the other half?",
+   "prompt": "[curious] And the other half?",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "nvPP462GBLhpVg3fssgW",
+   "source_sha256": "83e2bf179bc4655194a8cacc2bdccb7368187c0a71423a18a83d68ef0ef4f145"
+  },
+  {
+   "name": "before-1-4-1-orbit",
+   "text": "And the other half?",
+   "prompt": "[curious] And the other half?",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "PeM0fD50MTEKR2yRGmYP",
+   "source_sha256": "314a3bdecbe137d1ced0a4421040f32660d4e99ddc33e6e87f15b20e5fe0ccf9"
+  },
+  {
+   "name": "before-1-4-2",
+   "text": "Bats. The Baron’s cousins never miss a party. Keep your beak up.",
+   "prompt": "[dryly] Bats. The Baron’s cousins never miss a party. [warmly] Keep your beak up.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "GMgZRwMYdRCa6lQNKfdh",
+   "source_sha256": "52200b3f8fb3f77201ad748f790e8c2058e3b1591d40d5d8b0a98853103b384a"
+  },
+  {
+   "name": "before-1-4-3",
+   "text": "And mind the petal gates. They open and shut to the music.",
+   "prompt": "[helpfully] And mind the petal gates. They open and shut to the music.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "ACiIfVyIkmxxvsd4XeND",
+   "source_sha256": "c5fd17a5c504ad56f8cd066d0469a404e8a65220ad9bf3680d96895e328a9fb2"
+  },
+  {
+   "name": "before-1-6-0",
+   "text": "The temple steps. The Baron roosts at the top, where the sun comes up.",
+   "prompt": "[mysteriously] The temple steps. The Baron roosts at the top, where the sun comes up.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "IFTPSx5N6PTaQ3y5NgvJ",
+   "source_sha256": "fd39fd77f53119c45901ef6c327f335ef7591fe65132fe83e4b90a1aab7bf35a"
+  },
+  {
+   "name": "before-1-6-1-pip",
+   "text": "He took a whole route just to roost?",
+   "prompt": "[surprised] He took a whole route just to roost?",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "AZ80GIdqU5XGIxKVcQRJ",
+   "source_sha256": "9871352afcc6a538fd991daa2aa27c22651263c0692a8d6012a60dde6e67ccd2"
+  },
+  {
+   "name": "before-1-6-1-peaches",
+   "text": "He took a whole route just to roost?",
+   "prompt": "[surprised] He took a whole route just to roost?",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "WlfOw3fHYABgLsdGKAtK",
+   "source_sha256": "50bae88925dca9129251079b6af139622f8bc80b3fbe797bbd9819b58b218739"
+  },
+  {
+   "name": "before-1-6-1-minty",
+   "text": "He took a whole route just to roost?",
+   "prompt": "[surprised] He took a whole route just to roost?",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "xYdYaXJutGXw6iDQPAfN",
+   "source_sha256": "83458b9b68da1f07c2de8320fec59157e954de9f5370dc1ad8a4d49e37a54078"
+  },
+  {
+   "name": "before-1-6-1-orbit",
+   "text": "He took a whole route just to roost?",
+   "prompt": "[surprised] He took a whole route just to roost?",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "tIlUQvYX9Xl7J0c8IihP",
+   "source_sha256": "da27fb18e29d50fe990c78a1825692bceadab80fc6c935047eb22b2f38afe78f"
+  },
+  {
+   "name": "before-1-6-2",
+   "text": "He says the morning post wakes him. His bedtime is our rush hour.",
+   "prompt": "[chuckles] He says the morning post wakes him. His bedtime is our rush hour.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "sRcvbA4gSGCDTgTc0bYL",
+   "source_sha256": "3bc5bbe940010b7b1fb13cca5f59a9a2cf936933cd74d86e535b93ab5e499fad"
+  },
+  {
+   "name": "before-1-6-3-pip",
+   "text": "Then we knock politely. With rocks.",
+   "prompt": "[mischievously] Then we knock politely. [laughs] With rocks.",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "HQ3FqCzoIAxLZyu0UAI6",
+   "source_sha256": "b00f231df612c680537d6150f3c577479999d5ba8be8c351b13a234ee007bbef"
+  },
+  {
+   "name": "before-1-6-3-peaches",
+   "text": "Then we knock politely. With rocks.",
+   "prompt": "[mischievously] Then we knock politely. [laughs] With rocks.",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "BSIDdZhbJewWIyQc2q1X",
+   "source_sha256": "f072c0f6e352ae8cb7a6a27c7e2f47ae242626ec0a79ba0c88a9bb4d35433b43"
+  },
+  {
+   "name": "before-1-6-3-minty",
+   "text": "Then we knock politely. With rocks.",
+   "prompt": "[mischievously] Then we knock politely. [laughs] With rocks.",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "SUE8Weernj8TnTEToGqz",
+   "source_sha256": "83d4d04dfc7be61e921c7522bf5b9ba608cd5979bf8bb16169f09b7b1ef88366"
+  },
+  {
+   "name": "before-1-6-3-orbit",
+   "text": "Then we knock politely. With rocks.",
+   "prompt": "[mischievously] Then we knock politely. [laughs] With rocks.",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "vbN7BlTz3iVmJwcFslE1",
+   "source_sha256": "82f973205c6d30ea1bb731dd96abb2f630cee1aea41f7f37bbbc281fb90e4d91"
+  },
+  {
+   "name": "before-1-8-0",
+   "text": "WHO is flapping on my doorstep at sunrise?",
+   "prompt": "[angry] [shouting] WHO is flapping on my doorstep at sunrise?",
+   "voice_id": "NXaTw4ifg0LAguvKuIwZ",
+   "voice": "Posh Josh",
+   "generation_id": "HQ9jHIDjYCUsJWW8lk5Y",
+   "source_sha256": "e2d88bea7fa005c5ea7c6c710d3fed3791cf703d157c2e5df162fae03d2a51ae"
+  },
+  {
+   "name": "before-1-8-1-pip",
+   "text": "Sky Club post! I have a letter for you, sir.",
+   "prompt": "[cheerfully] Sky Club post! I have a letter for you, sir.",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "LFynhZmBysFe0frafHz0",
+   "source_sha256": "7aa0716f3f6986dd49b3db09482c23b5d564fdc9efd124d73c9ea68341343da8"
+  },
+  {
+   "name": "before-1-8-1-peaches",
+   "text": "Sky Club post! I have a letter for you, sir.",
+   "prompt": "[cheerfully] Sky Club post! I have a letter for you, sir.",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "aaAW0dudTHyMqYgbAhXk",
+   "source_sha256": "2c9a45794d9a81b89323571efa23a344c2697b4f2ee872a85fb2524d804296f9"
+  },
+  {
+   "name": "before-1-8-1-minty",
+   "text": "Sky Club post! I have a letter for you, sir.",
+   "prompt": "[cheerfully] Sky Club post! I have a letter for you, sir.",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "oORKVIViO6CfSNjFVEa2",
+   "source_sha256": "df8b8d32057f139c9106508a55383fd5847cde30114e97b48f6103e2f8c592fb"
+  },
+  {
+   "name": "before-1-8-1-orbit",
+   "text": "Sky Club post! I have a letter for you, sir.",
+   "prompt": "[cheerfully] Sky Club post! I have a letter for you, sir.",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "g9fZbMrdpielIrPvAXWw",
+   "source_sha256": "84ae28e94aa27b1b00c155eab1164a616dcbdf30509c86800ce84ca4063c7dba"
+  },
+  {
+   "name": "before-1-8-2",
+   "text": "A letter? For me? …What does it say?",
+   "prompt": "[surprised] A letter? For me? [curious] … What does it say?",
+   "voice_id": "NXaTw4ifg0LAguvKuIwZ",
+   "voice": "Posh Josh",
+   "generation_id": "zxDQzGOYHCOYrsjWatxg",
+   "source_sha256": "cb9bbc7ec3d3381dbf3f9ae05ca263dcea83dd6860190fbe4168663b2214699b"
+  },
+  {
+   "name": "before-1-8-3-pip",
+   "text": "Final notice. You’re roosting on a mail route.",
+   "prompt": "[politely] Final notice. You’re roosting on a mail route.",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "BmiidFjJiJO75o2Gy6M5",
+   "source_sha256": "eae7b6974855ffe17a725a4523c88b46df89f68e6892da6f91bc44b502502322"
+  },
+  {
+   "name": "before-1-8-3-peaches",
+   "text": "Final notice. You’re roosting on a mail route.",
+   "prompt": "[politely] Final notice. You’re roosting on a mail route.",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "qW5mH9erAI9cjwtORw3I",
+   "source_sha256": "06c62bb1df4847f6317223649cf8ab54c4a5865f00c645ed2bde3c73063f9bd5"
+  },
+  {
+   "name": "before-1-8-3-minty",
+   "text": "Final notice. You’re roosting on a mail route.",
+   "prompt": "[politely] Final notice. You’re roosting on a mail route.",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "Ador8DoyuLrTDmLJFrhX",
+   "source_sha256": "079bf4af6bd7694dc799039c4536f57a6e762be98c0944c448630395d8642cd9"
+  },
+  {
+   "name": "before-1-8-3-orbit",
+   "text": "Final notice. You’re roosting on a mail route.",
+   "prompt": "[politely] Final notice. You’re roosting on a mail route.",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "BgaBrCs1nmskYPq4kQC2",
+   "source_sha256": "a8d689ec3999d979414c3ca251e7e111c0d6cd13cd0c8b2748f9102e19dde207"
+  },
+  {
+   "name": "before-1-8-4",
+   "text": "This route is my roost now, little courier!",
+   "prompt": "[angry] This route is my roost now, little courier!",
+   "voice_id": "NXaTw4ifg0LAguvKuIwZ",
+   "voice": "Posh Josh",
+   "generation_id": "CyEKQASUUTwGEB0vrHm5",
+   "source_sha256": "26a1423b0f2690fce2cf9bba6972c91515a2141630bfd567a9cc32431fb00dcd"
+  },
+  {
+   "name": "before-1-8-5",
+   "text": "He’s all screech, rookie. Dodge the fireballs and shoot back!",
+   "prompt": "[jumping in] He’s all screech, rookie. [excited] Dodge the fireballs and shoot back!",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "WI3tLcyLFiPveM7BpFFl",
+   "source_sha256": "51b57cd3df12c04ddc4d301effcf758a04510dc14982bc08863853a88dedfb9c"
+  },
+  {
+   "name": "after-1-0",
+   "text": "My crown! …Oh, keep it. It always pinched.",
+   "prompt": "[gasps] My crown! [sighs] … Oh, keep it. It always pinched.",
+   "voice_id": "NXaTw4ifg0LAguvKuIwZ",
+   "voice": "Posh Josh",
+   "generation_id": "gYwRAgqt7zOijIyBn8Jk",
+   "source_sha256": "6995825ce1e0767e494dd5ddd4a97743865bd96939247cce18934b4946543959"
+  },
+  {
+   "name": "after-1-1-pip",
+   "text": "Why did you take the route, Baron?",
+   "prompt": "[curious] Why did you take the route, Baron?",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "2YCQYXTHJo23o7bZTwiv",
+   "source_sha256": "1b749213946bae7289521a85f3fa76a85ab0b3d335effa73df5fe58f1a672587"
+  },
+  {
+   "name": "after-1-1-peaches",
+   "text": "Why did you take the route, Baron?",
+   "prompt": "[curious] Why did you take the route, Baron?",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "IsbLcUygezLcd9Q8eDN0",
+   "source_sha256": "64d58c3b69057442fb1363ac5b81ac8ff5cc6db63eb65ad00b0c243f5242a188"
+  },
+  {
+   "name": "after-1-1-minty",
+   "text": "Why did you take the route, Baron?",
+   "prompt": "[curious] Why did you take the route, Baron?",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "5K4J6WYPW4YdSParhPiO",
+   "source_sha256": "3d49939a3a1f0347dbbe54ad581086deed65bdc59a90282713b37758ee9b489a"
+  },
+  {
+   "name": "after-1-1-orbit",
+   "text": "Why did you take the route, Baron?",
+   "prompt": "[curious] Why did you take the route, Baron?",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "4m9AIYtj3omkxo3uiq60",
+   "source_sha256": "a336b5b6d6e88f7d9dee313115a68131e5976b4baef62deb7d2a0c9d42cfb0a7"
+  },
+  {
+   "name": "after-1-2",
+   "text": "Every dawn: flap, thump, “POST!” A bat needs his beauty sleep.",
+   "prompt": "[tired] Every dawn: flap, thump, POST! [sighs] A bat needs his beauty sleep.",
+   "voice_id": "NXaTw4ifg0LAguvKuIwZ",
+   "voice": "Posh Josh",
+   "generation_id": "Y4dFYEDhWYSCGL6rAJ3K",
+   "source_sha256": "c97926fd3f571134578ef1e5831c36708dcf8386869f30f18419c8f1eb99127f"
+  },
+  {
+   "name": "after-1-3",
+   "text": "Then a letter came, warm as toast. “The canopy is yours. Take it.”",
+   "prompt": "[softly] Then a letter came, warm as toast. [whispers] The canopy is yours. Take it.",
+   "voice_id": "NXaTw4ifg0LAguvKuIwZ",
+   "voice": "Posh Josh",
+   "generation_id": "q6GPlUss0RzKgPwOsa3D",
+   "source_sha256": "508373f28c73b5b1b759bad686bf631d5a7630d456fd712500468bf7eadba284"
+  },
+  {
+   "name": "after-1-4-pip",
+   "text": "Who sent it?",
+   "prompt": "[surprised] Who sent it?",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "mIjFloTpWJD5LtIlPtaq",
+   "source_sha256": "4157a4de27a0a906d485e8e7fea07cfe97cfb97fbc1cbf46c40023c954111456"
+  },
+  {
+   "name": "after-1-4-peaches",
+   "text": "Who sent it?",
+   "prompt": "[surprised] Who sent it?",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "pQ1H5goeusk4eElwsDtF",
+   "source_sha256": "bb8bd5310d93689d0d490651195e0a25ea786419e7a075474e90ec2f0ed9b0b8"
+  },
+  {
+   "name": "after-1-4-minty",
+   "text": "Who sent it?",
+   "prompt": "[surprised] Who sent it?",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "DkMVkY9Ba6RPgfM4zBI6",
+   "source_sha256": "8af2e012843e40427eb342577f3e07fa260de6f0ec4c6c58024454d2de0ce4c9"
+  },
+  {
+   "name": "after-1-4-orbit",
+   "text": "Who sent it?",
+   "prompt": "[surprised] Who sent it?",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "Gq6i2ZnTFEVTUIQJJ0mu",
+   "source_sha256": "748866a79d99d510226fabb6d41e0b33f80f7e596e33d2c6f3aedb992339ff72"
+  },
+  {
+   "name": "after-1-5",
+   "text": "No name. Only a seal shaped like a flame.",
+   "prompt": "[mysteriously] No name. Only a seal shaped like a flame.",
+   "voice_id": "NXaTw4ifg0LAguvKuIwZ",
+   "voice": "Posh Josh",
+   "generation_id": "QuAJdn7fmAoQY1oZD9tc",
+   "source_sha256": "750be377c84920034ab5abc59f6b3739a1fd190647509e3bac9edb93c34d617e"
+  },
+  {
+   "name": "after-1-6",
+   "text": "Tell you what, Baron. From now on, we deliver the canopy at dusk.",
+   "prompt": "[warmly] Tell you what, Baron. From now on, we deliver the canopy at dusk.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "VpfO6yYJL58nJz2C4qAh",
+   "source_sha256": "8aed0b09022b8e35b27b1ebc52a5897a217014a18aee52393ed6d78b6494b726"
+  },
+  {
+   "name": "after-1-7",
+   "text": "Dusk! How civilised. …You may go.",
+   "prompt": "[delighted] Dusk! How civilised. [clears throat] … You may go.",
+   "voice_id": "NXaTw4ifg0LAguvKuIwZ",
+   "voice": "Posh Josh",
+   "generation_id": "xJe8nu2UPpp2tISFPLWL",
+   "source_sha256": "ff9d40e1053accf910675b2203d0c04247ae11ae2c9eeee97880afbfc38f9956"
+  },
+  {
+   "name": "before-2-1-0",
+   "text": "The ancient road: Rome to the desert bazaars. The oldest route on the map.",
+   "prompt": "[warmly] The ancient road: Rome to the desert bazaars. The oldest route on the map.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "rjBgQSjF6vJpSeZAW7hZ",
+   "source_sha256": "e280523c0eac07a7d265ab0ac5c4b72b68a56354a76e10265febdcac6a25e7f0"
+  },
+  {
+   "name": "before-2-1-1-pip",
+   "text": "What is that smell?",
+   "prompt": "[disgusted] What is that smell?",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "hDI7LzyD4mPzSq990qrS",
+   "source_sha256": "53d7bb0e902334d019855e2b02cf962e8e00c00f8f6716eeb0eed1b894e56ade"
+  },
+  {
+   "name": "before-2-1-1-peaches",
+   "text": "What is that smell?",
+   "prompt": "[disgusted] What is that smell?",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "cKYdGSnncy6uFyjEQclN",
+   "source_sha256": "1d019125383c7ebd4e7ac7343d1b155e5b12ed2b0f3a8fdff117d42a8cad58f5"
+  },
+  {
+   "name": "before-2-1-1-minty",
+   "text": "What is that smell?",
+   "prompt": "[disgusted] What is that smell?",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "5VGAbKdRLKO5qcp4plkF",
+   "source_sha256": "e1e6cd8c4c9b43be22c87b7d6c08c71d5d2af1b4eed66bc0c356cef67b9ab503"
+  },
+  {
+   "name": "before-2-1-1-orbit",
+   "text": "What is that smell?",
+   "prompt": "[disgusted] What is that smell?",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "nlSQz0GmuzZU6QFn4NAE",
+   "source_sha256": "d44f1d225f9d02087e9f5aeacb6b949e524c403f12377f960b652801b86ff517"
+  },
+  {
+   "name": "before-2-1-2",
+   "text": "Brewing. A beetle who calls himself King is boiling our letters.",
+   "prompt": "[sighs] Brewing. A beetle who calls himself King is boiling our letters.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "xvmk7PCyrooOZzreVk6m",
+   "source_sha256": "097e773c6ada2d892462aa40cc682dbd76ff079e218891864b55d7fd272d6d87"
+  },
+  {
+   "name": "before-2-1-3",
+   "text": "And look what the Baron left behind: a scorched envelope with a flame seal.",
+   "prompt": "[seriously] And look what the Baron left behind: a scorched envelope with a flame seal.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "dz8j5FToLEp4SpYbbBFY",
+   "source_sha256": "50fd9c22dc08041d383ea5a0999b0b611c167136194e2fcff6fbce8a05da1a1d"
+  },
+  {
+   "name": "before-2-1-4-pip",
+   "text": "So somebody is giving our routes away.",
+   "prompt": "[thoughtfully] So somebody is giving our routes away.",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "b296lnfdkbYImm2QjpdO",
+   "source_sha256": "6e1d9a1f42694018778bffc1e24b6c505f0709b70c46c555154cf0162114aff2"
+  },
+  {
+   "name": "before-2-1-4-peaches",
+   "text": "So somebody is giving our routes away.",
+   "prompt": "[thoughtfully] So somebody is giving our routes away.",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "ESeoUM0pZLCaSDdxfXvL",
+   "source_sha256": "207f6b4ce70b248582c8d32a770668717230e2e314ade06d3b700e4e9d297c9f"
+  },
+  {
+   "name": "before-2-1-4-minty",
+   "text": "So somebody is giving our routes away.",
+   "prompt": "[thoughtfully] So somebody is giving our routes away.",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "fkrH4DB2OkID9bQiCJDV",
+   "source_sha256": "5241421f0da29dfae6f3ac2d71d3e282a7bd57b3173c4044f68d396ec65299d5"
+  },
+  {
+   "name": "before-2-1-4-orbit",
+   "text": "So somebody is giving our routes away.",
+   "prompt": "[thoughtfully] So somebody is giving our routes away.",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "J3SZBdqA0MYU3AZKVyQK",
+   "source_sha256": "268616a3938c24766c5eeca3b2ca16795d8b30ef4ce09ff66e26bdfdefac35ea"
+  },
+  {
+   "name": "before-2-1-5",
+   "text": "One mystery at a time. His beetles spit seeds, so shoot them down.",
+   "prompt": "[chuckles] One mystery at a time. His beetles spit seeds, so shoot them down.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "kYmw77F0cqXf0i4NtZZJ",
+   "source_sha256": "e1b96826e25af7a80e99a508fdc9ef36790576ad372ef79edc9ba1e4f2d207ed"
+  },
+  {
+   "name": "before-2-4-0",
+   "text": "Egypt! We’ve delivered here for four thousand years and lost one letter.",
+   "prompt": "[proudly] Egypt! We’ve delivered here for four thousand years [short pause] and lost one letter.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "Yv4YH1E7peHE2lEnLZOh",
+   "source_sha256": "ecd0e09d74a65f4a706471cd25ef7710e322b9a911faf3f587eeccb252d51d37"
+  },
+  {
+   "name": "before-2-4-1-pip",
+   "text": "Which one?",
+   "prompt": "[curious] Which one?",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "oHugVzsDsbwThb3HMvpl",
+   "source_sha256": "1e923edbb7be2662c3dd7b816aed4d497533e1c7d2eeb97398ab22a899d4e489"
+  },
+  {
+   "name": "before-2-4-1-peaches",
+   "text": "Which one?",
+   "prompt": "[curious] Which one?",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "SSXLJyOTmFcU6sLPvMMP",
+   "source_sha256": "13318be9bcd56c62801756d86ad36a55babe00f2ff5a8e361d988dfaec10c8a5"
+  },
+  {
+   "name": "before-2-4-1-minty",
+   "text": "Which one?",
+   "prompt": "[curious] Which one?",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "TP4UdfUXqcLKuOnfvr73",
+   "source_sha256": "951baec25907611f0eab21b71e63488f369268a71127da83c87fb57d8e922a55"
+  },
+  {
+   "name": "before-2-4-1-orbit",
+   "text": "Which one?",
+   "prompt": "[curious] Which one?",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "7Cke6SPdD3mFaQMWhbvK",
+   "source_sha256": "512ce9a324f77efc6ecc206a8ca90b75825060dbec2a2dc590a2bcc56af11097"
+  },
+  {
+   "name": "before-2-4-2",
+   "text": "The Sphinx won’t say. Mind the switchbacks: up one gap, down the next.",
+   "prompt": "[whispers] The Sphinx won’t say. [cheerfully] Mind the switchbacks: up one gap, down the next.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "FsIQBkSr3QeP1HQON05K",
+   "source_sha256": "9230d9af1f767b0ff3690186a21f80779c98329f9b66bb032e2632cbd3305732"
+  },
+  {
+   "name": "before-2-6-0",
+   "text": "The bazaar at dawn. You can smell the King’s brew from here.",
+   "prompt": "[warmly] The bazaar at dawn. [disgusted] You can smell the King’s brew from here.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "xpQPn3HeUxKYN7nEWzFc",
+   "source_sha256": "dd2b616bfb691ae1c0dda369b42b07f4623d6ed50a34b34db57a590d616f32ac"
+  },
+  {
+   "name": "before-2-6-1-pip",
+   "text": "What does he want with letters?",
+   "prompt": "[curious] What does he want with letters?",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "ipSz4k1a9wqUjXqFNVp8",
+   "source_sha256": "9b77a7daede1aca0519c1a942bff63e559b30af794a230bf611421274c2bab9f"
+  },
+  {
+   "name": "before-2-6-1-peaches",
+   "text": "What does he want with letters?",
+   "prompt": "[curious] What does he want with letters?",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "C70vAWt0wWjdc1GQnLRH",
+   "source_sha256": "21f2c603a5c27c152b1388bba18f1181f9e844564c8f1b796b270bf5b63f3869"
+  },
+  {
+   "name": "before-2-6-1-minty",
+   "text": "What does he want with letters?",
+   "prompt": "[curious] What does he want with letters?",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "A5cypQSxQ4OVWLYRtFT1",
+   "source_sha256": "aa1f284c77ff52258da40de427f6a5cfc963c9979d5a1654d270929d3b941f76"
+  },
+  {
+   "name": "before-2-6-1-orbit",
+   "text": "What does he want with letters?",
+   "prompt": "[curious] What does he want with letters?",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "EiWwYPpxaxt94YR1X20q",
+   "source_sha256": "d685764dbb393b4b8cf97fa26306df3f6eb14411d441bd3491f76839a4da5378"
+  },
+  {
+   "name": "before-2-6-2",
+   "text": "Ink, they say. He boils the words right off the page.",
+   "prompt": "[sadly] Ink, they say. He boils the words right off the page.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "Bvt9FEEWUL0Yhr8OvaNf",
+   "source_sha256": "f9a68d89234cd3fa218c2efb699896590b068e70b96310afca9ccd087c702425"
+  },
+  {
+   "name": "before-2-6-3-pip",
+   "text": "Not on my route.",
+   "prompt": "[determined] Not on my route.",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "OSTCQhBDOY60KmcmYD4r",
+   "source_sha256": "9819b2d786a4fd378fe73695a3762ce8499c7cb845fecf3b5ea85cbb29e2ed65"
+  },
+  {
+   "name": "before-2-6-3-peaches",
+   "text": "Not on my route.",
+   "prompt": "[determined] Not on my route.",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "HOwQWO5tItSeJcUadouZ",
+   "source_sha256": "360e8e39e69579bbc9e843cd22110d5f20d451c9de50bd074f4b85d038a5d8dc"
+  },
+  {
+   "name": "before-2-6-3-minty",
+   "text": "Not on my route.",
+   "prompt": "[determined] Not on my route.",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "afIjrtHTLrLT7WtUMqT4",
+   "source_sha256": "11227516cf02e60cd7269f9244ec732609996a5cea73f259ff6b86c4aff7958a"
+  },
+  {
+   "name": "before-2-6-3-orbit",
+   "text": "Not on my route.",
+   "prompt": "[determined] Not on my route.",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "vJp7T4X2C3P5BGsvFmab",
+   "source_sha256": "f4fbb0cdacbf861bf5acc37427d81474ecbf6483d20acbe40946fd3a5c9e4e1f"
+  },
+  {
+   "name": "before-2-8-0",
+   "text": "A courier! Splendid. Is that fresh mail I smell?",
+   "prompt": "[excited] A courier! Splendid. [curious] Is that fresh mail I smell?",
+   "voice_id": "yjJ45q8TVCrtMhEKurxY",
+   "voice": "Dr. Von Fusion - VF",
+   "generation_id": "ddb9EUGwTCxV26vskt86",
+   "source_sha256": "0f40bcd90089c3ba27d5d19009cd6b6f1e7632bfdc5e6bf2b28ce1689a8413e4"
+  },
+  {
+   "name": "before-2-8-1-pip",
+   "text": "One letter, and it’s for you. It says: stop boiling the post.",
+   "prompt": "[firmly] One letter, and it’s for you. It says: stop boiling the post.",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "ktJziOiwF8isMUCdnZUe",
+   "source_sha256": "a200ae9e08d7afff8505b6d10157ec7fc83dbbd2bfd6ffdfc76deccbcc0e9c54"
+  },
+  {
+   "name": "before-2-8-1-peaches",
+   "text": "One letter, and it’s for you. It says: stop boiling the post.",
+   "prompt": "[firmly] One letter, and it’s for you. It says: stop boiling the post.",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "XTeiqPRLOA8u1Zp6qt1s",
+   "source_sha256": "588f4fdf4229f4f4d8e2d50480ef95650dfc57449d0744dd83a29724449c694a"
+  },
+  {
+   "name": "before-2-8-1-minty",
+   "text": "One letter, and it’s for you. It says: stop boiling the post.",
+   "prompt": "[firmly] One letter, and it’s for you. It says: stop boiling the post.",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "1fQCogpwlyc6LmeiOPOT",
+   "source_sha256": "6faf56c117c1f3cf103d4b92f893af2eebf65149e4fba72c3033891a7ed5add2"
+  },
+  {
+   "name": "before-2-8-1-orbit",
+   "text": "One letter, and it’s for you. It says: stop boiling the post.",
+   "prompt": "[firmly] One letter, and it’s for you. It says: stop boiling the post.",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "F7TwIwYGc3USIwW57Axs",
+   "source_sha256": "55e013c7d1ff426b8c6af618a6268b254665c5dea5917e56494da35776727a5e"
+  },
+  {
+   "name": "before-2-8-2",
+   "text": "But the recipe! One “Dear Grandma”, two “Wish you were here”, stir…",
+   "prompt": "[dramatically] But the recipe! One Dear Grandma, two Wish you were here, [mischievously] stir…",
+   "voice_id": "yjJ45q8TVCrtMhEKurxY",
+   "voice": "Dr. Von Fusion - VF",
+   "generation_id": "sdfkvvi1YjTkJFFoProh",
+   "source_sha256": "e6236285195093d1547277f0808fe6bbec77ca85c9174ade004d33be5a26432e"
+  },
+  {
+   "name": "before-2-8-3-pip",
+   "text": "You’re cooking people’s words?",
+   "prompt": "[surprised] You’re cooking people’s words?",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "9DV7brLiOjydkPJOqxdi",
+   "source_sha256": "c93bd545d0da3657e7aa4c179876d149a191668ec3b968d8bb6cccebdd24ac0b"
+  },
+  {
+   "name": "before-2-8-3-peaches",
+   "text": "You’re cooking people’s words?",
+   "prompt": "[surprised] You’re cooking people’s words?",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "Ela9zXIhu2gLWz1u0LRC",
+   "source_sha256": "652ca29901d8f40401c10d177cf8616813e804ef6f863d993152db03418f088c"
+  },
+  {
+   "name": "before-2-8-3-minty",
+   "text": "You’re cooking people’s words?",
+   "prompt": "[surprised] You’re cooking people’s words?",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "sjI9Ywo5pwuncTPJqOlc",
+   "source_sha256": "40f7dd91cb59c8dcb808d1d804f64686b5a18cfc9ca7e3d22f177443375654bb"
+  },
+  {
+   "name": "before-2-8-3-orbit",
+   "text": "You’re cooking people’s words?",
+   "prompt": "[surprised] You’re cooking people’s words?",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "l9S7f05dsR2JeggZgOy0",
+   "source_sha256": "44ed0bc1e7b5f9fb3b9b3565468268344260e3e93efd1b5442cab8bcb326d3a2"
+  },
+  {
+   "name": "before-2-8-4",
+   "text": "Every letter on my road goes in the brew!",
+   "prompt": "[shouting] Every letter on my road goes in the brew! [laughs]",
+   "voice_id": "yjJ45q8TVCrtMhEKurxY",
+   "voice": "Dr. Von Fusion - VF",
+   "generation_id": "PQzack04o92kLzyKdI8M",
+   "source_sha256": "e1f99a68579f306a7a8bd0fed102fbe00e1bfe74e6aa9a152cb93a843bef94f8"
+  },
+  {
+   "name": "before-2-8-5",
+   "text": "Shoot the seeds down, rookie. And don’t drink anything!",
+   "prompt": "[urgently] Shoot the seeds down, rookie. [chuckles] And don’t drink anything!",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "TrJtLX2VnBOyghdpWcjq",
+   "source_sha256": "e47df952c0f2e4b005885da36aecf66cc1f0f641af26dc532d68c02803296ec7"
+  },
+  {
+   "name": "after-2-0",
+   "text": "My brew! It has gone all… minty.",
+   "prompt": "[sad] My brew! It has gone all… [disappointed] minty.",
+   "voice_id": "yjJ45q8TVCrtMhEKurxY",
+   "voice": "Dr. Von Fusion - VF",
+   "generation_id": "hk7yWPQAxMt0j4g7vAIf",
+   "source_sha256": "495a8194decd19c918185dfe243f76f6729f75b7a7435d5326b382eb2572542f"
+  },
+  {
+   "name": "after-2-1-pip",
+   "text": "What were you making?",
+   "prompt": "[curious] What were you making?",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "2r68lHSsJbGE2iUJVKpI",
+   "source_sha256": "ac27c26189823e593fb0122ff60e8e1b34c18741ca73a3eada6c722c95d93191"
+  },
+  {
+   "name": "after-2-1-peaches",
+   "text": "What were you making?",
+   "prompt": "[curious] What were you making?",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "FoIqk9D9liPIX6TG0RH2",
+   "source_sha256": "d7c26ad5041d83aed3aa750eb22735152d05496fa2c9def7b23d418f89ec8f9f"
+  },
+  {
+   "name": "after-2-1-minty",
+   "text": "What were you making?",
+   "prompt": "[curious] What were you making?",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "mLppkyatpemjgsXxsjKu",
+   "source_sha256": "93eb75d02e4ea7a9b2c9a0931c0aa142595645354e970ecf30a6f8f8febf064e"
+  },
+  {
+   "name": "after-2-1-orbit",
+   "text": "What were you making?",
+   "prompt": "[curious] What were you making?",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "nczoB4txDYNJIPTu9IWn",
+   "source_sha256": "6049a6b71c1c4714db609fbf758cf7f5b1fcf6f360413960c1ae0d109adfee79"
+  },
+  {
+   "name": "after-2-2",
+   "text": "The perfect ink. One that never fades. I only needed a few thousand letters.",
+   "prompt": "[proudly] The perfect ink. One that never fades. [sheepishly] I only needed a few thousand letters.",
+   "voice_id": "yjJ45q8TVCrtMhEKurxY",
+   "voice": "Dr. Von Fusion - VF",
+   "generation_id": "HC6r6gJoESS87kgZM4c8",
+   "source_sha256": "86c230af680c42c29959b4680f3d9dfce1ab559d19a74a82f3b5c4f9575d7f6e"
+  },
+  {
+   "name": "after-2-3-pip",
+   "text": "Did a warm letter tell you the road was yours?",
+   "prompt": "[curious] Did a warm letter tell you the road was yours?",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "dNWvaoCtdjG2o5f3ScFA",
+   "source_sha256": "889296e504b85e764354e1bfcfe1e0cefb3eefe7d1b91e0db6c42f38ba3cdc75"
+  },
+  {
+   "name": "after-2-3-peaches",
+   "text": "Did a warm letter tell you the road was yours?",
+   "prompt": "[curious] Did a warm letter tell you the road was yours?",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "8Je6N6OBdwMMkWN5xBiL",
+   "source_sha256": "5ce2f58431aa172777a8183d7c1d5d1c46426016a62b52574f57a5f4ad3c9c7c"
+  },
+  {
+   "name": "after-2-3-minty",
+   "text": "Did a warm letter tell you the road was yours?",
+   "prompt": "[curious] Did a warm letter tell you the road was yours?",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "LbICCmhycJmW4FOLHyzp",
+   "source_sha256": "42511340750991e036586452688c883b61a6070e349fa0fb104d1a77c5fb3931"
+  },
+  {
+   "name": "after-2-3-orbit",
+   "text": "Did a warm letter tell you the road was yours?",
+   "prompt": "[curious] Did a warm letter tell you the road was yours?",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "dwtFvDk2PzOmnLraahyR",
+   "source_sha256": "38ea523d4eacec0cd3789edf2b775db57fa0326cfcab46ad6760b8c86f6d6da3"
+  },
+  {
+   "name": "after-2-4",
+   "text": "With a flame seal! How did you know?",
+   "prompt": "[surprised] With a flame seal! How did you know?",
+   "voice_id": "yjJ45q8TVCrtMhEKurxY",
+   "voice": "Dr. Von Fusion - VF",
+   "generation_id": "Yo3qH5xNSvgdk6rOwBz4",
+   "source_sha256": "f36beaf021a2f54170a25118183cedf94f9fc441aff7c5974c628ff6f983f7b1"
+  },
+  {
+   "name": "after-2-5",
+   "text": "Two routes, two seals. Somebody is writing to every troublemaker on the map.",
+   "prompt": "[thoughtfully] Two routes, two seals. Somebody is writing to every troublemaker on the map.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "bJa5zT7eG4u29nDaPQQ7",
+   "source_sha256": "c2debee4a2909d6fa6049089752702adc44410a630408ba1075a87f1d44e348a"
+  },
+  {
+   "name": "after-2-6",
+   "text": "King, the club needs an ink-maker. No boiling the post. Tea is allowed.",
+   "prompt": "[warmly] King, the club needs an ink-maker. No boiling the post. [chuckles] Tea is allowed.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "OSXubzfqz3QiDwKMGH9q",
+   "source_sha256": "99502e2513d02ca2a10bc07941d13d3b4ae6b1a274acca8798987e71f949372e"
+  },
+  {
+   "name": "after-2-7",
+   "text": "Royal ink-maker! I shall need a bigger flask.",
+   "prompt": "[excited] Royal ink-maker! I shall need a bigger flask.",
+   "voice_id": "yjJ45q8TVCrtMhEKurxY",
+   "voice": "Dr. Von Fusion - VF",
+   "generation_id": "pW37lKuRoEJgCOvsNB6S",
+   "source_sha256": "30d21d6300bc99d9956d74d999eb0150ac56f7d4c4276b5470d2cf7f1088246d"
+  },
+  {
+   "name": "before-3-1-0",
+   "text": "New York, and not one lamp lit. The night mail can’t find a single door.",
+   "prompt": "[sadly] New York, and not one lamp lit. The night mail can’t find a single door.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "A0C37D0jokwAFD3NdGms",
+   "source_sha256": "c2ab88846956e97b0dbe60c2e8714e0907412c683fb1c9fdcdff7b1dcdfe8778"
+  },
+  {
+   "name": "before-3-1-1-pip",
+   "text": "Who puts a whole city to bed?",
+   "prompt": "[surprised] Who puts a whole city to bed?",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "Ximx1h0XmbES2olGijY2",
+   "source_sha256": "040a1d9a2d70a06e93729368135ff80b1b4906a97b7a3f8381b1d0fb53cd665e"
+  },
+  {
+   "name": "before-3-1-1-peaches",
+   "text": "Who puts a whole city to bed?",
+   "prompt": "[surprised] Who puts a whole city to bed?",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "vMwl2fBu7X71zFyn2hbb",
+   "source_sha256": "7ed3546883dbb8937b885616da133abd1de2db67a76c4e3835b0a875af775a01"
+  },
+  {
+   "name": "before-3-1-1-minty",
+   "text": "Who puts a whole city to bed?",
+   "prompt": "[surprised] Who puts a whole city to bed?",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "pM1WCt9kf5irvG7hVeZZ",
+   "source_sha256": "06dee93fa5b67e75a942709e909c9821d046f618aa0afe7e8325a5d6ca517a9a"
+  },
+  {
+   "name": "before-3-1-1-orbit",
+   "text": "Who puts a whole city to bed?",
+   "prompt": "[surprised] Who puts a whole city to bed?",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "bsW7gYzJbnsJpqXCnOsN",
+   "source_sha256": "17b41fc94a42cd8d0dd14497961d26ef0bbd0e58180a7c8e5c90c8cf49c935fa"
+  },
+  {
+   "name": "before-3-1-2",
+   "text": "The Dusk Empress. Her moths fire pollen in fans of three.",
+   "prompt": "[cautiously] The Dusk Empress. Her moths fire pollen in fans of three.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "5kOOF952VQRc46AXwnuW",
+   "source_sha256": "3bc3299a2978e6d2f365abcb9f70d954fb7938b8b06315d7e4ae9d105d6c30be"
+  },
+  {
+   "name": "before-3-1-3-pip",
+   "text": "And the flame seal?",
+   "prompt": "[curious] And the flame seal?",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "WjKOHZ1jRjuMaBBm88ps",
+   "source_sha256": "38ee331865a8ba9dc0a2ddb84e4cb66f3bbed93e70734f5f29a11114befc9eac"
+  },
+  {
+   "name": "before-3-1-3-peaches",
+   "text": "And the flame seal?",
+   "prompt": "[curious] And the flame seal?",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "w4eouxQDOqXwRUL6Tc3L",
+   "source_sha256": "15064c4c3e05047f9c532c27cd5975f8289e2b2b6cb48e7a1453ed722fc97e09"
+  },
+  {
+   "name": "before-3-1-3-minty",
+   "text": "And the flame seal?",
+   "prompt": "[curious] And the flame seal?",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "IMPKNOICNs94jr7f3yZE",
+   "source_sha256": "e3fdd64fd55617b1715570dc4334d616135768a9a82e20f1587adbbc290265d9"
+  },
+  {
+   "name": "before-3-1-3-orbit",
+   "text": "And the flame seal?",
+   "prompt": "[curious] And the flame seal?",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "TnTywOCF7o4zkXXWMDtQ",
+   "source_sha256": "e861281e524b464949d0dff36b5a033f431072e3b77823249af9bc5505ecdca2"
+  },
+  {
+   "name": "before-3-1-4",
+   "text": "I’d bet my cap she has one. Fly by starlight, rookie.",
+   "prompt": "[warmly] I’d bet my cap she has one. Fly by starlight, rookie.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "png8vRePyJU1rGxzD6J0",
+   "source_sha256": "4fdb69d5643fb2946a813cff9b754cad81e1d8e9cedba98f9be55a1d469b27eb"
+  },
+  {
+   "name": "before-3-5-0",
+   "text": "Paris, the City of Light. Or it was, until last night.",
+   "prompt": "[softly] Paris, the City of Light. [sighs] Or it was, until last night.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "vI2aAF1zqlylnlChPacb",
+   "source_sha256": "ef7d176504a24f618606f42f49f9333bcacb3d07c927a8097bddd18c486ccac9"
+  },
+  {
+   "name": "before-3-5-1-pip",
+   "text": "The rooftops look like crystal!",
+   "prompt": "[excited] The rooftops look like crystal!",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "Nno1Zu3zcVEWlpVTaMyo",
+   "source_sha256": "bbb78d67f756c56cf111e5fcd7653242c65bbb1d93bf85ad0a528c0cbc0876da"
+  },
+  {
+   "name": "before-3-5-1-peaches",
+   "text": "The rooftops look like crystal!",
+   "prompt": "[excited] The rooftops look like crystal!",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "2VPplkY1zCUqmJIZxUwK",
+   "source_sha256": "de5fb20bf9aae8993a9d6b49bb24cd745a7e7f757415e581ffac31a7e39103c7"
+  },
+  {
+   "name": "before-3-5-1-minty",
+   "text": "The rooftops look like crystal!",
+   "prompt": "[excited] The rooftops look like crystal!",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "u13HrRLT5pWwpfOoySl0",
+   "source_sha256": "3424e02a4adcee9aa434b130bc6ac65384e24ef3345745681dd9dd6c0baafb80"
+  },
+  {
+   "name": "before-3-5-1-orbit",
+   "text": "The rooftops look like crystal!",
+   "prompt": "[excited] The rooftops look like crystal!",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "8uIEXuQBvzL9BAVqbcZd",
+   "source_sha256": "f2f2614999658cc1bc354ae4583aa707153587e4c66f8a082258582ffe9a9ef4"
+  },
+  {
+   "name": "before-3-5-2",
+   "text": "They are. Steps of it, three at a time. Pretty, and very pointy.",
+   "prompt": "[chuckles] They are. Steps of it, three at a time. Pretty, and very pointy.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "zUCJPH9yarNXKqLkGxIU",
+   "source_sha256": "9412f9a2a908387e9b6af469f1e52e399aaa6d412659015f807776eb7b2bf1eb"
+  },
+  {
+   "name": "before-3-8-0",
+   "text": "Shh. You will wake the lamps.",
+   "prompt": "[softly] Shh. You will wake the /læmps/.",
+   "voice_id": "sssn4wp3AspuK2kvy3Ym",
+   "voice": "Enchantress - mysterious, witchy, villain character",
+   "generation_id": "LS1cQDNwjVbhf6c3nnYN",
+   "source_sha256": "8b18f7847e6766b7372f1ecab183ba9b8fa43d7d708cb9e63c6efe364a75d083"
+  },
+  {
+   "name": "before-3-8-1-pip",
+   "text": "That’s the idea. The night mail can’t see a thing.",
+   "prompt": "[whispers] That’s the idea. The night mail can’t see a thing.",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "lW7EnedCNTNCKkflxUU9",
+   "source_sha256": "08891b1df8c37f3c3266b6013e6795abb2ec463961df9d0e73ab0e63e30872f8"
+  },
+  {
+   "name": "before-3-8-1-peaches",
+   "text": "That’s the idea. The night mail can’t see a thing.",
+   "prompt": "[whispers] That’s the idea. The night mail can’t see a thing.",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "lqEiXKjmruCojinsV3PJ",
+   "source_sha256": "4e7b435bbdc7ac955b462dcf4759527b841e917deddba67f85ee04d3e5891225"
+  },
+  {
+   "name": "before-3-8-1-minty",
+   "text": "That’s the idea. The night mail can’t see a thing.",
+   "prompt": "[whispers] That’s the idea. The night mail can’t see a thing.",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "BQQP6tLPXkMc6rxTD6YM",
+   "source_sha256": "269223ecc9f6afb7f9544236849835720796ae8bdb50cdc7c718af30c681050d"
+  },
+  {
+   "name": "before-3-8-1-orbit",
+   "text": "That’s the idea. The night mail can’t see a thing.",
+   "prompt": "[whispers] That’s the idea. The night mail can’t see a thing.",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "LKatTQbGBtRr8ai8fjSl",
+   "source_sha256": "1e16ce2994b1ae5b8431996db46712cad22ae2ef3b26f454f2eedc4e6900a77c"
+  },
+  {
+   "name": "before-3-8-2",
+   "text": "My moths kept bumping into them. Bonk. Bonk. All night long.",
+   "prompt": "[softly] [sad] My moths kept bumping into them. Bonk. [sighs] Bonk. All night long.",
+   "voice_id": "sssn4wp3AspuK2kvy3Ym",
+   "voice": "Enchantress - mysterious, witchy, villain character",
+   "generation_id": "5vHCCgE2NdVCtBqprSTn",
+   "source_sha256": "74386285157ce036bf4a77b40e08fc2f70ed79c8a5c2c9f778e70e91439a4097"
+  },
+  {
+   "name": "before-3-8-3-pip",
+   "text": "So you put the lamps to bed? We could just add lampshades…",
+   "prompt": "[curious] So you put the lamps to bed? [cheerfully] We could just add lampshades…",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "2RLYcMpIepaFPQd0hT2w",
+   "source_sha256": "d33468de7b0ab8f4d101efb258036ecca5fdd8fd9b2904586fa315e3f7d47b8a"
+  },
+  {
+   "name": "before-3-8-3-peaches",
+   "text": "So you put the lamps to bed? We could just add lampshades…",
+   "prompt": "[curious] So you put the lamps to bed? [cheerfully] We could just add lampshades…",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "pe97Gq7g2GJj9cADeFLL",
+   "source_sha256": "94388cad83a153573c7777b429d34156fd0f1cd6891cb343e1d52e9d0159e1bd"
+  },
+  {
+   "name": "before-3-8-3-minty",
+   "text": "So you put the lamps to bed? We could just add lampshades…",
+   "prompt": "[curious] So you put the lamps to bed? [cheerfully] We could just add lampshades…",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "05InsiPMHzufIxeJtfNw",
+   "source_sha256": "42b93737880c5d3cfc008cb019858237e130b2698a5dce77ac208902dc8e2055"
+  },
+  {
+   "name": "before-3-8-3-orbit",
+   "text": "So you put the lamps to bed? We could just add lampshades…",
+   "prompt": "[curious] So you put the lamps to bed? [cheerfully] We could just add lampshades…",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "efjgarzEnK40P7h8Z6ZX",
+   "source_sha256": "c8c25035ae3f2ba92533dc447d0372c4600948427b81e5877be8bf38db1af97e"
+  },
+  {
+   "name": "before-3-8-4",
+   "text": "Hush now. The night mail is sleeping.",
+   "prompt": "[softly] [coldly] Hush now. The night mail is sleeping.",
+   "voice_id": "sssn4wp3AspuK2kvy3Ym",
+   "voice": "Enchantress - mysterious, witchy, villain character",
+   "generation_id": "IuGNkLR4h1BZBzz2bH5f",
+   "source_sha256": "a2584ace3a5a8eacdd3ac3a6a6a9647d6681b6209d14a251a0255f2cd2d8a18c"
+  },
+  {
+   "name": "before-3-8-5",
+   "text": "Here come the fans, rookie. Slip between them!",
+   "prompt": "[urgently] Here come the fans, rookie. Slip between them!",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "Ku4qQ05XIFRpjlJxK2zD",
+   "source_sha256": "7eb208ccd80df081e12b3c2e2cc774c2df5d74efac76d6cd2b7f1922a27649fe"
+  },
+  {
+   "name": "after-3-0",
+   "text": "My crown has slipped. How very undignified.",
+   "prompt": "[sighs] My crown has slipped. [haughtily] How very undignified.",
+   "voice_id": "sssn4wp3AspuK2kvy3Ym",
+   "voice": "Enchantress - mysterious, witchy, villain character",
+   "generation_id": "XaCqzyjNGzY1H3xFnkI4",
+   "source_sha256": "faa9b73221d886f5c8adb93157417bc8be7185ccb6f53d27d07732389278b48e"
+  },
+  {
+   "name": "after-3-1-pip",
+   "text": "Empress, did you get a warm letter with a flame seal?",
+   "prompt": "[gently] Empress, did you get a warm letter with a flame seal?",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "Kb4nepVkYzx22uxfysjS",
+   "source_sha256": "bac016e9545e86720f33b6fdfe697e739144958d1ab1eebaae011bd1b008b582"
+  },
+  {
+   "name": "after-3-1-peaches",
+   "text": "Empress, did you get a warm letter with a flame seal?",
+   "prompt": "[gently] Empress, did you get a warm letter with a flame seal?",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "06xYL05wabOzshPkctqW",
+   "source_sha256": "34f88128f30675aa4689535b421240e9b4ed8155c0652bd98ac02ae8085e5fe4"
+  },
+  {
+   "name": "after-3-1-minty",
+   "text": "Empress, did you get a warm letter with a flame seal?",
+   "prompt": "[gently] Empress, did you get a warm letter with a flame seal?",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "So0dzXP0Doh2quGfi1id",
+   "source_sha256": "ddc7b98ef91d93af1105105b566ac04d78c3e1e629e463e2e03d28d9a50ec5d6"
+  },
+  {
+   "name": "after-3-1-orbit",
+   "text": "Empress, did you get a warm letter with a flame seal?",
+   "prompt": "[gently] Empress, did you get a warm letter with a flame seal?",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "nKm7LMwQG5HqJLuhpTAn",
+   "source_sha256": "a36baeac3ac09cd522b54c4c98df59f99367db8452c5c88e004212710c34e1ca"
+  },
+  {
+   "name": "after-3-2",
+   "text": "It promised me a city without lamps. It did not mention couriers.",
+   "prompt": "[softly] It promised me a city without lamps. [dryly] It did not mention couriers.",
+   "voice_id": "sssn4wp3AspuK2kvy3Ym",
+   "voice": "Enchantress - mysterious, witchy, villain character",
+   "generation_id": "cp0GgjVSirmxi4S5mqav",
+   "source_sha256": "982be87ff992accac958a24d7901d128a815d134b96760786e303061c02e4ff7"
+  },
+  {
+   "name": "after-3-3",
+   "text": "Three seals now. And every one posted from the edge of the map.",
+   "prompt": "[seriously] Three seals now. And every one posted from the edge of the map.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "p7Q6rt2O2BC0T04zBmBF",
+   "source_sha256": "f2155ca180fd22ee8b6bdc94f82aa88708963e2e66c5592cc6d9baa829f3c918"
+  },
+  {
+   "name": "after-3-4-pip",
+   "text": "About those lampshades. Soft ones. Would they help?",
+   "prompt": "[warmly] About those lampshades. Soft ones. Would they help?",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "vCXwkdrk2UpgM1aEKeGY",
+   "source_sha256": "4960f48a556eac1f6d943f3dd280faed952a483fdbf345a32edfd4ebf88673f2"
+  },
+  {
+   "name": "after-3-4-peaches",
+   "text": "About those lampshades. Soft ones. Would they help?",
+   "prompt": "[warmly] About those lampshades. Soft ones. Would they help?",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "Icqba5PXF35UcA2YuPng",
+   "source_sha256": "3c02fb926812bd066bb38c92dec6223d8c492772ebd40908f56aa59b7b8c3ce8"
+  },
+  {
+   "name": "after-3-4-minty",
+   "text": "About those lampshades. Soft ones. Would they help?",
+   "prompt": "[warmly] About those lampshades. Soft ones. Would they help?",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "Aov1Z6IlpKPHhzLpVYv1",
+   "source_sha256": "ebc63d2f45c6d558853cd5e0ff9217bd330bbfa03aded607d5bc07db06463508"
+  },
+  {
+   "name": "after-3-4-orbit",
+   "text": "About those lampshades. Soft ones. Would they help?",
+   "prompt": "[warmly] About those lampshades. Soft ones. Would they help?",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "CSfZaC6m8C077dS0AiAP",
+   "source_sha256": "1dbc2c73ca644c8ef0cd6b0553c41e2482a81818c6450ad312109caf69132b75"
+  },
+  {
+   "name": "after-3-5",
+   "text": "Shades… Yes. And I shall light the lamps myself, each dusk.",
+   "prompt": "[softly] [happy] Shades… Yes. And I shall light the lamps myself, each dusk.",
+   "voice_id": "sssn4wp3AspuK2kvy3Ym",
+   "voice": "Enchantress - mysterious, witchy, villain character",
+   "generation_id": "Tqr1DCzYUJsKidHXfIpB",
+   "source_sha256": "41ca842b726db141f026a26fba67b713febe2e0aca028edb7d9617e7c1cc2027"
+  },
+  {
+   "name": "before-4-1-0",
+   "text": "The tide route. Harbour bells ring when the post comes in. None has rung all week.",
+   "prompt": "[sadly] The tide route. Harbour bells ring when the post comes in. None has rung all week.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "NCc09NpiJvDy7uRr6iO3",
+   "source_sha256": "f30dd8af6e55ee739bf854947d164797cbebcbe497822e233866769476de92d7"
+  },
+  {
+   "name": "before-4-1-1-pip",
+   "text": "Pirates?",
+   "prompt": "[nervous] Pirates?",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "Q3orZEg52KLT34y2BuQs",
+   "source_sha256": "5bb7c0748144ca921479efee20be5c20247726b2e13344baa14a3209632ddcb1"
+  },
+  {
+   "name": "before-4-1-1-peaches",
+   "text": "Pirates?",
+   "prompt": "[nervous] Pirates?",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "60TACMaDZc1iD6dHOBSZ",
+   "source_sha256": "2ae557ad1a314f3f49ec0475949eafda1f20cdf0651cfdf7240003dafe0e722b"
+  },
+  {
+   "name": "before-4-1-1-minty",
+   "text": "Pirates?",
+   "prompt": "[nervous] Pirates?",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "OwK4GpY5uVE4AWWHktZx",
+   "source_sha256": "a3f3cf5bb38d9fc62d68dae6b3711f1a30baac254ee9b6ba05db3b3fe51fc7b4"
+  },
+  {
+   "name": "before-4-1-1-orbit",
+   "text": "Pirates?",
+   "prompt": "[nervous] Pirates?",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "51rpcx2sdmBEEEtDNrgX",
+   "source_sha256": "793f62475bd05c1be06be2c57e3b4a2e241bfd7064f45114681aabb01e8297df"
+  },
+  {
+   "name": "before-4-1-2",
+   "text": "One pirate, one parrot, and every mailbag between here and the horizon.",
+   "prompt": "[dramatically] One pirate, one parrot, and every mailbag between here and the horizon.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "ta9X0JQZxRr5Ose2fJ2S",
+   "source_sha256": "802d309f6f3f9365fbde0683d49f0dc2544a8d68d9d30488a8ad330b596f321e"
+  },
+  {
+   "name": "before-4-1-3",
+   "text": "Volcanoes first, then open water. Stay dry, rookie.",
+   "prompt": "[cheerfully] Volcanoes first, then open water. Stay dry, rookie.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "zU8fWjQSteqOsqAjC8YC",
+   "source_sha256": "f371a1cdee1893a5037f0afcc0e24bf203c2d0748509f41e6502517562e63625"
+  },
+  {
+   "name": "before-4-4-0",
+   "text": "Open water. Nowhere to land, and the sea bites.",
+   "prompt": "[cautiously] Open water. Nowhere to land, and the sea bites.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "H6hugUfOvn70Slpp2yxJ",
+   "source_sha256": "d69edca8e2ac8d8158faa80ebe09ecbe613a466f793c651ddf699622642c77ec"
+  },
+  {
+   "name": "before-4-4-1-pip",
+   "text": "What does a pirate want with mailbags?",
+   "prompt": "[curious] What does a pirate want with mailbags?",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "uJPipNZRsqkj4gEkHkiF",
+   "source_sha256": "0bff8512483bbb6855be77a42a6dde310015bc3ffa6c8ff3b6459d1b1128eeb6"
+  },
+  {
+   "name": "before-4-4-1-peaches",
+   "text": "What does a pirate want with mailbags?",
+   "prompt": "[curious] What does a pirate want with mailbags?",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "MO5hNjdnCQukjMmrLGGI",
+   "source_sha256": "8af11799972fa318ef87fe66eaa927fbac82903c2692bb312d4a432f39566a75"
+  },
+  {
+   "name": "before-4-4-1-minty",
+   "text": "What does a pirate want with mailbags?",
+   "prompt": "[curious] What does a pirate want with mailbags?",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "iVWmQ6BtdJ4WXDYLkq3K",
+   "source_sha256": "336242174f7d78088677b2f04f9044ee8b19a13952ca7c4c252397b1b1c3e18c"
+  },
+  {
+   "name": "before-4-4-1-orbit",
+   "text": "What does a pirate want with mailbags?",
+   "prompt": "[curious] What does a pirate want with mailbags?",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "KgdJaOZ1UTCE17tQfoA7",
+   "source_sha256": "92bd0d27045db1f2ab1f703b571bceb62a316cae57af66dd201f9e112be0b950"
+  },
+  {
+   "name": "before-4-4-2",
+   "text": "That’s the odd part. He throws the letters back and keeps the envelopes.",
+   "prompt": "[puzzled] That’s the odd part. He throws the letters back and keeps the envelopes.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "WeMBq24gJzY6OCm4mFu5",
+   "source_sha256": "20e75e22fbdaa25f1fc2c6601b53a2e5ce701feb55bbe365d369fc622a593b67"
+  },
+  {
+   "name": "before-4-4-3-pip",
+   "text": "The envelopes?",
+   "prompt": "[surprised] The envelopes?",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "sYt1yiB1obS5riZU1R0B",
+   "source_sha256": "57028c4d5971fa4a19b6fe9b3072eb73f038645026dd600bce73f48ef46ba476"
+  },
+  {
+   "name": "before-4-4-3-peaches",
+   "text": "The envelopes?",
+   "prompt": "[surprised] The envelopes?",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "GwjOY1zy2Hblo9QlndOg",
+   "source_sha256": "7f8a20e812dd1dd68e75ecceae258623dc7f62b344cb5d2073ffec6cb65ea5b5"
+  },
+  {
+   "name": "before-4-4-3-minty",
+   "text": "The envelopes?",
+   "prompt": "[surprised] The envelopes?",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "MHhFPyxhkG7BvIWjPFWd",
+   "source_sha256": "1a5321e0a0bce2889613b27df936862d961ca3c420c3fa708a2c708055c7f314"
+  },
+  {
+   "name": "before-4-4-3-orbit",
+   "text": "The envelopes?",
+   "prompt": "[surprised] The envelopes?",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "LzxIPgRWelPgfqs3iRuA",
+   "source_sha256": "8b4540840ed702b3084dbd738fc9680d84bb8e62cc568cd743e0f6bb94002a65"
+  },
+  {
+   "name": "before-4-4-4",
+   "text": "Ask him when you meet him. Until then, don’t touch the water.",
+   "prompt": "[chuckles] Ask him when you meet him. [seriously] Until then, don’t touch the water.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "IcYuH6siB7lY6blKOjVB",
+   "source_sha256": "6da0c7a7ed490dfbe61613bbf473dc3c768b9ef0ae516d491145597084db6b2a"
+  },
+  {
+   "name": "before-4-8-0",
+   "text": "Ahoy! A mailbag, flyin’ itself straight to me ship!",
+   "prompt": "[laughs] Ahoy! A mailbag, flyin’ itself straight to me ship!",
+   "voice_id": "4Vl3K2x290GidNvuaLm7",
+   "voice": "Matthew Schmitz - Old Pirate Captain",
+   "generation_id": "7hYFKnIJAaWmeh4eGDpd",
+   "source_sha256": "9c40e45c20511a6d90b7ad2923b30a0b39580f30c4944442c302da547afdd682"
+  },
+  {
+   "name": "before-4-8-1-pip",
+   "text": "It’s staying with me. What do you want with the mail?",
+   "prompt": "[firmly] It’s staying with me. What do you want with the mail?",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "iJQ2LxE6YGB1ZH30Y06L",
+   "source_sha256": "bc2c8a213f9672e5a8e26f21b1ff3187073fffa39aae1c82ae0cfb452c45d9d1"
+  },
+  {
+   "name": "before-4-8-1-peaches",
+   "text": "It’s staying with me. What do you want with the mail?",
+   "prompt": "[firmly] It’s staying with me. What do you want with the mail?",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "uf7sbWWLPJJgYzel2PbI",
+   "source_sha256": "28dcec7987676ebe71624016cef97161d21ccad115360a4069c5491c03639e44"
+  },
+  {
+   "name": "before-4-8-1-minty",
+   "text": "It’s staying with me. What do you want with the mail?",
+   "prompt": "[firmly] It’s staying with me. What do you want with the mail?",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "KUA5x1INnN0cKpfpNe7F",
+   "source_sha256": "84f41caa4505479ce7842d089e13ca3e653b4919963bd25a8ed2a32279a02fa9"
+  },
+  {
+   "name": "before-4-8-1-orbit",
+   "text": "It’s staying with me. What do you want with the mail?",
+   "prompt": "[firmly] It’s staying with me. What do you want with the mail?",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "5mPAnBKRXifKkdwTSc3K",
+   "source_sha256": "27ad61a5cb201cbdc4b8bac3c896fdfc4ff6c94d670e484eceecbb57abfc6bf9"
+  },
+  {
+   "name": "before-4-8-2",
+   "text": "Not the mail, lad. The STAMPS. Tiny paper treasure from every port!",
+   "prompt": "[excited] Not the mail, lad. The STAMPS. [whispers] Tiny paper treasure from every port!",
+   "voice_id": "4Vl3K2x290GidNvuaLm7",
+   "voice": "Matthew Schmitz - Old Pirate Captain",
+   "generation_id": "0anCbJKSEJThAgYQl5N7",
+   "source_sha256": "33711ef3a45455904bae19abb0c25762ef6a28204238d56ad557b254dba559c3"
+  },
+  {
+   "name": "before-4-8-3-pip",
+   "text": "You’re a stamp collector?",
+   "prompt": "[surprised] You’re a stamp collector?",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "SNAZ0OPjzrmL92fif7Uv",
+   "source_sha256": "fdff747efa47bb390ad56d0d50697543677536384e08693331e82307fc3ec39f"
+  },
+  {
+   "name": "before-4-8-3-peaches",
+   "text": "You’re a stamp collector?",
+   "prompt": "[surprised] You’re a stamp collector?",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "xYAP530X31IYIC4iA1Fp",
+   "source_sha256": "c4b98865f94cbc8e8f69862622353799fd9b93379ec116759f7ea16a06071937"
+  },
+  {
+   "name": "before-4-8-3-minty",
+   "text": "You’re a stamp collector?",
+   "prompt": "[surprised] You’re a stamp collector?",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "DQxJ8rJGeRJmDeXKOPMg",
+   "source_sha256": "f5a12c9b65cdfe0048986d574579843e2b99fd83afb5c611c78db6105fae8612"
+  },
+  {
+   "name": "before-4-8-3-orbit",
+   "text": "You’re a stamp collector?",
+   "prompt": "[surprised] You’re a stamp collector?",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "YV7MKGqs8dbCvMUY0vpz",
+   "source_sha256": "2c869ad7a46fa1771e2ccf0a88d7bb696a6361c544168aae2ab694be04943557"
+  },
+  {
+   "name": "before-4-8-4",
+   "text": "Arr! Every mailbag on these waves be mine!",
+   "prompt": "[shouting] Arr! Every mailbag on these waves be mine!",
+   "voice_id": "4Vl3K2x290GidNvuaLm7",
+   "voice": "Matthew Schmitz - Old Pirate Captain",
+   "generation_id": "H5CzKZVLaHOfKLBrQjlA",
+   "source_sha256": "5f81b9d28f20c739d72f252531cd5464583a282917b9c939324aa4591efd7fe4"
+  },
+  {
+   "name": "before-4-8-5",
+   "text": "Mind the cannon, rookie, and stay out of the water!",
+   "prompt": "[urgently] Mind the cannon, rookie, and stay out of the water!",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "oILe1g8Bqf71FoTzvHKT",
+   "source_sha256": "e4cd1ad02b2609b05bfbe3b4b10eed20f86b3c8741d4ea9ee26e7662ec7ab130"
+  },
+  {
+   "name": "after-4-0",
+   "text": "Me hat! Me ship! Me stamp album… it’s soggy.",
+   "prompt": "[sad] Me hat! Me ship! [crying] Me stamp album… it’s soggy.",
+   "voice_id": "4Vl3K2x290GidNvuaLm7",
+   "voice": "Matthew Schmitz - Old Pirate Captain",
+   "generation_id": "VwTLQX93c514CgLIytHv",
+   "source_sha256": "41a78f8004c4e57cf2f306d469ed8ed5c9731e0f5f857bb0c1a0597e7698fef6"
+  },
+  {
+   "name": "after-4-1-pip",
+   "text": "Let me guess. A warm letter. A flame seal.",
+   "prompt": "[knowingly] Let me guess. A warm letter. A flame seal.",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "LuDtX4os0xOSxESVXOGZ",
+   "source_sha256": "35ae45771b0a3edc0961d196f527cc824770fee5c03f365ce4b4e27067d1b3b7"
+  },
+  {
+   "name": "after-4-1-peaches",
+   "text": "Let me guess. A warm letter. A flame seal.",
+   "prompt": "[knowingly] Let me guess. A warm letter. A flame seal.",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "GRJ6tjKzkGtPyRwxFTT6",
+   "source_sha256": "694932b6ef89b22c9298142e0da98bc732647dbb53bd719538466071ecae6537"
+  },
+  {
+   "name": "after-4-1-minty",
+   "text": "Let me guess. A warm letter. A flame seal.",
+   "prompt": "[knowingly] Let me guess. A warm letter. A flame seal.",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "5hChAjQBF8WXzhph3mmi",
+   "source_sha256": "bc0fb69934f35a5f7ceaea90b48e27d543cd68e4dcff7e9bc0bd3493395b5e3e"
+  },
+  {
+   "name": "after-4-1-orbit",
+   "text": "Let me guess. A warm letter. A flame seal.",
+   "prompt": "[knowingly] Let me guess. A warm letter. A flame seal.",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "YJHDt2zX6Xup5qi3Mm1E",
+   "source_sha256": "1b40c919dd392c7edf1d78150d71ab81db6b2123b689c6104dcd374bc3e62b88"
+  },
+  {
+   "name": "after-4-2",
+   "text": "Aye. “The tide is yours,” it said. Fine stamp on it, too: a little dragon.",
+   "prompt": "[grumbling] Aye. The tide is yours, it said. [proudly] Fine stamp on it, too: a little dragon.",
+   "voice_id": "4Vl3K2x290GidNvuaLm7",
+   "voice": "Matthew Schmitz - Old Pirate Captain",
+   "generation_id": "5WjuwX3qO4AWS6waoIgm",
+   "source_sha256": "e915a7ad5fd278f3003b0ea8a43929bf32a47674b039debd7b276b6fa0431c6e"
+  },
+  {
+   "name": "after-4-3",
+   "text": "A dragon! At the edge of the map…",
+   "prompt": "[gasps] A dragon! [slowly] At the edge of the map…",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "XJ6UI2H6gdjvbs28xJk3",
+   "source_sha256": "3834fcafbe381b43759275e06d0b7fbd31e1daa60d0798f11a00b1fb43217d6c"
+  },
+  {
+   "name": "after-4-4-pip",
+   "text": "Captain, give the mail back and the club will send you a stamp from every route.",
+   "prompt": "[cheerfully] Captain, give the mail back and the club will send you a stamp from every route.",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "DhhSJmdS153mvZhkmVch",
+   "source_sha256": "09fcaa56c82e402c8153f66ea538eb16fdc760e5c703532082b1dc8d83bcd27d"
+  },
+  {
+   "name": "after-4-4-peaches",
+   "text": "Captain, give the mail back and the club will send you a stamp from every route.",
+   "prompt": "[cheerfully] Captain, give the mail back and the club will send you a stamp from every route.",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "KIpgJ9zXu6FoVDt1noqt",
+   "source_sha256": "472ba2a40da0edd19510e65650f53876db236f9e4a8b7e617ebaa032de8f4638"
+  },
+  {
+   "name": "after-4-4-minty",
+   "text": "Captain, give the mail back and the club will send you a stamp from every route.",
+   "prompt": "[cheerfully] Captain, give the mail back and the club will send you a stamp from every route.",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "0cflcBm010ikVNyu207y",
+   "source_sha256": "58daf2cafc0074c43f047ca3be39d383df653586b9f72188d93843314a5a0289"
+  },
+  {
+   "name": "after-4-4-orbit",
+   "text": "Captain, give the mail back and the club will send you a stamp from every route.",
+   "prompt": "[cheerfully] Captain, give the mail back and the club will send you a stamp from every route.",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "B7FeCOS95r4AjRWno7Z0",
+   "source_sha256": "55bff0b4aefd1353d663830cc57910389c5820a42ca53cba6bfc33fcc7d9397b"
+  },
+  {
+   "name": "after-4-5",
+   "text": "Every route? …Parrot, strike the colours. We be collectors now!",
+   "prompt": "[gasps] Every route? [excited] … Parrot, strike the colours. We be collectors now!",
+   "voice_id": "4Vl3K2x290GidNvuaLm7",
+   "voice": "Matthew Schmitz - Old Pirate Captain",
+   "generation_id": "fSYdy1JPOVHFKcjAX2Ti",
+   "source_sha256": "805d0b0e1165196449b083ae607118ee0c73b640c411ace633b621d0cfa07693"
+  },
+  {
+   "name": "before-5-1-0",
+   "text": "The edge of the map. No route has ever run past here.",
+   "prompt": "[softly] The edge of the map. No route has ever run past here.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "nDZCg34lE4LpcadR3HMF",
+   "source_sha256": "a8111003e811a626550474d7f3caa0c67b5f9ca77003ae6fc45e6161fc4eca6b"
+  },
+  {
+   "name": "before-5-1-1-pip",
+   "text": "Then who lives out there?",
+   "prompt": "[curious] Then who lives out there?",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "8WFbLmqVQZhy853zu9t3",
+   "source_sha256": "a4a1c98746cdcdefaaeaa99ac1471e835c35a646f9ba197f012adda84504a114"
+  },
+  {
+   "name": "before-5-1-1-peaches",
+   "text": "Then who lives out there?",
+   "prompt": "[curious] Then who lives out there?",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "FMmoJ0Z4E1erY92qwFhj",
+   "source_sha256": "c7460a41f51623488b621dadb2c82265b1bdbc4010c2455103b6fe3b75e80d60"
+  },
+  {
+   "name": "before-5-1-1-minty",
+   "text": "Then who lives out there?",
+   "prompt": "[curious] Then who lives out there?",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "y6ilcBnn51bOLd8hQtew",
+   "source_sha256": "ea61ec59a8ae60b4493c0b7e4b2d237c125829d5063dc5990c3071e0c3f2e246"
+  },
+  {
+   "name": "before-5-1-1-orbit",
+   "text": "Then who lives out there?",
+   "prompt": "[curious] Then who lives out there?",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "bZGrhOBbzhatOR0O0koW",
+   "source_sha256": "487f3387fb69173ea929eefb84fc9bda55a3e51d162b9279a365362955929526"
+  },
+  {
+   "name": "before-5-1-2",
+   "text": "Somebody who has never been sent a letter. I checked the books twice.",
+   "prompt": "[sadly] Somebody who has never been sent a letter. I checked the books twice.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "RSDxwZfwLycJGqeqDFy9",
+   "source_sha256": "b4ac187c2ce77638a4e6eb7c857e486d35ab6ca022de8a9e88fa9ac4c42e86e6"
+  },
+  {
+   "name": "before-5-1-3-pip",
+   "text": "The dragon wrote to four strangers, and nobody ever wrote to him.",
+   "prompt": "[thoughtfully] The dragon wrote to four strangers, and nobody ever wrote to him.",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "wGNgeZbgAUty3mLdbSgd",
+   "source_sha256": "05ac3f2d41c0e1af6bd8ebc16d992d7ca177bb8264b7fbfe2f6476c13bb9b7ef"
+  },
+  {
+   "name": "before-5-1-3-peaches",
+   "text": "The dragon wrote to four strangers, and nobody ever wrote to him.",
+   "prompt": "[thoughtfully] The dragon wrote to four strangers, and nobody ever wrote to him.",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "YQUHT3pdhjP1QMvI9srm",
+   "source_sha256": "7e966a8f7cbbc34fc494094096f4d5305cc995672c9287bb03013b7235fae9df"
+  },
+  {
+   "name": "before-5-1-3-minty",
+   "text": "The dragon wrote to four strangers, and nobody ever wrote to him.",
+   "prompt": "[thoughtfully] The dragon wrote to four strangers, and nobody ever wrote to him.",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "2xdY9bjGBCJhQla1w8N0",
+   "source_sha256": "c8d17a09528e8846c83d0afc816d8f7830240113e9009f42bb3f4eabc1127040"
+  },
+  {
+   "name": "before-5-1-3-orbit",
+   "text": "The dragon wrote to four strangers, and nobody ever wrote to him.",
+   "prompt": "[thoughtfully] The dragon wrote to four strangers, and nobody ever wrote to him.",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "vcBkT1dbEgxKZ6uYGElg",
+   "source_sha256": "af285727e5e9b7ce5c7a5ad18c7d3ecc0dd517a172db0f10f8d832609609815e"
+  },
+  {
+   "name": "before-5-1-4",
+   "text": "Then we had better write one. You fly. I’ll find a pen.",
+   "prompt": "[warmly] Then we had better write one. [cheerfully] You fly. I’ll find a pen.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "19kgddqmbVOxBdMudjQB",
+   "source_sha256": "bdabb72e0fe6d1235fbd95505382b448ecd3ca0c1940c12fefda2301c538e8f9"
+  },
+  {
+   "name": "before-5-3-0",
+   "text": "The neon city. Everything here is sent by wire.",
+   "prompt": "[curious] The neon city. Everything here is sent by wire.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "q3rO64XT606dt3q3n7mv",
+   "source_sha256": "b9549fc490057925d7e7addb95b89d6a9cc6abf676b3cf207b3eb1181ea28002"
+  },
+  {
+   "name": "before-5-3-1-pip",
+   "text": "So nobody needs a courier?",
+   "prompt": "[worried] So nobody needs a courier?",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "kq1SZyVsEc6FkP1SGKAN",
+   "source_sha256": "522a9b49051ea09b2decdd138253a37226f14028652726e51a5650b817ab9af2"
+  },
+  {
+   "name": "before-5-3-1-peaches",
+   "text": "So nobody needs a courier?",
+   "prompt": "[worried] So nobody needs a courier?",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "UUy8CpV9SzH6GFTW93Xn",
+   "source_sha256": "e24a18136ad6c1f8baacd48e3148cacafabbe42bf73ab9e87818f49251979693"
+  },
+  {
+   "name": "before-5-3-1-minty",
+   "text": "So nobody needs a courier?",
+   "prompt": "[worried] So nobody needs a courier?",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "6AVAfkPvnmsqlNLXm47c",
+   "source_sha256": "0b406021eb91698847ef41ed5ce24be76d51bd5493341d9a30e197f4e47664bd"
+  },
+  {
+   "name": "before-5-3-1-orbit",
+   "text": "So nobody needs a courier?",
+   "prompt": "[worried] So nobody needs a courier?",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "d9hIcdHnoqTZIetiHWZ1",
+   "source_sha256": "e69c6f219107ab462404ffbd704861fe88bc9a430a5393668a8ee1ab341a516f"
+  },
+  {
+   "name": "before-5-3-2",
+   "text": "A wire can’t carry a parcel, rookie. Or a hug. Or noodles.",
+   "prompt": "[chuckles] A wire can’t carry a parcel, rookie. Or a hug. [laughs] Or noodles.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "lObSYiycoxMxdzoIqA0w",
+   "source_sha256": "dfd39546dd8c10ee8b540d5129f519c339d2fe40ac68abf3a36d745eefcf0eb2"
+  },
+  {
+   "name": "before-5-6-0",
+   "text": "Red sun, red sky. His lair is just beyond those mountains.",
+   "prompt": "[seriously] Red sun, red sky. His lair is just beyond those mountains.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "jVhbKTz09YaRiypLbuqJ",
+   "source_sha256": "6fe431720090a9ab574d91fe4a2d79ea10f11be7ee3d56477c5f4ba4f42fa561"
+  },
+  {
+   "name": "before-5-6-1-pip",
+   "text": "I have the letter. Everybody signed it.",
+   "prompt": "[proudly] I have the letter. Everybody signed it.",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "TfDeUTXblPDLdQC5ES0N",
+   "source_sha256": "546325cb7416d248d2eb0106b82af77f72cfa3b6084c2506ad553f660f1af588"
+  },
+  {
+   "name": "before-5-6-1-peaches",
+   "text": "I have the letter. Everybody signed it.",
+   "prompt": "[proudly] I have the letter. Everybody signed it.",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "3gOqqIopeNAxBPXwrtGn",
+   "source_sha256": "d3ca6088e1b3a3f2b0570a3c65a2d840eb9e71eba63c2b77c7de3bc1618216a0"
+  },
+  {
+   "name": "before-5-6-1-minty",
+   "text": "I have the letter. Everybody signed it.",
+   "prompt": "[proudly] I have the letter. Everybody signed it.",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "73K27rN8VGTBSpAuQ8E2",
+   "source_sha256": "fb021e41a334719e45962481fd761d783f164461cb15576205cf8c6e6abdcd3f"
+  },
+  {
+   "name": "before-5-6-1-orbit",
+   "text": "I have the letter. Everybody signed it.",
+   "prompt": "[proudly] I have the letter. Everybody signed it.",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "fRABjmuW2cUNeVA0ia5h",
+   "source_sha256": "f1de19e28ee641b0ab785a4832bba74934002a6c1e903d25cf18e97ec1ed3ce9"
+  },
+  {
+   "name": "before-5-6-2",
+   "text": "Even the Baron. He dotted his “i” with a tiny bat.",
+   "prompt": "[chuckles] Even the Baron. He dotted his i with a tiny bat.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "qAqkpDFYoJsqjwBAiKjr",
+   "source_sha256": "7efee8f592572105fea2b225913c5103b309ceba556ad5b54b5768eedf90d37c"
+  },
+  {
+   "name": "before-5-6-3-pip",
+   "text": "Every letter lands.",
+   "prompt": "[determined] Every letter lands.",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "cC225PbqKRYcCEIwN6ZN",
+   "source_sha256": "e5f56190d609e6b3f7c7e2564832ecaab8569050d4df4a0f58caef8f94397d83"
+  },
+  {
+   "name": "before-5-6-3-peaches",
+   "text": "Every letter lands.",
+   "prompt": "[determined] Every letter lands.",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "IQL76zA5ht9xlVx3ZnGn",
+   "source_sha256": "0e363382a03315573185b8dc53dc7c824c598f5941bf10d376c2d4da57c724cd"
+  },
+  {
+   "name": "before-5-6-3-minty",
+   "text": "Every letter lands.",
+   "prompt": "[determined] Every letter lands.",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "phIeoWeQNR9O8Chx4H9t",
+   "source_sha256": "f80dacbac3fc749965c5400241d62a908906deee3326626dcff083a8bc63cc4b"
+  },
+  {
+   "name": "before-5-6-3-orbit",
+   "text": "Every letter lands.",
+   "prompt": "[determined] Every letter lands.",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "9QcSdXaDHCligvHuB5BL",
+   "source_sha256": "be124d42d00d14966f0095309bf92580b43b82ceb4a88922ff8547a6c509b17c"
+  },
+  {
+   "name": "before-5-8-0",
+   "text": "A courier, at the edge of the map. How unusual.",
+   "prompt": "[deep voice] [slowly] A courier, at the edge of the map. How unusual.",
+   "voice_id": "xsiB5fGhEtknnqzudCO6",
+   "voice": "Smoke - The Dragon",
+   "generation_id": "rgt8OsqKGBDl9Drfynot",
+   "source_sha256": "4c6890872ee120eff20f7d2daf910e1484fce08d8238d43ac97d153f2231206c"
+  },
+  {
+   "name": "before-5-8-1-pip",
+   "text": "You sent four letters. You gave our routes away.",
+   "prompt": "[bravely] You sent four letters. You gave our routes away.",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "lCyHgr7883knQBQa8Obb",
+   "source_sha256": "c3f34fd6f652c6faaa082bf30c8d8dec2d3a1731560cce9d274ea2115e8ad920"
+  },
+  {
+   "name": "before-5-8-1-peaches",
+   "text": "You sent four letters. You gave our routes away.",
+   "prompt": "[bravely] You sent four letters. You gave our routes away.",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "5nsCWD2vNz4nCyVM7yEg",
+   "source_sha256": "fb60da311245828300506f11dd413da4c83f21f879620f16e8ab8cbdfb93b584"
+  },
+  {
+   "name": "before-5-8-1-minty",
+   "text": "You sent four letters. You gave our routes away.",
+   "prompt": "[bravely] You sent four letters. You gave our routes away.",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "ub0tMwor4D0PWnCeEfW7",
+   "source_sha256": "b49d4d5ca0ffe2e8883a5e293fdbdc139f20047169bd03769230e2e796fe4372"
+  },
+  {
+   "name": "before-5-8-1-orbit",
+   "text": "You sent four letters. You gave our routes away.",
+   "prompt": "[bravely] You sent four letters. You gave our routes away.",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "rt05UAd1mI5qSpXHyA9Z",
+   "source_sha256": "15371931e09b6de06eb7a2d654bca190d2ec1234e191209661b98aab8012a633"
+  },
+  {
+   "name": "before-5-8-2",
+   "text": "No route ever reached ME. If the mail can’t find me, let it find no one!",
+   "prompt": "[angry] No route ever reached ME. [shouting] If the mail can’t find me, let it find no one!",
+   "voice_id": "xsiB5fGhEtknnqzudCO6",
+   "voice": "Smoke - The Dragon",
+   "generation_id": "Rnli1sNbhOu3SIOLxVjr",
+   "source_sha256": "2e5e1b5a85f8c53ed7d9e126d90e50c06d0981759a3e49ef7d4a91928f248589"
+  },
+  {
+   "name": "before-5-8-3-pip",
+   "text": "Wait! I have something for you…",
+   "prompt": "[nervous] Wait! I have something for you…",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "kLGv3kUcFNv9We3hLQe4",
+   "source_sha256": "7e2c9c195be4d339ff1d1fde85176945710a918d5f69ffca1308b43dd781aff0"
+  },
+  {
+   "name": "before-5-8-3-peaches",
+   "text": "Wait! I have something for you…",
+   "prompt": "[nervous] Wait! I have something for you…",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "lKpOzv9cbbc8Fb2MKlu9",
+   "source_sha256": "7514540760e5f3e7fbaea193f8e5d29c5af183f8bd7da56e74c61054fe8876e3"
+  },
+  {
+   "name": "before-5-8-3-minty",
+   "text": "Wait! I have something for you…",
+   "prompt": "[nervous] Wait! I have something for you…",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "u21VXKfzIbipiIFCoi1c",
+   "source_sha256": "befb053b351fbe1c6be089e1fbfb628d942ca89741318bfaf64e1ff76b6c8a07"
+  },
+  {
+   "name": "before-5-8-3-orbit",
+   "text": "Wait! I have something for you…",
+   "prompt": "[nervous] Wait! I have something for you…",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "FHFAm4h6Y40WAsD1CCGw",
+   "source_sha256": "5eb6748657d7d51d436968b8bd740ad284c20dc6d9f9d85b47f5e083a421f201"
+  },
+  {
+   "name": "before-5-8-4",
+   "text": "The sky is mine. Your letters are kindling.",
+   "prompt": "[angry] The sky is mine. [menacing] Your letters are kindling.",
+   "voice_id": "xsiB5fGhEtknnqzudCO6",
+   "voice": "Smoke - The Dragon",
+   "generation_id": "EdcyAtJqp2iYPd648T5Q",
+   "source_sha256": "49166d670213bb96dd068a52404e1ececf003be4c5366e4783fc9720fd5656dd"
+  },
+  {
+   "name": "before-5-8-5",
+   "text": "He won’t listen yet. Get through the fire first, rookie!",
+   "prompt": "[urgently] He won’t listen yet. Get through the fire first, rookie!",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "doPyYxQrU7pvSPpKaj1z",
+   "source_sha256": "a4561cc6e53f6477569fa39fbac73e8a17cb7b092b86fd80755533781e863a08"
+  },
+  {
+   "name": "after-5-0",
+   "text": "Enough. I yield. Burn your own letters.",
+   "prompt": "[tired] Enough. [sighs] I yield. Burn your own letters.",
+   "voice_id": "xsiB5fGhEtknnqzudCO6",
+   "voice": "Smoke - The Dragon",
+   "generation_id": "sOGYoJK4gzM82RMsKshM",
+   "source_sha256": "731d595f174a9625b685e0112ecfb6b4ff8cef72c2274f63ff88e907d5e1dfc1"
+  },
+  {
+   "name": "after-5-1-pip",
+   "text": "This one isn’t for burning. It’s addressed to you.",
+   "prompt": "[gently] This one isn’t for burning. It’s addressed to you.",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "MAe8AnaIHUi1taYngb1y",
+   "source_sha256": "6b622df367309ceceb00af31ce628d2c82d8b73ba9a1bfdaa1ba3ad38e5dd7a1"
+  },
+  {
+   "name": "after-5-1-peaches",
+   "text": "This one isn’t for burning. It’s addressed to you.",
+   "prompt": "[gently] This one isn’t for burning. It’s addressed to you.",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "g8c1fwDkTQ9bmZO8XGBG",
+   "source_sha256": "f3f2ce87aece7d36a16964e58e8299846ce32db0859dd9dcab239bdd9acd12da"
+  },
+  {
+   "name": "after-5-1-minty",
+   "text": "This one isn’t for burning. It’s addressed to you.",
+   "prompt": "[gently] This one isn’t for burning. It’s addressed to you.",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "gdFhhAU1SjgqotcVZrtO",
+   "source_sha256": "d6b8267ff327980c0120ee97caec0aa3fdf41245207c5c8fba06f1a81220da5f"
+  },
+  {
+   "name": "after-5-1-orbit",
+   "text": "This one isn’t for burning. It’s addressed to you.",
+   "prompt": "[gently] This one isn’t for burning. It’s addressed to you.",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "tnOTxxy1DvPGYDR69KKM",
+   "source_sha256": "ead9c7fce13db49c84fbcc09952c86a060f300a224b5da6d941fa4f264af4329"
+  },
+  {
+   "name": "after-5-2",
+   "text": "“The Ember Dragon, Edge of the Map.” That… is me.",
+   "prompt": "[surprised] [slowly] The Ember Dragon, Edge of the Map. [trembling voice] That… is me.",
+   "voice_id": "xsiB5fGhEtknnqzudCO6",
+   "voice": "Smoke - The Dragon",
+   "generation_id": "GMzroKQpsmhHjv22mcjO",
+   "source_sha256": "ceb474de19bcb622bbaed769a1dacc89971db42d0f6c4d1a08a0bc71fd104c59"
+  },
+  {
+   "name": "after-5-3",
+   "text": "“Dear Dragon. The Sky Club has a new route, and no one to light the way.”",
+   "prompt": "[softly] [warmly] Dear Dragon. The Sky Club has a new route, and no one to light the way.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "0Y6PdxuKXbNjEpOEJFmK",
+   "source_sha256": "290f5806ccb92055b4a3fc991a3d460c8c3aacc1f3c74de859206e61ec8b0969"
+  },
+  {
+   "name": "after-5-4",
+   "text": "“Come and keep our beacon. Signed: everyone. Even the Baron.”",
+   "prompt": "[warmly] Come and keep our beacon. Signed: everyone. [chuckles] Even the Baron.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "WnvDLXK6ppzoF9SgtCfb",
+   "source_sha256": "17941a5378925fcd2f0c7a616dbc862d9ec7a9b423c37be15f51eb94cfb5dd5c"
+  },
+  {
+   "name": "after-5-5",
+   "text": "I wrote four letters, to feel part of the mail. This is the first one back.",
+   "prompt": "[sad] [softly] I wrote four letters, to feel part of the mail. [trembling voice] This is the first one back.",
+   "voice_id": "xsiB5fGhEtknnqzudCO6",
+   "voice": "Smoke - The Dragon",
+   "generation_id": "gPWofyO8ZFLWgVexHdOz",
+   "source_sha256": "4aa59679476aa9de8bccf7971b1af0602107c584d21df5bd13db682d7b7add1c"
+  },
+  {
+   "name": "after-5-6",
+   "text": "Route six, Dragon: the Edge of the Map. You light it. We deliver it.",
+   "prompt": "[warmly] Route six, Dragon: the Edge of the Map. You light it. We deliver it.",
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": "leRWDQ8Agoi2Wy8MYMGf",
+   "source_sha256": "6e6043759cec4fe94d45ea39ab9608d5976b684fb9803160da185d0f313453a6"
+  },
+  {
+   "name": "after-5-7",
+   "text": "Then I had better learn to write back.",
+   "prompt": "[happy] [chuckles] Then I had better learn to write back.",
+   "voice_id": "xsiB5fGhEtknnqzudCO6",
+   "voice": "Smoke - The Dragon",
+   "generation_id": "7kV3xuF6jxji3vbbkGPx",
+   "source_sha256": "5b7d39812724a4478b9ff2a1717d84ae5325ae3bd5c457dff470d54a68d63808"
+  },
+  {
+   "name": "after-5-8-pip",
+   "text": "Every letter lands.",
+   "prompt": "[happy] Every letter lands.",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "1tbErxmi9AtIxMrOd5VD",
+   "source_sha256": "fd5492a27758bdfd1dd5672fd8b85646ba8a6cfc23a8bdb49e4509706c14016d"
+  },
+  {
+   "name": "after-5-8-peaches",
+   "text": "Every letter lands.",
+   "prompt": "[happy] Every letter lands.",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "hXssYa2aGudKuIJIfq89",
+   "source_sha256": "3437ae28eb8f230c1d9fbf6ca75d6f9c8969c605129c33a92255f8f4cbcfa414"
+  },
+  {
+   "name": "after-5-8-minty",
+   "text": "Every letter lands.",
+   "prompt": "[happy] Every letter lands.",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "2HDOgzQJ5kOpJFXOOONy",
+   "source_sha256": "26ede24c55e4ab9dce2e134f5962c71f841abc08d9a0890a9827bfbc82452015"
+  },
+  {
+   "name": "after-5-8-orbit",
+   "text": "Every letter lands.",
+   "prompt": "[happy] Every letter lands.",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "47eIdzeYDo6bbfZz44fV",
+   "source_sha256": "9471d2613fe0fcd79c154e42c55804d1e62be0fe274e6fa6ec4bd726c3e9c2aa"
+  },
+  {
+   "name": "thanks-1-1",
+   "text": "Best birthday ever! We squawked for an hour.",
+   "prompt": "[excited] [giggles] Best birthday ever! We squawked for an hour.",
+   "voice_id": "eppqEXVumQ3CfdndcIBd",
+   "voice": "Minnie - high pitch cartoon character",
+   "generation_id": "KhTfheYA5lZ11XDgQXO1",
+   "source_sha256": "39624de3bcec5b68f522541251855367b55708c2d8667def78245748cd78e7ed"
+  },
+  {
+   "name": "thanks-1-2",
+   "text": "No rush, I said. You rushed. Thank you.",
+   "prompt": "[slowly] [sleepy] No rush, I said… You rushed. [yawns] Thank you.",
+   "voice_id": "kNQlrGyEXK0N2D2pTcmn",
+   "voice": "Kavian R – Chill, Relaxed Character",
+   "generation_id": "RwumSunb8f9G9SU0HX5d",
+   "source_sha256": "2561c50e76d841bd8e91155fde4856956c797b2cf7fa01828319c6abbda9bdbb"
+  },
+  {
+   "name": "thanks-1-3",
+   "text": "Now even the shy ones are glowing.",
+   "prompt": "[softly] [happy] Now even the shy ones are glowing.",
+   "voice_id": "o80picuztV1xYiPeIrpa",
+   "voice": "Kiran – Very Young Adorable Storyteller",
+   "generation_id": "79fMlKvsQwP7XxbYxAME",
+   "source_sha256": "f1a78af3c2e340f4c3e9f08c0e39a3d9d364c50d49799c528c89431a9f162f15"
+  },
+  {
+   "name": "thanks-1-4",
+   "text": "The parade starts now. You made it!",
+   "prompt": "[excited] The parade starts now. You made it!",
+   "voice_id": "Nggzl2QAXh3OijoXD116",
+   "voice": "Candy - Girly and Sweet",
+   "generation_id": "KO74PWt37koc0ckTa1ta",
+   "source_sha256": "4a9e73db189f68c4262691036113e0f5b7e51c6187e46bcd2850eb4eef5a4713"
+  },
+  {
+   "name": "thanks-1-5",
+   "text": "So fast my hat blew off. Marvellous!",
+   "prompt": "[laughs] So fast my hat blew off. [excited] Marvellous!",
+   "voice_id": "LvLSyDyz9GwXFHHz2QEk",
+   "voice": "Freddy Quicksilver - Flamboyant & Queer",
+   "generation_id": "8SSBypWzXI88dQjUDrdc",
+   "source_sha256": "bf58a9685a0d6c7e9e70efa4bd273df1803c928c94cc9b9e332ff94af26b627c"
+  },
+  {
+   "name": "thanks-1-6",
+   "text": "Hot chocolate for the whole temple!",
+   "prompt": "[jolly] Hot chocolate for the whole temple! [laughs]",
+   "voice_id": "MDLAMJ0jxkpYkjXbmG4t",
+   "voice": "Jerry B. - Santa Claus",
+   "generation_id": "PhOl1W4Ykf2P3w86oSdy",
+   "source_sha256": "6b9ec0ba0c7a33e1a6faa60da7be323347e0fddf47e355fec2fc5eea5c67fa22"
+  },
+  {
+   "name": "thanks-1-7",
+   "text": "Sunrise is back on schedule.",
+   "prompt": "[calmly] [warmly] Sunrise is back on schedule.",
+   "voice_id": "LvmvHEBEmMJBJw9UuhwO",
+   "voice": "Eldrin - Wise Epic Fantasy Narration Storyteller",
+   "generation_id": "6pLOwhaj1GdPkrQtJYug",
+   "source_sha256": "b5564cb6ff196a2bdb1dc6e95ba16c0b3458f5619a3ab760be6a0ad069585316"
+  },
+  {
+   "name": "thanks-1-8",
+   "text": "Fine. FINE. Take your noisy route.",
+   "prompt": "[grumpy] Fine. [shouting] FINE. [sighs] Take your noisy route.",
+   "voice_id": "NXaTw4ifg0LAguvKuIwZ",
+   "voice": "Posh Josh",
+   "generation_id": "QmvTisDVj8Xme6Tg5Dl8",
+   "source_sha256": "66af5c4d0a452ddb9e9fc220c3647e37e655f33602534af68fd82f2f9ca413d9"
+  },
+  {
+   "name": "thanks-2-1",
+   "text": "We shall wear them at every race!",
+   "prompt": "[excited] We shall wear them at every race!",
+   "voice_id": "loY1uopAz31XyhAEhNSa",
+   "voice": "VALF - Child, Young, Playful & Sarcastic",
+   "generation_id": "MFMsEtRDEoAzjOMxwfT7",
+   "source_sha256": "3f3efbd214eb50e17d3b819de2f1ac2f13b80a6983d9afbb97417a63ce3f3052"
+  },
+  {
+   "name": "thanks-2-2",
+   "text": "At last I can finish his nose.",
+   "prompt": "[relieved] At last I can finish his nose.",
+   "voice_id": "0pkdtmrxitYBWv6q9NJO",
+   "voice": "Potato - Earthy & Rooted",
+   "generation_id": "aUGaUT7znof7QhquB92v",
+   "source_sha256": "e6c90129efe6f5ef9a96050f4d038590a6540b5a802670a0a2a7d9354af8d38d"
+  },
+  {
+   "name": "thanks-2-3",
+   "text": "Just in time. Truly, JUST in time.",
+   "prompt": "[breathless] Just in time. Truly, JUST in time.",
+   "voice_id": "507tTFX0IPtqFzGd1CAL",
+   "voice": "Rusty Malone - Deep & Raspy",
+   "generation_id": "DepIGZ2IRAnhzxVbofm2",
+   "source_sha256": "a173f5867a4f949daee304826a2f4199a48dfbb37ce63c4ad552e29ad4519a02"
+  },
+  {
+   "name": "thanks-2-4",
+   "text": "Finally, some fresh material.",
+   "prompt": "[dryly] [slowly] Finally, some fresh material.",
+   "voice_id": "HAvvFKatz0uu0Fv55Riy",
+   "voice": "Matthew Schmitz - Ancient Sage Dragon Wizard",
+   "generation_id": "h4kUM9rJEFXG1XbYHNpf",
+   "source_sha256": "f37a6f1f76d1920adccd54255c5d1d93801ad64ed6ab2a0ec51502ab3c28a88b"
+  },
+  {
+   "name": "thanks-2-5",
+   "text": "Now I can see the meteors coming!",
+   "prompt": "[excited] Now I can see the meteors coming!",
+   "voice_id": "yE92kjHV7JLsMwRaRjeg",
+   "voice": "The Doc",
+   "generation_id": "V2LwPBOdgpb5wBBWTuu0",
+   "source_sha256": "cf31a3c89b8f38078ce0e436265f0947b9bde2652f5d2954e38a94d028e7db4b"
+  },
+  {
+   "name": "thanks-2-6",
+   "text": "The bazaar glows again. A thousand thanks!",
+   "prompt": "[happy] The bazaar glows again. A thousand thanks!",
+   "voice_id": "d8WcCpplp8meHt10UhL8",
+   "voice": "Emily - Bright & Energetic",
+   "generation_id": "1dlo31ZVeEVfQn2Qqr49",
+   "source_sha256": "e57fb7d60fe4ca3e9037693e676b8db1231fcbe0be0963232e91575f889b9fbb"
+  },
+  {
+   "name": "thanks-2-7",
+   "text": "Forty camels. Forty thank-yous.",
+   "prompt": "[dryly] Forty camels. [pause] Forty thank-yous.",
+   "voice_id": "dWi43pgmQOjZTMYtl9lg",
+   "voice": "Matthew Schmitz - Old Outlaw Cowboy",
+   "generation_id": "LW7bQACwgjJEz4vTVwd0",
+   "source_sha256": "8a61e6ed3671fe2cca4780675d3a0c3d40877cd6c29596029bafe2f2aebcb826"
+  },
+  {
+   "name": "thanks-2-8",
+   "text": "Bah. It was very nearly ink.",
+   "prompt": "[grumbling] Bah. [sighs] It was very nearly ink.",
+   "voice_id": "yjJ45q8TVCrtMhEKurxY",
+   "voice": "Dr. Von Fusion - VF",
+   "generation_id": "QU6pDnZwem5ewEI9dQ6A",
+   "source_sha256": "6aa524d4398c6f7cd0414754d1bb2c86bf544053ae5a179bd625c9f025d78706"
+  },
+  {
+   "name": "thanks-3-1",
+   "text": "The show goes on! Front row for you.",
+   "prompt": "[excited] The show goes on! Front row for you.",
+   "voice_id": "mKoqwDP2laxTdq1gEgU6",
+   "voice": "Countdown Casey - Radio DJ",
+   "generation_id": "LeacYV6pPbnIWegYPxcE",
+   "source_sha256": "f57e20542854627120cbc79c8a11c8c2854e2bb8e51627557eeaa7fbca9b0dd1"
+  },
+  {
+   "name": "thanks-3-2",
+   "text": "Dry feathers at last. You’re a hero.",
+   "prompt": "[relieved] Dry feathers at last. You’re a hero.",
+   "voice_id": "8VJBrRk4O7tFoB5kqxa6",
+   "voice": "Scruffy Duck – Energetic & Raspy",
+   "generation_id": "SN9CymilH8VQz0VdZljG",
+   "source_sha256": "03508e3fe147c60d8d7083c171b323f97232b5af89751f6abda4afd4422effea"
+  },
+  {
+   "name": "thanks-3-3",
+   "text": "Still warm! How fast do you fly?",
+   "prompt": "[surprised] Still warm! How fast do you fly?",
+   "voice_id": "mSOmKHC6GZcZbSTGlqHO",
+   "voice": "Mister Gruff - Miserable old neighbor",
+   "generation_id": "6fGGnGZoTyCcMXyXpHEw",
+   "source_sha256": "833f082cb859ce234debfe504fee974a0fea664e92779ce127018c47abd16ccf"
+  },
+  {
+   "name": "thanks-3-4",
+   "text": "It spins! It points! It’s perfect.",
+   "prompt": "[delighted] It spins! It points! It’s perfect.",
+   "voice_id": "MKlLqCItoCkvdhrxgtLv",
+   "voice": "Grampa Werthers - Old & Cranky",
+   "generation_id": "mfFhMFANWHh7X54ocPmc",
+   "source_sha256": "db000bfed4ff7f9cbb4b59f25323c11fb2ef72f3a6143d48718a993b7b72b3d1"
+  },
+  {
+   "name": "thanks-3-5",
+   "text": "Magnifique. Not one crumb lost.",
+   "prompt": "[delighted] Magnifique. Not one crumb lost.",
+   "voice_id": "K8nDX2f6wjv6bCh5UeZi",
+   "voice": "Jamie - French Accent | Charismatic",
+   "generation_id": "ewhRFfDAjaLbzJakg2FA",
+   "source_sha256": "ff88a0495d168364fce7a2c8e7699c503b4d7b3e924fac1c1c06fe786546a45a"
+  },
+  {
+   "name": "thanks-3-6",
+   "text": "The pages blew in right on the beat.",
+   "prompt": "[happy] The pages blew in right on the beat.",
+   "voice_id": "CKPSX8kOS9MJCGVaFNok",
+   "voice": "Henri - French-American Narrator",
+   "generation_id": "DpHthb8qrGrDxUGwmAit",
+   "source_sha256": "ad08393f6e6f5b528c158ab015460404f6a1d7a5d174d661b362e6b537664a84"
+  },
+  {
+   "name": "thanks-3-7",
+   "text": "I said yes! I mean… thank you.",
+   "prompt": "[excited] I said yes! [giggles] I mean… thank you.",
+   "voice_id": "b8JMPeNuVrqqWExQc8e9",
+   "voice": "Ayla - Bubbly, Cute & Expressive",
+   "generation_id": "YZlcNaZZXuDeLSUROZZV",
+   "source_sha256": "8809558bc4b0b7d547ad5dff2d6c5444b909de3e176e1bd2294c47149b4093a5"
+  },
+  {
+   "name": "thanks-3-8",
+   "text": "Very well. Let them have their lamps.",
+   "prompt": "[softly] Very well. [sighs] Let them have their lamps.",
+   "voice_id": "sssn4wp3AspuK2kvy3Ym",
+   "voice": "Enchantress - mysterious, witchy, villain character",
+   "generation_id": "XVCwZcKGQ1ZkaQj2KFRr",
+   "source_sha256": "de2de55f863b0182c61dab87a7a77f204eacad0a1e0c78233e12f07d2f14599d"
+  },
+  {
+   "name": "thanks-4-1",
+   "text": "Now the ships can find us again.",
+   "prompt": "[warmly] Now the ships can find us again.",
+   "voice_id": "KgUSWQPFmuiZ5ycRbnty",
+   "voice": "Jessie - Vintage Narrator",
+   "generation_id": "wMqZBMDumabkAtdMzrRe",
+   "source_sha256": "b15cc6bbbda1fdf0e049de7163da42bd0b7c496a037e7571fdce346d5e00ba48"
+  },
+  {
+   "name": "thanks-4-2",
+   "text": "My lava cakes thank you.",
+   "prompt": "[cheerfully] My lava cakes thank you.",
+   "voice_id": "BB9S0ZoOunfdUYSciL2X",
+   "voice": "Milly - Cheerful Aussie Character Voice",
+   "generation_id": "nQ7a4mIKrGcPlCf5O7aF",
+   "source_sha256": "9f347216e4e22ba49a6d4c680a2c70d7be88d9a62910222ce24250827d348ce3"
+  },
+  {
+   "name": "thanks-4-3",
+   "text": "Best wind we’ve had all year!",
+   "prompt": "[excited] Best wind we’ve had all year!",
+   "voice_id": "sNtVJbzIv3hJALp8Ez9p",
+   "voice": "Cassidy Cartoon - Comical & expressive",
+   "generation_id": "tTYyNGXzzw0QTiBXUJp3",
+   "source_sha256": "33c23f5297fbd936938ae564cea57389a0fd7d5f5cafe9553f8f7520667a91b7"
+  },
+  {
+   "name": "thanks-4-4",
+   "text": "Forty years I waited for a reply!",
+   "prompt": "[overjoyed] Forty years I waited for a reply!",
+   "voice_id": "PtJWpiWfVrCfOmNdkFpr",
+   "voice": "Grimey",
+   "generation_id": "KOChuxiZbkf0VGj0dqXW",
+   "source_sha256": "23a4c1c5a9a3822062063b8593b6ddadb7e4a4eaa90791ee0bad4c37242baadf"
+  },
+  {
+   "name": "thanks-4-5",
+   "text": "High water at noon. Good to know!",
+   "prompt": "[cheerfully] High water at noon. Good to know!",
+   "voice_id": "M5E055lOUxMi0kJpGyE9",
+   "voice": "Gravel Midnight – Deep Character Voice",
+   "generation_id": "erLVIrYS9omdCT3eG1UL",
+   "source_sha256": "f1228f5b3a47178c8fc385972eea59629691d63aa0ed08d67c163a01e71c917e"
+  },
+  {
+   "name": "thanks-4-6",
+   "text": "Dinner for nine hundred. Thanks!",
+   "prompt": "[excited] Dinner for nine hundred. Thanks!",
+   "voice_id": "Nggzl2QAXh3OijoXD116",
+   "voice": "Candy - Girly and Sweet",
+   "generation_id": "44q2wVqWH98IqtnKDB0h",
+   "source_sha256": "774e2d52347f423fbe8b4150eb240fa5b4c13c387047f55371ae53303011fdb0"
+  },
+  {
+   "name": "thanks-4-7",
+   "text": "Warm toes at last. Bless the post.",
+   "prompt": "[relieved] Warm toes at last. Bless the post.",
+   "voice_id": "0hh7H4ZVAtaGpm1VZyEN",
+   "voice": "David - Deep, Southern, Cowboy",
+   "generation_id": "EI5WpnWMqRRxOrG1gu7N",
+   "source_sha256": "5ff8c6458be34253a4e22f9563954fd03c7972b5c6ad198f26ed2accd2e5c876"
+  },
+  {
+   "name": "thanks-4-8",
+   "text": "Arr. Ye fly well, for a postie.",
+   "prompt": "[grudgingly] Arr. Ye fly well, for a postie.",
+   "voice_id": "4Vl3K2x290GidNvuaLm7",
+   "voice": "Matthew Schmitz - Old Pirate Captain",
+   "generation_id": "TnEd30NWORlr4eUVHi90",
+   "source_sha256": "066b7eb6dc36d6b8d2d54c1fd46d66bb59d0d82030ff8b0de80c7e641fcda516"
+  },
+  {
+   "name": "thanks-5-1",
+   "text": "Warm heads, high notes. Thank you!",
+   "prompt": "[happy] Warm heads! High notes! [cheerfully] Thank you!",
+   "voice_id": "ocZQ262SsZb9RIxcQBOj",
+   "voice": "Lulu Lollipop – Sweet & Bubbly Girl",
+   "generation_id": "fi1ONOXx9OlIjj3E2QjL",
+   "source_sha256": "9a1d21446e4c9cf760a3e9675c483fb8593d06d6ba2556a8f3ef13079b880151"
+  },
+  {
+   "name": "thanks-5-2",
+   "text": "First warm drink since winter began.",
+   "prompt": "[relieved] [softly] First warm drink since winter began.",
+   "voice_id": "mHX7OoPk2G45VMAuinIt",
+   "voice": "celine - cuddly, thin and soft.",
+   "generation_id": "qq1K1zxmoIK76fr8w3ax",
+   "source_sha256": "0d0990f78cd4e42a95530179d0aa30eb8c150679e332fae7ab7abc7a0a7e24e6"
+  },
+  {
+   "name": "thanks-5-3",
+   "text": "OPEN again. Noodles on the house!",
+   "prompt": "[excited] OPEN again. Noodles on the house!",
+   "voice_id": "5J8HNhWkTAhN2YWsd9Ta",
+   "voice": "DEVILL - English Speaking Korean Male Streamer",
+   "generation_id": "oLPtY8xV8fujQHILYLT4",
+   "source_sha256": "6968b1e9412baafdff0a4b3d55224e383aa5295432214917914863d88e10166d"
+  },
+  {
+   "name": "thanks-5-4",
+   "text": "PAPER. MARVELLOUS. I SHALL FRAME IT.",
+   "prompt": "[robotic] PAPER. MARVELLOUS. I SHALL FRAME IT.",
+   "voice_id": "5AYcH1Cr8nW0XgDTtRI4",
+   "voice": "Silent Systemus – Sovereign Protocol",
+   "generation_id": "UeZqfbLDUJVnnaTRxfI9",
+   "source_sha256": "d808028e268295c6ab3b8596041d4757db546fcbd400c92a6414b113a50e7d1f"
+  },
+  {
+   "name": "thanks-5-5",
+   "text": "You beat our lap record delivering them.",
+   "prompt": "[breathless] You beat our lap record delivering them.",
+   "voice_id": "n7Wi4g1bhpw4Bs8HK5ph",
+   "voice": "Gigi - Cute, Peppy, Energetic",
+   "generation_id": "CWGQmGMECdoXRflWMvEH",
+   "source_sha256": "1e90be051fb0d339540ada5977404497a0efa2b75e9a607db930b09317e2a28c"
+  },
+  {
+   "name": "thanks-5-6",
+   "text": "A thousand lights, thanks to you.",
+   "prompt": "[warmly] A thousand lights, thanks to you.",
+   "voice_id": "thfYL0Elyru2qqTtNQsE",
+   "voice": "Aurelia - High Quality Realistic Princess",
+   "generation_id": "y0JxvojlT3VK8YowHsSb",
+   "source_sha256": "fc4580f1cb0770151e99b22a577be9716d4fb09baf4eeeadb987d17bb472bf9f"
+  },
+  {
+   "name": "thanks-5-7",
+   "text": "Sit. Rest. The last climb is steep.",
+   "prompt": "[calmly] [slowly] Sit. Rest. The last climb is steep.",
+   "voice_id": "bFrjFL4nlpeYNwNRhXxq",
+   "voice": "Mossbeard | The God of the Wild",
+   "generation_id": "B5B8PDXZmAt8Vh2alR1O",
+   "source_sha256": "6cdfe150f0c6c30cbecc4a70e0a43a885ab9da038549b8f379dbfd5098823dc3"
+  },
+  {
+   "name": "thanks-5-8",
+   "text": "I have read it nine times already.",
+   "prompt": "[softly] [happy] I have read it nine times already.",
+   "voice_id": "xsiB5fGhEtknnqzudCO6",
+   "voice": "Smoke - The Dragon",
+   "generation_id": "xeRUH1FlRmBe9kE1recY",
+   "source_sha256": "09cffd376e2319b4baff7d84aab9a5ac4ae29cd07f4ed88bb7435764793bc42a"
+  },
+  {
+   "name": "sprint-pip-woohoo",
+   "text": "Woo-hooo!",
+   "prompt": "[excited] Woo-hooo!",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "ee02XZQuOWbjOQjNbilZ",
+   "source_sha256": "99453e84fc908079239b5056cbe469fef74dc83a4d67b9cfc87a4e4a0de1afd2"
+  },
+  {
+   "name": "sprint-pip-turbo",
+   "text": "Turbo feathers!",
+   "prompt": "[excited] Turbo feathers!",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "fT24TqVzKH5ZyC1hsTDe",
+   "source_sha256": "49ba24c33e54fade88f0d2ef3e9908a59ae09de2620e56cf120880ecc09307b1"
+  },
+  {
+   "name": "sprint-pip-gravity",
+   "text": "Bye-bye, gravity!",
+   "prompt": "[laughs] Bye-bye, gravity!",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "OzUDAc1gQdU1RS3BqTuZ",
+   "source_sha256": "751e05312eacbbddf4bc26fd358856e193c41f53fa8258dc65752bf71ce5a286"
+  },
+  {
+   "name": "sprint-pip-whee",
+   "text": "Wheeee!",
+   "prompt": "[excited] Wheeeee!",
+   "voice_id": "EaX6rnyDKjJx35tchi80",
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "NMa5hUhh09ANX3lbA4il",
+   "source_sha256": "7df8fdd8656a1725e844ea61237a62db77f4399a08558acec63dfada21c51832"
+  },
+  {
+   "name": "sprint-peaches-woohoo",
+   "text": "Woo-hooo!",
+   "prompt": "[excited] Woo-hooo!",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "V8NuG6mETFb7xOv28eCB",
+   "source_sha256": "13d829b4e08d0f2eafac52a4b9d20d819a751e92aa61733521e90c55f3d39119"
+  },
+  {
+   "name": "sprint-peaches-turbo",
+   "text": "Turbo feathers!",
+   "prompt": "[excited] Turbo feathers!",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "ozWNuPrSeSkxxQpKBkpb",
+   "source_sha256": "3e15c244d2b64ca9739c066c46100cf7f6abf4c58f83d04a198eb7ef390c8512"
+  },
+  {
+   "name": "sprint-peaches-gravity",
+   "text": "Bye-bye, gravity!",
+   "prompt": "[laughs] Bye-bye, gravity!",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "pd1gzRC47AIQeCzXXgWn",
+   "source_sha256": "5c65c7cffc73ef38fc48ab0e73804fd61dffe2d438ae707143bed8cfb9c6abe7"
+  },
+  {
+   "name": "sprint-peaches-whee",
+   "text": "Wheeee!",
+   "prompt": "[excited] Wheeeee!",
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "lFCaDQ8FfGe8FLp4nq6n",
+   "source_sha256": "ba4f0509fe816560a537bfda74e42c1748a2f428b1b4421c8593510daad7a9bf"
+  },
+  {
+   "name": "sprint-minty-woohoo",
+   "text": "Woo-hooo!",
+   "prompt": "[excited] Woo-hooo!",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "2Aqfy4TBpCphV5n2FZu7",
+   "source_sha256": "7567e3677967fbe417b1860f89a2ac1f9caed54b2e30fb13ef1e3d13f3146951"
+  },
+  {
+   "name": "sprint-minty-turbo",
+   "text": "Turbo feathers!",
+   "prompt": "[excited] Turbo feathers!",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "M8IKyeWWzMc7ZyBJAt1o",
+   "source_sha256": "fcc21bec08ae5c2c45c6302803d454a6d7a14f1321d1b0fc530ba267e0efc77c"
+  },
+  {
+   "name": "sprint-minty-gravity",
+   "text": "Bye-bye, gravity!",
+   "prompt": "[laughs] Bye-bye, gravity!",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "9bMOyMK7m4nVbLgFffVW",
+   "source_sha256": "361fdfbbb810f5f5b4379a1846c3d10aa08ec35e401c7c3c8b5193e818765f72"
+  },
+  {
+   "name": "sprint-minty-whee",
+   "text": "Wheeee!",
+   "prompt": "[excited] Wheeeee!",
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "JjnMlCi0sikqAQSzxjSG",
+   "source_sha256": "e743c0f6e71b6f8e3acb5fc5941fd65c29a72e523d2f26ac5a4bd86193a0b997"
+  },
+  {
+   "name": "sprint-orbit-woohoo",
+   "text": "Woo-hooo!",
+   "prompt": "[excited] Woo-hooo!",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "8l6wbGO812pTLTyJHPfE",
+   "source_sha256": "7cffad251f8005a5b2db95c851772f727be98b6a89b19ac862e7adc00fd7c6a5"
+  },
+  {
+   "name": "sprint-orbit-turbo",
+   "text": "Turbo feathers!",
+   "prompt": "[excited] Turbo feathers!",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "JnAxwItJsEDUnVsRD9MZ",
+   "source_sha256": "f1e61978f29a1d92e2641f7d5fc6ef54655ba25ee689116e832e6eabe31ca42a"
+  },
+  {
+   "name": "sprint-orbit-gravity",
+   "text": "Bye-bye, gravity!",
+   "prompt": "[laughs] Bye-bye, gravity!",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "saKLCupL8krMMcDevzVg",
+   "source_sha256": "c9edbbe1c9f650d8a03473d87efb03a6345bafad5dbe7676cc59ad51cfed540a"
+  },
+  {
+   "name": "sprint-orbit-whee",
+   "text": "Wheeee!",
+   "prompt": "[excited] Wheeeee!",
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "Ps4oV5V6UJkeb8BH8oZG",
+   "source_sha256": "605016df40ac881d3c4fcee564bdcb1c82ca856142903feab7e8cf05d36da7e7"
+  }
+ ]
+}

@@ -20,8 +20,7 @@ List<Object?> state(FlightSimulation s) => [
   s.glideRemaining,
   s.gliding,
   s.lastGlideStarAt,
-  for (final o in s.obstacles)
-    [o.x, o.center, o.target, o.gap, o.scored],
+  for (final o in s.obstacles) [o.x, o.center, o.target, o.gap, o.scored],
 ];
 
 FlightRecorder makeRecorder(PlayMode mode, double Function() now) =>
@@ -103,6 +102,7 @@ void main() {
     );
   }
   test('tracking failure, background and long frame are journaled', () {
+    // Version 34 ended scored flights on a background; later rules pause them.
     for (final end in ['background', 'stalled', 'trackingLost']) {
       double now = 1000;
       final recorder = FlightRecorder(
@@ -114,6 +114,7 @@ void main() {
           bird: 0,
           reducedMotion: true,
           originMs: now,
+          recordedVersion: 34,
         ),
         () => now,
       );
@@ -142,6 +143,51 @@ void main() {
       expect(state(replay.simulation), state(recorder.simulation));
       expect(replay.simulation.phase, RunPhase.ended);
     }
+  });
+  test('scored pause and resume are journaled and replay exactly', () {
+    double now = 1000;
+    final recorder = FlightRecorder(
+      ReplayTape(
+        mode: PlayMode.pushUp,
+        practice: false,
+        seed: 1,
+        cycleSeconds: 3,
+        bird: 0,
+        reducedMotion: true,
+        originMs: now,
+      ),
+      () => now,
+    );
+    void fly(int frames) {
+      for (var i = 0; i < frames; i++) {
+        now += 20;
+        recorder.apply(
+          const MovementInput(valid: true, height: 1),
+          TrackingSample(
+            mode: PlayMode.pushUp,
+            timestampMs: now,
+            receivedMs: now,
+            joints: const [],
+          ),
+          now,
+        );
+        recorder.tick(.02, now, 2.2);
+      }
+    }
+
+    fly(200);
+    expect(recorder.simulation.phase, RunPhase.playing);
+    recorder.command('break');
+    expect(recorder.simulation.phase, RunPhase.paused);
+    now += 5000;
+    fly(3);
+    recorder.command('resume');
+    expect(recorder.simulation.phase, RunPhase.countdown);
+    fly(200);
+    expect(recorder.simulation.phase, RunPhase.playing);
+    final replay = ReplayPlayer(recorder.tape)..seek(recorder.tape.durationMs);
+    expect(state(replay.simulation), state(recorder.simulation));
+    expect(replay.simulation.phase, RunPhase.playing);
   });
   test(
     'session commit copies raw video, survives reopening, retries, and deletes',

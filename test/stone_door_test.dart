@@ -182,6 +182,79 @@ void main() {
     expect(sim.rocks, isEmpty, reason: 'The lower wall stays solid');
   });
 
+  test('every blow is logged for the artwork without touching the rules', () {
+    final sim = flight();
+    final o = wall(sim);
+    final door = o.door!;
+    hit(sim, o, y: .47);
+    hit(sim, o, damage: 25, y: .55);
+    expect(door.hits.map((h) => h.damage), [10, 25]);
+    expect(door.hits.map((h) => h.y), [closeTo(.47, .02), closeTo(.55, .02)]);
+    expect(door.hits.map((h) => h.rammed), [false, false]);
+    expect(door.hits[0].power, 0);
+    expect(door.hits[1].power, closeTo(.5, 1e-9));
+    expect(door.hits.last.at, door.lastHitAt);
+    expect(door.hp, 5);
+    hit(sim, o, damage: 100);
+    expect(door.hits.last.power, 1, reason: 'overkill is still one full blow');
+    expect(door.destroyedAt, door.lastHitAt);
+    expect(door.lastHit, same(door.hits.last));
+    // A dead panel takes no more blows and logs nothing more.
+    final blows = door.hits.length;
+    door.takeDamage(10, hitY: .5);
+    expect(door.hits, hasLength(blows));
+    expect(door.hp, 0);
+    // The log never disagrees with health, and health ignores the log.
+    final twin = SkyDoor()
+      ..takeDamage(10, hitY: .5)
+      ..takeDamage(25, hitY: .5)
+      ..takeDamage(100, hitY: .5);
+    final bare = SkyDoor()..hp = 0;
+    expect(twin.destroyed, bare.destroyed);
+    expect(twin.damageStage, bare.damageStage);
+    expect(() => door.takeDamage(0, hitY: .5), throwsArgumentError);
+  });
+
+  test('a sprint ram is logged as a ram and breaks only the panel', () {
+    final sim = flight(version: FlightSimulation.currentRulesVersion)
+      ..shield = false;
+    final o = Obstacle(
+      x: FlightSimulation.birdX + .06,
+      center: .5,
+      gap: .34,
+      door: SkyDoor(),
+    );
+    sim.obstacles.add(o);
+    expect(sim.sprint(), isTrue);
+    hover(sim, .8);
+    expect(o.door!.destroyed, isTrue);
+    expect(o.door!.hits, hasLength(1));
+    expect(o.door!.lastHit!.rammed, isTrue);
+    expect(o.door!.lastHit!.power, 1);
+    expect(o.door!.destroyedAt, o.door!.lastHitAt);
+  });
+
+  test('the lethal blow clears collision on the very step it lands', () {
+    final sim = flight();
+    final o = wall(sim);
+    for (var shot = 1; shot <= 3; shot++) {
+      hit(sim, o);
+    }
+    expect(o.door!.hp, 10);
+    sim.rocks.add(BirdRock(x: o.x - .02, y: .5));
+    step(sim);
+    final door = o.door!;
+    expect(door.destroyed, isTrue);
+    expect(door.destroyedAt, door.lastHitAt);
+    expect(door.destructionAge, lessThan(SkyDoor.crumbleDuration));
+    // The very next rock passes through the opening: no waiting for the debris.
+    sim.rocks.clear();
+    sim.rocks.add(BirdRock(x: o.x - .02, y: .5));
+    step(sim);
+    expect(sim.rocks, isNotEmpty);
+    expect(sim.rocks.every((rock) => !rock.rebounding), isTrue);
+  });
+
   test(
     'an intact panel hurts like a wall; destroying it clears collision immediately',
     () {

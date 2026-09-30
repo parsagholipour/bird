@@ -2,8 +2,11 @@ import 'dart:math' as math;
 import 'tracking.dart';
 import 'flight_course.dart';
 import 'bird_motion.dart';
+import 'finish_line.dart';
 import 'flight_path.dart';
+import 'flight_plan.dart';
 import 'gale.dart';
+import 'level_plan.dart';
 import 'obstacle.dart';
 import 'power_shot.dart';
 import 'rush_path.dart';
@@ -11,9 +14,13 @@ import 'sky_boss.dart';
 import 'sky_enemy.dart';
 import 'sky_door.dart';
 import 'sprint.dart';
+import 'world_region.dart';
+export 'finish_line.dart';
 export 'flight_course.dart';
 export 'flight_path.dart';
+export 'flight_plan.dart';
 export 'gale.dart';
+export 'level_plan.dart';
 export 'obstacle.dart';
 export 'power_shot.dart';
 export 'rush_path.dart';
@@ -21,6 +28,7 @@ export 'sky_boss.dart';
 export 'sky_enemy.dart';
 export 'sky_door.dart';
 export 'sprint.dart';
+export 'world_region.dart';
 
 enum RunPhase { countdown, playing, paused, ended }
 
@@ -279,6 +287,8 @@ class RunResult {
     this.stars = 0,
     this.bestCombo = 0,
     this.perfectPasses = 0,
+    this.bird = 0,
+    this.levelId,
     int? gates,
   }) : gates = gates ?? score;
   final String id;
@@ -290,6 +300,12 @@ class RunResult {
   final DateTime finishedAt;
   final FlightCourse course;
   final int stars, bestCombo, perfectPasses, gates;
+
+  /// Which bird flew; cosmetic only.
+  final int bird;
+
+  /// The campaign level flown, or null for an endless flight.
+  final String? levelId;
 }
 
 /// Deterministic simulation, independent of Flame, Flutter and camera hardware.
@@ -300,8 +316,21 @@ class FlightSimulation {
     this.course = FlightCourse.classic,
     this.rulesVersion = currentRulesVersion,
     int weaponDamage = BirdRock.baseDamage,
+    this.plan = FlightPlan.endless,
     math.Random? random,
-  }) : random = random ?? math.Random() {
+  }) : random = plan.courseRandom(random),
+       _nextBossAt = plan.firstBossAt,
+       _nextRushAt = plan.firstRushAt {
+    if (plan.levelId != null &&
+        (rules.mode != PlayMode.touch ||
+            course != FlightCourse.starTrail ||
+            rulesVersion < campaignRulesVersion)) {
+      throw ArgumentError.value(
+        plan.levelId,
+        'plan',
+        'Needs a touch Star Trail',
+      );
+    }
     setWeaponDamage(weaponDamage);
   }
   final GameMode rules;
@@ -309,8 +338,87 @@ class FlightSimulation {
   final FlightCourse course;
 
   /// Replay journals keep the rules they were recorded with.
-  static const currentRulesVersion = 34;
+  static const currentRulesVersion = 41;
   final int rulesVersion;
+
+  /// Campaign levels (a [LevelPlan]) fly from rules version 41. Endless
+  /// flights under 41 behave exactly as under 40.
+  static const campaignRulesVersion = 41;
+
+  /// Every schedule knob of this flight. See [FlightPlan].
+  final FlightPlan plan;
+
+  /// The campaign level flown, or null for endless.
+  String? get levelId => plan.levelId;
+
+  /// The one region a campaign level holds, or null for the world tour.
+  WorldRegion? get region => plan.region;
+
+  /// A campaign level's fixed route, or null when passages follow the
+  /// spawn timer.
+  late final LevelRoute? route = plan.route(
+    baseSpeed: rules.speedFor(0) * (isTrail ? .9 : 1),
+    interval: spawnInterval,
+  );
+
+  /// Runs with the course: it equals [elapsed] while cruising and runs ahead
+  /// while a sprint, ring sprint or gale speeds the course up. Campaign
+  /// schedules and difficulty follow it.
+  double routeSeconds = 0;
+  double get _scheduleClock =>
+      plan.scheduleClock(elapsed: elapsed, route: routeSeconds);
+
+  /// The next ordinary passage and set piece of the [route] to lay.
+  int _routePassage = 0, _routePiece = 0;
+
+  /// A campaign level's finish line once laid. Crossing it completes the
+  /// level.
+  FinishLine? finishLine;
+
+  /// How far along the [route] the bird is, from 0 at the start to 1 at the
+  /// finish line. On a boss level the run-up fills [FinishLine.bossMark] of
+  /// it, up to the boss, and the victory glide the rest. 0 for endless.
+  /// Presentation only: the route line and the game-over stage read it.
+  double get routeProgress {
+    final route = this.route;
+    if (route == null) return 0;
+    final flown = (distance / (route.goal - birdX)).clamp(0.0, 1.0);
+    if (!route.boss) return flown;
+    const mark = FinishLine.bossMark;
+    final line = finishLine;
+    if (line == null) return flown * mark;
+    final glide = 1 - (line.x - birdX) / (line.laidX - birdX);
+    return mark + (1 - mark) * glide.clamp(0.0, 1.0);
+  }
+
+  /// Course distance left to the finish line (on a boss level, to the boss
+  /// until the line is laid after it), or null for endless.
+  double? get distanceToGo {
+    final route = this.route;
+    if (route == null) return null;
+    final goal = finishLine?.worldX ?? route.goal;
+    return math.max(0.0, goal - distance - birdX);
+  }
+
+  /// Stars laid so far, rush paths included. Presentation only.
+  int starsLaid = 0;
+
+  /// Level stars (0–3) earned by this flight so far: none until it
+  /// completes a campaign level.
+  int get levelStars => plan.rate(
+    finished: endReason == EndReason.completed,
+    stars: collectedStars,
+  );
+
+  /// Whether the flight offers the Shoot and Sprint controls. A campaign
+  /// level may hold them back; the rules then refuse the input.
+  bool get offersShoot => supportsCombat && plan.shoot;
+  bool get offersSprint => supportsSprint && plan.sprint;
+
+  /// From rules version 35 a scored flight pauses like practice instead of
+  /// ending when the player takes a break or leaves the app. Tracking loss
+  /// and stalls still end it.
+  bool get canPause => practice || rulesVersion >= 35;
   final math.Random random;
   final List<Obstacle> obstacles = [];
   final List<SkyStar> stars = [];
@@ -322,6 +430,10 @@ class FlightSimulation {
 
   /// Render-only splashes where pellets stopped. The rules never read them.
   final List<EnemyAmmoImpact> enemyAmmoImpacts = [];
+
+  /// Render-only blasts where charged rocks shattered pellets. The rules
+  /// never read them.
+  final List<AmmoShatter> ammoShatters = [];
   final List<BirdRock> rocks = [];
   SkyBoss? boss;
   int doorsDestroyed = 0;
@@ -332,28 +444,64 @@ class FlightSimulation {
   /// Captain's sea. The rules never read them.
   final List<SeaSplash> seaSplashes = [];
   int bossesDefeated = 0;
-  static const bossInterval = 45.0, bossBonus = 30;
-  double _nextBossAt = bossInterval;
+  static const bossInterval = EndlessPlan.secondsBetweenBosses;
+  static const bossBonus = 30;
+  double _nextBossAt;
   int? _heartPassagesRemaining;
   bool get supportsBosses => supportsCombat && rulesVersion >= 15;
 
   /// The Pirate Captain joins the boss cycle as its fourth encounter.
   bool get supportsPirate => supportsBosses && rulesVersion >= 34;
+
+  /// The Dusk Empress's first encounter of a flight brings no shield and
+  /// slow helpers. See [SkyBoss.debut].
+  bool get supportsGentleDebut => supportsBosses && rulesVersion >= 37;
+
+  /// The Ember Dragon joins the boss cycle as its fifth encounter.
+  bool get supportsDragon => supportsBosses && rulesVersion >= 38;
+
+  /// The Ember Dragon calls flocks of swarm bats. See [SkyBoss.callsSwarm].
+  bool get supportsDragonSwarm => supportsDragon && rulesVersion >= 39;
+
+  /// Baron Bat returns upgraded after his debut. See [SkyBoss.upgraded].
+  bool get supportsUpgradedBaron => supportsGentleDebut && rulesVersion >= 40;
   bool get supportsHeartPickups =>
-      supportsBosses && isTrail && rulesVersion >= 24;
+      supportsBosses && isTrail && rulesVersion >= 24 && plan.heartPickups;
   bool get supportsEnemyAttacks => supportsCombat && rulesVersion >= 18;
   bool get supportsWeaponDamage => supportsCombat && rulesVersion >= 26;
   bool get bossCutscene => boss?.inCutscene ?? false;
+
+  /// On a campaign boss level, from the boss's defeat until the bird crosses
+  /// the finish line. The bird coasts there as it does through the victory
+  /// cinematic, and nothing can hurt it, so beating the boss always
+  /// completes the level.
+  bool get victoryGlide => bossesDefeated > 0 && (route?.boss ?? false);
+
+  /// The bird holds its height and ignores taps, shots and sprints.
+  bool get _holding => bossCutscene || victoryGlide;
   int shots = 0, enemiesDefeated = 0;
   // Presentation counters survive objects leaving the screen within a frame.
   // They do not affect physics, RNG or the recorded replay format.
   int rockImpacts = 0, projectilesDeflected = 0, enemyShots = 0;
+  int ammoShattered = 0;
   int cannonSplashes = 0, birdSplashes = 0;
+
+  /// Ember Dragon fireballs that burst into embers, and breaths that burned
+  /// the bird. Presentation counters, like the splashes.
+  int emberSplits = 0, breathBurns = 0;
+
+  /// Baron Bat screeches that caught the bird outside the gap. A
+  /// presentation counter, like the splashes.
+  int screechHits = 0;
   int dryFires = 0;
   double lastShotCharge = 0;
   double lastShotAt = double.negativeInfinity;
   static const shotCooldown = .28;
   bool get supportsPowerShots => supportsCombat && rulesVersion >= 28;
+
+  /// A charged rock shatters the pellet it meets into a damaging blast. See
+  /// [PowerShot.shatterCharge].
+  bool get supportsShatter => supportsPowerShots && rulesVersion >= 36;
 
   /// Share of the ammo reserve left, from 0 to 1. See [PowerShot].
   double ammo = 1;
@@ -428,12 +576,14 @@ class FlightSimulation {
   double get shotCooldownRemaining =>
       math.max(0, lastShotAt + shotCooldown - elapsed);
   bool get _combatReady =>
-      supportsCombat && !bossCutscene && phase == RunPhase.playing;
-  bool get canShoot => _combatReady && shotCooldownRemaining == 0 && !outOfAmmo;
+      supportsCombat && !_holding && phase == RunPhase.playing;
+  bool get canShoot =>
+      _combatReady && plan.shoot && shotCooldownRemaining == 0 && !outOfAmmo;
 
   /// A press may start charging during the cooldown or while the reserve
   /// refills; [shoot] decides at release whether the rock can be fired.
-  bool get canCharge => supportsPowerShots && _combatReady && !charging;
+  bool get canCharge =>
+      supportsPowerShots && _combatReady && plan.shoot && !charging;
 
   bool get supportsSprint => supportsCombat && rulesVersion >= 29;
   double lastSprintAt = double.negativeInfinity;
@@ -445,13 +595,16 @@ class FlightSimulation {
       ? math.max(0, lastSprintAt + Sprint.cooldown - elapsed)
       : 0;
   bool get canSprint =>
-      supportsSprint && _combatReady && sprintCooldownRemaining == 0;
+      supportsSprint &&
+      _combatReady &&
+      plan.sprint &&
+      sprintCooldownRemaining == 0;
 
   double get sprintBoost => sprinting ? Sprint.boost(sprintAge) : 1;
 
   bool get supportsRushPaths => supportsSprint && isTrail && rulesVersion >= 32;
   RushPath? rushPath;
-  double _nextRushAt = Rush.firstAt;
+  double _nextRushAt;
   final List<SprintRing> sprintRings = [];
   final List<Meteor> meteors = [];
   final List<LavaVent> lavaVents = [];
@@ -463,6 +616,11 @@ class FlightSimulation {
 
   /// The latest run's kind, which outlasts the run for its escape banner.
   RushPathKind? lastRushKind;
+
+  /// What rush paths, gales and the boss draw from. Endless flights draw
+  /// everything from [random]; a campaign level gives each its own.
+  late math.Random _rushRandom = random, _galeRandom = random;
+  late final math.Random _bossRandom = plan.setPieceRandom(0, random);
   int rushPathsRun = 0, rushWarnings = 0, rushPathsEscaped = 0;
   int ringSprints = 0, ringChain = 0;
   int smashes = 0, smashChain = 0, meteorsSmashed = 0;
@@ -548,19 +706,24 @@ class FlightSimulation {
 
   // Time, not points, gently increases the pace. A star bonus never causes a
   // sudden jump in speed; the asymptote keeps long flights physically playable.
-  double get paceMultiplier =>
-      endless ? 1 + .65 * (1 - math.exp(-elapsed / 240)) : 1;
+  double get paceMultiplier => endless ? FlightPlan.pace(_paceClock) : 1;
+  double get _paceClock =>
+      plan.paceClock(elapsed: elapsed, route: routeSeconds);
   double get speed => endless
       ? rules.speedFor(0) * (isTrail ? .9 : 1) * paceMultiplier
       : isTrail
       ? rules.speedFor(gates) * .9
       : rules.speedFor(score);
-  int get _difficulty => endless ? (elapsed / 20).floor() : gates;
-  double get gap => supportsCombat
-      ? rules.gapFor(_difficulty)
+  int get _difficulty => _difficultyAt(routeSeconds);
+  int _difficultyAt(double route) => endless
+      ? (plan.paceClock(elapsed: elapsed, route: route) / 20).floor()
+      : gates;
+  double get gap => _gapAt(_difficulty);
+  double _gapAt(int difficulty) => supportsCombat
+      ? rules.gapFor(difficulty)
       : isTrail
-      ? math.min(.48, rules.gapFor(_difficulty) + .09)
-      : rules.gapFor(endless ? _difficulty : score);
+      ? math.min(.48, rules.gapFor(difficulty) + .09)
+      : rules.gapFor(endless ? difficulty : score);
   // The leading star group occupies .42 height units before its gate.
   // At the slowest trail speed, this allowance leaves at least a calibrated
   // half-cycle between clearing one gate and reaching the next pickup halo.
@@ -605,7 +768,7 @@ class FlightSimulation {
     final charge = shotCharge;
     _endCharge();
     if (!canShoot) {
-      if (_combatReady && outOfAmmo) dryFires++;
+      if (_combatReady && plan.shoot && outOfAmmo) dryFires++;
       return false;
     }
     final origin = shotOrigin(charge, reducedMotion: reducedMotion);
@@ -687,7 +850,7 @@ class FlightSimulation {
       if (phase == RunPhase.playing) {
         repetitions = math.max(0, input.repetitions - _repBaseline);
       }
-    } else if (input.flap && phase == RunPhase.playing && !bossCutscene) {
+    } else if (input.flap && phase == RunPhase.playing && !_holding) {
       velocity = rules.flapImpulse;
       lastFlapAt = elapsed;
       flaps++;
@@ -727,6 +890,10 @@ class FlightSimulation {
       _repBaseline = _latestReps - repetitions;
       if (!started) {
         started = true;
+        if (route case final route?) {
+          _layRoute(route, viewportWidth);
+          return;
+        }
         // First passage is visible with enough approach time for the calibrated movement.
         final firstCenter = rules.passageCenter(
           _index++,
@@ -778,10 +945,12 @@ class FlightSimulation {
       final boost = courseBoost;
       final scroll = speed * boost;
       distance += scroll * step;
+      routeSeconds += step * boost;
       if (supportsBosses) _advanceBoss(step, viewportWidth);
-      if (bossCutscene) {
+      if (_holding) {
         // Let the player watch the reveal and victory without falling into a
         // boundary. No input queues up to launch the bird when control returns.
+        // A campaign boss level keeps holding through its victory glide.
         birdY += (.52 - birdY) * (1 - math.exp(-step * 3));
         birdY = birdY.clamp(birdRadius + .001, 1 - birdRadius - .001);
         velocity = 0;
@@ -805,7 +974,9 @@ class FlightSimulation {
         obstacle.x -= scroll * step;
         obstacle.advance(elapsed);
       }
-      if (boss == null &&
+      if (route case final route?) {
+        _layRoute(route, viewportWidth);
+      } else if (boss == null &&
           !_rushHoldsSpawns &&
           !_galeHoldsSpawns &&
           _spawnIn <= 0) {
@@ -832,6 +1003,15 @@ class FlightSimulation {
       }
       if (boss?.waterLevel case final sea? when !bossCutscene) {
         if (birdY + birdRadius >= sea) _splashDown(sea);
+        if (phase == RunPhase.ended) break;
+      }
+      if (boss case final dragon? when dragon.scorches(birdY, birdRadius)) {
+        _scorch();
+        if (phase == RunPhase.ended) break;
+      }
+      if (boss case final baron?
+          when baron.screechHits(birdX, birdY, birdRadius)) {
+        _screeched();
         if (phase == RunPhase.ended) break;
       }
       flightPath.record(distance, birdY);
@@ -886,6 +1066,9 @@ class FlightSimulation {
       }
       if (supportsRushPaths && phase == RunPhase.playing) {
         _advanceRushPath(step, scroll, viewportWidth);
+      } else if (swarm.isNotEmpty && phase == RunPhase.playing) {
+        // Without rush paths only the Ember Dragon's flocks fly.
+        _advanceSwarm(step, scroll);
       }
       if (supportsGales && phase == RunPhase.playing) {
         _advanceGale(step, scroll, viewportWidth);
@@ -898,8 +1081,73 @@ class FlightSimulation {
         _scheduleRushPath(viewportWidth);
       }
       if (supportsGales && phase == RunPhase.playing) _scheduleGale();
+      if (route != null && phase == RunPhase.playing) {
+        _advanceFinish(viewportWidth);
+      }
       obstacles.removeWhere((o) => o.x + o.width < -.1);
       events.removeWhere((e) => elapsed - e.at > 2);
+    }
+  }
+
+  /// Lays a campaign level's passages and set pieces at their fixed places
+  /// on the [route] as they come within reach: passages past the entry edge,
+  /// set pieces at the screen edge like endless ones. Only passages draw
+  /// from [random], in route order, so every attempt lays the same ones.
+  void _layRoute(LevelRoute route, double viewportWidth) {
+    final reach = distance + _passageEntryX(viewportWidth);
+    while (_routePassage < route.passages.length &&
+        route.passages[_routePassage] <= reach) {
+      final center = rules.passageCenter(_index++, random, _previousCenter);
+      _previousCenter = center;
+      final due = route.due[_routePassage];
+      _addPassage(route.passages[_routePassage++] - distance, center, due: due);
+    }
+    while (_routePiece < route.pieces.length) {
+      final placed = route.pieces[_routePiece];
+      final startX = placed.start - distance;
+      if (startX > viewportWidth + .1) return;
+      _routePiece++;
+      final pieceRandom = plan.setPieceRandom(placed.number, random);
+      if (placed.piece.gale) {
+        _galeRandom = pieceRandom;
+        galesBlown++;
+        gale = Gale(number: galesBlown, startDistance: placed.start);
+        continue;
+      }
+      _rushRandom = pieceRandom;
+      final kind =
+          placed.piece.kind.rush ??
+          Rush.nextKind(rushKinds, pieceRandom, lastRushKind);
+      final path = rushPath = _layRushPath(kind, startX, viewportWidth);
+      // The passages after the run are already placed beyond its end, and
+      // pick up from its exit.
+      path.resumed = true;
+      _previousCenter = path.exitCenter;
+    }
+  }
+
+  /// Lays a campaign level's finish line once it comes within reach, or on
+  /// a boss level as soon as the boss has flown off, and completes the level
+  /// when the bird crosses it.
+  void _advanceFinish(double viewportWidth) {
+    var line = finishLine;
+    if (line == null) {
+      final route = this.route!;
+      final double worldX;
+      if (!route.boss) {
+        if (route.goal - distance > _passageEntryX(viewportWidth)) return;
+        worldX = route.goal;
+      } else if (bossesDefeated > 0 && boss == null) {
+        worldX = distance + viewportWidth + FinishLine.afterBoss;
+      } else {
+        return;
+      }
+      line = finishLine = FinishLine(worldX: worldX, x: worldX - distance);
+    }
+    line.x = line.worldX - distance;
+    if (distance + birdX >= line.worldX) {
+      line.crossedAt = elapsed;
+      end(EndReason.completed);
     }
   }
 
@@ -911,21 +1159,26 @@ class FlightSimulation {
           ? _enemyPassageLead + _enemyEntryMargin
           : .1);
 
-  void _addPassage(double x, double center) {
+  /// [due] is the route second a campaign passage comes within reach of
+  /// the widest screen. Its opening and motion follow that moment rather
+  /// than when this screen lays it, so it is the same on every phone.
+  void _addPassage(double x, double center, {double? due}) {
     // Height controls reward the complete calibrated movement. The collision
     // opening stays unchanged; its aiming mark follows the comfortable endpoint.
     final target = rulesVersion >= 3 && rules.mode.controlsHeight
         ? (center < .5 ? .15 : .85)
         : center;
-    // After boss 2, occasional ordinary walls have a shootable opening.
+    // Occasional ordinary walls have a shootable opening: after boss 2 in
+    // endless, from the start of a campaign level that allows stone panels.
     // Keep a clear passage between them and leave reward-heart gates open.
+    final panels = plan.panelChance(bossesDefeated);
     final hasDoor =
         supportsCombat &&
         rulesVersion >= 27 &&
-        bossesDefeated >= 2 &&
+        panels > 0 &&
         !_lastPassageHadDoor &&
         _heartPassagesRemaining != 1 &&
-        random.nextDouble() < .25;
+        random.nextDouble() < panels;
     _lastPassageHadDoor = hasDoor;
     final nextKind = _nextPattern();
     final kind = hasDoor ? ObstacleKind.garden : nextKind;
@@ -935,6 +1188,7 @@ class FlightSimulation {
     // their calibrated endpoints rather than demanding extra mini repetitions.
     final safeGap =
         2 * ((center - target).abs() + amplitude + birdRadius + .025);
+    final gap = due == null ? this.gap : _gapAt(_difficultyAt(due));
     final opening = endless ? math.max(gap, safeGap) : gap;
     final obstacle = Obstacle(
       x: x,
@@ -946,7 +1200,7 @@ class FlightSimulation {
       amplitude: amplitude,
       period: math.max(7, rules.intervalFor(0) * 2.5),
       phaseOffset: moving ? random.nextDouble() * math.pi * 2 : 0,
-      bornAt: elapsed,
+      bornAt: due == null ? elapsed : elapsed - (routeSeconds - due),
       fixedTarget: rules.mode.controlsHeight,
       appearance: _obstacleAppearance(),
       door: hasDoor ? SkyDoor() : null,
@@ -963,6 +1217,7 @@ class FlightSimulation {
       }
     }
     if (collectsStars) {
+      starsLaid += 3;
       final passage = endless ? obstacle : null;
       final trio = supportsStarTrios
           ? StarTrio(x: x - .25, y: target, passage: passage)
@@ -980,15 +1235,16 @@ class FlightSimulation {
         );
       }
     }
-    // Alternate approaches leave room to learn the tighter gate rhythm.
     // Enemies share the aiming height and remain in front of their building.
-    if (supportsCombat && _index.isOdd && !hasDoor) {
+    final enemy = supportsCombat && !hasDoor ? plan.enemyIndex(_index) : null;
+    if (enemy != null) {
+      final appearance = _enemyAppearance(enemy);
       enemies.add(
         SkyEnemy(
           x: x - _enemyPassageLead,
           y: target,
-          appearance: _enemyAppearance(_index ~/ 2),
-          maxHp: _enemyHealth(_enemyAppearance(_index ~/ 2)),
+          appearance: appearance,
+          maxHp: _enemyHealth(appearance),
           flightPhase: rulesVersion >= 20 ? _index * 2.399963 : null,
         ),
       );
@@ -996,19 +1252,17 @@ class FlightSimulation {
   }
 
   ObstacleKind _nextPattern() {
-    if (!endless || _index <= 3 || elapsed < 18) return ObstacleKind.garden;
-    final tier = rulesVersion >= 13
-        ? (elapsed / 18).floor().clamp(1, ObstacleKind.values.length - 1)
-        : elapsed < 36
-        ? 1
-        : elapsed < 54
-        ? 2
-        : 3;
-    if (_patterns.isEmpty || tier != _patternTier) {
-      _patternTier = tier;
+    final bag = plan.familyBag(
+      passage: _index,
+      elapsed: elapsed,
+      rulesVersion: rulesVersion,
+    );
+    if (bag == null) return ObstacleKind.garden;
+    if (_patterns.isEmpty || bag.tier != _patternTier) {
+      _patternTier = bag.tier;
       _patterns
         ..clear()
-        ..addAll(ObstacleKind.values.take(tier + 1))
+        ..addAll(bag.kinds)
         ..shuffle(random);
       // Shuffle bags guarantee variety without back-to-back identical hazards.
       if (_patterns.last == _lastPattern) {
@@ -1030,14 +1284,14 @@ class FlightSimulation {
   int _enemyAppearance(int index, {bool bossHelper = false}) {
     if (rulesVersion < 16) return 0;
     if (rulesVersion < 19) return index % 3;
-    // Baron Bat's smaller relatives lead the lineup. The natural cave bat
-    // stays a distinct fourth character in normal flight.
-    const lineup = [3, 1, 2, 0];
-    return lineup[index % (bossHelper ? 3 : lineup.length)];
+    return plan.enemyAppearance(index, bossHelper: bossHelper);
   }
 
   int _enemyHealth(int appearance) => supportsWeaponDamage
-      ? SkyEnemy.healthFor(appearance, bossesDefeated: bossesDefeated)
+      ? SkyEnemy.healthFor(
+          appearance,
+          bossesDefeated: plan.enemyToughness(bossesDefeated),
+        )
       : 1;
 
   void _advanceJumpDescent(double dt) {
@@ -1063,7 +1317,7 @@ class FlightSimulation {
       ammo = math.min(1, ammo + PowerShot.refillPerSecond * dt);
     }
     for (final enemy in enemies) {
-      enemy.x -= scrollSpeed * dt;
+      enemy.x -= scrollSpeed * enemy.drift * dt;
       if (supportsEnemyAttacks) enemy.age += dt;
       if (enemy.flightPhase != null) {
         // Settle into the aiming lane on the final approach, so a small
@@ -1147,7 +1401,7 @@ class FlightSimulation {
             target.lastShieldHitAt = target.age;
             continue;
           }
-          target.takeDamage(supportsWeaponDamage ? rock.damage : 1);
+          target.strike(supportsWeaponDamage ? rock.damage : 1);
           if (target.hp == 0) _defeatBoss(target);
         }
       }
@@ -1181,6 +1435,7 @@ class FlightSimulation {
     for (final splash in seaSplashes) {
       splash.x -= scrollSpeed * dt;
     }
+    final splitting = <BossAmmo>[];
     bossAmmo.removeWhere((ammo) {
       ammo.x += (ammo.vx - rush) * dt;
       ammo.vy += ammo.gravity * dt;
@@ -1200,12 +1455,42 @@ class FlightSimulation {
         }
         return true;
       }
+      if (ammo.splitAfter case final after?) {
+        ammo.age += dt;
+        if (ammo.age >= after) {
+          splitting.add(ammo);
+          return true;
+        }
+      }
       // A lob may climb above the screen and fall back into view.
       return ammo.x < -.1 ||
           ammo.x > viewportWidth + .2 ||
           ammo.y < (ammo.cannonball ? -1.0 : -.1) ||
           ammo.y > 1.1;
     });
+    splitting.forEach(_splitFireball);
+  }
+
+  /// An Ember Dragon fireball bursts into three embers: one carries on along
+  /// its heading and two fan out [SkyBoss.emberSpread] either side of it.
+  void _splitFireball(BossAmmo fireball) {
+    emberSplits++;
+    final heading = math.atan2(fireball.vy, fireball.vx);
+    final speed = math.sqrt(
+      fireball.vx * fireball.vx + fireball.vy * fireball.vy,
+    );
+    for (final turn in const [-SkyBoss.emberSpread, 0, SkyBoss.emberSpread]) {
+      bossAmmo.add(
+        BossAmmo(
+          x: fireball.x,
+          y: fireball.y,
+          vx: math.cos(heading + turn) * speed,
+          vy: math.sin(heading + turn) * speed,
+          radius: BossAmmo.emberRadius,
+          ember: true,
+        ),
+      );
+    }
   }
 
   void _advanceEnemyAttacks(double dt, double viewportWidth, double rush) {
@@ -1246,6 +1531,10 @@ class FlightSimulation {
       enemy.fireIn += fan ? 3.2 : 2.4;
     }
     enemyAmmoImpacts.removeWhere((impact) => elapsed - impact.at > 1);
+    ammoShatters.removeWhere((shatter) => elapsed - shatter.at > 1);
+    // Blasts land after the sweep: one can defeat the boss, which clears
+    // the pellets being swept.
+    final shattered = <(EnemyAmmo, BirdRock)>[];
     enemyAmmo.removeWhere((ammo) {
       ammo.x += (ammo.vx - rush) * dt;
       ammo.y += ammo.vy * dt;
@@ -1270,7 +1559,11 @@ class FlightSimulation {
         if (dx * dx + dy * dy <= reach * reach) {
           rocks.remove(rock);
           projectilesDeflected++;
-          _ammoImpact(ammo, AmmoStop.deflected);
+          if (supportsShatter && PowerShot.shatters(rock.charge)) {
+            shattered.add((ammo, rock));
+          } else {
+            _ammoImpact(ammo, AmmoStop.deflected);
+          }
           return true;
         }
       }
@@ -1285,6 +1578,57 @@ class FlightSimulation {
       }
       return true;
     });
+    for (final (ammo, rock) in shattered) {
+      _shatter(ammo, rock);
+    }
+  }
+
+  /// The rock is spent as on any cancel, but its charge breaks the pellet
+  /// into a blast that damages every enemy it touches, the boss included.
+  void _shatter(EnemyAmmo ammo, BirdRock rock) {
+    final reach = PowerShot.shatterReach(rock.charge);
+    final damage = PowerShot.shatterDamage(rock.damage);
+    ammoShattered++;
+    ammoShatters.add(
+      AmmoShatter(
+        x: ammo.x,
+        y: ammo.y,
+        worldX: distance + ammo.x,
+        reach: reach,
+        charge: rock.charge,
+        direction: math.atan2(ammo.vy, ammo.vx),
+        attack: ammo.attack,
+        at: elapsed,
+      ),
+    );
+    bool touches(double x, double y, double radius) {
+      final dx = x - ammo.x, dy = y - ammo.y;
+      return dx * dx + dy * dy <= (reach + radius) * (reach + radius);
+    }
+
+    enemies.removeWhere((enemy) {
+      if (!touches(enemy.x, enemy.y, SkyEnemy.radius)) return false;
+      enemy.takeDamage(damage);
+      if (enemy.hp > 0) return false;
+      _defeatEnemy(enemy);
+      return true;
+    });
+    final target = boss;
+    if (target == null || target.phase != BossPhase.attacking) return;
+    final shielded = target.shielded;
+    if (!touches(
+      target.x,
+      target.y,
+      shielded ? SkyBoss.shieldRadius : SkyBoss.radius,
+    )) {
+      return;
+    }
+    if (shielded) {
+      target.lastShieldHitAt = target.age;
+      return;
+    }
+    target.strike(damage);
+    if (target.hp == 0) _defeatBoss(target);
   }
 
   void _ammoImpact(EnemyAmmo ammo, AmmoStop stop) => enemyAmmoImpacts.add(
@@ -1300,26 +1644,52 @@ class FlightSimulation {
     ),
   );
 
+  /// Which slot of the Spitter King's full fan stays open, drawn from the
+  /// flight's seeded random. A side slot only qualifies while its lane, where
+  /// it crosses the bird's column, sits clear of the top and bottom edges;
+  /// the aimed center lane always does.
+  int _openAcidSlot(SkyBoss boss, double muzzleX, double aim) {
+    final open = [
+      for (final slot in SkyBoss.openableSlots)
+        if (slot == SkyBoss.centerSlot ||
+            _laneClear(boss, muzzleX, aim + SkyBoss.acidFan[slot]))
+          slot,
+    ];
+    return open[_bossRandom.nextInt(open.length)];
+  }
+
+  bool _laneClear(SkyBoss boss, double muzzleX, double angle) {
+    const edge = birdRadius + .05;
+    final y = boss.y + (birdX - muzzleX) / math.cos(angle) * math.sin(angle);
+    return y >= edge && y <= 1 - edge;
+  }
+
   void _advanceBoss(double dt, double viewportWidth) {
     if (boss == null) {
       // Passages resume before a run ends; the boss waits for the escape.
-      if (elapsed < _nextBossAt || rushPath != null || gale != null) return;
-      final number = bossesDefeated + 1;
-      final kind = supportsPirate
-          ? BossKind.values[bossesDefeated % 4]
-          : rulesVersion >= 22
-          ? BossKind.values[bossesDefeated % 3]
-          : rulesVersion >= 21 && bossesDefeated.isOdd
-          ? BossKind.spitterBeetle
-          : BossKind.baronBat;
+      if (_scheduleClock < _nextBossAt || rushPath != null || gale != null) {
+        return;
+      }
+      final (:kind, :number, :debut) = plan.bossEncounter(
+        bossesDefeated,
+        rulesVersion,
+      );
       boss = SkyBoss(
         number: number,
         x: viewportWidth + .3,
         cinematic: rulesVersion >= 17,
         wideSpitterFans: rulesVersion >= 23,
         kind: kind,
+        debut: debut,
+        callsSwarm: supportsDragonSwarm,
+        upgraded: supportsUpgradedBaron && kind == BossKind.baronBat && !debut,
         maxHp:
-            SkyBoss.healthFor(kind, number) ~/ (supportsWeaponDamage ? 1 : 10),
+            SkyBoss.healthFor(
+              kind,
+              number,
+              tougherSpitter: rulesVersion >= 37,
+            ) ~/
+            (supportsWeaponDamage ? 1 : 10),
       );
       // Remove pickups with their gates so the interlude cannot break a combo
       // or award a passage that was never flown. Existing cargo is retained.
@@ -1334,6 +1704,7 @@ class FlightSimulation {
       seaSplashes.clear();
       enemyAmmo.clear();
       enemyAmmoImpacts.clear();
+      ammoShatters.clear();
       sprintRings.clear();
       meteors.clear();
       lavaVents.clear();
@@ -1348,11 +1719,13 @@ class FlightSimulation {
       if (current.age - current.defeatedAt! >= current.departureDuration) {
         boss = null;
         // A full normal-flight interval follows the victory celebration.
-        _nextBossAt = elapsed + bossInterval;
-        if (supportsRushPaths) _nextRushAt = elapsed + Rush.afterBoss;
-        if (supportsGales && current.isMoth) {
-          // A gale follows the Dusk Empress, and the rush path waits for it.
-          _nextGaleAt = elapsed + Gale.afterBoss;
+        final clock = _scheduleClock;
+        _nextBossAt = clock + plan.bossInterval;
+        if (supportsRushPaths) _nextRushAt = clock + plan.rushAfterBoss;
+        // A gale may follow, and the rush path waits for it.
+        final galeAfter = supportsGales ? plan.galeAfter(current.kind) : null;
+        if (galeAfter != null) {
+          _nextGaleAt = clock + galeAfter;
           _nextRushAt = double.infinity;
         }
         if (supportsHeartPickups) {
@@ -1361,7 +1734,7 @@ class FlightSimulation {
           _heartPassagesRemaining = 2 + random.nextInt(6);
         }
         _spawnIn = 0;
-        _previousCenter = birdY.clamp(.28, .72);
+        _previousCenter = plan.resumeCenter(birdY);
       }
       return;
     }
@@ -1373,6 +1746,10 @@ class FlightSimulation {
         // The bow and its cannon reach left of the captain, so the ship
         // anchors further out to leave the lobs room to arc.
         ? math.max(birdX + .72, viewportWidth - .5)
+        : current.isDragon
+        // The neck carries the jaws well left of the heart, so the dragon
+        // keeps back to leave its fireballs room.
+        ? math.max(birdX + .76, viewportWidth - .5)
         : math.max(birdX + .55, viewportWidth - .72);
     final entrance =
         (current.cinematic
@@ -1384,6 +1761,12 @@ class FlightSimulation {
     if (current.waterLevel case final sea?) {
       // The ship sails in on the sea and rides every surge.
       current.y = sea - SkyBoss.shipRide + math.sin(current.age * 1.7) * .008;
+    } else if (current.cinematic &&
+        current.phase == BossPhase.arriving &&
+        current.isDragon) {
+      // The dragon swoops in low, so its raised head and the roar's fire
+      // stay in view under the letterbox.
+      current.y = .5 + .08 * math.sin(entrance * math.pi);
     } else if (current.cinematic && current.phase == BossPhase.arriving) {
       current.y = .5 - .14 * math.sin(entrance * math.pi);
     }
@@ -1391,13 +1774,76 @@ class FlightSimulation {
     final fightingFor = current.age - current.arrivalDuration;
     current.y = current.isPirate
         ? current.y
+        : current.isDragon
+        // Slow and heavy: each wingbeat carries a great weight.
+        ? .5 + math.sin(fightingFor * .8) * .07
         : current.isMoth
         ? .5 + math.sin(fightingFor * 1.15) * .15
         : current.isSpitter
         ? .5 + math.sin(fightingFor * 1.05) * .13
         : .5 + math.sin(fightingFor * .85) * .10;
+    if (current.isDragon) {
+      // Each breath is aimed once, where the bird is as the inhale begins.
+      if (current.breaths > current.breathsAimed) {
+        current.breathsAimed = current.breaths;
+        current.breathLane = DragonBreath.aimAt(birdY, debut: current.debut);
+      }
+      // Each flock is called once, at the bird's height as the call comes.
+      if (current.swarmCallsDue > current.swarmCalls) {
+        current.swarmCalls = current.swarmCallsDue;
+        _callFlock(current, viewportWidth);
+      }
+      if (current.swarmFollowsDue > current.swarmFollows) {
+        current.swarmFollows = current.swarmFollowsDue;
+        if (current.swarmFollowsUp) _callFlock(current, viewportWidth);
+      }
+      // No fireballs around the breath, and a full charge after.
+      if (current.breathQuiet) {
+        current.fireIn = math.max(current.fireIn, SkyBoss.dragonRefire);
+      }
+    }
+    if (current.screeches) {
+      // Each screech is aimed once, from where the bird is as the warning
+      // begins.
+      if (current.screechWarnings > current.screechesAimed) {
+        current.screechesAimed = current.screechWarnings;
+        final index = current.screechesAimed - 1;
+        current.screechGap = BaronScreech.aimAt(birdY, index);
+      }
+      if (current.batPairsDue > current.batPairs) {
+        current.batPairs = current.batPairsDue;
+        _sendBatPair(current, viewportWidth);
+      }
+      if (current.furyPairsDue > current.furyPairs) {
+        current.furyPairs = current.furyPairsDue;
+        if (current.enraged) _sendBatPair(current, viewportWidth);
+      }
+      // No fireballs around the screech, and a full charge after.
+      if (current.screechQuiet) {
+        current.fireIn = math.max(current.fireIn, BaronScreech.refire);
+      }
+    }
     current.fireIn -= dt;
-    if (current.fireIn <= 0 && current.isPirate) {
+    if (current.fireIn <= 0 && current.isDragon) {
+      final aim = math.atan2(birdY - current.mouthY, birdX - current.mouthX);
+      final split = current.splitsVolley;
+      for (final offset in current.volleyOffsets) {
+        final speed = current.projectileSpeed;
+        bossAmmo.add(
+          BossAmmo(
+            x: current.mouthX,
+            y: current.mouthY,
+            vx: math.cos(aim + offset) * speed,
+            vy: math.sin(aim + offset) * speed,
+            radius: BossAmmo.fireballRadius,
+            splitAfter: split ? SkyBoss.emberSplitAfter : null,
+          ),
+        );
+      }
+      current.volleys++;
+      current.lastVolleyAt = current.age;
+      current.fireIn += current.volleyInterval;
+    } else if (current.fireIn <= 0 && current.isPirate) {
       for (final offset in current.volleyOffsets) {
         final shot = current.cannonShot(birdX, birdY + offset);
         bossAmmo.add(
@@ -1417,6 +1863,9 @@ class FlightSimulation {
     } else if (current.fireIn <= 0) {
       final muzzleX = current.muzzleX;
       final aim = math.atan2(birdY - current.y, birdX - muzzleX);
+      if (current.isSpitter && rulesVersion >= 37) {
+        current.openSlot = _openAcidSlot(current, muzzleX, aim);
+      }
       for (final offset in current.volleyOffsets) {
         final speed = current.projectileSpeed;
         bossAmmo.add(
@@ -1457,12 +1906,51 @@ class FlightSimulation {
           flightPhase: rulesVersion >= 20
               ? (current.number * 11 + current.summons) * 2.399963
               : null,
+          drift: current.isMoth && current.debut ? SkyEnemy.debutDrift : 1,
         ),
       );
       current.summons++;
       current.lastSummonAt = current.age;
       current.summonIn += current.summonInterval;
     }
+  }
+
+  /// The Ember Dragon's flock streams in from behind it in the swarm rush
+  /// path's formation, level at the bird's height, never along an edge.
+  void _callFlock(SkyBoss dragon, double viewportWidth) {
+    final y = birdY.clamp(.15, .85);
+    for (var k = 0; k < Rush.flockSize; k++) {
+      swarm.add(
+        SwarmBat(
+          x: viewportWidth + .1 + k * Rush.flockSpacing,
+          y: y,
+          lane: 0,
+          phase: (dragon.summons * Rush.flockSize + k) * 2.399963,
+        ),
+      );
+    }
+    dragon.summons++;
+    dragon.lastSummonAt = dragon.age;
+  }
+
+  /// The upgraded Baron Bat sends two of his small bats at once, one high
+  /// and one low, entering from the right like his ordinary helpers.
+  void _sendBatPair(SkyBoss baron, double viewportWidth) {
+    final appearance = EnemyKind.simpleBat.index;
+    final (high, low) = BaronScreech.pairHeights;
+    for (final y in [high, low]) {
+      enemies.add(
+        SkyEnemy(
+          x: viewportWidth + _enemyEntryMargin,
+          y: y,
+          appearance: appearance,
+          maxHp: _enemyHealth(appearance),
+          flightPhase: (baron.number * 11 + baron.summons) * 2.399963,
+        ),
+      );
+      baron.summons++;
+    }
+    baron.lastSummonAt = baron.age;
   }
 
   /// A ram ignores the enemy's remaining health; the reward is the same.
@@ -1489,7 +1977,7 @@ class FlightSimulation {
     if (panel == null || !_circleTouchesDoor(birdX, birdY, birdRadius, o)) {
       return;
     }
-    panel.takeDamage(panel.hp, hitY: birdY);
+    panel.takeDamage(panel.hp, hitY: birdY, rammed: true);
     doorsDestroyed++;
   }
 
@@ -1519,16 +2007,23 @@ class FlightSimulation {
   /// Laid once everything else has scrolled this step, so its rings, bats
   /// and barriers keep their spacing.
   void _scheduleRushPath(double viewportWidth) {
+    final clock = _scheduleClock;
     if (rushPath != null ||
         gale != null ||
         boss != null ||
-        elapsed < _nextRushAt) {
+        clock < _nextRushAt) {
       return;
     }
     _nextRushAt = double.infinity;
     // Too close to a boss: the next run follows the victory instead.
-    if (_nextBossAt - elapsed >= Rush.bossLead) {
-      rushPath = _layRushPath(viewportWidth);
+    if (_nextBossAt - clock >= Rush.bossLead) {
+      final kind = Rush.nextKind(rushKinds, random, lastRushKind);
+      final last = obstacles.lastOrNull;
+      final startX = math.max(
+        viewportWidth + .1,
+        last == null ? 0.0 : last.x + last.width + Rush.clearance,
+      );
+      rushPath = _layRushPath(kind, startX, viewportWidth);
     }
   }
 
@@ -1594,18 +2089,17 @@ class FlightSimulation {
   /// Six beats: a star group leads into a sprint ring at the same height,
   /// then a rubble barrier whose gap sits at the next beat's height. Odd
   /// beats put a bat right after the ring, where a ring sprint smashes it.
-  RushPath _layRushPath(double viewportWidth) {
-    final kind = lastRushKind = Rush.nextKind(rushKinds, random, lastRushKind);
-    final last = obstacles.lastOrNull;
-    final startX = math.max(
-      viewportWidth + .1,
-      last == null ? 0.0 : last.x + last.width + Rush.clearance,
-    );
+  RushPath _layRushPath(
+    RushPathKind kind,
+    double startX,
+    double viewportWidth,
+  ) {
+    lastRushKind = kind;
     var lane = _previousCenter.clamp(.3, .7);
     final heights = [lane];
     for (var i = 0; i < Rush.beats; i++) {
-      final change = .16 + random.nextDouble() * .16;
-      var next = lane + (random.nextBool() ? change : -change);
+      final change = .16 + _rushRandom.nextDouble() * .16;
+      var next = lane + (_rushRandom.nextBool() ? change : -change);
       if (next < .24 || next > .76) next = 2 * lane - next;
       lane = next.clamp(.24, .76);
       heights.add(lane);
@@ -1614,6 +2108,7 @@ class FlightSimulation {
       final base = startX + i * Rush.beatLength, y = heights[i];
       final trio = StarTrio(x: base + .22, y: y);
       starTrios.add(trio);
+      starsLaid += 3;
       for (var k = 0; k < 3; k++) {
         stars.add(
           SkyStar(x: base + .05 + k * .17, y: y, trio: trio, trioSlot: k),
@@ -1714,7 +2209,7 @@ class FlightSimulation {
     final pace = speed * (aimed ? courseBoost : 1);
     final targetY = aimed
         ? path.routeY(bird + pace * lead).clamp(.12, .88)
-        : .12 + random.nextDouble() * .76;
+        : .12 + _rushRandom.nextDouble() * .76;
     meteors.add(
       Meteor(
         x: birdX + pace * lead + Rush.meteorDrift,
@@ -1806,7 +2301,7 @@ class FlightSimulation {
     path.flockIn += Rush.flockInterval;
     final lane = path.flocks.isEven
         ? 0.0
-        : random.nextBool()
+        : _rushRandom.nextBool()
         ? Rush.flockLane
         : -Rush.flockLane;
     path.flocks++;
@@ -1830,7 +2325,7 @@ class FlightSimulation {
       bat.age += dt;
       bat.x -= (scroll + Rush.swarmSpeed) * dt;
       bat.y =
-          bat.route.routeY(distance + bat.x) +
+          (bat.route?.routeY(distance + bat.x) ?? bat.height) +
           bat.lane +
           .012 * math.sin(bat.age * 9 + bat.phase);
       final dx = birdX - bat.x, dy = birdY - bat.y;
@@ -1840,8 +2335,10 @@ class FlightSimulation {
         if (ramming) {
           smashChain++;
           _smashBat(bat, chain: smashChain);
-        } else {
+        } else if (isTrail) {
           _damage();
+        } else {
+          end(EndReason.collision);
         }
         return true;
       }
@@ -1862,7 +2359,7 @@ class FlightSimulation {
 
   void _smashBat(SwarmBat bat, {int chain = 0}) {
     swarmSmashed++;
-    score += Rush.batPoints;
+    score += isTrail ? Rush.batPoints : 0;
     events.add(
       FlightEvent(
         FlightEventKind.swarmSmashed,
@@ -1881,7 +2378,7 @@ class FlightSimulation {
     score += path.bonus;
     rushPathsEscaped++;
     _event(FlightEventKind.rushEscaped, path.bonus);
-    _nextBossAt = math.max(_nextBossAt, elapsed + Rush.bossDelayAfter);
+    _nextBossAt = math.max(_nextBossAt, _scheduleClock + Rush.bossDelayAfter);
   }
 
   /// Stops ordinary passages and places the start past the last one, so
@@ -1890,7 +2387,7 @@ class FlightSimulation {
     if (gale != null ||
         rushPath != null ||
         boss != null ||
-        elapsed < _nextGaleAt) {
+        _scheduleClock < _nextGaleAt) {
       return;
     }
     _nextGaleAt = double.infinity;
@@ -1943,8 +2440,8 @@ class FlightSimulation {
     final lanes = [aimed];
     if (current.gusts.isOdd) {
       final spread =
-          Gale.pairSpread + random.nextDouble() * Gale.pairSpreadRange;
-      var other = aimed + (random.nextBool() ? spread : -spread);
+          Gale.pairSpread + _galeRandom.nextDouble() * Gale.pairSpreadRange;
+      var other = aimed + (_galeRandom.nextBool() ? spread : -spread);
       if (other < Gale.top || other > Gale.bottom) other = 2 * aimed - other;
       lanes.add(other.clamp(Gale.top, Gale.bottom));
     }
@@ -2005,10 +2502,14 @@ class FlightSimulation {
     galesWeathered++;
     _event(FlightEventKind.galeWeathered, current.bonus);
     _spawnIn = 0;
-    _previousCenter = birdY.clamp(.28, .72);
-    _nextRushAt = elapsed + Gale.rushAfter;
-    // Leave the rush path its full lead before the next boss.
-    _nextBossAt = math.max(_nextBossAt, _nextRushAt + Rush.bossLead + 1);
+    _previousCenter = plan.resumeCenter(birdY);
+    _nextRushAt = _scheduleClock + plan.rushAfterGale;
+    // Leave the rush path its full lead before the next boss. A level plan
+    // lays its rushes on the route and never schedules one here (its
+    // rushAfterGale is infinite), which must not push its boss away for good.
+    if (_nextRushAt.isFinite) {
+      _nextBossAt = math.max(_nextBossAt, _nextRushAt + Rush.bossLead + 1);
+    }
   }
 
   void _defeatBoss(SkyBoss current) {
@@ -2017,6 +2518,7 @@ class FlightSimulation {
     bossAmmo.clear();
     enemyAmmo.clear();
     enemies.clear();
+    swarm.clear();
     final bonus = isTrail ? bossBonus : 0;
     score += bonus;
     if (isTrail) shield = true;
@@ -2099,7 +2601,11 @@ class FlightSimulation {
   }
 
   void _damage() {
-    if (elapsed < invulnerableUntil || phase == RunPhase.ended) return;
+    if (elapsed < invulnerableUntil ||
+        phase == RunPhase.ended ||
+        victoryGlide) {
+      return;
+    }
     combo = 0;
     perfectStreak = 0;
     invulnerableUntil = elapsed + 1.5;
@@ -2129,6 +2635,27 @@ class FlightSimulation {
     _damage();
     birdY = sea - birdRadius - .001;
     velocity = math.min(velocity, rules.flapImpulse * .8);
+  }
+
+  /// The Ember Dragon's flame hurts like a course edge; the recovery that
+  /// follows gives the bird time to leave the burning band.
+  void _scorch() {
+    if (!collectsStars) {
+      end(EndReason.collision);
+      return;
+    }
+    if (elapsed >= invulnerableUntil) breathBurns++;
+    _damage();
+  }
+
+  /// Baron Bat's screech hurts like the dragon's flame.
+  void _screeched() {
+    if (!collectsStars) {
+      end(EndReason.collision);
+      return;
+    }
+    if (elapsed >= invulnerableUntil) screechHits++;
+    _damage();
   }
 
   void _event(FlightEventKind kind, [int value = 0]) =>
@@ -2175,7 +2702,7 @@ class FlightSimulation {
 
   void takeBreak() {
     if (phase == RunPhase.ended) return;
-    if (practice) {
+    if (canPause) {
       phase = RunPhase.paused;
     } else {
       end(EndReason.breakTaken);
@@ -2184,7 +2711,7 @@ class FlightSimulation {
 
   void background() {
     if (phase == RunPhase.ended) return;
-    if (practice || !started) {
+    if (canPause || !started) {
       phase = RunPhase.paused;
     } else {
       end(EndReason.backgrounded);
@@ -2193,7 +2720,7 @@ class FlightSimulation {
 
   void resume() {
     if (phase != RunPhase.paused) return;
-    if (!practice && started) return;
+    if (!canPause && started) return;
     phase = RunPhase.countdown;
     _endCharge();
     countdown = 3;

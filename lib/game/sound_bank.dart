@@ -204,6 +204,35 @@ const soundBank = <String, SoundSpec>{
     cooldownMs: 90,
     variants: 2,
   ),
+  // Ember Dragon: the inhale before its breath, the flame's roar, and a
+  // fireball bursting into embers.
+  'dragon_inhale': SoundSpec(
+    volume: .62,
+    priority: 4,
+    seconds: 1.45,
+    cooldownMs: 1000,
+  ),
+  'dragon_breath': SoundSpec(
+    volume: .58,
+    priority: 4,
+    seconds: 1.60,
+    cooldownMs: 1000,
+  ),
+  'ember_split': SoundSpec(volume: .34, seconds: .45, cooldownMs: 120),
+  // Baron Bat, upgraded: sonar chirps quickening as his ears flare, then the
+  // screech that sweeps the sky.
+  'screech_warning': SoundSpec(
+    volume: .52,
+    priority: 4,
+    seconds: 1.45,
+    cooldownMs: 1000,
+  ),
+  'sonic_screech': SoundSpec(
+    volume: .46,
+    priority: 4,
+    seconds: 1.20,
+    cooldownMs: 1000,
+  ),
 };
 
 String soundAsset(String name, int variant) =>

@@ -6,6 +6,7 @@ import 'arabia.dart';
 import 'aztec.dart';
 import 'brazil.dart';
 import 'china.dart';
+import 'cyberpunk.dart';
 import 'egypt.dart';
 import 'jungle.dart';
 import 'mexico.dart';
@@ -92,15 +93,44 @@ class SceneFrame {
     required this.seconds,
     required this.distance,
     required this.reducedMotion,
+    this.region,
+    this.bandShift = 0,
   });
   final Size size;
   final double seconds, distance;
   final bool reducedMotion;
+
+  /// The one region a campaign level holds for its whole flight; null
+  /// tours the world.
+  final WorldRegion? region;
+
+  /// While a held region's timed band is painted copy by copy, how far
+  /// right of the composition this copy stands, in pixels. A painter that
+  /// pins something to the screen inside the band (a glint under the sun)
+  /// subtracts it from the band's drift.
+  final double bandShift;
+
+  /// The same frame for one copy of a held region's timed band.
+  SceneFrame shifted(double shift) => SceneFrame(
+    size,
+    seconds: seconds,
+    distance: distance,
+    reducedMotion: reducedMotion,
+    region: region,
+    bandShift: shift,
+  );
+
   double get w => size.width;
   double get h => size.height;
 
   /// Animation clock, frozen in Reduced Motion.
   double get clock => reducedMotion ? 0 : seconds;
+
+  /// Which region or regions show, and how far through a crossing.
+  RegionBlend get blend => WorldTour.at(seconds, held: region);
+
+  /// A campaign level: the region shows far longer than a leg of the tour.
+  bool get held => region != null;
 }
 
 /// One region's backdrop. Coordinates are pixels; sizes scale with the
@@ -132,6 +162,16 @@ abstract class RegionScene {
   /// How far a band's features drop to hide behind its ridge.
   double sink(Depth d) => .32;
 
+  /// The stretch of a timed band's composition, in band pixels, that a held
+  /// region repeats. A leg of the tour only ever shows the first part of a
+  /// band: it drifts about half a viewport height in 22 s. A campaign level
+  /// holds its region for minutes, so the band repeats from [start] to
+  /// [end], each copy rising out of the haze over the tail of the one
+  /// before (see WorldBackdrop). [end] should lie past the last landmark,
+  /// where the composition thins out.
+  (double start, double end) span(Depth d, Size size) =>
+      (-.1 * size.height, size.width + .9 * size.height);
+
   /// Static features, recorded into a cached picture. Timed bands use
   /// viewport coordinates; repeating bands draw one period from x = 0.
   void features(Canvas c, Depth d, Size size) {}
@@ -155,6 +195,7 @@ abstract class RegionScene {
     WorldRegion.egypt => const EgyptScene(),
     WorldRegion.antarctica => const AntarcticaScene(),
     WorldRegion.jungle => const JungleScene(),
+    WorldRegion.cyberpunk => const CyberpunkScene(),
     WorldRegion.china => const ChinaScene(),
     WorldRegion.newYork => const NewYorkScene(),
     WorldRegion.sea => const SeaScene(),
@@ -182,6 +223,12 @@ abstract final class Sketch {
     }
     return path..close();
   }
+
+  /// [x] moved by whole [span]s into [from, from + span), and left exactly
+  /// as it is when it is already there: a shape that drifts off one side
+  /// of a campaign level's sky comes round again from the other.
+  static double wrap(double x, double from, double span) =>
+      x - ((x - from) / span).floor() * span;
 
   /// Deterministic noise in [0, 1) for seeded placement.
   static double hash(int n) {

@@ -37,8 +37,9 @@ List<double> sorted(Iterable<double> values) => [...values]..sort();
 
 void main() {
   test('last scored game: straight arms are the top, the deep bottom is 0', () {
-    // Elbow models as the calibrator learns them from this player's side
-    // view (both arms visible): ~176° stretched, ~115° at the bottom.
+    // Elbow models from this player's head-on view: ~176° stretched, ~115°
+    // at the bottom. The original run locked a side view while the player
+    // stood; the default perspective keeps covering that path.
     final control = PushUpInterpreter(
       const PushUpCalibration(
         cues: [
@@ -82,6 +83,80 @@ void main() {
     expect(tops.first, greaterThan(.85));
     expect(bottoms[bottoms.length ~/ 2], lessThan(.1));
     expect(repetitions, 1);
+  });
+  test('last scored game: standing up front never calibrates the plank', () {
+    // Until ~15.7 s the player is upright by the phone (shoulders near the
+    // top of the frame, hips at 0.8, hands hanging at the hips, both elbows
+    // straight). The shipped build found a steady "top" there at 8.2 s and
+    // locked a side view; the plank from 15.8 s is plainly head-on.
+    final calibration = BodyCalibrator();
+    var upright = 0, uprightValid = 0, plank = 0, plankValid = 0;
+    for (final sample in recordedSamples('last_game_top')) {
+      calibration.add(sample, sample.receivedMs);
+      if (!sample.detected) continue;
+      final t = sample.timestampMs;
+      final valid = observeBody(sample, sample.receivedMs).valid;
+      if (t >= 2900 && t <= 15700) {
+        upright++;
+        if (valid) uprightValid++;
+        expect(
+          calibration.step,
+          BodyCalibrationStep.position,
+          reason: '${t.round()} ms: ${calibration.feedback}',
+        );
+      } else if (t > 15800) {
+        plank++;
+        if (observeBody(
+          sample,
+          sample.receivedMs,
+          preferredPerspective: BodyPerspective.front,
+        ).valid) {
+          plankValid++;
+        }
+      }
+    }
+    expect(upright, greaterThan(250));
+    expect(uprightValid / upright, lessThan(.15));
+    expect(plankValid, plank);
+    expect(calibration.perspective, BodyPerspective.front);
+    // The one deep push-up at 24.9–27.8 s is the first calibration cycle.
+    expect(calibration.cycles, 1);
+  });
+  test('a camera moved after a tracking gap decides the view again', () {
+    // One head-on push-up is learned, then the phone goes beside the
+    // player. Keeping the old front view would demand both shoulders
+    // forever; mixing the two views' endpoints would skew the models.
+    final c = BodyCalibrator();
+    for (final sample in recordedSamples()) {
+      if (sample.timestampMs > 26000) break;
+      c.add(sample, sample.receivedMs);
+    }
+    expect(c.cycles, 1);
+    expect(c.perspective, BodyPerspective.front);
+    for (var t = 27000.0; t <= 28500; t += 40) {
+      final joints = List.filled(33, const Joint(0, 0, 0, 0));
+      for (final (id, x, y) in [
+        (11, .3, .5),
+        (13, .3, .65),
+        (15, .3, .8),
+        (23, .6, .55),
+      ]) {
+        joints[id] = Joint(x, y, 0, 1);
+      }
+      c.add(
+        TrackingSample(
+          mode: PlayMode.pushUp,
+          timestampMs: t,
+          receivedMs: t,
+          joints: joints,
+          aspectRatio: 4 / 3,
+        ),
+        t,
+      );
+    }
+    expect(c.perspective, BodyPerspective.side);
+    expect(c.step, BodyCalibrationStep.lower);
+    expect(c.cycles, 0);
   });
   test('stretched arms are the top throughout front-view calibration', () {
     // Fixture time is absolute; the window starts at 322788 ms. The player

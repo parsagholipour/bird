@@ -4116,7 +4116,7 @@ class ArabiaScene extends RegionScene {
   /// Where the compositor is drawing the sun right now: it slides between
   /// regions during a crossing and the glow must follow.
   SkyLight _sun(SceneFrame f) {
-    final blend = WorldTour.at(f.seconds);
+    final blend = f.blend;
     if (!blend.crossing) return light;
     return SkyLight.lerp(
       RegionScene.of(blend.from).light,
@@ -4391,14 +4391,15 @@ class ArabiaScene extends RegionScene {
     // it was composed whatever the lap; still in Reduced Motion.
     final t = f.reducedMotion
         ? 0.0
-        : f.seconds -
-              WorldTour.at(f.seconds).startOf(region) -
-              WorldTour.hold / 2;
-    final pos = Offset(
-      w * .88 - t * h * .007,
-      h * (.24 + .008 * math.sin(f.clock * .6)),
-    );
+        : f.seconds - f.blend.startOf(region) - WorldTour.hold / 2;
     final s = h * .03;
+    var x = w * .88 - t * h * .007;
+    if (f.held) {
+      // A campaign level outlasts the crossing, so the carpet comes round
+      // again from the right.
+      x = Sketch.wrap(x, -h * .2, w + h * .4);
+    }
+    final pos = Offset(x, h * (.24 + .008 * math.sin(f.clock * .6)));
     final wave = f.clock * 3.2;
     Offset at(double u, double lift) => Offset(
       pos.dx + (u - .5) * s * 2 + lift * .6,

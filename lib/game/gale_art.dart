@@ -265,7 +265,7 @@ abstract final class GaleArt {
     bool reducedMotion,
   ) {
     final w = size.width, h = size.height;
-    final blend = WorldTour.at(sim.elapsed);
+    final blend = WorldTour.at(sim.elapsed, held: sim.region);
     final travel = _travel(sim, reducedMotion);
     final clock = reducedMotion ? 0.0 : sim.elapsed;
     final fill = Paint(), rib = Paint()..strokeCap = StrokeCap.round;
@@ -297,6 +297,36 @@ abstract final class GaleArt {
               ..color = _gustHalo.withValues(alpha: alpha * .45),
           );
           rib.style = PaintingStyle.fill;
+        case WorldRegion.cyberpunk:
+          // Torn holo-sign shards: thin glowing slivers that flicker as
+          // they tumble, cyan and magenta over the neon city.
+          final shard = h * (.01 + .008 * depth);
+          final tint = i.isEven
+              ? const Color(0xff5ff4ff)
+              : const Color(0xffff5fcf);
+          final lit = reducedMotion
+              ? .8
+              : .55 + .45 * math.sin(clock * 11 + i * 2.3).abs();
+          canvas.save();
+          canvas.translate(x, y);
+          canvas.rotate(clock * (2.2 + 2 * depth) * (i.isEven ? 1 : -1) + i);
+          canvas.drawPath(
+            Path()
+              ..moveTo(-shard, -shard * .18)
+              ..lineTo(shard * .7, -shard * .32)
+              ..lineTo(shard, shard * .2)
+              ..lineTo(-shard * .6, shard * .3)
+              ..close(),
+            fill..color = tint.withValues(alpha: alpha * .55 * lit),
+          );
+          canvas.drawLine(
+            Offset(-shard * .7, 0),
+            Offset(shard * .7, -shard * .04),
+            rib
+              ..strokeWidth = math.max(.8, shard * .16)
+              ..color = SkyColors.white.withValues(alpha: alpha * lit),
+          );
+          canvas.restore();
         case WorldRegion.egypt || WorldRegion.arabia:
           canvas.drawLine(
             Offset(x, y),

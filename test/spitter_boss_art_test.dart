@@ -82,7 +82,7 @@ void main() {
         expect(
           await _pixels(boss, reduced: true),
           isNot(equals(quiet)),
-          reason: 'Pressure and swollen cheek still telegraph the volley',
+          reason: 'Pressure and the swollen jowl still telegraph the volley',
         );
         boss.fireIn = 1;
         boss.hp = 9;
@@ -90,7 +90,7 @@ void main() {
         expect(
           fury,
           isNot(equals(quiet)),
-          reason: 'Open vents and amber acid retain fury readability',
+          reason: 'Amber acid and glowing cracks retain fury readability',
         );
         boss.age = 8.5;
         expect(
@@ -112,27 +112,27 @@ void main() {
         boss.fireIn = .05;
         final charged = await _pixels(boss);
         expect(
-          _changedIn(idle, charged, const Rect.fromLTRB(-1, .07, -.3, .5)),
+          _changedIn(idle, charged, const Rect.fromLTRB(-.9, .05, -.02, .65)),
           greaterThan(500),
-          reason: 'Cheek inflates before spit',
+          reason: 'The jowl sac inflates before the spit',
         );
         expect(
-          _changedIn(idle, charged, const Rect.fromLTRB(.3, -1.45, 1.25, .1)),
+          _changedIn(idle, charged, const Rect.fromLTRB(.3, -.95, 1.8, 1.25)),
           greaterThan(500),
-          reason: 'Boiler pressure, lid and liquid show the windup',
+          reason: 'Vat pressure, valve and liquid show the windup',
         );
         boss.fireIn = 1;
         boss.lastVolleyAt = 4.83;
         final recoil = await _pixels(boss);
         expect(
-          _changedIn(idle, recoil, const Rect.fromLTRB(-1.6, -1.9, .25, -.8)),
+          _changedIn(idle, recoil, const Rect.fromLTRB(-1.2, -1.75, .25, -.55)),
           greaterThan(500),
-          reason: 'The hat follows through after each spit',
+          reason: 'The crown follows through after each spit',
         );
         expect(
-          _changedIn(idle, recoil, const Rect.fromLTRB(.3, -1.45, 1.25, .1)),
+          _changedIn(idle, recoil, const Rect.fromLTRB(.3, -.95, 1.8, 1.25)),
           greaterThan(500),
-          reason: 'Recoil rocks the tank and sloshes acid',
+          reason: 'Recoil rocks the vat and sloshes acid',
         );
         boss.lastVolleyAt = double.negativeInfinity;
         boss.lastSummonAt = 4.65;
@@ -140,7 +140,7 @@ void main() {
           _changedIn(
             idle,
             await _pixels(boss),
-            const Rect.fromLTRB(-1.8, -.8, -1.05, .65),
+            const Rect.fromLTRB(-1.7, -.95, -1.1, .3),
           ),
           greaterThan(300),
           reason: 'A raised beckoning claw calls the swarm',
@@ -149,12 +149,16 @@ void main() {
         boss.defeatedAt = 4.4;
         final defeated = await _pixels(boss);
         expect(
-          _changedIn(idle, defeated, const Rect.fromLTRB(-1.6, -1.9, .25, -.8)),
+          _changedIn(
+            idle,
+            defeated,
+            const Rect.fromLTRB(-1.2, -1.75, .25, -.55),
+          ),
           greaterThan(500),
-          reason: 'Hat leaves the rig for the encounter debris animation',
+          reason: 'The crown leaves the rig for the encounter debris animation',
         );
         expect(
-          _changedIn(idle, defeated, const Rect.fromLTRB(-.5, .55, 1.4, 1.2)),
+          _changedIn(idle, defeated, const Rect.fromLTRB(-.6, .5, .9, 1.3)),
           greaterThan(500),
           reason: 'Legs curl up on defeat',
         );
@@ -195,19 +199,19 @@ void main() {
       )..addFont(rootBundle.load('assets/fonts/Fredoka.ttf'))).load();
       final states = <(String, void Function(SkyBoss))>[
         ('ARRIVAL · WINGS FOLDED', (b) => b.age = 1.5),
-        ('ENTRANCE · HAT TIP', (b) => b.age = 2.9),
-        ('HOVER · FOUR WINGS', (b) {}),
+        ('ENTRANCE · CROWN LIFT', (b) => b.age = 2.9),
+        ('HOVER · WINGS BEATING', (b) {}),
         ('WINDUP · PRESSURE RISES', (b) => b.fireIn = .05),
         ('SPIT · RECOIL & SLOSH', (b) => b.lastVolleyAt = 4.83),
         ('SUMMON · BECKONING CLAW', (b) => b.lastSummonAt = 4.65),
         (
-          'FURY · HOT VENTS',
+          'FURY · AMBER BREW',
           (b) {
             b.hp = 9;
             b.fireIn = .13;
           },
         ),
-        ('DEFEAT · HAT BREAKS FREE', (b) => b.defeatedAt = 4.4),
+        ('DEFEAT · CROWN BREAKS FREE', (b) => b.defeatedAt = 4.4),
       ];
       final recorder = ui.PictureRecorder();
       final canvas = Canvas(recorder)
@@ -237,7 +241,11 @@ void main() {
         size: 30,
         color: SpitterBossRig.gold,
       );
-      label('The airborne acid brewer', const Offset(35, 58), size: 18);
+      label(
+        'The airborne acid alchemist-monarch',
+        const Offset(35, 58),
+        size: 18,
+      );
       for (var i = 0; i < states.length; i++) {
         final left = (i % 4) * 300.0, top = 100 + (i ~/ 4) * 310.0;
         canvas.drawRRect(

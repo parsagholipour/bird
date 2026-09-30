@@ -16,6 +16,7 @@ class ReplayTape {
     this.course = FlightCourse.classic,
     this.recordedVersion = version,
     this.weaponDamage = BirdRock.baseDamage,
+    this.plan,
     List<List<dynamic>>? events,
   }) : events = events ?? [];
   static const version = FlightSimulation.currentRulesVersion;
@@ -25,6 +26,11 @@ class ReplayTape {
   final bool practice, reducedMotion;
   final int seed, bird;
   final int weaponDamage;
+
+  /// The campaign level's whole plan as it was flown, from rules version
+  /// 41, so a level retuned later still replays exactly. Null for endless.
+  final LevelPlan? plan;
+  String? get levelId => plan?.id;
   final double cycleSeconds, originMs;
   final List<List<dynamic>> events;
   double get durationMs =>
@@ -40,6 +46,7 @@ class ReplayTape {
     course: course,
     rulesVersion: recordedVersion,
     weaponDamage: weaponDamage,
+    plan: plan ?? FlightPlan.endless,
     random: Random(seed),
   );
   Map<String, dynamic> toJson() => {
@@ -53,6 +60,10 @@ class ReplayTape {
     'reducedMotion': reducedMotion,
     'originMs': originMs,
     if (recordedVersion >= 26) 'weaponDamage': weaponDamage,
+    if (recordedVersion >= 41 && plan != null) ...{
+      'level': plan!.id,
+      'plan': plan!.toJson(),
+    },
     'events': events,
   };
   factory ReplayTape.fromJson(Map<String, dynamic> json) {
@@ -68,6 +79,20 @@ class ReplayTape {
     if (weaponDamage is! int || weaponDamage <= 0) {
       throw const FormatException('Invalid weapon damage');
     }
+    // A campaign flight carries its level's plan from rules version 41.
+    final planJson = recordedVersion >= 41 ? json['plan'] : null;
+    final level = recordedVersion >= 41 ? json['level'] : null;
+    if (planJson is! Map<String, dynamic>? ||
+        (planJson == null) != (level == null)) {
+      throw const FormatException('Invalid level plan');
+    }
+    final plan = planJson == null ? null : LevelPlan.fromJson(planJson);
+    if (plan != null &&
+        (plan.id != level ||
+            json['mode'] != PlayMode.touch.name ||
+            json['course'] != FlightCourse.starTrail.name)) {
+      throw const FormatException('Invalid level plan');
+    }
     final tape = ReplayTape(
       recordedVersion: recordedVersion,
       course: FlightCourse.named(json['course'] as String? ?? 'classic'),
@@ -79,6 +104,7 @@ class ReplayTape {
       reducedMotion: json['reducedMotion'] as bool,
       originMs: (json['originMs'] as num).toDouble(),
       weaponDamage: weaponDamage,
+      plan: plan,
       events: (json['events'] as List)
           .map((e) => List<dynamic>.from(e as List))
           .toList(),

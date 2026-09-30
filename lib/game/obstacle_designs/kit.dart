@@ -166,6 +166,46 @@ abstract final class Kit {
           ),
           paint..color = perfect ? goldDeep : const Color(0xff2f7fa6),
         );
+      case WorldRegion.cyberpunk:
+        // A microchip: silver pins on every side of a neon die, a dark
+        // circuit well and a glowing magenta core.
+        final pin = paint..color = perfect ? goldDeep : const Color(0xffd8e4ff);
+        for (var k = -1; k <= 1; k++) {
+          final along = k * s * .38;
+          for (final pad in [
+            Rect.fromCenter(center: Offset(along, -s * .8), width: s * .16, height: s * .3),
+            Rect.fromCenter(center: Offset(along, s * .8), width: s * .16, height: s * .3),
+            Rect.fromCenter(center: Offset(-s * .8, along), width: s * .3, height: s * .16),
+            Rect.fromCenter(center: Offset(s * .8, along), width: s * .3, height: s * .16),
+          ]) {
+            c.drawRect(pad, pin);
+          }
+        }
+        c.drawRRect(
+          RRect.fromRectAndRadius(
+            Rect.fromCenter(center: Offset.zero, width: s * 1.36, height: s * 1.36),
+            Radius.circular(s * .16),
+          ),
+          paint..color = perfect ? gold : const Color(0xff3fe0f4),
+        );
+        c.drawRect(
+          Rect.fromCenter(center: Offset.zero, width: s * .84, height: s * .84),
+          paint..color = perfect ? goldDeep : const Color(0xff1b1d48),
+        );
+        c.drawPath(
+          Path()
+            ..moveTo(0, -s * .34)
+            ..lineTo(s * .34, 0)
+            ..lineTo(0, s * .34)
+            ..lineTo(-s * .34, 0)
+            ..close(),
+          paint..color = perfect ? const Color(0xfffff4c8) : const Color(0xffff4fc8),
+        );
+        c.drawCircle(
+          Offset(-s * .44, -s * .44),
+          s * .08,
+          paint..color = const Color(0xccffffff),
+        );
       case WorldRegion.antarctica:
         // A six-armed snowflake with side barbs.
         final arm = Paint()

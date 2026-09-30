@@ -316,7 +316,7 @@ class JungleScene extends RegionScene {
 
   /// The sun follows the light through a crossing, so its bloom and rays do.
   Offset _airSunAt(SceneFrame f) {
-    final blend = WorldTour.at(f.seconds);
+    final blend = f.blend;
     final at = blend.crossing
         ? SkyLight.lerp(
             RegionScene.of(blend.from).light,

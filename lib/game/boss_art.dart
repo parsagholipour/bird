@@ -3,6 +3,7 @@ import 'package:flutter/painting.dart';
 import '../domain/game_rules.dart';
 import '../ui/theme.dart';
 import 'sky_scenery.dart';
+import 'baron_storm_pose.dart';
 import 'boss_motion.dart';
 import 'boss_encounter_art.dart';
 import 'boss_health_bar_art.dart';
@@ -10,7 +11,8 @@ import 'boss_health_bar_art.dart';
 abstract final class BossArt {
   static Offset cameraOffset(SkyBoss? boss, bool reducedMotion) =>
       boss?.cinematic == true
-      ? BossMotion(boss!, reducedMotion: reducedMotion).shake
+      ? BossMotion(boss!, reducedMotion: reducedMotion).shake +
+            BaronStormRig.shake(boss, reducedMotion)
       : Offset.zero;
 
   static void backdrop(Canvas c, Size size, SkyBoss? boss, bool reducedMotion) {

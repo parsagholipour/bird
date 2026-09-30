@@ -2,6 +2,8 @@ import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 import '../domain/game_rules.dart';
 import '../ui/theme.dart';
+import 'dragon_hud_art.dart';
+import 'pirate_hud_art.dart';
 
 /// The slim boss strip at the top center of the flight: one row with a
 /// crest, the boss name, a health bar with a damage chip, and hit points.
@@ -36,6 +38,11 @@ abstract final class BossHealthBarArt {
     Color(0xfff29cc6),
     Color(0xffb95c92),
   ];
+  static const _pirate = [
+    Color(0xffcaf7ef),
+    Color(0xff4fd1c5),
+    Color(0xff22919b),
+  ];
   static const _fury = [
     Color(0xffffd0a8),
     Color(0xffff775c),
@@ -62,7 +69,8 @@ abstract final class BossHealthBarArt {
     BossKind.baronBat => _baron,
     BossKind.spitterBeetle => _spitter,
     BossKind.duskMoth => _moth,
-    BossKind.pirate => _baron, // PLACEHOLDER
+    BossKind.pirate => _pirate,
+    BossKind.dragon => DragonHudArt.lava,
   };
 
   /// The strip, for layout checks.
@@ -78,6 +86,8 @@ abstract final class BossHealthBarArt {
     bool reducedMotion = false,
   }) {
     if (boss.inCutscene) return;
+    // A dragon whose clock has gone bad is not drawn (nothing to trust).
+    if (boss.isDragon && !boss.age.isFinite) return;
     final l = _Layout(size);
     final u = l.u;
     final defeated = boss.phase == BossPhase.defeated;
@@ -98,11 +108,23 @@ abstract final class BossHealthBarArt {
       l.strip,
       Radius.circular(l.strip.height / 2),
     );
-    c.drawRRect(
-      strip.shift(Offset(0, 1.5 * u)),
-      Paint()..color = _nightDeep.withValues(alpha: .2),
-    );
-    c.drawRRect(strip, Paint()..color = _night.withValues(alpha: .88));
+    // The pirate's plate is a rope-laced plank, drawn by PirateHudArt.
+    final pirate = boss.isPirate;
+    // The dragon's is an obsidian plate rimmed in gold (DragonHudArt).
+    final dragon = boss.isDragon;
+    if (dragon) {
+      // Each hit shudders the dragon's plate by a pixel.
+      final jolt = DragonHudArt.jolt(since, u, reduced: reducedMotion);
+      c.save();
+      c.translate(jolt.dx, jolt.dy);
+    }
+    if (!pirate && !dragon) {
+      c.drawRRect(
+        strip.shift(Offset(0, 1.5 * u)),
+        Paint()..color = _nightDeep.withValues(alpha: .2),
+      );
+      c.drawRRect(strip, Paint()..color = _night.withValues(alpha: .88));
+    }
     final fresh = since.isFinite && since >= 0 && since < .1 && !reducedMotion
         ? 1 - since / .1
         : 0.0;
@@ -119,13 +141,37 @@ abstract final class BossHealthBarArt {
         : defeated
         ? _mint.withValues(alpha: .6)
         : base.withValues(alpha: .45);
-    c.drawRRect(
-      strip,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1 * u
-        ..color = Color.lerp(border, _cream, math.max(fresh * .6, onset))!,
-    );
+    if (dragon) {
+      DragonHudArt.frame(
+        c,
+        l.strip,
+        u,
+        fury: fury,
+        defeated: defeated,
+        wave: wave,
+        flash: math.max(fresh * .6, onset),
+        time: boss.age,
+        reduced: reducedMotion,
+      );
+    } else if (pirate) {
+      PirateHudArt.frame(
+        c,
+        l.strip,
+        u,
+        fury: fury,
+        defeated: defeated,
+        wave: wave,
+        flash: math.max(fresh * .6, onset),
+      );
+    } else {
+      c.drawRRect(
+        strip,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1 * u
+          ..color = Color.lerp(border, _cream, math.max(fresh * .6, onset))!,
+      );
+    }
     if (onset > 0) {
       // A short flare the moment the boss crosses into fury.
       c.drawRRect(
@@ -139,7 +185,14 @@ abstract final class BossHealthBarArt {
 
     _crest(c, l, boss, fury: fury, shielded: shielded);
 
-    final name = l.name(boss.name.toUpperCase(), defeated ? _mint : _cream);
+    final name = l.name(
+      boss.name.toUpperCase(),
+      defeated ? _mint : _cream,
+      // Carved lettering on the pirate's plank.
+      shadows: pirate || dragon
+          ? [Shadow(color: PirateHudArt.ink, offset: Offset(0, .9 * u))]
+          : null,
+    );
     name.paint(c, Offset(l.nameLeft, l.strip.center.dy - name.height / 2));
 
     if (!arriving) {
@@ -189,6 +242,17 @@ abstract final class BossHealthBarArt {
       blink: blink,
       wave: wave,
     );
+    if (dragon) {
+      DragonHudArt.heartBanner(
+        c,
+        l.strip,
+        l.bar,
+        u,
+        boss,
+        reduced: reducedMotion,
+      );
+      c.restore();
+    }
   }
 
   static void _crest(
@@ -199,6 +263,14 @@ abstract final class BossHealthBarArt {
     required bool shielded,
   }) {
     final u = l.u, center = l.crest, r = l.crestRadius;
+    if (boss.isDragon) {
+      DragonHudArt.crest(c, center, r, u, fury: fury);
+      return;
+    }
+    if (boss.isPirate) {
+      PirateHudArt.crest(c, center, r, u, glass: fury ? _fury : _pirate, fury: fury);
+      return;
+    }
     final ramp = shielded ? _shield : _ramp(boss.kind);
     final disc = Rect.fromCircle(center: center, radius: r);
     c.drawCircle(
@@ -222,6 +294,10 @@ abstract final class BossHealthBarArt {
           ..color = _ember,
       );
     }
+    if (boss.isSpitter) {
+      _flaskCrown(c, center, r);
+      return;
+    }
     // Every boss is royalty: a crown sits on the medallion.
     final cw = r * 1.2, ch = r * .84;
     final o = center + Offset(-cw / 2, -ch / 2 + r * .04);
@@ -237,6 +313,36 @@ abstract final class BossHealthBarArt {
         ..close(),
       Paint()..color = _night,
     );
+  }
+
+  /// The Spitter King's crown for the medallion: a band of three flasks.
+  static void _flaskCrown(Canvas c, Offset center, double r) {
+    final w = r * 1.3, h = r * .96;
+    final o = center + Offset(-w / 2, -h / 2 + r * .06);
+    final bandTop = o.dy + h * .8;
+    final flasks = Path();
+    for (final (x, height, base, neck) in const [
+      (.16, .56, .13, .05),
+      (.84, .56, .13, .05),
+      (.5, .8, .17, .06),
+    ]) {
+      final cx = o.dx + w * x, top = bandTop - h * height;
+      flasks
+        ..moveTo(cx - w * base, bandTop)
+        ..lineTo(cx - w * neck, top + h * height * .42)
+        ..lineTo(cx - w * neck, top)
+        ..lineTo(cx + w * neck, top)
+        ..lineTo(cx + w * neck, top + h * height * .42)
+        ..lineTo(cx + w * base, bandTop)
+        ..close();
+    }
+    flasks.addRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(o.dx, bandTop - h * .04, w, h * .24),
+        Radius.circular(h * .1),
+      ),
+    );
+    c.drawPath(flasks, Paint()..color = _night);
   }
 
   static void _bar(
@@ -257,20 +363,37 @@ abstract final class BossHealthBarArt {
     final u = l.u, bar = l.bar;
     final radius = Radius.circular(bar.height / 2);
     final track = RRect.fromRectAndRadius(bar, radius);
-    c.drawRRect(track.inflate(1.2 * u), Paint()..color = _nightDeep);
-    c.drawRRect(track, Paint()..color = _trackShade);
-    c.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTRB(bar.left, bar.top + 1.6 * u, bar.right, bar.bottom),
-        radius,
-      ),
-      Paint()..color = _track,
-    );
+    final pirate = boss.isPirate, dragon = boss.isDragon;
+    if (dragon) {
+      DragonHudArt.track(
+        c,
+        bar,
+        u,
+        fury: fury,
+        reduced: reducedMotion,
+        time: boss.age,
+        furyAge: boss.age - boss.enragedAt,
+      );
+    } else if (pirate) {
+      PirateHudArt.track(c, bar, u);
+    } else {
+      c.drawRRect(track.inflate(1.2 * u), Paint()..color = _nightDeep);
+      c.drawRRect(track, Paint()..color = _trackShade);
+      c.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTRB(bar.left, bar.top + 1.6 * u, bar.right, bar.bottom),
+          radius,
+        ),
+        Paint()..color = _track,
+      );
+    }
 
     final maxHp = boss.maxHp;
     double edge(double value) =>
         bar.left + bar.width * (value / maxHp).clamp(0.0, 1.0);
-    final hp = arriving
+    final hp = dragon
+        ? DragonHudArt.gaugeHp(boss, reduced: reducedMotion)
+        : arriving
         ? maxHp *
               (reducedMotion
                   ? 1.0
@@ -307,20 +430,66 @@ abstract final class BossHealthBarArt {
             (hp - before) * _easeInOut(((since - _hold) / _drain).clamp(0, 1));
       }
       if (chipHp > hp + .01) {
-        c.drawRect(
-          Rect.fromLTRB(
-            edge(hp) - bar.height,
-            bar.top,
-            edge(chipHp),
-            bar.bottom,
-          ),
-          Paint()..color = color,
+        final drained = Rect.fromLTRB(
+          edge(hp) - bar.height,
+          bar.top,
+          edge(chipHp),
+          bar.bottom,
         );
+        if (dragon) {
+          DragonHudArt.chip(
+            c,
+            drained,
+            heat: reducedMotion
+                ? 0
+                : 1 - ((since - _white) / _cool).clamp(0.0, 1.0),
+            alpha: reducedMotion
+                ? ((chipSeconds - since) / _fade).clamp(0.0, 1.0)
+                : 1,
+          );
+        } else if (pirate) {
+          PirateHudArt.chip(
+            c,
+            drained,
+            heat: reducedMotion
+                ? 0
+                : 1 - ((since - _white) / _cool).clamp(0.0, 1.0),
+            alpha: reducedMotion
+                ? ((chipSeconds - since) / _fade).clamp(0.0, 1.0)
+                : 1,
+          );
+        } else {
+          c.drawRect(drained, Paint()..color = color);
+        }
       }
     }
 
     final right = edge(hp);
-    if (right > bar.left) {
+    if (right > bar.left && dragon) {
+      DragonHudArt.fill(
+        c,
+        bar,
+        right,
+        u,
+        ramp,
+        glow: critical && !reducedMotion ? .3 * wave : 0.0,
+        phase: reducedMotion ? 0 : boss.age * 1.7,
+        hotTip: right < bar.right - .5,
+        fury: fury,
+        surge: DragonHudArt.surge(boss, reduced: reducedMotion),
+      );
+    } else if (right > bar.left && pirate) {
+      PirateHudArt.fill(
+        c,
+        bar,
+        right,
+        u,
+        ramp,
+        glow: critical && !reducedMotion ? .3 * wave : 0.0,
+        phase: reducedMotion ? 0 : boss.age * 1.7,
+        foamTip: right < bar.right - .5,
+      );
+    } else if (right > bar.left) {
       final fill = Rect.fromLTRB(bar.left, bar.top, right, bar.bottom);
       final glow = critical && !reducedMotion ? .3 * wave : 0.0;
       c.drawRect(fill, Paint()..color = ramp[2]);
@@ -390,6 +559,9 @@ abstract final class BossHealthBarArt {
             _emberText,
             ((furyTagSeconds - furyAge) / _tagFade).clamp(0.0, 1.0),
           )
+        // The Ember Dragon's heart lies open while it breathes.
+        : boss.coreExposed && !dragon
+        ? ('HEART ×2', _cream, 1.0)
         : null;
     if (tag != null) {
       final (text, color, alpha) = tag;
@@ -423,28 +595,54 @@ abstract final class BossHealthBarArt {
     // past the track until the boss crosses it.
     final half = bar.left + bar.width / 2;
     final above = !fury && !defeated && !arriving;
-    c.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromCenter(
-          center: Offset(half, bar.center.dy),
-          width: 2.8 * u,
-          height: bar.height + (above ? 4.4 : 2) * u,
+    if (dragon) {
+      DragonHudArt.motes(
+        c,
+        bar,
+        right,
+        u,
+        time: boss.age,
+        fury: fury,
+        reduced: reducedMotion,
+        surge: DragonHudArt.surge(boss, reduced: reducedMotion),
+      );
+      DragonHudArt.halfMark(
+        c,
+        bar,
+        u,
+        above: above,
+        fury: fury,
+        wave: wave,
+        furyAge: boss.age - boss.enragedAt,
+        reduced: reducedMotion,
+      );
+    } else if (pirate) {
+      // The pirate's mark is a gold doubloon set in the plate's rim.
+      PirateHudArt.halfMark(c, bar, u, above: above, fury: fury, wave: wave);
+    } else {
+      c.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromCenter(
+            center: Offset(half, bar.center.dy),
+            width: 2.8 * u,
+            height: bar.height + (above ? 4.4 : 2) * u,
+          ),
+          Radius.circular(1.4 * u),
         ),
-        Radius.circular(1.4 * u),
-      ),
-      Paint()..color = _nightDeep,
-    );
-    c.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromCenter(
-          center: Offset(half, bar.center.dy),
-          width: 1.3 * u,
-          height: bar.height + (above ? 2.8 : 0) * u,
+        Paint()..color = _nightDeep,
+      );
+      c.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromCenter(
+            center: Offset(half, bar.center.dy),
+            width: 1.3 * u,
+            height: bar.height + (above ? 2.8 : 0) * u,
+          ),
+          Radius.circular(.65 * u),
         ),
-        Radius.circular(.65 * u),
-      ),
-      Paint()..color = above ? _ember : _nightDeep,
-    );
+        Paint()..color = above ? _ember : _nightDeep,
+      );
+    }
 
     // The frame lights up on hits and while the shield forms.
     final fresh = since.isFinite && since >= 0 && since < .1 && !reducedMotion
@@ -551,10 +749,14 @@ abstract final class BossHealthBarArt {
     Color color, {
     double spacing = 0,
     double maxWidth = double.infinity,
+    List<Shadow>? shadows,
   }) => TextPainter(
     text: TextSpan(
       text: value,
-      style: heading(size, color: color).copyWith(letterSpacing: spacing),
+      style: heading(
+        size,
+        color: color,
+      ).copyWith(letterSpacing: spacing, shadows: shadows),
     ),
     textDirection: TextDirection.ltr,
     maxLines: 1,
@@ -593,11 +795,13 @@ class _Layout {
   late final Offset crest;
   late final double crestRadius, nameLeft, nameWidth, hpRight;
 
-  TextPainter name(String value, Color color) => BossHealthBarArt._painter(
-    value,
-    10 * u,
-    color,
-    spacing: .5 * u,
-    maxWidth: nameWidth,
-  );
+  TextPainter name(String value, Color color, {List<Shadow>? shadows}) =>
+      BossHealthBarArt._painter(
+        value,
+        10 * u,
+        color,
+        spacing: .5 * u,
+        maxWidth: nameWidth,
+        shadows: shadows,
+      );
 }

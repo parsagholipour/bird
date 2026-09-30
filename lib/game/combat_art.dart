@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 import '../domain/game_rules.dart';
 import '../ui/theme.dart';
+import 'ammo_shatter_art.dart';
 import 'enemy_design.dart';
 import 'enemy_ammo_impact_art.dart';
 import 'enemy_art.dart';
@@ -124,6 +125,7 @@ abstract final class CombatArt {
       );
     }
     EnemyAmmoImpactArt.paint(canvas, height, sim, reducedMotion: reducedMotion);
+    AmmoShatterArt.paint(canvas, height, sim, reducedMotion: reducedMotion);
     for (final rock in sim.rocks) {
       StoneArt.paint(
         canvas,

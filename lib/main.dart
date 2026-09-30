@@ -5,8 +5,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'domain/tracking.dart';
+import 'domain/campaign.dart';
 import 'domain/flight_course.dart';
 import 'ui/home_screen.dart';
+import 'ui/campaign_screen.dart';
 import 'ui/collection_screen.dart';
 import 'ui/records_screen.dart';
 import 'ui/replay_screen.dart';
@@ -45,6 +47,13 @@ final appRouter = GoRouter(
   initialLocation: const bool.fromEnvironment('CAMERA_LAB') ? '/lab' : '/',
   routes: [
     GoRoute(path: '/', builder: (context, state) => const HomeScreen()),
+    GoRoute(
+      path: '/campaign',
+      builder: (context, state) => CampaignScreen(
+        key: ValueKey(state.uri.toString()),
+        level: state.uri.queryParameters['level'],
+      ),
+    ),
     GoRoute(
       path: '/school',
       builder: (context, state) => const FlightSchoolScreen(),
@@ -86,17 +95,42 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/play/:mode',
-      builder: (context, state) => PlayScreen(
-        key: ValueKey(state.uri.toString()),
-        mode: switch (state.pathParameters['mode']) {
-          'jump' || 'smile' => PlayMode.jump,
-          'touch' => PlayMode.touch,
-          'squat' => PlayMode.squat,
-          _ => PlayMode.pushUp,
-        },
-        practice: state.uri.queryParameters['practice'] == 'true',
-        course: FlightCourse.named(state.uri.queryParameters['course']),
-      ),
+      // A campaign level (`/play/touch?level=1-3`) is a scored Tap & Fly
+      // Star Trail, and only flies once the map has opened it.
+      redirect: (context, state) {
+        final id = state.uri.queryParameters['level'];
+        if (id == null) return null;
+        final level = Campaign.level(id);
+        if (level == null || state.pathParameters['mode'] != 'touch') {
+          return '/campaign';
+        }
+        final progress = ProviderScope.containerOf(
+          context,
+          listen: false,
+        ).read(progressProvider).asData?.value;
+        if (progress != null && !progress.campaign.unlocked(level)) {
+          return '/campaign';
+        }
+        return null;
+      },
+      builder: (context, state) {
+        final level = Campaign.level(state.uri.queryParameters['level'] ?? '');
+        return PlayScreen(
+          key: ValueKey(state.uri.toString()),
+          mode: switch (state.pathParameters['mode']) {
+            'jump' || 'smile' => PlayMode.jump,
+            'touch' => PlayMode.touch,
+            'squat' => PlayMode.squat,
+            _ => PlayMode.pushUp,
+          },
+          practice:
+              level == null && state.uri.queryParameters['practice'] == 'true',
+          course: level != null
+              ? FlightCourse.starTrail
+              : FlightCourse.named(state.uri.queryParameters['course']),
+          level: level,
+        );
+      },
     ),
   ],
 );
@@ -202,6 +236,10 @@ class _PushUpBirdAppState extends ConsumerState<PushUpBirdApp>
             play: (cue) {
               if (_foreground) _menuAudio.effect(cue);
             },
+            speak: (asset) {
+              if (_foreground) _menuAudio.speak(asset);
+            },
+            hush: _menuAudio.hush,
             child: child!,
           ),
         );

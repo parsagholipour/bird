@@ -1,5 +1,851 @@
 # Validation ledger
 
+## 2026-09-30 Story voices
+
+- The campaign's characters speak (`docs/story-voices.md`). 308 clips were
+  recorded with ElevenLabs Eleven v4, one generation each:
+  - every line of the 23 scenes, with the courier's 42 lines recorded once
+    per bird;
+  - the 40 thank-you notes;
+  - four sprint calls per bird.
+  The cast is 45 library voices, and every prompt carries audio tags for its
+  delivery. `docs/story-voices-sources.json` lists each clip's voice,
+  prompt, generation id and source hash. `tool/prepare_story_voices.py`
+  trims, levels (−18 LUFS) and encodes them: 1044 s of speech, 9.3 MB of
+  mono Ogg Vorbis in `assets/audio/story/`.
+- In the game:
+  - scene lines play their recording and write out over 90% of it;
+  - a finished level's thank-you is read out as its note lands;
+  - sprints call out in the equipped bird's own voice;
+  - the music ducks to 35% under speech.
+  Settings → Character voices (on by default) turns it all off. The
+  settings panel was redesigned to fit a fourth switch.
+- Tests:
+  - `campaign_voices_test.dart` (6):
+    - every line, thank-you and sprint call has its clip, and nothing
+      extra is recorded;
+    - each clip is Ogg of a believable length and pace;
+    - the whole set stays under 12 MB;
+    - a scene speaks each line in its speaker's voice (the courier as the
+      equipped bird) and hushes when it ends or is skipped;
+    - it says nothing with voices off;
+    - a spoken line is written out just ahead of its voice.
+  - `sky_audio_test.dart` adds:
+    - Pip's and Orbit's own sprint calls, never repeating the last;
+    - no sprint call with voices off;
+    - a spoken line ducks the music until it ends or is hushed, and a new
+      line cuts off the last.
+  - `campaign_screens_test.dart` adds a finished level reading its
+    thank-you once and a knockout saying nothing.
+  - The settings tests now cover four switches. `settings_ui_test` had
+    compared the fourth row against the wrong setting; that is fixed.
+- Checked by transcription with ElevenLabs Scribe, on a sample of 24 clips
+  with the heaviest direction:
+  - no audio tag was read aloud;
+  - the penguin choir's line dropped "high notes" and was re-recorded (the
+    new take is complete);
+  - "lamps" transcribes as "lambs" in all four takes, even with an IPA hint,
+    most likely the transcriber's bias. The IPA take is in the game, and it
+    has not been listened to.
+- Results: `flutter analyze` is clean and the full suite passes 1408 tests,
+  with 111 capture tests skipped.
+- Recast: Pip was first voiced by Peanut – Tiny & Peppy. Five high-pitched
+  voices were auditioned (`build/story-voices/pip-auditions/`); the game
+  owner then picked Nelson – Awkward Nerd Character, a sixth voice. Pip's 46 clips (42 lines and 4
+  sprint calls) were re-recorded with the same prompts.
+- Not covered: nothing was played on a phone, and no clip was listened to by
+  a person. Only the 24 transcribed clips were checked for their words; the
+  rest were checked for length and pace only.
+
+## 2026-09-30 Ember Dragon redesign
+
+- Art only. The rules, rules version, `lib/domain/*`, audio, the hit circle,
+  the mouth point, every timing and the breath bands are untouched, and
+  `test/dragon_boss_test.dart` is unmodified and passes. The design came from
+  a written design bible and a shared layout contract (`DragonLayout`:
+  anchors, envelope, stroke weights, timeline), then eight part builders, a
+  seamless-skin pass, two rounds of independent hostile reviews (design,
+  colour, motion, QA, style) and a final verification round. The bible,
+  reviews and review harnesses live outside the repo in `../dragon-ws`.
+- What changed, all under `lib/game/`: `dragon_layout` (new), `dragon_hide_art`
+  (new: torso, neck, head, tail and near legs painted as one skin under one
+  outline, by a two-pass paint with no per-frame `Path.combine`),
+  `dragon_call_art` (new: the swarm-call cue), `dragon_story_art` (new: story
+  portraits), and rewrites of `dragon_kit`, `dragon_pose`, `dragon_boss_rig`,
+  `dragon_head_art`, `dragon_body_art`, `dragon_wing_art`, `dragon_breath_art`,
+  `dragon_fireball_art`, `dragon_encounter_ui` and `dragon_hud_art`. The
+  dragon branches of `boss_encounter_art` and `boss_health_bar_art` changed;
+  no other boss's branch did. `story_boss_art` now calls `DragonStoryArt`.
+- Fit and budgets, enforced by default (`test/dragon_enforce.dart`): every
+  pose stays inside the layout's envelope (`dragon_envelope_test`, about fifty
+  states across wing phases), no pose crops at 640×360 or 800×360 in fury,
+  roar, hold, snap or blast (`dragon_staging_test`), and the rig stays within
+  its per-frame budget of drawing ops, clips, shaders and layers
+  (`dragon_budget_test`).
+- Fairness: the flame's visible edge sits within a few pixels of the rules'
+  burn band and never past it, in every lane, in fury and under Reduced
+  Motion (`dragon_breath_test`). The jaws land on the rules' mouth point on
+  every launch, and the fireball's solid body equals its hit radius.
+- Determinism: identical inputs give identical pixels whatever order the
+  states are drawn in (`dragon_determinism_test`), and every public brush
+  survives NaN and infinite inputs.
+- Results: `flutter analyze` is clean. The full suite on a copy of the tree
+  with the redesign applied passed 1398 tests with 111 capture tests
+  skipped. The dragon, boss-art and campaign tests pass again on this tree.
+- Not covered: nothing was run on a phone. On this shared desktop, in
+  debug, the rig costs 1.35 to 1.6 times the original art's CPU time, though
+  it builds 0 to 2 gradient shaders a frame where the original built about
+  sixty-six; a mid-range Android check is still worth doing.
+- Left for the game's owner, outside the dragon's files: `bird_game.dart`
+  applies a 1.018 world zoom whenever shake is non-zero, which pops on every
+  hit, fury onset and roar (a zoom of `1 + 2.2 * max(|dx| / w, |dy| / h)` is
+  exactly 1 at rest). In `boss_audio_cues.dart`, `boss_reveal` fires about
+  0.25 s before the reveal's visual strike (1.65 s against 1.88 s) and
+  `dragon_breath` about 0.22 s after the ignite (5.5 s against 5.26 s; keep a
+  quiet sizzle at 5.5 s). A rules change, which would need a new rules
+  version, could also push the first fireball after the swarm call
+  (`dragonRefire` 0.9 to 1.7).
+
+## 2026-09-30 Campaign story
+
+- The campaign now tells its story between flights (`docs/campaign.md`,
+  Story; the specification's Campaign section). Nothing in the rules, a
+  flight or a replay tape changed: rules stay at version 41 and the save at
+  schema 5.
+  - 23 dialog scenes (`lib/domain/campaign_story.dart`) between the courier,
+    Postmaster Bill and the five bosses play on the map: the prologue, a
+    route's opening, an arrival in each later region, the scene at each
+    lair and each boss's last word before its postcard. The 10 scenes of
+    chapters 1 and 2 can be reached in this build.
+  - Every level has a delivery: a parcel tag on its card and a signed
+    thank-you note on a finished result.
+  - Watched scenes are saved in the `storyWatched` preference. A level's
+    story key plays its scenes again.
+- Tests:
+  - `campaign_story_test.dart` (8) checks:
+    - all 40 deliveries against their length limits, with a boss signing its
+      own level's;
+    - a scene before exactly the first level of each region and each boss
+      level, set in that level's region, and one after each chapter;
+    - three to nine lines a scene, at most 100 characters a line, curly
+      quotes and a real ellipsis, the courier in every scene and a boss in
+      every scene that has one;
+    - each boss's name-card line as its last word at the lair;
+    - the club rule opening and closing the story, and the flame seal in the
+      first four scenes after a fall;
+    - what plays by itself: the prologue until it is watched or 1-1 is
+      cleared, a level's scene once before its first finish, and a boss's
+      last word only while its postcard is due.
+  - `campaign_save_test.dart` (13) adds: a watched scene is saved once,
+    beside the other preferences and the level records; the progress
+    controller saves one; Reset starts the story over.
+  - `campaign_screens_test.dart` (21, and 12 capture tests) adds a `story`
+    group on the real app over an in-memory database:
+    - the first visit plays the prologue line by line, each line and speaker
+      in the semantics, and a second visit goes straight to the map;
+    - Skip and the back button end a scene and save it;
+    - a level's scene plays before its card once, the story key plays it
+      again without saving, and a level with no scene has no key;
+    - a fallen boss's last word, then its postcard, then the next route's
+      opening, then the card; a beaten lair's key plays both of its scenes,
+      and two taps as the first ends do not skip the second;
+    - with motion, a line writes itself out, a tap finishes it and the next
+      moves on, and the map holds its frame underneath.
+    Its other tests start with every scene watched, so they meet none.
+  - `polish_story_scene_test.dart` (8, and 11 capture tests) checks every
+    line of every scene at 640×360, 800×360, 1000×450 and 640×360 with a
+    notch: found once, 15 px or larger, within two rows, inside the panel,
+    with no exception. It also checks the keys and labels the campaign
+    relies on, Enter and Space, no tickers or scheduled frames under Reduced
+    Motion or with animations turned off, and that every actor keeps to a
+    bounded box.
+  - `polish_level_intro_test.dart` (7, and 5 capture tests) adds: the cargo
+    on all 40 cards at the three sizes, inside its tag and over no other
+    lettering; the story key only with `onStory`, at least 48 px, centred
+    under the close key, with the hint clear of it.
+  - `polish_s4_result_test.dart` (19, and 16 capture tests) adds: all 40
+    notes on their own; on the real stage for 1-1, 2-5 and 1-8 at the three
+    sizes, the note overlaps none of the title, the bird, the plate, the
+    scoreboard, the stars or the keys; an interrupted flight shows none;
+    with motion it lands where Reduced Motion puts it.
+- Renders reviewed under `build/visual-review/campaign/`:
+  - `polish/story/` (225) from `CAPTURE_POLISH`: the cast sheets (Bill, the
+    four birds and the five bosses in every mood, before and after their
+    fall), every scene at 800 wide, the prologue, a lair and a last word at
+    the three sizes, the longest lines, a notch, each bird as the courier,
+    the opening and a change of speaker frame by frame, and Reduced Motion;
+  - `polish/level-intro/` and `polish/s4-result/` from `CAPTURE_POLISH`: the
+    tag, the story key and the note, with the note arriving frame by frame;
+  - `screens/story-*.png` (27) from `CAPTURE_CAMPAIGN_SCREENS`: the prologue,
+    a lair, a last word, an arrival and the card it leads to, in the real
+    app at the three sizes.
+- Review fixes:
+  - A caption that wrapped left one word alone on its second row. Every line
+    that wraps now splits evenly.
+  - Two taps as a replayed scene ended could skip the scene after it
+    (`campaign_screens_test`).
+- Results: `flutter analyze` is clean and the full suite passes 1035 tests,
+  with 110 capture tests skipped.
+- Not covered: chapters 3–5 are not playable, so their scenes and notes are
+  checked on their own and in the renders, not through a flight. Nothing was
+  run on a phone.
+- Known couplings: `lib/ui/story_boss_art.dart` builds each boss's story
+  poses from its flight rig. It paints the Spitter King's open eye over the
+  rig's crossed-out one after his fall, and assembles the Dusk Empress from
+  her part painters in the rig's order, so a change to her rig's eye or draw
+  order needs the same change there. The Ember Dragon goes through
+  `DragonStoryArt` (`lib/game/dragon_story_art.dart`), which keeps the rig's
+  draw order in one place beside it. Baron Bat's
+  rig has no worried brow, so his sad face is heavy-lidded with a sweat bead.
+
+## 2026-09-30 Campaign
+
+- Rules version 41 adds the Tap & Fly campaign (`docs/campaign.md`, rules in
+  the specification's Campaign section). `FlightSimulation` asks a
+  `FlightPlan` for every schedule knob. `FlightPlan.endless` reproduces the
+  old rules, and a campaign level supplies a `LevelPlan`. The catalog
+  (`lib/domain/campaign.dart`) holds 5 chapters of 8 levels. Chapters 1 and 2
+  are playable, and chapters 3–5 are data, locked as "Coming soon".
+- Endless is guarded two ways:
+  - `test/endless_plan_baseline_test.dart` pins 44 seeded flights and replays
+    to digests recorded before plans existed
+    (`test/fixtures/endless_plan_baseline.json`). They cover touch Star Trail
+    at 28 rules versions from 5 to 40, three widths and Reduced Motion. They
+    also cover the base weapon, including a flight that ends, plus Classic,
+    practice, the camera modes, and replays at rules 27, 33, 38 and 40. Every checkpoint samples the obstacles, enemies,
+    stars, shots, set pieces, events and the count of random draws. It also
+    checks that rules 41 fly endless exactly like 40 at 1.6 and 2.4 widths,
+    and that the baseline flight meets all five bosses, the upgraded Baron,
+    every rush path, a gale, stone panels and heart pickups. Re-record only
+    after a deliberate endless change, with
+    `--dart-define=RECORD_ENDLESS_BASELINE=true`. Add
+    `DUMP_ENDLESS_BASELINE=true` to write each flight as text for diffing.
+  - `test/endless_scenery_baseline_test.dart` pins 235 endless scenery frames
+    to pixel digests (`test/fixtures/endless_scenery_baseline.json`). They
+    cover every region, crossing and lap of the world tour, the older gate
+    looks, a gale and real game frames, with and without Reduced Motion.
+    Re-record with `RECORD_SCENERY_BASELINE=true`.
+- Campaign tests:
+  - `campaign_catalog_test.dart` (6) checks:
+    - five chapters of eight levels in boss order, with unique ids and seeds;
+    - the journey's region order and the levels per region;
+    - lengths, starts, and set pieces with passages on both sides;
+    - mechanics arriving chapter by chapter;
+    - star marks for all 40 levels pinned to the route (see below);
+    - plans surviving JSON exactly, and malformed plans rejected.
+  - `campaign_flight_test.dart` checks:
+    - campaign rules need a touch Star Trail at rules 41;
+    - the same seed and inputs fly the same level exactly;
+    - every attempt lays the same route whether or not it sprints, at every
+      width, with moving passages in the same phase;
+    - a level holds its region and ramps from its start;
+    - each hazard is absent before its chapter, flying every chapter 1–2
+      level;
+    - Shoot and Sprint are refused before 1-3 and 1-5;
+    - toughness follows the chapter;
+    - every chapter 1–2 level flies to its finish and lays exactly its route
+      stars;
+    - chapter 3–5 gales and shuffled rushes already fly (3-4, 3-6, 5-2, 5-3
+      and 5-7, with and without sprints);
+    - crossing the line completes the level;
+    - 1-8 and 2-8 end with the boss (120 and 210 HP), then the glide to the
+      line;
+    - a knockout earns no stars, the stars follow the marks, and a pause holds
+      the route clock.
+  - `campaign_progress_test.dart` checks the unlock rules, bosses opening
+    chapters while 3–5 stay locked, the current level, merged bests, star
+    totals by level, chapter and region, and when a postcard is due.
+  - `campaign_replay_test.dart` checks:
+    - 1-5, 2-3 and 2-8 sessions replay exactly from their tapes;
+    - a replay flies the plan it was recorded with, not the catalog's;
+    - only rules-41 campaign tapes carry `level` and `plan`, and older tapes
+      still load and replay;
+    - corrupt levels and plans are rejected.
+  - `campaign_save_test.dart` (12) checks:
+    - the schema 4 → 5 migration keeps every flight and setting and adds an
+      empty campaign;
+    - level bests, with each flight counted once;
+    - no endless records from campaign flights;
+    - only a scored touch Star Trail of a real level can carry a level;
+    - postcards marked seen, the progress controller, and reset;
+    - daily adventure and passport counting;
+    - a saved campaign session keeping its level and replaying to the same
+      result;
+    - endless session summaries saved as before.
+  - `campaign_play_test.dart` checks:
+    - `PlayController` flies the level's plan and seed and the tape keeps
+      them;
+    - the finish completes the level with its stars;
+    - a knockout fails the level and Retry flies the same one;
+    - the last level has no next one;
+    - the HUD for 1-1, 1-3 and 2-1 shows the stars, route and offered
+      controls, endless keeps its score and both controls, and a boss hides
+      the level readouts.
+  - `campaign_screens_test.dart` runs the real app on an in-memory database:
+    - Home to the map with its star total, and the Campaign key at a full
+      48 dp on the smallest phone;
+    - a level counting as flown on Home;
+    - map → card → flight → finish → result → Next → next card;
+    - locked levels only nudging, and chapters 3–5 saying Coming soon;
+    - a knockout's stage and Retry;
+    - the pause card's Retry and Map both saving;
+    - the first boss clear bringing the postcard and then chapter 2;
+    - 2-8 leading back to the map, with chapter 3 coming soon;
+    - sessions named after their level.
+  - `campaign_art_test.dart` checks that the map opens on the current level,
+    node states and stars, taps on open and locked nodes, beaten chapters'
+    postcards, Reduced Motion's still map and jumps, and every chapter's
+    postcard.
+  - `campaign_flight_art_test.dart` checks:
+    - boss lines only on campaign boss levels, in quotes under the epithet,
+      fitting at every width and fading with the card;
+    - the finish line scrolling in and meeting the bird as the level
+      completes;
+    - Reduced Motion's still pennants;
+    - the line staying in the world after a knockout.
+  - `campaign_regions_art_test.dart` checks that a level holds its one region
+    at every moment and opens on the tour's still for that region, that band
+    copies come and go without a jump, and that every region renders through
+    a long level.
+- Chapter 3–5 star marks were re-pinned from the real routes. The design
+  doc had estimated a gale at 24 stars, but it costs 42–45 (3-2 lays 105, and
+  the same level with a gale, 3-4, lays 63). A rush path costs 6–12. 4-3's
+  old ★★★ mark (70) was above its 69 route stars. Every level now sits at 45%
+  and 75% of its route stars in chapter 1, and 50% and 80% after, rounded to
+  fives:
+
+  | Level | Route ★ | ★★ / ★★★ | Level | Route ★ | ★★ / ★★★ | Level | Route ★ | ★★ / ★★★ |
+  | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+  | 3-1 | 96 | 50 / 75 | 4-1 | 99 | 50 / 80 | 5-1 | 105 | 55 / 85 |
+  | 3-2 | 105 | 55 / 85 | 4-2 | 108 | 55 / 85 | 5-2 | 72 | 35 / 60 |
+  | 3-3 | 102 | 50 / 80 | 4-3 | 69 | 35 / 55 | 5-3 | 99 | 50 / 80 |
+  | 3-4 | 63 | 30 / 50 | 4-4 | 105 | 55 / 85 | 5-4 | 72 | 35 / 60 |
+  | 3-5 | 114 | 55 / 90 | 4-5 | 114 | 55 / 90 | 5-5 | 78 | 40 / 60 |
+  | 3-6 | 69 | 35 / 55 | 4-6 | 114 | 55 / 90 | 5-6 | 111 | 55 / 90 |
+  | 3-7 | 78 | 40 / 60 | 4-7 | 78 | 40 / 60 | 5-7 | 78 | 40 / 60 |
+  | 3-8 | 36 | 20 / 30 | 4-8 | 36 | 20 / 30 | 5-8 | 36 | 20 / 30 |
+
+  Chapter 4's routes don't include the sea or tide yet. Re-check them when
+  those rules are built.
+- Renders were reviewed during the build, under
+  `build/visual-review/campaign/`:
+  - `map/` (47) and `postcards/` (8) from `CAPTURE_CAMPAIGN_ART`;
+  - `flight/` (40) from `CAPTURE_CAMPAIGN_FLIGHT`;
+  - `regions/` (156) from `CAPTURE_CAMPAIGN_REGIONS`;
+  - `screens/` (54) from `CAPTURE_CAMPAIGN_SCREENS`.
+- Results: after the screens landed, `flutter analyze` was clean and the full
+  suite passed 954 tests. After the marks were re-pinned, the campaign and
+  endless-baseline files passed again (95 passed, 18 capture tests skipped).
+- Review fixes, each with a test that failed before the fix and passes
+  after it:
+  - A beaten boss can't fail its level. From the defeat to the line the bird
+    coasts (`FlightSimulation.victoryGlide`), taps, shots and sprints do
+    nothing, and nothing hurts it. `campaign_flight_test` flies 1-8 and 2-8
+    on the last heart with no taps, and with taps, shots and sprints on
+    every frame; `campaign_replay_test` replays and seeks into the glide.
+  - On a boss level the route line fills 85% over the run-up, marks the lair
+    with the boss's headwear, and the glide fills the rest. The Bonk!
+    stage's "route flown" reads the same share (`campaign_flight_test`, and
+    the `hud-boss-run-up` and `hud-victory-glide` captures).
+  - The level result leaves the flight's bird out of the frozen finish
+    (`BirdGame.hideBird`). `campaign_flight_art_test` renders the frame both
+    ways and finds changes only within the bird's footprint;
+    `campaign_screens_test` checks the result hides it and a knockout keeps
+    it.
+  - Only a finished flight sets a level's best stars collected and best
+    score, and the card reads "Not delivered yet" until one does
+    (`campaign_progress_test`, `campaign_save_test`,
+    `campaign_screens_test`). The result's NEW BEST and score best follow the
+    same rule.
+  - A replayed level chimes at its plan's marks, not at the endless flight
+    goals (`campaign_screens_test` replays a saved session: one chime, not
+    two).
+  - Home's Play and Practice are back at their pre-campaign rects, measured
+    from the baseline Home and pinned at 640×360, 800×360 and 1000×450. The
+    Campaign key sits beside Play, a full 48 dp at all three
+    (`campaign_screens_test`).
+  - The map's back key leads Home while the save loads or can't be read,
+    and the error offers Home beside Try again (`campaign_screens_test`).
+  - A gale no longer pushes a boss away for good: the rush lead after a gale
+    only applies to a rush that is scheduled. The catalog never pairs them
+    (`LevelPlan.problem`); `campaign_flight_test` flies such a plan anyway.
+  - Map stills keep their own cache budget, apart from the card's and
+    postcard's pictures, and the map's tickers are muted under a card or
+    postcard (`campaign_art_test`, `campaign_screens_test`). The 47 map and
+    8 postcard captures are pixel-identical after the change.
+  - After the fixes, `flutter analyze` was clean and the full suite passed
+    966 tests (29 capture tests skipped), the endless baselines included.
+- Known and open:
+  - holding one region draws up to four small offscreen layers per skyline
+    band while a band seam is on screen (campaign only), which hasn't been
+    measured on a phone;
+  - the map paints a region's first still in about 150–250 ms in debug
+    builds.
+
+Device playtest, still pending:
+
+- Fly 1-1 to 2-8 in order on the phone. Check each NEW hint matches what its
+  level brings, and that difficulty rises without a jump at 2-1, 2-3 or 2-7.
+- Retry speed: after a knockout, Retry should reach the countdown at once.
+  Retry from the pause card too.
+- Check the finish line reads clearly as it approaches at 640 and 800 widths,
+  and that the result sits well over it.
+- Star marks: ★★ should be reachable on a careful first flight, and ★★★
+  should need streaks and the magnet. Check boss run-ups (15/25, 20/30) too.
+- Map performance: swipe and arrow-step across all 13 stops. Watch the first
+  paint of each region and frame times while the bird bobs.
+- Watch frame times in a long level while skyline seams cross the screen.
+- Reduced Motion, both the app setting and the system one: the map is still
+  and jumps between stops, cards appear without sliding, the pennants hold
+  still, and the result shows its stars in place.
+- Postcard: beat Baron Bat and see the result's note, the postcard on the
+  map, Continue, then 2-1 open. Reopen it from the route. Kill the app
+  before Continue; it should arrive again.
+- Save a level session, restart the app, and replay it from Records → Saved
+  sessions. The flight, stars and finish should match, and it should be
+  named after the level.
+- Install over an existing schema-4 build with records, saved sessions and
+  settings. All of them should survive, and the map should open on 1-1 at
+  0 / 48.
+- Check the Home Campaign key on the smallest and largest phones, and the
+  back key on the map, card and postcard.
+- Make sure endless Play still tours the regions and meets every boss.
+
+## 2026-09-30 game-over stage redesign
+
+- Before this change, the stage read as a results panel pasted over the game:
+  - the title was centred over the full width, while the card and buttons sat
+    right and the bird sat low left with dead space above it;
+  - the caption sat on the busy world with only a text shadow;
+  - score and best had similar weight, and the stat pills and footnotes were
+    crowded;
+  - the ribbon straddled the card's edge, and the three buttons had near-equal
+    weight.
+- Presentation only, in `lib/ui/game_over_stage.dart`. The stage now reads
+  left to right:
+  - The left half is the story: the Bonk!/Splash! title, the caption on a
+    cream plate, and the bird on its cloud (drawn larger) in a soft spotlight.
+  - The right half is an ink-framed scoreboard with a big score and a
+    personal-best plaque.
+  - A new best keeps the old record on the plaque until the count lands, then
+    gilds the plaque under a notched ribbon.
+  - Below the scores sit stat tiles, a progress row (a flight wings chip and a
+    passport/postcard chip with a stamp progress bar) and the save status.
+  - Practice tags the score, and its note fills the progress row.
+- The keys stay in the same place after every flight. Home and Save session /
+  Watch replay are cream keys with the icon over the label. Fly again is a
+  taller coral key in the home PLAY key's style. It pops in last, as the stage
+  arms, and hops with one glint when the bird recovers. Touch targets grew.
+  In design px of cap height, the secondary keys went from 44 to 64, and Fly
+  again from 60 to 78.
+- Unchanged: every string, key and branch the tests use; the tap guard;
+  `entrance` (1.5 s), `calmEntrance` and `armAt` (0.62); and Reduced Motion's
+  still stage. Shared components and the results panel were not touched.
+- `test/game_over_stage_test.dart` (8 tests) gains:
+  - a standalone-stage helper;
+  - a gallery of all four birds, dazed and then ready, with Orbit on Classic
+    to cover the rank tile;
+  - captures of the ready moment, of Watch replay, and an entrance filmstrip.
+- Visual review, six rounds, at 640×360, 800×360 and 915×412. Before and
+  after renders are in `build/visual-review/game-over-redesign/`. Changes
+  made along the way:
+  - the card hugs its content above bottom-anchored keys, so practice has no
+    hollow card;
+  - the ribbon moved off the label clash onto the plaque;
+  - the next-stamp title no longer loses its space to the bar;
+  - chips put their chevrons at the far edge;
+  - the PRACTICE tag moved beside the score;
+  - the reveals were retimed so the card never shows a blank middle;
+  - rank names wrap instead of shrinking;
+  - the session-saved teal was deepened for contrast.
+- `flutter analyze` is clean for both files, and the stage tests pass. Device
+  playtesting of the key sizes and the ready hop is still pending.
+
+## 2026-09-30 Baron Bat returns upgraded
+
+- Rules version 40 (`supportsUpgradedBaron`) upgrades every Baron Bat
+  after his debut: `SkyBoss.upgraded` is passed as `supportsUpgradedBaron &&
+  kind == baronBat && !debut`, and `SkyBoss.screeches` reads it. The debut
+  Baron, rules 39 and older, and every other kind are unchanged. The
+  upgraded Baron adds no random draws, and his branches are gated on
+  `screeches`. His `summonIn` is infinite, so the old single-helper summon
+  never runs for him.
+- The screech timing, gap places, aiming, wall geometry, fireball hold and
+  pair timing live in `lib/domain/baron_screech.dart`. `SkyBoss` exposes:
+  - `screechWarning`, `screeching`, `screechFront`, `screechOpening`,
+    `screechOriginX`;
+  - `screechQuiet`, `screechWarnings`, `screechBlasts`;
+  - `screechGap`, `screechesAimed`, `screechHits()`;
+  - `batPairsDue`, `furyPairsDue`, `batPairs`, `furyPairs` and
+    `screechHint`.
+
+  `FlightSimulation` gains the presentation counter `screechHits` and
+  `_sendBatPair` (two simple bats, `summons` += 2).
+- The gap is aimed once per warning, from the bird's height and the
+  screech's index, like the dragon's breath lane. Pairs are edge-triggered
+  like the dragon's swarm calls.
+- Two cues were synthesised in `tool/prepare_sound_effects.py` with no
+  source takes or network: `screech_warning` (1.45 s) and `sonic_screech`
+  (1.2 s). Their envelopes were checked. The warning's chirps swell from
+  about −40 to −14 dB RMS. The screech holds near −14.5 dB, then falls away.
+  `BossAudioCues` plays them on the warning and sweep edges, and the play
+  screen's live semantics hint gained a `screechHint` branch.
+- The art is split like the dragon's:
+  - `baron_storm_pose` (poses from the boss clock, rig wrapper, mouth,
+    camera jolt);
+  - `baron_storm_art` (regalia);
+  - `baron_screech_art` (telegraph, wall, mouth effects, tag, bird jolt,
+    and pure helpers the tests check against the rules).
+
+  `BossRig.paint` takes an optional `storm` pose. `BossEncounterArt` and
+  `BossArt` gained small `screeches` branches: stage hooks, the rig, the
+  held charge, the pink roar, the storm crown, the arrival texts and the
+  jolt. The health bar is unchanged.
+- `test/baron_bat_upgrade_test.dart` (17 tests) covers:
+  - the upgrade gate at rules 39 and 40 for encounters 1, 6 and 11;
+  - the debut Baron's unchanged fight;
+  - the cycle through fury, and the gap never at the bird's own place and
+    alternating;
+  - aiming once, and hurting only outside the gap and only as the wall
+    crosses, including Classic;
+  - no screech in cutscenes;
+  - reachability: from every start height, calm and fury, both screech
+    parities, at 1.78 and 2.4 widths, a bird tapping at most 5 times a
+    second loses nothing;
+  - the fireball hold, the pair heights, kinds and timing, and every pair
+    past the bird before the next warning (analytically at the slowest pace
+    on a 2.4-wide phone, and in a flight);
+  - pause, cues, repeat determinism, and a recorded flight to encounter 6
+    that survives backward and forward `ReplayPlayer` seeks;
+  - bot wins at 640 and 800 widths.
+
+  Shortening the warning to 0.3 s makes the reachability test fail, so it
+  guards the timing.
+- `test/boss_polish_upgraded_baron_art_test.dart` renders pose sheets and
+  640×360 and 800×360 walkthroughs, with Reduced Motion. It checks:
+  - that the drawn leading edge stays within 0.01 of `screechFront` at every
+    height the bird can meet, for 4:3, 640, 800 and 2.4 widths, all gaps
+    and fury, and by pixel sampling;
+  - that the drawn gap equals `screechOpening`;
+  - determinism and exact seeks, and distinct poses under Reduced Motion;
+  - that the debut Baron still matches its pre-change baseline, stored as
+    pixel hashes in `test/fixtures/debut_baron_baseline.json`. On another
+    Flutter version or machine, re-record it from a known-good tree with
+    `--dart-define=RECORD_BARON_BASELINE=true`.
+
+  The new art uses no `saveLayer`. Picture recording measured 0.2–0.5
+  ms/frame (warning and sweep included).
+- `flutter analyze`: no issues. Full suite: 858 passed, 11 skipped, 0
+  failed.
+- Reviewed renders are in `build/visual-review/boss-polish/upgraded-baron/`.
+
+## 2026-09-30 Ember Dragon swarm
+
+- Rules version 39 lets the Ember Dragon call flocks of the Swarm rush
+  path's bats (`supportsDragonSwarm`, passed to `SkyBoss.callsSwarm`). One
+  flock comes as each flame gutters out (`SkyBoss.swarmCallAt`, 7.6 s into
+  the breath cycle). In fury, away from the debut, a second follows
+  `swarmFollowAfter` (1.4 s) later. Calls are edge-triggered like breath
+  aiming: `swarmCalls` and `swarmFollows` catch up with the clock-derived
+  `swarmCallsDue` and `swarmFollowsDue`. There are no new random draws.
+- `SwarmBat.route` is now optional. A dragon's bat has none and holds the
+  `height` it was released at. `_advanceSwarm` also runs without rush paths
+  (Classic) whenever bats are flying. There a bat ends the flight and a
+  smash scores nothing. Before rules 39 the swarm is always empty outside a
+  rush path, so older replays are unchanged. `_defeatBoss` clears the swarm.
+- A call reuses `summons` and `lastSummonAt`, so `boss_summon` plays through
+  `BossAudioCues`. `DragonPose.roar` takes 0.7 of the summon pulse for the
+  call gesture. `breathHint` reads SWARM for `swarmHintSeconds` (2.5 s).
+- `test/dragon_boss_test.dart` gained a `swarm flocks` group:
+  - the call timing, formation, height clamp, cue and hint;
+  - the fury follow-up, and none on the debut;
+  - both flocks past the bird before the next inhale at 1.78, 2.22 and 2.6
+    widths;
+  - hurt, sprint ram and rock smash, and Classic ending the flight;
+  - defeat clearing the swarm, and no flocks at rules 38.
+
+  `dragonSnapshot` now includes the swarm, so the determinism and seek
+  tests cover it. The beatability bot dodges bats as well as fireballs, and
+  each of its four fights now has to meet a flock.
+- `flutter analyze` is clean and `flutter test` passes: 829 passed, 11
+  skipped.
+
+## 2026-09-30 Ember Dragon
+
+- Rules version 38 adds `BossKind.dragon`, the Ember Dragon ("SOVEREIGN OF
+  THE BURNING SKY"), as the fifth boss in the cycle (`supportsDragon`). Rules
+  34–37 keep `BossKind.values[bossesDefeated % 4]`, and extending the enum
+  leaves indices 0–3 unchanged. The dragon adds no random draws. Every
+  dragon-only branch (breath aiming, the fireball hold, the mouth launch,
+  splits, the burn check, the arrival swoop) is gated on `isDragon`.
+  `SkyBoss.strike` doubles damage only while a dragon's heart is open. For
+  every other boss it is `takeDamage`, so older replays are unchanged.
+- The breath timing, bands and aiming live in `lib/domain/dragon_breath.dart`.
+  `SkyBoss` exposes `breathWarning`, `breathing`, `breathBusy`,
+  `breathQuiet`, `coreExposed`, `breaths`, `breathBlasts`, `breathLane`,
+  `splitsVolley` and `breathHint`. `BossAmmo` gains `splitAfter`, `ember` and
+  `age`. `FlightSimulation` gains the presentation counters `emberSplits` and
+  `breathBurns`.
+- The art is split like the pirate's and the moth's:
+  - `dragon_kit` (palette, tone, paths);
+  - `dragon_pose`;
+  - `dragon_wing_art`;
+  - `dragon_body_art` (torso, belly, heart, legs, tail);
+  - `dragon_head_art` (neck, head, horns, circlet, eye, smoke);
+  - `dragon_boss_rig`;
+  - `dragon_breath_art` (telegraph, flame, inhale embers);
+  - `dragon_fireball_art`;
+  - `dragon_encounter_ui` (sky, roar, fury ring, hits, defeat);
+  - `dragon_hud_art`.
+
+  `BossEncounterArt._paintDragon` stages them. `BossAmmoArt`,
+  `BossHealthBarArt` (with a HEART ×2 tag), `BossAudioCues`,
+  `CombatAudioCues` and the play screen's live semantics hint gained small
+  dragon branches.
+- Three cues were synthesised in `tool/prepare_sound_effects.py` with no
+  source takes or network: `dragon_inhale` (1.45 s), `dragon_breath` (1.6 s)
+  and `ember_split` (0.45 s). Their envelopes were checked: the inhale swells
+  from −40 to −14 dB RMS, and the flame holds near −18 dB, then gutters out.
+- Existing tests that assumed the four-boss cycle at the current version
+  were updated:
+  - `dusk_moth_boss_test` (the cycle list now includes the dragon at 5 and
+    10; later moths are after 7 and 12 defeats);
+  - `combat_damage_test` (the dragon from rules 38, 360 HP);
+  - the kind-name switches in `boss_polish_ammo_art_test` and
+    `boss_polish_health_bar_art_test`.
+
+  The encounter-art Reduced Motion check found that the huge body flared
+  through the burst. Under Reduced Motion it now fades out before the burst,
+  as the pirate's wreck does.
+- `test/dragon_boss_test.dart` (19 tests) covers:
+  - the cycle at 37 and 38, and the HP curve;
+  - the debut (halves only, no splits);
+  - the breath timing through fury;
+  - aiming once at the bird's height;
+  - burning only inside the band and during the blast, including Classic;
+  - no burns in cutscenes;
+  - reachability: from every start in every band, debut or not, a bird
+    tapping at most 5 times a second is safe before the blast and loses
+    nothing;
+  - the mouth launch and the quiet window;
+  - double damage on the open heart;
+  - the ember split geometry;
+  - pause, audio cues and repeat determinism;
+  - a recorded flight to the fifth boss that survives backward and forward
+    `ReplayPlayer` seeks;
+  - bot wins at 640 and 800 widths for the debut and a later dragon.
+
+  A dodging bot beat the debut dragon in 27–34 s and the later one in
+  47–54 s without being hit.
+- `test/boss_polish_ember_dragon_art_test.dart` renders the pose sheets
+  (close-up, phone scale, Reduced Motion), hero and head close-ups,
+  fireballs, health bar states and in-game walkthroughs at 640×360 and
+  800×360 (the latter also in Reduced Motion). It checks:
+  - determinism and exact seeks;
+  - that the art's jaws sit on the rules' mouth point within 0.012;
+  - that every non-idle pose stays distinct under Reduced Motion.
+- A throwaway probe measured the combat stage in the test environment:
+  - Ember Dragon: 0.9–1.8 ms/frame paint and 16–20 ms raster;
+  - Pirate Captain: 3.8–4.2 ms/frame paint and 32–36 ms raster.
+
+  Combat uses no `saveLayer`, except while the flame fades out and for the
+  brief ×2 label.
+- `flutter analyze`: no issues. Full suite: 824 passed, 11 skipped, 0
+  failed. The baseline taken before this change (on a tree other sessions
+  were also editing) had 4 failures, since fixed by those sessions: the
+  Dusk diadem seating check and three jump-glide HUD checks.
+- Reviewed renders are in `build/visual-review/boss-polish/ember-dragon/`.
+
+## 2026-09-30 Cyberpunk City region
+
+- The world tour gains a thirteenth region, `WorldRegion.cyberpunk`
+  ("Cyberpunk City"), between Egypt and China. Egypt's hot noon hands over to
+  a neon night, which gives way to China's pastel dusk, so both crossings
+  keep the tour's warm and cold, day and night contrast. `WorldTour.loop` is
+  now derived from `WorldRegion.values.length` (286 seconds), so the one
+  `const` reader in `regions/sea.dart` became `final`. The existing schedule
+  assertions still hold: the tour still reaches Aztec lands by 60 seconds and
+  Paris still hands over to Egypt.
+- `lib/game/regions/cyberpunk.dart` paints a sleek, vertical megacity rather
+  than New York's rainy Art Deco night:
+  - Sky: an indigo-to-violet gradient with a magenta horizon glow. A violet
+    moon with a lit colony sits behind a needle hyper-spire. An orbital ring
+    carries drifting stations. The low smog deck is lit from below. Cyan and
+    magenta beams sweep the sky, flying traffic crosses in four lanes, and an
+    advertising airship scrolls invented glyphs.
+  - Far band: ghost and front rows of arcology towers in eight crown styles,
+    with light strips, lit windows and masts. Two hyper-spires with platform
+    rings stand over them, and aircraft beacons blink.
+  - Mid band: the landmark, a space-elevator arcology in two stepped blades
+    of dark glass split around a core of light. It has three halo terraces
+    with running lights, climbers riding the tether and a holographic koi
+    circling it. Around it stand glass towers with LED floor bands, sky
+    bridges and giant screens that play glyph rain, wave bands or a hexagon
+    and equaliser. A curving maglev guideway carries a five-car train.
+  - Low band: a canal. An elevated freeway streams with head and tail lamps
+    over neon-signed fronts, some signs with flickering tubes. Shop fronts
+    have passers-by, and water taxis leave wakes. The signs, shops and street
+    lights are reflected in broken columns, and `reflect` adds the moon's
+    path.
+  - Near band: glass, ribbon-window, diagrid and louvred rooftops with
+    LED-trimmed parapets and setback tiers. Their kit includes fans, dishes,
+    holo projectors, masts, steaming vents, a drone pad, a neon glyph frame
+    and billboards (a synth sun, a koi, a prism eye). Drones cruise past,
+    wet glints shimmer and a glass balustrade frames the foreground.
+- Signs use an invented glyph script, so there are no words, brands or
+  logos. Static detail is recorded into the cached band pictures and the
+  cached water and cloud pictures. Per-frame work reuses unit-space shaders
+  (blooms, beams, the sky glow, the hull and the hologram cone) and batches
+  lights with `drawPoints`. There is no `MaskFilter` and no `Random`.
+- The new weather motes are `Mote.drizzle` (fine neon-tinted rain) and
+  `Mote.data` (square pixels rising and blinking in steps). They are used 26
+  and 9 times. There is also a glitch pixel-shard burst, a microchip
+  `Kit.emblem`, a fibre-optic tether (dark cable with cyan pulses) and
+  holo-shard gale debris. Gates borrow the night look.
+- `lib/game/obstacle_designs/cyberpunk.dart` skins all seven kinds in pale
+  pearl, titanium and lilac alloys, so every solid stands out against the
+  dark city:
+  - an arcology pylon with a light pipe pulsing toward the rim;
+  - a turbine tower with a ducted fan spinning at the rim;
+  - a holographic glass panel with glyph rows scrolling;
+  - a server-rack pylon with blinking status lights;
+  - a stepped glass tower with a chasing light strip;
+  - a hover drone with a scanning lens;
+  - an energy ring around a plasma core.
+
+  Collision rectangles, the ink edge and the state lip come from
+  `Parts.column` and `Kit.bezel` unchanged.
+- The region lists in `stone_door_art_test`, `bird_trail_art_test` and
+  `enemy_polish_dusk_moth_art_test` include the new region.
+  `world_regions_test` asserts `egypt.next == cyberpunk` and
+  `cyberpunk.next == china`. Its crossing sweep and the art harness now
+  render thirteen regions, so both files declare a library `@Timeout`. The
+  sweep took 16 seconds on the unchanged tree and missed the 30-second
+  default once the machine was busy.
+- In a tree holding only this change, `flutter analyze` reports the same 7
+  existing warnings in pirate review tests and none from this change. The
+  12 region, obstacle, gate, door, trail, moth, star, motion and endless
+  test files pass (77 tests). The full suite passes 810 tests, skips 11 and
+  fails 2. The two failures are the `bird_motion_test.dart` puppet-portrait
+  checks, which fail the same way on the tree without this change (809
+  passed, 11 skipped, 2 failed there).
+- Reviewed renders are in `build/visual-review/regions/`: `cyberpunk-*`,
+  `cross-egypt-cyberpunk-*`, `cross-cyberpunk-china-*`, the `still-cross-*`
+  pair and `overview-regions.png`. They cover 1000 and 800 widths, several
+  times in the hold and Reduced Motion.
+
+## 2026-09-30 pellet shatter
+
+- Before this change, any rock that met a small-enemy pellet was removed
+  along with it, so a full charge costing 45% of the reserve did no more
+  than a tap. Rules version 36 lets a rock with charge 0.35 or more (the
+  `power_shot` cue threshold, now shared as `PowerShot.shatterCharge`)
+  shatter the pellet. The pellet bursts into a blast with a reach of 0.12 to
+  0.24. Every small enemy the blast touches, and an unshielded attacking boss,
+  takes half the rock's damage, rounded; a raised Dusk Empress veil absorbs it.
+  Weaker rocks, and every rules version before 36, keep the plain cancel.
+- Blasts resolve after the tick's pellet sweep. A blast that defeats the boss
+  calls `_defeatBoss`, which clears `enemyAmmo`, so resolving it inside the
+  sweep's `removeWhere` would modify the list while it is being swept.
+- `AmmoShatter` records are render-only. They are pruned after 1 second,
+  cleared on boss arrival and kept through boss defeat. `AmmoShatterArt`
+  (0.6 seconds) draws an amber flash, a ring in the pellet's colour that stops
+  at the reach, shards of the pellet's material and chips of the spent rock.
+  It replaces the deflect splash. Reduced Motion draws a still ring that fades.
+  A shatter plays `lava_burst` under `deflect`.
+- `test/ammo_shatter_test.dart` (9 checks) covers:
+  - the tuning;
+  - weak rocks cancelling only;
+  - a full-charge blast defeating a bat, hurting a moth and missing an enemy
+    beyond reach;
+  - reach growing with charge;
+  - version 35 staying unchanged;
+  - boss damage, shield absorption, and a finishing blast among other pellets;
+  - the audio cue.
+- `test/ammo_shatter_art_test.dart` has 17 checks, some of them capture-only.
+  They cover paused and seek determinism, a blank frame outside the effect,
+  a Reduced Motion footprint that never grows, the ring's edge sitting on the
+  reach, the pellet materials, world scrolling and degenerate inputs. Review
+  renders are in `build/visual-review/ammo-shatter/`, including in-game frames
+  painted through `BirdGame.render`.
+- The full suite passed 752 tests and skipped 7 before the art landed. The
+  shatter, art, enemy ammo, small enemy, power shot, combat audio and session
+  replay tests pass together (69 passed, 4 skipped). `flutter analyze` is clean
+  for these files. Project-wide it currently reports errors in `pirate_*` and
+  `regions/cyberpunk.dart`, which another change is editing. Device
+  playtesting of the blast size and damage is still pending.
+
+## 2026-09-30 knockout and game-over stage
+
+- Before this change, a fatal collision switched to `PlayStage.results` on the
+  frame it happened, so the world disappeared and the plain panel appeared
+  with no death beat. Collisions now pass through `PlayStage.fallen`, which
+  plays a 1.9-second knockout (1.2 seconds with Reduced Motion), and then a
+  game-over stage over the frozen, dimmed flight. Every other ending still
+  goes straight to the results panel.
+- Presentation only. The rules version, physics, scoring, journal commands and
+  `RunResult` are unchanged. `_finish` still builds the result, plays
+  `game_over` and starts saving at the bump. Replays construct `BirdGame`
+  without a knockout clock and draw the same ended frame as before.
+- The knockout clock is fed by the game loop's frame time, with a fallback
+  timer one second past the end. Taps are ignored for 0.6 seconds and then
+  skip the knockout. Backgrounding jumps to the stage. The stage's buttons arm
+  about 0.9 seconds after it appears. Tracking issues during the knockout are
+  ignored, and the ended flight journals nothing further.
+- Birds gain a `dazed` expression with dizzy spirals in place of the pupils,
+  drawn from each rig's own eye shapes. `bird_expression_test` confirms it
+  changes only the face on all four birds.
+- `test/knockout_art_test.dart` (5 checks plus capture-only reviews):
+  - timing bounds;
+  - the world settling monotonically into a held still;
+  - seek determinism for every bird, in the sky and at sea, with and without
+    Reduced Motion;
+  - the frame going blank by the time the stage takes over;
+  - Reduced Motion never growing beyond its first footprint;
+  - the fall leaving the screen and the sea-entry timing.
+- `test/knockout_flow_test.dart` (11) drives `PlayController` through:
+  - collision, knockout, then stage, with saving at the bump and no further
+    journal events;
+  - the guarded skip under frantic tapping (no flaps, no rebuild per frame);
+  - Reduced Motion and practice;
+  - backgrounding, and exit mid-save with calls after dispose;
+  - the stalled-frame fallback;
+  - Fly again;
+  - all seven other end reasons;
+  - the `game_over` cue;
+  - a camera flight whose camera stops mid-knockout.
+- `test/game_over_stage_test.dart` (7) runs the real app at 640×360 and
+  915×412:
+  - HUD hidden and run saved during the knockout;
+  - the mash guard on the knockout and on the stage;
+  - new best, then Fly again into a normal game over;
+  - flight wings, Save session and Watch replay;
+  - practice;
+  - save failure and tap-to-retry;
+  - Reduced Motion;
+  - a pirate-sea **Splash!** stage;
+  - back during the knockout (one saved run).
+- Visual review, three rounds, in `build/visual-review/death/`. Changes made
+  along the way:
+  - smaller, slimmer feathers kept behind the bird so the dizzy face stays
+    readable;
+  - a shorter white impact frame;
+  - a slight swell during the pop so the face reads at gameplay size;
+  - a crown splash instead of a column that looked like a ghost;
+  - a lavender dusk tint instead of a cold grey;
+  - rush banners and the boss plate hidden while the knockout plays;
+  - a rebuilt cloud with an outlined lip;
+  - a ring for the orbiting stars;
+  - the ribbon moved off the best label.
+- `flutter analyze` is clean. The full suite passed 740 tests and skipped 7,
+  most of them capture-only reviews. One test failed: `world_regions_test` hit its
+  30-second timeout under a load average of about 46 from concurrent
+  sessions. Run alone, it timed out twice (its Reduced Motion check and the
+  scenery check). It rasterises `ObstacleArt` and `SkyScenery` only, and
+  `regions/brazil.dart` is being edited in another change. Device playtesting
+  of the knockout timing, the skip guard and the stage at phone density is
+  still pending.
+
 ## 2026-09-29 gales
 
 - Rules version 33 adds gales to touch Star Trail flights. A gale follows each
@@ -925,6 +1771,37 @@ Usable continuous control while looking down, viewing comfort and approaching-ob
 
 ## Tracking observations
 
+- 2026-09-30 body-detection review. No phone was attached and the
+  `/tmp/push-up-bird-diagnostics` backups are gone, so the five fixtures are
+  the only surviving traces; all were replayed. **`last_game_top` is a head-on
+  view, not a side view**: from 15.8 s the shoulder span is 1.1–2.4 torso
+  lengths, the hands are under the shoulders and the hips sit between. Before
+  that the player is upright by the phone (shoulders y≈0.2, hips y≈0.8, hands
+  hanging at the hips, elbows 160–180°). The side-view check (arm ≥ 20° from
+  the torso) accepted 204 of those 271 frames as a plank. The calibrator found
+  a steady "top" at 8.2 s, locked the side view, and `_restart()` kept that lock
+  when the real plank began. The plank was then measured without its strongest
+  cue (shoulder drop) and 62 of its frames failed side-only checks. That is
+  how the original run came to be recorded as a side view; the earlier notes'
+  "side game" is this session.
+- Upright bodies are now rejected in either view when the arm is within 45° of
+  the torso, the torso is at least 0.8 of the arm's length (front-view planks
+  reach 0.77 at p99; upright arms 0.84 at p1) and the hand reaches 0.45 torso
+  lengths down towards the hip (a deep side-view bottom sits near 0.2–0.35).
+  Replayed: 38 of the 271 upright frames remain valid (one arm reaching out
+  sideways, which the 0.8 s steady hold filters), and 4 of 2,130 plank frames
+  are rejected, all as the player lifts a hand at the end of a recording. The
+  steady top's frames now vote on the view; a tracking loss over 0.5 s
+  releases it even while frames stay invalid (a moved camera previously left
+  calibration waiting forever for "both shoulders"), and a changed view
+  discards completed cycles. `last_game_top` now stays in `position` through
+  the upright period, locks the front view at 16.6 s with the shoulder-drop cue
+  and learns its one deep push-up as cycle 1 at 27.8 s; every plank frame is
+  valid. Gameplay heights from the `front_pushups` calibration are unchanged on
+  `front_pushups`, `front_extended_top` and `front_calibration_hold`. Three new
+  regressions fail on the previous code; all 31 tracking tests and analysis
+  pass. In the full suite, `play_button` (2) and `stone_door_art` fail
+  identically with and without this change. Physical acceptance is pending.
 - 2026-09-11 "bird jumps from 100% to 50% when I bend a little": the reported
   match ran in the `make run` debug build (SQLite run `1789133892972553-pushUp`,
   score 1, 11.7 s, no trace), so that game itself is not captured. The backed-up
@@ -1212,7 +2089,9 @@ Device acceptance remains required (no device connected during implementation):
   0.5×/1×/1.5×/2× plus sound on/off. Check camera/game alignment at the start,
   middle and end; CameraX's recording-start event establishes the clock anchor.
 - Pause practice, background/resume, then save. Verify both camera segments and
-  the explicit camera-paused gap. Background a scored flight and save its ending.
+  the explicit camera-paused gap. Pause a scored flight, background and return,
+  then Keep flying: it should count in from three, and Finish flight should save
+  the break as its ending.
 - Leave results without saving, retry, force-stop during a recording, and reopen.
   Verify unsaved cache footage is removed; saved clips remain available.
 - Try low storage, unavailable video capture, missing/damaged clips, and repeated
@@ -1565,3 +2444,128 @@ and backwards replay seeks preserve the same animation. Reduced Motion fades
 pickups in place. All 32 focused collection, magnet, replay, art and small-phone
 UI checks pass; scoped source analysis is clean. Updated preview:
 `build/visual-review/star-aura/star-pickup-preview.mp4`.
+
+## 2026-09-30 breakable wall: new panel, per-hit feedback and shattering break
+
+Redesigned the stone panel and its destruction. Gameplay is untouched: spawn
+rules, 40 HP, damage, collision, scoring, rules version and the seeded route
+are as before, and destroying the panel still clears collision on the step the
+lethal blow lands. `SkyDoor` gained a read-only blow log (`hits`: time, height,
+damage, ram or rock) filled inside `takeDamage`, which takes a new optional
+`rammed` flag that only the sprint ram sets. Nothing in the rules reads the
+log, so replays and older tapes behave identically. `crumbleDuration` grew from
+0.45 s to 1.0 s and is only read by the artwork and one test.
+
+- Artwork: `lib/game/door_art.dart` (entry, per-hit reaction), `door_slab.dart`
+  (panel face), `door_parts.dart` (medallion, straps, collars, effects),
+  `door_break_art.dart` (the break) and `door_fracture.dart` (a cached,
+  seed-derived Voronoi fracture pattern: its seams are the cracks drawn on the
+  damaged panel and the outlines of the shards that later fly). Painting is a
+  pure function of the door's clock and blow log, with no wall-clock, no
+  unseeded random and no painter state, so pause and backwards seeks are exact.
+- Reviewed by rendering the real `BirdGame` through `GameWidget`
+  (`flutter test --dart-define=CAPTURE_DOOR_ART=true test/stone_door_art_test.dart`,
+  `DOOR_SET=` selects a subset), then opening the PNGs in
+  `build/visual-review/breakable-walls/`: `stages-zoom.png` (five damage
+  stages), `hit-sequence.png` (one non-lethal hit, 0-400 ms),
+  `film-<region>.png` (12-frame filmstrips at 0-800 ms), `frames-60fps.png`
+  (24 consecutive 60 fps frames), `zoom-burst.png`, `zoom-shards.png` (x4),
+  `zoom-tail.png`, `zoom-sockets.png`, `zoom-panel.png`, `blows.png` (base rock
+  vs full charge vs sprint ram), `regions.png`, `sizes.png` (gaps 0.28-0.52 and
+  all three seeds), `reduced-motion.png`, `before-after.png`,
+  `before-after-stages.png` and `destruction.mp4` (60 fps). About seven
+  critique-and-fix rounds changed: the craters were missing until the ring
+  sites stopped rejecting themselves, the flash was washing out the cracks
+  (0.78 to 0.5 to 0.28 alpha), shards were too few and too dark, debris was too
+  slow, non-lethal hits too small, the flash did not reach the straps and
+  medallion (a visible pop at release), the broken sockets were mostly black,
+  and the aiming mark drew through the debris (it now returns after 0.45 s).
+- Regions checked for readability and the break: jungle, Antarctica, Paris
+  (night), Egypt (warm sand), New York (night), Brazil, Rome and Mexico, plus
+  the default Star Trail sky. The lilac-grey plug with gold and a dark outline
+  stayed distinct from every wall material; debris and dust stay readable on
+  the dark night backdrops through their dark outlines.
+- Tests added or changed (`test/stone_door_art_test.dart`,
+  `test/stone_door_test.dart`): stages differ and stay inside the opening plus
+  the wall-end collars (at most 0.046 above and below, never wider than the
+  wall), idle motion stays inside the same envelope, blows produce decoration
+  that clears within 0.55 s, break frames differ frame to frame, repaint
+  identically after seeking backwards and on a twin panel, differ between
+  seeds, settle to identical pixels from 1.0 s with an empty opening, Reduced
+  Motion draws nothing once destroyed, a ram throws debris further than a rock,
+  the fracture is cache-independent, tiles the panel exactly and stays within
+  12-30 shards; blow log values, ram flag, no logging after death, and the
+  collision check on the exact lethal step.
+- Per frame the break paints at most about 25 shards, 4 dust clouds (6 puffs
+  each), 14 grit dots, 6-9 pebbles and a handful of gold pieces, with no
+  `saveLayer`. Recording one panel took roughly 1.2-5.7 ms in the debug JIT
+  test runner (busy machine, so only a rough guide); it was not measured on a
+  device.
+- Results: `flutter analyze --no-pub` reports no issues. The full `flutter test`
+  ran 740 passing, 7 skipped and 1 failing: `world_regions_test.dart` "scenery
+  regions look distinct and crossings change without pops" hit its 30 s timeout
+  (it paints twelve regions of scenery and never touches the panel). The machine
+  was at a load average of about 60; rerun alone with `--timeout 4x` all 12
+  tests in that file pass, so it is a slow-machine timeout, not a regression
+  from this change. Not verified: real
+  device performance, playtesting feel and audio timing. Left out on purpose:
+  camera shake (the world camera is shared), audio changes, and any wall-body
+  art beyond the collars.
+
+## 2026-09-30 Spitter King redesign: alchemist-monarch
+
+- Replaced the brown witch hat, small tank and generic beetle body with an
+  alchemist-monarch: a crown of three corked glass flasks on a brass band with
+  a rose jewel, a monocled amber slit-pupil eye under a heavy gilded brow, a
+  gilded cheek guard, a brass trumpet mouth, thorned wing cases with a gilded
+  crest over two membrane wings, and the whole abdomen as a glass still in a
+  brass cage with a pressure dial, relief valve, steaming tailpipe and a
+  dripping tap. The earlier "no crown" rule is retired in the specification;
+  the flask crown is the brewing-themed regalia. The mouth origin is still
+  local (-1.05, 0) in every pose, and name, subtitle and every simulation
+  value are untouched.
+- Visual-only, deterministic and seekable. `SpitterBossMotion` gained the
+  windup rattle, acid level, heat, crack, blink and glint curves. The still's
+  acid level, glow, dial, valve, jowl sac, trumpet throat and crown flasks all
+  rise together over the 0.65 s charge; fury turns the brew, crown, tap drips,
+  shot and halo amber, turns the iris red under a scowl, blows the valve and
+  glows cracks through the glass; defeat cracks the still and throws the
+  crown. Reduced Motion freezes the blink, glint, steam, drips, bubbles and
+  wings while charge, fury, hit and defeat stay visible. Fixed geometry, paths
+  and shaders are built once; the only `saveLayer` is still the hit flash.
+- Companion art: `SpitterBossRig.crownAnchor`, `crownBounds` and `crown()` replace
+  the hat consumers in the encounter's defeat debris
+  (`spitter-king-*-crown-fall.png` shows the flask crown tumbling out of the
+  smoke); the acid shot, wake, drips and halo
+  turn amber in fury like the vat; the health-bar medallion carries a
+  three-flask crown instead of the generic one.
+- Tests: `boss_polish_spitter_king_art_test.dart` now checks seeks, Reduced
+  Motion stillness (including a blink and a glint), amber brew and red iris in
+  fury, monotonically rising acid and jowl through the windup with a lit
+  throat, a dark fixed spit port in every non-flash pose, the eye anchor, the
+  worn and thrown crown, the detached crown's bounds, and that hits flash
+  without ghosting. `spitter_boss_art_test.dart` region checks were re-aimed at
+  the new anatomy; the ammo and health-bar tests gained fury-colour and crest
+  checks. The pose harness writes pose sheet, phone 1x/3x, hero, close-ups,
+  silhouette and five motion strips to
+  `build/visual-review/boss-polish/spitter-king/` (the earlier design is kept
+  in `before-redesign/`, encounter stills in `boss-polish/encounter/`).
+- Review: read the pose sheet, close-ups, silhouettes against the small
+  spitter, 1x/3x phone renders, a 4x pixel enlargement of the 1x render,
+  charge/recoil/arrival/defeat/summon/fury/idle strips, Reduced Motion, the
+  ammo and health-bar sheets, real 640x360 and 800x360 encounter frames and a
+  411-frame movie contact sheet (`spitter-king/movie-contact-sheet.png`). Fixed along the way: a raised claw covering
+  the face (now drawn behind the head), a glass tank that looked opaque, a
+  muddy iris and an unreadable trumpet lip.
+- Software rasterisation of the rig at 41 px took about 6-7 ms per frame
+  against 4.5-5.4 ms for the old rig in the debug test runner (record time
+  about equal, 0.3-0.6 ms); not measured on a phone. No physical-device
+  testing was performed.
+- Results: `flutter analyze --no-pub` on the working tree reports 8 errors,
+  all non-exhaustive `BossKind.dragon` switches in `boss_ammo_art.dart`,
+  `boss_encounter_art.dart`, `boss_health_bar_art.dart` and two polish tests,
+  from the uncommitted dragon domain work; the Spitter files are clean. With
+  the dragon enum case stubbed out in a scratch copy, the full suite ran 803
+  passing, 11 skipped and 3 failing: the three failures are boss-cycle
+  expectations in `dusk_moth_boss_test.dart`, a domain-only test that imports
+  none of the art.

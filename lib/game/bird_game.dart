@@ -22,6 +22,7 @@ import 'door_art.dart';
 import 'gale_art.dart';
 import 'rush_art.dart';
 import 'sprint_art.dart';
+import 'knockout_art.dart';
 
 class BirdGame extends FlameGame {
   BirdGame({
@@ -33,6 +34,7 @@ class BirdGame extends FlameGame {
     this.advance,
     this.playback = false,
     this.transparent = false,
+    this.knockout,
   });
   FlightSimulation simulation;
   final void Function(double dt, double now, double width)? advance;
@@ -42,6 +44,15 @@ class BirdGame extends FlameGame {
   final int bird;
   final bool reducedMotion;
   final void Function() onChanged;
+
+  /// Seconds since a fatal bump while its knockout plays, held at the end
+  /// under the game-over stage. Null keeps the plain ended frame (replays).
+  final double? Function()? knockout;
+
+  /// Leaves the flight's bird, and everything drawn around it, out of the
+  /// frame. A campaign level's result shows its own courier over the frozen
+  /// finish.
+  bool hideBird = false;
   double _notify = 0;
   // Decorative motion follows the simulation clock, including pause and seek.
   double get _time => simulation.elapsed;
@@ -89,12 +100,17 @@ class BirdGame extends FlameGame {
     super.render(canvas);
     final w = size.x, h = size.y;
     if (h <= 0) return;
+    final ko = knockout?.call();
+    if (ko != null) _knockoutWorld(canvas, ko, w, h);
     canvas.save();
     canvas.clipRect(Rect.fromLTWH(0, 0, w, h));
     final shake =
         (BossArt.cameraOffset(simulation.boss, reducedMotion) +
             RushArt.cameraOffset(simulation, reducedMotion) +
-            GaleArt.cameraOffset(simulation, reducedMotion)) *
+            GaleArt.cameraOffset(simulation, reducedMotion) +
+            (ko == null
+                ? Offset.zero
+                : KnockoutArt.cameraOffset(ko, reducedMotion: reducedMotion))) *
         h;
     if (shake != Offset.zero) {
       canvas.translate(w / 2, h / 2);
@@ -108,6 +124,7 @@ class BirdGame extends FlameGame {
         seconds: simulation.elapsed,
         distance: simulation.distance,
         reducedMotion: reducedMotion,
+        held: simulation.region,
       );
     }
     BossArt.backdrop(canvas, Size(w, h), simulation.boss, reducedMotion);
@@ -171,6 +188,7 @@ class BirdGame extends FlameGame {
           perfect: perfect,
           refined: simulation.rulesVersion >= 14,
           gardenStructures: simulation.rulesVersion >= 16,
+          held: simulation.region,
         );
       } else {
         for (final passage in o.passages) {
@@ -210,7 +228,7 @@ class BirdGame extends FlameGame {
           canvas,
           Offset(x + width / 2, o.target * h),
           h,
-          WorldTour.of(o),
+          WorldTour.of(o, held: simulation.region),
           perfect: perfect,
         );
       }
@@ -222,7 +240,11 @@ class BirdGame extends FlameGame {
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2;
         // A closed panel shows its own health in place of the aiming mark.
-        final open = o.door?.destroyed ?? true;
+        // The mark returns once the broken panel's debris has cleared.
+        final open =
+            o.door == null ||
+            (o.door!.destroyed &&
+                (reducedMotion || o.door!.destructionAge > .45));
         if (open && !o.hit) {
           canvas.drawCircle(center, h * .035, paint);
           canvas.drawCircle(
@@ -310,7 +332,8 @@ class BirdGame extends FlameGame {
       simulation,
       reducedMotion: reducedMotion,
     );
-    {
+    // A knockout draws its own tumbling bird over the dimmed world.
+    if (ko == null && !hideBird) {
       final cx = FlightSimulation.birdX * h, cy = simulation.birdY * h;
       final pose = BirdPose.forFlight(
         simulation,
@@ -489,18 +512,51 @@ class BirdGame extends FlameGame {
       simulation,
       reducedMotion: reducedMotion,
     );
-    _feedback(canvas, h);
+    if (ko == null) _feedback(canvas, h);
     canvas.restore();
     BossArt.foreground(canvas, Size(w, h), simulation, reducedMotion);
-    if (simulation.boss case final boss?) {
+    // The boss plate and banners are HUD; a knockout and its stage hide them.
+    if (simulation.boss case final boss? when ko == null) {
       BossArt.healthBar(canvas, Size(w, h), boss, reducedMotion: reducedMotion);
     }
-    RushArt.banner(
-      canvas,
-      Size(w, h),
-      simulation,
-      reducedMotion: reducedMotion,
-    );
+    if (ko == null) {
+      RushArt.banner(
+        canvas,
+        Size(w, h),
+        simulation,
+        reducedMotion: reducedMotion,
+      );
+    }
+    if (ko != null) {
+      canvas.restore();
+      KnockoutArt.paint(
+        canvas,
+        Size(w, h),
+        simulation,
+        bird: bird,
+        seconds: ko,
+        reducedMotion: reducedMotion,
+        shake: shake,
+      );
+    }
+  }
+
+  /// Opens the layer the frozen world is drawn into during a knockout: it
+  /// dims and desaturates and the camera pushes in on the bump.
+  void _knockoutWorld(Canvas canvas, double ko, double w, double h) {
+    final layer = KnockoutArt.worldLayer(ko, reducedMotion: reducedMotion);
+    if (layer == null) {
+      canvas.save();
+    } else {
+      canvas.saveLayer(Rect.fromLTWH(0, 0, w, h), layer);
+    }
+    final zoom = KnockoutArt.zoom(ko, reducedMotion: reducedMotion);
+    if (zoom != 1) {
+      final focus = KnockoutArt.focus(simulation, h);
+      canvas.translate(focus.dx, focus.dy);
+      canvas.scale(zoom);
+      canvas.translate(-focus.dx, -focus.dy);
+    }
   }
 
   void _magnet(Canvas canvas, double h) {
@@ -564,7 +620,12 @@ class BirdGame extends FlameGame {
   }
 
   void _feedback(Canvas canvas, double h) {
-    final dark = SkyPalette.at(simulation.elapsed).top.computeLuminance() < .22;
+    final dark =
+        SkyPalette.at(
+          simulation.elapsed,
+          held: simulation.region,
+        ).top.computeLuminance() <
+        .22;
     final active = simulation.events
         .where(
           (e) =>
@@ -616,7 +677,7 @@ class BirdGame extends FlameGame {
         // Gate rewards burst in the materials of the region they happened in.
         RegionBurst.paint(
           canvas,
-          WorldTour.at(event.at).dominant,
+          WorldTour.at(event.at, held: simulation.region).dominant,
           center,
           h,
           t: t,
@@ -729,6 +790,7 @@ class BirdGame extends FlameGame {
       top: top,
       kind: kind,
       seconds: simulation.elapsed,
+      held: simulation.region,
       reducedMotion: reducedMotion,
       cleared: cleared,
       perfect: perfect,

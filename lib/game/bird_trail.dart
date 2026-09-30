@@ -78,12 +78,12 @@ abstract final class BirdTrail {
   static const _tones = [
     // Sunshine: butter yellow with a marigold rim.
     _Tone(Color(0xfffff6d8), SkyColors.yellow, SkyColors.gold),
-    // Peach: blush body over a coral shadow.
-    _Tone(Color(0xffffe6dc), Color(0xffff9c82), SkyColors.coralDeep),
-    // Mint: fresh leaf face over a teal underside.
-    _Tone(Color(0xffe3f6e3), Color(0xff97d1a8), SkyColors.teal),
-    // Stardust: white-hot core, lavender light, deep violet rim.
-    _Tone(SkyColors.white, SkyColors.lavender, SkyColors.purple),
+    // Peach: Peaches' rosy pink over a deep rose shadow.
+    _Tone(Color(0xffffe8ec), Color(0xffff8fa6), Color(0xffdd5a7a)),
+    // Mint: Minty's fresh leaf face over its deeper leaf-green underside.
+    _Tone(Color(0xffe6f8e6), Color(0xff8fdda3), Color(0xff45b88a)),
+    // Stardust: white-hot core, Orbit's periwinkle light, deep indigo rim.
+    _Tone(SkyColors.white, Color(0xffb4b2f7), Color(0xff6e73d6)),
   ];
   static const _golden = _Tone(
     SkyColors.cream,
@@ -145,7 +145,7 @@ class _Trail {
   final double unit, time, travelled;
   final _Tone tone;
   final bool glow;
-  final fill = Paint(), glowing = Paint();
+  final fill = Paint(), glowing = Paint(), layer = Paint();
   final line = Paint()
     ..style = PaintingStyle.stroke
     ..strokeCap = StrokeCap.round;
@@ -206,24 +206,35 @@ class _Trail {
     );
   }
 
+  /// Draws what [mark] paints as one piece at [alpha], so its layers do not
+  /// show through each other. [reach] is the mark's extent in its own units.
+  void translucent(double reach, double alpha, void Function() mark) {
+    canvas.saveLayer(
+      Rect.fromCircle(center: Offset.zero, radius: reach),
+      layer..color = SkyColors.white.withValues(alpha: alpha),
+    );
+    mark();
+    canvas.restore();
+  }
+
   // Sunshine bubbles: soap bubbles with a sunny rim, clear in the middle so
   // they stay light over any sky, rising and wobbling as they drift away.
   void bubbles() {
     const rhythm = [1.0, .66, .88, .58];
-    drop(2.1, (id, at, back, age) {
+    drop(2.4, (id, at, back, age) {
       final r =
-          unit * 1.4 * rhythm[id % 4] * (.92 + noise(id, 1) * .16) * taper(age);
+          unit * 1.3 * rhythm[id % 4] * (.92 + noise(id, 1) * .16) * taper(age);
       if (r < .5) return;
-      final a = fade(age);
+      final a = .85 * fade(age);
       final sway =
-          math.sin(age * 7 + noise(id, 2) * 6.3) * age * .45 +
-          math.sin(time * 2.6 + id * 1.7) * .2;
+          math.sin(age * 7 + noise(id, 2) * 6.3) * age * .35 +
+          math.sin(time * 1.8 + id * 1.7) * .12;
       final c =
           at +
-          side(back) * (noise(id, 3) - .5) * age * unit * 1.4 +
-          Offset(sway * unit, -math.pow(age, 1.4) * unit * 2.2);
-      if (glow) halo(c, r * 2.1, tone.body, .5 * a);
-      final wobble = math.sin(time * 8 + id * 2.1) * .05;
+          side(back) * (noise(id, 3) - .5) * age * unit * 1.2 +
+          Offset(sway * unit, -math.pow(age, 1.4) * unit * 1.8);
+      if (glow) halo(c, r * 1.9, tone.body, .3 * fade(age));
+      final wobble = math.sin(time * 5 + id * 2.1) * .025;
       canvas.save();
       canvas.translate(c.dx, c.dy);
       canvas.scale(1 + wobble, 1 - wobble);
@@ -284,48 +295,50 @@ class _Trail {
   // rocking gently and beating in a ripple down the trail.
   void hearts() {
     const rhythm = [1.0, .7, .88, .62];
-    drop(2.3, (id, at, back, age) {
-      final f = ((time * 1.1 - id * .09) % 1 + 1) % 1;
+    drop(2.5, (id, at, back, age) {
+      final f = ((time * .8 - id * .09) % 1 + 1) % 1;
       final beat =
           math.exp(-math.pow((f - .1) / .05, 2)) +
           .6 * math.exp(-math.pow((f - .28) / .05, 2));
       final r =
           unit *
-          1.4 *
+          1.3 *
           rhythm[id % 4] *
           (.92 + noise(id, 1) * .16) *
           taper(age) *
-          (1 + beat * .1);
+          (1 + beat * .05);
       if (r < .5) return;
       final a = fade(age);
       final c =
           at +
-          side(back) * (noise(id, 3) - .5) * age * unit * 1.2 +
+          side(back) * (noise(id, 3) - .5) * age * unit +
           Offset(
-            math.sin(age * 5 + noise(id, 2) * 6.3) * age * unit * .4,
-            -math.pow(age, 1.3) * unit * 2,
+            math.sin(age * 5 + noise(id, 2) * 6.3) * age * unit * .3,
+            -math.pow(age, 1.3) * unit * 1.5,
           );
-      if (glow) halo(c, r * 2.1, tone.body, .5 * a);
+      if (glow) halo(c, r * 1.9, tone.body, .3 * a);
       canvas.save();
       canvas.translate(c.dx, c.dy);
       canvas.rotate(
-        (noise(id, 4) - .5) * .5 + math.sin(time * 2.2 + id * 1.3) * .16,
+        (noise(id, 4) - .5) * .5 + math.sin(time * 1.6 + id * 1.3) * .08,
       );
       canvas.scale(r);
-      canvas.drawPath(_heart, fill..color = tone.deep.withValues(alpha: a));
-      canvas.save();
-      canvas.translate(-.05, -.08);
-      canvas.scale(.8);
-      canvas.drawPath(_heart, fill..color = tone.body.withValues(alpha: a));
-      canvas.restore();
-      canvas.save();
-      canvas.translate(-.46, -.36);
-      canvas.rotate(-.75);
-      canvas.drawOval(
-        Rect.fromCenter(center: Offset.zero, width: .4, height: .2),
-        fill..color = tone.light.withValues(alpha: a),
-      );
-      canvas.restore();
+      translucent(1.3, .82 * a, () {
+        canvas.drawPath(_heart, fill..color = tone.deep);
+        canvas.save();
+        canvas.translate(-.05, -.08);
+        canvas.scale(.8);
+        canvas.drawPath(_heart, fill..color = tone.body);
+        canvas.restore();
+        canvas.save();
+        canvas.translate(-.46, -.36);
+        canvas.rotate(-.75);
+        canvas.drawOval(
+          Rect.fromCenter(center: Offset.zero, width: .4, height: .2),
+          fill..color = tone.light,
+        );
+        canvas.restore();
+      });
       canvas.restore();
     });
   }
@@ -348,53 +361,63 @@ class _Trail {
   // behind, turning over to show their darker underside.
   void leaves() {
     const rhythm = [1.0, .74, .9, .66];
-    drop(2.7, (id, at, back, age) {
+    drop(2.8, (id, at, back, age) {
       final r =
-          unit * 1.7 * rhythm[id % 4] * (.92 + noise(id, 1) * .16) * taper(age);
+          unit *
+          1.55 *
+          rhythm[id % 4] *
+          (.92 + noise(id, 1) * .16) *
+          taper(age);
       if (r < .5) return;
       final a = fade(age);
       final c =
           at +
-          side(back) * (noise(id, 3) - .5) * (.5 + age) * unit * 1.2 +
+          side(back) * (noise(id, 3) - .5) * (.5 + age) * unit +
           Offset(
-            math.sin(age * 5 + noise(id, 2) * 6.3) * age * unit * .6,
-            math.pow(age, 1.3) * unit * 1.6,
+            math.sin(age * 5 + noise(id, 2) * 6.3) * age * unit * .45,
+            math.pow(age, 1.3) * unit * 1.3,
           );
       final spin = noise(id, 5) - .5;
       final turn = math.cos(
-        age * (3 + spin * 3) + noise(id, 6) * 6.3 + time * 2.4,
+        age * (3 + spin * 3) + noise(id, 6) * 6.3 + time * 1.2,
       );
       final under = turn < 0;
-      if (glow) halo(c, r * 1.8, tone.body, .5 * a);
+      if (glow) halo(c, r * 1.7, tone.body, .3 * a);
       canvas.save();
       canvas.translate(c.dx, c.dy);
       canvas.rotate(
         math.atan2(back.dy, back.dx) +
             (noise(id, 4) - .5) * 1.8 +
-            age * spin * 4 +
-            math.sin(time * 3 + id * 1.9) * .25,
+            age * spin * 3 +
+            math.sin(time * 1.8 + id * 1.9) * .12,
       );
       canvas.scale(r, r * (.7 + .3 * turn.abs()) * (under ? -1 : 1));
-      canvas.drawLine(
-        const Offset(-.9, 0),
-        const Offset(-1.3, .16),
-        line
-          ..color = tone.deep.withValues(alpha: a)
-          ..strokeWidth = .14,
-      );
-      canvas.drawPath(_leaf, fill..color = tone.deep.withValues(alpha: a));
-      canvas.drawPath(
-        _leafFace,
-        fill
-          ..color = (under ? Color.lerp(tone.body, tone.deep, .45)! : tone.body)
-              .withValues(alpha: a),
-      );
-      canvas.drawPath(
-        _vein,
-        line
-          ..color = tone.light.withValues(alpha: .9 * a)
-          ..strokeWidth = .1,
-      );
+      translucent(1.4, .9 * a, () {
+        canvas.drawLine(
+          const Offset(-.9, 0),
+          const Offset(-1.3, .16),
+          line
+            ..color = tone.deep
+            ..strokeWidth = .14,
+        );
+        canvas.drawPath(_leaf, fill..color = tone.deep);
+        // The face darkens over the turn instead of switching colour.
+        canvas.drawPath(
+          _leafFace,
+          fill
+            ..color = Color.lerp(
+              tone.body,
+              tone.deep,
+              .45 * _ease(.5 - turn * 2.5),
+            )!,
+        );
+        canvas.drawPath(
+          _vein,
+          line
+            ..color = tone.light.withValues(alpha: .9)
+            ..strokeWidth = .1,
+        );
+      });
       canvas.restore();
     });
   }
@@ -422,8 +445,8 @@ class _Trail {
   ];
 
   // Stardust: a faint comet tail along the flown line, iridescent dust and
-  // twinkling four-point glints. Four points and violet light keep it apart
-  // from the gold five-point stars the player collects.
+  // softly twinkling four-point glints. Four points and violet light keep it
+  // apart from the gold five-point stars the player collects.
   void stardust() {
     final tail = [
       for (var s = BirdTrail._born; s <= 14; s += .8) track.at(s * unit).$1,
@@ -436,20 +459,20 @@ class _Trail {
       canvas.drawPath(
         comet,
         line
-          ..color = tone.body.withValues(alpha: .16)
+          ..color = tone.body.withValues(alpha: .08)
           ..strokeWidth = width * unit
           ..strokeJoin = StrokeJoin.round,
       );
     }
 
-    drop(.9, (id, at, back, age) {
+    drop(1.2, (id, at, back, age) {
       final r =
           unit * (.16 + noise(id, 11) * .2) * math.min(1, (1 - age) * 2.5);
-      final twinkle = .4 + .6 * math.sin(time * 6 + noise(id, 12) * 6.3).abs();
+      final twinkle = .75 + .25 * math.sin(time * 2.4 + noise(id, 12) * 6.3);
       final c =
           at + side(back) * (noise(id, 13) - .5) * unit * (1.4 + age * 2.8);
       fill.color = (glow ? tone.light : _dust[id % 4]).withValues(
-        alpha: twinkle * fade(age),
+        alpha: .7 * twinkle * fade(age),
       );
       if (id % 3 != 0 || r < 1) {
         canvas.drawCircle(c, r, fill);
@@ -465,16 +488,16 @@ class _Trail {
 
     const rhythm = [1.0, .62, .86, .56];
     drop(2.7, (id, at, back, age) {
-      final twinkle = .5 + .5 * math.sin(time * 5.5 + noise(id, 1) * 6.3);
+      final twinkle = .5 + .5 * math.sin(time * 2.6 + noise(id, 1) * 6.3);
       final r =
-          unit * 1.8 * rhythm[id % 4] * taper(age) * (.86 + twinkle * .24);
+          unit * 1.55 * rhythm[id % 4] * taper(age) * (.94 + twinkle * .12);
       if (r < .5) return;
       final a = fade(age);
-      final c = at + side(back) * (noise(id, 3) - .5) * age * unit * 1.6;
-      halo(c, r * 2.2, tone.body, .55 * a);
+      final c = at + side(back) * (noise(id, 3) - .5) * age * unit * 1.5;
+      halo(c, r * 1.9, tone.body, .22 * a);
       canvas.save();
       canvas.translate(c.dx, c.dy);
-      canvas.rotate((noise(id, 4) - .5) * .5 + time * (noise(id, 5) - .5) * .8);
+      canvas.rotate((noise(id, 4) - .5) * .5 + time * (noise(id, 5) - .5) * .4);
       canvas.scale(r);
       if (r < unit * .75) {
         // Rim and core would blur into a little square this small.
@@ -485,34 +508,36 @@ class _Trail {
               tone.body,
               tone.light,
               .35,
-            )!.withValues(alpha: a),
+            )!.withValues(alpha: .8 * a),
         );
       } else {
-        canvas.save();
-        canvas.scale(1.12);
-        canvas.drawPath(
-          _glint,
-          fill..color = tone.deep.withValues(alpha: .9 * a),
-        );
-        canvas.restore();
-        canvas.drawPath(_glint, fill..color = tone.body.withValues(alpha: a));
-        canvas.save();
-        canvas.scale(.5);
-        canvas.drawPath(_glint, fill..color = tone.light.withValues(alpha: a));
-        canvas.restore();
+        translucent(1.3, .8 * a, () {
+          canvas.save();
+          canvas.scale(1.12);
+          canvas.drawPath(
+            _glint,
+            fill..color = tone.deep.withValues(alpha: .9),
+          );
+          canvas.restore();
+          canvas.drawPath(_glint, fill..color = tone.body);
+          canvas.save();
+          canvas.scale(.5);
+          canvas.drawPath(_glint, fill..color = tone.light);
+          canvas.restore();
+        });
       }
       canvas.restore();
-      // Now and then a glint flashes a fine cross of light, each on its own
-      // beat so only one or two catch the eye at once.
-      final beat = (time * .7 + noise(id, 8)) % 1;
-      if (beat < .16) {
-        final flare = math.sin(beat / .16 * math.pi) * a;
+      // Now and then a glint slowly swells a fine cross of light, each on its
+      // own beat and only some of them, so one at most catches the eye.
+      final beat = (time * .35 + noise(id, 8)) % 1;
+      if (beat < .3 && noise(id, 9) < .5) {
+        final flare = math.sin(beat / .3 * math.pi) * a;
         canvas.save();
         canvas.translate(c.dx, c.dy);
-        canvas.scale(r * (1 + .45 * flare));
+        canvas.scale(r * (1 + .3 * flare));
         canvas.drawPath(
           _flare,
-          fill..color = tone.light.withValues(alpha: .75 * flare),
+          fill..color = tone.light.withValues(alpha: .45 * flare),
         );
         canvas.restore();
       }

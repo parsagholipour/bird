@@ -23,13 +23,24 @@ class _CountingRepository extends SqliteProgressRepository {
   }
 }
 
-const _titles = ['Sky Club soundtrack', 'Sound effects', 'Reduced motion'];
+const _titles = [
+  'Sky Club soundtrack',
+  'Sound effects',
+  'Character voices',
+  'Reduced motion',
+];
 const _subtitles = [
   'Menu, adventure and boss themes.',
   'Flight, combat, pickups and menu feedback.',
+  'Story scenes, thank-you notes and sprint calls.',
   'Quieter menus and fewer decorative effects.',
 ];
-const _keys = [SettingKey.music, SettingKey.effects, SettingKey.reducedMotion];
+const _keys = [
+  SettingKey.music,
+  SettingKey.effects,
+  SettingKey.voices,
+  SettingKey.reducedMotion,
+];
 
 Future<_CountingRepository> _pumpSettings(WidgetTester tester) async {
   tester.view.physicalSize = const Size(800, 360);
@@ -90,7 +101,10 @@ void main() {
         expect(repo.changes, [(_keys[i], !value)]);
         expect(tester.widget<Switch>(control).value, !value);
         final saved = (await repo.load()).settings;
-        expect([saved.music, saved.effects, saved.reducedMotion][i], !value);
+        expect(
+          [saved.music, saved.effects, saved.voices, saved.reducedMotion][i],
+          !value,
+        );
       }
     }
     expect(tester.takeException(), isNull);

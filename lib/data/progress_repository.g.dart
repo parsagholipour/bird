@@ -155,6 +155,25 @@ class $RunsTable extends Runs with TableInfo<$RunsTable, Run> {
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _birdMeta = const VerificationMeta('bird');
+  @override
+  late final GeneratedColumn<int> bird = GeneratedColumn<int>(
+    'bird',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _levelMeta = const VerificationMeta('level');
+  @override
+  late final GeneratedColumn<String> level = GeneratedColumn<String>(
+    'level',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -171,6 +190,8 @@ class $RunsTable extends Runs with TableInfo<$RunsTable, Run> {
     duration,
     reason,
     finishedAt,
+    bird,
+    level,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -289,6 +310,18 @@ class $RunsTable extends Runs with TableInfo<$RunsTable, Run> {
     } else if (isInserting) {
       context.missing(_finishedAtMeta);
     }
+    if (data.containsKey('bird')) {
+      context.handle(
+        _birdMeta,
+        bird.isAcceptableOrUnknown(data['bird']!, _birdMeta),
+      );
+    }
+    if (data.containsKey('level')) {
+      context.handle(
+        _levelMeta,
+        level.isAcceptableOrUnknown(data['level']!, _levelMeta),
+      );
+    }
     return context;
   }
 
@@ -354,6 +387,14 @@ class $RunsTable extends Runs with TableInfo<$RunsTable, Run> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}finished_at'],
       )!,
+      bird: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}bird'],
+      )!,
+      level: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}level'],
+      ),
     );
   }
 
@@ -378,6 +419,11 @@ class Run extends DataClass implements Insertable<Run> {
   final double duration;
   final String reason;
   final DateTime finishedAt;
+  final int bird;
+
+  /// The campaign level flown, such as "1-3". Null for endless flights and
+  /// every flight saved before the campaign; only those make records.
+  final String? level;
   const Run({
     required this.id,
     required this.mode,
@@ -393,6 +439,8 @@ class Run extends DataClass implements Insertable<Run> {
     required this.duration,
     required this.reason,
     required this.finishedAt,
+    required this.bird,
+    this.level,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -411,6 +459,10 @@ class Run extends DataClass implements Insertable<Run> {
     map['duration'] = Variable<double>(duration);
     map['reason'] = Variable<String>(reason);
     map['finished_at'] = Variable<DateTime>(finishedAt);
+    map['bird'] = Variable<int>(bird);
+    if (!nullToAbsent || level != null) {
+      map['level'] = Variable<String>(level);
+    }
     return map;
   }
 
@@ -430,6 +482,10 @@ class Run extends DataClass implements Insertable<Run> {
       duration: Value(duration),
       reason: Value(reason),
       finishedAt: Value(finishedAt),
+      bird: Value(bird),
+      level: level == null && nullToAbsent
+          ? const Value.absent()
+          : Value(level),
     );
   }
 
@@ -453,6 +509,8 @@ class Run extends DataClass implements Insertable<Run> {
       duration: serializer.fromJson<double>(json['duration']),
       reason: serializer.fromJson<String>(json['reason']),
       finishedAt: serializer.fromJson<DateTime>(json['finishedAt']),
+      bird: serializer.fromJson<int>(json['bird']),
+      level: serializer.fromJson<String?>(json['level']),
     );
   }
   @override
@@ -473,6 +531,8 @@ class Run extends DataClass implements Insertable<Run> {
       'duration': serializer.toJson<double>(duration),
       'reason': serializer.toJson<String>(reason),
       'finishedAt': serializer.toJson<DateTime>(finishedAt),
+      'bird': serializer.toJson<int>(bird),
+      'level': serializer.toJson<String?>(level),
     };
   }
 
@@ -491,6 +551,8 @@ class Run extends DataClass implements Insertable<Run> {
     double? duration,
     String? reason,
     DateTime? finishedAt,
+    int? bird,
+    Value<String?> level = const Value.absent(),
   }) => Run(
     id: id ?? this.id,
     mode: mode ?? this.mode,
@@ -506,6 +568,8 @@ class Run extends DataClass implements Insertable<Run> {
     duration: duration ?? this.duration,
     reason: reason ?? this.reason,
     finishedAt: finishedAt ?? this.finishedAt,
+    bird: bird ?? this.bird,
+    level: level.present ? level.value : this.level,
   );
   Run copyWithCompanion(RunsCompanion data) {
     return Run(
@@ -529,6 +593,8 @@ class Run extends DataClass implements Insertable<Run> {
       finishedAt: data.finishedAt.present
           ? data.finishedAt.value
           : this.finishedAt,
+      bird: data.bird.present ? data.bird.value : this.bird,
+      level: data.level.present ? data.level.value : this.level,
     );
   }
 
@@ -548,7 +614,9 @@ class Run extends DataClass implements Insertable<Run> {
           ..write('flaps: $flaps, ')
           ..write('duration: $duration, ')
           ..write('reason: $reason, ')
-          ..write('finishedAt: $finishedAt')
+          ..write('finishedAt: $finishedAt, ')
+          ..write('bird: $bird, ')
+          ..write('level: $level')
           ..write(')'))
         .toString();
   }
@@ -569,6 +637,8 @@ class Run extends DataClass implements Insertable<Run> {
     duration,
     reason,
     finishedAt,
+    bird,
+    level,
   );
   @override
   bool operator ==(Object other) =>
@@ -587,7 +657,9 @@ class Run extends DataClass implements Insertable<Run> {
           other.flaps == this.flaps &&
           other.duration == this.duration &&
           other.reason == this.reason &&
-          other.finishedAt == this.finishedAt);
+          other.finishedAt == this.finishedAt &&
+          other.bird == this.bird &&
+          other.level == this.level);
 }
 
 class RunsCompanion extends UpdateCompanion<Run> {
@@ -605,6 +677,8 @@ class RunsCompanion extends UpdateCompanion<Run> {
   final Value<double> duration;
   final Value<String> reason;
   final Value<DateTime> finishedAt;
+  final Value<int> bird;
+  final Value<String?> level;
   final Value<int> rowid;
   const RunsCompanion({
     this.id = const Value.absent(),
@@ -621,6 +695,8 @@ class RunsCompanion extends UpdateCompanion<Run> {
     this.duration = const Value.absent(),
     this.reason = const Value.absent(),
     this.finishedAt = const Value.absent(),
+    this.bird = const Value.absent(),
+    this.level = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   RunsCompanion.insert({
@@ -638,6 +714,8 @@ class RunsCompanion extends UpdateCompanion<Run> {
     required double duration,
     required String reason,
     required DateTime finishedAt,
+    this.bird = const Value.absent(),
+    this.level = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        mode = Value(mode),
@@ -663,6 +741,8 @@ class RunsCompanion extends UpdateCompanion<Run> {
     Expression<double>? duration,
     Expression<String>? reason,
     Expression<DateTime>? finishedAt,
+    Expression<int>? bird,
+    Expression<String>? level,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -680,6 +760,8 @@ class RunsCompanion extends UpdateCompanion<Run> {
       if (duration != null) 'duration': duration,
       if (reason != null) 'reason': reason,
       if (finishedAt != null) 'finished_at': finishedAt,
+      if (bird != null) 'bird': bird,
+      if (level != null) 'level': level,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -699,6 +781,8 @@ class RunsCompanion extends UpdateCompanion<Run> {
     Value<double>? duration,
     Value<String>? reason,
     Value<DateTime>? finishedAt,
+    Value<int>? bird,
+    Value<String?>? level,
     Value<int>? rowid,
   }) {
     return RunsCompanion(
@@ -716,6 +800,8 @@ class RunsCompanion extends UpdateCompanion<Run> {
       duration: duration ?? this.duration,
       reason: reason ?? this.reason,
       finishedAt: finishedAt ?? this.finishedAt,
+      bird: bird ?? this.bird,
+      level: level ?? this.level,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -765,6 +851,12 @@ class RunsCompanion extends UpdateCompanion<Run> {
     if (finishedAt.present) {
       map['finished_at'] = Variable<DateTime>(finishedAt.value);
     }
+    if (bird.present) {
+      map['bird'] = Variable<int>(bird.value);
+    }
+    if (level.present) {
+      map['level'] = Variable<String>(level.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -788,6 +880,8 @@ class RunsCompanion extends UpdateCompanion<Run> {
           ..write('duration: $duration, ')
           ..write('reason: $reason, ')
           ..write('finishedAt: $finishedAt, ')
+          ..write('bird: $bird, ')
+          ..write('level: $level, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1002,204 +1096,534 @@ class PreferencesCompanion extends UpdateCompanion<Preference> {
   }
 }
 
-class $BirdUnlocksTable extends BirdUnlocks
-    with TableInfo<$BirdUnlocksTable, BirdUnlock> {
+class $LevelProgressTable extends LevelProgress
+    with TableInfo<$LevelProgressTable, LevelProgressRow> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $BirdUnlocksTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _birdMeta = const VerificationMeta('bird');
+  $LevelProgressTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _levelMeta = const VerificationMeta('level');
   @override
-  late final GeneratedColumn<int> bird = GeneratedColumn<int>(
-    'bird',
+  late final GeneratedColumn<String> level = GeneratedColumn<String>(
+    'level',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _bestStarsMeta = const VerificationMeta(
+    'bestStars',
+  );
+  @override
+  late final GeneratedColumn<int> bestStars = GeneratedColumn<int>(
+    'best_stars',
+    aliasedName,
+    false,
+    check: () => ComparableExpr(bestStars).isBetweenValues(0, 3),
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _bestCollectedMeta = const VerificationMeta(
+    'bestCollected',
+  );
+  @override
+  late final GeneratedColumn<int> bestCollected = GeneratedColumn<int>(
+    'best_collected',
     aliasedName,
     false,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
+    defaultValue: const Constant(0),
   );
-  static const VerificationMeta _unlockedAtMeta = const VerificationMeta(
-    'unlockedAt',
+  static const VerificationMeta _bestScoreMeta = const VerificationMeta(
+    'bestScore',
   );
   @override
-  late final GeneratedColumn<DateTime> unlockedAt = GeneratedColumn<DateTime>(
-    'unlocked_at',
+  late final GeneratedColumn<int> bestScore = GeneratedColumn<int>(
+    'best_score',
     aliasedName,
     false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _playsMeta = const VerificationMeta('plays');
+  @override
+  late final GeneratedColumn<int> plays = GeneratedColumn<int>(
+    'plays',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _firstClearedAtMeta = const VerificationMeta(
+    'firstClearedAt',
   );
   @override
-  List<GeneratedColumn> get $columns => [bird, unlockedAt];
+  late final GeneratedColumn<DateTime> firstClearedAt =
+      GeneratedColumn<DateTime>(
+        'first_cleared_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _lastPlayedAtMeta = const VerificationMeta(
+    'lastPlayedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastPlayedAt = GeneratedColumn<DateTime>(
+    'last_played_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _postcardSeenMeta = const VerificationMeta(
+    'postcardSeen',
+  );
+  @override
+  late final GeneratedColumn<bool> postcardSeen = GeneratedColumn<bool>(
+    'postcard_seen',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("postcard_seen" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    level,
+    bestStars,
+    bestCollected,
+    bestScore,
+    plays,
+    firstClearedAt,
+    lastPlayedAt,
+    postcardSeen,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'bird_unlocks';
+  static const String $name = 'level_progress';
   @override
   VerificationContext validateIntegrity(
-    Insertable<BirdUnlock> instance, {
+    Insertable<LevelProgressRow> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('bird')) {
+    if (data.containsKey('level')) {
       context.handle(
-        _birdMeta,
-        bird.isAcceptableOrUnknown(data['bird']!, _birdMeta),
-      );
-    }
-    if (data.containsKey('unlocked_at')) {
-      context.handle(
-        _unlockedAtMeta,
-        unlockedAt.isAcceptableOrUnknown(data['unlocked_at']!, _unlockedAtMeta),
+        _levelMeta,
+        level.isAcceptableOrUnknown(data['level']!, _levelMeta),
       );
     } else if (isInserting) {
-      context.missing(_unlockedAtMeta);
+      context.missing(_levelMeta);
+    }
+    if (data.containsKey('best_stars')) {
+      context.handle(
+        _bestStarsMeta,
+        bestStars.isAcceptableOrUnknown(data['best_stars']!, _bestStarsMeta),
+      );
+    }
+    if (data.containsKey('best_collected')) {
+      context.handle(
+        _bestCollectedMeta,
+        bestCollected.isAcceptableOrUnknown(
+          data['best_collected']!,
+          _bestCollectedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('best_score')) {
+      context.handle(
+        _bestScoreMeta,
+        bestScore.isAcceptableOrUnknown(data['best_score']!, _bestScoreMeta),
+      );
+    }
+    if (data.containsKey('plays')) {
+      context.handle(
+        _playsMeta,
+        plays.isAcceptableOrUnknown(data['plays']!, _playsMeta),
+      );
+    }
+    if (data.containsKey('first_cleared_at')) {
+      context.handle(
+        _firstClearedAtMeta,
+        firstClearedAt.isAcceptableOrUnknown(
+          data['first_cleared_at']!,
+          _firstClearedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_played_at')) {
+      context.handle(
+        _lastPlayedAtMeta,
+        lastPlayedAt.isAcceptableOrUnknown(
+          data['last_played_at']!,
+          _lastPlayedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('postcard_seen')) {
+      context.handle(
+        _postcardSeenMeta,
+        postcardSeen.isAcceptableOrUnknown(
+          data['postcard_seen']!,
+          _postcardSeenMeta,
+        ),
+      );
     }
     return context;
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {bird};
+  Set<GeneratedColumn> get $primaryKey => {level};
   @override
-  BirdUnlock map(Map<String, dynamic> data, {String? tablePrefix}) {
+  LevelProgressRow map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return BirdUnlock(
-      bird: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}bird'],
+    return LevelProgressRow(
+      level: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}level'],
       )!,
-      unlockedAt: attachedDatabase.typeMapping.read(
+      bestStars: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}best_stars'],
+      )!,
+      bestCollected: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}best_collected'],
+      )!,
+      bestScore: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}best_score'],
+      )!,
+      plays: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}plays'],
+      )!,
+      firstClearedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
-        data['${effectivePrefix}unlocked_at'],
+        data['${effectivePrefix}first_cleared_at'],
+      ),
+      lastPlayedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_played_at'],
+      ),
+      postcardSeen: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}postcard_seen'],
       )!,
     );
   }
 
   @override
-  $BirdUnlocksTable createAlias(String alias) {
-    return $BirdUnlocksTable(attachedDatabase, alias);
+  $LevelProgressTable createAlias(String alias) {
+    return $LevelProgressTable(attachedDatabase, alias);
   }
 }
 
-class BirdUnlock extends DataClass implements Insertable<BirdUnlock> {
-  final int bird;
-  final DateTime unlockedAt;
-  const BirdUnlock({required this.bird, required this.unlockedAt});
+class LevelProgressRow extends DataClass
+    implements Insertable<LevelProgressRow> {
+  final String level;
+  final int bestStars;
+  final int bestCollected;
+  final int bestScore;
+  final int plays;
+  final DateTime? firstClearedAt;
+  final DateTime? lastPlayedAt;
+  final bool postcardSeen;
+  const LevelProgressRow({
+    required this.level,
+    required this.bestStars,
+    required this.bestCollected,
+    required this.bestScore,
+    required this.plays,
+    this.firstClearedAt,
+    this.lastPlayedAt,
+    required this.postcardSeen,
+  });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['bird'] = Variable<int>(bird);
-    map['unlocked_at'] = Variable<DateTime>(unlockedAt);
+    map['level'] = Variable<String>(level);
+    map['best_stars'] = Variable<int>(bestStars);
+    map['best_collected'] = Variable<int>(bestCollected);
+    map['best_score'] = Variable<int>(bestScore);
+    map['plays'] = Variable<int>(plays);
+    if (!nullToAbsent || firstClearedAt != null) {
+      map['first_cleared_at'] = Variable<DateTime>(firstClearedAt);
+    }
+    if (!nullToAbsent || lastPlayedAt != null) {
+      map['last_played_at'] = Variable<DateTime>(lastPlayedAt);
+    }
+    map['postcard_seen'] = Variable<bool>(postcardSeen);
     return map;
   }
 
-  BirdUnlocksCompanion toCompanion(bool nullToAbsent) {
-    return BirdUnlocksCompanion(
-      bird: Value(bird),
-      unlockedAt: Value(unlockedAt),
+  LevelProgressCompanion toCompanion(bool nullToAbsent) {
+    return LevelProgressCompanion(
+      level: Value(level),
+      bestStars: Value(bestStars),
+      bestCollected: Value(bestCollected),
+      bestScore: Value(bestScore),
+      plays: Value(plays),
+      firstClearedAt: firstClearedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(firstClearedAt),
+      lastPlayedAt: lastPlayedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastPlayedAt),
+      postcardSeen: Value(postcardSeen),
     );
   }
 
-  factory BirdUnlock.fromJson(
+  factory LevelProgressRow.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return BirdUnlock(
-      bird: serializer.fromJson<int>(json['bird']),
-      unlockedAt: serializer.fromJson<DateTime>(json['unlockedAt']),
+    return LevelProgressRow(
+      level: serializer.fromJson<String>(json['level']),
+      bestStars: serializer.fromJson<int>(json['bestStars']),
+      bestCollected: serializer.fromJson<int>(json['bestCollected']),
+      bestScore: serializer.fromJson<int>(json['bestScore']),
+      plays: serializer.fromJson<int>(json['plays']),
+      firstClearedAt: serializer.fromJson<DateTime?>(json['firstClearedAt']),
+      lastPlayedAt: serializer.fromJson<DateTime?>(json['lastPlayedAt']),
+      postcardSeen: serializer.fromJson<bool>(json['postcardSeen']),
     );
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'bird': serializer.toJson<int>(bird),
-      'unlockedAt': serializer.toJson<DateTime>(unlockedAt),
+      'level': serializer.toJson<String>(level),
+      'bestStars': serializer.toJson<int>(bestStars),
+      'bestCollected': serializer.toJson<int>(bestCollected),
+      'bestScore': serializer.toJson<int>(bestScore),
+      'plays': serializer.toJson<int>(plays),
+      'firstClearedAt': serializer.toJson<DateTime?>(firstClearedAt),
+      'lastPlayedAt': serializer.toJson<DateTime?>(lastPlayedAt),
+      'postcardSeen': serializer.toJson<bool>(postcardSeen),
     };
   }
 
-  BirdUnlock copyWith({int? bird, DateTime? unlockedAt}) => BirdUnlock(
-    bird: bird ?? this.bird,
-    unlockedAt: unlockedAt ?? this.unlockedAt,
+  LevelProgressRow copyWith({
+    String? level,
+    int? bestStars,
+    int? bestCollected,
+    int? bestScore,
+    int? plays,
+    Value<DateTime?> firstClearedAt = const Value.absent(),
+    Value<DateTime?> lastPlayedAt = const Value.absent(),
+    bool? postcardSeen,
+  }) => LevelProgressRow(
+    level: level ?? this.level,
+    bestStars: bestStars ?? this.bestStars,
+    bestCollected: bestCollected ?? this.bestCollected,
+    bestScore: bestScore ?? this.bestScore,
+    plays: plays ?? this.plays,
+    firstClearedAt: firstClearedAt.present
+        ? firstClearedAt.value
+        : this.firstClearedAt,
+    lastPlayedAt: lastPlayedAt.present ? lastPlayedAt.value : this.lastPlayedAt,
+    postcardSeen: postcardSeen ?? this.postcardSeen,
   );
-  BirdUnlock copyWithCompanion(BirdUnlocksCompanion data) {
-    return BirdUnlock(
-      bird: data.bird.present ? data.bird.value : this.bird,
-      unlockedAt: data.unlockedAt.present
-          ? data.unlockedAt.value
-          : this.unlockedAt,
+  LevelProgressRow copyWithCompanion(LevelProgressCompanion data) {
+    return LevelProgressRow(
+      level: data.level.present ? data.level.value : this.level,
+      bestStars: data.bestStars.present ? data.bestStars.value : this.bestStars,
+      bestCollected: data.bestCollected.present
+          ? data.bestCollected.value
+          : this.bestCollected,
+      bestScore: data.bestScore.present ? data.bestScore.value : this.bestScore,
+      plays: data.plays.present ? data.plays.value : this.plays,
+      firstClearedAt: data.firstClearedAt.present
+          ? data.firstClearedAt.value
+          : this.firstClearedAt,
+      lastPlayedAt: data.lastPlayedAt.present
+          ? data.lastPlayedAt.value
+          : this.lastPlayedAt,
+      postcardSeen: data.postcardSeen.present
+          ? data.postcardSeen.value
+          : this.postcardSeen,
     );
   }
 
   @override
   String toString() {
-    return (StringBuffer('BirdUnlock(')
-          ..write('bird: $bird, ')
-          ..write('unlockedAt: $unlockedAt')
+    return (StringBuffer('LevelProgressRow(')
+          ..write('level: $level, ')
+          ..write('bestStars: $bestStars, ')
+          ..write('bestCollected: $bestCollected, ')
+          ..write('bestScore: $bestScore, ')
+          ..write('plays: $plays, ')
+          ..write('firstClearedAt: $firstClearedAt, ')
+          ..write('lastPlayedAt: $lastPlayedAt, ')
+          ..write('postcardSeen: $postcardSeen')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(bird, unlockedAt);
+  int get hashCode => Object.hash(
+    level,
+    bestStars,
+    bestCollected,
+    bestScore,
+    plays,
+    firstClearedAt,
+    lastPlayedAt,
+    postcardSeen,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is BirdUnlock &&
-          other.bird == this.bird &&
-          other.unlockedAt == this.unlockedAt);
+      (other is LevelProgressRow &&
+          other.level == this.level &&
+          other.bestStars == this.bestStars &&
+          other.bestCollected == this.bestCollected &&
+          other.bestScore == this.bestScore &&
+          other.plays == this.plays &&
+          other.firstClearedAt == this.firstClearedAt &&
+          other.lastPlayedAt == this.lastPlayedAt &&
+          other.postcardSeen == this.postcardSeen);
 }
 
-class BirdUnlocksCompanion extends UpdateCompanion<BirdUnlock> {
-  final Value<int> bird;
-  final Value<DateTime> unlockedAt;
-  const BirdUnlocksCompanion({
-    this.bird = const Value.absent(),
-    this.unlockedAt = const Value.absent(),
+class LevelProgressCompanion extends UpdateCompanion<LevelProgressRow> {
+  final Value<String> level;
+  final Value<int> bestStars;
+  final Value<int> bestCollected;
+  final Value<int> bestScore;
+  final Value<int> plays;
+  final Value<DateTime?> firstClearedAt;
+  final Value<DateTime?> lastPlayedAt;
+  final Value<bool> postcardSeen;
+  final Value<int> rowid;
+  const LevelProgressCompanion({
+    this.level = const Value.absent(),
+    this.bestStars = const Value.absent(),
+    this.bestCollected = const Value.absent(),
+    this.bestScore = const Value.absent(),
+    this.plays = const Value.absent(),
+    this.firstClearedAt = const Value.absent(),
+    this.lastPlayedAt = const Value.absent(),
+    this.postcardSeen = const Value.absent(),
+    this.rowid = const Value.absent(),
   });
-  BirdUnlocksCompanion.insert({
-    this.bird = const Value.absent(),
-    required DateTime unlockedAt,
-  }) : unlockedAt = Value(unlockedAt);
-  static Insertable<BirdUnlock> custom({
-    Expression<int>? bird,
-    Expression<DateTime>? unlockedAt,
+  LevelProgressCompanion.insert({
+    required String level,
+    this.bestStars = const Value.absent(),
+    this.bestCollected = const Value.absent(),
+    this.bestScore = const Value.absent(),
+    this.plays = const Value.absent(),
+    this.firstClearedAt = const Value.absent(),
+    this.lastPlayedAt = const Value.absent(),
+    this.postcardSeen = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : level = Value(level);
+  static Insertable<LevelProgressRow> custom({
+    Expression<String>? level,
+    Expression<int>? bestStars,
+    Expression<int>? bestCollected,
+    Expression<int>? bestScore,
+    Expression<int>? plays,
+    Expression<DateTime>? firstClearedAt,
+    Expression<DateTime>? lastPlayedAt,
+    Expression<bool>? postcardSeen,
+    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
-      if (bird != null) 'bird': bird,
-      if (unlockedAt != null) 'unlocked_at': unlockedAt,
+      if (level != null) 'level': level,
+      if (bestStars != null) 'best_stars': bestStars,
+      if (bestCollected != null) 'best_collected': bestCollected,
+      if (bestScore != null) 'best_score': bestScore,
+      if (plays != null) 'plays': plays,
+      if (firstClearedAt != null) 'first_cleared_at': firstClearedAt,
+      if (lastPlayedAt != null) 'last_played_at': lastPlayedAt,
+      if (postcardSeen != null) 'postcard_seen': postcardSeen,
+      if (rowid != null) 'rowid': rowid,
     });
   }
 
-  BirdUnlocksCompanion copyWith({
-    Value<int>? bird,
-    Value<DateTime>? unlockedAt,
+  LevelProgressCompanion copyWith({
+    Value<String>? level,
+    Value<int>? bestStars,
+    Value<int>? bestCollected,
+    Value<int>? bestScore,
+    Value<int>? plays,
+    Value<DateTime?>? firstClearedAt,
+    Value<DateTime?>? lastPlayedAt,
+    Value<bool>? postcardSeen,
+    Value<int>? rowid,
   }) {
-    return BirdUnlocksCompanion(
-      bird: bird ?? this.bird,
-      unlockedAt: unlockedAt ?? this.unlockedAt,
+    return LevelProgressCompanion(
+      level: level ?? this.level,
+      bestStars: bestStars ?? this.bestStars,
+      bestCollected: bestCollected ?? this.bestCollected,
+      bestScore: bestScore ?? this.bestScore,
+      plays: plays ?? this.plays,
+      firstClearedAt: firstClearedAt ?? this.firstClearedAt,
+      lastPlayedAt: lastPlayedAt ?? this.lastPlayedAt,
+      postcardSeen: postcardSeen ?? this.postcardSeen,
+      rowid: rowid ?? this.rowid,
     );
   }
 
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (bird.present) {
-      map['bird'] = Variable<int>(bird.value);
+    if (level.present) {
+      map['level'] = Variable<String>(level.value);
     }
-    if (unlockedAt.present) {
-      map['unlocked_at'] = Variable<DateTime>(unlockedAt.value);
+    if (bestStars.present) {
+      map['best_stars'] = Variable<int>(bestStars.value);
+    }
+    if (bestCollected.present) {
+      map['best_collected'] = Variable<int>(bestCollected.value);
+    }
+    if (bestScore.present) {
+      map['best_score'] = Variable<int>(bestScore.value);
+    }
+    if (plays.present) {
+      map['plays'] = Variable<int>(plays.value);
+    }
+    if (firstClearedAt.present) {
+      map['first_cleared_at'] = Variable<DateTime>(firstClearedAt.value);
+    }
+    if (lastPlayedAt.present) {
+      map['last_played_at'] = Variable<DateTime>(lastPlayedAt.value);
+    }
+    if (postcardSeen.present) {
+      map['postcard_seen'] = Variable<bool>(postcardSeen.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
     }
     return map;
   }
 
   @override
   String toString() {
-    return (StringBuffer('BirdUnlocksCompanion(')
-          ..write('bird: $bird, ')
-          ..write('unlockedAt: $unlockedAt')
+    return (StringBuffer('LevelProgressCompanion(')
+          ..write('level: $level, ')
+          ..write('bestStars: $bestStars, ')
+          ..write('bestCollected: $bestCollected, ')
+          ..write('bestScore: $bestScore, ')
+          ..write('plays: $plays, ')
+          ..write('firstClearedAt: $firstClearedAt, ')
+          ..write('lastPlayedAt: $lastPlayedAt, ')
+          ..write('postcardSeen: $postcardSeen, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -1210,7 +1634,7 @@ abstract class _$ProgressDatabase extends GeneratedDatabase {
   $ProgressDatabaseManager get managers => $ProgressDatabaseManager(this);
   late final $RunsTable runs = $RunsTable(this);
   late final $PreferencesTable preferences = $PreferencesTable(this);
-  late final $BirdUnlocksTable birdUnlocks = $BirdUnlocksTable(this);
+  late final $LevelProgressTable levelProgress = $LevelProgressTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1218,7 +1642,7 @@ abstract class _$ProgressDatabase extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     runs,
     preferences,
-    birdUnlocks,
+    levelProgress,
   ];
 }
 
@@ -1238,6 +1662,8 @@ typedef $$RunsTableCreateCompanionBuilder =
       required double duration,
       required String reason,
       required DateTime finishedAt,
+      Value<int> bird,
+      Value<String?> level,
       Value<int> rowid,
     });
 typedef $$RunsTableUpdateCompanionBuilder =
@@ -1256,6 +1682,8 @@ typedef $$RunsTableUpdateCompanionBuilder =
       Value<double> duration,
       Value<String> reason,
       Value<DateTime> finishedAt,
+      Value<int> bird,
+      Value<String?> level,
       Value<int> rowid,
     });
 
@@ -1335,6 +1763,16 @@ class $$RunsTableFilterComposer
 
   ColumnFilters<DateTime> get finishedAt => $composableBuilder(
     column: $table.finishedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get bird => $composableBuilder(
+    column: $table.bird,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get level => $composableBuilder(
+    column: $table.level,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -1417,6 +1855,16 @@ class $$RunsTableOrderingComposer
     column: $table.finishedAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get bird => $composableBuilder(
+    column: $table.bird,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get level => $composableBuilder(
+    column: $table.level,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$RunsTableAnnotationComposer
@@ -1475,6 +1923,12 @@ class $$RunsTableAnnotationComposer
     column: $table.finishedAt,
     builder: (column) => column,
   );
+
+  GeneratedColumn<int> get bird =>
+      $composableBuilder(column: $table.bird, builder: (column) => column);
+
+  GeneratedColumn<String> get level =>
+      $composableBuilder(column: $table.level, builder: (column) => column);
 }
 
 class $$RunsTableTableManager
@@ -1519,6 +1973,8 @@ class $$RunsTableTableManager
                 Value<double> duration = const Value.absent(),
                 Value<String> reason = const Value.absent(),
                 Value<DateTime> finishedAt = const Value.absent(),
+                Value<int> bird = const Value.absent(),
+                Value<String?> level = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => RunsCompanion(
                 id: id,
@@ -1535,6 +1991,8 @@ class $$RunsTableTableManager
                 duration: duration,
                 reason: reason,
                 finishedAt: finishedAt,
+                bird: bird,
+                level: level,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -1553,6 +2011,8 @@ class $$RunsTableTableManager
                 required double duration,
                 required String reason,
                 required DateTime finishedAt,
+                Value<int> bird = const Value.absent(),
+                Value<String?> level = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => RunsCompanion.insert(
                 id: id,
@@ -1569,6 +2029,8 @@ class $$RunsTableTableManager
                 duration: duration,
                 reason: reason,
                 finishedAt: finishedAt,
+                bird: bird,
+                level: level,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -1750,125 +2212,260 @@ typedef $$PreferencesTableProcessedTableManager =
       Preference,
       PrefetchHooks Function()
     >;
-typedef $$BirdUnlocksTableCreateCompanionBuilder =
-    BirdUnlocksCompanion Function({
-      Value<int> bird,
-      required DateTime unlockedAt,
+typedef $$LevelProgressTableCreateCompanionBuilder =
+    LevelProgressCompanion Function({
+      required String level,
+      Value<int> bestStars,
+      Value<int> bestCollected,
+      Value<int> bestScore,
+      Value<int> plays,
+      Value<DateTime?> firstClearedAt,
+      Value<DateTime?> lastPlayedAt,
+      Value<bool> postcardSeen,
+      Value<int> rowid,
     });
-typedef $$BirdUnlocksTableUpdateCompanionBuilder =
-    BirdUnlocksCompanion Function({
-      Value<int> bird,
-      Value<DateTime> unlockedAt,
+typedef $$LevelProgressTableUpdateCompanionBuilder =
+    LevelProgressCompanion Function({
+      Value<String> level,
+      Value<int> bestStars,
+      Value<int> bestCollected,
+      Value<int> bestScore,
+      Value<int> plays,
+      Value<DateTime?> firstClearedAt,
+      Value<DateTime?> lastPlayedAt,
+      Value<bool> postcardSeen,
+      Value<int> rowid,
     });
 
-class $$BirdUnlocksTableFilterComposer
-    extends Composer<_$ProgressDatabase, $BirdUnlocksTable> {
-  $$BirdUnlocksTableFilterComposer({
+class $$LevelProgressTableFilterComposer
+    extends Composer<_$ProgressDatabase, $LevelProgressTable> {
+  $$LevelProgressTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<int> get bird => $composableBuilder(
-    column: $table.bird,
+  ColumnFilters<String> get level => $composableBuilder(
+    column: $table.level,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<DateTime> get unlockedAt => $composableBuilder(
-    column: $table.unlockedAt,
+  ColumnFilters<int> get bestStars => $composableBuilder(
+    column: $table.bestStars,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get bestCollected => $composableBuilder(
+    column: $table.bestCollected,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get bestScore => $composableBuilder(
+    column: $table.bestScore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get plays => $composableBuilder(
+    column: $table.plays,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get firstClearedAt => $composableBuilder(
+    column: $table.firstClearedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastPlayedAt => $composableBuilder(
+    column: $table.lastPlayedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get postcardSeen => $composableBuilder(
+    column: $table.postcardSeen,
     builder: (column) => ColumnFilters(column),
   );
 }
 
-class $$BirdUnlocksTableOrderingComposer
-    extends Composer<_$ProgressDatabase, $BirdUnlocksTable> {
-  $$BirdUnlocksTableOrderingComposer({
+class $$LevelProgressTableOrderingComposer
+    extends Composer<_$ProgressDatabase, $LevelProgressTable> {
+  $$LevelProgressTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<int> get bird => $composableBuilder(
-    column: $table.bird,
+  ColumnOrderings<String> get level => $composableBuilder(
+    column: $table.level,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<DateTime> get unlockedAt => $composableBuilder(
-    column: $table.unlockedAt,
+  ColumnOrderings<int> get bestStars => $composableBuilder(
+    column: $table.bestStars,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get bestCollected => $composableBuilder(
+    column: $table.bestCollected,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get bestScore => $composableBuilder(
+    column: $table.bestScore,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get plays => $composableBuilder(
+    column: $table.plays,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get firstClearedAt => $composableBuilder(
+    column: $table.firstClearedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastPlayedAt => $composableBuilder(
+    column: $table.lastPlayedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get postcardSeen => $composableBuilder(
+    column: $table.postcardSeen,
     builder: (column) => ColumnOrderings(column),
   );
 }
 
-class $$BirdUnlocksTableAnnotationComposer
-    extends Composer<_$ProgressDatabase, $BirdUnlocksTable> {
-  $$BirdUnlocksTableAnnotationComposer({
+class $$LevelProgressTableAnnotationComposer
+    extends Composer<_$ProgressDatabase, $LevelProgressTable> {
+  $$LevelProgressTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get bird =>
-      $composableBuilder(column: $table.bird, builder: (column) => column);
+  GeneratedColumn<String> get level =>
+      $composableBuilder(column: $table.level, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get unlockedAt => $composableBuilder(
-    column: $table.unlockedAt,
+  GeneratedColumn<int> get bestStars =>
+      $composableBuilder(column: $table.bestStars, builder: (column) => column);
+
+  GeneratedColumn<int> get bestCollected => $composableBuilder(
+    column: $table.bestCollected,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get bestScore =>
+      $composableBuilder(column: $table.bestScore, builder: (column) => column);
+
+  GeneratedColumn<int> get plays =>
+      $composableBuilder(column: $table.plays, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get firstClearedAt => $composableBuilder(
+    column: $table.firstClearedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get lastPlayedAt => $composableBuilder(
+    column: $table.lastPlayedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get postcardSeen => $composableBuilder(
+    column: $table.postcardSeen,
     builder: (column) => column,
   );
 }
 
-class $$BirdUnlocksTableTableManager
+class $$LevelProgressTableTableManager
     extends
         RootTableManager<
           _$ProgressDatabase,
-          $BirdUnlocksTable,
-          BirdUnlock,
-          $$BirdUnlocksTableFilterComposer,
-          $$BirdUnlocksTableOrderingComposer,
-          $$BirdUnlocksTableAnnotationComposer,
-          $$BirdUnlocksTableCreateCompanionBuilder,
-          $$BirdUnlocksTableUpdateCompanionBuilder,
+          $LevelProgressTable,
+          LevelProgressRow,
+          $$LevelProgressTableFilterComposer,
+          $$LevelProgressTableOrderingComposer,
+          $$LevelProgressTableAnnotationComposer,
+          $$LevelProgressTableCreateCompanionBuilder,
+          $$LevelProgressTableUpdateCompanionBuilder,
           (
-            BirdUnlock,
-            BaseReferences<_$ProgressDatabase, $BirdUnlocksTable, BirdUnlock>,
+            LevelProgressRow,
+            BaseReferences<
+              _$ProgressDatabase,
+              $LevelProgressTable,
+              LevelProgressRow
+            >,
           ),
-          BirdUnlock,
+          LevelProgressRow,
           PrefetchHooks Function()
         > {
-  $$BirdUnlocksTableTableManager(_$ProgressDatabase db, $BirdUnlocksTable table)
-    : super(
+  $$LevelProgressTableTableManager(
+    _$ProgressDatabase db,
+    $LevelProgressTable table,
+  ) : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$BirdUnlocksTableFilterComposer($db: db, $table: table),
+              $$LevelProgressTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$BirdUnlocksTableOrderingComposer($db: db, $table: table),
+              $$LevelProgressTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$BirdUnlocksTableAnnotationComposer($db: db, $table: table),
+              $$LevelProgressTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
-                Value<int> bird = const Value.absent(),
-                Value<DateTime> unlockedAt = const Value.absent(),
-              }) => BirdUnlocksCompanion(bird: bird, unlockedAt: unlockedAt),
+                Value<String> level = const Value.absent(),
+                Value<int> bestStars = const Value.absent(),
+                Value<int> bestCollected = const Value.absent(),
+                Value<int> bestScore = const Value.absent(),
+                Value<int> plays = const Value.absent(),
+                Value<DateTime?> firstClearedAt = const Value.absent(),
+                Value<DateTime?> lastPlayedAt = const Value.absent(),
+                Value<bool> postcardSeen = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LevelProgressCompanion(
+                level: level,
+                bestStars: bestStars,
+                bestCollected: bestCollected,
+                bestScore: bestScore,
+                plays: plays,
+                firstClearedAt: firstClearedAt,
+                lastPlayedAt: lastPlayedAt,
+                postcardSeen: postcardSeen,
+                rowid: rowid,
+              ),
           createCompanionCallback:
               ({
-                Value<int> bird = const Value.absent(),
-                required DateTime unlockedAt,
-              }) => BirdUnlocksCompanion.insert(
-                bird: bird,
-                unlockedAt: unlockedAt,
+                required String level,
+                Value<int> bestStars = const Value.absent(),
+                Value<int> bestCollected = const Value.absent(),
+                Value<int> bestScore = const Value.absent(),
+                Value<int> plays = const Value.absent(),
+                Value<DateTime?> firstClearedAt = const Value.absent(),
+                Value<DateTime?> lastPlayedAt = const Value.absent(),
+                Value<bool> postcardSeen = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LevelProgressCompanion.insert(
+                level: level,
+                bestStars: bestStars,
+                bestCollected: bestCollected,
+                bestScore: bestScore,
+                plays: plays,
+                firstClearedAt: firstClearedAt,
+                lastPlayedAt: lastPlayedAt,
+                postcardSeen: postcardSeen,
+                rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable<$BirdUnlocksTable, BirdUnlock>(table),
+                  e.readTable<$LevelProgressTable, LevelProgressRow>(table),
                   BaseReferences<
                     _$ProgressDatabase,
-                    $BirdUnlocksTable,
-                    BirdUnlock
+                    $LevelProgressTable,
+                    LevelProgressRow
                   >(db, table, e),
                 ),
               )
@@ -1878,21 +2475,25 @@ class $$BirdUnlocksTableTableManager
       );
 }
 
-typedef $$BirdUnlocksTableProcessedTableManager =
+typedef $$LevelProgressTableProcessedTableManager =
     ProcessedTableManager<
       _$ProgressDatabase,
-      $BirdUnlocksTable,
-      BirdUnlock,
-      $$BirdUnlocksTableFilterComposer,
-      $$BirdUnlocksTableOrderingComposer,
-      $$BirdUnlocksTableAnnotationComposer,
-      $$BirdUnlocksTableCreateCompanionBuilder,
-      $$BirdUnlocksTableUpdateCompanionBuilder,
+      $LevelProgressTable,
+      LevelProgressRow,
+      $$LevelProgressTableFilterComposer,
+      $$LevelProgressTableOrderingComposer,
+      $$LevelProgressTableAnnotationComposer,
+      $$LevelProgressTableCreateCompanionBuilder,
+      $$LevelProgressTableUpdateCompanionBuilder,
       (
-        BirdUnlock,
-        BaseReferences<_$ProgressDatabase, $BirdUnlocksTable, BirdUnlock>,
+        LevelProgressRow,
+        BaseReferences<
+          _$ProgressDatabase,
+          $LevelProgressTable,
+          LevelProgressRow
+        >,
       ),
-      BirdUnlock,
+      LevelProgressRow,
       PrefetchHooks Function()
     >;
 
@@ -1902,6 +2503,6 @@ class $ProgressDatabaseManager {
   $$RunsTableTableManager get runs => $$RunsTableTableManager(_db, _db.runs);
   $$PreferencesTableTableManager get preferences =>
       $$PreferencesTableTableManager(_db, _db.preferences);
-  $$BirdUnlocksTableTableManager get birdUnlocks =>
-      $$BirdUnlocksTableTableManager(_db, _db.birdUnlocks);
+  $$LevelProgressTableTableManager get levelProgress =>
+      $$LevelProgressTableTableManager(_db, _db.levelProgress);
 }

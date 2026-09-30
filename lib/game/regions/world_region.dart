@@ -1,114 +1,99 @@
 import 'dart:ui';
 
 import '../../domain/obstacle.dart';
+import '../../domain/world_region.dart';
 
-/// The places a flight tours, in flight order. Each owns a sky, parallax
-/// skyline, weather and obstacle materials, painted procedurally.
-///
-/// The order alternates warm and cold, day and night, so every hand-off is a
-/// strong contrast. It opens on a neutral jungle morning, then polar
-/// twilight, an Aztec sunrise, a Paris night, Egyptian noon, a Chinese dusk,
-/// bright Brazil, a New York night, a teal dawn over an ancient Arabian city,
-/// golden Rome, a Mexican dusk and an ocean dawn that leads back to the
-/// jungle.
-enum WorldRegion {
-  jungle('Jungle'),
-  antarctica('Antarctica'),
-  aztec('Aztec'),
-  paris('Paris'),
-  egypt('Egypt'),
-  china('China'),
-  brazil('Brazil'),
-  newYork('New York'),
-  arabia('Ancient Arabia'),
-  rome('Ancient Rome'),
-  mexico('Mexico'),
-  sea('Open Sea');
+export '../../domain/world_region.dart';
 
-  const WorldRegion(this.title);
-  final String title;
-
-  WorldRegion get next => values[(index + 1) % values.length];
-
+/// Each region's colours. The region's identity lives in the domain, so a
+/// campaign level can name the one region it flies.
+extension WorldRegionPalette on WorldRegion {
   SkyPalette get palette => switch (this) {
-    egypt => const SkyPalette(
+    WorldRegion.egypt => const SkyPalette(
       Color(0xff78bddc),
       Color(0xfffae6bf),
       Color(0xfff1cf9c),
       Color(0xffd9a86c),
       Color(0xffe8a73c),
     ),
-    antarctica => const SkyPalette(
+    WorldRegion.antarctica => const SkyPalette(
       Color(0xff34507e),
       Color(0xfff2cfd2),
       Color(0xffc3d4ea),
       Color(0xffe4eef7),
       Color(0xff7ee3c4),
     ),
-    jungle => const SkyPalette(
+    WorldRegion.jungle => const SkyPalette(
       Color(0xff93cfc6),
       Color(0xfff4f1cf),
       Color(0xffcde3c1),
       Color(0xff3f8d62),
       Color(0xfff06f5b),
     ),
-    china => const SkyPalette(
+    WorldRegion.china => const SkyPalette(
       Color(0xffb4a0cc),
       Color(0xffffdcb8),
       Color(0xfff2c6b6),
       Color(0xff6b8a88),
       Color(0xffd8473a),
     ),
-    newYork => const SkyPalette(
+    WorldRegion.cyberpunk => const SkyPalette(
+      Color(0xff0b0b2c),
+      Color(0xff8f3f9f),
+      Color(0xff4d3a8e),
+      Color(0xff15143a),
+      Color(0xffff3fb4),
+    ),
+    WorldRegion.newYork => const SkyPalette(
       Color(0xff222c55),
       Color(0xffbd7a89),
       Color(0xff6c5f92),
       Color(0xff2e3453),
       Color(0xffffc95a),
     ),
-    sea => const SkyPalette(
+    WorldRegion.sea => const SkyPalette(
       Color(0xff7db3dd),
       Color(0xffffe1bf),
       Color(0xffffcdb0),
       Color(0xff3b86a9),
       Color(0xfff47d64),
     ),
-    aztec => const SkyPalette(
+    WorldRegion.aztec => const SkyPalette(
       Color(0xff6f8fc9),
       Color(0xffffc27a),
       Color(0xfff2b58f),
       Color(0xff6d8a4a),
       Color(0xff2fb5a0),
     ),
-    paris => const SkyPalette(
+    WorldRegion.paris => const SkyPalette(
       Color(0xff1b2354),
       Color(0xffe59a8a),
       Color(0xff8a7ca8),
       Color(0xff2c3050),
       Color(0xffffd36b),
     ),
-    brazil => const SkyPalette(
+    WorldRegion.brazil => const SkyPalette(
       Color(0xff3aa0e0),
       Color(0xffbff0ff),
       Color(0xffd8f3f0),
       Color(0xff3fbf7a),
       Color(0xffffdc2e),
     ),
-    arabia => const SkyPalette(
+    WorldRegion.arabia => const SkyPalette(
       Color(0xff2f8196),
       Color(0xffffd8bc),
       Color(0xffeec3b4),
       Color(0xffd79a80),
       Color(0xff1fa3a6),
     ),
-    rome => const SkyPalette(
+    WorldRegion.rome => const SkyPalette(
       Color(0xff6a9fd2),
       Color(0xffffd9a0),
       Color(0xfff2c9a0),
       Color(0xffb9905f),
       Color(0xffb23a2c),
     ),
-    mexico => const SkyPalette(
+    WorldRegion.mexico => const SkyPalette(
       Color(0xff5b3a8a),
       Color(0xffff9a5a),
       Color(0xfff0a67a),
@@ -126,8 +111,10 @@ class SkyPalette {
   const SkyPalette(this.top, this.horizon, this.haze, this.land, this.accent);
   final Color top, horizon, haze, land, accent;
 
-  /// The palette of the world tour at a replay clock second.
-  static SkyPalette at(double seconds) => WorldTour.at(seconds).palette;
+  /// The palette at a replay clock second: of the world tour, or of the
+  /// region a campaign level [held].
+  static SkyPalette at(double seconds, {WorldRegion? held}) =>
+      WorldTour.at(seconds, held: held).palette;
 
   static SkyPalette lerp(SkyPalette a, SkyPalette b, double t) {
     if (t <= 0) return a;
@@ -146,12 +133,27 @@ class SkyPalette {
 /// then hands over to [to]. [t] is the linear progress through the crossing
 /// (0 while holding) so every layer can stage its own eased step.
 class RegionBlend {
-  const RegionBlend(this.from, this.to, this.t, {required this.fromStart});
+  const RegionBlend(this.from, this.to, this.t, {required this.fromStart})
+    : held = false;
+
+  /// A campaign level's one region for the whole flight: it never crosses,
+  /// and its own clock starts with the flight.
+  const RegionBlend.hold(WorldRegion region)
+    : from = region,
+      to = region,
+      t = 0,
+      fromStart = 0,
+      held = true;
+
   final WorldRegion from, to;
   final double t;
 
   /// Clock second when [from]'s leg began; [to]'s leg begins one leg later.
   final double fromStart;
+
+  /// True for a campaign level. Its region shows far longer than a leg of
+  /// the tour, so whatever a painter times once per leg has to repeat.
+  final bool held;
 
   bool get crossing => t > 0;
 
@@ -195,14 +197,18 @@ class RegionBlend {
 /// Endless flights run from half a minute (a first Classic attempt) to a few
 /// minutes (Star Trail with hearts and shields). A 16 second hold and a 6
 /// second crossing show the first hand-off at 16 s, three regions by the
-/// one-minute mark and the whole tour in 264 s before it loops.
+/// one-minute mark and the whole tour of thirteen regions in 286 s before it
+/// loops.
 abstract final class WorldTour {
   static const hold = 16.0, crossing = 6.0, leg = hold + crossing;
 
-  /// One leg per [WorldRegion].
-  static const loop = leg * 12;
+  /// One leg per [WorldRegion], so adding a region lengthens the tour.
+  static final loop = leg * WorldRegion.values.length;
 
-  static RegionBlend at(double seconds) {
+  /// Which region shows at a replay clock second. A campaign level has
+  /// [held] its one region for the whole flight instead of touring.
+  static RegionBlend at(double seconds, {WorldRegion? held}) {
+    if (held != null) return RegionBlend.hold(held);
     final s = seconds.isFinite && seconds > 0 ? seconds : 0.0;
     final lap = (s / loop).floor();
     final inLap = s - lap * loop;
@@ -219,6 +225,8 @@ abstract final class WorldTour {
 
   /// An obstacle keeps the region it spawned in for its whole life, so the
   /// new region's structures stream in from the right edge during a crossing
-  /// instead of changing costume on screen.
-  static WorldRegion of(Obstacle o) => at(o.bornAt).dominant;
+  /// instead of changing costume on screen. In a campaign level every
+  /// obstacle wears the region it has [held].
+  static WorldRegion of(Obstacle o, {WorldRegion? held}) =>
+      held ?? at(o.bornAt).dominant;
 }

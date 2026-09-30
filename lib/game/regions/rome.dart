@@ -1390,7 +1390,12 @@ class RomeScene extends RegionScene {
     c.drawPath(g.verge, line);
     // The cart creeps along the road, wheels and all.
     final x0 = -h * .35, span = w + h * 1.15;
-    final local = f.reducedMotion ? 8.0 : f.clock % WorldTour.loop - WorldRegion.rome.index * WorldTour.leg;
+    // Seconds into Rome's leg of the tour, or into a campaign level.
+    final local = f.reducedMotion
+        ? 8.0
+        : f.held
+        ? f.clock
+        : f.clock % WorldTour.loop - WorldRegion.rome.index * WorldTour.leg;
     final x = x0 + (h * 2.1 - local * h * .0115) % span;
     final y = h * .706 + h * .009 * math.sin(x / h * 1.9 + .6) + h * .0022;
     final u = h * .011;

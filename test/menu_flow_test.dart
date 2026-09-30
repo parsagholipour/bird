@@ -120,7 +120,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       expect(find.text('Peaches'), findsOneWidget);
-      expect(find.text('25 to unlock'), findsOneWidget);
+      expect(find.text('Fly with me'), findsNWidgets(3));
       appRouter.go('/records');
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
@@ -130,7 +130,7 @@ void main() {
       appRouter.go('/settings');
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
-      expect(find.byType(Switch), findsNWidgets(3));
+      expect(find.byType(Switch), findsNWidgets(4));
       await tester.pumpWidget(const SizedBox());
       container.dispose();
       await repo.close();

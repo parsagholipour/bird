@@ -22,6 +22,15 @@ BirdExpression expression(
   int bird = 0,
 }) => BirdPose.forFlight(sim, reducedMotion: reduced, bird: bird).expression;
 
+/// The eyes, lashes and brows of each bird in its 256 × 224 design box: the
+/// only pixels an expression may change.
+const faces = [
+  Rect.fromLTRB(110, 52, 194, 124), // Pip
+  Rect.fromLTRB(104, 48, 200, 124), // Peaches: lashes and raised brows
+  Rect.fromLTRB(110, 52, 194, 124), // Minty
+  Rect.fromLTRB(110, 48, 194, 124), // Orbit: brows above its facial disc
+];
+
 Future<List<int>> pixels(int bird, BirdExpression expression) async {
   final recorder = ui.PictureRecorder();
   BirdPuppet.paint(
@@ -159,9 +168,15 @@ void main() {
           rendered,
           reason: 'Cached expressions must be deterministic',
         );
+        final face = faces[bird];
         for (var y = 0; y < 224; y++) {
           for (var x = 0; x < 256; x++) {
-            if (x >= 110 && x <= 194 && y >= 52 && y <= 124) continue;
+            if (x >= face.left &&
+                x <= face.right &&
+                y >= face.top &&
+                y <= face.bottom) {
+              continue;
+            }
             final i = (y * 256 + x) * 4;
             expect(
               rendered.sublist(i, i + 4),

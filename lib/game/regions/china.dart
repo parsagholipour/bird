@@ -169,12 +169,15 @@ class ChinaScene extends RegionScene {
   @override
   void sky(Canvas c, SceneFrame f, double presence) {
     final w = f.w, h = f.h;
-    // Seconds into China's own leg, so every visit composes the same dusk.
+    // Seconds into China's own leg, so every visit composes the same dusk,
+    // or into a campaign level.
     final t = f.reducedMotion
         ? 0.0
+        : f.held
+        ? f.clock
         : (f.clock % WorldTour.loop) - WorldRegion.china.index * WorldTour.leg;
     // The sun's dressing rides the compositor's sun while the tour hands over.
-    final blend = WorldTour.at(f.seconds);
+    final blend = f.blend;
     final sun = blend.crossing
         ? SkyLight.lerp(
             RegionScene.of(blend.from).light,
@@ -189,11 +192,11 @@ class ChinaScene extends RegionScene {
     _duskStrata(c, w, h, t, presence);
     _duskSunBars(c, at, r, t, presence);
     _duskMoon(c, w, h, presence);
-    _duskLanterns(c, w, h, t, presence);
+    _duskLanterns(c, w, h, t, presence, held: f.held);
     _duskBanks(c, w, h, t, presence);
     _duskRuyi(c, w, h, t, presence);
     _duskKite(c, w, h, t, presence);
-    _duskGeese(c, w, h, t, presence);
+    _duskGeese(c, w, h, t, presence, held: f.held);
   }
 
   // ---------------------------------------------------------------------------
@@ -4552,8 +4555,23 @@ class ChinaScene extends RegionScene {
   }
 
   /// A loose V of wild geese, flapping in a travelling wave.
-  static void _duskGeese(Canvas c, double w, double h, double t, double a) {
+  static void _duskGeese(
+    Canvas c,
+    double w,
+    double h,
+    double t,
+    double a, {
+    bool held = false,
+  }) {
     if (a <= 0) return;
+    if (held) {
+      // A campaign level outlasts one skein: another flies in from the
+      // right once the last has gone off the left, a few seconds later.
+      final enter = -(w * .16 + h * .1) / (h * .05);
+      final leave = (w * .84 + h * .2) / (h * .05);
+      final cycle = leave - enter + 8;
+      t = enter + (t - enter) % cycle;
+    }
     final lead = Offset(w * .84 - t * h * .05, h * (.235 - t * .0024));
     final paint = Paint()..color = Sketch.fade(const Color(0xff6f5f7b), .6 * a);
     for (var i = 0; i < 9; i++) {
@@ -4623,8 +4641,18 @@ class ChinaScene extends RegionScene {
   }
 
   /// A few dim lanterns released far off, hugging the edges and the top.
-  static void _duskLanterns(Canvas c, double w, double h, double t, double a) {
+  static void _duskLanterns(
+    Canvas c,
+    double w,
+    double h,
+    double t,
+    double a, {
+    bool held = false,
+  }) {
     if (a <= 0) return;
+    // In a campaign level each lantern comes round again: it rises from
+    // behind the hills, climbs out of the top and is let go once more.
+    const below = .3, rise = .0085;
     var i = 0;
     for (final (fx, fy, size, alpha) in const [
       (.9, .3, .011, .62),
@@ -4636,9 +4664,14 @@ class ChinaScene extends RegionScene {
       (.06, .4, .007, .45),
     ]) {
       final x = w * fx + math.sin(t * .4 + i * 1.7) * h * .008;
-      final y = h * fy - t * h * .0085;
+      final climb = held
+          ? (t + below / rise) % ((fy + below + .03) / rise) - below / rise
+          : t;
+      final y = h * fy - climb * h * rise;
       final top = ((y / h) / .06).clamp(0.0, 1.0);
-      _skyLantern(c, Offset(x, y), h * size, alpha * top * a);
+      // A new lantern is lit as it clears the hills.
+      final lit = held ? RegionBlend.smooth((climb + below / rise) / 5) : 1.0;
+      _skyLantern(c, Offset(x, y), h * size, alpha * top * a * lit);
       i++;
     }
   }

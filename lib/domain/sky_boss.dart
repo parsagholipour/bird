@@ -1,10 +1,16 @@
 import 'dart:math' as math;
 
+import 'baron_screech.dart';
+import 'dragon_breath.dart';
+
+export 'baron_screech.dart';
+export 'dragon_breath.dart';
+
 enum BossPhase { arriving, attacking, defeated }
 
 /// Declaration order is the encounter order; [BossKind.pirate] joins the
-/// cycle in rules version 34.
-enum BossKind { baronBat, spitterBeetle, duskMoth, pirate }
+/// cycle in rules version 34 and [BossKind.dragon] in rules version 38.
+enum BossKind { baronBat, spitterBeetle, duskMoth, pirate, dragon }
 
 /// Encounter time advances only with the simulation, including in replays.
 class SkyBoss {
@@ -14,11 +20,17 @@ class SkyBoss {
     this.cinematic = false,
     this.kind = BossKind.baronBat,
     this.wideSpitterFans = true,
+    this.debut = false,
+    this.callsSwarm = true,
+    this.upgraded = false,
     int? maxHp,
   }) : maxHp = maxHp ?? healthFor(kind, number) {
     if (this.maxHp <= 0) throw ArgumentError.value(this.maxHp, 'maxHp');
     hp = this.maxHp;
-    if (isSpitter) {
+    if (screeches) {
+      // The upgraded Baron sends his bats in pairs on the screech's clock.
+      summonIn = double.infinity;
+    } else if (isSpitter) {
       fireIn = 1;
       summonIn = 4;
     } else if (isMoth) {
@@ -28,14 +40,27 @@ class SkyBoss {
       // The captain fights with his cannon and the tide, not a crew.
       fireIn = 1.4;
       summonIn = double.infinity;
+    } else if (isDragon) {
+      // The dragon summons no helpers: fireballs, its breath and, from rules
+      // version 39, the flocks it calls on the breath's clock.
+      fireIn = 1.3;
+      summonIn = double.infinity;
     }
   }
 
-  static int healthFor(BossKind kind, int number) => switch (kind) {
+  /// Older rules keep the Spitter King's original 180 HP start
+  /// ([tougherSpitter] false); from rules version 37 it starts at 210.
+  static int healthFor(
+    BossKind kind,
+    int number, {
+    bool tougherSpitter = true,
+  }) => switch (kind) {
     BossKind.baronBat => 120 + (number - 1).clamp(0, 4) * 30,
-    BossKind.spitterBeetle => 180 + (number - 2).clamp(0, 4) * 30,
+    BossKind.spitterBeetle =>
+      (tougherSpitter ? 210 : 180) + (number - 2).clamp(0, 4) * 30,
     BossKind.duskMoth => 240 + (number - 3).clamp(0, 4) * 30,
     BossKind.pirate => 300 + (number - 4).clamp(0, 4) * 30,
+    BossKind.dragon => 360 + (number - 5).clamp(0, 4) * 30,
   };
 
   /// Damage may skip over half health or zero after a weapon upgrade.
@@ -55,20 +80,35 @@ class SkyBoss {
   final BossKind kind;
   // Older replay rules retain the original tightly packed acid fans.
   final bool wideSpitterFans;
+
+  /// The first time this kind meets the bird in a flight, from rules version
+  /// 37: the Dusk Empress fights without her silk shield and her helpers
+  /// drift in slower ([SkyEnemy.debutDrift]). Later encounters bring the full
+  /// fight.
+  final bool debut;
+
+  /// Baron Bat returns upgraded, from rules version 40 on every encounter
+  /// after his [debut]: he screeches (see [BaronScreech]) and sends his small
+  /// bats in pairs. Only a Baron Bat is ever upgraded.
+  final bool upgraded;
+  bool get screeches => kind == BossKind.baronBat && upgraded;
   bool get isSpitter => kind == BossKind.spitterBeetle;
   bool get isMoth => kind == BossKind.duskMoth;
   bool get isPirate => kind == BossKind.pirate;
+  bool get isDragon => kind == BossKind.dragon;
   String get name => switch (kind) {
     BossKind.baronBat => 'Baron Bat',
     BossKind.spitterBeetle => 'Spitter King',
     BossKind.duskMoth => 'Dusk Empress',
     BossKind.pirate => 'Pirate Captain',
+    BossKind.dragon => 'Ember Dragon',
   };
   String get title => switch (kind) {
-    BossKind.baronBat => 'LORD OF THE STORM',
+    BossKind.baronBat => upgraded ? 'THE STORM RETURNS' : 'LORD OF THE STORM',
     BossKind.spitterBeetle => 'BREWER OF THE SWARM',
     BossKind.duskMoth => 'KEEPER OF THE TWILIGHT VEIL',
     BossKind.pirate => 'TERROR OF THE HIGH TIDE',
+    BossKind.dragon => 'SOVEREIGN OF THE BURNING SKY',
   };
   double get muzzleOffset => radius * (isSpitter || isMoth ? 1.05 : 1);
   double get muzzleX => x - muzzleOffset;
@@ -78,27 +118,32 @@ class SkyBoss {
     BossKind.duskMoth => enraged ? .72 : .62,
     // Horizontal speed only: cannonballs fly on a ballistic arc.
     BossKind.pirate => enraged ? .6 : .5,
+    BossKind.dragon => enraged ? .62 : .52,
   };
   double get volleyInterval => switch (kind) {
     BossKind.baronBat => enraged ? 1.55 : 2.15,
     BossKind.spitterBeetle => enraged ? 1.3 : 1.8,
     BossKind.duskMoth => enraged ? 1.2 : 1.65,
     BossKind.pirate => enraged ? 1.5 : 2.1,
+    BossKind.dragon => enraged ? 1.55 : 2.0,
   };
   double get summonInterval => switch (kind) {
     BossKind.baronBat => enraged ? 4.5 : 6,
     BossKind.spitterBeetle => enraged ? 3.8 : 4.8,
     BossKind.duskMoth => enraged ? 3.6 : 4.6,
-    BossKind.pirate => double.infinity,
+    BossKind.pirate || BossKind.dragon => double.infinity,
   };
   List<double> get volleyOffsets => switch (kind) {
     BossKind.baronBat =>
       enraged || volleys.isOdd ? const [-.24, 0, .24] : const [0],
     BossKind.spitterBeetle =>
       wideSpitterFans
-          // Remove the center shot from full fans to leave a dodge lane.
+          // Leave one slot out of full fans as a dodge lane.
           ? enraged || volleys.isOdd
-                ? const [-.60, -.30, .30, .60]
+                ? [
+                    for (var i = 0; i < acidFan.length; i++)
+                      if (i != openSlot) acidFan[i],
+                  ]
                 : const [-.30, 0, .30]
           : enraged || volleys.isOdd
           ? const [-.36, -.18, 0, .18, .36]
@@ -116,8 +161,26 @@ class SkyBoss {
       2 when tide == 0 => const [-.26, 0, .26],
       _ => const [-.16, .16],
     },
+    // A fireball at the bird, then a pair that brackets it. In fury the
+    // lone fireball splits into embers ([splitsVolley]).
+    BossKind.dragon => volleys.isEven ? const [0] : const [-.22, .22],
   };
   static const radius = .115;
+
+  /// The five aimed slots of a full acid fan, in radians from the aim.
+  static const acidFan = [-.60, -.30, 0.0, .30, .60];
+
+  /// The slot of [acidFan] aimed straight at the bird.
+  static const centerSlot = 2;
+
+  /// Slots of [acidFan] that may be left open. The outer two are never
+  /// chosen: their lane would sit at the very edge of the fan.
+  static const openableSlots = [1, centerSlot, 3];
+
+  /// The slot of [acidFan] a full fan leaves out. The center slot, the only
+  /// one before rules version 37, keeps the lane on the aim point; newer
+  /// rules choose it from the seeded random before every volley.
+  int openSlot = centerSlot;
 
   // ---------------------------------------------------------------------
   // Pirate Captain: a ship on a rising sea, and a cannon that lobs.
@@ -265,24 +328,228 @@ class SkyBoss {
     return (angle: angle, x: muzzleX, y: muzzleY, vx: v.vx, vy: v.vy);
   }
 
+  // ---------------------------------------------------------------------
+  // Ember Dragon: fireballs from its jaws, and a breath that burns a band
+  // of the sky on a fixed combat-time cycle (see [DragonBreath]).
+
+  /// The dragon's jaws, from its heart (the hit circle) in screen heights:
+  /// fireballs are born here. The art opens the jaws on this point.
+  static const dragonMouth = (-.293, -.215);
+  double get mouthX => x + dragonMouth.$1;
+  double get mouthY => y + dragonMouth.$2;
+
+  /// A splitting fireball bursts into embers this long after it leaves the
+  /// jaws, well short of the bird, at [emberSpread] radians either side.
+  static const emberSplitAfter = .45, emberSpread = .5;
+
+  /// After a breath the jaws stay empty at least this long, so the next
+  /// fireball gets its whole charge.
+  static const dragonRefire = .9;
+
+  /// While the dragon breathes its heart lies open and every hit on it
+  /// counts this many times over.
+  static const coreMultiplier = 2;
+
+  double get _breathCycle => _combatTime % DragonBreath.period;
+  bool get _dragonFighting => isDragon && phase == BossPhase.attacking;
+
+  /// The band the current (or last) breath scorches. The rules aim it once,
+  /// as each warning begins ([breathsAimed] catches up with [breaths]).
+  BreathLane breathLane = BreathLane.middle;
+  int breathsAimed = 0;
+
+  /// 0 to 1 through the inhale before each blast, 0 otherwise.
+  double get breathWarning =>
+      _dragonFighting ? DragonBreath.warning(_breathCycle) : 0;
+
+  /// Whether the flame burns now: touching its band hurts.
+  bool get breathing => _dragonFighting && DragonBreath.blasting(_breathCycle);
+
+  /// From the inhale to the end of the flame the heart lies open.
+  bool get breathBusy => _dragonFighting && DragonBreath.busy(_breathCycle);
+  bool get coreExposed => breathBusy;
+
+  /// No fireballs from a second before the inhale to the end of the flame.
+  bool get breathQuiet => _dragonFighting && DragonBreath.quiet(_breathCycle);
+
+  /// Breaths whose warning has begun, and blasts that have been loosed,
+  /// for edge-triggered cues and for aiming.
+  int get breaths => _dragonFighting
+      ? DragonBreath.count(_combatTime, DragonBreath.warnAt)
+      : 0;
+  int get breathBlasts => _dragonFighting
+      ? DragonBreath.count(_combatTime, DragonBreath.blastAt)
+      : 0;
+
+  /// Whether a circle at [py] with [pr] reaches into the burning band.
+  bool scorches(double py, double pr) =>
+      breathing && DragonBreath.scorches(breathLane, py, pr);
+
+  /// In fury, away from its debut, the lone fireball splits into embers.
+  bool get splitsVolley => isDragon && enraged && !debut && volleys.isEven;
+
+  /// From rules version 39 ([callsSwarm]) the dragon calls a flock of swarm
+  /// bats, the swarm rush path's own, as each flame gutters out,
+  /// [swarmCallAt] into the breath cycle. In fury, away from its debut, a
+  /// second flock follows [swarmFollowAfter] later. The rules aim each flock
+  /// at the bird's height as it is called, and both have flown past before
+  /// the next inhale.
+  static const swarmCallAt = 7.6, swarmFollowAfter = 1.4;
+  final bool callsSwarm;
+
+  /// Calls and follow-ups whose time has come. The rules release a flock as
+  /// [swarmCalls] and [swarmFollows] catch up with them.
+  int get swarmCallsDue => _dragonFighting && callsSwarm
+      ? DragonBreath.count(_combatTime, swarmCallAt)
+      : 0;
+  int get swarmFollowsDue => _dragonFighting && callsSwarm
+      ? DragonBreath.count(_combatTime, swarmCallAt + swarmFollowAfter)
+      : 0;
+  int swarmCalls = 0, swarmFollows = 0;
+
+  /// Whether a follow-up flock due now takes wing.
+  bool get swarmFollowsUp => enraged && !debut;
+
+  /// Rules damage for a hit worth [damage]: doubled on the open heart.
+  int strike(int damage) {
+    if (!coreExposed) return takeDamage(damage);
+    lastCoreHitAt = age;
+    return takeDamage(damage * coreMultiplier);
+  }
+
+  /// How long after a call [breathHint] names the swarm.
+  static const swarmHintSeconds = 2.5;
+
+  /// Render-only: when a hit last landed on the open heart.
+  double lastCoreHitAt = double.negativeInfinity;
+
+  String get breathHint {
+    final warning = breathWarning;
+    if (warning > 0 || breathing) {
+      final dodge = switch (breathLane) {
+        BreathLane.high => 'Fly low!',
+        BreathLane.middle => 'Climb or dive!',
+        BreathLane.low => 'Fly high!',
+      };
+      return warning > 0
+          ? "DRAGON'S BREATH · $dodge Its heart is open"
+          : 'FIRE · $dodge Strike the glowing heart';
+    }
+    if (age - lastSummonAt < swarmHintSeconds) {
+      return 'SWARM · Dodge the bats or sprint through them';
+    }
+    return enraged
+        ? debut
+              ? 'FURY · Faster fireballs'
+              : 'FURY · Fireballs burst into embers'
+        : 'Dodge the fireballs · Watch for the breath';
+  }
+
+  // ---------------------------------------------------------------------
+  // Baron Bat, upgraded: a sonic screech on a fixed combat-time cycle (see
+  // [BaronScreech]) and small bats sent in pairs on the same clock.
+
+  double get _screechCycle => _combatTime % BaronScreech.period;
+  bool get _screechFighting => screeches && phase == BossPhase.attacking;
+
+  /// Where the current (or last) screech leaves its gap. The rules aim it
+  /// once, as each warning begins ([screechesAimed] catches up with
+  /// [screechWarnings]).
+  ScreechGap screechGap = ScreechGap.middle;
+  int screechesAimed = 0;
+
+  /// The screech leaves his mouth, like his fireballs.
+  double get screechOriginX => muzzleX;
+
+  /// 0 to 1 through the warning before each screech, 0 otherwise.
+  double get screechWarning =>
+      _screechFighting ? BaronScreech.warning(_screechCycle) : 0;
+
+  /// Whether the wall of sound is sweeping the sky now.
+  bool get screeching =>
+      _screechFighting && BaronScreech.sweeping(_screechCycle);
+
+  /// The wall's leading edge in screen x while [screeching], else null.
+  double? get screechFront =>
+      screeching ? BaronScreech.front(screechOriginX, _screechCycle) : null;
+
+  /// The open part of the sky the current screech leaves, as (top, bottom).
+  (double, double) get screechOpening =>
+      BaronScreech.opening(screechGap, fury: enraged);
+
+  /// No fireballs from [BaronScreech.quietBefore] ahead of the warning until
+  /// the screech has gone.
+  bool get screechQuiet =>
+      _screechFighting && BaronScreech.quiet(_screechCycle);
+
+  /// Screeches whose warning has begun, and screeches that have left his
+  /// mouth, for edge-triggered cues and for aiming.
+  int get screechWarnings => _screechFighting
+      ? BaronScreech.count(_combatTime, BaronScreech.warnAt)
+      : 0;
+  int get screechBlasts => _screechFighting
+      ? BaronScreech.count(_combatTime, BaronScreech.screechAt)
+      : 0;
+
+  /// Whether a circle at [px], [py] with [pr] meets the wall outside the gap.
+  bool screechHits(double px, double py, double pr) {
+    final front = screechFront;
+    return front != null &&
+        BaronScreech.reaches(front, px, pr) &&
+        BaronScreech.blocked(screechGap, py, pr, fury: enraged);
+  }
+
+  /// Pairs of bats whose time has come; the rules send a pair as [batPairs]
+  /// and [furyPairs] catch up. A fury pair only takes wing in fury.
+  int get batPairsDue => _screechFighting
+      ? BaronScreech.count(_combatTime, BaronScreech.pairAt)
+      : 0;
+  int get furyPairsDue => _screechFighting
+      ? BaronScreech.count(_combatTime, BaronScreech.furyPairAt)
+      : 0;
+  int batPairs = 0, furyPairs = 0;
+
+  String get screechHint {
+    if (screechWarning > 0 || screeching) {
+      final gap = switch (screechGap) {
+        ScreechGap.high => 'high',
+        ScreechGap.middle => 'middle',
+        ScreechGap.low => 'low',
+      };
+      return screechWarning > 0
+          ? 'SONIC SCREECH · Fly to the $gap gap!'
+          : 'SCREECH · Hold the $gap gap';
+    }
+    return enraged
+        ? 'FURY · Faster fireballs, more bats'
+        : 'Dodge the fireballs and bats · Watch for the screech';
+  }
+
   static const shieldRadius = radius * 1.85;
   static const shieldPeriod = 8.0, shieldStartsAt = 5.0;
   static const shieldSeconds = 1.6, shieldWarningSeconds = .8;
   // A fixed combat-time cycle gives long openings and survives pause/seek.
   // Fury never changes the cycle or brings a shield up without its warning.
   double get _shieldCycle => (age - arrivalDuration) % shieldPeriod;
+
+  /// Only the Dusk Empress spins a shield, and not on her [debut].
+  bool get hasShield => isMoth && !debut;
   bool get shielded =>
-      isMoth &&
+      hasShield &&
       phase == BossPhase.attacking &&
       _shieldCycle >= shieldStartsAt &&
       _shieldCycle < shieldStartsAt + shieldSeconds;
   double get shieldWarning =>
-      isMoth && phase == BossPhase.attacking && _shieldCycle < shieldStartsAt
+      hasShield && phase == BossPhase.attacking && _shieldCycle < shieldStartsAt
       ? ((_shieldCycle - shieldStartsAt + shieldWarningSeconds) /
                 shieldWarningSeconds)
             .clamp(0.0, 1.0)
       : 0;
-  String get shieldHint => shielded
+  String get shieldHint => !hasShield
+      ? enraged
+            ? 'FURY · Seven-shot fans. No veil yet!'
+            : 'No veil yet · Fire between the fans!'
+      : shielded
       ? 'SHIELDED · Dodge until the veil drops'
       : shieldWarning > 0
       ? 'SHIELD FORMING · Get ready to dodge'
@@ -327,6 +594,8 @@ class BossAmmo {
     required this.vy,
     this.gravity = 0,
     this.radius = baseRadius,
+    this.splitAfter,
+    this.ember = false,
   });
   double x, y, vy;
   final double vx;
@@ -334,7 +603,18 @@ class BossAmmo {
   /// Downward acceleration; only the Pirate Captain's cannonballs fall.
   final double gravity;
   final double radius;
+
+  /// Seconds of flight before an Ember Dragon fireball bursts into embers,
+  /// or null for shots that never split.
+  final double? splitAfter;
+
+  /// One of the embers a split fireball bursts into.
+  final bool ember;
+
+  /// Seconds in flight, counted only for shots that split.
+  double age = 0;
   static const baseRadius = .021, cannonballRadius = .027;
+  static const fireballRadius = .025, emberRadius = .016;
   bool get cannonball => gravity > 0;
 }
 

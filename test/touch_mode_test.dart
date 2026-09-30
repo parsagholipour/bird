@@ -122,17 +122,22 @@ void main() {
   );
 
   test(
-    'scored touch flight ends on background and interrupted frame',
+    'scored touch flight pauses on background and ends on an interrupted frame',
     () async {
       final controller = touchController();
       addTearDown(controller.dispose);
       await controller.fly();
       advance(controller, 150);
       controller.background();
-      await controller.finish();
-      expect(controller.result!.reason, EndReason.backgrounded);
-      await controller.retry();
+      expect(controller.simulation!.phase, RunPhase.paused);
+      expect(controller.result, isNull);
+      final pausedTime = controller.nowMs;
+      advance(controller, 20);
+      expect(controller.nowMs, pausedTime);
+      await controller.resume();
+      expect(controller.simulation!.phase, RunPhase.countdown);
       advance(controller, 150);
+      expect(controller.simulation!.phase, RunPhase.playing);
       controller.advance(1, controller.nowMs, 2.2);
       controller.tick();
       await controller.finish();

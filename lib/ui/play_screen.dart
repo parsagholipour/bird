@@ -11,11 +11,14 @@ import '../data/providers.dart';
 import '../data/progress_repository.dart';
 import '../data/passport_progress.dart';
 import '../domain/sky_passport.dart';
+import '../domain/campaign.dart';
+import '../domain/campaign_progress.dart';
 import '../domain/game_rules.dart';
 import '../domain/flight_goals.dart';
 import '../domain/tracking.dart';
 import '../game/audio.dart';
 import '../game/bird_game.dart';
+import '../game/knockout_art.dart';
 import '../game/play_controller.dart';
 import 'calibration_probe.dart' show LandmarkPainter;
 import 'components.dart';
@@ -25,7 +28,10 @@ import 'flight_portrait.dart';
 import 'flight_score.dart';
 import 'jump_glide_hud.dart';
 import 'match_hud.dart';
+import 'level_hud.dart';
 import 'flight_goals.dart';
+import 'game_over_stage.dart';
+import 'level_result.dart';
 import 'ui_sounds.dart';
 
 class PlayScreen extends ConsumerStatefulWidget {
@@ -34,10 +40,15 @@ class PlayScreen extends ConsumerStatefulWidget {
     required this.mode,
     this.practice = false,
     this.course = FlightCourse.starTrail,
+    this.level,
   });
   final FlightCourse course;
   final PlayMode mode;
   final bool practice;
+
+  /// The campaign level to fly (a scored touch Star Trail), or null for
+  /// endless.
+  final CampaignLevel? level;
   @override
   ConsumerState<PlayScreen> createState() => _PlayScreenState();
 }
@@ -59,9 +70,18 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
   bool previousShield = true;
   bool awardSoundPlayed = false;
   bool leaving = false;
+
+  /// A campaign attempt is being ended from the pause card to fly again.
+  bool restarting = false;
+
+  /// The flight is ending on the way out (leaving mid-flight, or Retry from
+  /// the pause card): its end is passed through, not shown as a result.
+  bool passing = false;
   int initialBest = 0;
+
+  /// The level's bests before this attempt, for its result's "New best".
+  LevelRecord? initialRecord;
   Set<SkyStamp> initialStamps = {};
-  Set<int> initialBirds = {0};
   String? initialDailyKey;
   bool initialDailyComplete = false;
   @override
@@ -91,13 +111,11 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
             .map((p) => p.stamp)
             .toSet() ??
         {};
-    initialBirds = Set.of(
-      ref.read(progressProvider).asData?.value.unlocked ?? {0},
-    );
     controller = PlayController(
       mode: widget.mode,
       course: widget.course,
       practice: widget.practice,
+      level: widget.level,
       source: widget.mode == PlayMode.touch
           ? null
           : ref.read(trackingSourceFactoryProvider)(),
@@ -117,6 +135,12 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     );
     controller.addListener(changed);
     unawaited(controller.verifyMicrophoneAccess());
+    // A level's card was on the map, so its flight counts straight in.
+    if (widget.level != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) unawaited(controller.fly());
+      });
+    }
   }
 
   void changed() {
@@ -147,9 +171,12 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
               .map((p) => p.stamp)
               .toSet() ??
           {};
-      initialBirds = Set.of(progress?.unlocked ?? {0});
       initialDailyKey = progress?.today?.dayKey;
       initialDailyComplete = progress?.today?.complete ?? false;
+      final level = widget.level;
+      initialRecord = level == null
+          ? null
+          : progress?.campaign.record(level) ?? LevelRecord(levelId: level.id);
       game = BirdGame(
         simulation: sim,
         nowMs: () => controller.nowMs,
@@ -157,12 +184,18 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         reducedMotion: settings.reducedMotion,
         onChanged: controller.tick,
         advance: controller.advance,
+        knockout: () => controller.knockout,
       );
     }
     if (sim != null) {
-      final wings = FlightGoals.earned(FlightGoals.forSimulation(sim));
+      // A level's collection marks take the place of flight wings, with
+      // the same chime, and it never chases the endless record.
+      final wings = controller.level == null
+          ? FlightGoals.earned(FlightGoals.forSimulation(sim))
+          : controller.level!.marks.reached(sim.collectedStars);
       final earnedWing = wings > previousWings;
       if (!widget.practice &&
+          controller.level == null &&
           initialBest > 0 &&
           previousScore <= initialBest &&
           sim.score > initialBest) {
@@ -210,13 +243,14 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     }
     if (!awardSoundPlayed &&
         controller.saved &&
+        // A knockout's award chime waits for its game-over stage.
+        controller.stage != PlayStage.fallen &&
         controller.result?.practice == false) {
       final progress = ref.read(progressProvider).asData?.value;
       if (progress != null &&
           (progress.passport.any(
                 (p) => p.earned && !initialStamps.contains(p.stamp),
               ) ||
-              progress.unlocked.any((bird) => !initialBirds.contains(bird)) ||
               (progress.today?.complete == true &&
                   (initialDailyKey != progress.today?.dayKey ||
                       !initialDailyComplete)))) {
@@ -224,14 +258,53 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         audio.effect('unlock');
       }
     }
+    final flight = game;
+    // A level's result brings its own courier on a cloud, so the frozen
+    // finish keeps its line and scenery without the flight's bird.
+    if (flight != null &&
+        controller.stage == PlayStage.results &&
+        widget.level != null &&
+        controller.knockout == null) {
+      flight.hideBird = true;
+    }
+    if (flight != null &&
+        controller.stage == PlayStage.results &&
+        (controller.knockout != null || widget.level != null) &&
+        !flight.paused) {
+      // The knockout's last frame (or a level's finish) holds still under
+      // the stage; stop the loop once that frame has been painted.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted &&
+            identical(game, flight) &&
+            controller.stage == PlayStage.results) {
+          flight.pauseEngine();
+        }
+      });
+    }
     setState(() {});
   }
 
-  Future<void> leave([String destination = '/']) async {
+  /// Leaves the flight, saving an attempt in progress. A level goes back to
+  /// the map unless told otherwise.
+  Future<void> leave([String? destination]) async {
     if (leaving) return;
     leaving = true;
+    passing = controller.stage == PlayStage.flying;
     await controller.exit();
-    if (mounted) context.go(destination);
+    if (mounted) {
+      context.go(destination ?? (widget.level == null ? '/' : '/campaign'));
+    }
+  }
+
+  /// Ends a paused level attempt and flies it again at once. The attempt is
+  /// saved like any other that stops short.
+  Future<void> restart() async {
+    if (restarting || leaving) return;
+    restarting = passing = true;
+    controller.endFlight();
+    await controller.retry();
+    restarting = passing = false;
+    if (mounted) setState(() {});
   }
 
   @override
@@ -262,6 +335,12 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     final p =
         ref.watch(progressProvider).asData?.value ?? const ProgressSnapshot();
     final stage = controller.stage;
+    // A fatal bump keeps the frozen flight on screen for its knockout and
+    // the game-over stage that follows; a level's result stages over it too.
+    final knockedOut = controller.knockout != null && game != null;
+    final level = widget.level;
+    final levelResult =
+        level != null && stage == PlayStage.results && !knockedOut;
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
@@ -278,6 +357,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                     if (!controller.isTouch &&
                         Platform.isAndroid &&
                         stage != PlayStage.setup &&
+                        stage != PlayStage.fallen &&
                         stage != PlayStage.results)
                       const Positioned(
                         left: 28,
@@ -292,19 +372,58 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                           ),
                         ),
                       ),
-                    if (stage == PlayStage.setup)
+                    // A level counts straight in; its card was on the map.
+                    if (stage == PlayStage.setup && level == null)
                       controller.isTouch ? _touchSetup() : _setup(p),
                     if (stage == PlayStage.starting ||
                         stage == PlayStage.calibration ||
                         stage == PlayStage.ready ||
                         stage == PlayStage.error)
                       _calibration(p),
-                    if (stage == PlayStage.results) _results(p),
+                    if (stage == PlayStage.results &&
+                        !knockedOut &&
+                        level == null)
+                      _results(p),
                   ],
                 ),
               ),
-              if (stage == PlayStage.flying && game != null)
+              if (stage == PlayStage.flying && game != null ||
+                  knockedOut &&
+                      (stage == PlayStage.fallen ||
+                          stage == PlayStage.results) ||
+                  levelResult && game != null)
                 Positioned.fill(child: _flight()),
+              if (stage == PlayStage.fallen && knockedOut)
+                Positioned.fill(child: _knockoutSkip()),
+              if (stage == PlayStage.results && knockedOut)
+                Positioned.fill(
+                  child: GameOverStage(
+                    controller: controller,
+                    progress: p,
+                    mode: widget.mode,
+                    course: widget.course,
+                    initialBest: initialBest,
+                    initialStamps: initialStamps,
+                    initialDailyKey: initialDailyKey,
+                    initialDailyComplete: initialDailyComplete,
+                    onLeave: leave,
+                    splash: KnockoutArt.atSea(controller.simulation!),
+                  ),
+                ),
+              if (levelResult && !passing)
+                Positioned.fill(
+                  child: LevelResultStage(
+                    key: ValueKey(controller.result!.id),
+                    controller: controller,
+                    level: level,
+                    progress: p,
+                    before: initialRecord ?? LevelRecord(levelId: level.id),
+                    initialStamps: initialStamps,
+                    initialDailyKey: initialDailyKey,
+                    initialDailyComplete: initialDailyComplete,
+                    onLeave: leave,
+                  ),
+                ),
             ],
           ),
         ),
@@ -399,7 +518,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                       Text(
                         widget.practice
                             ? 'Practice · Pause whenever you like'
-                            : 'Scored flight · Separate touch records',
+                            : 'Scored flight · Pause any time · Separate touch records',
                         style: bodyText(13, color: SkyColors.muted),
                       ),
                     ],
@@ -534,8 +653,8 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                       widget.practice
                           ? 'Practice can pause. Save a local camera replay after your flight.'
                           : widget.course == FlightCourse.starTrail
-                          ? 'Three hearts + a shield. A break or leaving ends the flight.'
-                          : 'A collision, a break or leaving the app ends a scored flight.',
+                          ? 'Three hearts + a shield. You can pause any time.'
+                          : 'A collision or losing your position ends a scored flight. You can pause any time.',
                       style: bodyText(13, color: SkyColors.muted),
                     ),
                     const SizedBox(height: 14),
@@ -936,7 +1055,15 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
           Semantics(
             label: sim.boss == null
                 ? 'Tap to flap'
-                : 'Tap to flap. ${sim.boss!.name}: ${sim.boss!.hp} of ${sim.boss!.maxHp} health${sim.boss!.isMoth ? '. ${sim.boss!.shieldHint}' : sim.boss!.isPirate ? '. ${sim.boss!.tideHint}' : ''}',
+                : 'Tap to flap. ${sim.boss!.name}: ${sim.boss!.hp} of ${sim.boss!.maxHp} health${sim.boss!.isMoth
+                      ? '. ${sim.boss!.shieldHint}'
+                      : sim.boss!.isPirate
+                      ? '. ${sim.boss!.tideHint}'
+                      : sim.boss!.isDragon
+                      ? '. ${sim.boss!.breathHint}'
+                      : sim.boss!.screeches
+                      ? '. ${sim.boss!.screechHint}'
+                      : ''}',
             button: true,
             onTap: controller.flap,
             child: Listener(
@@ -949,33 +1076,77 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         else
           GameWidget(game: game!),
         // The sky fills the display; only controls use the safe, scaled layout.
-        SceneLayout(child: _flightHud()),
+        if (controller.stage == PlayStage.flying)
+          SceneLayout(child: _flightHud()),
       ],
     );
   }
 
+  /// Taps during the knockout skip to the stage, but only once
+  /// [KnockoutArt.skipAfter] has passed, so mashing cannot dismiss it.
+  Widget _knockoutSkip() => Semantics(
+    button: true,
+    label: 'Skip to results',
+    onTap: controller.skipKnockout,
+    child: Listener(
+      key: const ValueKey('knockout-skip'),
+      behavior: HitTestBehavior.opaque,
+      onPointerDown: (_) => controller.skipKnockout(),
+    ),
+  );
+
   Widget _flightHud() {
     final sim = controller.simulation!;
     final paused = sim.phase == RunPhase.paused;
-    final menu = MatchAction(
-      symbol: widget.practice ? MatchSymbol.pause : MatchSymbol.stop,
-      label: widget.practice ? 'Pause practice' : 'End scored flight',
-      onPressed: () {
-        UiSounds.effect(context, 'pause');
-        controller.pause();
-      },
-      reducedMotion: controller.reducedMotion,
+    const edge = MatchLayout.edge, gap = MatchLayout.gap;
+    // Bottom faces sit a little higher so their lips clear the edge too.
+    const bottom = edge + 6, shot = 96.0, sprint = 80.0;
+    // The pause face shares the top row; its slop reaches into the corner so
+    // the target stays over 48 dp on the smallest phones.
+    const pauseSize = MatchLayout.height;
+    final menu = Positioned(
+      top: 0,
+      right: 0,
+      child: MatchAction(
+        symbol: MatchSymbol.pause,
+        label: widget.practice ? 'Pause practice' : 'Pause flight',
+        onPressed: () {
+          UiSounds.effect(context, 'pause');
+          controller.pause();
+        },
+        reducedMotion: controller.reducedMotion,
+        size: pauseSize,
+        hitSlop: edge,
+      ),
     );
     if (sim.bossCutscene && sim.phase == RunPhase.playing) {
-      return Stack(children: [Positioned(top: 18, right: 24, child: menu)]);
+      return Stack(children: [menu]);
     }
+    final finalStretch = sim.remainingSeconds <= 10;
+    final counting = controller.isTouch || sim.trackingFresh(controller.nowMs);
+    final magnet =
+        sim.supportsMagnet && (sim.magnetActive || sim.magnetCharge > 0);
+    final level = controller.level;
+    final hint = counting
+        ? (controller.isTouch
+              ? (level != null && !sim.offersShoot
+                    ? 'Tap the sky to flap. Fly through the stars.'
+                    : level != null && !sim.offersSprint
+                    ? 'Tap the sky to flap. Hold Shoot to charge.'
+                    : sim.supportsCombat
+                    ? 'Tap the sky to flap. Hold Shoot to charge. Sprint to smash!'
+                    : 'Tap to flap. Release between taps.')
+              : sim.isTrail
+              ? 'Follow the stars. Your shield is ready.'
+              : 'The sky is yours.')
+        : sim.trackingFeedback;
     return Stack(
       fit: StackFit.expand,
       children: [
         if (sim.isTrail)
           _flightReadout(
-            left: 24,
-            top: 20,
+            left: edge,
+            top: edge,
             child: MatchHealth(
               key: const ValueKey('match-health'),
               hearts: sim.hearts,
@@ -985,11 +1156,37 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
               reducedMotion: controller.reducedMotion,
             ),
           ),
-        if (sim.boss == null)
+        // The bird flies near x = 200, so the hero score keeps to the middle.
+        // A level shows its stars and marks there instead, and its route
+        // where a timed flight kept its clock, centred on the pause face.
+        if (sim.boss == null && level != null) ...[
           _flightReadout(
-            top: 18,
-            left: 380,
-            right: 380,
+            top: edge - 4,
+            left: 300,
+            right: 300,
+            child: MatchLevelStars(
+              key: const ValueKey('level-stars'),
+              stars: sim.collectedStars,
+              two: level.marks.two,
+              three: level.marks.three,
+              reducedMotion: controller.reducedMotion,
+            ),
+          ),
+          _flightReadout(
+            top: edge + (pauseSize - MatchRoute.plateHeight) / 2,
+            right: edge + pauseSize + gap,
+            child: MatchRoute(
+              key: const ValueKey('level-route'),
+              progress: sim.routeProgress,
+              bird: controller.bird,
+              boss: level.boss,
+            ),
+          ),
+        ] else if (sim.boss == null)
+          _flightReadout(
+            top: edge - 4,
+            left: 330,
+            right: 330,
             child: FlightScore(
               score: sim.score,
               multiplier: sim.collectsStars ? sim.multiplier : 1,
@@ -997,39 +1194,64 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
               reducedMotion: controller.reducedMotion,
             ),
           ),
-        Positioned(top: 18, right: 24, child: menu),
+        menu,
         // Endless flights do not need a running clock or a pace readout.
         if (sim.timed)
           _flightReadout(
-            top: 28,
-            right: 112,
-            child: MatchPlate(
-              key: const ValueKey('flight-clock'),
-              color: sim.remainingSeconds <= 10
-                  ? SkyColors.coral
-                  : SkyColors.cream,
-              child: Semantics(
-                label: '${sim.clockLabel} remaining',
-                excludeSemantics: true,
-                child: Text(sim.clockLabel, style: heading(24)),
+            top: edge,
+            right: edge + pauseSize + gap,
+            // The final ten seconds turn coral and tick with a pop.
+            child: MatchPulse(
+              value: finalStretch ? sim.clockLabel : '',
+              reducedMotion: controller.reducedMotion,
+              child: MatchPlate(
+                key: const ValueKey('flight-clock'),
+                color: finalStretch ? SkyColors.coral : SkyColors.cream,
+                padding: const EdgeInsets.fromLTRB(9, 6, 12, 6),
+                child: Semantics(
+                  label: '${sim.clockLabel} remaining',
+                  excludeSemantics: true,
+                  child: SizedBox(
+                    height: 44,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const MatchIcon(MatchSymbol.clock, size: 30),
+                        const SizedBox(width: 5),
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(minWidth: 44),
+                          child: Text(
+                            sim.clockLabel,
+                            textAlign: TextAlign.center,
+                            style:
+                                matchDigits(
+                                  28,
+                                  color: finalStretch
+                                      ? SkyColors.white
+                                      : SkyColors.ink,
+                                ).copyWith(
+                                  shadows: finalStretch
+                                      ? matchInkEdge(1.2)
+                                      : null,
+                                ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
+        // Powers stack upward from the corner, clear of the bird's column.
         _flightReadout(
-          left: 24,
-          bottom: 24,
-          child: Row(
+          left: edge,
+          bottom: bottom,
+          child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (sim.supportsJumpGlide) ...[
-                JumpGlideHud(
-                  simulation: sim,
-                  reducedMotion: controller.reducedMotion,
-                ),
-                const SizedBox(width: 12),
-              ],
-              if (sim.supportsMagnet &&
-                  (sim.magnetActive || sim.magnetCharge > 0))
+              if (magnet)
                 MatchPulse(
                   value: (sim.magnetActive, sim.magnetCharge),
                   reducedMotion: controller.reducedMotion,
@@ -1051,8 +1273,17 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                           ? 'Star magnet: ${sim.magnetRemaining.ceil()} seconds remaining'
                           : 'Magnet charging: ${sim.magnetCharge} of 3 perfect gates',
                       color: SkyColors.purple,
+                      active: sim.magnetActive,
+                      segments: sim.magnetActive ? 0 : 3,
                     ),
                   ),
+                ),
+              if (magnet && sim.supportsJumpGlide)
+                const SizedBox(height: MatchLayout.stack),
+              if (sim.supportsJumpGlide)
+                JumpGlideHud(
+                  simulation: sim,
+                  reducedMotion: controller.reducedMotion,
                 ),
             ],
           ),
@@ -1061,18 +1292,33 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
             !sim.trackingFresh(controller.nowMs) &&
             sim.phase == RunPhase.playing)
           _flightReadout(
-            right: 24,
-            bottom: 24,
-            child: const Pill(
-              'Finding you…',
-              icon: Icons.visibility_outlined,
+            right: edge,
+            bottom: bottom,
+            child: MatchPlate(
               color: SkyColors.yellow,
+              padding: const EdgeInsets.fromLTRB(8, 6, 16, 6),
+              child: SizedBox(
+                height: 44,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const MatchIcon(MatchSymbol.eye, size: 36),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Finding you…',
+                      style: heading(22, weight: FontWeight.w700),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
-        if (sim.supportsCombat)
+        // A level may hold Shoot and Sprint back; endless offers both. The
+        // bird coasts through a boss level's victory glide without them.
+        if (sim.offersShoot && !sim.victoryGlide)
           Positioned(
-            right: 24,
-            bottom: 24,
+            right: edge,
+            bottom: bottom,
             child: MatchShotButton(
               key: const ValueKey('touch-shoot'),
               label: 'Shoot',
@@ -1087,12 +1333,13 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                   : null,
               onRelease: controller.shoot,
               reducedMotion: controller.reducedMotion,
+              size: shot,
             ),
           ),
-        if (sim.supportsSprint)
+        if (sim.offersSprint && !sim.victoryGlide)
           Positioned(
-            right: 140,
-            bottom: 34,
+            right: edge + shot + gap + 4,
+            bottom: bottom + (shot - sprint) / 2,
             child: MatchSprintButton(
               key: const ValueKey('touch-sprint'),
               label: 'Sprint',
@@ -1101,76 +1348,136 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
               secondsLeft: sim.sprintCooldownRemaining.ceil(),
               onPressed: sim.canSprint ? controller.sprint : null,
               reducedMotion: controller.reducedMotion,
+              size: sprint,
             ),
           ),
         if (sim.phase == RunPhase.countdown)
           Center(
-            child: Panel(
-              padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 22),
+            child: MatchPlate(
+              radius: 28,
+              padding: const EdgeInsets.fromLTRB(32, 16, 32, 20),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    (controller.isTouch || sim.trackingFresh(controller.nowMs))
-                        ? 'Ready, steady…'
-                        : 'Find your position',
+                    counting ? 'Ready, steady…' : 'Find your position',
                     style: heading(28),
                   ),
-                  Text(
-                    (controller.isTouch || sim.trackingFresh(controller.nowMs))
-                        ? '${sim.countdown.ceil().clamp(1, 3)}'
-                        : '',
-                    style: heading(84),
+                  const SizedBox(height: 12),
+                  // Each number pops in once; while tracking is lost the
+                  // badge looks for the player instead.
+                  MatchPulse(
+                    value: counting ? sim.countdown.ceil().clamp(1, 3) : 0,
+                    reducedMotion: controller.reducedMotion,
+                    child: SizedBox.square(
+                      dimension: 92,
+                      child: MatchPlate(
+                        color: SkyColors.yellow,
+                        padding: EdgeInsets.zero,
+                        child: Center(
+                          child: counting
+                              ? Text(
+                                  '${sim.countdown.ceil().clamp(1, 3)}',
+                                  style: matchDigits(62),
+                                )
+                              : const MatchIcon(MatchSymbol.eye, size: 56),
+                        ),
+                      ),
+                    ),
                   ),
-                  Text(
-                    (controller.isTouch || sim.trackingFresh(controller.nowMs))
-                        ? (controller.isTouch
-                              ? (sim.supportsCombat
-                                    ? 'Tap the sky to flap. Hold Shoot to charge. Sprint to smash!'
-                                    : 'Tap to flap. Release between taps.')
-                              : sim.isTrail
-                              ? 'Follow the stars. Your shield is ready.'
-                              : 'The sky is yours.')
-                        : sim.trackingFeedback,
-                    style: bodyText(16, color: SkyColors.muted),
-                  ),
+                  if (hint.isNotEmpty) ...[
+                    const SizedBox(height: 14),
+                    Text(
+                      hint,
+                      style: bodyText(16, color: SkyColors.muted),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ],
               ),
             ),
           ),
         if (paused)
           Container(
-            color: SkyColors.ink.withValues(alpha: .25),
+            color: SkyColors.ink.withValues(alpha: .35),
             child: Center(
-              child: Panel(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 34),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  alignment: Alignment.topCenter,
                   children: [
-                    Text('Take a breather.', style: heading(38)),
-                    const SizedBox(height: 12),
-                    Text(
-                      controller.isTouch
-                          ? 'Ready for more? We’ll count you in.'
-                          : 'Get back in position. We’ll count you in.',
-                      style: bodyText(16, color: SkyColors.muted),
+                    MatchPlate(
+                      radius: 28,
+                      padding: const EdgeInsets.fromLTRB(36, 46, 36, 26),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text('Take a breather.', style: heading(38)),
+                          const SizedBox(height: 10),
+                          Text(
+                            level != null
+                                ? '${level.id} · ${level.name}. Ready for more?'
+                                : controller.isTouch
+                                ? 'Ready for more? We’ll count you in.'
+                                : 'Get back in position. We’ll count you in.',
+                            style: bodyText(16, color: SkyColors.muted),
+                          ),
+                          const SizedBox(height: 22),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // A level starts over or goes back to the map;
+                              // either way the attempt is saved.
+                              if (level != null) ...[
+                                SkyButton(
+                                  key: const ValueKey('pause-map'),
+                                  label: 'Map',
+                                  onPressed: () => leave('/campaign'),
+                                  color: SkyColors.cream,
+                                  icon: Icons.map_outlined,
+                                ),
+                                const SizedBox(width: 12),
+                                SkyButton(
+                                  key: const ValueKey('pause-retry'),
+                                  label: 'Retry',
+                                  onPressed: restart,
+                                  color: SkyColors.cream,
+                                  icon: Icons.replay_rounded,
+                                ),
+                              ] else
+                                SkyButton(
+                                  label: 'Finish flight',
+                                  onPressed: controller.endFlight,
+                                  color: SkyColors.cream,
+                                  icon: Icons.flag_outlined,
+                                ),
+                              const SizedBox(width: 16),
+                              SkyButton(
+                                label: 'Keep flying',
+                                sound: 'resume',
+                                onPressed: () => controller.resume(),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 22),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SkyButton(
-                          label: 'Finish flight',
-                          onPressed: controller.endFlight,
-                          color: SkyColors.cream,
-                          icon: Icons.flag_outlined,
+                    // The paused badge crowns the card.
+                    const Positioned(
+                      top: -34,
+                      child: ExcludeSemantics(
+                        child: SizedBox.square(
+                          dimension: 68,
+                          child: MatchPlate(
+                            color: SkyColors.yellow,
+                            padding: EdgeInsets.zero,
+                            child: Center(
+                              child: MatchIcon(MatchSymbol.pause, size: 34),
+                            ),
+                          ),
                         ),
-                        const SizedBox(width: 16),
-                        SkyButton(
-                          label: 'Keep flying',
-                          sound: 'resume',
-                          onPressed: () => controller.resume(),
-                        ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
@@ -1188,14 +1495,6 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         .where((p) => p.earned && !initialStamps.contains(p.stamp))
         .toList();
     final nextStamp = r.practice ? null : p.nextStamp;
-    final newBirds =
-        r.practice
-              ? <int>[]
-              : p.unlocked
-                    .where((bird) => !initialBirds.contains(bird))
-                    .toList()
-          ..sort();
-    final newBird = newBirds.isEmpty ? null : newBirds.first;
     final newDailyCard =
         !r.practice &&
         controller.saved &&
@@ -1241,7 +1540,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                     children: [
                       FlightPortrait(
                         key: ValueKey(r.id),
-                        bird: newBird ?? p.settings.bird,
+                        bird: p.settings.bird,
                         reducedMotion: p.settings.reducedMotion,
                         arrivedCourse:
                             r.reason == EndReason.completed &&
@@ -1251,16 +1550,13 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                         celebrate:
                             isBest ||
                             FlightGoals.earned(goals) == 3 ||
-                            newBird != null ||
                             newDailyCard ||
                             (!r.practice &&
                                 (newStamps.isNotEmpty ||
                                     r.reason == EndReason.completed)),
                       ),
                       Text(
-                        newBird != null
-                            ? 'Meet ${birdNames[newBird]}!'
-                            : isBest
+                        isBest
                             ? 'Look at you go!'
                             : r.reason == EndReason.completed
                             ? 'Trail complete!'
@@ -1273,20 +1569,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                         style: bodyText(16, color: SkyColors.muted),
                         textAlign: TextAlign.center,
                       ),
-                      if (newBird != null) ...[
-                        const SizedBox(height: 8),
-                        TextButton.icon(
-                          onPressed: () => leave('/birds'),
-                          icon: const Icon(
-                            Icons.flutter_dash_rounded,
-                            color: SkyColors.coralDeep,
-                          ),
-                          label: Text(
-                            '${birdNames[newBird]} joined your flock!',
-                            style: bodyText(13, weight: FontWeight.w900),
-                          ),
-                        ),
-                      ] else if (newDailyCard) ...[
+                      if (newDailyCard) ...[
                         const SizedBox(height: 8),
                         TextButton.icon(
                           onPressed: () => leave('/daily'),

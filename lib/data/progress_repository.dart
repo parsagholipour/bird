@@ -3,6 +3,9 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import '../domain/campaign.dart';
+import '../domain/campaign_progress.dart';
+import '../domain/campaign_story.dart';
 import '../domain/game_rules.dart';
 import '../domain/tracking.dart';
 import '../domain/daily_adventure.dart';
@@ -26,6 +29,11 @@ class Runs extends Table {
   RealColumn get duration => real()();
   TextColumn get reason => text()();
   DateTimeColumn get finishedAt => dateTime()();
+  IntColumn get bird => integer().withDefault(const Constant(0))();
+
+  /// The campaign level flown, such as "1-3". Null for endless flights and
+  /// every flight saved before the campaign; only those make records.
+  TextColumn get level => text().nullable()();
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -37,14 +45,27 @@ class Preferences extends Table {
   Set<Column> get primaryKey => {key};
 }
 
-class BirdUnlocks extends Table {
-  IntColumn get bird => integer()();
-  DateTimeColumn get unlockedAt => dateTime()();
+/// A campaign level's bests (a [LevelRecord]). Stored rather than derived
+/// from [Runs]: each flight is rated as it is saved, so retuning a level's
+/// marks later never takes stars away.
+@DataClassName('LevelProgressRow')
+class LevelProgress extends Table {
+  TextColumn get level => text()();
+  IntColumn get bestStars => integer()
+      .withDefault(const Constant(0))
+      // ignore: recursive_getters
+      .check(bestStars.isBetweenValues(0, 3))();
+  IntColumn get bestCollected => integer().withDefault(const Constant(0))();
+  IntColumn get bestScore => integer().withDefault(const Constant(0))();
+  IntColumn get plays => integer().withDefault(const Constant(0))();
+  DateTimeColumn get firstClearedAt => dateTime().nullable()();
+  DateTimeColumn get lastPlayedAt => dateTime().nullable()();
+  BoolColumn get postcardSeen => boolean().withDefault(const Constant(false))();
   @override
-  Set<Column> get primaryKey => {bird};
+  Set<Column> get primaryKey => {level};
 }
 
-@DriftDatabase(tables: [Runs, Preferences, BirdUnlocks])
+@DriftDatabase(tables: [Runs, Preferences, LevelProgress])
 class ProgressDatabase extends _$ProgressDatabase {
   ProgressDatabase(super.executor);
   factory ProgressDatabase.onDevice() => ProgressDatabase(
@@ -56,17 +77,11 @@ class ProgressDatabase extends _$ProgressDatabase {
     }),
   );
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 5;
   @override
   MigrationStrategy get migration => MigrationStrategy(
-    onCreate: (m) async {
-      await m.createAll();
-      await _backfillUnlocks();
-    },
+    onCreate: (m) => m.createAll(),
     onUpgrade: (m, from, to) async {
-      if (from < 2) {
-        await m.createTable(birdUnlocks);
-      }
       if (from < 3) {
         await m.addColumn(runs, runs.course);
         await m.addColumn(runs, runs.gates);
@@ -75,41 +90,33 @@ class ProgressDatabase extends _$ProgressDatabase {
         await m.addColumn(runs, runs.perfectPasses);
         await customStatement('UPDATE runs SET gates = score');
       }
-      await _backfillUnlocks();
+      if (from < 4) {
+        // Every bird is free now; earlier flights were flown with whichever
+        // bird was equipped, which was not recorded, so they count as Pip's.
+        await m.addColumn(runs, runs.bird);
+        await customStatement('DROP TABLE IF EXISTS bird_unlocks');
+      }
+      if (from < 5) {
+        // The campaign. Every earlier flight was an endless one.
+        await m.addColumn(runs, runs.level);
+        await m.createTable(levelProgress);
+      }
     },
     beforeOpen: (_) async {
       await customStatement('PRAGMA foreign_keys = ON');
     },
   );
-  Future<void> _backfillUnlocks() async {
-    final total = await customSelect(
-      'SELECT COALESCE(SUM(gates), 0) AS total FROM runs WHERE practice = 0',
-    ).getSingle();
-    final count = total.read<int>('total');
-    for (var i = 0; i < unlockThresholds.length; i++) {
-      if (count >= unlockThresholds[i]) {
-        await into(birdUnlocks).insert(
-          BirdUnlocksCompanion.insert(
-            bird: Value(i),
-            unlockedAt: DateTime.now(),
-          ),
-          mode: InsertMode.insertOrIgnore,
-        );
-      }
-    }
-  }
 }
 
-const unlockThresholds = [0, 25, 100, 250];
 const birdNames = ['Pip', 'Peaches', 'Minty', 'Orbit'];
 const birdDescriptions = [
   'Small bird. Big sky.',
-  'A little peach with a lot of pep.',
-  'Fresh wings. Cool company.',
-  'Dreams beyond the clouds.',
+  'Rosy cheeks, curly crest, all heart.',
+  'Tiny hummer. Fresh sprig. Full speed.',
+  'A dreamy owl who flies by starlight.',
 ];
 
-enum SettingKey { music, effects, reducedMotion, recordAudio }
+enum SettingKey { music, effects, voices, reducedMotion, recordAudio }
 
 class GameSettings {
   const GameSettings({
@@ -117,9 +124,14 @@ class GameSettings {
     this.effects = true,
     this.reducedMotion = false,
     this.recordAudio = false,
+    this.voices = true,
     this.bird = 0,
   });
   final bool music, effects, reducedMotion, recordAudio;
+
+  /// The characters' recorded voices: the story's lines, the thank-you
+  /// notes and the birds' sprint calls.
+  final bool voices;
   final int bird;
 }
 
@@ -149,11 +161,16 @@ class ProgressSnapshot {
     this.trailJump = const ModeRecord(),
     this.trailTouch = const ModeRecord(),
     this.trailSquat = const ModeRecord(),
-    this.unlocked = const {0},
+    this.campaignFlights = const ModeRecord(),
+    this.birdsFlown = const {},
     this.recent = const [],
     this.adventures = const [],
+    this._campaign,
   });
   final GameSettings settings;
+
+  /// Endless records: campaign levels never count here, nor in anything
+  /// summed from them below.
   final ModeRecord pushUp,
       jump,
       touch,
@@ -162,7 +179,21 @@ class ProgressSnapshot {
       trailJump,
       trailTouch,
       trailSquat;
-  final Set<int> unlocked;
+
+  /// Scored campaign flights, kept apart from the records so a level never
+  /// shows up as a best. Its [ModeRecord.completions] are finished levels.
+  final ModeRecord campaignFlights;
+
+  /// Level stars, unlocks, postcards and watched story scenes on the
+  /// campaign map.
+  CampaignProgress get campaign => _campaign ?? _noCampaign;
+  final CampaignProgress? _campaign;
+  static final _noCampaign = CampaignProgress(const []);
+
+  /// Birds taken on at least one scored flight, campaign levels included.
+  final Set<int> birdsFlown;
+
+  /// The latest endless flights.
   final List<RunResult> recent;
 
   /// Oldest first, ending with today. Derived from saved flights, not counters.
@@ -170,8 +201,10 @@ class ProgressSnapshot {
   DailyAdventure? get today => adventures.isEmpty ? null : adventures.last;
   int get totalObstacles => allRecords.fold(0, (n, r) => n + r.obstacles);
   int get totalRuns => allRecords.fold(0, (n, r) => n + r.runs);
-  int get totalRepetitions =>
-      pushUp.repetitions + trailPushUp.repetitions;
+
+  /// Every scored flight, campaign levels included.
+  int get flightsFlown => totalRuns + campaignFlights.runs;
+  int get totalRepetitions => pushUp.repetitions + trailPushUp.repetitions;
   int get totalSquats => squat.repetitions + trailSquat.repetitions;
   List<ModeRecord> get allRecords => [
     pushUp,
@@ -208,17 +241,20 @@ class ProgressSnapshot {
           PlayMode.touch => touch,
           PlayMode.squat => squat,
         };
-  int? get nextBird {
-    for (var i = 1; i < 4; i++) {
-      if (!unlocked.contains(i)) return i;
-    }
-    return null;
-  }
 }
 
 abstract interface class ProgressRepository {
   Future<ProgressSnapshot> load();
+
+  /// Saves a scored flight once per id. A campaign flight (with a
+  /// [RunResult.levelId]) also folds into its level's record.
   Future<void> saveRun(RunResult result);
+
+  /// Remembers that [chapter]'s postcard was shown, so it arrives once.
+  Future<void> markPostcardSeen(CampaignChapter chapter);
+
+  /// Remembers that [scene] was watched, so it plays by itself once.
+  Future<void> markStoryWatched(StoryScene scene);
   Future<void> setSetting(SettingKey key, bool value);
   Future<void> equipBird(int bird);
   Future<void> reset();
@@ -236,23 +272,26 @@ class SqliteProgressRepository implements ProgressRepository {
       for (final row in await db.select(db.preferences).get())
         row.key: row.value,
     };
-    final unlocked = {
-      0,
-      ...((await db.select(db.birdUnlocks).get()).map((e) => e.bird)),
+    final birdsFlown = {
+      for (final row
+          in await db
+              .customSelect('SELECT DISTINCT bird FROM runs WHERE practice = 0')
+              .get())
+        row.read<int>('bird'),
     };
-    Future<ModeRecord> record(PlayMode mode, FlightCourse course) async {
+    Future<ModeRecord> tally(
+      String where, [
+      List<Variable> variables = const [],
+    ]) async {
       final r = await db
           .customSelect(
             'SELECT COALESCE(MAX(score),0) AS best, COUNT(*) AS runs, '
             'COALESCE(SUM(gates),0) AS obstacles, COALESCE(SUM(repetitions),0) AS repetitions '
             ', COALESCE(SUM(stars),0) AS stars, COALESCE(SUM(perfect_passes),0) AS perfects '
             ', COALESCE(MAX(best_combo),0) AS combo, '
-            'COALESCE(SUM(reason = \'completed\' OR (course = \'starTrail\' AND duration >= 60)),0) AS completions '
-            'FROM runs WHERE practice = 0 AND mode = ? AND course = ?',
-            variables: [
-              Variable.withInt(mode.index),
-              Variable.withString(course.name),
-            ],
+            'COALESCE(SUM(reason = \'completed\' OR (level IS NULL AND course = \'starTrail\' AND duration >= 60)),0) AS completions '
+            'FROM runs WHERE practice = 0 AND $where',
+            variables: variables,
           )
           .getSingle();
       return ModeRecord(
@@ -266,6 +305,12 @@ class SqliteProgressRepository implements ProgressRepository {
         completions: r.read<int>('completions'),
       );
     }
+
+    // Campaign levels are never endless records.
+    Future<ModeRecord> record(PlayMode mode, FlightCourse course) => tally(
+      'level IS NULL AND mode = ? AND course = ?',
+      [Variable.withInt(mode.index), Variable.withString(course.name)],
+    );
 
     final selected = int.tryParse(prefs['bird'] ?? '0') ?? 0;
     final now = clock().toLocal();
@@ -283,19 +328,19 @@ class SqliteProgressRepository implements ProgressRepository {
     final weekRuns = weekRows.map(_runResult).toList();
     final rows =
         await (db.select(db.runs)
-              ..where((r) => r.practice.equals(false))
+              ..where((r) => r.practice.equals(false) & r.level.isNull())
               ..orderBy([(r) => OrderingTerm.desc(r.finishedAt)])
               ..limit(10))
             .get();
+    final levels = await db.select(db.levelProgress).get();
     return ProgressSnapshot(
       settings: GameSettings(
         music: prefs['music'] != 'false',
         effects: prefs['effects'] != 'false',
         reducedMotion: prefs['reducedMotion'] == 'true',
         recordAudio: prefs['recordAudio'] == 'true',
-        bird: unlocked.contains(selected) && selected >= 0 && selected < 4
-            ? selected
-            : 0,
+        voices: prefs['voices'] != 'false',
+        bird: selected >= 0 && selected < birdNames.length ? selected : 0,
       ),
       pushUp: await record(PlayMode.pushUp, FlightCourse.classic),
       jump: await record(PlayMode.jump, FlightCourse.classic),
@@ -305,7 +350,12 @@ class SqliteProgressRepository implements ProgressRepository {
       trailJump: await record(PlayMode.jump, FlightCourse.starTrail),
       trailTouch: await record(PlayMode.touch, FlightCourse.starTrail),
       trailSquat: await record(PlayMode.squat, FlightCourse.starTrail),
-      unlocked: unlocked,
+      campaignFlights: await tally('level IS NOT NULL'),
+      campaign: CampaignProgress(
+        levels.map(_levelRecord),
+        storyWatched: _storyWatched(prefs[_storyKey]),
+      ),
+      birdsFlown: birdsFlown,
       recent: rows.map(_runResult).toList(),
       adventures: [
         for (var i = 6; i >= 0; i--)
@@ -335,7 +385,21 @@ class SqliteProgressRepository implements ProgressRepository {
       orElse: () => EndReason.quit,
     ),
     finishedAt: r.finishedAt,
+    bird: r.bird,
+    levelId: r.level,
   );
+
+  LevelRecord _levelRecord(LevelProgressRow r) => LevelRecord(
+    levelId: r.level,
+    bestStars: r.bestStars,
+    bestCollected: r.bestCollected,
+    bestScore: r.bestScore,
+    plays: r.plays,
+    firstClearedAt: r.firstClearedAt,
+    lastPlayedAt: r.lastPlayedAt,
+    postcardSeen: r.postcardSeen,
+  );
+
   @override
   Future<void> saveRun(RunResult result) async {
     if (result.score < 0 ||
@@ -346,10 +410,26 @@ class SqliteProgressRepository implements ProgressRepository {
         result.repetitions < 0 ||
         result.flaps < 0 ||
         !result.durationSeconds.isFinite ||
-        result.durationSeconds < 0) {
+        result.durationSeconds < 0 ||
+        result.bird < 0 ||
+        result.bird >= birdNames.length) {
       throw ArgumentError('Invalid run statistics');
     }
+    final levelId = result.levelId;
+    final level = levelId == null ? null : Campaign.level(levelId);
+    if (levelId != null &&
+        (level == null ||
+            result.practice ||
+            result.mode != PlayMode.touch ||
+            result.course != FlightCourse.starTrail)) {
+      throw ArgumentError.value(levelId, 'levelId', 'Not a campaign flight');
+    }
     await db.transaction(() async {
+      // A retried save must not count the flight, or its level play, twice.
+      final saved = await (db.select(
+        db.runs,
+      )..where((r) => r.id.equals(result.id))).getSingleOrNull();
+      if (saved != null) return;
       await db
           .into(db.runs)
           .insert(
@@ -368,12 +448,78 @@ class SqliteProgressRepository implements ProgressRepository {
               duration: result.durationSeconds,
               reason: result.reason.name,
               finishedAt: result.finishedAt,
+              bird: Value(result.bird),
+              level: Value(levelId),
             ),
             mode: InsertMode.insertOrIgnore,
           );
-      await db._backfillUnlocks();
+      if (level != null) await _mergeLevel(level, result);
     });
   }
+
+  /// Folds a campaign flight into its level's bests. It is rated against
+  /// the level's marks exactly as the flight rated itself
+  /// ([FlightSimulation.levelStars]): only a finished level earns stars.
+  Future<void> _mergeLevel(CampaignLevel level, RunResult result) async {
+    final row = await (db.select(
+      db.levelProgress,
+    )..where((p) => p.level.equals(level.id))).getSingleOrNull();
+    final record =
+        (row == null ? LevelRecord(levelId: level.id) : _levelRecord(row))
+            .merge(
+              stars: level.plan.rate(
+                finished: result.reason == EndReason.completed,
+                stars: result.stars,
+              ),
+              collected: result.stars,
+              score: result.score,
+              at: result.finishedAt,
+            );
+    await db
+        .into(db.levelProgress)
+        .insertOnConflictUpdate(
+          LevelProgressCompanion.insert(
+            level: record.levelId,
+            bestStars: Value(record.bestStars),
+            bestCollected: Value(record.bestCollected),
+            bestScore: Value(record.bestScore),
+            plays: Value(record.plays),
+            firstClearedAt: Value(record.firstClearedAt),
+            lastPlayedAt: Value(record.lastPlayedAt),
+            postcardSeen: Value(record.postcardSeen),
+          ),
+        );
+  }
+
+  @override
+  Future<void> markPostcardSeen(CampaignChapter chapter) async {
+    // Only a beaten boss's level has a record; before that nothing is due.
+    await (db.update(db.levelProgress)
+          ..where((p) => p.level.equals(chapter.bossLevel.id)))
+        .write(const LevelProgressCompanion(postcardSeen: Value(true)));
+  }
+
+  /// The preference that lists the watched story scenes by id.
+  static const _storyKey = 'storyWatched';
+
+  static Set<String> _storyWatched(String? saved) => {
+    for (final id in (saved ?? '').split(','))
+      if (id.isNotEmpty) id,
+  };
+
+  @override
+  Future<void> markStoryWatched(StoryScene scene) => db.transaction(() async {
+    final row = await (db.select(
+      db.preferences,
+    )..where((p) => p.key.equals(_storyKey))).getSingleOrNull();
+    final watched = _storyWatched(row?.value);
+    if (!watched.add(scene.id)) return;
+    await db
+        .into(db.preferences)
+        .insertOnConflictUpdate(
+          PreferencesCompanion.insert(key: _storyKey, value: watched.join(',')),
+        );
+  });
 
   @override
   Future<void> setSetting(SettingKey key, bool value) async {
@@ -386,28 +532,21 @@ class SqliteProgressRepository implements ProgressRepository {
 
   @override
   Future<void> equipBird(int bird) async {
-    if (bird < 0 || bird >= 4) throw ArgumentError.value(bird, 'bird');
-    await db.transaction(() async {
-      final unlock = await (db.select(
-        db.birdUnlocks,
-      )..where((b) => b.bird.equals(bird))).getSingleOrNull();
-      if (bird != 0 && unlock == null) {
-        throw StateError('This bird is still locked');
-      }
-      await db
-          .into(db.preferences)
-          .insertOnConflictUpdate(
-            PreferencesCompanion.insert(key: 'bird', value: '$bird'),
-          );
-    });
+    if (bird < 0 || bird >= birdNames.length) {
+      throw ArgumentError.value(bird, 'bird');
+    }
+    await db
+        .into(db.preferences)
+        .insertOnConflictUpdate(
+          PreferencesCompanion.insert(key: 'bird', value: '$bird'),
+        );
   }
 
   @override
   Future<void> reset() => db.transaction(() async {
     await db.delete(db.runs).go();
     await db.delete(db.preferences).go();
-    await db.delete(db.birdUnlocks).go();
-    await db._backfillUnlocks();
+    await db.delete(db.levelProgress).go();
   });
   @override
   Future<void> close() => db.close();

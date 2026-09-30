@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'theme.dart';
 import 'match_hud.dart';
 
+/// The hero readout: big numbers on a HUD plate with the streak multiplier
+/// as a tilted tag. A rising score pops the plate once and flicks the star.
 class FlightScore extends StatefulWidget {
   const FlightScore({
     super.key,
@@ -42,6 +44,23 @@ class _FlightScoreState extends State<FlightScore>
       weight: 60,
     ),
   ]).animate(_pulse);
+  // The star tips back and settles, in turns.
+  late final _flick = TweenSequence<double>([
+    TweenSequenceItem(
+      tween: Tween(
+        begin: 0.0,
+        end: -.07,
+      ).chain(CurveTween(curve: Curves.easeOut)),
+      weight: 35,
+    ),
+    TweenSequenceItem(
+      tween: Tween(
+        begin: -.07,
+        end: 0.0,
+      ).chain(CurveTween(curve: Curves.easeOutBack)),
+      weight: 65,
+    ),
+  ]).animate(_pulse);
   bool _disableAnimations = false;
 
   @override
@@ -79,39 +98,32 @@ class _FlightScoreState extends State<FlightScore>
         scale: _scale,
         child: FittedBox(
           fit: BoxFit.scaleDown,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 3),
-            decoration: BoxDecoration(
-              color: SkyColors.cream.withValues(alpha: .94),
-              borderRadius: BorderRadius.circular(26),
-              border: Border.all(
-                color: SkyColors.white.withValues(alpha: .85),
-                width: 2,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: SkyColors.ink.withValues(alpha: .12),
-                  offset: const Offset(0, 3),
-                ),
-              ],
+          child: MatchPlate(
+            padding: EdgeInsets.fromLTRB(
+              14,
+              0,
+              widget.multiplier > 1 ? 10 : 20,
+              2,
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                MatchIcon(widget.symbol),
-                const SizedBox(width: 8),
-                Text(
-                  '${widget.score}',
-                  style: heading(48, weight: FontWeight.w700),
+                RotationTransition(
+                  turns: _flick,
+                  child: MatchIcon(widget.symbol, size: 40),
                 ),
+                const SizedBox(width: 8),
+                Text('${widget.score}', style: matchDigits(56)),
                 if (widget.multiplier > 1) ...[
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 8),
                   MatchPulse(
                     value: widget.multiplier,
                     reducedMotion: widget.reducedMotion,
-                    child: Text(
+                    child: MatchTag(
                       '${widget.multiplier}×',
-                      style: heading(23, color: SkyColors.coralDeep),
+                      color: widget.multiplier > 2
+                          ? SkyColors.purple
+                          : SkyColors.coral,
                     ),
                   ),
                 ],

@@ -3,14 +3,16 @@ import '../domain/game_rules.dart';
 /// Reads combat outcomes, never guesses a death from a disappearing enemy.
 /// A silent snapshot after seeking prevents historical sounds playing again.
 class CombatAudioCues {
-  // Weaker charged rocks keep the ordinary shot; strong ones sound heavier.
-  static const powerShotCharge = .35;
+  // Weaker charged rocks keep the ordinary shot; strong ones sound heavier,
+  // and those are the ones that shatter enemy pellets.
+  static const powerShotCharge = PowerShot.shatterCharge;
   FlightSimulation? _simulation;
   int _shots = 0, _deaths = 0, _impacts = 0, _deflections = 0, _enemyShots = 0;
+  int _shatters = 0;
   int _dryFires = 0, _sprints = 0;
   int _ringSprints = 0, _smashes = 0, _rushWarnings = 0, _rushEscapes = 0;
   int _eruptions = 0, _gusts = 0, _galeWarnings = 0, _galesWeathered = 0;
-  int _splashes = 0;
+  int _splashes = 0, _emberSplits = 0;
   final Set<SkyEnemy> _charging = {};
   double _elapsed = 0;
   bool _magnet = false, _fullCharge = false, _sprintReady = false;
@@ -58,7 +60,11 @@ class CombatAudioCues {
       if (sim.cannonSplashes + sim.birdSplashes > _splashes) {
         cues.add('sea_splash');
       }
+      // An Ember Dragon fireball bursting into embers.
+      if (sim.emberSplits > _emberSplits) cues.add('ember_split');
       if (sim.projectilesDeflected > _deflections) cues.add('deflect');
+      // A shattered pellet also bursts under the deflect's ping.
+      if (sim.ammoShattered > _shatters) cues.add('lava_burst');
       if (sim.enemyShots > _enemyShots) cues.add('enemy_shoot');
       if (sim.doorsDestroyed > _doorsDestroyed) {
         cues.addAll(['boss_break', 'unlock']);
@@ -88,7 +94,9 @@ class CombatAudioCues {
     _deaths = sim.enemiesDefeated + sim.swarmSmashed;
     _impacts = sim.rockImpacts;
     _splashes = sim.cannonSplashes + sim.birdSplashes;
+    _emberSplits = sim.emberSplits;
     _deflections = sim.projectilesDeflected;
+    _shatters = sim.ammoShattered;
     _enemyShots = sim.enemyShots;
     _magnet = sim.magnetActive;
     _doorsDestroyed = sim.doorsDestroyed;

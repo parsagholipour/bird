@@ -11,6 +11,7 @@ import 'package:video_player/video_player.dart';
 import '../data/providers.dart';
 import '../data/progress_repository.dart';
 import '../data/session_repository.dart';
+import '../domain/campaign.dart';
 import '../domain/game_rules.dart';
 import '../domain/flight_goals.dart';
 import '../domain/session_replay.dart';
@@ -18,6 +19,7 @@ import '../domain/replay_highlights.dart';
 import '../game/audio.dart';
 import '../game/bird_game.dart';
 import 'theme.dart';
+import 'campaign_map_art.dart' show MapStarsPainter;
 import 'components.dart';
 import 'flight_goals.dart';
 import 'replay_highlights.dart';
@@ -90,9 +92,7 @@ class SessionLibraryScreen extends ConsumerWidget {
                     final run = sessions[i];
                     return ListTile(
                       leading: const Icon(Icons.play_circle_outline),
-                      title: Text(
-                        '${run.mode.title}${run.course != FlightCourse.classic ? ' · ${run.course.title}' : ''}${run.practice ? ' · Practice' : ''}',
-                      ),
+                      title: Text(sessionTitle(run)),
                       subtitle: Text(
                         '${run.finishedAt.toLocal().toString().substring(0, 16)} · ${run.durationSeconds.round()} sec · ${run.score} ${run.course.scoreUnit}',
                       ),
@@ -147,6 +147,24 @@ class SessionLibraryScreen extends ConsumerWidget {
         ),
   );
 }
+
+/// A saved session's name in the library: the level for a campaign flight
+/// ("1-3 · Bat Patrol"), otherwise the mode and course.
+String sessionTitle(RunResult run) {
+  final level = run.levelId == null ? null : Campaign.level(run.levelId!);
+  if (level != null) return '${level.id} · ${level.name}';
+  if (run.levelId != null) return 'Level ${run.levelId}';
+  return '${run.mode.title}'
+      '${run.course != FlightCourse.classic ? ' · ${run.course.title}' : ''}'
+      '${run.practice ? ' · Practice' : ''}';
+}
+
+/// Wings earned so far, for the wing chime. A level's collection marks take
+/// their place, as in live play, read from the plan the replay flies.
+int _wings(FlightSimulation sim) => switch (sim.plan) {
+  LevelPlan(:final marks) => marks.reached(sim.collectedStars),
+  _ => FlightGoals.earned(FlightGoals.forSimulation(sim)),
+};
 
 class ReplayScreen extends ConsumerStatefulWidget {
   const ReplayScreen({super.key, required this.id});
@@ -259,9 +277,7 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
     final oldStars = _player!.simulation.collectedStars;
     final oldMultiplier = _player!.simulation.multiplier;
     final oldMagnets = _player!.simulation.magnetActivations;
-    final oldWings = FlightGoals.earned(
-      FlightGoals.forSimulation(_player!.simulation),
-    );
+    final oldWings = _wings(_player!.simulation);
     final oldFlightTime = _player!.simulation.elapsed;
     final oldHearts = _player!.simulation.hearts;
     final oldShield = _player!.simulation.shield;
@@ -282,8 +298,7 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
           sim.countdown.ceil() != oldCount) {
         _audio.effect('ready');
       }
-      if (sim.phase == RunPhase.playing &&
-          FlightGoals.earned(FlightGoals.forSimulation(sim)) > oldWings) {
+      if (sim.phase == RunPhase.playing && _wings(sim) > oldWings) {
         _audio.effect('wing');
       } else if (sim.magnetActivations > oldMagnets) {
         _audio.effect('magnet');
@@ -612,7 +627,9 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'REPLAY',
+                          _session!.result.levelId == null
+                              ? 'REPLAY'
+                              : 'REPLAY · ${sessionTitle(_session!.result)}',
                           style: const TextStyle(color: Colors.white),
                         ),
                       ),
@@ -637,8 +654,7 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                 child: Center(
                   widthFactor: 1,
                   child: Semantics(
-                    label:
-                        'Score: ${_player!.simulation.score}',
+                    label: 'Score: ${_player!.simulation.score}',
                     excludeSemantics: true,
                     child: Container(
                       key: const ValueKey('replay-score'),
@@ -662,7 +678,22 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                             '${_player!.simulation.score}',
                             style: heading(32, color: Colors.white),
                           ),
-                          if (!_player!.simulation.practice)
+                          // A level earns its stars at the finish, in place of
+                          // flight wings.
+                          if (_player!.simulation.levelId != null)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: SizedBox(
+                                width: 54,
+                                height: 16,
+                                child: CustomPaint(
+                                  painter: MapStarsPainter(
+                                    _player!.simulation.levelStars,
+                                  ),
+                                ),
+                              ),
+                            )
+                          else if (!_player!.simulation.practice)
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 3),
                               child: FlightWings(
