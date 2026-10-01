@@ -8,13 +8,9 @@ Every line was recorded with ElevenLabs **Eleven v4**, one take each, in
 the voice the character has in the story ([story-voices.md](story-voices.md)).
 They are bundled in `assets/audio/flight/` and play offline.
 
-**Recording status (2026-10-01):** 1,130 of the 1,241 lines are recorded
-and bundled. ElevenLabs' daily generation limit stopped the rest: 21 of
-the Pirate Captain's lines, 12 of the Dusk Empress's, 8 of the Spitter
-King's, and 70 of the birds' (Orbit's later cargo lines, and some final
-stretch, star mark and delivery lines). Until they are recorded those
-moments draw on what there is or stay quiet. `prepare_flight_voices.py
-pending` lists them.
+All 1,241 lines are recorded (2026-10-01; ElevenLabs' daily generation
+limit spread the last 214 over the next day) and bundled: 85 minutes of
+speech, 29.5 MB.
 
 ## When a character speaks
 
@@ -88,7 +84,10 @@ Fifteen takes chosen for their heaviest direction (one each for
 `[breathless]`, `[shouting]`, `[panicked]` and `[dreamily]`, across all
 four birds, Baron Bat and the Dragon) were joined with gaps and transcribed
 with ElevenLabs Scribe. Every line came back word for word, with no tag
-read out; the only differences were spellings ("whiz", "Youch").
+read out; the only differences were spellings ("whiz", "Youch"). Twelve of
+the last takes (six of the Pirate Captain's, two each of the Empress's and
+the Spitter King's, two birds') came back the same way: the Captain's
+"o'" and "yer" heard as "of" and "your", and his "Ow!" as "Oh".
 
 ## In the game
 

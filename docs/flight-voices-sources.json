@@ -564,7 +564,9 @@
    "text": "High tide, feathers! Fly or swim!",
    "prompt": "[laughs] High tide, feathers! Fly or swim!",
    "voice_id": "4Vl3K2x290GidNvuaLm7",
-   "voice": "Matthew Schmitz - Old Pirate Captain"
+   "voice": "Matthew Schmitz - Old Pirate Captain",
+   "generation_id": "3Sl2QnS0KqqqPFpAKE1J",
+   "source_sha256": "47ffc29e88fd504acca1d1da0f3e6bb3a0aed890251dcbda43e920f7571888a9"
   },
   {
    "name": "captain-tide-03",
@@ -573,7 +575,9 @@
    "text": "Rise up, ye briny beauty!",
    "prompt": "[excited] Rise up, ye briny beauty!",
    "voice_id": "4Vl3K2x290GidNvuaLm7",
-   "voice": "Matthew Schmitz - Old Pirate Captain"
+   "voice": "Matthew Schmitz - Old Pirate Captain",
+   "generation_id": "eG1lCvQad6Tux4rKeTTB",
+   "source_sha256": "6661a59d50cd68f5aa9ac84b290a5722f2135baeba8ac536522b6d032ddc8a30"
   },
   {
    "name": "captain-summon-01",
@@ -582,7 +586,9 @@
    "text": "All hands! Up and at 'em!",
    "prompt": "[shouting] All hands! Up and at 'em!",
    "voice_id": "4Vl3K2x290GidNvuaLm7",
-   "voice": "Matthew Schmitz - Old Pirate Captain"
+   "voice": "Matthew Schmitz - Old Pirate Captain",
+   "generation_id": "6qc1hiDRi4LUvvnZs7H9",
+   "source_sha256": "c88af82a7884d60675f9540f54f86bf68980499ece8bd2f49fd23d230c91c05a"
   },
   {
    "name": "captain-summon-02",
@@ -591,7 +597,9 @@
    "text": "Crew! Grab every envelope ye can!",
    "prompt": "[gruffly] Crew! Grab every envelope ye can!",
    "voice_id": "4Vl3K2x290GidNvuaLm7",
-   "voice": "Matthew Schmitz - Old Pirate Captain"
+   "voice": "Matthew Schmitz - Old Pirate Captain",
+   "generation_id": "U96xcXGz18qO56gG5iL8",
+   "source_sha256": "ecea2e14068b75bd6867ba2eb103968c1e137dd0a63462d12ebe6b8158744ea2"
   },
   {
    "name": "captain-summon-03",
@@ -600,7 +608,9 @@
    "text": "Look lively, me hearties! Courier off the bow!",
    "prompt": "[laughs] Look lively, me hearties! Courier off the bow!",
    "voice_id": "4Vl3K2x290GidNvuaLm7",
-   "voice": "Matthew Schmitz - Old Pirate Captain"
+   "voice": "Matthew Schmitz - Old Pirate Captain",
+   "generation_id": "UX0M9RcBTKxKKSJfeu7Z",
+   "source_sha256": "a565a4b1876484a80fd81450b658d4c0d76035eb937337080544110dc22f59ee"
   },
   {
    "name": "captain-hurt-01",
@@ -609,7 +619,9 @@
    "text": "Oi! Mind the hat!",
    "prompt": "[shouting] Oi! Mind the hat!",
    "voice_id": "4Vl3K2x290GidNvuaLm7",
-   "voice": "Matthew Schmitz - Old Pirate Captain"
+   "voice": "Matthew Schmitz - Old Pirate Captain",
+   "generation_id": "Cpm40PRHwni6zyHgmdDM",
+   "source_sha256": "aea0a307249b6ecb00283fe3db7093a675a944a02fc45b186fff065013e94466"
   },
   {
    "name": "captain-hurt-02",
@@ -618,7 +630,9 @@
    "text": "Shiver me timbers!",
    "prompt": "[gasps] Shiver me timbers!",
    "voice_id": "4Vl3K2x290GidNvuaLm7",
-   "voice": "Matthew Schmitz - Old Pirate Captain"
+   "voice": "Matthew Schmitz - Old Pirate Captain",
+   "generation_id": "ouLiq8bQwINmicOxGbP8",
+   "source_sha256": "4d841b114f77689b22bb15e5528d9d8cbf2f3d5447631ac6f093d903529d5d81"
   },
   {
    "name": "captain-hurt-03",
@@ -627,7 +641,9 @@
    "text": "Ooh arr, that stung!",
    "prompt": "[pained] Ooh arr, that stung!",
    "voice_id": "4Vl3K2x290GidNvuaLm7",
-   "voice": "Matthew Schmitz - Old Pirate Captain"
+   "voice": "Matthew Schmitz - Old Pirate Captain",
+   "generation_id": "2xq8V4YfqsG5wwgFcQlJ",
+   "source_sha256": "f6763c7fb9dbd88c1cfa556a098574cf59b09ed0491e06712f623b2433268ff2"
   },
   {
    "name": "captain-hurt-04",
@@ -636,7 +652,9 @@
    "text": "Blimey! That'll cost ye a stamp!",
    "prompt": "[grumbling] Blimey! That'll cost ye a stamp!",
    "voice_id": "4Vl3K2x290GidNvuaLm7",
-   "voice": "Matthew Schmitz - Old Pirate Captain"
+   "voice": "Matthew Schmitz - Old Pirate Captain",
+   "generation_id": "up87agTvFKBqsadRlc9L",
+   "source_sha256": "cdc1e707e36ae1dee090e1ecd9d61813d94ad81fc1c523df871f4df06f1969ee"
   },
   {
    "name": "captain-hurt-05",
@@ -645,7 +663,9 @@
    "text": "Ow! Me poor ship!",
    "prompt": "[pained] Ow! Me poor ship!",
    "voice_id": "4Vl3K2x290GidNvuaLm7",
-   "voice": "Matthew Schmitz - Old Pirate Captain"
+   "voice": "Matthew Schmitz - Old Pirate Captain",
+   "generation_id": "PjXlZxPDq8LBGvGLmYdP",
+   "source_sha256": "3e9488ad1bb60279b5f308c1ee395b816fb3ffe946828637839086ccf5dbf183"
   },
   {
    "name": "captain-gloat-01",
@@ -654,7 +674,9 @@
    "text": "Postmarked by cannonball!",
    "prompt": "[laughs] Postmarked by cannonball!",
    "voice_id": "4Vl3K2x290GidNvuaLm7",
-   "voice": "Matthew Schmitz - Old Pirate Captain"
+   "voice": "Matthew Schmitz - Old Pirate Captain",
+   "generation_id": "AsK9nxOe4dvYB0QAvWb1",
+   "source_sha256": "db7903b484d825ad10cc0b11f28d8639f0614b30288267ffa7919c18437dfd69"
   },
   {
    "name": "captain-gloat-02",
@@ -663,7 +685,9 @@
    "text": "Got ye! Proper job, that.",
    "prompt": "[gruffly] Got ye! Proper job, that.",
    "voice_id": "4Vl3K2x290GidNvuaLm7",
-   "voice": "Matthew Schmitz - Old Pirate Captain"
+   "voice": "Matthew Schmitz - Old Pirate Captain",
+   "generation_id": "N9hPxwlCwIl8anibhaUC",
+   "source_sha256": "bfea2f13beb2e32a91ffd19c5e7d16563a07df82fa6df2551d868227fee380d9"
   },
   {
    "name": "captain-gloat-03",
@@ -672,7 +696,9 @@
    "text": "Ooh, that'll smart. Sorry, me handsome.",
    "prompt": "[chuckles] Ooh, that'll smart. Sorry, me handsome.",
    "voice_id": "4Vl3K2x290GidNvuaLm7",
-   "voice": "Matthew Schmitz - Old Pirate Captain"
+   "voice": "Matthew Schmitz - Old Pirate Captain",
+   "generation_id": "rhWsV9MTCxLF5Lxl3GeL",
+   "source_sha256": "21c2dda222d0196378f54a931d447a7ac720ba5f5d7a6ef2586cada2d7f02424"
   },
   {
    "name": "captain-gloat-04",
@@ -681,7 +707,9 @@
    "text": "Sink me, what a shot!",
    "prompt": "[laughs] Sink me, what a shot!",
    "voice_id": "4Vl3K2x290GidNvuaLm7",
-   "voice": "Matthew Schmitz - Old Pirate Captain"
+   "voice": "Matthew Schmitz - Old Pirate Captain",
+   "generation_id": "cQrI75RH0JpELc3xM8Bi",
+   "source_sha256": "a7a705ce6be4dd1f9319f75e16cacc897bad31124cb95cb4519fd1a634653c2b"
   },
   {
    "name": "captain-gloat-05",
@@ -690,7 +718,9 @@
    "text": "Right on the stern! Log it, Parrot!",
    "prompt": "[proudly] Right on the stern! Log it, Parrot!",
    "voice_id": "4Vl3K2x290GidNvuaLm7",
-   "voice": "Matthew Schmitz - Old Pirate Captain"
+   "voice": "Matthew Schmitz - Old Pirate Captain",
+   "generation_id": "LpNmU2Abb3D0eGfzLPok",
+   "source_sha256": "e6b9b4010ce0ef1fed2b160564e1ab1f5cda93684cb8b4aaad9e52b31c980b9b"
   },
   {
    "name": "captain-mad-01",
@@ -699,7 +729,9 @@
    "text": "Now ye've done it! Run out every gun!",
    "prompt": "[shouting] Now ye've done it! Run out every gun!",
    "voice_id": "4Vl3K2x290GidNvuaLm7",
-   "voice": "Matthew Schmitz - Old Pirate Captain"
+   "voice": "Matthew Schmitz - Old Pirate Captain",
+   "generation_id": "YTJV1emHDF6P531lbuwv",
+   "source_sha256": "bce8ae2660cfcc3326a272248ae0c8bf254d522291c04b53bcc24d2698e00cd5"
   },
   {
    "name": "captain-mad-02",
@@ -708,7 +740,9 @@
    "text": "Ye've rattled me! Double the powder!",
    "prompt": "[growls] Ye've rattled me! Double the powder!",
    "voice_id": "4Vl3K2x290GidNvuaLm7",
-   "voice": "Matthew Schmitz - Old Pirate Captain"
+   "voice": "Matthew Schmitz - Old Pirate Captain",
+   "generation_id": "xKnfIndDs2BltRjpCu1G",
+   "source_sha256": "361c98d889aca7069e33bf7331da18014ca7a7d98863d027e77ad4cacb1b3dde"
   },
   {
    "name": "captain-mad-03",
@@ -717,7 +751,9 @@
    "text": "Batten down, matey. The Captain's in a temper!",
    "prompt": "[gruffly] Batten down, matey. The Captain's in a temper!",
    "voice_id": "4Vl3K2x290GidNvuaLm7",
-   "voice": "Matthew Schmitz - Old Pirate Captain"
+   "voice": "Matthew Schmitz - Old Pirate Captain",
+   "generation_id": "Gw2es6loBiY53iGjSi7D",
+   "source_sha256": "4bdc6119b1d746ccbe627d195522d6114ab5c5ee2ad583fa01885ada78cc0c78"
   },
   {
    "name": "captain-defeated-01",
@@ -726,7 +762,9 @@
    "text": "Abandon ship! Save the album!",
    "prompt": "[shouting] Abandon ship! Save the album!",
    "voice_id": "4Vl3K2x290GidNvuaLm7",
-   "voice": "Matthew Schmitz - Old Pirate Captain"
+   "voice": "Matthew Schmitz - Old Pirate Captain",
+   "generation_id": "FUdBeuOC0QOvILyt79ha",
+   "source_sha256": "7c7b9d94760fea12d288ddcac22214e4b102d9cf173fdb39bdb1b0249fe9a20d"
   },
   {
    "name": "captain-defeated-02",
@@ -735,7 +773,9 @@
    "text": "Blast it all. Keep yer mail. I only wanted the pictures.",
    "prompt": "[grumbling] Blast it all. Keep yer mail. I only wanted the pictures.",
    "voice_id": "4Vl3K2x290GidNvuaLm7",
-   "voice": "Matthew Schmitz - Old Pirate Captain"
+   "voice": "Matthew Schmitz - Old Pirate Captain",
+   "generation_id": "C3BLNRSWv7gbTDrqae7l",
+   "source_sha256": "40026e43b1cc3ef4d4d9a5781b93d928b13970b2e40a64335ba2d3f8d4fc9919"
   },
   {
    "name": "captain-defeated-03",
@@ -744,7 +784,9 @@
    "text": "Strike the colours... but somebody send me a stamp!",
    "prompt": "[sighs] Strike the colours... but somebody send me a stamp!",
    "voice_id": "4Vl3K2x290GidNvuaLm7",
-   "voice": "Matthew Schmitz - Old Pirate Captain"
+   "voice": "Matthew Schmitz - Old Pirate Captain",
+   "generation_id": "AlMBKfJxNe9d7bUGMYk7",
+   "source_sha256": "1a76a8ae8968365c13aa5b2b3a05c5e154746595f7cc085a07942c4381967da4"
   },
   {
    "name": "dragon-arrive-01",
@@ -1369,7 +1411,9 @@
    "text": "Ooh... that will leave dust.",
    "prompt": "[softly] Ooh... that will leave dust.",
    "voice_id": "sssn4wp3AspuK2kvy3Ym",
-   "voice": "Enchantress - mysterious, witchy, villain character"
+   "voice": "Enchantress - mysterious, witchy, villain character",
+   "generation_id": "Hs0QZZDQSnJBdW26fXZz",
+   "source_sha256": "249beef96b610f9e26d5b285ec513fd0df449fb720946b244fa748578345a3ab"
   },
   {
    "name": "empress-gloat-01",
@@ -1378,7 +1422,9 @@
    "text": "There. Doesn't that feel sleepy?",
    "prompt": "[softly] There. Doesn't that feel sleepy?",
    "voice_id": "sssn4wp3AspuK2kvy3Ym",
-   "voice": "Enchantress - mysterious, witchy, villain character"
+   "voice": "Enchantress - mysterious, witchy, villain character",
+   "generation_id": "50ehtXzJlsDWDc64T8DF",
+   "source_sha256": "40e0a3a552b36fca30e6f45c6baec1d189cd0265d81ffbce1bba216e5473241e"
   },
   {
    "name": "empress-gloat-02",
@@ -1387,7 +1433,9 @@
    "text": "Sweet dreams, night bird.",
    "prompt": "[chuckles] Sweet dreams, night bird.",
    "voice_id": "sssn4wp3AspuK2kvy3Ym",
-   "voice": "Enchantress - mysterious, witchy, villain character"
+   "voice": "Enchantress - mysterious, witchy, villain character",
+   "generation_id": "lwXyJm6ObYth2aj979hR",
+   "source_sha256": "b245be191099fe23f7c5d18153cad9875c047f057905f6376b23dd1b2617f1f0"
   },
   {
    "name": "empress-gloat-03",
@@ -1396,7 +1444,9 @@
    "text": "Pollen in your feathers. It suits you.",
    "prompt": "[mysteriously] Pollen in your feathers. It suits you.",
    "voice_id": "sssn4wp3AspuK2kvy3Ym",
-   "voice": "Enchantress - mysterious, witchy, villain character"
+   "voice": "Enchantress - mysterious, witchy, villain character",
+   "generation_id": "USakJg5YJpsC8hvvx7GR",
+   "source_sha256": "8cbc02360a9bb6974f9d703684d01f5adfc5e2632f59c8e6df114d925fa86468"
   },
   {
    "name": "empress-gloat-04",
@@ -1405,7 +1455,9 @@
    "text": "Quietly, please. You'll wake the whole street.",
    "prompt": "[whispers] Quietly, please. You'll wake the whole street.",
    "voice_id": "sssn4wp3AspuK2kvy3Ym",
-   "voice": "Enchantress - mysterious, witchy, villain character"
+   "voice": "Enchantress - mysterious, witchy, villain character",
+   "generation_id": "tV64H97eMzq0ElWTAYJf",
+   "source_sha256": "c42a3d0cde0978c1ba300788405dedc9ce5d81491c95967a509f00fb30e39fa8"
   },
   {
    "name": "empress-gloat-05",
@@ -1414,7 +1466,9 @@
    "text": "Did that sting? Then rest a while.",
    "prompt": "[dryly] Did that sting? Then rest a while.",
    "voice_id": "sssn4wp3AspuK2kvy3Ym",
-   "voice": "Enchantress - mysterious, witchy, villain character"
+   "voice": "Enchantress - mysterious, witchy, villain character",
+   "generation_id": "k8mpfBAkcViEmBmbuVMe",
+   "source_sha256": "603c03027d278fd69349aab2faf1c5ff2d2f9df4e4d29245f44c1bf5fbe0d3b9"
   },
   {
    "name": "empress-mad-01",
@@ -1423,7 +1477,9 @@
    "text": "Very well. No more lullabies.",
    "prompt": "[coldly] Very well. No more lullabies.",
    "voice_id": "sssn4wp3AspuK2kvy3Ym",
-   "voice": "Enchantress - mysterious, witchy, villain character"
+   "voice": "Enchantress - mysterious, witchy, villain character",
+   "generation_id": "RgDwulgWmJ8KZeNz0Naa",
+   "source_sha256": "103cce7a7d5b0cb75bf2b56c9a00e153a3910654ea49d9961237c98713de658d"
   },
   {
    "name": "empress-mad-02",
@@ -1432,7 +1488,9 @@
    "text": "Oh dear. You have made me cross.",
    "prompt": "[whispers] Oh dear. You have made me cross.",
    "voice_id": "sssn4wp3AspuK2kvy3Ym",
-   "voice": "Enchantress - mysterious, witchy, villain character"
+   "voice": "Enchantress - mysterious, witchy, villain character",
+   "generation_id": "d5TwOlHkdujv6Ac6KtPT",
+   "source_sha256": "42732127e41e9f7d4dac84cd1b10e0554bb7bc04b54ef3946fa6eb67fc47b963"
   },
   {
    "name": "empress-mad-03",
@@ -1441,7 +1499,9 @@
    "text": "Darker, my sweets. Faster. Softer.",
    "prompt": "[menacing] Darker, my sweets. Faster. Softer.",
    "voice_id": "sssn4wp3AspuK2kvy3Ym",
-   "voice": "Enchantress - mysterious, witchy, villain character"
+   "voice": "Enchantress - mysterious, witchy, villain character",
+   "generation_id": "9aKV8NT34HWmJEh1lcFh",
+   "source_sha256": "f05a036eeae867897448e5927668e773e37899599068e323cd58efd7f393fcb3"
   },
   {
    "name": "empress-defeated-01",
@@ -1450,7 +1510,9 @@
    "text": "Fine. Have your lights. But gently, please.",
    "prompt": "[sighs] Fine. Have your lights. But gently, please.",
    "voice_id": "sssn4wp3AspuK2kvy3Ym",
-   "voice": "Enchantress - mysterious, witchy, villain character"
+   "voice": "Enchantress - mysterious, witchy, villain character",
+   "generation_id": "bU0rKpLYknKTr5bA8ISO",
+   "source_sha256": "2060f92e518d2ec93e82c4f4f2da9662eaca4638863c7f8c2388d24997371e4d"
   },
   {
    "name": "empress-defeated-02",
@@ -1459,7 +1521,9 @@
    "text": "My diadem is crooked. We shall not speak of this.",
    "prompt": "[haughtily] My diadem is crooked. We shall not speak of this.",
    "voice_id": "sssn4wp3AspuK2kvy3Ym",
-   "voice": "Enchantress - mysterious, witchy, villain character"
+   "voice": "Enchantress - mysterious, witchy, villain character",
+   "generation_id": "HkTmLaYIIl8Q1vVtjdSC",
+   "source_sha256": "cd0bf71bec27162505c3adf978960ec96e08e14fe0c2e54f164316cd12b0d171"
   },
   {
    "name": "empress-defeated-03",
@@ -1468,7 +1532,9 @@
    "text": "Goodnight, courier. Do leave a light on.",
    "prompt": "[softly] Goodnight, courier. Do leave a light on.",
    "voice_id": "sssn4wp3AspuK2kvy3Ym",
-   "voice": "Enchantress - mysterious, witchy, villain character"
+   "voice": "Enchantress - mysterious, witchy, villain character",
+   "generation_id": "ut7ykk9cNH5DFMsvMYWK",
+   "source_sha256": "9104c8190e8ef59d79063edbe25ea79938e19e176b71fd435b5d1ace7d7ca371"
   },
   {
    "name": "minty-takeoff-01",
@@ -4326,7 +4392,9 @@
    "text": "Three stars! Speed AND style. Obviously.",
    "prompt": "[triumphant] Three stars! Speed AND style. Obviously.",
    "voice_id": "XjGYkUkzth8BPs29fmcV",
-   "voice": "Teddy Twinkle - Cute Cartoon Boy"
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "S2jII9YiqUX8vhIQnJ01",
+   "source_sha256": "dffed31c7f02e140d24850997466ab8ccd8d40d9d6509c55090502aa471cdfb8"
   },
   {
    "name": "minty-stars-three-02",
@@ -4335,7 +4403,9 @@
    "text": "Full marks! Somebody pin that on the club noticeboard!",
    "prompt": "[excited] Full marks! Somebody pin that on the club noticeboard!",
    "voice_id": "XjGYkUkzth8BPs29fmcV",
-   "voice": "Teddy Twinkle - Cute Cartoon Boy"
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "WY1kkNpQ29dJ0XkzTG39",
+   "source_sha256": "819eea65abea4fc05d818fcfdce452ad69b7d310e0f0229b1addb5b762cfed78"
   },
   {
    "name": "minty-delivered-01",
@@ -4344,7 +4414,9 @@
    "text": "Delivered! And way ahead of schedule.",
    "prompt": "[triumphant] Delivered! And way ahead of schedule.",
    "voice_id": "XjGYkUkzth8BPs29fmcV",
-   "voice": "Teddy Twinkle - Cute Cartoon Boy"
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "kg18nY4nQm970Zn8rPuW",
+   "source_sha256": "c4e0a1e1fcad536bd8b662acc1c9635a0b4490d4df621dee0a4a21e31cd7029a"
   },
   {
    "name": "minty-delivered-02",
@@ -4353,7 +4425,9 @@
    "text": "Every letter lands, and mine lands FAST!",
    "prompt": "[proudly] Every letter lands, and mine lands FAST!",
    "voice_id": "XjGYkUkzth8BPs29fmcV",
-   "voice": "Teddy Twinkle - Cute Cartoon Boy"
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "1aj5v9l66HjXzN8cAzom",
+   "source_sha256": "5780aca1e693eda2ed31ae05954bb8af32ef8f519e33a82eb21823e0b47e253e"
   },
   {
    "name": "minty-delivered-03",
@@ -4362,7 +4436,9 @@
    "text": "Signed, sealed, zoomed!",
    "prompt": "[cheerfully] Signed, sealed, zoomed!",
    "voice_id": "XjGYkUkzth8BPs29fmcV",
-   "voice": "Teddy Twinkle - Cute Cartoon Boy"
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "8d0OA74ZxHm8lvU1oU8Y",
+   "source_sha256": "79b7dfb1ff36da652bdecbcd4bbb307a2851e5065e45d49ab62bfa0e8f688a7e"
   },
   {
    "name": "minty-delivered-04",
@@ -4371,7 +4447,9 @@
    "text": "Done! Can I have my nectar tip now?",
    "prompt": "[laughs] Done! Can I have my nectar tip now?",
    "voice_id": "XjGYkUkzth8BPs29fmcV",
-   "voice": "Teddy Twinkle - Cute Cartoon Boy"
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "jSgMd42zZolo7MAtI6us",
+   "source_sha256": "3fe5b2d9cf99ada7b7a2f0ef0ea5ce9636a563b6bea517c9c5e5608acd070fbd"
   },
   {
    "name": "minty-delivered-05",
@@ -4380,7 +4458,9 @@
    "text": "Mail's in! What's next? Where to?",
    "prompt": "[excited] Mail's in! What's next? Where to?",
    "voice_id": "XjGYkUkzth8BPs29fmcV",
-   "voice": "Teddy Twinkle - Cute Cartoon Boy"
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "kTsXcojgVNVfXHtMeGaw",
+   "source_sha256": "9a8eb62b3fac7f14e4c495721f659be4e3835f2a9b02e16058687e0606d3474c"
   },
   {
    "name": "minty-delivered-06",
@@ -4389,7 +4469,9 @@
    "text": "Special delivery, Minty style. Nailed it!",
    "prompt": "[cocky] Special delivery, Minty style. Nailed it!",
    "voice_id": "XjGYkUkzth8BPs29fmcV",
-   "voice": "Teddy Twinkle - Cute Cartoon Boy"
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "8G7beW2FXtSmISAYFRuQ",
+   "source_sha256": "fdff5ab9ff9769aa73ca36662b05818b658600277e6e61084d2003ece1f9445e"
   },
   {
    "name": "orbit-takeoff-01",
@@ -6917,7 +6999,9 @@
    "text": "Light bulbs for the theatre marquee. Little moons in a box.",
    "prompt": "[curious] Light bulbs for the theatre marquee. Little moons in a box.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "PazMksVnppffjyguGyeZ",
+   "source_sha256": "3a9f50135500748ab7723aa4803de1b023705ab8ce55c3ffc7c8e9aa3c784e17"
   },
   {
    "name": "orbit-cargo-3-2-01",
@@ -6926,7 +7010,9 @@
    "text": "Umbrellas for the newsstand pigeons. Rainy nights are lovely, but soggy.",
    "prompt": "[softly] Umbrellas for the newsstand pigeons. Rainy nights are lovely, but soggy.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "TQzvokKmhlMmWHCaBkrM",
+   "source_sha256": "856db3b8163a6afd8c50ad959a60ff1da87b9ef482ef635fcccb29172fc3f779"
   },
   {
    "name": "orbit-cargo-3-3-01",
@@ -6935,7 +7021,9 @@
    "text": "Night shift... my favourite shift. Hot pretzels for the cabbies.",
    "prompt": "[dreamily] Night shift... my favourite shift. Hot pretzels for the cabbies.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "HeWIBr6URT7c4ZDQZD2V",
+   "source_sha256": "367e7509314c16073811d64d12de22a053b79099a8627dc8294a783717cae959"
   },
   {
    "name": "orbit-cargo-3-4-01",
@@ -6944,7 +7032,9 @@
    "text": "A weather vane for the tallest tower. Such a lovely perch, too.",
    "prompt": "[thoughtfully] A weather vane for the tallest tower. Such a lovely perch, too.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "w7WmrT5DF9wyS7OAqZCs",
+   "source_sha256": "aa91f947b79632cd33735f7a4366b5bb5e467bcfd8efad639df075faafbc7698"
   },
   {
    "name": "orbit-cargo-3-5-01",
@@ -6953,7 +7043,9 @@
    "text": "Croissants for the rooftop painters. Still warm... like a sunrise in a bag.",
    "prompt": "[dreamily] Croissants for the rooftop painters. Still warm... like a sunrise in a bag.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "leMsLJ6YBbn9fgiDyzfk",
+   "source_sha256": "47ef8907ca7b7e0fe1dc36a9324e51d68030b31abb0cf3f111ad0e62e0b4ee0f"
   },
   {
    "name": "orbit-cargo-3-6-01",
@@ -6962,7 +7054,9 @@
    "text": "Sheet music for the accordion player. I'll hum it quietly on the way.",
    "prompt": "[softly] Sheet music for the accordion player. I'll hum it quietly on the way.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "m5TnbmzZ5Lo4K4q1Uck2",
+   "source_sha256": "121c1dea67b7aa00e267d02a6d8579a2d2219496dd3656e62366649447c812bb"
   },
   {
    "name": "orbit-cargo-3-7-01",
@@ -6971,7 +7065,9 @@
    "text": "A midnight love letter for the baker. I'm blushing, and it isn't even mine.",
    "prompt": "[dreamily] A midnight love letter for the baker. [giggles] I'm blushing, and it isn't even mine.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "yPQasLB9FrzKi4rtbSuE",
+   "source_sha256": "ce28f78e3cee59066695044612b8a33bc091431eca869b237ca4e5538e1f1d5f"
   },
   {
    "name": "orbit-cargo-3-8-01",
@@ -6980,7 +7076,9 @@
    "text": "A wake-up call for the Dusk Empress. From a sleepy owl, of all birds.",
    "prompt": "[amused] A wake-up call for the Dusk Empress. From a sleepy owl, of all birds.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "32c2BgTWZALnIA8pEvRR",
+   "source_sha256": "60ba580dd3488e802f9a794284b3382907368a234ee233df85346d308dbd273a"
   },
   {
    "name": "orbit-cargo-4-1-01",
@@ -6989,7 +7087,9 @@
    "text": "A lighthouse is a moon that stays put. New lens, for its keeper.",
    "prompt": "[warmly] A lighthouse is a moon that stays put. New lens, for its keeper.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "2iFckg3xdWfl07iEl25v",
+   "source_sha256": "0469b2c8478fba037b0cefe874bdbbdd665dac28b31e4f31fc5c402973f6bae3"
   },
   {
    "name": "orbit-cargo-4-2-01",
@@ -6998,7 +7098,9 @@
    "text": "Oven mitts for the volcano baker. Very sensible, near all that lava.",
    "prompt": "[calmly] Oven mitts for the volcano baker. Very sensible, near all that lava.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "TXIwq67B5zXbE39YrASJ",
+   "source_sha256": "4ecb5a62ea067f89bde28a6919581e279bbd70b98f3b820d1dc1c7d2e048bc14"
   },
   {
    "name": "orbit-cargo-4-3-01",
@@ -7007,7 +7109,9 @@
    "text": "Kite string for the beach festival. Kites are birds holding hands with the ground.",
    "prompt": "[dreamily] Kite string for the beach festival. Kites are birds holding hands with the ground.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "XALBCkLkGS5EcRU8o2pR",
+   "source_sha256": "d240609732fb33593d38da4a0632d8bc0b6c1c97bba8b621b90c397b6c47f0de"
   },
   {
    "name": "orbit-cargo-4-4-01",
@@ -7016,7 +7120,9 @@
    "text": "A reply for the island hermit. Someone out there has waited a long time.",
    "prompt": "[gently] A reply for the island hermit. Someone out there has waited a long time.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "JyUFASykLJU3xxQCiHny",
+   "source_sha256": "40508bddafd6df1175bfcd1ee0795527566f52d0f025392c4e842b3aee3e4867"
   },
   {
    "name": "orbit-cargo-4-5-01",
@@ -7025,7 +7131,9 @@
    "text": "The moon wrote most of this tide table. It's for the ferry crew.",
    "prompt": "[thoughtfully] The moon wrote most of this tide table. It's for the ferry crew.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "LBqDjstj5p8Jg5dMImtR",
+   "source_sha256": "55230bb005dc93802005c0c26a7d45e428db2410f4ed9ed472d5958f579fabfb"
   },
   {
    "name": "orbit-cargo-4-6-01",
@@ -7034,7 +7142,9 @@
    "text": "Fish biscuits for the gull colony. I can hear them squabbling from here.",
    "prompt": "[giggles] Fish biscuits for the gull colony. I can hear them squabbling from here.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "ukPx7AXzui9wm1zJv64K",
+   "source_sha256": "21dba213c172d45a3b3e461609b730285c849aac5024fdad505c21ad97b0d27f"
   },
   {
    "name": "orbit-cargo-4-7-01",
@@ -7043,7 +7153,9 @@
    "text": "Dry socks for the storm-watch sailors. Warm toes are a kind of magic.",
    "prompt": "[warmly] Dry socks for the storm-watch sailors. Warm toes are a kind of magic.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "yqYggormeOqfZ3ZjXSBl",
+   "source_sha256": "ba6ae389b101fa81d3ea40c37f28197a7bca04a7c848fdf2fa59dc485eba689a"
   },
   {
    "name": "orbit-cargo-4-8-01",
@@ -7052,7 +7164,9 @@
    "text": "A return-the-mail order for the Captain. I'll ask nicely. Twice, if needed.",
    "prompt": "[bravely] A return-the-mail order for the Captain. I'll ask nicely. Twice, if needed.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "DpNFl5tMIvqLEAKDjSqG",
+   "source_sha256": "ad6b2ed4a299a8149a77c1fdbfaf2838b94ede2d17d4925c934b9481602be1da"
   },
   {
    "name": "orbit-cargo-5-1-01",
@@ -7061,7 +7175,9 @@
    "text": "Woolly hats for the penguin choir. Warm ears make the softest high notes.",
    "prompt": "[delighted] Woolly hats for the penguin choir. Warm ears make the softest high notes.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "P1pgnBKpI6ibimVptvlO",
+   "source_sha256": "6c4c22460f3f093db4680791069be6c55ad01b886b02e645959b2fbe7ca0e65d"
   },
   {
    "name": "orbit-cargo-5-2-01",
@@ -7070,7 +7186,9 @@
    "text": "Hot cocoa for the polar station. Their night lasts for months. Lucky them.",
    "prompt": "[dreamily] Hot cocoa for the polar station. Their night lasts for months. [chuckles] Lucky them.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "1jQ7iWym1hYkQ5926SFt",
+   "source_sha256": "9c30df3135a009c207d25b3e59d2223ab68e3152e36a4a3bf59801c92c8bb6af"
   },
   {
    "name": "orbit-cargo-5-3-01",
@@ -7079,7 +7197,9 @@
    "text": "Spare fuses for the noodle bar sign. Even neon needs a little help.",
    "prompt": "[chuckles] Spare fuses for the noodle bar sign. Even neon needs a little help.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "aZgU7NBD3XAQhJC2nVOI",
+   "source_sha256": "3cbe9b02a97fb1435da5c63866d65e51594246c291369ff99f7147f98de16f71"
   },
   {
    "name": "orbit-cargo-5-4-01",
@@ -7088,7 +7208,9 @@
    "text": "A paper letter for a curious robot. I hope it likes the crinkle.",
    "prompt": "[warmly] A paper letter for a curious robot. I hope it likes the crinkle.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "AK0WUxqaQMKbkgfuox9j",
+   "source_sha256": "61cc55259d1fc3938a33e66937439e6cff4fe1c9c99358ba57acee1c81654d03"
   },
   {
    "name": "orbit-cargo-5-5-01",
@@ -7097,7 +7219,9 @@
    "text": "Race tickets for the rooftop runners. I'll deliver them at a gentle sprint.",
    "prompt": "[amused] Race tickets for the rooftop runners. I'll deliver them at a gentle sprint.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "aynbADYNLAkweFdfD3NB",
+   "source_sha256": "05b0df9e8652a6ab7ace54797bf1099caf5e7ec4ef2c71b53b6583fb8e791171"
   },
   {
    "name": "orbit-cargo-5-6-01",
@@ -7106,7 +7230,9 @@
    "text": "Paper lanterns for the festival. I'll carry them like sleeping fireflies.",
    "prompt": "[dreamily] Paper lanterns for the festival. I'll carry them like sleeping fireflies.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "ZujYHTIv8jG58GpnwhwF",
+   "source_sha256": "833a9d9ac9f25ed0aeeac6cbd1412e751ef152aa3002ada2e14840047706a0c0"
   },
   {
    "name": "orbit-cargo-5-7-01",
@@ -7115,7 +7241,9 @@
    "text": "Mountain tea for the monastery. The last leg... quietly, like a secret.",
    "prompt": "[softly] Mountain tea for the monastery. The last leg... quietly, like a secret.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "DBy5cc1qysOdMp42qjyy",
+   "source_sha256": "0320d47e0724772f7a0404f78e54e4911879200565d5af9be2700672ae9a1c32"
   },
   {
    "name": "orbit-cargo-5-8-01",
@@ -7124,7 +7252,9 @@
    "text": "The first letter ever sent to the Dragon. I'm holding it like an egg.",
    "prompt": "[tenderly] The first letter ever sent to the Dragon. I'm holding it like an egg.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "EoCL2gxBac9rGbNFIYlb",
+   "source_sha256": "4198e445bd913dcffe66eabf52a962d48c730d80e66a16fa44b7ab2de4b5390b"
   },
   {
    "name": "orbit-final-stretch-01",
@@ -7133,7 +7263,9 @@
    "text": "I can see the finish... like a porch light left on.",
    "prompt": "[softly] I can see the finish... like a porch light left on.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "LPevWF7L0lf1pf1lTsJA",
+   "source_sha256": "4a46591d8bb7c055241d0be6e4d9d10d299b9c296cff682205e02148ed0f96b7"
   },
   {
    "name": "orbit-final-stretch-02",
@@ -7142,7 +7274,9 @@
    "text": "Nearly there. Stay awake, eyes... stay awake.",
    "prompt": "[determined] Nearly there. [sleepily] Stay awake, eyes... stay awake.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "Fk1B8THy84CNAGUpwWar",
+   "source_sha256": "7f62ff58f76af8f3f9c417866333e3d57ad5a6c0e398fe127d9f261665fd6b5f"
   },
   {
    "name": "orbit-final-stretch-03",
@@ -7151,7 +7285,9 @@
    "text": "Almost... just a few more silent wingbeats.",
    "prompt": "[whispers] Almost... just a few more silent wingbeats.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "mFI32Qb3qVpWjU8B63iF",
+   "source_sha256": "43ddb546414257423b5fe417915b2d07c54f9e960bfef807e5fe7202a18cd808"
   },
   {
    "name": "orbit-final-stretch-04",
@@ -7160,7 +7296,9 @@
    "text": "The end of the route, glowing gold. Let's glide home.",
    "prompt": "[dreamily] The end of the route, glowing gold. Let's glide home.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "vY7jCDJjZI0IifZlJhxX",
+   "source_sha256": "4592eda1eefa255d0484e9d0332584d152ffc1eebefa4c82bddcc1a37b0fa46e"
   },
   {
    "name": "orbit-stars-two-01",
@@ -7169,7 +7307,9 @@
    "text": "That's two stars. A tiny constellation.",
    "prompt": "[pleased] That's two stars. A tiny constellation.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "eK9VaD8yXbwh7r8QslfF",
+   "source_sha256": "68967600a5d208880e4ba9fb8427aa5e7f6e193ed2e44a4ece4787f8596ab8a6"
   },
   {
    "name": "orbit-stars-two-02",
@@ -7178,7 +7318,9 @@
    "text": "Two stars for this route. I'll hang them over my nest.",
    "prompt": "[happily] Two stars for this route. I'll hang them over my nest.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "zYoJoX717qw7ODWSSm6M",
+   "source_sha256": "feadfe3e6947c02944d614962dbf4dfb4f5c1c89dbadb15b1561167505b67e5c"
   },
   {
    "name": "orbit-stars-three-01",
@@ -7187,7 +7329,9 @@
    "text": "Three stars... just like Orion's belt.",
    "prompt": "[awed] Three stars... just like Orion's belt.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "9vZXZG2N5Y7m2StvdMgJ",
+   "source_sha256": "3e0009982c11bab3f4e2563498721b6522d5540403d550c582565430989cfb87"
   },
   {
    "name": "orbit-stars-three-02",
@@ -7196,7 +7340,9 @@
    "text": "All three! I might actually hoot.",
    "prompt": "[delighted] All three! I might actually hoot.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "6qkvOoVewyXyuNG1A4R5",
+   "source_sha256": "2ed1d2db5da1dd9e3f7bac7504860df965f85c57c044417cbb963cfb39114cbd"
   },
   {
    "name": "orbit-delivered-01",
@@ -7205,7 +7351,9 @@
    "text": "Delivered. Every letter lands, even by owl.",
    "prompt": "[proudly] Delivered. Every letter lands, even by owl.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "emZVd1nAlddj5gvRdOA0",
+   "source_sha256": "e65060c7985e35d7ca9fb2019f094453fc45605ecafc39d8803667d64b4c5bca"
   },
   {
    "name": "orbit-delivered-02",
@@ -7214,7 +7362,9 @@
    "text": "Here you are. Handled with soft feathers.",
    "prompt": "[softly] Here you are. Handled with soft feathers.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "o7TV6WOSpIFBAYA0tV11",
+   "source_sha256": "569d27d712db05716d3d64738b8eb641d09b42226689734e3ccb6a03cb3c7466"
   },
   {
    "name": "orbit-delivered-03",
@@ -7223,7 +7373,9 @@
    "text": "Made it. Now, somewhere warm to perch...",
    "prompt": "[relieved] Made it. Now, somewhere warm to perch...",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "q8KJEBQMfqASEr4dywJx",
+   "source_sha256": "6c673508a6cdf1f71d9b364651eec8b9b2a76127b11c4a6ffdd2083ceef0a1dd"
   },
   {
    "name": "orbit-delivered-04",
@@ -7232,7 +7384,9 @@
    "text": "Special delivery, carried very gently.",
    "prompt": "[warmly] Special delivery, carried very gently.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "mGDeQWyVWsrxQVNnmj6f",
+   "source_sha256": "da487f948970f1caadbd5db6a821755b43adb9d7736014be6a480be39798ad10"
   },
   {
    "name": "orbit-delivered-05",
@@ -7241,7 +7395,9 @@
    "text": "One more door with a letter behind it. Lovely.",
    "prompt": "[dreamily] One more door with a letter behind it. Lovely.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "B3NoIFFEHjWGlzepvh9s",
+   "source_sha256": "4bea5f10b61de0ebaa788cef983c965f6e0a29783d04d2a9b24737d2e96dad72"
   },
   {
    "name": "orbit-delivered-06",
@@ -7250,7 +7406,9 @@
    "text": "We did it! A little happy wiggle, just for us.",
    "prompt": "[giggles] We did it! A little happy wiggle, just for us.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "11OFiYxQVyF6qBMVPHyr",
+   "source_sha256": "383f3f40d1015c03d49ba6a4c3203901dfd70dd67c7e68d3030a01e51b2aca37"
   },
   {
    "name": "peaches-takeoff-01",
@@ -10009,7 +10167,9 @@
    "text": "Paper lanterns for the festival. Careful, wings. These are made of wishes.",
    "prompt": "[softly] Paper lanterns for the festival. Careful, wings. These are made of wishes.",
    "voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "voice": "Cherry Twinkle – Adorable Cartoon Girl"
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "aTZojx0eBnJXL3D7q00C",
+   "source_sha256": "918a76fb02073d00aa4b6cf05c8a7478279961e93b3929fc2babbaa630944a58"
   },
   {
    "name": "peaches-cargo-5-7-01",
@@ -10018,7 +10178,9 @@
    "text": "Mountain tea for the monastery. Calm wings, calm heart... okay, go!",
    "prompt": "[gently] Mountain tea for the monastery. Calm wings, calm heart... [excited] okay, go!",
    "voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "voice": "Cherry Twinkle – Adorable Cartoon Girl"
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "AXJ6EBMZdmOj0t9tLpqc",
+   "source_sha256": "cd13d8b4abc29668234ca1e9fef1c90dcd111ae1035058f3212682851acaebfc"
   },
   {
    "name": "peaches-cargo-5-8-01",
@@ -10027,7 +10189,9 @@
    "text": "The first letter ever sent to the Dragon. It's full of love. Let's go.",
    "prompt": "[softly] The first letter ever sent to the Dragon. [determined] It's full of love. Let's go.",
    "voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "voice": "Cherry Twinkle – Adorable Cartoon Girl"
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "7omok5zKI9C7El8zimpH",
+   "source_sha256": "7c2ead82f8f611480ca0e499ef542b2df7780e66c11285d36ac4a19ee0696221"
   },
   {
    "name": "peaches-final-stretch-01",
@@ -10036,7 +10200,9 @@
    "text": "The finish line! Hello, gorgeous!",
    "prompt": "[excited] The finish line! Hello, gorgeous!",
    "voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "voice": "Cherry Twinkle – Adorable Cartoon Girl"
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "vPDS0twaRqysl8tkug5g",
+   "source_sha256": "cddfa6abef0878a153f4ff1b7ac612885deba8bc0cbc41ba33fa893457dbba7f"
   },
   {
    "name": "peaches-final-stretch-02",
@@ -10045,7 +10211,9 @@
    "text": "Keep flapping, sweet wings! Don't stop now!",
    "prompt": "[determined] Keep flapping, sweet wings! Don't stop now!",
    "voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "voice": "Cherry Twinkle – Adorable Cartoon Girl"
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "hqIFwwvO0LeW3o9kfZ7e",
+   "source_sha256": "aeee4d759159ffc5756984d1477d2d6d1be91a6fa609a78ae368f16e0747d4c8"
   },
   {
    "name": "peaches-final-stretch-03",
@@ -10054,7 +10222,9 @@
    "text": "Is that the flag? Oh, happy day!",
    "prompt": "[gasps] Is that the flag? Oh, happy day!",
    "voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "voice": "Cherry Twinkle – Adorable Cartoon Girl"
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "pctJXGmzwABLdv2OfpKs",
+   "source_sha256": "545d30c1f297329d0d2571f9188d2130217e2a32b8ea1de39e015166e304800e"
   },
   {
    "name": "peaches-final-stretch-04",
@@ -10063,7 +10233,9 @@
    "text": "So close! Somebody's waiting with open arms!",
    "prompt": "[breathless] So close! Somebody's waiting with open arms!",
    "voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "voice": "Cherry Twinkle – Adorable Cartoon Girl"
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "NtO74Mj7bPIQ7gHWQ7wQ",
+   "source_sha256": "4db0c44a4ff48c9fbade3b6bb97b4b4d6d2709904a0a245ac2c3de19cb3f3da0"
   },
   {
    "name": "peaches-stars-two-01",
@@ -10072,7 +10244,9 @@
    "text": "Two stars! Aren't they sparkly?",
    "prompt": "[delighted] Two stars! Aren't they sparkly?",
    "voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "voice": "Cherry Twinkle – Adorable Cartoon Girl"
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "KAR4QSjUrakhiwvThjFy",
+   "source_sha256": "82020f7322f6b114a22a19963803eebe6bbc286e33c451cf063ec29e5f7edf31"
   },
   {
    "name": "peaches-stars-two-02",
@@ -10081,7 +10255,9 @@
    "text": "Second star! One more and I'll twirl!",
    "prompt": "[happy] Second star! One more and I'll twirl!",
    "voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "voice": "Cherry Twinkle – Adorable Cartoon Girl"
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "b6U2WRTqWKLDhHlYBcTc",
+   "source_sha256": "49d709e67cbb49eab8c9fd2b3ec254253cbd73537b560ba4dcc897009cb2ea48"
   },
   {
    "name": "peaches-stars-three-01",
@@ -10090,7 +10266,9 @@
    "text": "Three stars! Let's name them! Twinkle, Sparkle and Bob!",
    "prompt": "[gasps] Three stars! Let's name them! Twinkle, Sparkle and Bob!",
    "voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "voice": "Cherry Twinkle – Adorable Cartoon Girl"
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "reBA4jLiL5OtrtzFLSiT",
+   "source_sha256": "2ab4981fe08fa1ec245b8da7078063c4dc1e610f062b4e846cd8db06edc23b08"
   },
   {
    "name": "peaches-stars-three-02",
@@ -10099,7 +10277,9 @@
    "text": "All three stars! I could burst with love!",
    "prompt": "[excited] All three stars! I could burst with love!",
    "voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "voice": "Cherry Twinkle – Adorable Cartoon Girl"
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "8IpyMzbXdeqN5TWyTO5P",
+   "source_sha256": "f25082f6d85dbc3cad02560ea9d00f4f90b71960cd3d63339a970848abab7d85"
   },
   {
    "name": "peaches-delivered-01",
@@ -10108,7 +10288,9 @@
    "text": "Delivered! Somebody's smiling right now because of us!",
    "prompt": "[excited] Delivered! Somebody's smiling right now because of us!",
    "voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "voice": "Cherry Twinkle – Adorable Cartoon Girl"
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "Xwjd3w5M6JOjxKCvihtw",
+   "source_sha256": "a8242d3015dd734a8e4e5a3d4dee7e2c7d9a763ffe6cb8aa72c32b3d91a0b3ed"
   },
   {
    "name": "peaches-delivered-02",
@@ -10117,7 +10299,9 @@
    "text": "Every letter lands! And this one landed with love.",
    "prompt": "[proudly] Every letter lands! [giggles] And this one landed with love.",
    "voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "voice": "Cherry Twinkle – Adorable Cartoon Girl"
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "YSnnmyXvoTnW8EMCNXar",
+   "source_sha256": "db9959bcfbbd64cea0f8398b4aa534c1f5fe51d88678d9a4778a06596e31e46c"
   },
   {
    "name": "peaches-delivered-03",
@@ -10126,7 +10310,9 @@
    "text": "Special delivery, done! Sealed with a kiss!",
    "prompt": "[happy] Special delivery, done! Sealed with a kiss!",
    "voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "voice": "Cherry Twinkle – Adorable Cartoon Girl"
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "qv19MgYJdAWwVCCjL70s",
+   "source_sha256": "166b8641b790253b7fa6e843c98ce88988d84a155ef07498942e17c5dbd25511"
   },
   {
    "name": "peaches-delivered-04",
@@ -10135,7 +10321,9 @@
    "text": "We did it! Cue the happy dance!",
    "prompt": "[delighted] We did it! Cue the happy dance!",
    "voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "voice": "Cherry Twinkle – Adorable Cartoon Girl"
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "vM017OFm1AyZYseIeu5V",
+   "source_sha256": "bbd87661719235652a06dd9772122b5030ae98c5ddb9aec51dbb5ad064ffba6d"
   },
   {
    "name": "peaches-delivered-05",
@@ -10144,7 +10332,9 @@
    "text": "Mail's here! Enjoy every word, sweet somebody!",
    "prompt": "[warmly] Mail's here! Enjoy every word, sweet somebody!",
    "voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "voice": "Cherry Twinkle – Adorable Cartoon Girl"
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "vbw6IJsU5XQ2V7FLXa7Z",
+   "source_sha256": "d8dade3437ce79d7ba095df7ff7fca6d9432d6cc62c346ef9f0efeef3ba0141e"
   },
   {
    "name": "peaches-delivered-06",
@@ -10153,7 +10343,9 @@
    "text": "Handed over! Ooh, I love love LOVE this job!",
    "prompt": "[cheerfully] Handed over! Ooh, I love love LOVE this job!",
    "voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "voice": "Cherry Twinkle – Adorable Cartoon Girl"
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "qzxPrK7T9oWWNwmSYDvP",
+   "source_sha256": "e32fd5aab578c38643f0a2d726ec012f0670c68f3a829aadc3497d1985fdc267"
   },
   {
    "name": "pip-takeoff-01",
@@ -13022,7 +13214,9 @@
    "text": "Top notch lit! Literally top notch!",
    "prompt": "[laughs] Top notch lit! Literally top notch!",
    "voice_id": "EaX6rnyDKjJx35tchi80",
-   "voice": "Nelson – Awkward Nerd Character"
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "igCBn2wFOxclfzHJXvLi",
+   "source_sha256": "71631227275b152fe12560c6eec8a492c2cd606992966c4562c6ee390d56bdd5"
   },
   {
    "name": "pip-delivered-01",
@@ -13031,7 +13225,9 @@
    "text": "Delivered! Signed, sealed, and exactly on time!",
    "prompt": "[proudly] Delivered! Signed, sealed, and exactly on time!",
    "voice_id": "EaX6rnyDKjJx35tchi80",
-   "voice": "Nelson – Awkward Nerd Character"
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "V3SSKhHprjcy1aBlqGOM",
+   "source_sha256": "53c5844b25479218776bd3c325de0a9e46cc48a6881bde23c8b4a9b2ff5b6185"
   },
   {
    "name": "pip-delivered-02",
@@ -13040,7 +13236,9 @@
    "text": "Every letter lands! And this one landed perfectly!",
    "prompt": "[happy] Every letter lands! And this one landed perfectly!",
    "voice_id": "EaX6rnyDKjJx35tchi80",
-   "voice": "Nelson – Awkward Nerd Character"
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "4d4dKGKThxINdD1Y684W",
+   "source_sha256": "88e5bbe0a85a836d6fe0842828b3f2c81e694c50e858e26efc15028d4187a48e"
   },
   {
    "name": "pip-delivered-03",
@@ -13049,7 +13247,9 @@
    "text": "Here you go! Could I get a receipt? For my records?",
    "prompt": "[politely] Here you go! Could I get a receipt? For my records?",
    "voice_id": "EaX6rnyDKjJx35tchi80",
-   "voice": "Nelson – Awkward Nerd Character"
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "eCUuAxM8k0qKH9OE34LS",
+   "source_sha256": "570ac3484178c978d7e2dbd15fb5c29124304ffc4e382a31838c9b7474b0d476"
   },
   {
    "name": "pip-delivered-04",
@@ -13058,7 +13258,9 @@
    "text": "Right address, right recipient! Double-checked, then triple-checked.",
    "prompt": "[earnestly] Right address, right recipient! Double-checked, then triple-checked.",
    "voice_id": "EaX6rnyDKjJx35tchi80",
-   "voice": "Nelson – Awkward Nerd Character"
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "KbtE6yiqWVpebfhTMogS",
+   "source_sha256": "d7f3f6325db0517e6812ca500a2d3e08d34918f6bc0c1174d8d5ea6e143d54f1"
   },
   {
    "name": "pip-delivered-05",
@@ -13067,7 +13269,9 @@
    "text": "Done! Rookie Pip: one more successful delivery!",
    "prompt": "[excited] Done! Rookie Pip: one more successful delivery!",
    "voice_id": "EaX6rnyDKjJx35tchi80",
-   "voice": "Nelson – Awkward Nerd Character"
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "uaj34juPDjNDfVi8R3u7",
+   "source_sha256": "874773b6619f43f5d2b917bb975b1433a8d705e82e8f3c38a9a2953b259ee287"
   },
   {
    "name": "pip-delivered-06",
@@ -13076,7 +13280,9 @@
    "text": "We did it! Tiny victory flap! Make that two flaps!",
    "prompt": "[giddy] We did it! Tiny victory flap! Make that two flaps!",
    "voice_id": "EaX6rnyDKjJx35tchi80",
-   "voice": "Nelson – Awkward Nerd Character"
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "dlsYpLfkYtNhSM7uiAgI",
+   "source_sha256": "fc31172044b8e1b29ac3752408b71c10786a236dc8e4dc98f05a292245a1af7d"
   },
   {
    "name": "spitter-arrive-01",
@@ -13371,7 +13577,9 @@
    "text": "A sizzling success! Textbook trajectory!",
    "prompt": "[proudly] A sizzling success! Textbook trajectory!",
    "voice_id": "yjJ45q8TVCrtMhEKurxY",
-   "voice": "Dr. Von Fusion - VF"
+   "voice": "Dr. Von Fusion - VF",
+   "generation_id": "Uphl1YbRL4Aiv0RRvnNj",
+   "source_sha256": "02e25b6f6b9615ae15282a993278bef4239af7c869eaebdd762ffb29a6759c7a"
   },
   {
    "name": "spitter-gloat-05",
@@ -13380,7 +13588,9 @@
    "text": "Results! Glorious, fizzy results!",
    "prompt": "[excited] Results! Glorious, fizzy results!",
    "voice_id": "yjJ45q8TVCrtMhEKurxY",
-   "voice": "Dr. Von Fusion - VF"
+   "voice": "Dr. Von Fusion - VF",
+   "generation_id": "pXciKXiRsmZu2UOm5QFB",
+   "source_sha256": "299c1a498007935491b3c75ee268333a7438e966857f00e6d1c4ea46cb084e91"
   },
   {
    "name": "spitter-mad-01",
@@ -13389,7 +13599,9 @@
    "text": "Phase two! Turn the burners up!",
    "prompt": "[excited] Phase two! [laughs] Turn the burners up!",
    "voice_id": "yjJ45q8TVCrtMhEKurxY",
-   "voice": "Dr. Von Fusion - VF"
+   "voice": "Dr. Von Fusion - VF",
+   "generation_id": "jE9hFiXBl80epaUuCReU",
+   "source_sha256": "d5e9396ac1e66ee757facd4f07ab520aaf61b4af6af9ceb89e8f79e350e588d9"
   },
   {
    "name": "spitter-mad-02",
@@ -13398,7 +13610,9 @@
    "text": "You've curdled my brew! Double strength, double speed!",
    "prompt": "[frantically] You've curdled my brew! Double strength, double speed!",
    "voice_id": "yjJ45q8TVCrtMhEKurxY",
-   "voice": "Dr. Von Fusion - VF"
+   "voice": "Dr. Von Fusion - VF",
+   "generation_id": "BFxJ7ygbROkLEx2ppSII",
+   "source_sha256": "83dca9f4ecd50fcf1a5fbbf3c0930889cb047a717eedc1c02b6190898f9cd95e"
   },
   {
    "name": "spitter-mad-03",
@@ -13407,7 +13621,9 @@
    "text": "Boil it all! Faster! FASTER!",
    "prompt": "[shouting] Boil it all! Faster! FASTER!",
    "voice_id": "yjJ45q8TVCrtMhEKurxY",
-   "voice": "Dr. Von Fusion - VF"
+   "voice": "Dr. Von Fusion - VF",
+   "generation_id": "gy9RBCgTA87ixe0FOfmh",
+   "source_sha256": "8fa6aece3a4046888d9c38e27885b7e8948f24c15210445ba7bbdbdda901232b"
   },
   {
    "name": "spitter-defeated-01",
@@ -13416,7 +13632,9 @@
    "text": "Curses! One postcard short of perfect ink!",
    "prompt": "[disappointed] Curses! One postcard short of perfect ink!",
    "voice_id": "yjJ45q8TVCrtMhEKurxY",
-   "voice": "Dr. Von Fusion - VF"
+   "voice": "Dr. Von Fusion - VF",
+   "generation_id": "ACeiNnFbCjJuu2ZcaXry",
+   "source_sha256": "096b505085c24a98e59378c29535266afbae1508b04a75a9887808381110f9b7"
   },
   {
    "name": "spitter-defeated-02",
@@ -13425,7 +13643,9 @@
    "text": "Retreat! Note to self: couriers fight back.",
    "prompt": "[grumbling] Retreat! Note to self: couriers fight back.",
    "voice_id": "yjJ45q8TVCrtMhEKurxY",
-   "voice": "Dr. Von Fusion - VF"
+   "voice": "Dr. Von Fusion - VF",
+   "generation_id": "MnKa6TxflowjsfAFLf4j",
+   "source_sha256": "458d9c1b37c9ce015e283a0eb30f68028d453a1fbe3eeda981c14ef90410bc45"
   },
   {
    "name": "spitter-defeated-03",
@@ -13434,7 +13654,9 @@
    "text": "Hmm. Perhaps a nice cup of tea instead...",
    "prompt": "[sheepishly] Hmm. Perhaps a nice cup of tea instead...",
    "voice_id": "yjJ45q8TVCrtMhEKurxY",
-   "voice": "Dr. Von Fusion - VF"
+   "voice": "Dr. Von Fusion - VF",
+   "generation_id": "Y3V17P14NHEkCigWlRKz",
+   "source_sha256": "b2b9ced6ccc6c5fe478cb491a930b0d8605f826cd40700a9cc5da49939181fc0"
   }
  ]
 }
