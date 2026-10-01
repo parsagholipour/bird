@@ -6,10 +6,12 @@ import 'package:flutter/rendering.dart';
 
 import '../domain/campaign.dart';
 import '../domain/campaign_progress.dart';
+import '../domain/sky_boss.dart' show BossKind;
 import '../game/regions/world_region.dart';
 import 'campaign_keepsake_art.dart';
 import 'campaign_map_art.dart';
 import 'campaign_region_still.dart';
+import 'campaign_text_scale.dart';
 import 'delivery_art.dart';
 import 'match_hud.dart' show MatchIcon, MatchSymbol;
 import 'stage_key.dart';
@@ -22,13 +24,19 @@ import 'theme.dart';
 /// controls it offers), its three star goals with those already earned
 /// ticked, and the most stars collected so far. Fly starts the level; the
 /// close key returns to the map, and a level with a story scene has a story
-/// key under it. A boss level wears its boss's stamp colour.
+/// key under it. A chapter's boss level wears its boss's stamp colour and a
+/// BOSS FIGHT band; a guardian's level (a mini-boss before the chapter's
+/// boss) keeps the ordinary header and gets a GUARDIAN ribbon in the
+/// guardian's colour.
 ///
 /// The map's own ribbon already names the chapter above the card, so the card
 /// leaves that out.
 ///
 /// It is composed at [size] and scales as one piece to fit its box, like the
-/// postcard, so it reads the same on every phone.
+/// postcard, so it reads the same on every phone. Its text follows the system
+/// text size up to 1.3x ([CampaignTextScale]): the card is then composed on a
+/// taller box ([sizeFor]) and the screen scales it down to fit, so the larger
+/// text gets the room it needs and the card stays on the screen.
 class LevelIntroCard extends StatelessWidget {
   const LevelIntroCard({
     super.key,
@@ -50,6 +58,16 @@ class LevelIntroCard extends StatelessWidget {
 
   static const size = Size(620, 326);
 
+  /// How much taller the card is composed for each whole step of text size
+  /// above 1 (the hint and the three goals grow a line each). 310, not 290:
+  /// 3-4's hint gained a sentence in the fix round ("No Sprint here."), three
+  /// lines at 1.3x text, which overflowed the 1.3x card by 5 px.
+  static const _growth = 310.0;
+
+  /// The card's design box at a text [scale] of 1 to 1.3.
+  static Size sizeFor(double scale) =>
+      Size(size.width, size.height + _growth * (scale - 1));
+
   /// The Fly key hangs this far below the card, on a key this tall.
   static const _hang = 26.0, _keyHeight = 74.0;
 
@@ -64,16 +82,20 @@ class LevelIntroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final design = sizeFor(CampaignTextScale.of(context));
     return Semantics(
       container: true,
       explicitChildNodes: true,
-      label: 'Level ${level.id}, ${level.name}. ${level.region.title}.',
+      label:
+          'Level ${level.id}, ${level.name}. ${level.region.title}.'
+          '${level.isGuardian ? ' Guardian level: '
+                    '${CampaignHeadwear.name(level.boss!)}.' : ''}',
       child: AspectRatio(
-        aspectRatio: size.width / size.height,
+        aspectRatio: design.width / design.height,
         child: FittedBox(
-          child: MediaQuery.withNoTextScaling(
-            child: SizedBox.fromSize(
-              size: size,
+          child: CampaignTextScale.wrap(
+            SizedBox.fromSize(
+              size: design,
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
@@ -125,6 +147,11 @@ class LevelIntroCard extends StatelessWidget {
   }
 }
 
+/// The boss a level's card is dressed for: only a chapter's boss level is a
+/// lair. A guardian's card stays ordinary, with its ribbon.
+BossKind? _lairOf(CampaignLevel level) =>
+    level.isChapterBoss ? level.boss : null;
+
 class _Card extends StatelessWidget {
   const _Card({required this.level, required this.record, required this.story});
   final CampaignLevel level;
@@ -137,7 +164,7 @@ class _Card extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final boss = level.boss;
+    final boss = _lairOf(level);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: SkyColors.cream,
@@ -199,7 +226,7 @@ class _Picture extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final boss = level.boss;
+    final boss = _lairOf(level);
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -296,46 +323,49 @@ class _CargoTag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final boss = level.boss;
+    final boss = _lairOf(level);
     final print = boss == null
         ? SkyColors.coralDeep
         : DeliveryArt.bossInk(boss);
+    // The parcel tag is a label at a fixed size; its words are read aloud.
     return Semantics(
       label: 'Special delivery: ${level.delivery.cargo}.',
       excludeSemantics: true,
-      child: Transform.rotate(
-        angle: angle,
-        child: SizedBox.fromSize(
-          key: const ValueKey('level-intro-tag'),
-          size: size,
-          child: CustomPaint(
-            painter: DeliveryTagPainter(
-              eyelet: boss == null
-                  ? SkyColors.coral
-                  : CampaignHeadwear.field(boss),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(27, 0, 8, 1),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'SPECIAL DELIVERY',
-                    style: bodyText(
-                      8.5,
-                      color: print,
-                      weight: FontWeight.w900,
-                    ).copyWith(letterSpacing: 1.3, height: 1.1),
-                  ),
-                  const SizedBox(height: 1),
-                  DeliveryScript(
-                    level.delivery.cargo,
-                    textKey: const ValueKey('level-intro-cargo'),
-                    maxLines: 2,
-                    style: DeliveryArt.hand(14).copyWith(height: 1.1),
-                  ),
-                ],
+      child: MediaQuery.withNoTextScaling(
+        child: Transform.rotate(
+          angle: angle,
+          child: SizedBox.fromSize(
+            key: const ValueKey('level-intro-tag'),
+            size: size,
+            child: CustomPaint(
+              painter: DeliveryTagPainter(
+                eyelet: boss == null
+                    ? SkyColors.coral
+                    : CampaignHeadwear.field(boss),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(27, 0, 8, 1),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'SPECIAL DELIVERY',
+                      style: bodyText(
+                        8.5,
+                        color: print,
+                        weight: FontWeight.w900,
+                      ).copyWith(letterSpacing: 1.3, height: 1.1),
+                    ),
+                    const SizedBox(height: 1),
+                    DeliveryScript(
+                      level.delivery.cargo,
+                      textKey: const ValueKey('level-intro-cargo'),
+                      maxLines: 2,
+                      style: DeliveryArt.hand(14).copyWith(height: 1.1),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -345,8 +375,9 @@ class _CargoTag extends StatelessWidget {
   }
 }
 
-/// The level's number on its map coin, ticked once finished. A boss level's
-/// coin wears the boss's crown instead of a number.
+/// The level's number on its map coin, ticked once finished. A chapter's boss
+/// level wears the boss's crown instead of a number; a guardian's level keeps
+/// its number (its shield hangs on the GUARDIAN ribbon beside it).
 class _Coin extends StatelessWidget {
   const _Coin({required this.level, required this.cleared, this.halo = false});
   final CampaignLevel level;
@@ -362,33 +393,42 @@ class _Coin extends StatelessWidget {
     child: SizedBox(
       width: radius * 2 + 6,
       height: radius * 2 + MapNodePainter.depth + 4,
-      child: CustomPaint(
-        painter: halo ? const _HaloPainter(radius) : null,
-        child: CustomPaint(
-          painter: MapNodePainter(
-            look: cleared
-                ? MapNodeLook.cleared
-                : level.isBoss
-                ? MapNodeLook.open
-                : MapNodeLook.current,
-            radius: radius,
-            boss: level.boss,
-          ),
-          child: level.isBoss
-              ? null
-              : Padding(
-                  padding: const EdgeInsets.only(bottom: MapNodePainter.depth),
-                  child: Center(
-                    child: Text(
-                      level.id,
-                      style: heading(
-                        19,
-                        weight: FontWeight.w700,
-                      ).copyWith(height: 1),
-                    ),
-                  ),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Positioned.fill(
+            child: CustomPaint(
+              painter: halo ? const _HaloPainter(radius) : null,
+              child: CustomPaint(
+                painter: MapNodePainter(
+                  look: cleared
+                      ? MapNodeLook.cleared
+                      : level.isChapterBoss
+                      ? MapNodeLook.open
+                      : MapNodeLook.current,
+                  radius: radius,
+                  boss: _lairOf(level),
                 ),
-        ),
+                child: level.isChapterBoss
+                    ? null
+                    : Padding(
+                        padding: const EdgeInsets.only(
+                          bottom: MapNodePainter.depth,
+                        ),
+                        child: Center(
+                          child: Text(
+                            level.id,
+                            style: heading(
+                              19,
+                              weight: FontWeight.w700,
+                            ).copyWith(height: 1),
+                          ),
+                        ),
+                      ),
+              ),
+            ),
+          ),
+        ],
       ),
     ),
   );
@@ -457,7 +497,7 @@ class _Details extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (level.isBoss)
+              if (level.isChapterBoss)
                 Padding(
                   padding: const EdgeInsets.only(right: keyRoom - 4),
                   child: _BossBand(
@@ -479,6 +519,7 @@ class _Details extends StatelessWidget {
               if (level.hint != null)
                 _ClearOfKey(
                   room: story ? _StoryKey.room : 0,
+                  oneLine: 42 + 20 * (CampaignTextScale.of(context) - 1),
                   child: _Tip(level.hint!, isNew: level.hintIsNew),
                 )
               else
@@ -494,7 +535,16 @@ class _Details extends StatelessWidget {
             ],
           ),
         ),
-        Positioned(left: 0, bottom: 0, height: _bestRow, child: _Best(record)),
+        Positioned(
+          left: 0,
+          bottom: 0,
+          height: _bestRow,
+          // Beside the Fly key, which hangs over the card's lower right.
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 190),
+            child: _Best(record),
+          ),
+        ),
       ],
     );
   }
@@ -531,12 +581,151 @@ class _Header extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 3),
-            _Pill(icon: Icons.flag_rounded, text: length),
+            if (level.isGuardian)
+              // The ribbon says what waits at the end; the pill beside it how
+              // long the run-up is (a little smaller to fit), or under it when
+              // a larger text size leaves no room beside it.
+              CampaignTextScale.of(context) > 1
+                  ? Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 7,
+                      runSpacing: 3,
+                      children: [
+                        _GuardianRibbon(boss: level.boss!),
+                        _Pill(icon: Icons.flag_rounded, text: length),
+                      ],
+                    )
+                  : Row(
+                      children: [
+                        _GuardianRibbon(boss: level.boss!),
+                        const SizedBox(width: 7),
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: _Pill(
+                              icon: Icons.flag_rounded,
+                              text: length,
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+            else
+              _Pill(icon: Icons.flag_rounded, text: length),
           ],
         ),
       ),
     ],
   );
+}
+
+/// GUARDIAN on a ribbon in the guardian's own colour: a mini-boss's level is
+/// no lair, so it gets this instead of the BOSS FIGHT band. A swallow-tailed
+/// single-border ribbon with a shield, lettered in cream (or ink on a light
+/// colour).
+class _GuardianRibbon extends StatelessWidget {
+  const _GuardianRibbon({required this.boss});
+  final BossKind boss;
+
+  /// The shield pinned on the ribbon's left end, sized from a coin radius.
+  static const _shield = 11.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final field = CampaignHeadwear.field(boss);
+    final ink = field.computeLuminance() > .42;
+    final shieldWidth = MapGuardianPainter.halfWidth(_shield) * 2 + 4;
+    final shieldHeight =
+        MapGuardianPainter.halfHeight(_shield) * 2 + MapNodePainter.depth + 4;
+    return Stack(
+      key: const ValueKey('level-intro-guardian'),
+      clipBehavior: Clip.none,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(vertical: (shieldHeight - 25) / 2),
+          child: CustomPaint(
+            painter: _GuardianRibbonPainter(field),
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(shieldWidth - 3, 3, 17, 4),
+              child: Text(
+                'GUARDIAN',
+                style: bodyText(
+                  12,
+                  color: ink ? SkyColors.ink : SkyColors.cream,
+                  weight: FontWeight.w900,
+                ).copyWith(letterSpacing: 1.2, height: 1.15),
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          left: -3,
+          top: 0,
+          width: shieldWidth,
+          height: shieldHeight,
+          child: CustomPaint(
+            key: const ValueKey('level-intro-shield'),
+            painter: MapGuardianPainter(
+              look: MapNodeLook.open,
+              radius: _shield,
+              boss: boss,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _GuardianRibbonPainter extends CustomPainter {
+  const _GuardianRibbonPainter(this.color);
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width, h = size.height;
+    // A swallow-tailed ribbon: square at the left, forked at the right.
+    final path = Path()
+      ..moveTo(3, 0)
+      ..lineTo(w - 1, 0)
+      ..lineTo(w - 9, h / 2)
+      ..lineTo(w - 1, h)
+      ..lineTo(3, h)
+      ..quadraticBezierTo(0, h, 0, h - 3)
+      ..lineTo(0, 3)
+      ..quadraticBezierTo(0, 0, 3, 0)
+      ..close();
+    canvas.drawPath(
+      path.shift(const Offset(0, 2)),
+      Paint()..color = SkyColors.ink.withValues(alpha: .28),
+    );
+    canvas.drawPath(
+      path,
+      Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color.lerp(color, SkyColors.white, .3)!,
+            color,
+            Color.lerp(color, SkyColors.ink, .14)!,
+          ],
+          stops: const [0, .5, 1],
+        ).createShader(Offset.zero & size),
+    );
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = SkyColors.ink
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.9
+        ..strokeJoin = StrokeJoin.round,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_GuardianRibbonPainter old) => old.color != color;
 }
 
 /// A boss level's header: a band in the boss's stamp colour with the crown
@@ -554,8 +743,9 @@ class _BossBand extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final field = CampaignHeadwear.field(level.boss!);
+    final scale = CampaignTextScale.of(context);
     return Container(
-      height: 76,
+      height: 76 * (1 + (scale - 1) * .55),
       decoration: BoxDecoration(
         color: field,
         borderRadius: BorderRadius.circular(20),
@@ -594,23 +784,29 @@ class _BossBand extends StatelessWidget {
                             ),
                             const SizedBox(width: 8),
                             Flexible(
-                              child: Text(
-                                length,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style:
-                                    bodyText(
-                                      12.5,
-                                      color: SkyColors.cream,
-                                      weight: FontWeight.w900,
-                                    ).copyWith(
-                                      shadows: const [
-                                        Shadow(
-                                          color: SkyColors.ink,
-                                          offset: Offset(0, 1.5),
-                                        ),
-                                      ],
-                                    ),
+                              // Shrinks to the band at a larger text size
+                              // rather than cutting the run-up short.
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  length,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style:
+                                      bodyText(
+                                        12.5,
+                                        color: SkyColors.cream,
+                                        weight: FontWeight.w900,
+                                      ).copyWith(
+                                        shadows: const [
+                                          Shadow(
+                                            color: SkyColors.ink,
+                                            offset: Offset(0, 1.5),
+                                          ),
+                                        ],
+                                      ),
+                                ),
                               ),
                             ),
                           ],
@@ -709,20 +905,29 @@ class _Pill extends StatelessWidget {
 /// is laid out [room] short of the edge, as the header stops short of the
 /// close key; a hint of one line passes under the key at full width.
 class _ClearOfKey extends SingleChildRenderObjectWidget {
-  const _ClearOfKey({required this.room, required Widget super.child});
+  const _ClearOfKey({
+    required this.room,
+    required this.oneLine,
+    required Widget super.child,
+  });
   final double room;
+
+  /// A hint taller than this has wrapped onto a second line; it grows with
+  /// the text size.
+  final double oneLine;
 
   @override
   RenderObject createRenderObject(BuildContext context) =>
-      _RenderClearOfKey(room);
+      _RenderClearOfKey(room, oneLine);
 
   @override
-  void updateRenderObject(BuildContext context, _RenderClearOfKey box) =>
-      box.room = room;
+  void updateRenderObject(BuildContext context, _RenderClearOfKey box) => box
+    ..room = room
+    ..oneLine = oneLine;
 }
 
 class _RenderClearOfKey extends RenderProxyBox {
-  _RenderClearOfKey(this._room);
+  _RenderClearOfKey(this._room, this._oneLine);
 
   double _room;
   set room(double value) {
@@ -732,7 +937,12 @@ class _RenderClearOfKey extends RenderProxyBox {
   }
 
   /// A hint taller than this has wrapped onto a second line.
-  static const _oneLine = 42.0;
+  double _oneLine;
+  set oneLine(double value) {
+    if (value == _oneLine) return;
+    _oneLine = value;
+    markNeedsLayout();
+  }
 
   @override
   void performLayout() {
@@ -792,7 +1002,9 @@ class _Tip extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 1.5),
                     child: Text(
                       text,
-                      maxLines: 2,
+                      // A larger text size gets a third line before it gets
+                      // an ellipsis.
+                      maxLines: CampaignTextScale.of(context) > 1.1 ? 3 : 2,
                       overflow: TextOverflow.ellipsis,
                       style: _style,
                     ),
@@ -842,7 +1054,13 @@ class _Best extends StatelessWidget {
           child: Icon(icon, size: 17, color: SkyColors.ink),
         ),
         const SizedBox(width: 8),
-        Text(text, style: bodyText(14.5, weight: FontWeight.w900)),
+        Flexible(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(text, style: bodyText(14.5, weight: FontWeight.w900)),
+          ),
+        ),
       ],
     );
   }
@@ -914,7 +1132,7 @@ class _Goal extends StatelessWidget {
         '$text.${earned ? ' Earned.' : ''}',
     excludeSemantics: true,
     child: Container(
-      height: 27,
+      height: 27 * CampaignTextScale.of(context),
       margin: EdgeInsets.only(top: stars == 1 ? 0 : 3),
       padding: const EdgeInsets.fromLTRB(10, 0, 5, 0),
       decoration: BoxDecoration(
@@ -1194,7 +1412,7 @@ class _SpeechPainter extends CustomPainter {
 /// What a locked level says when tapped, instead of opening its card: the
 /// level that unlocks it, or that its chapter is not in this build yet.
 String lockedNudge(CampaignLevel level) {
-  if (!Campaign.chapterOf(level).playable) return 'Coming soon';
+  if (!Campaign.playable(level)) return 'Coming soon';
   final before = Campaign.before(level);
   if (before == null) return 'Coming soon';
   return before.isBoss

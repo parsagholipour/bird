@@ -5,6 +5,8 @@ import 'package:flutter/painting.dart';
 import '../domain/game_rules.dart';
 import '../ui/theme.dart';
 import 'dragon_fireball_art.dart';
+import 'gargoyle_feather_art.dart';
+import 'ny_placeholder_art.dart';
 import 'pirate_cannonball_art.dart';
 
 /// Which boss a projectile belongs to; each has its own silhouette so a
@@ -26,6 +28,14 @@ enum BossAmmoStyle {
   /// Ember Dragon: a rolling fireball with a licking tail and smoke, white
   /// hot in fury; the embers it bursts into are drawn from the shot itself.
   fireball,
+
+  /// King Coo: a plain grey pellet until his own ammo art lands. Never an
+  /// ember.
+  placeholder,
+
+  /// Searchlight Gargoyle: a stone feather, a swallow-tailed cream and steel
+  /// dart that rocks as it falls trailing limestone dust ([GargoyleFeatherArt]).
+  stoneFeather,
 }
 
 /// Boss shots: bigger, hotter siblings of the small-enemy pellets in
@@ -62,6 +72,8 @@ abstract final class BossAmmoArt {
     BossKind.duskMoth => BossAmmoStyle.pollen,
     BossKind.pirate => BossAmmoStyle.cannonball,
     BossKind.dragon => BossAmmoStyle.fireball,
+    BossKind.kingCoo => BossAmmoStyle.placeholder,
+    BossKind.searchlightGargoyle => BossAmmoStyle.stoneFeather,
   };
 
   /// One in-flight boss shot at its simulated position, for [boss].
@@ -82,6 +94,18 @@ abstract final class BossAmmoArt {
         boss,
         seconds: seconds,
         reducedMotion: reducedMotion,
+      );
+      return;
+    }
+    if (boss.isGargoyle) {
+      // His stone feathers fall with a wake on their own ballistic path.
+      GargoyleFeatherArt.paint(
+        c,
+        height,
+        ammo,
+        seconds: seconds,
+        reducedMotion: reducedMotion,
+        fury: boss.enraged,
       );
       return;
     }
@@ -179,6 +203,10 @@ abstract final class BossAmmoArt {
           fury: enraged,
           trail: showTrail,
         );
+      case BossAmmoStyle.placeholder:
+        NyPlaceholderArt.ammo(c, edge);
+      case BossAmmoStyle.stoneFeather:
+        GargoyleFeatherArt.unit(c, edge: edge, fury: enraged, fine: fine);
     }
     c.restore();
   }

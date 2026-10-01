@@ -251,8 +251,13 @@ one per boss, in boss order:
 
 Each region is a stop on the map, painted with its own scenery, and each
 level flies that one region from start to finish. Chapters 1 and 2 (16
-levels) are playable. Chapters 3–5 sit on the map, locked, as "Coming soon".
-Endless Star Trail stays the high-score mode, unchanged. See the
+levels) and New York (3-1 to 3-4, rules version 43: the Alley Pigeon, steam
+geysers, King Coo and the Searchlight Gargoyle) are playable, 20 levels and
+60 stars. Paris and chapters 4 and 5 sit on the map, locked, as "Coming
+soon". New York is open by default (`Campaign.openingEnabled`); a build made
+with `--dart-define=NEW_YORK_OPEN=false` (`make build
+DEFINES=--dart-define=NEW_YORK_OPEN=false`) closes it again. Endless Star
+Trail stays the high-score mode, unchanged. See the
 [campaign design](docs/campaign.md).
 
 Levels are generated from data, not built by hand. Each has a fixed seed,

@@ -3,6 +3,9 @@ import 'package:flutter/painting.dart';
 import '../domain/game_rules.dart';
 import '../ui/theme.dart';
 import 'dragon_hud_art.dart';
+import 'gargoyle_hud_art.dart';
+import 'king_coo_hud_art.dart';
+import 'ny_placeholder_art.dart';
 import 'pirate_hud_art.dart';
 
 /// The slim boss strip at the top center of the flight: one row with a
@@ -71,6 +74,8 @@ abstract final class BossHealthBarArt {
     BossKind.duskMoth => _moth,
     BossKind.pirate => _pirate,
     BossKind.dragon => DragonHudArt.lava,
+    BossKind.kingCoo => KingCooHudArt.crust,
+    BossKind.searchlightGargoyle => GargoyleHudArt.ramp(),
   };
 
   /// The strip, for layout checks.
@@ -86,8 +91,9 @@ abstract final class BossHealthBarArt {
     bool reducedMotion = false,
   }) {
     if (boss.inCutscene) return;
-    // A dragon whose clock has gone bad is not drawn (nothing to trust).
-    if (boss.isDragon && !boss.age.isFinite) return;
+    // A dragon or King Coo whose clock has gone bad is not drawn (nothing to
+    // trust).
+    if ((boss.isDragon || boss.isKingCoo) && !boss.age.isFinite) return;
     final l = _Layout(size);
     final u = l.u;
     final defeated = boss.phase == BossPhase.defeated;
@@ -112,13 +118,28 @@ abstract final class BossHealthBarArt {
     final pirate = boss.isPirate;
     // The dragon's is an obsidian plate rimmed in gold (DragonHudArt).
     final dragon = boss.isDragon;
-    if (dragon) {
-      // Each hit shudders the dragon's plate by a pixel.
-      final jolt = DragonHudArt.jolt(since, u, reduced: reducedMotion);
+    // King Coo's is a navy police plate with a brass rim (KingCooHudArt).
+    final king = boss.isKingCoo;
+    final (siren, sirenGlow) = king
+        ? KingCooHudArt.siren(boss, reduced: reducedMotion)
+        : (0, 0.0);
+    // The Searchlight Gargoyle's is a stepped steel plate in a brass rim
+    // (GargoyleHudArt).
+    final gargoyle = boss.isGargoyle;
+    if (dragon || gargoyle) {
+      // Each hit shudders the plate by a pixel.
+      final jolt = dragon
+          ? DragonHudArt.jolt(since, u, reduced: reducedMotion)
+          : GargoyleHudArt.jolt(since, u, reduced: reducedMotion);
       c.save();
       c.translate(jolt.dx, jolt.dy);
     }
-    if (!pirate && !dragon) {
+    if (king) {
+      final jolt = KingCooHudArt.jolt(since, u, reduced: reducedMotion);
+      c.save();
+      c.translate(jolt.dx, jolt.dy);
+    }
+    if (!pirate && !dragon && !king && !gargoyle) {
       c.drawRRect(
         strip.shift(Offset(0, 1.5 * u)),
         Paint()..color = _nightDeep.withValues(alpha: .2),
@@ -153,6 +174,34 @@ abstract final class BossHealthBarArt {
         time: boss.age,
         reduced: reducedMotion,
       );
+    } else if (king) {
+      KingCooHudArt.frame(
+        c,
+        l.strip,
+        u,
+        fury: fury,
+        defeated: defeated,
+        wave: wave,
+        flash: math.max(fresh * .6, onset),
+        siren: siren,
+        sirenGlow: sirenGlow,
+        time: boss.age,
+        reduced: reducedMotion,
+      );
+    } else if (gargoyle) {
+      GargoyleHudArt.frame(
+        c,
+        l.strip,
+        l.bar,
+        u,
+        fury: fury,
+        defeated: defeated,
+        wave: wave,
+        flash: math.max(fresh * .6, onset),
+        lamp: boss.lampOpenness,
+        time: boss.age,
+        reduced: reducedMotion,
+      );
     } else if (pirate) {
       PirateHudArt.frame(
         c,
@@ -183,13 +232,26 @@ abstract final class BossHealthBarArt {
       );
     }
 
-    _crest(c, l, boss, fury: fury, shielded: shielded);
+    _crest(
+      c,
+      l,
+      boss,
+      fury: fury,
+      shielded: shielded,
+      defeated: defeated,
+      flash: math.max(fresh * .6, onset),
+      siren: siren,
+      sirenGlow: sirenGlow,
+      wave: wave,
+      reducedMotion: reducedMotion,
+    );
 
     final name = l.name(
-      boss.name.toUpperCase(),
+      // The full name overflows the name field.
+      gargoyle ? GargoyleHudArt.label : boss.name.toUpperCase(),
       defeated ? _mint : _cream,
       // Carved lettering on the pirate's plank.
-      shadows: pirate || dragon
+      shadows: pirate || dragon || king || gargoyle
           ? [Shadow(color: PirateHudArt.ink, offset: Offset(0, .9 * u))]
           : null,
     );
@@ -252,6 +314,27 @@ abstract final class BossHealthBarArt {
         reduced: reducedMotion,
       );
       c.restore();
+    } else if (gargoyle) {
+      GargoyleHudArt.tags(
+        c,
+        l.strip,
+        u,
+        boss,
+        reduced: reducedMotion,
+        spotSince: boss.age - boss.lastSpotAt,
+      );
+      c.restore();
+    }
+    if (king) {
+      KingCooHudArt.puffedTag(
+        c,
+        l.strip,
+        l.bar,
+        u,
+        boss,
+        reduced: reducedMotion,
+      );
+      c.restore();
     }
   }
 
@@ -261,8 +344,52 @@ abstract final class BossHealthBarArt {
     SkyBoss boss, {
     required bool fury,
     required bool shielded,
+    bool defeated = false,
+    double flash = 0,
+    int siren = 0,
+    double sirenGlow = 0,
+    double wave = .5,
+    bool reducedMotion = false,
   }) {
     final u = l.u, center = l.crest, r = l.crestRadius;
+    if (boss.isKingCoo) {
+      KingCooHudArt.crest(
+        c,
+        center,
+        r,
+        u,
+        fury: fury,
+        siren: siren,
+        sirenGlow: sirenGlow,
+        flash: flash,
+        defeated: defeated,
+        time: boss.age,
+        reduced: reducedMotion,
+      );
+      return;
+    }
+    if (boss.isGargoyle) {
+      // His searchlight lens in a brass octagon: shuttered until the lamp
+      // opens, white-hot in fury (his second lens lights too).
+      final open = boss.lampOpenness.clamp(0.0, 1.0);
+      GargoyleHudArt.crest(
+        c,
+        center,
+        r,
+        fury: fury,
+        glow: boss.phase == BossPhase.attacking ? .3 + .7 * open : .3,
+        shutter: boss.phase == BossPhase.attacking ? 1 - open : 0,
+        defeated: boss.phase == BossPhase.defeated,
+        wave: wave,
+      );
+      return;
+    }
+    if (boss.isMiniBoss) {
+      // A plain medallion: never the royal crown below (stub until the
+      // mini-boss's own HUD art lands).
+      NyPlaceholderArt.crest(c, center, r, boss.kind, fury: fury);
+      return;
+    }
     if (boss.isDragon) {
       DragonHudArt.crest(c, center, r, u, fury: fury);
       return;
@@ -364,7 +491,21 @@ abstract final class BossHealthBarArt {
     final radius = Radius.circular(bar.height / 2);
     final track = RRect.fromRectAndRadius(bar, radius);
     final pirate = boss.isPirate, dragon = boss.isDragon;
-    if (dragon) {
+    final king = boss.isKingCoo;
+    final gargoyle = boss.isGargoyle;
+    if (king) {
+      KingCooHudArt.track(
+        c,
+        bar,
+        u,
+        fury: fury,
+        reduced: reducedMotion,
+        time: boss.age,
+        furyAge: boss.age - boss.enragedAt,
+      );
+    } else if (gargoyle) {
+      GargoyleHudArt.track(c, bar, u, fury: fury, defeated: defeated);
+    } else if (dragon) {
       DragonHudArt.track(
         c,
         bar,
@@ -391,8 +532,12 @@ abstract final class BossHealthBarArt {
     final maxHp = boss.maxHp;
     double edge(double value) =>
         bar.left + bar.width * (value / maxHp).clamp(0.0, 1.0);
-    final hp = dragon
+    final hp = gargoyle
+        ? GargoyleHudArt.gaugeHp(boss, reduced: reducedMotion)
+        : dragon
         ? DragonHudArt.gaugeHp(boss, reduced: reducedMotion)
+        : king
+        ? KingCooHudArt.gaugeHp(boss, reduced: reducedMotion)
         : arriving
         ? maxHp *
               (reducedMotion
@@ -403,7 +548,8 @@ abstract final class BossHealthBarArt {
         : boss.hp.toDouble();
 
     c.save();
-    c.clipRRect(track);
+    // (The Searchlight Gargoyle's pieces keep to the channel themselves.)
+    if (!gargoyle) c.clipRRect(track);
 
     // Damage chip: white on impact, warm cream while it holds, then drains.
     final since = boss.age - boss.lastHitAt;
@@ -436,8 +582,21 @@ abstract final class BossHealthBarArt {
           edge(chipHp),
           bar.bottom,
         );
-        if (dragon) {
-          DragonHudArt.chip(
+        if (gargoyle) {
+          GargoyleHudArt.chip(
+            c,
+            bar,
+            edge(hp),
+            edge(chipHp),
+            heat: reducedMotion
+                ? 0
+                : 1 - ((since - _white) / _cool).clamp(0.0, 1.0),
+            alpha: reducedMotion
+                ? ((chipSeconds - since) / _fade).clamp(0.0, 1.0)
+                : 1,
+          );
+        } else if (dragon || king) {
+          (dragon ? DragonHudArt.chip : KingCooHudArt.chip)(
             c,
             drained,
             heat: reducedMotion
@@ -465,7 +624,35 @@ abstract final class BossHealthBarArt {
     }
 
     final right = edge(hp);
-    if (right > bar.left && dragon) {
+    if (right > bar.left && king) {
+      KingCooHudArt.fill(
+        c,
+        bar,
+        right,
+        u,
+        ramp,
+        glow: critical && !reducedMotion ? .3 * wave : 0.0,
+        phase: reducedMotion ? 0 : boss.age * 1.7,
+        hotTip: right < bar.right - .5,
+        fury: fury,
+        surge: KingCooHudArt.surge(boss, reduced: reducedMotion),
+        share: boss.hp / boss.maxHp,
+        entrance: KingCooHudArt.entrance(boss, reduced: reducedMotion),
+      );
+    } else if (right > bar.left && gargoyle) {
+      GargoyleHudArt.fill(
+        c,
+        bar,
+        right,
+        u,
+        glow: critical && !reducedMotion ? .3 * wave : 0.0,
+        phase: boss.age,
+        edge: right < bar.right - .5,
+        fury: fury,
+        surge: GargoyleHudArt.surge(boss, reduced: reducedMotion),
+        reduced: reducedMotion,
+      );
+    } else if (right > bar.left && dragon) {
       DragonHudArt.fill(
         c,
         bar,
@@ -534,17 +721,22 @@ abstract final class BossHealthBarArt {
       );
     }
 
-    // Light quarter ticks.
-    final tick = Paint()
-      ..strokeWidth = 1 * u
-      ..color = _nightDeep.withValues(alpha: .35);
-    for (final i in const [1, 3]) {
-      final x = bar.left + bar.width * i / 4;
-      c.drawLine(
-        Offset(x, bar.top + 2 * u),
-        Offset(x, bar.bottom - 2 * u),
-        tick,
-      );
+    // Light quarter ticks (King Coo's gauge and the Gargoyle's brass segments
+    // are their own).
+    if (gargoyle) {
+      GargoyleHudArt.seams(c, bar, u, defeated: defeated);
+    } else {
+      final tick = Paint()
+        ..strokeWidth = 1 * u
+        ..color = _nightDeep.withValues(alpha: .35);
+      for (final i in king ? const <int>[] : const [1, 3]) {
+        final x = bar.left + bar.width * i / 4;
+        c.drawLine(
+          Offset(x, bar.top + 2 * u),
+          Offset(x, bar.bottom - 2 * u),
+          tick,
+        );
+      }
     }
 
     // Short state tags sit in the emptied part of the track.
@@ -595,7 +787,42 @@ abstract final class BossHealthBarArt {
     // past the track until the boss crosses it.
     final half = bar.left + bar.width / 2;
     final above = !fury && !defeated && !arriving;
-    if (dragon) {
+    if (gargoyle) {
+      // His fury mark is a brass spool; the second beam lights it.
+      GargoyleHudArt.notch(
+        c,
+        l.strip,
+        bar,
+        u,
+        above: above,
+        fury: fury,
+        wave: wave,
+        furyAge: boss.age - boss.enragedAt,
+        defeated: defeated,
+        reduced: reducedMotion,
+      );
+    } else if (king) {
+      KingCooHudArt.crumbs(
+        c,
+        bar,
+        right,
+        u,
+        time: boss.age,
+        fury: fury,
+        reduced: reducedMotion,
+        surge: KingCooHudArt.surge(boss, reduced: reducedMotion),
+      );
+      KingCooHudArt.halfMark(
+        c,
+        bar,
+        u,
+        above: above,
+        fury: fury,
+        wave: wave,
+        furyAge: boss.age - boss.enragedAt,
+        reduced: reducedMotion,
+      );
+    } else if (dragon) {
       DragonHudArt.motes(
         c,
         bar,

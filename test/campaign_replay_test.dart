@@ -112,6 +112,8 @@ void main() {
 
   test('only campaign tapes from rules 41 carry a level and its plan', () {
     final campaign = recordLevel(level('1-2'), seconds: 5).tape.toJson();
+    // A new recording carries the newest rules version (43, New York); the
+    // frozen rules 41 tapes (frozen_rules41_test) pin the 41 format.
     expect(campaign['version'], FlightSimulation.currentRulesVersion);
     expect(campaign['level'], '1-2');
     expect(campaign['plan'], isA<Map<String, Object?>>());

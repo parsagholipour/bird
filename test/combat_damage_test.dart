@@ -95,7 +95,10 @@ void main() {
     );
   });
 
-  for (final kind in BossKind.values) {
+  // The endless cycle's five bosses. New York's campaign-only mini-bosses
+  // (rules 43) never appear in an endless arena: mini_boss_damage_test runs
+  // the same checks through a level plan.
+  for (final kind in BossKind.values.where((kind) => !kind.campaignOnly)) {
     test(
       '$kind accepts arbitrary damage, crosses half health, and pays once',
       () {

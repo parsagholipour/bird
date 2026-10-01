@@ -7,9 +7,15 @@ class SoundSpec {
     this.seconds = .65,
     this.cooldownMs = 100,
     this.variants = 1,
+    this.file,
   });
   final double volume, seconds;
   final int priority, cooldownMs, variants;
+
+  /// The name of the cue whose WAV this one plays, when it is only another
+  /// level of it (the cue layer ducks and lifts cues this way): the files are
+  /// [file]'s, and `tool/prepare_sound_effects.py` renders nothing for it.
+  final String? file;
 }
 
 const soundBank = <String, SoundSpec>{
@@ -233,7 +239,229 @@ const soundBank = <String, SoundSpec>{
     seconds: 1.20,
     cooldownMs: 1000,
   ),
+  // ---- New York (rules version 43) -------------------------------------
+  // Alley Pigeon: a coo as it marks its star, a flap as it dives, the snatch,
+  // the pigeon's own defeat and the freed star's chime. Takes rotate; the
+  // second coo is a whole tone higher.
+  'pigeon_coo': SoundSpec(
+    volume: .30,
+    priority: 1,
+    seconds: .55,
+    cooldownMs: 180,
+    variants: 2,
+  ),
+  'pigeon_flap': SoundSpec(
+    volume: .42,
+    priority: 1,
+    seconds: .34,
+    cooldownMs: 80,
+    variants: 2,
+  ),
+  'pigeon_snatch': SoundSpec(
+    volume: .60,
+    priority: 3,
+    seconds: .42,
+    cooldownMs: 120,
+  ),
+  'pigeon_defeat': SoundSpec(
+    volume: .34,
+    priority: 2,
+    seconds: .50,
+    cooldownMs: 65,
+    variants: 2,
+  ),
+  'star_rescue': SoundSpec(
+    volume: .34,
+    priority: 3,
+    seconds: .45,
+    cooldownMs: 100,
+  ),
+  // Steam Geysers: the hiss builds for the vent's whole warning, the burst
+  // and the grate's clang land together, the puff lifts the bird.
+  'steam_hiss': SoundSpec(
+    volume: .40,
+    priority: 3,
+    seconds: 1.50,
+    cooldownMs: 500,
+  ),
+  'steam_burst': SoundSpec(
+    volume: .52,
+    priority: 3,
+    seconds: .80,
+    cooldownMs: 250,
+    variants: 2,
+  ),
+  'pipe_clang': SoundSpec(
+    volume: .26,
+    priority: 1,
+    seconds: .45,
+    cooldownMs: 250,
+    variants: 2,
+  ),
+  'steam_ride': SoundSpec(
+    volume: .40,
+    priority: 2,
+    seconds: .60,
+    cooldownMs: 400,
+  ),
+  // Searchlight Gargoyle: lightning on the rod and the stone waking (they
+  // replace the reveal and the roar), the warning before a sweep, the sweep's
+  // buzz, the bird caught, the lamp opening, rocks glancing off the shuttered
+  // lamp and a stone feather dropping.
+  'gargoyle_strike': SoundSpec(
+    volume: .85,
+    priority: 4,
+    seconds: 1.10,
+    cooldownMs: 1000,
+  ),
+  'gargoyle_awaken': SoundSpec(
+    volume: .85,
+    priority: 4,
+    seconds: 2.00,
+    cooldownMs: 1000,
+  ),
+  'beam_warning': SoundSpec(
+    volume: .65,
+    priority: 4,
+    seconds: 1.50,
+    cooldownMs: 1000,
+  ),
+  'beam_sweep': SoundSpec(
+    volume: .42,
+    priority: 3,
+    seconds: 2.90,
+    cooldownMs: 1000,
+  ),
+  'beam_spot': SoundSpec(
+    volume: .55,
+    priority: 3,
+    seconds: .40,
+    cooldownMs: 400,
+  ),
+  'lamp_vent': SoundSpec(
+    volume: .40,
+    priority: 3,
+    seconds: 1.30,
+    cooldownMs: 1000,
+  ),
+  'lamp_glance': SoundSpec(
+    volume: .30,
+    priority: 2,
+    seconds: .25,
+    cooldownMs: 75,
+    variants: 2,
+  ),
+  'feather_drop': SoundSpec(
+    volume: .28,
+    priority: 2,
+    seconds: .55,
+    cooldownMs: 150,
+    variants: 2,
+  ),
+  // King Coo: his roar (arrival and fury), the pea whistle, the crumb bomb's
+  // toss and splat, the squadron's take-off, the chest puffing and popping,
+  // and the deflating defeat.
+  'coo_roar': SoundSpec(
+    volume: .95,
+    priority: 4,
+    seconds: 1.60,
+    cooldownMs: 600,
+  ),
+  'coo_whistle': SoundSpec(
+    volume: .30,
+    priority: 4,
+    seconds: .85,
+    cooldownMs: 500,
+  ),
+  'crumb_throw': SoundSpec(
+    volume: .40,
+    priority: 3,
+    seconds: .36,
+    cooldownMs: 150,
+  ),
+  'crumb_splat': SoundSpec(
+    volume: .45,
+    priority: 3,
+    seconds: .60,
+    cooldownMs: 150,
+  ),
+  'squad_flutter': SoundSpec(
+    volume: .42,
+    priority: 3,
+    seconds: .95,
+    cooldownMs: 500,
+  ),
+  'coo_puff': SoundSpec(
+    volume: .42,
+    priority: 4,
+    seconds: 1.50,
+    cooldownMs: 800,
+  ),
+  'coo_pop': SoundSpec(volume: .55, priority: 4, seconds: .75, cooldownMs: 400),
+  'coo_defeat': SoundSpec(
+    volume: .85,
+    priority: 4,
+    seconds: 1.60,
+    cooldownMs: 1000,
+  ),
+  // ---- Audio fix round ---------------------------------------------------
+  // King Coo's arrival shout is cut to his beak's 0.8 s swell (the 1.6 s
+  // coo_roar is his fury's); the Gargoyle gets his own fury and his own
+  // shattering in the mids a phone plays; King Coo's chest inflates under the
+  // hit-stop before the pop.
+  'coo_shout': SoundSpec(
+    volume: .95,
+    priority: 4,
+    seconds: .85,
+    cooldownMs: 600,
+  ),
+  'gargoyle_fury': SoundSpec(
+    volume: .45,
+    priority: 4,
+    seconds: 1.20,
+    cooldownMs: 800,
+  ),
+  'gargoyle_shatter': SoundSpec(
+    volume: .45,
+    priority: 4,
+    seconds: 1.20,
+    cooldownMs: 1000,
+  ),
+  'coo_inflate': SoundSpec(
+    volume: .45,
+    priority: 3,
+    seconds: .75,
+    cooldownMs: 1000,
+  ),
+  // A steam burst that lands within 0.3 s of a pigeon's snatch or a rescued
+  // star is played lower (the burst 5 dB, its clang 8 dB) so the 2.8 kHz
+  // onset of the snatch is not hidden under its 5-6 kHz hiss; a snatch that
+  // follows a burst is lifted 3 dB instead. Same WAVs, other levels.
+  'steam_burst_duck': SoundSpec(
+    volume: .29,
+    priority: 3,
+    seconds: .80,
+    cooldownMs: 250,
+    variants: 2,
+    file: 'steam_burst',
+  ),
+  'pipe_clang_duck': SoundSpec(
+    volume: .10,
+    priority: 1,
+    seconds: .45,
+    cooldownMs: 250,
+    variants: 2,
+    file: 'pipe_clang',
+  ),
+  'pigeon_snatch_lift': SoundSpec(
+    volume: .85,
+    priority: 3,
+    seconds: .42,
+    cooldownMs: 120,
+    file: 'pigeon_snatch',
+  ),
 };
 
 String soundAsset(String name, int variant) =>
-    'audio/$name${variant == 0 ? '' : '_${variant + 1}'}.wav';
+    'audio/${soundBank[name]?.file ?? name}'
+    '${variant == 0 ? '' : '_${variant + 1}'}.wav';

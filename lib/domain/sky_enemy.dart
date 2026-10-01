@@ -1,8 +1,29 @@
 import 'dart:math' as math;
 
+import 'alley_pigeon.dart';
+import 'king_coo.dart';
+
+export 'alley_pigeon.dart';
+
 enum EnemyAttack { none, aimed, fan }
 
-enum EnemyKind { caveBat, spitterBeetle, duskMoth, simpleBat }
+/// Declaration order is the appearance index that saved plans and replays
+/// rely on: append, never reorder. [alleyPigeon] joins in rules version 43
+/// and only campaign level plans lay it ([campaignOnly]).
+enum EnemyKind {
+  caveBat,
+  spitterBeetle,
+  duskMoth,
+  simpleBat,
+  alleyPigeon;
+
+  /// Kinds that only a campaign level's lineup can name. No endless lineup
+  /// holds one, at any rules version.
+  bool get campaignOnly => switch (this) {
+    alleyPigeon => true,
+    caveBat || spitterBeetle || duskMoth || simpleBat => false,
+  };
+}
 
 /// Small opponents share a hit radius, but have different attack rhythms.
 /// All clocks advance with simulation time so pause and replay stay exact.
@@ -15,16 +36,22 @@ class SkyEnemy {
     this.drift = 1,
     this.sender,
     int? maxHp,
-  }) : maxHp = maxHp ?? healthFor(appearance) {
+    this.squad = false,
+  }) : maxHp = maxHp ?? healthFor(appearance),
+       pigeon = !squad && _kindOf(appearance) == EnemyKind.alleyPigeon
+           ? PigeonFlight()
+           : null {
     if (this.maxHp <= 0) throw ArgumentError.value(this.maxHp, 'maxHp');
     hp = this.maxHp;
   }
 
+  static EnemyKind _kindOf(int appearance) =>
+      EnemyKind.values[appearance % EnemyKind.values.length];
+
   /// Later encounters toughen the lineup without changing enemies in flight.
   static int healthFor(int appearance, {int bossesDefeated = 0}) {
-    final base = switch (EnemyKind.values[appearance %
-        EnemyKind.values.length]) {
-      EnemyKind.caveBat || EnemyKind.simpleBat => 10,
+    final base = switch (_kindOf(appearance)) {
+      EnemyKind.caveBat || EnemyKind.simpleBat || EnemyKind.alleyPigeon => 10,
       EnemyKind.spitterBeetle => 20,
       EnemyKind.duskMoth => 30,
     };
@@ -50,7 +77,7 @@ class SkyEnemy {
   }
 
   double x;
-  final double _y;
+  double _y;
   // Null preserves the original straight flight in older recordings.
   final double? flightPhase;
   final int appearance;
@@ -70,9 +97,40 @@ class SkyEnemy {
   bool preparing = false;
   double flightRoom = 1;
 
-  EnemyKind get kind => EnemyKind.values[appearance % EnemyKind.values.length];
+  EnemyKind get kind => _kindOf(appearance);
+
+  /// An Alley Pigeon that flies on King Coo's squadron track instead of
+  /// raiding stars (rules version 43): no prey, no [pigeon] raid state.
+  /// The squadron rules (R2) set its position directly.
+  final bool squad;
+
+  /// The raid state of an Alley Pigeon that goes for stars, or null for every
+  /// other enemy and for squadron pigeons. See [PigeonFlight]; the art, the
+  /// audio and the UI read it, the pigeon rules (R1) drive it.
+  final PigeonFlight? pigeon;
+
+  /// Whether this enemy steals stars (rules version 43).
+  bool get snatches => pigeon != null;
+
+  /// Puts the enemy at [x] with [y] as the height its flight bob rides on.
+  /// Only the rules that steer an enemy off the plain course (a pigeon's
+  /// raid) call this.
+  void placeAt(double x, double y) {
+    this.x = x;
+    _y = y;
+  }
+
+  /// King Coo's squadron track, set for a [squad] pigeon while it flies (see
+  /// [SquadTrack]). The squadron rules set [x] and [y] from it on every
+  /// step; the pigeon holds its lane exactly (no bob), so the hit circle is
+  /// the lane the boss planned.
+  SquadTrack? track;
+
   EnemyAttack get attack => switch (kind) {
-    EnemyKind.caveBat || EnemyKind.simpleBat => EnemyAttack.none,
+    // A pigeon fires nothing: it takes stars.
+    EnemyKind.caveBat ||
+    EnemyKind.simpleBat ||
+    EnemyKind.alleyPigeon => EnemyAttack.none,
     EnemyKind.spitterBeetle => EnemyAttack.aimed,
     EnemyKind.duskMoth => EnemyAttack.fan,
   };
@@ -82,6 +140,7 @@ class SkyEnemy {
     EnemyKind.caveBat => 3.2,
     EnemyKind.spitterBeetle => 3.8,
     EnemyKind.duskMoth => 2.2,
+    EnemyKind.alleyPigeon => 2.6,
   };
   double get _steadiness =>
       (1 - .75 * math.max(charge, recoil)) *
@@ -92,12 +151,13 @@ class SkyEnemy {
   /// The drawn body, hit circle and emitted ammo all follow the same small
   /// flight arc. Shooters steady themselves through windup and discharge.
   double get y {
-    if (flightPhase == null) return _y;
+    if (flightPhase == null || track != null) return _y;
     final amplitude = switch (kind) {
       EnemyKind.simpleBat => .011,
       EnemyKind.caveBat => .010,
       EnemyKind.spitterBeetle => .007,
       EnemyKind.duskMoth => .014,
+      EnemyKind.alleyPigeon => AlleyPigeon.bob,
     };
     final t = _flightTime;
     final bob =
@@ -105,6 +165,8 @@ class SkyEnemy {
         math.sin(t * _flightRate * .57 + .8) * .2;
     return _y + amplitude * bob * _steadiness;
   }
+
+  set y(double value) => _y = value;
 
   double get flightBank => flightPhase == null
       ? 0
@@ -118,8 +180,13 @@ class SkyEnemy {
       : _flightTime + math.sin(_flightTime * 1.6) * .035;
 
   double get muzzleX => x - radius * 1.05;
-  double get charge =>
-      preparing ? (1 - fireIn / warningSeconds).clamp(0.0, 1.0) : 0;
+  double get charge {
+    // A pigeon's telegraph is its 0.80 s warning (see [AlleyPigeon]).
+    final raid = pigeon;
+    if (raid != null) return raid.warning(age);
+    return preparing ? (1 - fireIn / warningSeconds).clamp(0.0, 1.0) : 0;
+  }
+
   double get recoil => (1 - (age - lastShotAt) / .24).clamp(0.0, 1.0);
 }
 

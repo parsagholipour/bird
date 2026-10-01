@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'campaign_map_art.dart' show MapPadlockPainter, MapRibbonPainter;
+import 'campaign_text_scale.dart';
 import 'match_hud.dart' show MatchIcon, MatchPlate, MatchSymbol, matchDigits;
 import 'theme.dart';
 import 'ui_sounds.dart';
@@ -167,8 +168,8 @@ class CampaignStarTotal extends StatelessWidget {
   Widget build(BuildContext context) => Semantics(
     label: '$stars of $of campaign stars',
     excludeSemantics: true,
-    child: MediaQuery.withNoTextScaling(
-      child: MatchPlate(
+    child: CampaignTextScale.wrap(
+      MatchPlate(
         key: const ValueKey('campaign-star-total'),
         padding: const EdgeInsets.fromLTRB(9, 0, 18, 0),
         child: SizedBox(
@@ -235,8 +236,8 @@ class MapNotice extends StatelessWidget {
   final bool locked;
 
   @override
-  Widget build(BuildContext context) => MediaQuery.withNoTextScaling(
-    child: CustomPaint(
+  Widget build(BuildContext context) => CampaignTextScale.wrap(
+    CustomPaint(
       painter: const MapRibbonPainter(
         color: SkyColors.yellow,
         shade: SkyColors.gold,

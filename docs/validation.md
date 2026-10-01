@@ -1,5 +1,682 @@
 # Validation ledger
 
+## 2026-10-02 Camera zoom without the pop (optional shared patch, `zoom-pop.patch`)
+
+What was fixed. `BirdGame.render` scaled the whole world by a constant 1.018
+whenever the camera's shake offset was not exactly zero, so every hit of every
+boss (and every rush knock, gale hit and knockout kick) grew the picture 1.8%
+on its first frame and shrank it back on its last, whatever the size of the
+shake. Two independent reviews found it, on the Ember Dragon and on New York.
+The zoom is now `BirdGame.shakeZoom`: exactly 1 at rest, `1 + 2.2 * max(|dx| /
+w, |dy| / h)` while it shakes (a little over the 2.0 that keeps the slid world
+covering the screen's edges, which holds up to a shake of 4.5% of the screen;
+the game's biggest knock is about 1%). The semantics are unchanged: it zooms
+about the centre and slides by the shake. This changes how every boss's hit
+feels (a hit used to pop; now it only shakes), so it is its own patch and can
+be dropped by deleting `zoom-pop.patch`. Checked by `test/shake_zoom_test.dart`
+(7 tests: 1 at rest, the formula, continuity, edge cover, the biggest knock,
+the real renderer's transform calls, and a frame on a knock's last instant
+equal to the frame after it; the two renderer tests fail on the old constant:
+78,689 pixels differ). The comments in `boss_encounter_art.dart` and
+`gargoyle_encounter_art.dart` that cited 1.018 now cite the function.
+
+## 2026-10-02 New York fix round merged (M5)
+
+What was built. The thirteen independent fix patches of the New York fix round
+(Gargoyle head, body and staging; steam art; King Coo's squadron lanes, payoff
+and letterbox; the Alley Pigeon's snatch and gliders; story text and voice
+documents; audio; the campaign UI; the Gargoyle's rules; the level data; King
+Coo's casual-pilot proof) were merged into one tree on the rebased program
+(rules 43, New York open by default, `NEW_YORK_OPEN=false` rolls it back;
+co-op and duel stay `coopRulesVersion` 42). Every conflict and its resolution
+is listed in the integration handoff. Three merge mistakes the suite found were
+fixed in the merge itself: the level card's text growth (`LevelIntroCard._growth`
+290 to 310: 3-4's longer hint overflowed the 1.3x card by 5 px), a test that
+meant "closed build" with a flag M4 had redefined (`Campaign.closedForTest`),
+and a probe bot that re-declared fields `CooBot` gained.
+
+The fixtures were re-recorded ONCE on the merged tree
+(`--dart-define=RECORD_FROZEN_NY43=true`), because three fix rounds describe
+the same flights: R3's Gargoyle rules (the slit corridor and the lamp judged as
+a rock leaves) change the six 3-4 bot flights, the six Gargoyle pilot flights
+and the 3-4 tape; R5's level data changes the catalog entries of 3-1, 3-3 and
+3-4 and every flight of 3-1 and 3-3; and the casual King Coo pilot of
+`ny_pilots.dart` now plans one formation at a time (`CooBot(sequential: true)`,
+R2's fix), which changes its two 3-2 pilot flights. 3-2's bot flights, the
+sharp and average King Coo pilot flights and the 3-2 tape are byte-identical to
+the first recording. The rules 41 fixtures, the 44 endless digests and the 235
+scenery hashes are untouched.
+
+King Coo's casual bot, restated. The first fix round measured the casual
+`CooBot` (reacts after 0.8 s, 2.5 taps a second) hit by his squadron in 31 of
+32 fights. R2's fix round showed that was the bot's policy (it lists every lane
+of fury's V and picket at once, which shade the whole sky, and finds no height),
+not the rules: a bot that plans one formation at a time, as a player reads the
+squadron, is hit in 0 of 32 of the same fights (8 shoot phases at four widths),
+and the exhaustive search of R2 finds a safe path from every state. The casual
+pilot of `ny_pilots.dart` uses it; the average bot stays as it was (hit in 1 of
+32; the same flag at its margin would make it worse, 32 of 32, and at margin
+.05 it is 0 of 32), the sharp bot is hit in 0. The single-flight check of the
+guardians' fights (`ny_levels_flight_test`) is back to "no hit at all" for both
+guardians, and the spread test bounds every pilot at one hit in ten fights. The
+paragraph of the level-data entry below that calls the casual hits a thin margin
+by design describes the policy of the first recording.
+
+Not covered. Nobody has played any of this on a phone; the 47 guardian clips are
+unrecorded and the 29 effects unheard.
+
+## 2026-10-01 New York fix round: level data (R5)
+
+What was built. The independent play review (`reports/21-review-play.md`: 22,000
+flights of a model-predictive pilot at four skills, plus R5's own bots with
+shifted shoot phases) found three data problems, fixed in
+`lib/domain/campaign.dart` only (no rules change):
+- **3-1 Moth Light** was the hardest ordinary level (moths were half the
+  enemies, so a casual pilot lost 0.66 to 0.90 hearts a minute against 0.25 to
+  0.48 on 2-6 and 2-7): now 60 s (81 route stars, marks 40 / 65) and the
+  lineup bat, moth, cave bat, beetle (a moth leads the second enemy passage and
+  one enemy in four after it; the NEW moth hint stays true).
+- **3-3 Steam Alley** wore a casual pilot out (no heart recovery in the level
+  times 80 s; steam was only 6% of the hearts lost): now 65 s, seed 3111 (no
+  stone door in its first ten passages), 90 route stars, marks 45 / 70, seven
+  vents (the steady layer is cut by the shorter route), five pigeon formations
+  (nine pigeons, cap 10).
+- **3-4 Storm Warning**'s third mark was 30 of 36 run-up stars, out of line
+  with the other guardian: now 27 (75%; thief cap 4 over three pigeons).
+- **Hints**: 3-3 "Vents hiss, then burst. Hop the hot ones, ride the soft
+  ones." (it taught nothing about the soft vents); 3-4 adds "No Sprint here.".
+
+What was checked (before to after; every number is a rate over many flights).
+- The review's model-predictive pilot, widths 1.78 and 2.22, 24 seeds each:
+  completion % / hearts lost a minute / three stars %.
+
+| level, pilot | before | after |
+| --- | --- | --- |
+| 3-1 novice | 23 / 3.16 / 23 | 62 / 2.47 / 60 |
+| 3-1 casual | 98 / 0.68 / 98 | 100 / 0.32 / 100 |
+| 3-1 average | 100 / 0.39 / 100 | 100 / 0.07 / 100 |
+| 3-3 novice | 38 / 2.47 / 33 | 69 / 1.92 / 29 |
+| 3-3 casual | 98 / 0.56 / 96 | 100 / 0.38 / 98 |
+| 3-3 average | 100 / 0.17 / 100 | 100 / 0.04 / 100 |
+| 3-4 novice | 96 / 0.39 / 15 | 96 / 0.39 / 81 |
+| 3-4 casual | 100 / 0.14 / 46 | 100 / 0.14 / 88 |
+| 3-4 average | 100 / 0.00 / 83 | 100 / 0.00 / 100 |
+
+  (Sharp pilots were at 100% before and after.)
+- R5's shared bot on 40 re-seeded layouts and shoot phases per cell, completion
+  % at 640 / 800 px: 3-1 casual 45 / 72 to 82 / 90, 3-1 sharp 70 / 75 to 90 /
+  90, 3-3 casual 62 / 82 to 88 / 95, 3-3 sharp 72 / 75 to 98 / 90. On the
+  shipped layouts of 3-3 over 40 shoot phases: casual 72 / 55 to 100 / 100,
+  sharp 90 / 57 to 100 / 100.
+- The whole-level pilots of the suite (`ny_pilots.dart`, R2's and R3's guardian
+  bots), now flown over 8 shoot phases at four widths (1.6, 640, 800, 2.4) and
+  on six re-seeded layouts, with every hit attributed to its cause
+  (`test/ny_levels_spread_test.dart`): sharp and average pilots complete at
+  least 90% and casual pilots at least 75% of every cell (shipped layouts:
+  100% everywhere; re-seeded 3-1 96 to 99%, 3-3 90 to 94%). Before, the same
+  pilots finished 3-3 in 72% (sharp), 94% (average) and 63% (casual) of the
+  shipped-layout phases. The Gargoyle touches no pilot at any phase, width or
+  skill (no beam, no feather); King Coo hits at most the squadron's first
+  picket and a cloud on a wide screen.
+- Marks, with the thief caps: 81 / 36 / 90 / 36 route stars; the pigeons' worst
+  case (0, 3, 9, 3) is inside the caps (8, 3, 10, 4); a perfect collector that
+  never shoots earns the third mark on six layouts of every level;
+  sharp and average pilots earn three stars in 90 to 100% of the phases on 3-1,
+  3-2 and 3-4 and in 40 to 100% on 3-3 (those pilots never aim at a ride vent's
+  stars and collect about 70 of 90; the review's planners reach 96 to 100%).
+- Fixtures re-recorded on purpose (`frozen_ny43.json`, `frozen_ny_tapes/`):
+  the catalog entries of 3-1, 3-3 and 3-4; 18 of 27 bot flights (every flight of
+  3-1 and 3-3; the five 3-4 flights that finished moved only in their level
+  stars, 2 to 3, with identical checkpoints: the mark does not move a flight);
+  5 of 17 pilot flights (3-1 and 3-3); the 3-3 and 3-4 tapes. 3-2 is
+  byte-identical, tape included. New: a legacy tape of 3-3 as shipped before
+  (80 s, seed 3103, cut at 40 s), which proves a retuned level still replays a
+  flight saved before. The rules 41 fixtures, the endless digests and the
+  scenery hashes are untouched.
+
+King Coo's squadron and the casual bot (for the King Coo rules fixer). The
+casual `CooBot` (reacts after 0.8 s, 2.5 taps a second) takes a squadron hit,
+on the shield, in 31 of 32 fights (8 shoot phases at four widths), a cloud in
+1 of 32; sharp and average bots 0 and 1 of 32. The numbers: his telegraph runs
+from the puff (7.6 s of the cycle) to the lane crossing the bird's column, 2.8
+s at 1.6 screen heights wide, about 3.0 s at 640 px, 3.5 s at 800 and 3.8 s at
+2.4 (R2: the crossing is 1.22, 1.94 and 2.23 s after the whistle at 1.6, 2.2
+and 2.4 wide). The exact search at 2.5 taps a second (the
+review's port of R2's proof; `reports/21-review-play/coo-viability-by-taps.txt`)
+finds a safe path from every state, but only if the player starts steering
+within 0.9 s of the puff on a 1.6-wide screen, 1.0 s at 640 px, 1.8 s at 800
+(the V 1.3, 1.4, 2.0 s; the bomb 0.7 s; at 2 taps a second the picket has 0.4
+to 0.5 s). A casual reaction is 0.7 to 1.0 s, so at the narrow phones the
+slack is thin by design. The bot's hit is not that slack alone: the same bot
+with its look-ahead (`squadLook`, 1.6 s before the crossing) and tap rate
+varied (`test/ny_coo_squadron_probe_test.dart`, run with
+`--dart-define=NY_COO_PROBE=true`) is hit in 12 of 12 phases at every width
+at 2.5 and at 5 taps a second whatever the look-ahead (1.6 to 2.8 s), and passes
+only in scattered cells at 3.5 taps (non-monotone in the look-ahead), so a
+heuristic planner cannot separate the data from itself. Verdict: not a data
+fault (the search finds paths), but a margin that a 2.5 taps a second player
+with a casual reaction and 80 ms of thumb lag does not have (the review's
+human-lag fights, casual: 3 to 14 of 20 fights hit by a squadron at 80 ms of
+lag). If the owner wants a casual reaction to be safe at 640 px, the picket and
+bomb telegraphs need 0.3 to 0.5 s more lead (the whistle earlier, or the
+squadron slower at narrow widths); this tree changes none of King Coo's
+numbers.
+
+What is not covered. Nobody has played these levels; the pilots are proxies,
+the absolute rates are not a human's, and the playtest is still the gate. 3-3's
+third mark (70 of 90) sits where crude pilots collect 69 to 72 stars. The
+Gargoyle's lamp-window and slit fixes, the 1.6 to 2.4 letterbox (below 1.6 the
+pigeons never snatch, so the card hints are false on a 4:3 tablet) and the
+retry cost of a guardian (30 s of run-up again) belong to others.
+
+## 2026-10-01 New York rebased onto Fly Together, renumbered to rules 43, opened by default
+
+What was built. The New York program (the Alley Pigeon, steam geysers, King
+Coo, the Searchlight Gargoyle, chapter 3's New York stop, story, audio, UI)
+was applied onto the main tree as it stood after Fly Together (co-op and the
+1 v 1 duel, `coopRulesVersion = 42`) and the in-flight voices were added.
+New York is now **rules version 43** (`FlightSimulation.newYorkRulesVersion`,
+`currentRulesVersion`, `LevelPlan.minRulesVersion`, the three `supports…`
+getters): a New York plan refuses to fly at 41 or 42 and a New York tape is
+refused below 43; endless, chapters 1 and 2 and every co-op and duel flight
+fly at 43 exactly as at 42 and 41. The stop is **open by default**
+(`Campaign.openingEnabled` defaults to true, so `make build` and `make
+install` ship it; `--dart-define=NEW_YORK_OPEN=false` closes it, and
+`make build DEFINES=--dart-define=NEW_YORK_OPEN=false` is the rollback).
+`CampaignProgress.totalStars` (and `starsInChapter`, `starsInRegion`) count
+only levels the build can fly, so a closed build never shows more than its
+"N / 48".
+
+How the two programs compose. Every new hazard looks at every bird of
+`FlightSimulation.flock`, reads `bird.x`, aims with `_target` (the lead
+first, then the birds in turn) and hurts the bird it found with
+`_hurt(bird)`: steam scald and lift, King Coo's rings and clouds, the
+Gargoyle's beam, aim and feathers (boss ammunition now hurts through
+`_hurt` too), the pigeon's dive spacing (the foremost bird) and the star a
+ram or touch frees (the nearest bird). With one bird every one of them is
+the old code to the last digit: the 27 + 17 + 3 frozen flights re-recorded
+at 43 differ from the ones recorded at 42 only in the version numbers.
+Co-op and duel can never meet New York: they refuse every level plan, and
+endless flights of all three modes lay no pigeon, vent or guardian.
+
+What was verified.
+- `flutter analyze` is clean. The whole suite passes with the default
+  (open) build: 2975 passed, 199 skipped (the opt-in capture and review
+  tests), 0 failed; and with `--dart-define=NEW_YORK_OPEN=false`: 2975
+  passed, 199 skipped, 0 failed. No timing test failed in any full run
+  (load average 3 to 38; one run that hit a full disk was discarded and
+  repeated).
+- The strict envelopes pass: `DRAGON_ENFORCE=true DRAGON_CYCLES=70`
+  (envelope and budget, 20 tests), `KING_COO_ENFORCE=true
+  KING_COO_CYCLES=12` (envelope, budget, silhouette, 25) and
+  `GARGOYLE_ENFORCE=true GARGOYLE_PHASES=40` (envelope, budget,
+  silhouette, 19).
+- Fixtures: the R0 rules 41 fixtures (16 levels, 46 flights, 3 tapes), the 44
+  endless digests and the 235 scenery hashes are byte-identical, and every
+  frozen flight is now also flown at 42 and at 43 (`frozen_rules41_test`).
+  `frozen_ny42` became `frozen_ny43` (and its three tapes carry version 43):
+  re-recorded from this tree, and equal to the old recording apart from the
+  version numbers and the tapes' hashes. Main's own co-op and duel tests
+  (`coop_flight_test`, `coop_art_test`, `coop_ui_test`, `duel_flight_test`,
+  `duel_art_test`, `duel_ui_test`) pass untouched.
+- New tests: `ny_flock_test` (18: no New York in co-op or duel; every hazard
+  with a second bird in the flock, each proven to bite by a mutation),
+  `ny_flight_voices_test` (guardians silent, pigeon not spotted),
+  `ny_hardening_test` (the Gargoyle's name card at no height, the pigeon
+  marks on non-finite numbers), 3 new lair-scene flow tests, the 43-against-42
+  and 43-against-41 endless digests, the 42-refusal checks and the flag
+  hooks' own tests. The 12 tests that asserted the closed default now assert
+  the open one and cover the closed state through `Campaign.closedForTest`;
+  every flag-sensitive test forces the state it means, so the suite passes
+  under either define.
+
+What is not covered. Nobody has played New York on a phone; the 47 guardian
+clips are still unrecorded and the 25 effects unheard (see the entries
+below); the two guardians have no in-flight voice lines.
+
+## 2026-10-01 King Coo fix round (K8)
+
+What was fixed (the independent art and motion reviews): the victory had no
+payoff (a small dark cap in a dark corner): now a shower of crumbs and
+feathers, the cap landing at 1.4x in the middle of the screen with a coin spin
+and a siren pool, the badge floating beside it and three pigeons pecking at
+the crumbs; the puffed chest, the game's one mechanic, was under-sold: a bold
+amber ring, a warm heart, an "x2" roundel, a halo with ripples, and feathers
+standing up while it swells (the hit circle stays exactly r 1.00); the name
+card's quote was 12 px at alpha .4: a plank, larger type, an alpha floor of
+.8 and a later type-on; his letterbox now equals the dragon's and the
+Gargoyle's at every age (it stayed shut for his COO!); the squadron were
+clones: three plumages by slot and a bank each (the art-pigeon fix round
+added a size and a wingbeat tempo each: one `PigeonPose.squadLook`). Checked by
+`test/king_coo_fix_test.dart` (21 tests) and the existing King Coo suites with
+real-art enforcement on; the hide's own op limit went from 70 to 74 (the
+window's gold), the rig's 210 and the staging's budget (worst frame 328 draws,
+2 layers, no shader after the first frame) hold.
+
+## 2026-10-01 New York: King Coo and the Searchlight Gargoyle (art, staging)
+
+What was built. King Coo's staging (K8) and the Searchlight Gargoyle's (G8) had
+each been assembled alone from the same base; they are now one tree. The two
+patches overlapped in `boss_encounter_art.dart`, `boss_health_bar_art.dart`,
+`story_boss_art.dart`, `campaign_keepsake_art.dart`, `sky_boss.dart` and
+`boss_polish_encounter_art_test.dart` (and in the docs); each overlap was
+resolved so both bosses keep an explicit arm in every dispatch (no
+fall-through to the Baron, no shared arm). What the two builders could not do
+alone: the victory card now says GUARDIAN DOWN! for both
+(`BossEncounterArt.victoryTitle`; King Coo's still said SKY RECLAIMED), and the
+spec has a Presentation paragraph for each guardian and a "Guardians in the
+encounter" subsection.
+
+What was verified.
+- `flutter analyze` is clean and the whole suite passes: 2824 passed, 199
+  skipped (the capture and review tests), 0 failed; the sum of the base (2170),
+  K8's 282 new tests and G8's 351, plus 21. No timing test failed. Both
+  contract envelopes also hold at their long settings
+  (`KING_COO_CYCLES=6`, `GARGOYLE_PHASES=40`), with both enforcement switches
+  on by default. R0's fixtures (`frozen_rules41`, the 44 endless digests, the
+  235 scenery hashes) and R5's `frozen_ny43` (recorded at 42, re-recorded at 43 by the rebase) pass untouched: endless and
+  chapters 1 and 2 fly exactly as at 41, and the only rules-side lines the
+  guardians add are two render-only fields (`SkyBoss.cancelledSquad`,
+  `SkyBoss.lastSpotAt`).
+- `test/ny_guardians_stage_test.dart` (21 tests) flies the catalog's 3-2 and 3-4
+  with the real rules and renders a whole encounter of each through the real
+  game at 640 and 800 px (arrival, a calm beat, a hit into fury, the puff and
+  the whistle with the squadron at his back and in the open, the Gargoyle's
+  sweeps and feathers, the vent, the killing blow, the defeat, the victory
+  card), and in the same process the other boss's, so shared caches cannot
+  differ. Each boss pass equals his own stage byte for byte and is neither the
+  Baron's fall-through nor the other guardian's at every beat. It also pins:
+  one eyebrow word (GUARDIAN), one victory title equal to the result screen's
+  word, no player-facing "mini-boss", both name cards handed the level's line,
+  both story adapters and keepsakes in `StoryBossArt` and `CampaignHeadwear`,
+  the squadron pigeons held back from the shared pass for King Coo alone and
+  drawn for the Gargoyle, his feathers drawn by his stage and never by
+  `CombatArt`, and the real game's pass order. Mutation-checked: removing King
+  Coo's dispatch, making the victory title the Gargoyle's alone, or dropping
+  the line from the Gargoyle's card each fails it.
+- A sheet of the merged tree's King Coo frames is pixel-identical to K8's own
+  except for the victory title; both victory cards read GUARDIAN DOWN!.
+
+What was NOT verified.
+- Nobody has played either fight on a device or watched the arrival on a phone:
+  every picture is the test renderer at 640 and 800 px over New York at night.
+  The fights' lengths are those of bots that never miss or dither (a
+  first-timer is expected to need about a minute against King Coo and
+  62 s or more against the Gargoyle): the playtest is the gate.
+- The audio was measured against the pictures (envelopes, 60 Hz steps), never
+  heard. King Coo's reveal sound leads his flash by 0.25 s; the Gargoyle's
+  victory sound follows its card by 0.25 s; the tower's slide, the pigeons'
+  flush, the distant thunder and the visor's clatter have no cue.
+- The casual-bot loss in Steam Alley (3-3) at 640 px (a bot tapping 2.5 times a
+  second with no charged shots loses it with all its hearts; it finishes at
+  800 px) is still open: a human playtest should say whether 3-3 wants a
+  gentler lineup.
+- The voices are unrecorded: the 47 guardian clips (`docs/story-voices-sources.json`
+  and the new speakers' proposed voices) and the in-flight card lines have no
+  audio, so every scene and card is paced as with Character voices off, which
+  is all that was checked. (`flight_voices.dart`'s `bossKey` arms for the two
+  guardians, missing from this tree, were added by the rebase onto main.)
+- The opening flag (`Campaign.openingEnabled`) was still off when this entry
+  was written (it is open by default since the rebase, see the top entry).
+- King Coo's letterbox does not open for his COO! and closes in 0.2 s later
+  behind his defeat than the Gargoyle's and the dragon's do; kept as built.
+- The tree had not been rehearsed on the current main tree, which had moved
+  (voices, settings, audio, Fly Together): the rebase entry above does that.
+
+## 2026-10-01 King Coo's staging (K8)
+
+What was built. The finished King Coo parts (K1 contract, K2 head, K3 body and
+hide, K4 wings, K5 crumbs, K6 squadron lanes, K7 health bar and effects) were
+assembled and staged in the encounter in the Ember Dragon's method: an
+explicit king branch of `BossEncounterArt.paint`, backdrop, foreground and
+letterbox (never the Baron's fall-through), arrival, hit, fury, pop and
+defeat, the cap that falls off, his squadron drawn under him, the six story
+portraits (`KingCooStoryArt`) and the keepsake cap. The neck ruff joined the
+hide (its outline was the last seam between head and body), the inhale tilt
+was eased so the beak leads in every pose, and the contract's real-art
+envelope and budget checks now run by default.
+
+What was checked. `test/king_coo_staging_test.dart` and
+`test/king_coo_story_art_test.dart` (see the specification); the whole suite;
+rendered review sheets at 640 and 800 over New York at night, with Reduced
+Motion, and a 30 fps video of a whole encounter. Not covered: nobody has
+played the fight; the audio cues are not auditioned; the reveal sound leads
+the flash by 0.25 s (as the dragon's does).
+
+## 2026-10-01 New York stop (level data, R5)
+
+What was built. 3-1 to 3-4 carry the owner-approved structure: 3-1 Moth Light
+unchanged; 3-2 Wheels in the Rain is a 30 s run-up that introduces the Alley
+Pigeon (flocks 1, 1, 1) and King Coo (140 HP); 3-3 is renamed Steam Alley (80
+s, eight vents hop and ride alternating, flocks 1, 2, 2, 2, 2, 2, no Swarm
+rush); 3-4 Storm Warning is a 30 s run-up (flocks 1, 2, three vents, no
+Sprint) and the Searchlight Gargoyle (160 HP). The Swarm rush and the Gale
+live in Paris (3-6 and 3-7 keep their set pieces and gain NEW hints; Paris
+stays closed). The two guardians' card lines are their levels' `bossLine`s.
+The opening is behind `Campaign.openingEnabled` (off when this was written;
+open by default since the rebase).
+Merged first, in this order: the UI patch (map shields, GUARDIAN ribbon,
+"Guardian down!", "To be continued" card), its optional last-word hook, and
+the Alley Pigeon's art. The in-flight name card now says GUARDIAN (it said
+MINI-BOSS).
+
+What was checked.
+- The marks come from the real routes: 96, 36, 114 and 36 route stars, marks
+  50/75, 20/30, 55/90 and 20/30 (50% and 80% rounded to fives), and the
+  pigeons' worst case (3, 11, 3 stars) sits inside each level's cap (3, 12, 3).
+  A perfect collector that never shoots earns ★★★ on all four (and the stars
+  of a guardian's run-up reach the third mark); mortal sharp and average
+  pilots earn three stars on every level at 640 and 800 px wide; never
+  shooting still earns ★★ with a wide margin (`test/ny_star_marks_test.dart`).
+- Whole-level pilots (`test/ny_pilots.dart`, `ny_levels_flight_test.dart`)
+  complete every New York level and beat both guardians at 640 and 800 px,
+  mortal, with the base weapon the campaign gives: King Coo in 11.6 to 36.3 s
+  of combat (sharp, average, casual), the Gargoyle in 34.8 to 80.0 s. The
+  fight costs a pilot that reads the telegraphs nothing. A pilot hammering
+  Sprint through King Coo's whole fight meets the same ring times and is hurt
+  no more; 3-4 refuses Sprint whatever is pressed.
+- Frozen at 43 in new files (`frozen_ny43_test.dart`): the four plans and
+  routes, 27 bot flights, 17 pilot flights (a guardian win for each at both
+  widths and three skills) and three saved tapes (King Coo at 640, the
+  Gargoyle at 800, a whole Steam Alley). The rules 41 fixtures (16 levels,
+  46 flights, 3 tapes), the 44 endless digests and the 235 scenery hashes pass
+  untouched.
+- Catalog rules (`ny_campaign_data_test.dart`): a boss level holds no set
+  pieces (and refuses one), a guardian ends no chapter, and its win opens the
+  next level only (no postcard, no seal, no chapter unlock), the open stop's
+  progression, the star total (48 closed, 60 open), both states of the flag.
+- The nine guardian flow tests the UI step had to skip run against the real
+  data, as do the last-word tests; 3-3's lock note names King Coo.
+- With the flag off the map, the story scenes and the results render
+  byte-identically to the tree before the program (154 of 160 pictures); the
+  six that differ are the level cards of 3-2, 3-3 and 3-4, whose data changed.
+- `flutter analyze` is clean; the whole suite passes (2170 passed, 129
+  skipped capture tests).
+
+What is not covered. Nobody has played the levels: the fight lengths are
+those of bots that never miss or dither (the designers' models say a
+first-timer needs about 60 to 90 s against King Coo and 62 s or more against
+the Gargoyle), so the playtest is the gate. Steam Alley is the stop's
+hardest level for crude pilots: a casual bot (2.5 taps a second, no charged
+shots, one shot in 0.75 s) loses it at 640 px (it finishes with its hearts
+topped up, and mortal at 800 px). All pilots are Tap & Fly; the push-up modes
+have no enemies. The two guardians' art is still a placeholder, the voices
+(47 clips) are not recorded and the New York sound effects have not been
+listened to. Paris is data only. Nothing was run on a device.
+
+## 2026-10-01 New York rules, audio and steam art merged (M1)
+
+- The pigeon and steam rules (R1), King Coo (R2), the Gargoyle (R3), the
+  story, the audio and the steam art (hook only) are one tree. The pieces that
+  span agents are tested in real flights, not with counters set by hand:
+  - `test/ny_merge_squad_test.dart`: King Coo's squadron are Alley Pigeon
+    gliders (no prey, no raid state, on their tracks, never snatch a star
+    that lies in their way), a rock or a ram defeats one and raises both
+    `enemiesDefeated` and `pigeonsDefeated`, a touch or the boss's defeat
+    raises neither.
+  - `test/ny_merge_audio_test.dart`: the combat and boss cue classes are fed
+    after every step of real flights (a flock raiding, a thief shot, a whole
+    Steam Alley, King Coo's whole fight with the squadron and the pop, the
+    Gargoyle's whole fight, a bird in his beam, a glance off his lamp) and each
+    cue must play on the step its counter rises and on no other, for every
+    counter the audio reads.
+  - `test/ny_merge_guardians_test.dart`: the two test-only guardian plans
+    agree with the story on every key, refuse a rules 41 flight, are flown to
+    their finish, and the story plays whether or not a voice is recorded.
+  - `test/ny_merge_steam_art_test.dart`: every vent of four real routes goes
+    through the art's budget and envelope checks with the plume tops the rules
+    compute, and real flights are painted at 640 and 800.
+- One test assumption was corrected: `king_coo_test` expected no pigeon raids
+  in the fight because, when it was written, the run-up's pigeons were inert.
+  The squadron must add nothing to the raid counters; it does not.
+
+## 2026-10-01 Steam Geyser art
+
+- `lib/game/steam_geyser_art.dart` (and its emitter, plume and kit files)
+  draws the vents in three phases with the bird's feedback, from two calls in
+  `bird_game.dart`: 26 to 58 draw calls a vent, at most 148 for three vents
+  and the feedback, no layer, blur, shader or clip, Reduced Motion still
+  frames per phase. `test/steam_geyser_art_test.dart` (17) pins the budget,
+  the determinism, the plume against the hit and lift boxes, and that the
+  bird and stars are never covered. The optional New York roof stacks were not
+  landed (they change the endless scenery baselines).
+
+## 2026-10-01 New York sound effects
+
+- 25 cues in 32 files, all synthesised (`tool/prepare_sound_effects.py`, no
+  network, no source take), mastered and measured with
+  `tool/check_sound_effects.py`; every earlier WAV is byte-identical.
+  `docs/sound-effects.md`, "New York cues", has each cue's parameters,
+  seeds, measurements and audition order. Nobody has listened to them yet.
+- `test/new_york_sound_assets_test.dart` (64) checks the packaged files
+  (format, length, headroom, clipping, DC, loudness bands, phone band, each
+  cue's shape) and `test/new_york_audio_cues_test.dart` (27) the wiring with
+  the counters driven by hand.
+
+## 2026-10-01 New York story and voices: review fixes
+
+- Story review (`reports/24`): the four logic slips and the over-long lines of the
+  four guardian scenes were fixed before anything was recorded. The Gargoyle's chipped
+  beak (he is a stone eagle), the courier's bread-cart reveal ("I remember a bread cart
+  under the theatre marquee" instead of "we passed it"), the tower's weather vane (not
+  the Gargoyle's) with "I couldn't look away" answering "You looked" (now a happy
+  line), King Coo's job as his own title ("Commissioner wanted. Pay: a hot bagel a
+  day"), "guardian" said by Bill, "Vents hiss before they burst" (not "pipes"), "night
+  mail" (not "night post"), "Step into the light, darling", "Ninety-odd years", the
+  pigeons gag paid off ("And yes, the pigeons may stay"). Every line of the four
+  scenes is at most 85 characters (the longest recorded line is 82). Bill's tip
+  names the squadron's open lane, as the HUD tag `OPEN LANE = GO` and `SkyBoss.cooHint`
+  ("Follow the open lane!") now do; the three tests that pinned "green lane" changed
+  with it. No recorded clip, no chapter 1 to 3 line and no Dusk Empress line changed.
+- Voice documentation: `docs/story-voices-recording.md` lands the recording
+  checklist in the tree (a walkthrough from zero to one recorded clip, the backup,
+  the export format and settings, the 14 audio tags no recorded take has used with
+  proven stand-ins, the audition, the clip list). `--checklist` now rewrites only the
+  generated section between two markers (it used to print a list that replaced the
+  whole document); `--tags`, `--voices` and a one-line `--status` on a clone without
+  the takes are new. The sources file records the export format; the cast table has
+  every voice id. King Coo's first fallback is Rusty Malone. `campaign_voices_test`
+  (+3) checks the document is as fresh as the sources file, that `--checklist` leaves
+  everything outside the markers alone, that `--status` summarises missing takes,
+  and that every unproven tag is documented; `campaign_story_test` (+1) pins the
+  fixed lines. `sky_audio_test` no longer fails in a checkout under a folder named
+  `story` (it checks `audio/story/`).
+- `docs/campaign.md` says the campaign is Tap & Fly only.
+
+## 2026-10-01 New York story and voices
+
+- Four guardian scenes (`before-3-2`, `last-3-2`, `before-3-4`, `last-3-4`)
+  bring the story to 27 scenes; `CampaignStory.lastWord`,
+  `CampaignProgress.sceneLast`, `StoryScene.bossBeaten` and
+  `StoryLine.endOfStop` (the "To be continued…" caption that closes the
+  stop) are the new interfaces. No scene, line, clip or id that existed
+  changed.
+- Their 47 clips are in `docs/story-voices-sources.json` as *pending
+  recording* (no voice id, generation or hash, no audio): the game prints the
+  lines and plays nothing for them, paced like voices off. The cast table and
+  the recipe for a new character (`docs/story-voices.md`), the recording
+  checklist and the new `--status`, `--checklist` and `--source-dir` options
+  of `tool/prepare_story_voices.py` (which skips pending clips) are the
+  owner's way to record them. The 308 source takes exist only in
+  `build/story-voices/source/`, which is git-ignored: back them up.
+- `campaign_story_test.dart` (13): delivery checks keyed on the chapter boss
+  and guardians, scenes before each region, chapter boss and guardian (20),
+  the order of the 27 scenes, the guardians' last words (no flame seal, Bill
+  speaks last), the closing caption, the guardians' card lines, `sceneLast`.
+  `campaign_voices_test.dart` (17): every line, thank-you and sprint clip is
+  recorded or pending; the sources, the clip table and the printed lines agree;
+  the checker fails for a recorded clip that is missing from the table, a
+  table clip still pending, a recorded clip without voice, generation or hash,
+  and a text or prompt that speaks other words than the printed line (the
+  spoken words equal the printed words for every line, IPA pins and audio tags
+  aside); pending clips have no audio; `--status`, `--checklist` and the
+  script's skipping of pending clips run under Python; scenes with no
+  recording play silently at the pace of voices off.
+- Rehearsed on a copy: one pending clip recorded by hand (entry filled in,
+  script run with `--only`) turns the tests green; before the script runs, the
+  test names the clip that is not in the table.
+
+## 2026-10-01 Searchlight Gargoyle art and staging (G8)
+
+What was built. The Gargoyle's parts (head, body, wings, beams, feathers,
+plate and card) are assembled and staged in the real encounter
+(`gargoyle_encounter_art.dart`, `gargoyle_staging_art.dart`,
+`gargoyle_story_art.dart`): the tower, the arrival (storm, lightning, stone to
+life, roar, card, letterbox), the fight's hooks (beams under the backdrop, the
+feathers after the rig, the plate's feather pass, local jolts), the defeat
+(white-out, burst, rubble, pigeons, visor, two lit lenses), Reduced Motion, the
+story portraits and the keepsake. `GargoyleLayout.ledgeLip` is -3.0 (the nest),
+`visorBounds` and `crackSeeds[1]` follow the real art, `GargoylePose.damage`
+(health lost) grows the body's hairline cracks from the first hits.
+
+What was checked.
+- `test/gargoyle_staging_scan_test.dart`: in 86 arrival, fight and defeat
+  states at 640 and 800 px, with and without Reduced Motion, none of his solid
+  pixels is clipped by the layer bounds, the screen or the letterbox; a whole
+  fight flown by the pilot through the real game renders every phase (arrival,
+  card, perch, warning, both sweeps, the slit, vent, hit, glance, fury, feathers,
+  defeat, victory card, rubble); the joins (arrival to fight to blow, the
+  fade-in, the flock's lift-off, the nest pigeon) have no pop.
+- `test/gargoyle_staging_test.dart`: the hooks, the letterbox (the dragon's
+  timing), one bounded layer at most and no blur, the frame's budget, Reduced
+  Motion, a broken clock, and every audio cue's edge against its picture's
+  (within one 60 Hz step; the victory sound is .25 s after its card, as the
+  dragon's).
+- `test/gargoyle_story_test.dart`: the six moods, the stage's box, the vane
+  and crest pigeon, the keepsake, both lair scenes.
+- Found and fixed on the way: the plate's gauge glint threw in the real game
+  when his health fell below half a bar height (an inverted clamp); the contract's
+  silent `runAsync` tests now report; the body's crack no longer drops to nothing at the
+  killing blow.
+
+What was not covered. Nobody has played the arrival on a device; the audio
+files were measured against the picture, not heard; the in-fight lightning has no
+thunder (there is no cue for it).
+
+## 2026-10-01 Searchlight Gargoyle fix round (rules 43)
+
+- The play review (`reports/21`, D1 and D4) and the motion review (`22`, the
+  fan blades) found three defects in his rules; all three are fixed, with the
+  numbers before and after in `test/searchlight_gargoyle_fairness_test.dart`
+  and `searchlight_gargoyle_fix_test.dart`:
+  - **The fury slit** closed to a .214 corridor that a tapping hover (a .13
+    bob) held 52 to 70% of the time at 50 to 100 ms of thumb lag with 40 ms
+    of jitter. The inner beam ends moved from .26 and .74 to .21 and .79
+    (corridor .314): the Monte Carlo of the review (`test/gargoyle_lag.dart`)
+    gives 95 to 99% there (lag 0 to 100 ms, jitter 0 and 40 ms; the review's
+    pick, .22/.78, gave 89% at 100 ms/40 ms). The exhaustive search finds a
+    safe path from all 117 starts at a 0.08 margin of error, 5 and 2.5 taps a
+    second (0.04 before); the zone sweeps stay at 97% or more; a planner that
+    knows its lag beats a whole fight, beams, feathers and fury together, at
+    0, 50 and 100 ms without a scratch.
+  - **The lamp** was judged where a rock lands, so the usable fire window sat
+    0.35 to 0.76 s earlier than the visible vent, by screen width. It is
+    judged as the rock leaves (`BirdRock.releasedAt`): 2.6 s at every width
+    (the same trigger finger deals 90 damage at 1.5, 1.6, 1.78, 2.2 and 2.4
+    wide; judged on landing it counted 8 rocks of 9 on the narrowest sky and
+    7 on the widest). Fights are shorter for it: the sharp pilot 26 s (33),
+    the average one 53 to 81 s, the casual one 99 to 170 s.
+  - **`SkyBoss.previousHitAt`** (render-only): the hit before the last, so
+    the fan blades stop snapping on every re-hit.
+- Re-recorded on purpose (`RECORD_FROZEN_NY43=true`), the Gargoyle's
+  fixtures only: the six 3-4 bot flights (`3-4`, `3-4@w1.6`, `3-4@w2.4`,
+  `3-4@dmg10`, `3-4@mortal`, `3-4@w2.4,dmg10,mortal`), the six Gargoyle pilot
+  flights and the tape `campaign-3-4-gargoyle-800`. The catalog, 3-1 to 3-3,
+  King Coo and the other two tapes are byte-identical.
+
+## 2026-10-01 Searchlight Gargoyle rules (rules 43)
+
+- The Gargoyle's rules replace his scaffold stubs (`docs/specification.md`,
+  "Searchlight Gargoyle"): the beam that hurts like a course edge, the lamp
+  that only takes damage in the 2.6 s vent, the stone feathers, the aim latch
+  and fury's alternating slit. No random draw; endless and chapters 1 and 2
+  still fly as at 41 (the frozen fixtures pass unchanged).
+- `test/searchlight_gargoyle_fairness_test.dart` ports the report's
+  exhaustive tap-sequence search (`test/gargoyle_viability.dart`, reading the
+  shipped rules): at five taps a second every one of the 351 survivable start
+  states has a safe path (calm zone, fury zone, slit; 324 after 0.3 s and 303
+  after 0.45 s without a tap; the whole cycle from the perch feather too), and
+  the 1.5 s warning is fair down to 1.3 s (0.7, 0.9 and 1.1 s leave 31, 14 and
+  2 unwinnable starts).
+- `test/searchlight_gargoyle_test.dart` flies the rules through real level
+  flights: the aim latch, the lit band to the last hair, shield then heart,
+  shuttered and open lamp (rocks, charged shots, shatter blasts), fury's zone
+  then slit alternation, feathers at every width, cutscenes, the counters the
+  audio reads, determinism, pause, a recorded level's replay and backward
+  seeks, and the 351 proof starts flown through the simulation with the
+  search's own taps. A pilot that re-plans with the search wins without a
+  scratch at 640 and 800 px wide.
+- `test/searchlight_gargoyle_fight_test.dart` pins the fight's length
+  (base weapon, 160 health): a sharp player 33 s, an average one 62 s, a
+  casual one 80 to 100 s, without his 4.6 s arrival and 3.8 s defeat.
+
+## 2026-10-01 King Coo rules (rules 43)
+
+- King Coo's fight (`lib/domain/king_coo_rules.dart`) replaces his scaffold
+  stub (`docs/specification.md`, "King Coo"). It is a pure function of the
+  boss clock: no random draw, exact at any tick size, and a seek re-simulates
+  it exactly.
+- `test/king_coo_test.dart` pins the cycle to the tick (locks, launches,
+  bursts, the puff, the whistle), the clouds' hurt radius to their drawn
+  radius, the fluffed, puffed and popped chest, the squadron's lanes at four
+  screen widths, what a touch, a rock and a ram do to a squadron pigeon, the
+  counters, a recorded fight replayed with scrambled seeks and the test-only
+  3-2 guardian. `test/king_coo_fair_test.dart` ports the report's fairness
+  proof (a bird tapping at most five times a second has a safe sequence from
+  every state that survives the screen edges, for every hazard and both
+  chains) and flies the search's own policy through the real simulation: 104
+  runs, never a lost shield or heart, against the same runs that ignore the
+  telegraph, which are hurt in at least 8 of 10.
+
+## 2026-10-01 Alley Pigeon and Steam Geysers rules (rules 43)
+
+- The Alley Pigeon's raids (`lib/domain/alley_pigeon_rules.dart`) and the
+  steam vents (`lib/domain/steam_rules.dart`) replace their scaffold stubs
+  (`docs/specification.md`, "Alley Pigeon" and "Steam Geysers"). Neither draws
+  from the flight's shared random, so a level's route, passages and enemies
+  are the same with and without them (tested), and endless and chapters 1 and
+  2 still fly as at 41 (the frozen fixtures pass unchanged).
+- `test/alley_pigeon_rules_test.dart` (formations and star binding, the
+  telegraph at four screen widths, the dive, the snatch, every way a hit, a
+  ram or a touch ends a raid, squadron gliders), `alley_pigeon_replay_test`
+  (three recorded flights replayed at every checkpoint, backward seeks, tape
+  round trip, re-recording identical, refusal at 41) and
+  `alley_pigeon_economy_test` (the worst cases against the three-star marks:
+  a collector who never shoots always earns three stars, over twelve seeds per
+  level; the run-time thief cap).
+- `test/steam_test.dart` (laying, plume tops, scald, lift and ride, what Sprint
+  does not do, counters, the boss clearing the vents), `steam_reach_test` (the
+  reachability proof ported from the report: 12 rows of 870 starts, none
+  scalded, with teeth, plus 120 real flights of a 2.5 to 3 taps a second
+  player who touches no hop vent) and `steam_replay_test`.
+
+## 2026-10-01 New York scaffold (rules 43)
+
+- Rules version 43 and the New York interfaces landed before any of the
+  specials' rules (`SCAFFOLD.md`, in the program tree). Endless and chapters
+  1 and 2 are guarded by fixtures recorded from the untouched rules 41 game:
+  - `test/frozen_rules41_test.dart` pins the 16 playable levels' plan JSON
+    and laid routes, 46 bot flights (every level, narrow and wide screens,
+    both bosses, the base weapon, pilots that lose hearts or the flight) as
+    state digests with their outcomes, and three saved rules 41 tapes (one
+    endless, two campaign). Every flight is run at 41 and at the current
+    version and must match. Each tape must reload, re-encode to the same
+    bytes, replay to its digest and be re-recorded identically. Re-record
+    only with `RECORD_FROZEN_RULES41=true`, from a tree that flies 41 as
+    committed.
+  - `test/endless_plan_baseline_test.dart` also checks that 43 flies endless
+    exactly like 42 and 41, and that no endless flight at any version meets a
+    campaign-only boss or enemy. The 44 endless digests and 235 scenery
+    frames pass unchanged.
+- `rules43_version_test` checks the version getters, `minRulesVersion`, the
+  constructor and tape guards and the plan JSON. The scaffold tests cover the
+  pure cycles of each special; `mini_boss_damage_test` runs the endless
+  bosses' damage checks through a level; `ny_placeholder_art_test` fails if
+  a new kind is drawn like another kind; `campaign_opening_test` and
+  `campaign_opening_screens_test` cover the partial opening and guardians.
+- The suite passes: 1507 passed, 111 capture tests skipped. The systems
+  report's seven breakages were updated with comments, none deleted.
+
 ## 2026-09-30 Story voices
 
 - The campaign's characters speak (`docs/story-voices.md`). 308 clips were

@@ -13,17 +13,32 @@ enum StoryMood { plain, happy, surprised, angry, sad }
 /// One line of a scene.
 class StoryLine {
   const StoryLine.courier(this.text, [this.mood = StoryMood.plain])
-    : speaker = StorySpeaker.courier;
+    : speaker = StorySpeaker.courier,
+      endOfStop = false;
   const StoryLine.bill(this.text, [this.mood = StoryMood.plain])
-    : speaker = StorySpeaker.postmaster;
+    : speaker = StorySpeaker.postmaster,
+      endOfStop = false;
   const StoryLine.boss(this.text, [this.mood = StoryMood.plain])
-    : speaker = StorySpeaker.boss;
+    : speaker = StorySpeaker.boss,
+      endOfStop = false;
   const StoryLine.caption(this.text)
     : speaker = StorySpeaker.caption,
-      mood = StoryMood.plain;
+      mood = StoryMood.plain,
+      endOfStop = false;
+
+  /// The caption that closes a stop whose chapter is not finished yet:
+  /// "To be continued…". It is a caption (nobody's voice, no mood) that the
+  /// scene player may set as an end card instead of a place plate.
+  const StoryLine.endOfStop(this.text)
+    : speaker = StorySpeaker.caption,
+      mood = StoryMood.plain,
+      endOfStop = true;
   final StorySpeaker speaker;
   final String text;
   final StoryMood mood;
+
+  /// Whether this is the closing caption of a stop ([StoryLine.endOfStop]).
+  final bool endOfStop;
 }
 
 /// A short conversation on the campaign map: the courier, Postmaster Bill
@@ -46,6 +61,16 @@ class StoryScene {
   /// The boss who speaks in it, if one does.
   final BossKind? boss;
   final List<StoryLine> lines;
+
+  /// Whether the boss has been beaten by now: the scenes after a chapter
+  /// boss (`after-…`) and a guardian's last word (`last-…`). It has lost its
+  /// headwear and looks sheepish.
+  bool get bossBeaten => id.startsWith('after-') || id.startsWith('last-');
+
+  /// Whether the scene ends on the closing caption of a stop that leaves
+  /// its chapter unfinished ([StoryLine.endOfStop]): New York's last scene,
+  /// until Paris opens.
+  bool get endsStop => lines.isNotEmpty && lines.last.endOfStop;
 }
 
 /// The campaign's story, told in scenes between flights. See
@@ -56,6 +81,13 @@ class StoryScene {
 /// came from the Ember Dragon, who lives past the end of every route and
 /// has never been sent one himself. The last delivery is the first letter
 /// addressed to him.
+///
+/// Two guardians stand in New York's way before the chapter's boss: King Coo
+/// on 3-2 and the Searchlight Gargoyle on 3-4. Each has a scene at the lair
+/// ([before]) and a last word after its fall ([lastWord]), but no flame seal
+/// and no postcard: only a chapter's boss brings those. The Gargoyle's last
+/// word closes the stop on a "To be continued…" caption
+/// ([StoryScene.endsStop]) until Paris opens.
 abstract final class CampaignStory {
   /// The name under the Postmaster's lines.
   static const postmaster = 'Postmaster Bill';
@@ -65,9 +97,22 @@ abstract final class CampaignStory {
 
   /// The scene that comes before [level]: the prologue before 1-1, a
   /// route's opening before its first level, an arrival at the first level
-  /// of each later region, and the words at the lair before a boss. Null
-  /// for every other level.
+  /// of each later region, and the words at the lair before a boss or a
+  /// guardian. Null for every other level.
   static StoryScene? before(CampaignLevel level) => _before[level.id];
+
+  /// The scene after a guardian's fall: its last word at the lair, which
+  /// plays on the map once [level] has been beaten for the first time. Null
+  /// for every other level (a chapter's boss has [after]).
+  static StoryScene? lastWord(CampaignLevel level) => _last[level.id];
+
+  /// The line on each guardian's entrance name card, by level id, without
+  /// quotes. It is also the guardian's last word in its lair scene, and
+  /// `CampaignLevel.bossLine` in the level data says the same.
+  static const guardianLines = <String, String>{
+    '3-2': 'Nobody flies till the bread cart is found!',
+    '3-4': 'Hold still! Nobody ever stays in the light.',
+  };
 
   /// The scene after [chapter]'s boss falls, ahead of its postcard.
   static StoryScene after(CampaignChapter chapter) =>
@@ -79,7 +124,7 @@ abstract final class CampaignStory {
   /// Every scene, in the order the story tells them.
   static final List<StoryScene> scenes = [
     for (final chapter in Campaign.chapters) ...[
-      for (final level in chapter.levels) ?before(level),
+      for (final level in chapter.levels) ...[?before(level), ?lastWord(level)],
       after(chapter),
     ],
   ];
@@ -277,6 +322,71 @@ abstract final class CampaignStory {
         StoryLine.bill('I’d bet my cap she has one. Fly by starlight, rookie.'),
       ],
     ),
+    '3-2': StoryScene(
+      id: 'before-3-2',
+      region: WorldRegion.newYork,
+      boss: BossKind.kingCoo,
+      lines: [
+        StoryLine.boss(
+          'HALT! By order of the Commissioner, nothing with wheels or wings '
+          'passes!',
+          _angry,
+        ),
+        StoryLine.courier(
+          'Sky Club post! Umbrellas for the newsstand pigeons.',
+          _happy,
+        ),
+        StoryLine.boss(
+          'Umbrellas? A likely story! You’re the one who moved my bread '
+          'cart!',
+          _angry,
+        ),
+        StoryLine.courier('Your bread cart?', _surprised),
+        StoryLine.boss(
+          'Every night, same corner, same crumbs. Tonight: not a crumb, only '
+          'wheel tracks.',
+          _sad,
+        ),
+        StoryLine.bill(
+          'No flame seal on this guardian. Just a hungry pigeon and his '
+          'star-grabbing gang.',
+        ),
+        StoryLine.boss('Nobody flies till the bread cart is found!', _angry),
+        StoryLine.bill(
+          'Shoot him when he puffs up to whistle. Dodge stale crumb bombs, fly '
+          'the open lane!',
+        ),
+      ],
+    ),
+    '3-4': StoryScene(
+      id: 'before-3-4',
+      region: WorldRegion.newYork,
+      boss: BossKind.searchlightGargoyle,
+      lines: [
+        StoryLine.bill(
+          'The tower keeper says something up on the ledge shines lights at '
+          'the night mail.',
+        ),
+        StoryLine.boss(
+          'A visitor! Step into the light, darling, let me look at you!',
+          _happy,
+        ),
+        StoryLine.courier(
+          'Sky Club post! We have the tower’s weather vane. Please stop '
+          'shining that at us.',
+        ),
+        StoryLine.boss(
+          'Ninety-odd years on this ledge. Everyone admires the skyline. '
+          'Nobody looks up.',
+          _sad,
+        ),
+        StoryLine.boss('Hold still! Nobody ever stays in the light.', _angry),
+        StoryLine.bill(
+          'Stay in the dark, rookie, and shoot when his lamp opens. Don’t '
+          'mention pigeons.',
+        ),
+      ],
+    ),
     '3-5': StoryScene(
       id: 'before-3-5',
       region: WorldRegion.paris,
@@ -429,6 +539,84 @@ abstract final class CampaignStory {
         StoryLine.boss('The sky is mine. Your letters are kindling.', _angry),
         StoryLine.bill(
           'He won’t listen yet. Get through the fire first, rookie!',
+        ),
+      ],
+    ),
+  };
+
+  /// A guardian's last word, after its fall (see [lastWord]). The ids start
+  /// with `last-` so that their clips (`last-3-2-0`, …) cannot be taken for
+  /// a line of `after-3`.
+  static const _last = <String, StoryScene>{
+    '3-2': StoryScene(
+      id: 'last-3-2',
+      region: WorldRegion.newYork,
+      boss: BossKind.kingCoo,
+      lines: [
+        StoryLine.boss(
+          'My cap! …It was the only thing that made them listen.',
+          _sad,
+        ),
+        StoryLine.courier(
+          'Commissioner, I remember a bread cart under the theatre marquee, '
+          'out of the rain.',
+        ),
+        StoryLine.boss(
+          'The marquee? It was under the marquee. Out of the rain. All night.',
+          _surprised,
+        ),
+        StoryLine.courier(
+          'Nobody stole it, sir. It just wanted to stay dry.',
+          _happy,
+        ),
+        StoryLine.boss(
+          'And I closed the whole sky. …I may have overreacted.',
+          _sad,
+        ),
+        StoryLine.bill(
+          'Our pigeonholes have never had a pigeon. Commissioner wanted. Pay: a '
+          'hot bagel a day.',
+          _happy,
+        ),
+        StoryLine.boss('A bagel a day? …The Commissioner accepts.', _happy),
+        StoryLine.bill(
+          'Next, rookie: Steam Alley. Vents hiss before they burst. Every '
+          'letter lands!',
+          _happy,
+        ),
+      ],
+    ),
+    '3-4': StoryScene(
+      id: 'last-3-4',
+      region: WorldRegion.newYork,
+      boss: BossKind.searchlightGargoyle,
+      lines: [
+        StoryLine.boss(
+          'Ah, the curtain falls. …You chipped my beak. It was my best '
+          'feature.',
+          _sad,
+        ),
+        StoryLine.courier(
+          'Sorry! I couldn’t look away. And look: the tower’s new weather vane '
+          'is spinning.',
+        ),
+        StoryLine.boss('You looked. That’s all I ever wanted.', _happy),
+        StoryLine.bill(
+          'Stoneface, the night mail needs a landing light. Every courier will '
+          'look up!',
+          _happy,
+        ),
+        StoryLine.boss(
+          'A nightly audience! …Darling, I was born for this. The Gargoyle '
+          'accepts.',
+          _happy,
+        ),
+        StoryLine.bill(
+          'Welcome to the club, Stoneface. And yes, the pigeons may stay.',
+          _happy,
+        ),
+        StoryLine.endOfStop(
+          'To be continued… Next stop: Paris, the City of Light.',
         ),
       ],
     ),

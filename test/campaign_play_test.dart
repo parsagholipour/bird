@@ -184,7 +184,10 @@ void main() {
         expect(sim.plan, same(bat.plan));
         expect(sim.levelId, '1-3');
         expect(sim.region, bat.region);
+        // A level flies the newest rules; 41 is only the lowest it can fly
+        // (LevelPlan.minRulesVersion).
         expect(sim.rulesVersion, FlightSimulation.currentRulesVersion);
+        expect(sim.rulesVersion, greaterThanOrEqualTo(bat.plan.minRulesVersion));
         final tape = controller.recorder!.tape;
         expect(tape.plan, same(bat.plan));
         expect(tape.levelId, '1-3');

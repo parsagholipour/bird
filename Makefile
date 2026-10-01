@@ -4,6 +4,9 @@ FLUTTER ?= flutter
 ADB ?= $(firstword $(wildcard $(ANDROID_HOME)/platform-tools/adb $(ANDROID_SDK_ROOT)/platform-tools/adb) adb)
 DEVICE ?= $(shell $(ADB) devices 2>/dev/null | awk '$$2 == "device" { print $$1; exit }')
 TARGET_PLATFORM ?= android-arm64
+# Extra build flags. New York (3-1 to 3-4) is open by default; to ship a build
+# with it closed again: make build DEFINES=--dart-define=NEW_YORK_OPEN=false
+DEFINES ?=
 APK := build/app/outputs/flutter-apk/app-release.apk
 
 help:
@@ -34,10 +37,10 @@ devices:
 
 run:
 	@test -n "$(DEVICE)" || { echo "No authorized Android device found. Check the cable, enable USB debugging, and accept the RSA prompt."; $(ADB) devices -l; exit 1; }
-	$(FLUTTER) run -d $(DEVICE)
+	$(FLUTTER) run -d $(DEVICE) $(DEFINES)
 
 build:
-	$(FLUTTER) build apk --release --target-platform $(TARGET_PLATFORM)
+	$(FLUTTER) build apk --release --target-platform $(TARGET_PLATFORM) $(DEFINES)
 
 install: build
 	$(ADB) install -r $(APK)

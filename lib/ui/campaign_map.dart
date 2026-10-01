@@ -7,7 +7,9 @@ import 'package:flutter/scheduler.dart' show Ticker;
 import '../domain/sky_boss.dart' show BossKind;
 import '../game/regions/world_region.dart';
 import 'campaign_chrome.dart';
+import 'campaign_keepsake_art.dart' show CampaignHeadwear;
 import 'campaign_map_art.dart';
+import 'campaign_text_scale.dart';
 import 'components.dart';
 import 'theme.dart';
 import 'ui_sounds.dart';
@@ -24,6 +26,8 @@ class CampaignMapNode {
     this.stars = 0,
     this.isCurrent = false,
     this.boss,
+    this.guardian = false,
+    this.lockNote,
   });
 
   /// The label on the node, such as "1-3".
@@ -37,10 +41,25 @@ class CampaignMapNode {
   /// The level the courier is on: the bird perches here.
   final bool isCurrent;
 
-  /// The boss whose lair this is, for a chapter's last level.
+  /// The boss this level ends in: the lair of a chapter's last level, or,
+  /// with [guardian], the mini-boss that guards an earlier one.
   final BossKind? boss;
 
-  bool get isBoss => boss != null;
+  /// Whether [boss] is a guardian: a campaign-only mini-boss that guards its
+  /// level, not the boss of its chapter. A guardian's node is a shield, not a
+  /// lair, and carries its name on a plaque.
+  final bool guardian;
+
+  /// What unlocks a locked level, such as "Beat King Coo to unlock", which a
+  /// screen reader says after "Locked." (the node's picture shows a padlock
+  /// and nothing else). Null when the level is not in this build.
+  final String? lockNote;
+
+  /// A chapter's lair: the big node with the boss's crown on it.
+  bool get isBoss => boss != null && !guardian;
+
+  /// A guardian's shield node.
+  bool get isGuardian => boss != null && guardian;
   bool get locked => state == CampaignNodeState.locked;
 }
 
@@ -54,6 +73,7 @@ class CampaignMapStop {
     this.locked = false,
     this.comingSoon = false,
     this.postcard = false,
+    this.soonNote = 'Coming soon',
   });
   final WorldRegion region;
 
@@ -68,11 +88,20 @@ class CampaignMapStop {
   /// The region is not in this build yet.
   final bool comingSoon;
 
+  /// What the ribbon across a [comingSoon] stop says. A stop in a chapter the
+  /// build has partly opened names itself ("Paris — coming soon") so the
+  /// ribbon reads as the answer to the stop before it.
+  final String soonNote;
+
   /// This stop ends a beaten chapter, so its postcard waits on the route.
   final bool postcard;
 
   String get title => region.title;
 }
+
+/// A stop narrower than this (in layout units) sets a guardian's long name
+/// short on its plaque.
+const _compactBelow = 560.0;
 
 /// The campaign world map: one stop per region, painted with that region's
 /// own scenery, joined by a dotted mail route that runs from stop to stop.
@@ -354,6 +383,7 @@ class _CampaignMapState extends State<CampaignMap>
                               clock: clock,
                               still: still,
                               bannerHidden: widget.chromeHidden,
+                              compactNames: size.width / k < _compactBelow,
                               soonPoke: soonPoke,
                               onLevel: widget.onLevel,
                               onLockedLevel: widget.onLockedLevel,
@@ -429,7 +459,17 @@ class _MapLayout {
       final pattern = _patterns[stop.nodes.length.clamp(1, 5)]!;
       spots.add([
         for (final (j, (fx, fy)) in pattern.take(stop.nodes.length).indexed)
-          if (stop.nodes[j].isBoss)
+          if (stop.nodes[j].isGuardian)
+            // A guardian's plaque, which is wider than its shield, keeps
+            // inside the stop.
+            Offset(
+              (left + (right - left) * fx).clamp(
+                safe.left + _guardianRoom,
+                w - safe.right - _guardianRoom,
+              ),
+              h * (i.isOdd ? _flip(fy) : fy),
+            )
+          else if (stop.nodes[j].isBoss)
             // A lair keeps room for its name ribbon inside the stop.
             Offset(
               math.min(left + (right - left) * fx, w - safe.right - 116),
@@ -447,6 +487,10 @@ class _MapLayout {
   final EdgeInsets safe;
   final spots = <List<Offset>>[];
   final dots = <RouteDot>[];
+
+  /// How far a guardian's node keeps from the stop's sides: room for its
+  /// plaque, at the longest name.
+  static const _guardianRoom = 108.0;
 
   /// Height of the route where it crosses from one stop into the next.
   static const _seamY = .6;
@@ -535,6 +579,7 @@ class _StopLayer extends StatelessWidget {
     required this.clock,
     required this.still,
     required this.bannerHidden,
+    required this.compactNames,
     required this.soonPoke,
     required this.onLevel,
     required this.onLockedLevel,
@@ -546,6 +591,9 @@ class _StopLayer extends StatelessWidget {
   final int bird;
   final ValueListenable<double> clock;
   final bool still, bannerHidden;
+
+  /// A narrow stop sets a guardian's long name short on its plaque.
+  final bool compactNames;
   final ValueNotifier<int> soonPoke;
   final ValueChanged<String> onLevel;
   final ValueChanged<String>? onLockedLevel;
@@ -578,7 +626,11 @@ class _StopLayer extends StatelessWidget {
             right: safe.right,
             bottom: safe.bottom + 16,
             child: Center(
-              child: _SoonRibbon(poke: soonPoke, still: still),
+              child: _SoonRibbon(
+                poke: soonPoke,
+                still: still,
+                text: stop.soonNote,
+              ),
             ),
           ),
         for (final (j, node) in stop.nodes.indexed)
@@ -590,6 +642,7 @@ class _StopLayer extends StatelessWidget {
               clock: clock,
               still: still,
               dimmed: stop.locked,
+              compactNames: compactNames,
               onLevel: onLevel,
               onLockedLevel: (id) {
                 // A coming-soon stop has no message to show but its ribbon,
@@ -631,8 +684,8 @@ class _StopBanner extends StatelessWidget {
             ? ' Locked.'
             : ''}',
     excludeSemantics: true,
-    child: MediaQuery.withNoTextScaling(
-      child: Column(
+    child: CampaignTextScale.wrap(
+      Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           CustomPaint(
@@ -717,9 +770,14 @@ class _Sticker extends StatelessWidget {
 /// Tapping one of its locked levels makes it flutter, since it is the only
 /// message that stop has; Reduced Motion leaves it still.
 class _SoonRibbon extends StatefulWidget {
-  const _SoonRibbon({required this.poke, required this.still});
+  const _SoonRibbon({
+    required this.poke,
+    required this.still,
+    required this.text,
+  });
   final ValueListenable<int> poke;
   final bool still;
+  final String text;
 
   @override
   State<_SoonRibbon> createState() => _SoonRibbonState();
@@ -762,7 +820,7 @@ class _SoonRibbonState extends State<_SoonRibbon>
   Widget build(BuildContext context) => ExcludeSemantics(
     child: AnimatedBuilder(
       animation: flutter,
-      child: const MapNotice('Coming soon'),
+      child: MapNotice(widget.text),
       builder: (context, child) {
         final t = flutter.value;
         return Transform.rotate(
@@ -787,6 +845,7 @@ class _NodeSlot extends StatefulWidget {
     required this.clock,
     required this.still,
     required this.dimmed,
+    required this.compactNames,
     required this.onLevel,
     required this.onLockedLevel,
   });
@@ -794,11 +853,15 @@ class _NodeSlot extends StatefulWidget {
   final Offset center;
   final int bird;
   final ValueListenable<double> clock;
-  final bool still, dimmed;
+  final bool still, dimmed, compactNames;
   final ValueChanged<String> onLevel;
   final ValueChanged<String>? onLockedLevel;
 
   static const radius = 29.0, bossRadius = 38.0;
+
+  /// A guardian's shield is sized from this coin radius: smaller than the
+  /// lair's, about the size of a level coin.
+  static const guardianRadius = 29.0;
 
   @override
   State<_NodeSlot> createState() => _NodeSlotState();
@@ -842,8 +905,13 @@ class _NodeSlotState extends State<_NodeSlot>
   String get _semantics {
     final kind = node.isBoss
         ? '${node.id}, ${node.name}, boss'
+        : node.isGuardian
+        ? 'Level ${node.id}, ${node.name}, guardian '
+              '${CampaignHeadwear.name(node.boss!)}'
         : 'Level ${node.id}, ${node.name}';
-    if (node.locked) return '$kind. Locked.';
+    if (node.locked) {
+      return '$kind. Locked.${node.lockNote == null ? '' : ' ${node.lockNote}.'}';
+    }
     final stars = '${node.stars} of 3 stars';
     return node.isCurrent ? '$kind. Next up. $stars.' : '$kind. $stars.';
   }
@@ -852,9 +920,18 @@ class _NodeSlotState extends State<_NodeSlot>
   Widget build(BuildContext context) {
     // Levels on a locked stop step back under the clouds.
     final r =
-        (node.isBoss ? _NodeSlot.bossRadius : _NodeSlot.radius) *
+        (node.isBoss
+            ? _NodeSlot.bossRadius
+            : node.isGuardian
+            ? _NodeSlot.guardianRadius
+            : _NodeSlot.radius) *
         (widget.dimmed ? .8 : 1);
-    final box = r * 2 + 12;
+    // A shield stands taller than a coin of its radius; [reach] is how far
+    // the node reaches below its centre.
+    final reach = node.isGuardian ? MapGuardianPainter.halfHeight(r) : r;
+    final box = reach * 2 + 12;
+    // The plaque grows with the text size; the stars hang below it.
+    final plaque = _GuardianPlaque.heightFor(CampaignTextScale.of(context));
     final c = widget.center;
     final showStars = !node.locked;
     return Positioned(
@@ -906,15 +983,27 @@ class _NodeSlotState extends State<_NodeSlot>
                     dimension: box,
                     child: Center(
                       child: SizedBox(
-                        width: r * 2 + 4,
-                        height: r * 2 + MapNodePainter.depth + 4,
+                        width:
+                            (node.isGuardian
+                                    ? MapGuardianPainter.halfWidth(r)
+                                    : r) *
+                                2 +
+                            4,
+                        height: reach * 2 + MapNodePainter.depth + 4,
                         child: CustomPaint(
-                          painter: MapNodePainter(
-                            look: look,
-                            radius: r,
-                            boss: node.boss,
-                            pressed: pressed && !node.locked,
-                          ),
+                          painter: node.isGuardian
+                              ? MapGuardianPainter(
+                                  look: look,
+                                  radius: r,
+                                  boss: node.boss!,
+                                  pressed: pressed && !node.locked,
+                                )
+                              : MapNodePainter(
+                                  look: look,
+                                  radius: r,
+                                  boss: node.boss,
+                                  pressed: pressed && !node.locked,
+                                ),
                           child: Padding(
                             padding: EdgeInsets.only(
                               bottom:
@@ -932,10 +1021,17 @@ class _NodeSlotState extends State<_NodeSlot>
             ),
             if (showStars)
               Positioned(
-                top: box / 2 + r + (node.isBoss ? 30 : 6),
+                top:
+                    box / 2 +
+                    reach +
+                    (node.isBoss
+                        ? 30
+                        : node.isGuardian
+                        ? _GuardianPlaque.drop + plaque + 3
+                        : 6),
                 child: IgnorePointer(child: _StarsTag(stars: node.stars)),
               ),
-            if (node.isCurrent && !node.isBoss)
+            if (node.isCurrent && !node.isBoss && !node.isGuardian)
               Positioned(
                 top: box / 2 + r + 30,
                 child: IgnorePointer(child: _NameTag(node.name)),
@@ -947,9 +1043,21 @@ class _NodeSlotState extends State<_NodeSlot>
                   child: _BossName(name: node.name, locked: node.locked),
                 ),
               ),
+            if (node.isGuardian)
+              Positioned(
+                top: box / 2 + reach + _GuardianPlaque.drop,
+                child: IgnorePointer(
+                  child: _GuardianPlaque(
+                    name: CampaignHeadwear.name(node.boss!),
+                    short: widget.compactNames,
+                    boss: node.boss!,
+                    locked: node.locked,
+                  ),
+                ),
+              ),
             if (node.isCurrent)
               Positioned(
-                bottom: box / 2 + r - 6,
+                bottom: box / 2 + reach - 6,
                 child: IgnorePointer(
                   child: _PerchedBird(
                     bird: widget.bird,
@@ -965,7 +1073,7 @@ class _NodeSlotState extends State<_NodeSlot>
   }
 
   Widget? _face(double r) {
-    if (node.isBoss) return null;
+    if (node.isBoss || node.isGuardian) return null;
     if (node.locked) {
       return SizedBox(
         width: r * .8,
@@ -977,8 +1085,8 @@ class _NodeSlotState extends State<_NodeSlot>
         ),
       );
     }
-    return MediaQuery.withNoTextScaling(
-      child: Text(
+    return CampaignTextScale.wrap(
+      Text(
         node.id,
         style: heading(r * .62, weight: FontWeight.w700).copyWith(height: 1),
       ),
@@ -1016,8 +1124,8 @@ class _NameTag extends StatelessWidget {
   final String name;
 
   @override
-  Widget build(BuildContext context) => MediaQuery.withNoTextScaling(
-    child: Container(
+  Widget build(BuildContext context) => CampaignTextScale.wrap(
+    Container(
       padding: const EdgeInsets.fromLTRB(10, 3, 12, 4),
       decoration: BoxDecoration(
         color: SkyColors.ink,
@@ -1048,6 +1156,100 @@ class _NameTag extends StatelessWidget {
   );
 }
 
+/// A guardian's name card, hung at the foot of its shield: GUARDIAN in small
+/// capitals over the boss's name, on an ink plaque edged in the guardian's
+/// own colour, so it is not mistaken for a chapter lair's ribbon.
+///
+/// Both lines are 4.5:1 or better against the plaque, locked or not (a locked
+/// guardian's plaque is slate with cream lettering), and both follow the
+/// system text size: the plaque grows with it ([heightFor]) and the name
+/// shrinks to the plaque's widest ([maxWidth]) rather than reaching a
+/// neighbouring level.
+class _GuardianPlaque extends StatelessWidget {
+  const _GuardianPlaque({
+    required this.name,
+    required this.short,
+    required this.boss,
+    required this.locked,
+  });
+  final String name;
+
+  /// Whether a narrow stop sets a long name short ("Gargoyle").
+  final bool short;
+  final BossKind boss;
+  final bool locked;
+
+  /// How far the plaque hangs below the shield's point, and the widest it
+  /// gets.
+  static const drop = 1.0, maxWidth = 176.0;
+
+  /// The plaque's height at a text [scale] (1 to 1.3): its two lines, 11 and
+  /// 13 px at 1x, plus their padding.
+  static double heightFor(double scale) => (24 * scale + 14).ceilToDouble();
+
+  /// The name as set: whole, or its last word on a narrow stop.
+  String get shown => short && name.length > 12 && name.contains(' ')
+      ? name.split(' ').last
+      : name;
+
+  @override
+  Widget build(BuildContext context) {
+    final tone = locked ? SkyColors.cream : GuardianPlaqueLook.accent(boss);
+    return CampaignTextScale.wrap(
+      Builder(
+        builder: (context) => ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: maxWidth),
+          child: Container(
+            key: ValueKey('campaign-guardian-$name'),
+            height: heightFor(CampaignTextScale.of(context)),
+            padding: const EdgeInsets.fromLTRB(9, 3, 9, 3),
+            decoration: BoxDecoration(
+              color: locked ? GuardianPlaqueLook.lockedFill : SkyColors.ink,
+              borderRadius: BorderRadius.circular(11),
+              border: Border.all(
+                color: locked ? const Color(0xffb4c4cb) : tone,
+                width: 1.8,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: SkyColors.ink.withValues(alpha: .28),
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'GUARDIAN',
+                    style: bodyText(
+                      11,
+                      color: tone,
+                      weight: FontWeight.w900,
+                    ).copyWith(letterSpacing: 1.6, height: 1),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    shown,
+                    maxLines: 1,
+                    style: heading(
+                      13,
+                      color: SkyColors.cream,
+                      weight: FontWeight.w600,
+                    ).copyWith(height: 1),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// The boss's name on a ribbon across the foot of its lair.
 class _BossName extends StatelessWidget {
   const _BossName({required this.name, required this.locked});
@@ -1055,8 +1257,8 @@ class _BossName extends StatelessWidget {
   final bool locked;
 
   @override
-  Widget build(BuildContext context) => MediaQuery.withNoTextScaling(
-    child: CustomPaint(
+  Widget build(BuildContext context) => CampaignTextScale.wrap(
+    CustomPaint(
       painter: MapRibbonPainter(
         color: locked ? const Color(0xff8a9ea8) : SkyColors.ink,
         shade: locked ? const Color(0xff6c7f89) : const Color(0xff15282f),

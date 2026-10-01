@@ -314,6 +314,297 @@ def whistle(data, seed, start, seconds, hz_from, hz_to, gain, tremor=0.0,
         env *= 1 - swell + swell * u
         data[first + j] += gain * env * (tone / 1.9 + .25 * breath)
 
+# ---------------------------------------------------------------------------
+# New York (rules version 43): the Alley Pigeon, Steam Geysers, King Coo and
+# the Searchlight Gargoyle. Seeds are unique per cue: steam 201-249, pigeon
+# 251-299, King Coo 301-399, Gargoyle 401-499 (existing cues use up to 191).
+NEW_YORK_CUES = [
+    'pigeon_coo', 'pigeon_flap', 'pigeon_snatch', 'pigeon_defeat', 'star_rescue',
+    'steam_hiss', 'steam_burst', 'pipe_clang', 'steam_ride',
+    'gargoyle_strike', 'gargoyle_awaken', 'beam_warning', 'beam_sweep',
+    'beam_spot', 'lamp_vent', 'lamp_glance', 'feather_drop',
+    'coo_roar', 'coo_whistle', 'crumb_throw', 'crumb_splat', 'squad_flutter',
+    'coo_puff', 'coo_pop', 'coo_defeat',
+    # The audio fix round: a shorter arrival shout timed to the beak, the
+    # Gargoyle's own fury and shattering, the chest inflating at King Coo's end.
+    'coo_shout', 'gargoyle_fury', 'gargoyle_shatter', 'coo_inflate',
+]
+
+
+def coo_voice(data, at, length, hz_from, hz_to, gain=.30, vibrato=6.0,
+              roll=24.0, seed=1, bright=0.0):
+    """One pigeon coo: a hooty, nearly sinusoidal voice (a fundamental and a
+    weak second harmonic), a slow vibrato, a fast throat roll that roughens the
+    amplitude and a touch of breath. Glides exponentially [hz_from] to [hz_to].
+    [bright] adds harmonics 4-10 weighted by a vowel-like formant near 750 Hz
+    (1.0 = as loud as the fundamental at its peak), so a deep voice still has
+    something a phone speaker can play."""
+    rng = random.Random(seed)
+    first = int(at * RATE)
+    count = min(len(data) - first, int(length * RATE))
+    phase = 0.0
+    breath = 0.0
+    for j in range(count):
+        t = j / RATE
+        u = t / length
+        hz = hz_from * (hz_to / hz_from) ** u
+        hz *= 1 + .018 * math.sin(2 * math.pi * vibrato * t)
+        phase += 2 * math.pi * hz / RATE
+        tone = math.sin(phase) + .42 * math.sin(2 * phase + .6) + .12 * math.sin(3 * phase)
+        if bright:
+            # A vowel-like formant near 750 Hz that the harmonics slide through.
+            tone += bright * sum(
+                math.exp(-((k * hz - 750) / 450) ** 2) * math.sin(k * phase + k)
+                for k in range(4, 11))
+        rough = .80 + .20 * math.sin(2 * math.pi * roll * t)
+        breath += .3 * (rng.uniform(-1, 1) - breath)
+        env = min(1, t / .04) * min(1, (length - t) / .09) * (1 - .25 * u)
+        data[first + j] += gain * env * rough * (tone / 1.4 + .05 * breath)
+
+
+def clap(data, at, gain, seed):
+    """A wing clap: a dry band-limited 'whap' (about 280 Hz - 1.7 kHz) over a
+    soft body thump."""
+    rng = random.Random(seed)
+    start = int(at * RATE)
+    low = knee = 0.0
+    for j in range(min(int(.09 * RATE), len(data) - start)):
+        t = j / RATE
+        noise = rng.uniform(-1, 1)
+        low += .22 * (noise - low)
+        knee += .04 * (low - knee)
+        whap = (low - knee) * min(1, t / .0006) * math.exp(-t / .020)
+        thump = math.sin(2 * math.pi * 260 * t) * math.exp(-t / .022) * .30
+        data[start + j] += gain * (2.2 * whap + thump)
+
+
+def tick(data, at, hz, gain):
+    """A beak tick: a few milliseconds of bright sine."""
+    start = int(at * RATE)
+    for j in range(min(int(.006 * RATE), len(data) - start)):
+        t = j / RATE
+        data[start + j] += gain * math.sin(2 * math.pi * hz * t) * math.exp(-t / .0018)
+
+
+def puff(data, seed, start, seconds, gain):
+    """Feathers: soft low-passed noise that swells and thins."""
+    rng = random.Random(seed)
+    low = 0.0
+    first = int(start * RATE)
+    for j in range(min(int(seconds * RATE), len(data) - first)):
+        t = j / RATE
+        low += .07 * (rng.uniform(-1, 1) - low)
+        data[first + j] += gain * (math.sin(math.pi * t / seconds) ** 2) * low * 5
+
+
+def steam_noise(data, seed, start, seconds, gain, lp_from, lp_to, hp=.30,
+                attack=.02, release=.2, spit=0.0, spit_to=0.0):
+    """Steam: white noise band-passed between a slow low-pass knee [hp] and a
+    sweeping high cut (one-pole coefficient from [lp_from] to [lp_to], larger is
+    brighter), so it hisses rather than rumbles. [spit] gates it at that many
+    Hz (rising to [spit_to]) like a valve leaking in gasps."""
+    rng = random.Random(seed)
+    knee = high = 0.0
+    first = int(start * RATE)
+    count = min(len(data) - first, int(seconds * RATE))
+    phase = 0.0
+    for j in range(count):
+        t = j / RATE
+        u = t / seconds
+        coef = lp_from + (lp_to - lp_from) * u
+        noise = rng.uniform(-1, 1)
+        knee += hp * (noise - knee)
+        high += coef * ((noise - knee) - high)
+        env = min(1, t / attack) * min(1, (seconds - t) / release)
+        if spit:
+            phase += 2 * math.pi * (spit + (spit_to - spit) * u) / RATE
+            env *= .62 + .38 * math.sin(phase) * math.sin(phase * .37 + 1.3)
+        data[first + j] += gain * env * high
+
+
+def band_noise(data, seed, start, seconds, gain, hz, q=1.6, attack=.03,
+               release=.2):
+    """Noise through two cascaded resonant band-pass filters (state-variable,
+    12 dB per octave in all) centred on [hz]: a rustle or a whisper with a
+    clear colour, unlike [steam_noise]'s wide hiss."""
+    rng = random.Random(seed)
+    f = 2 * math.sin(math.pi * hz / RATE)
+    damp = 1 / q
+    low = band = low2 = band2 = 0.0
+    first = int(start * RATE)
+    count = min(len(data) - first, int(seconds * RATE))
+    for j in range(count):
+        t = j / RATE
+        noise = rng.uniform(-1, 1)
+        low += f * band
+        band += f * (noise - low - damp * band)
+        low2 += f * band2
+        band2 += f * (band - low2 - damp * band2)
+        env = min(1, t / attack) * min(1, (seconds - t) / release)
+        data[first + j] += gain * env * band2
+
+
+def clang(data, at, hz, gain, seed=5):
+    """An iron pipe or grate struck once: inharmonic partials with their own
+    decays over a tiny noise tick."""
+    start = int(at * RATE)
+    partials = [(1.0, 1.0, 9.0), (2.32, .55, 14.0), (3.90, .30, 22.0),
+                (5.60, .16, 34.0)]
+    rng = random.Random(seed)
+    for j in range(len(data) - start):
+        t = j / RATE
+        if t > .6:
+            break
+        strike = 1 - math.exp(-t / .0008)
+        value = sum(a * math.sin(2 * math.pi * hz * r * t) * math.exp(-t * d)
+                    for r, a, d in partials)
+        value += .5 * rng.uniform(-1, 1) * math.exp(-t / .0025)
+        data[start + j] += gain * strike * value
+
+
+def updraft(data, seed, seconds, gain, f_from, f_to):
+    """A rising column of air: noise through a resonant band-pass whose centre
+    climbs from [f_from] to [f_to] Hz under a smooth swell."""
+    rng = random.Random(seed)
+    low = band = 0.0
+    for i in range(min(len(data), int(seconds * RATE))):
+        t = i / RATE
+        u = t / seconds
+        f = f_from * (f_to / f_from) ** u
+        k = 2 * math.sin(math.pi * f / RATE)
+        noise = rng.uniform(-1, 1)
+        low += k * band
+        high = noise - low - .35 * band
+        band += k * high
+        env = math.sin(math.pi * u) ** 2
+        data[i] += gain * env * band
+
+
+def pea_whistle(data, at, length, hz=2950.0, trill=28.0, depth=.55, gain=.30,
+                seed=3):
+    """A police pea whistle: a steady two-tone carrier (two reeds 130 Hz apart)
+    whose amplitude flutters at the pea's rattle rate, over band-limited breath.
+    Steady pitch and AM, so it never resembles the falling FM screeches."""
+    rng = random.Random(seed)
+    first = int(at * RATE)
+    count = min(len(data) - first, int(length * RATE))
+    p1 = p2 = 0.0
+    low = band = 0.0
+    for j in range(count):
+        t = j / RATE
+        hz_t = hz * (1 + .012 * min(1, t / .05))  # a small blow-in glide
+        p1 += 2 * math.pi * hz_t / RATE
+        p2 += 2 * math.pi * (hz_t + 130) / RATE
+        flutter = 1 - depth * (.5 + .5 * math.sin(2 * math.pi * trill * t))
+        noise = rng.uniform(-1, 1)
+        low += .55 * (noise - low)
+        band += .85 * (low - band)
+        hiss = low - band
+        env = min(1, t / .008) * min(1, (length - t) / .06)
+        data[first + j] += gain * env * flutter * (math.sin(p1) + .7 * math.sin(p2) + .35 * hiss)
+
+
+def wing_claps(data, at, length, rate_from, rate_to, gain=.22, seed=5):
+    """A flock taking off: band-passed clap transients whose density rises then
+    thins; each is a few ms of filtered noise with its own centre frequency."""
+    rng = random.Random(seed)
+    t = at
+    while t < at + length:
+        u = (t - at) / length
+        rate = rate_from + (rate_to - rate_from) * math.sin(math.pi * u) ** .7
+        start = int(t * RATE)
+        centre = rng.uniform(700, 2600)
+        low = 0.0
+        size = gain * (.4 + .6 * rng.random()) * (1 - .55 * u)
+        for j in range(min(int(.028 * RATE), len(data) - start)):
+            tt = j / RATE
+            noise = rng.uniform(-1, 1)
+            low += (centre / 9000) * (noise - low)
+            data[start + j] += size * (low - .4 * noise) * math.exp(-tt / .0075) * min(1, tt / .001)
+        t += 1.0 / max(6.0, rate) * rng.uniform(.6, 1.4)
+
+
+def squeak(data, at, length, hz_from, hz_to, gain=.16, tremor=14.0):
+    """Rubber under strain: a glide with a fast tremor and a pinched harmonic."""
+    first = int(at * RATE)
+    count = min(len(data) - first, int(length * RATE))
+    phase = 0.0
+    for j in range(count):
+        t = j / RATE
+        u = t / length
+        hz = hz_from + (hz_to - hz_from) * u ** .8
+        phase += 2 * math.pi * hz * (1 + .03 * math.sin(2 * math.pi * tremor * t)) / RATE
+        env = math.sin(math.pi * min(1, u)) ** .7
+        data[first + j] += gain * env * (math.sin(phase) + .35 * math.sin(3 * phase))
+
+
+def arc_buzz(data, seed, start, seconds, hz_from, hz_to, glide, gain,
+             tremor=7.0, release=.25, swell=0.0):
+    """A searchlight's carbon arc: a bright buzzing saw (harmonics 1..n, each
+    1/k^.55 as loud, so the mids carry on a phone) that glides from [hz_from]
+    to [hz_to] over [glide] seconds and then holds, its level fluttering at
+    [tremor] Hz, with a hiss of arc noise. [swell] starts it that much quieter
+    and lets it build to full."""
+    rng = random.Random(seed)
+    first = int(start * RATE)
+    count = min(len(data) - first, int(seconds * RATE))
+    phase = 0.0
+    hiss = 0.0
+    for j in range(count):
+        t = j / RATE
+        u = min(1.0, t / glide)
+        hz = hz_from + (hz_to - hz_from) * u * u * (3 - 2 * u)
+        phase += 2 * math.pi * hz / RATE
+        top = max(3, min(24, int(3200 / hz)))
+        saw = sum(math.sin(k * phase) / k ** .55 for k in range(1, top + 1))
+        hiss += .35 * (rng.uniform(-1, 1) - hiss)
+        flutter = .78 + .22 * math.sin(2 * math.pi * tremor * t)
+        env = min(1, t / .05) * min(1, (seconds - t) / release)
+        env *= 1 - swell + swell * t / seconds
+        data[first + j] += gain * env * flutter * (saw + .10 * hiss)
+
+
+def stone_grind(data, seed, start, seconds, gain, lo=250, hi=1500, rate=8.0,
+                swell=0.0):
+    """Stone grinding on stone: band-passed noise in a stick-slip rhythm of
+    [rate] gasps a second, each slip a little irregular."""
+    rng = random.Random(seed)
+    a_hi = 1 - math.exp(-2 * math.pi * hi / RATE)
+    a_lo = 1 - math.exp(-2 * math.pi * lo / RATE)
+    low = knee = 0.0
+    first = int(start * RATE)
+    count = min(len(data) - first, int(seconds * RATE))
+    for j in range(count):
+        t = j / RATE
+        u = t / seconds
+        noise = rng.uniform(-1, 1)
+        low += a_hi * (noise - low)
+        knee += a_lo * (low - knee)
+        slip = .5 + .5 * math.sin(2 * math.pi * rate * t + 1.7 * math.sin(2 * math.pi * 1.3 * t)
+                                  + .9 * math.sin(2 * math.pi * 2.9 * t))
+        env = min(1, t / .08) * min(1, (seconds - t) / .15) * (1 - swell + swell * u)
+        data[first + j] += gain * env * slip * slip * (low - knee) * 4
+
+
+def crinkle(data, seed, start, seconds, count, gain, lo=1100, hi=3200):
+    """Crumbs, foil or chips: [count] short grains of band-passed noise (each
+    about 12 ms, a resonance somewhere in [lo, hi] Hz) scattered through a
+    span, louder early. Unlike [crumble] it lives in the mids a phone plays."""
+    rng = random.Random(seed)
+    for g in range(count):
+        at = start + rng.random() ** 1.3 * seconds
+        centre = rng.uniform(lo, hi)
+        f = 2 * math.sin(math.pi * centre / RATE)
+        size = gain * (1 - .55 * g / count) * (.5 + .5 * rng.random())
+        low = band = 0.0
+        first = int(at * RATE)
+        for j in range(min(int(.02 * RATE), len(data) - first)):
+            t = j / RATE
+            noise = rng.uniform(-1, 1)
+            low += f * band
+            band += f * (noise - low - .25 * band)
+            data[first + j] += size * min(1, t / .0006) * math.exp(-t / .0045) * band
+
 
 def synth(name, seconds, variant):
     if name in MENU_NOTES:
@@ -488,6 +779,284 @@ def synth(name, seconds, variant):
         whistle(data, 189, .01, seconds * .85, 1750, 1050, .16, tremor=23.0)
         whoosh(data, seconds, .20, descending=True, seed=191)
         return data
+    # ---- Alley Pigeon (reports/02-alley-pigeon.md §4) ---------------------
+    if name == 'pigeon_coo':
+        # "coo-ROO-oo": a short rise, a fuller hold, a falling tail. The second
+        # take is a whole tone higher, so a flock coos in a rolling chorus.
+        lift = 2 ** (2 * variant / 12)
+        coo_voice(data, 0, .13, 360 * lift, 430 * lift, .22, roll=26, seed=251 + variant)
+        coo_voice(data, .15, .21, 430 * lift, 400 * lift, .30, roll=26, seed=253 + variant)
+        coo_voice(data, .38, .17, 400 * lift, 290 * lift, .24, roll=26, seed=255 + variant)
+        return data
+    if name == 'pigeon_flap':
+        # Four dry wing claps, fading, over a low thump and a thin whoosh.
+        for i, (at, gain) in enumerate([(0, 1), (.075, .85), (.145, .7), (.21, .5)]):
+            clap(data, at + .004 * variant, gain * .55, 261 + 4 * i + variant)
+        whoosh(data, seconds * .9, .10, seed=269 + variant)
+        return data
+    if name == 'pigeon_snatch':
+        # A clap and a beak tick, then the star's chime played backwards (E6
+        # falling to B5: the sound of a loss) over a falling whistle.
+        clap(data, 0, .55, 273)
+        tick(data, .022, 3400, .30)
+        bell(data, 1318.51, .05, seconds - .05, .20)
+        bell(data, 987.77, .14, seconds - .14, .18)
+        whistle(data, 277, .04, .22, 1900, 950, .05)
+        return data
+    if name == 'pigeon_defeat':
+        # Two falling squeaks, a puff of feathers, a light thump and a tiny
+        # falling coo.
+        lift = 2 ** (2 * variant / 12)
+        chirp(data, 0, .09, 1700 * lift, 620 * lift, .30)
+        chirp(data, .10, .07, 1300 * lift, 520 * lift, .18)
+        puff(data, 281 + variant, .03, .20, .22)
+        impact(data, .14, .22, seed=283 + variant)
+        coo_voice(data, .22, .22, 330 * lift, 240 * lift, .16, roll=26, seed=285 + variant)
+        return data
+    if name == 'star_rescue':
+        # A star freed: three bright rising bells over a small lift of air.
+        for i, hz in enumerate([1567.98, 2093.0, 2637.02]):
+            bell(data, hz, i * .06, seconds - i * .06, .18 - .03 * i)
+        whoosh(data, seconds * .6, .07, seed=291)
+        tick(data, .02, 4200, .12)
+        return data
+    # ---- Steam Geysers (reports/03-steam-geysers.md §4) -------------------
+    if name == 'steam_hiss':
+        # Pressure building in an old pipe: a thin, bright hiss that swells and
+        # spits faster, with iron knocks ticking ever quicker under it.
+        steam_noise(data, 201, 0, seconds, 1.15, .22, .40, hp=.10, attack=.25,
+                    release=.05, spit=6.0, spit_to=15.0)
+        for k, at in enumerate([.06, .50, .86, 1.12, 1.29, 1.40]):
+            clang(data, at, 232 + 14 * k, .22 + .06 * k, seed=210 + k)
+        for i in range(len(data)):
+            t = i / RATE
+            data[i] *= (t / seconds) ** .7 * .8 + .2
+        return data
+    if name == 'steam_burst':
+        # A valve letting go: a crack and chest thump, a bright roaring jet
+        # that darkens as it spreads, and a fading hiss, over an iron clang.
+        impact(data, .16, .55, seed=221 + variant, heavy=True)
+        steam_noise(data, 223 + variant, 0, seconds, 1.55, .48, .09, hp=.10,
+                    attack=.006, release=.45)
+        steam_noise(data, 227 + variant, .03, seconds * .55, .55, .38, .20,
+                    hp=.04, attack=.01, release=.25, spit=23.0, spit_to=9.0)
+        clang(data, .012, 301 * (1 + .07 * variant), .22, seed=229 + variant)
+        return data
+    if name == 'pipe_clang':
+        # The grate's lid bangs up and settles: a ringing strike and a softer,
+        # lower clunk right behind it.
+        clang(data, 0, 392 * (1 + .09 * variant), .55, seed=231 + variant)
+        clang(data, .11, 329 * (1 + .09 * variant), .32, seed=233 + variant)
+        impact(data, .08, .18, seed=235 + variant)
+        return data
+    if name == 'steam_ride':
+        # An updraft catches the bird: a soft rising whoosh of air with a warm
+        # two-note sparkle (E5 then B5) on top.
+        updraft(data, 241, seconds, 3.4, 420, 2600)
+        whoosh(data, seconds * .8, .05, seed=243)
+        bell(data, 659.25, .05, seconds - .05, .60, warm=True)
+        bell(data, 987.77, .15, seconds - .15, .95, warm=True)
+        return data
+    # ---- Searchlight Gargoyle (reports/04-gargoyle.md §4) -----------------
+    if name == 'gargoyle_strike':
+        # Lightning hits the tower's rod: a tearing crack (a burst of 2.4 kHz
+        # noise a phone can play) over a chest thump, a spray of arcing snaps,
+        # the rod ringing, and thunder rolling away.
+        boom(data, 401, gain=.75, hz=70)
+        band_noise(data, 407, 0, .28, 1.4, 2400, q=.9, attack=.001, release=.27)
+        crackle(data, 403, 0, seconds * .6, 30, .30)
+        clang(data, .004, 1046.5, .10, seed=405)
+        return data
+    if name == 'gargoyle_awaken':
+        # The stone wakes: a groan from the ledge and stone grinding in slow,
+        # irregular slips (both peak at once and die away over the cue),
+        # twelve chunks of limestone falling away, and the steel lenses ringing
+        # as they blaze (three inharmonic partials of one bell).
+        layer = [0.0] * len(data)
+        growl(layer, 0, seconds, 38, 55, .30, 411, swell=.3)
+        stone_grind(layer, 413, 0, seconds - .2, .30, rate=4.3)
+        for i, v in enumerate(layer):
+            t = i / RATE
+            data[i] += v * min(1, t / .12) * (1 if t < .7 else math.exp(-(t - .7) * 1.9))
+        crumble(data, 415, grains=12)
+        for i, (hz, gain) in enumerate([(466.16, .15), (1286.6, .10), (2517.2, .06)]):
+            bell(data, hz, .30 + .05 * i, seconds - .30 - .05 * i, gain)
+        return data
+    if name == 'beam_warning':
+        # The shutter slams and the lamp winds up: a hum climbing 120 to 360 Hz
+        # under arcing crackle, relay ticks quickening into the ignition.
+        impact(data, .12, .40, seed=421)
+        whistle(data, 423, .02, seconds - .02, 120, 360, .22, tremor=6.0, swell=.9)
+        arc_buzz(data, 424, .02, seconds - .02, 120, 360, seconds, .05, tremor=9.0,
+                 release=.05, swell=.85)
+        crackle(data, 425, .10, seconds - .15, 34, .12)
+        at, gap = .20, .26
+        while at < seconds - .06:
+            u = at / seconds
+            chirp(data, at, .022, 1500 + 900 * u, 1000 + 500 * u, .16 + .14 * u)
+            at += gap
+            gap = max(.05, gap * .82)
+        return data
+    if name == 'beam_sweep':
+        # The beam burns: an arc-lamp buzz (a 100 Hz saw) that glides up as the
+        # beam travels for 1.8 s and then holds, its level fluttering at 7 Hz,
+        # under a soft whoosh of ignition.
+        arc_buzz(data, 431, 0, seconds, 100, 128, 1.8, .12, tremor=7.0)
+        crackle(data, 435, .3, seconds - .6, 22, .05)
+        whoosh(data, .7, .10, seed=433)
+        return data
+    if name == 'beam_spot':
+        # Caught: a pop and a bright G6 bell ("Spotted!").
+        impact(data, .12, .30, seed=441)
+        bell(data, 1567.98, 0, seconds, .40)
+        return data
+    if name == 'lamp_vent':
+        # The shutters fold open: eleven ratchet ticks falling 900 to 500 Hz,
+        # steam hissing out brighter and brighter, and a low sigh.
+        for k in range(11):
+            chirp(data, .02 + k * .028, .016, 900 - 36 * k, 820 - 32 * k - 20, .30)
+        sea_noise(data, 453, .10, seconds - .2, .40, .03, .28, attack=.35, release=.5)
+        whistle(data, 455, .25, seconds - .4, 240, 130, .05)
+        return data
+    if name == 'lamp_glance':
+        # A rock clinks off the shuttered lamp: steel partials and a dry tick.
+        lift = 1 + .09 * variant
+        bell(data, 1320 * lift, 0, seconds, .28)
+        bell(data, 1980 * lift, .012, seconds - .012, .10)
+        impact(data, .05, .25, seed=461 + variant)
+        return data
+    if name == 'feather_drop':
+        # A stone feather leaves the cornice: a rustle of 3 kHz air and a tick
+        # of stone, then it falls away on a thin whoosh.
+        band_noise(data, 471 + variant, 0, seconds * .7, .9, 3000 * (1 + .1 * variant),
+                   q=1.6, attack=.03, release=.25)
+        tick(data, .004, 950 * (1 + .12 * variant), .35)
+        whoosh(data, seconds, .05, descending=True, seed=473 + variant)
+        return data
+    # ---- King Coo (reports/05-king-coo.md §4) -----------------------------
+    if name == 'coo_roar':
+        # COO-ROO-COOOO: a giant pigeon's chest voice in three glides (with
+        # upper harmonics so a phone speaker has something to play), under a
+        # chest thump and a rough growl.
+        impact(data, .22, .42, seed=301, heavy=True)
+        coo_voice(data, .06, .36, 150, 196, .32, seed=303, bright=1.0)
+        coo_voice(data, .46, .34, 198, 168, .30, seed=305, bright=1.0)
+        coo_voice(data, .86, .70, 168, 104, .34, vibrato=5.0, seed=307, bright=1.0)
+        growl(data, .06, seconds - .3, 52, 66, .07, 309, swell=.3)
+        return data
+    if name == 'coo_whistle':
+        # tweet-tweeeet: a short blast, then the long trilled one from 0.12 s,
+        # so it sounds while the blast pose (0.4 s from the whistle) is on.
+        pea_whistle(data, 0.0, .11, hz=2900, trill=26, seed=311)
+        pea_whistle(data, .12, seconds - .19, hz=3000, trill=30, seed=313)
+        return data
+    if name == 'crumb_throw':
+        # An underhand toss from the sack: a cloth swish (1.7 kHz, not a bass
+        # whoosh), a dry thwup as it leaves the wing, and crumbs scattering.
+        band_noise(data, 321, 0, .26, .9, 1700, q=1.0, attack=.09, release=.15)
+        impact(data, .08, .22, seed=323)
+        crinkle(data, 326, .11, .23, 8, .30, lo=1100, hi=3000)
+        return data
+    if name == 'crumb_splat':
+        # pfft-splat: a soft pop and a wet slap of noise, then dry crumbs
+        # pattering down (crinkle grains in the 1-3.5 kHz band).
+        impact(data, .12, .30, seed=331)
+        band_noise(data, 337, 0, .30, 1.0, 1400, q=.9, attack=.004, release=.25)
+        crinkle(data, 338, .05, .50, 18, .28, lo=1000, hi=3500)
+        return data
+    if name == 'squad_flutter':
+        # A beat of silence, then a flock takes off over a chorus of soft coos.
+        wing_claps(data, .10, seconds - .15, 10, 26, .26, seed=341)
+        for k, hz in enumerate((260, 300, 340)):
+            coo_voice(data, .12 + .08 * k, .34, hz, hz * .8, .07, seed=343 + k)
+        whoosh(data, seconds, .07, descending=True, seed=349)
+        return data
+    if name == 'coo_puff':
+        # The chest inflates: rising air, a rubbery squeak and a tight creak.
+        whoosh(data, seconds * .92, .24, seed=351)
+        squeak(data, .10, seconds - .35, 240, 560, .15)
+        impact(data, .09, .22, seed=353)
+        bell(data, 740, seconds - .22, .20, .10, warm=True)
+        return data
+    if name == 'coo_pop':
+        # POP! then a sad deflating squeal and a dizzy little coo.
+        impact(data, .12, .62, seed=361)
+        whoosh(data, .36, .22, descending=True, seed=363)
+        squeak(data, .06, seconds - .30, 1150, 240, .22, tremor=9.0)
+        crumble(data, 365, grains=6)
+        coo_voice(data, seconds - .26, .22, 320, 250, .16, seed=367)
+        return data
+    if name == 'coo_defeat':
+        # The burst: a soft heavy whump, a deflating pbbbt, two sad falling coos.
+        impact(data, .30, .50, seed=371, heavy=True)
+        whoosh(data, .5, .18, descending=True, seed=373)
+        rng = random.Random(375)
+        low = 0.0
+        first = int(.06 * RATE)
+        for i in range(int(.9 * RATE)):
+            t = i / RATE
+            u = t / .9
+            flutter = .5 + .5 * math.sin(2 * math.pi * (13 - 9 * u) * t)
+            noise = rng.uniform(-1, 1)
+            low += (.10 + .18 * (1 - u)) * (noise - low)
+            data[first + i] += .22 * (1 - u) * flutter * low
+        coo_voice(data, .55, .42, 210, 150, .22, seed=377, bright=.9)
+        coo_voice(data, 1.02, .55, 168, 92, .22, vibrato=4.5, seed=379, bright=.9)
+        return data
+    # ---- Audio fix round (reports/22-review-motion-audio.md) --------------
+    if name == 'coo_shout':
+        # The arrival COO!, cut to the beak: the pose opens his beak as a sine
+        # pulse over 0.8 s (shut at 0, widest at 0.4 s, shut at 0.8 s), so one
+        # shout (a short rise, then a long fall) rides that pulse and the thump
+        # lands with the shock ring at 0 s. The fury keeps the 1.6 s coo_roar.
+        layer = [0.0] * len(data)
+        coo_voice(layer, .03, .36, 168, 205, .34, seed=381, bright=1.0)
+        coo_voice(layer, .30, .46, 205, 112, .34, vibrato=5.0, seed=383, bright=1.0)
+        growl(layer, .05, seconds - .12, 54, 62, .07, 385, swell=.2)
+        for i, v in enumerate(layer):
+            t = i / RATE
+            data[i] += v * (math.sin(math.pi * t / .80) ** .6 if t < .80 else 0)
+        impact(data, .22, .40, seed=387, heavy=True)
+        return data
+    if name == 'gargoyle_fury':
+        # His own fury, in the mids a phone plays: a stone crack and thump, a
+        # grinding roar and a searing arc surge (full by 0.1 s and held to 0.4 s, as the pose
+        # throws its roar), and the steel lenses ringing as they go white-hot.
+        impact(data, .22, .50, seed=481, heavy=True)
+        band_noise(data, 483, 0, .35, 1.3, 2200, q=.9, attack=.002, release=.33)
+        layer = [0.0] * len(data)
+        stone_grind(layer, 485, .04, .9, .50, lo=300, hi=2000, rate=9.0)
+        arc_buzz(layer, 487, .06, 1.0, 140, 230, .5, .14, tremor=11.0)
+        for i, v in enumerate(layer):
+            t = i / RATE
+            data[i] += v * min(1, t / .06) * (1 if t < .40 else math.exp(-(t - .40) * 3.2))
+        crackle(data, 489, .05, .6, 26, .22)
+        for i, (hz, gain) in enumerate([(466.16, .22), (1286.6, .17), (2517.2, .11)]):
+            bell(data, hz, .10 + .04 * i, seconds - .10 - .04 * i, gain)
+        return data
+    if name == 'gargoyle_shatter':
+        # The burst that ends him: a stone crack and thump, the lamp glass
+        # shattering (three short high partials and 44 snaps), limestone chips
+        # and rubble falling, and nine pigeons breaking out of the dust.
+        impact(data, .30, .55, seed=491, heavy=True)
+        band_noise(data, 493, 0, .30, 1.3, 1800, q=.8, attack=.001, release=.29)
+        crackle(data, 495, 0, .5, 44, .28)
+        crinkle(data, 497, .05, .9, 26, .25, lo=1200, hi=4200)
+        for i, hz in enumerate([3136.0, 4186.0, 5274.0]):
+            bell(data, hz, .02 + .01 * i, .35, .10 - .02 * i)
+        crumble(data, 499, grains=14)
+        wing_claps(data, .45, .65, 10, 22, .14, seed=492)
+        return data
+    if name == 'coo_inflate':
+        # His chest inflating under the hit-stop (death +0.12 s to the pop at
+        # +0.85 s): rising air, a rubbery squeak climbing and tightening, and
+        # creaks closing up as it nears bursting.
+        updraft(data, 391, seconds, 1.6, 500, 2200)
+        squeak(data, 0, seconds - .08, 300, 900, .20, tremor=16.0)
+        squeak(data, .15, seconds - .25, 450, 1350, .10, tremor=22.0)
+        for k, at in enumerate([.42, .54, .62, .68]):
+            tick(data, at, 1800 + 150 * k, .16)
+        return data
     if name == 'rush_clear':
         run = [523.25, 659.25, 783.99, 1046.5, 1318.51, 1567.98]
         for i, hz in enumerate(run):
@@ -580,7 +1149,7 @@ def phone_presence(data):
     return result
 
 
-def master(data, target_peak=.70, rms_db=None):
+def master(data, target_peak=.70, rms_db=None, dc_block=False):
     # DC removal, short click-free boundaries, then constant gain (no pumping).
     mean = sum(data) / max(1, len(data))
     data = [v - mean for v in data]
@@ -603,6 +1172,15 @@ def master(data, target_peak=.70, rms_db=None):
                 data = shaped
                 break
             drive *= 1.16
+    if dc_block:
+        # The fades and the soft knee leave a little offset: take it out again
+        # and fade the edges once more so the ends still start and stop at 0.
+        mean = sum(data) / len(data)
+        data = [v - mean for v in data]
+        for i in range(fade_in):
+            data[i] *= i / fade_in
+        for i in range(fade_out):
+            data[-1-i] *= i / fade_out
     gain = target_peak / max(.001, max(abs(v) for v in data))
     return [v * gain for v in data]
 
@@ -619,6 +1197,8 @@ def main():
         name, fields = match.groups()
         if name == 'game_over':
             continue  # Built by tool/prepare_game_over.py from voice and piano takes.
+        if re.search(r"file: '", fields):
+            continue  # Another cue's WAV at another level (see SoundSpec.file).
         if args.only and name not in args.only:
             continue
         seconds_match = re.search(r'seconds: ([.\d]+)', fields)
@@ -652,11 +1232,16 @@ def main():
                     raise FileNotFoundError(f'Missing generated source: {source}')
                 data = synth(name, seconds, variant)
                 origin = 'original synthesis'
-            targets = {'shoot': -15, 'power_shot': -15, 'boss_warning': -12, 'boss_reveal': -15, 'boss_roar': -14}
+            targets = {'shoot': -15, 'power_shot': -15, 'boss_warning': -12, 'boss_reveal': -15, 'boss_roar': -14,
+                       # New York's two cinematic roars and the strike, like boss_roar.
+                       'coo_roar': -14, 'gargoyle_awaken': -14, 'gargoyle_strike': -16,
+                       # The fix round's: the shout like the roar, the mids-heavy crumbs and fury raised.
+                       'coo_shout': -14, 'gargoyle_fury': -14, 'gargoyle_shatter': -15,
+                       'crumb_throw': -17, 'crumb_splat': -17}
             if name in ['boss_warning', 'boss_reveal', 'boss_roar']:
                 data = phone_presence(data)
             data = master(data, target_peak=.45 if name in MENU_NOTES else .70,
-                          rms_db=targets.get(name))
+                          rms_db=targets.get(name), dc_block=name in NEW_YORK_CUES)
             pcm = array.array('h', (round(v * 32767) for v in data))
             if sys.byteorder != 'little':
                 pcm.byteswap()

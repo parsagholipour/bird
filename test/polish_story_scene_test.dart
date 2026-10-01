@@ -106,7 +106,7 @@ Future<void> _save(WidgetTester tester, String name, {double ratio = 1}) async {
 int _telling(StoryScene scene) {
   final lines = scene.lines;
   int first(bool Function(StoryLine line) test) => lines.indexWhere(test);
-  final boss = scene.id.startsWith('after-')
+  final boss = scene.bossBeaten
       ? first((l) => l.speaker == StorySpeaker.boss)
       : first(
           (l) => l.speaker == StorySpeaker.boss && l.mood == StoryMood.angry,

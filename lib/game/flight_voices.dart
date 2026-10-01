@@ -149,6 +149,13 @@ class FlightVoices {
         '${bossKey(chapter.boss)}-card': [
           ?_story('before-${chapter.number}-8-4'),
         ],
+      // New York's two guardians say their name-card line (the 7th and 5th
+      // lines of their lair scenes). Those takes are not recorded yet: the
+      // pools stay empty and the card is silent until they are.
+      '${bossKey(BossKind.kingCoo)}-card': [?_story('before-3-2-6')],
+      '${bossKey(BossKind.searchlightGargoyle)}-card': [
+        ?_story('before-3-4-4'),
+      ],
     },
   );
 
@@ -157,13 +164,29 @@ class FlightVoices {
     return ms == null ? null : VoiceClip(name, 'audio/story/$name.ogg', ms);
   }
 
-  /// A boss's name in clip names.
+  /// A boss's name in clip names. King Coo and the Searchlight Gargoyle (New
+  /// York's guardians) have their own keys, never another boss's, so they can
+  /// never borrow its voice; they have no in-flight lines yet, so every pool
+  /// asked for them is empty and they stay silent (see [voicedBosses]).
   static String bossKey(BossKind kind) => switch (kind) {
     BossKind.baronBat => 'baron',
     BossKind.spitterBeetle => 'spitter',
     BossKind.duskMoth => 'empress',
     BossKind.pirate => 'captain',
     BossKind.dragon => 'dragon',
+    BossKind.kingCoo => 'coo',
+    BossKind.searchlightGargoyle => 'gargoyle',
+  };
+
+  /// The bosses that have in-flight lines in `docs/flight-voices-sources.json`
+  /// (taunts, hurt cries, their bird's answers). The guardians have none
+  /// yet; adding theirs means adding them here and to the script.
+  static const voicedBosses = {
+    BossKind.baronBat,
+    BossKind.spitterBeetle,
+    BossKind.duskMoth,
+    BossKind.pirate,
+    BossKind.dragon,
   };
 
   /// A region's name in clip names.
@@ -330,8 +353,11 @@ class FlightVoices {
           EnemyKind.caveBat || EnemyKind.simpleBat => 'bat',
           EnemyKind.spitterBeetle => 'beetle',
           EnemyKind.duskMoth => 'moth',
+          // New York's Alley Pigeon has no in-flight line: it is not spotted
+          // aloud (and never borrows a bat's).
+          EnemyKind.alleyPigeon => null,
         };
-        if (_spotted.add(kind)) {
+        if (kind != null && _spotted.add(kind)) {
           cues.add(VoiceCue.of('spot', _mine('spot-$kind')));
           break;
         }

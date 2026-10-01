@@ -29,6 +29,14 @@ import 'pirate_sea_art.dart';
 import 'pirate_ship_art.dart';
 import 'boss_ammo_art.dart';
 import 'boss_health_bar_art.dart';
+import 'gargoyle_beam_art.dart';
+import 'gargoyle_encounter_art.dart';
+import 'gargoyle_encounter_ui.dart';
+import 'king_coo_crumb_art.dart';
+import 'king_coo_encounter_ui.dart';
+import 'king_coo_squad_art.dart';
+import 'king_coo_staging_art.dart';
+import 'ny_placeholder_art.dart';
 import 'sky_scenery.dart';
 
 abstract final class BossEncounterArt {
@@ -40,6 +48,8 @@ abstract final class BossEncounterArt {
     BossKind.duskMoth => DuskMothBossRig.coral,
     BossKind.pirate => PirateBossRig.sea,
     BossKind.dragon => DragonPalette.flame,
+    BossKind.kingCoo => KingCooStaging.tint,
+    BossKind.searchlightGargoyle => NyPlaceholderArt.tint(boss.kind),
   };
   static Color _ammoColor(SkyBoss boss) => switch (boss.kind) {
     BossKind.baronBat => BossRig.ember,
@@ -47,6 +57,8 @@ abstract final class BossEncounterArt {
     BossKind.duskMoth => DuskMothBossRig.pollen,
     BossKind.pirate => PirateBossRig.flame,
     BossKind.dragon => DragonPalette.flame,
+    BossKind.kingCoo => KingCooStaging.light,
+    BossKind.searchlightGargoyle => NyPlaceholderArt.light(boss.kind),
   };
   static Color _light(SkyBoss boss) => switch (boss.kind) {
     BossKind.baronBat => _gold,
@@ -54,6 +66,8 @@ abstract final class BossEncounterArt {
     BossKind.duskMoth => DuskMothBossRig.silk,
     BossKind.pirate => PirateBossRig.flameCore,
     BossKind.dragon => DragonPalette.flameGold,
+    BossKind.kingCoo => KingCooStaging.light,
+    BossKind.searchlightGargoyle => NyPlaceholderArt.light(boss.kind),
   };
   static Paint _fill(Color color, [double opacity = 1]) =>
       Paint()
@@ -65,6 +79,11 @@ abstract final class BossEncounterArt {
         ..strokeCap = StrokeCap.round;
 
   static void backdrop(Canvas c, Size size, SkyBoss boss, BossMotion m) {
+    if (boss.isGargoyle) {
+      // The Searchlight Gargoyle's storm, lightning, warning and beams.
+      GargoyleEncounterArt.backdrop(c, size, boss, m);
+      return;
+    }
     final h = size.height, w = size.width;
     final tint = _tint(boss);
     final center = Offset(
@@ -88,6 +107,15 @@ abstract final class BossEncounterArt {
           ],
         ).createShader(halo),
     );
+    // King Coo's crumb bombs: the rings, the fury corridor, the clouds, the
+    // sprinkle and the rolls clear of him are drawn here, in the backdrop
+    // slot, so they are under the stars, the enemies and the bird (K5).
+    if (boss.isKingCoo) KingCooCrumbArt.under(c, size, boss, m);
+    // King Coo's whistle call (lanes, ghost, queue, siren light) goes under
+    // everything the bird flies through (K6).
+    if (boss.isKingCoo) KingCooSquadArt.paint(c, size, boss, m);
+    // A mini-boss gets only its tinted halo until its own staging lands.
+    if (boss.isMiniBoss) return;
     if (boss.isPirate) {
       _seaMood(c, size, boss, m);
       return;
@@ -157,6 +185,17 @@ abstract final class BossEncounterArt {
       _paintDragon(c, size, sim, m);
       return;
     }
+    if (boss.isKingCoo) {
+      // Explicit dispatch to his own stage (never the Baron's fall-through).
+      KingCooStaging.paint(c, size, sim, m);
+      return;
+    }
+    if (boss.isGargoyle) {
+      // His tower and himself, his feathers and the arrival's, fight's and
+      // defeat's effects: never the Baron's fall-through below.
+      GargoyleEncounterArt.paint(c, size, sim, m);
+      return;
+    }
     final ammoLight = _light(boss);
     final center = Offset(boss.x * h, boss.y * h) + m.offset * h;
     // The upgraded Baron's screech warning and wall sit under everything.
@@ -217,6 +256,15 @@ abstract final class BossEncounterArt {
         DuskMothBossRig.paint(c, boss, m, lookY: (sim.birdY - boss.y) * 3);
       } else if (boss.isSpitter) {
         SpitterBossRig.paint(c, boss, m, lookY: (sim.birdY - boss.y) * 3);
+      } else if (boss.isMiniBoss) {
+        // Early dispatch: a mini-boss is never drawn by the Baron's rig below.
+        // Stub (R0) until the boss art builders' own rigs replace it.
+        NyPlaceholderArt.rig(
+          c,
+          boss.kind,
+          puff: boss.puffAmount,
+          lampOpen: boss.lampOpenness,
+        );
       } else if (boss.screeches) {
         BaronStormRig.paint(c, boss, m, lookY: (sim.birdY - boss.y) * 3);
       } else {
@@ -228,6 +276,8 @@ abstract final class BossEncounterArt {
             ? [DuskMothBossRig.eyeCenter]
             : boss.isSpitter
             ? [SpitterBossRig.eyeCenter]
+            : boss.isMiniBoss
+            ? const <Offset>[]
             : const [Offset(-.36, -.25), Offset(.36, -.25)];
         for (final eye in eyes) {
           c.drawOval(
@@ -508,9 +558,9 @@ abstract final class BossEncounterArt {
   }
 
   /// How much of its own shake the dragon shows: all of it, but only 0.4
-  /// (its flashes 0.7) while the camera is shaking too. The shared camera scales the
-  /// whole world by 1.018 on the first shaking frame and back on the last
-  /// (`bird_game.dart`), so a local jolt on top would compound it. The breath's
+  /// (its flashes 0.7) while the camera is shaking too. The shared camera slides
+  /// and zooms the whole world with its shake (`BirdGame.shakeZoom`, 1 at rest),
+  /// so a local jolt on top would compound it. The breath's
   /// snap never meets it (the rules shake the camera for hits, fury, the roar
   /// and the burst only); a hit that lands in the same 0.3 s does.
   static double _underCamera(BossMotion m, [double shaken = .4]) =>
@@ -1120,6 +1170,24 @@ abstract final class BossEncounterArt {
           BossMotion.ramp(k, 0, 1.3),
           reduced,
         );
+      } else if (boss.isMiniBoss) {
+        // Stub: a plain burst in the mini-boss's own colours.
+        _burst(
+          c,
+          at,
+          h,
+          BossMotion.ramp(k, 0, 1.3),
+          26,
+          .5,
+          reduced,
+          colors: [
+            NyPlaceholderArt.tint(boss.kind),
+            NyPlaceholderArt.light(boss.kind),
+            BossRig.cream,
+          ],
+          outlined: true,
+          scales: false,
+        );
       } else {
         _burst(
           c,
@@ -1304,6 +1372,10 @@ abstract final class BossEncounterArt {
       const Color(0xff8e7a8c),
       const Color(0xfff3e4dc),
     ),
+    // The guardians' defeats are their own stages' (never drawn here); one arm
+    // each, so neither is mistaken for the other or for the Baron.
+    BossKind.kingCoo => NyPlaceholderArt.smoke(kind),
+    BossKind.searchlightGargoyle => NyPlaceholderArt.smoke(kind),
   };
 
   /// Overlapping puffs share one outline: rims first, then shadowed bodies,
@@ -1411,6 +1483,10 @@ abstract final class BossEncounterArt {
 
   // Each boss drops its own headwear during the defeat.
   static void _headwear(Canvas c, Offset at, double h, BossMotion m) {
+    if (m.boss.isMiniBoss) {
+      NyPlaceholderArt.headwearTumble(c, at, h, m);
+      return;
+    }
     if (m.boss.isDragon) {
       _dragonCrown(c, at, h, m);
       return;
@@ -1777,7 +1853,12 @@ abstract final class BossEncounterArt {
     BossMotion m,
   ) {
     final h = size.height, w = size.width, boss = m.boss;
-    if (boss.isDragon) {
+    if (boss.isGargoyle) {
+      // SPOTTED!, over the bird (G5), and the burst's own flash (never the
+      // shared cream pop).
+      GargoyleBeamArt.spottedNow(c, size, sim, reducedMotion: m.reducedMotion);
+      GargoyleEncounterArt.foreground(c, size, sim, m);
+    } else if (boss.isDragon) {
       if (!boss.age.isFinite || (m.defeated && !m.death.isFinite)) return;
       _burstFlash(c, size, m);
     } else if (m.defeated && !m.reducedMotion) {
@@ -1788,7 +1869,13 @@ abstract final class BossEncounterArt {
         c.drawRect(Offset.zero & size, _fill(BossRig.cream, .3 * u * u));
       }
     }
-    final focus = boss.isDragon ? dragonFocus(m) : m.focus;
+    final focus = boss.isDragon
+        ? dragonFocus(m)
+        : boss.isKingCoo
+        ? KingCooStaging.focus(m)
+        : boss.isGargoyle
+        ? GargoyleEncounterArt.focus(m)
+        : m.focus;
     final bar = h * .082 * focus;
     if (focus > 0) {
       c.drawRect(Rect.fromLTWH(0, 0, w, bar), _fill(_night, .95));
@@ -1835,6 +1922,29 @@ abstract final class BossEncounterArt {
             !_ownCard) {
           _nameCard(c, size, boss, m, line: bossLine(sim));
         }
+      } else if (boss.isKingCoo) {
+        // His own card, after the COO!: never the shared one.
+        KingCooEncounterUi.nameCard(
+          c,
+          size,
+          boss,
+          m,
+          birdY: sim.birdY,
+          line: bossLine(sim),
+        );
+      } else if (boss.isGargoyle) {
+        // His card slams on the roar and carries the level's story line; the
+        // shared card stands in only if his draws nothing.
+        if (!GargoyleEncounterUi.nameCard(
+          c,
+          size,
+          boss,
+          m,
+          birdY: sim.birdY,
+          line: bossLine(sim),
+        )) {
+          _nameCard(c, size, boss, m, line: bossLine(sim));
+        }
       } else {
         _nameCard(c, size, boss, m, line: bossLine(sim));
       }
@@ -1845,6 +1955,10 @@ abstract final class BossEncounterArt {
                 ? 'DODGE THE CANNON  ·  STAY OUT OF THE WATER'
                 : boss.isDragon
                 ? 'DODGE THE FIREBALLS  ·  ESCAPE THE BREATH'
+                : boss.isKingCoo
+                ? 'LEAVE THE RINGS  ·  SHOOT HIS CHEST WHEN IT PUFFS'
+                : boss.isGargoyle
+                ? 'STAY OUT OF THE LIGHT  ·  SHOOT THE LAMP WHEN IT OPENS'
                 : boss.screeches
                 ? 'WHEN HE SCREECHES  ·  FLY TO THE GAP'
                 : 'GET READY  ·  FLAP, DODGE, FIRE'
@@ -1896,6 +2010,10 @@ abstract final class BossEncounterArt {
           ? 'SOMETHING IS BREWING'
           : boss.isDragon
           ? 'THE SKY CATCHES FIRE'
+          : boss.isKingCoo
+          ? 'THE CURB IS CLOSED'
+          : boss.isGargoyle
+          ? 'STORM WARNING'
           : boss.screeches
           ? 'THE BARON RETURNS'
           : 'A SHADOW APPROACHES',
@@ -1934,6 +2052,10 @@ abstract final class BossEncounterArt {
           ? 'The air is starting to fizz…'
           : boss.isDragon
           ? 'Great wings beat above the clouds…'
+          : boss.isKingCoo
+          ? 'Somebody is very cross about the bread cart…'
+          : boss.isGargoyle
+          ? 'Something on the ledge is watching…'
           : boss.screeches
           ? 'He is back, and he is much louder…'
           : 'The sky belongs to someone else…',
@@ -1950,11 +2072,31 @@ abstract final class BossEncounterArt {
   static String? bossLine(FlightSimulation sim) {
     final boss = sim.boss;
     if (sim.levelId == null || boss == null) return null;
+    // A guardian's line belongs to its level, not to a chapter.
+    final level = Campaign.level(sim.levelId!);
+    if (level != null && level.boss == boss.kind) {
+      final line = Campaign.bossLine(level);
+      if (line != null) return '“$line”';
+    }
     for (final chapter in Campaign.chapters) {
       if (chapter.boss == boss.kind) return '“${chapter.bossLine}”';
     }
     return null;
   }
+
+  /// The small gold word above a boss's name on its entrance card: the
+  /// numbered encounter for a chapter boss, GUARDIAN for a campaign-only
+  /// mini-boss (one word everywhere: the level card's ribbon, the result and
+  /// this card all say GUARDIAN, never ENCOUNTER 06 or MINI-BOSS).
+  static String nameCardEyebrow(SkyBoss boss) => boss.isMiniBoss
+      ? 'GUARDIAN'
+      : 'ENCOUNTER ${boss.number.toString().padLeft(2, '0')}';
+
+  /// The big title of the victory card: `GUARDIAN DOWN!` for every
+  /// campaign-only guardian (King Coo and the Searchlight Gargoyle, the same
+  /// words as the result screen), `SKY RECLAIMED` for a chapter's boss.
+  static String victoryTitle(SkyBoss boss) =>
+      boss.isMiniBoss ? 'GUARDIAN DOWN!' : 'SKY RECLAIMED';
 
   /// [line] is a campaign boss's line, set under the epithet; the card
   /// fades it in and out with the rest.
@@ -1993,7 +2135,7 @@ abstract final class BossEncounterArt {
     final top = h * .12;
     _text(
       c,
-      'ENCOUNTER ${boss.number.toString().padLeft(2, '0')}',
+      nameCardEyebrow(boss),
       Offset(x, top),
       h * .03,
       _gold,
@@ -2095,7 +2237,9 @@ abstract final class BossEncounterArt {
     );
     final title = _text(
       c,
-      'SKY RECLAIMED',
+      // A guardian is not a chapter's boss: the card says so (the result
+      // screen's own word), the same for King Coo and the Gargoyle.
+      victoryTitle(boss),
       Offset(w * .5, y),
       h * .08,
       BossRig.cream,

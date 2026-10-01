@@ -311,23 +311,63 @@ void main() {
 
   const phone = Size(800, 360);
 
+  // New York is open in the build as it ships (`NEW_YORK_OPEN` defaults to
+  // true); each test that depends on the state forces it with the hooks, so
+  // the suite passes under either define.
+  tearDown(() {
+    Campaign.openedForTest = false;
+    Campaign.closedForTest = false;
+  });
+
   group('flow', () {
     testWidgets('Home opens the map with the campaign\'s star total', (
       tester,
     ) async {
+      // Open, as the build ships: 20 playable levels, 60 stars.
+      Campaign.openedForTest = true;
       await _open(tester, phone, stars: const {'1-1': 3, '1-2': 1});
       expect(find.byKey(const ValueKey('play')), findsOneWidget);
       final key = find.byKey(const ValueKey('campaign'));
       expect(key, findsOneWidget);
-      expect(find.text('4 / 48'), findsOneWidget);
+      expect(find.text('4 / 60'), findsOneWidget);
       expect(tester.getSize(key).height, greaterThanOrEqualTo(48));
       await _tap(tester, key);
       expect(_path(), '/campaign');
       expect(find.byType(CampaignMap), findsOneWidget);
-      expect(find.bySemanticsLabel('4 of 48 campaign stars'), findsOneWidget);
+      expect(find.bySemanticsLabel('4 of 60 campaign stars'), findsOneWidget);
       // The back key returns Home.
       await _tap(tester, find.byTooltip('Back home'));
       expect(_path(), '/');
+    });
+
+    testWidgets('with New York closed (NEW_YORK_OPEN=false) the total is of '
+        '48', (tester) async {
+      Campaign.closedForTest = true;
+      await _open(tester, phone, stars: const {'1-1': 3, '1-2': 1});
+      expect(find.text('4 / 48'), findsOneWidget);
+      await _tap(tester, find.byKey(const ValueKey('campaign')));
+      expect(find.bySemanticsLabel('4 of 48 campaign stars'), findsOneWidget);
+    });
+
+    testWidgets('a closed build never shows more stars than its total', (
+      tester,
+    ) async {
+      // A save that earned New York's stars, opened with New York closed.
+      Campaign.closedForTest = true;
+      await _open(
+        tester,
+        phone,
+        stars: {
+          for (final level in Campaign.chapters[0].levels) level.id: 3,
+          for (final level in Campaign.chapters[1].levels) level.id: 3,
+          '3-1': 3,
+          '3-2': 3,
+          '3-3': 3,
+          '3-4': 3,
+        },
+      );
+      expect(find.text('48 / 48'), findsOneWidget);
+      expect(find.text('60 / 48'), findsNothing);
     });
 
     // Play fills the row it once shared with Practice (measured from the
@@ -467,7 +507,17 @@ void main() {
       expect(_path(), '/campaign?level=1-2');
       expect(find.byKey(const ValueKey('level-intro-1-2')), findsOneWidget);
       expect(find.text('Star Streak'), findsWidgets);
-      // The map now shows 1-1's stars and perches the bird on 1-2.
+      // Under the card the map is out of the semantics tree, so a screen
+      // reader meets the card first (see ny_ui_a11y_test.dart); the map's
+      // state is read from its stops.
+      final stops = tester.widget<CampaignMap>(find.byType(CampaignMap)).stops;
+      final nodes = [for (final stop in stops) ...stop.nodes];
+      expect(nodes.firstWhere((n) => n.id == '1-1').stars, 2);
+      expect(nodes.firstWhere((n) => n.id == '1-2').isCurrent, isTrue);
+      // Closing the card leaves the map: it shows 1-1's stars and perches the
+      // bird on 1-2; the card shows the earned star when it opens again.
+      await _tap(tester, find.byKey(const ValueKey('level-intro-close')));
+      expect(find.byType(LevelIntroCard), findsNothing);
       expect(
         find.bySemanticsLabel('Level 1-1, First Delivery. 2 of 3 stars.'),
         findsOneWidget,
@@ -476,10 +526,6 @@ void main() {
         find.bySemanticsLabel('Level 1-2, Star Streak. Next up. 0 of 3 stars.'),
         findsOneWidget,
       );
-      // Closing the card leaves the map; the card shows the earned star
-      // when it opens again.
-      await _tap(tester, find.byKey(const ValueKey('level-intro-close')));
-      expect(find.byType(LevelIntroCard), findsNothing);
       await _tap(tester, find.byKey(const ValueKey('campaign-node-1-1')));
       expect(
         find.bySemanticsLabel('Two stars: Collect 35 stars. Earned.'),
@@ -532,7 +578,10 @@ void main() {
       expect(_path(), '/campaign');
     });
 
-    testWidgets('chapters 3 to 5 say Coming soon', (tester) async {
+    testWidgets('with New York closed, chapters 3 to 5 say Coming soon', (
+      tester,
+    ) async {
+      Campaign.closedForTest = true;
       await _open(
         tester,
         phone,
@@ -681,8 +730,8 @@ void main() {
       expect(find.byType(CampaignPostcard), findsNothing);
     });
 
-    testWidgets('the last playable boss leads back to the map, where chapter '
-        '3 is coming soon', (tester) async {
+    /// Beats 2-8 (the last chapter-2 boss) and continues past the postcard.
+    Future<void> beatTheDragon(WidgetTester tester) async {
       final stars = {
         for (final level in [
           ...Campaign.chapters[0].levels,
@@ -704,6 +753,14 @@ void main() {
       _fly(controller);
       await _settle(tester);
       await tester.pump(const Duration(milliseconds: 1600));
+    }
+
+    testWidgets('with New York closed (NEW_YORK_OPEN=false) the last playable '
+        'boss leads back to the map, where chapter 3 is coming soon', (
+      tester,
+    ) async {
+      Campaign.closedForTest = true;
+      await beatTheDragon(tester);
       expect(find.byKey(const ValueKey('level-result-next')), findsNothing);
       await _tap(tester, find.byKey(const ValueKey('level-result-map')));
       expect(find.byType(CampaignPostcard), findsOneWidget);
@@ -718,6 +775,39 @@ void main() {
       );
       expect(
         find.bySemanticsLabel('Level 3-1, Moth Light. Locked.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('open, as the build ships, the last chapter-2 boss leads on '
+        'to New York: 3-1 is next up and only Paris is coming soon', (
+      tester,
+    ) async {
+      Campaign.openedForTest = true;
+      await beatTheDragon(tester);
+      // 3-1 is playable now, so the result offers it as the next level.
+      expect(find.byKey(const ValueKey('level-result-next')), findsOneWidget);
+      await _tap(tester, find.byKey(const ValueKey('level-result-map')));
+      expect(find.byType(CampaignPostcard), findsOneWidget);
+      expect(find.text('— The Ancient Road'), findsOneWidget);
+      await _tap(
+        tester,
+        find.byKey(const ValueKey('campaign-postcard-continue')),
+      );
+      expect(
+        find.bySemanticsLabel(RegExp('^New York. Chapter 3, .*Coming soon')),
+        findsNothing,
+      );
+      expect(
+        find.bySemanticsLabel(RegExp('^New York. Chapter 3, The Lamplight Line')),
+        findsOneWidget,
+      );
+      expect(
+        find.bySemanticsLabel('Level 3-1, Moth Light. Next up. 0 of 3 stars.'),
+        findsOneWidget,
+      );
+      expect(
+        find.bySemanticsLabel(RegExp('^Paris. Chapter 3, .*Coming soon')),
         findsOneWidget,
       );
     });

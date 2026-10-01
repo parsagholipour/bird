@@ -247,9 +247,12 @@ void main() {
   });
 
   test('later chapters are data for now, but their set pieces already fly', () {
-    // Chapters 3 to 5 stay locked in this build and the sea and tide are not
-    // built, but their gales and shuffled rush paths lay on the route.
-    for (final id in ['3-4', '3-6', '5-2', '5-3', '5-7']) {
+    // Paris and chapters 4 and 5 stay locked in this build and the sea and
+    // tide are not built, but their gales, swarms and shuffled rush paths lay
+    // on the route. The gale and the swarm now belong to Paris (3-6 and 3-7);
+    // New York's 3-4 is the Gargoyle's level (flown in
+    // `ny_levels_flight_test`), so 3-7 takes its place here.
+    for (final id in ['3-6', '3-7', '5-2', '5-3', '5-7']) {
       final gales = level(id).plan.pieces.where((p) => p.gale).length;
       for (final sprint in [false, true]) {
         final sim = levelFlight(level(id), weaponDamage: 30);

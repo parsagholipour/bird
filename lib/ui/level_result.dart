@@ -13,6 +13,8 @@ import '../game/campaign_voices.dart';
 import '../game/play_controller.dart';
 import '../game/star_art.dart';
 import 'components.dart';
+import 'campaign_map_art.dart' show MapGuardianPainter, MapNodeLook;
+import 'campaign_text_scale.dart';
 import 'delivery_art.dart';
 import 'game_over_stage.dart' show StageBirdPainter;
 import 'level_intro.dart' show LevelIntroCard;
@@ -74,6 +76,35 @@ class LevelResultStage extends StatefulWidget {
   /// When the thank-you note sets off and when it has landed, as fractions
   /// of the entrance: it comes down as the last star lands.
   static const noteFrom = .5, noteTo = .76;
+
+  /// The word that drops in over the courier: "Victory!" for a chapter's
+  /// boss, "Guardian down!" for a mini-boss that guarded a level before it,
+  /// "Delivered!" for any other finish, "Try again!" when the flight ended
+  /// short of the finish.
+  static String wordFor(CampaignLevel level, {required bool complete}) =>
+      !complete
+      ? 'Try again!'
+      : level.isChapterBoss
+      ? 'Victory!'
+      : level.isGuardian
+      ? 'Guardian down!'
+      : 'Delivered!';
+
+  /// The news strip for a finish whose next level is in this chapter but not in
+  /// this build: "Paris is coming soon!" after 3-4, where Next is hidden.
+  /// Null when there is nothing to say: a next level that can be flown (its
+  /// own strip says it is open), another chapter, or no next level.
+  static String? comingSoonNews(CampaignLevel level) {
+    final next = Campaign.after(level);
+    if (!Campaign.playable(level) ||
+        next == null ||
+        next.chapter != level.chapter) {
+      return null;
+    }
+    return Campaign.playable(next)
+        ? null
+        : '${next.region.title} is coming soon!';
+  }
 
   @override
   State<LevelResultStage> createState() => _LevelResultStageState();
@@ -141,7 +172,7 @@ class _LevelResultStageState extends State<LevelResultStage>
   CampaignLevel? get _next {
     final next = widget.controller.nextLevel;
     if (!widget.controller.levelComplete || next == null) return null;
-    return Campaign.chapterOf(next).playable ? next : null;
+    return Campaign.playable(next) ? next : null;
   }
 
   @override
@@ -162,18 +193,16 @@ class _LevelResultStageState extends State<LevelResultStage>
     final newScore = beat && r.score > before.bestScore;
     final armed = _intro.value >= LevelResultStage.armAt || _intro.isCompleted;
     final fade = _calm ? _intro.value.clamp(0.0, 1.0) : 1.0;
-    final word = !c.levelComplete
-        ? 'Try again!'
-        : level.isBoss
-        ? 'Victory!'
-        : 'Delivered!';
+    final word = LevelResultStage.wordFor(level, complete: c.levelComplete);
     // A finished flight's courier sits over on its cloud, to leave room for
     // the thank-you note beside it.
     final aside = c.levelComplete ? _noteRoom : 0.0;
     // The stage is drawn on a fixed canvas that already scales with the
-    // screen, so text keeps its size like the level card does.
-    return MediaQuery.withNoTextScaling(
-      child: Opacity(
+    // screen. Its text follows the system text size up to 1.3x
+    // ([CampaignTextScale]); the display lettering (the word over the courier)
+    // and the thank-you note on its paper stay at their size.
+    return CampaignTextScale.wrap(
+      Opacity(
         opacity: fade,
         child: Stack(
           fit: StackFit.expand,
@@ -193,6 +222,11 @@ class _LevelResultStageState extends State<LevelResultStage>
                 ),
               ),
             ),
+            // A beaten guardian's shield hangs on the finish gate in place of
+            // its FINISH sign: the frozen frame behind the stage is the gate
+            // of a level that ended at a boss.
+            if (c.levelComplete && level.isGuardian)
+              Positioned.fill(child: IgnorePointer(child: _trophy())),
             SceneLayout(
               child: IgnorePointer(
                 ignoring: !armed,
@@ -337,10 +371,15 @@ class _LevelResultStageState extends State<LevelResultStage>
               scale: .78 + .22 * drop,
               child: Align(
                 alignment: Alignment.bottomCenter,
-                child: DeliveryNote(
-                  delivery: level.delivery,
-                  boss: level.boss,
-                  seal: _span(to - .02, to + .12, Curves.easeOutBack),
+                child: MediaQuery.withNoTextScaling(
+                  child: DeliveryNote(
+                    delivery: level.delivery,
+                    // A guardian's thank-you is an ordinary friend's, not a boss
+                    // grumbling in its own ink; only a chapter's boss seals its
+                    // note with its headwear.
+                    boss: level.isChapterBoss ? level.boss : null,
+                    seal: _span(to - .02, to + .12, Curves.easeOutBack),
+                  ),
                 ),
               ),
             ),
@@ -356,15 +395,47 @@ class _LevelResultStageState extends State<LevelResultStage>
       header: true,
       label: word,
       child: ExcludeSemantics(
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final (i, letter) in letters.indexed)
-                _letter(letter, i, letters.length),
-            ],
+        child: MediaQuery.withNoTextScaling(
+          child: Padding(
+            // "Guardian down!" is the one word wide enough to reach the stage's
+            // edge once it is scaled to fit: it keeps a margin.
+            padding: EdgeInsets.symmetric(
+              horizontal: level.isGuardian ? 16 : 0,
+            ),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (final (i, letter) in letters.indexed)
+                    _letter(letter, i, letters.length),
+                ],
+              ),
+            ),
           ),
+        ),
+      ),
+    );
+  }
+
+  /// The beaten guardian's shield, hung on the finish gate where the FINISH
+  /// sign is: it pops in with the title and sways to rest. The gate stands at
+  /// the line's x, in screen heights, wherever the stage is scaled to.
+  Widget _trophy() {
+    final boss = level.boss;
+    if (boss == null) return const SizedBox.shrink();
+    final x =
+        widget.controller.simulation?.finishLine?.x ?? FlightSimulation.birdX;
+    final t = _span(.1, .42);
+    return LayoutBuilder(
+      builder: (context, box) => CustomPaint(
+        size: box.biggest,
+        painter: _TrophyPainter(
+          boss: boss,
+          x: x,
+          pop: _calm ? 1 : Curves.easeOutBack.transform(t),
+          sway: _calm ? 0 : math.sin(t * math.pi * 3) * (1 - t) * .16,
+          glow: _span(.1, .5),
         ),
       ),
     );
@@ -398,7 +469,11 @@ class _LevelResultStageState extends State<LevelResultStage>
                 Container(
                   padding: const EdgeInsets.fromLTRB(9, 1, 9, 2),
                   decoration: BoxDecoration(
-                    color: level.isBoss ? SkyColors.coral : SkyColors.yellow,
+                    color: level.isChapterBoss
+                        ? SkyColors.coral
+                        : level.isGuardian
+                        ? SkyColors.lavender
+                        : SkyColors.yellow,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: SkyColors.ink, width: 2),
                   ),
@@ -741,45 +816,53 @@ class _LevelResultStageState extends State<LevelResultStage>
                   width: 2,
                 ),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // A new best stamps its ribbon over the label, its tails
-                  // hanging past the panel.
-                  SizedBox(
-                    height: 20,
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      alignment: Alignment.center,
-                      children: [
-                        Opacity(
-                          opacity: newScore ? swap : 1,
-                          child: Text('SCORE', style: _label),
-                        ),
-                        if (newScore && stamp > 0)
-                          OverflowBox(
-                            maxWidth: 240,
-                            maxHeight: 40,
-                            child: Transform.scale(
-                              scale: stamp,
-                              child: Transform.rotate(
-                                angle: -.04,
-                                child: const StageRibbon('NEW BEST!'),
-                              ),
+              // The panel is 80 high inside; a larger text size shrinks the
+              // three lines together to it.
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 152),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // A new best stamps its ribbon over the label, its tails
+                      // hanging past the panel.
+                      SizedBox(
+                        height: 20,
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          alignment: Alignment.center,
+                          children: [
+                            Opacity(
+                              opacity: newScore ? swap : 1,
+                              child: Text('SCORE', style: _label),
                             ),
-                          ),
-                      ],
-                    ),
+                            if (newScore && stamp > 0)
+                              OverflowBox(
+                                maxWidth: 240,
+                                maxHeight: 40,
+                                child: Transform.scale(
+                                  scale: stamp,
+                                  child: Transform.rotate(
+                                    angle: -.04,
+                                    child: const StageRibbon('NEW BEST!'),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          '${(r.score * count).round()}',
+                          style: heading(38, weight: FontWeight.w700),
+                        ),
+                      ),
+                      bestNote(bestScore),
+                    ],
                   ),
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      '${(r.score * count).round()}',
-                      style: heading(38, weight: FontWeight.w700),
-                    ),
-                  ),
-                  bestNote(bestScore),
-                ],
+                ),
               ),
             ),
           ),
@@ -827,7 +910,13 @@ class _LevelResultStageState extends State<LevelResultStage>
   }) {
     final at = LevelResultStage.starsAt[i] + .06;
     final met = earned && (_calm || _intro.value >= at);
-    final title = mark == null ? (level.isBoss ? 'Boss' : 'Finish') : '$mark';
+    final title = mark == null
+        ? (level.isChapterBoss
+              ? 'Boss'
+              : level.isGuardian
+              ? 'Guardian'
+              : 'Finish')
+        : '$mark';
     final hint = met
         ? 'Done'
         : earned
@@ -840,11 +929,12 @@ class _LevelResultStageState extends State<LevelResultStage>
     final tone = met ? _teal : SkyColors.muted;
     // The tick lands with a little pop.
     final pop = _calm ? 0.0 : math.sin(_span(at, at + .08) * math.pi);
+    final scale = CampaignTextScale.of(context);
     return Transform.scale(
       scale: 1 + .08 * pop,
       child: Container(
         width: _goalWidth,
-        height: 54,
+        height: 54 * scale,
         decoration: BoxDecoration(
           color: met ? _mintFill : _inset,
           borderRadius: BorderRadius.circular(17),
@@ -856,41 +946,49 @@ class _LevelResultStageState extends State<LevelResultStage>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                mark == null
-                    ? Icon(Icons.flag_rounded, size: 21, color: tone)
-                    : MatchIcon(MatchSymbol.star, size: 20, muted: !met),
-                const SizedBox(width: 4),
-                Text(
-                  title,
-                  style: heading(
-                    22,
-                    color: met ? SkyColors.ink : SkyColors.muted,
-                    weight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 18,
+            // Each line shrinks to the box rather than past it when the text
+            // size is up.
+            FittedBox(
+              fit: BoxFit.scaleDown,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (met) ...[
-                    const Icon(
-                      Icons.check_circle_rounded,
-                      size: 15,
-                      color: _teal,
-                    ),
-                    const SizedBox(width: 3),
-                  ],
+                  mark == null
+                      ? Icon(Icons.flag_rounded, size: 21, color: tone)
+                      : MatchIcon(MatchSymbol.star, size: 20, muted: !met),
+                  const SizedBox(width: 4),
                   Text(
-                    hint,
-                    style: bodyText(14, color: tone, weight: FontWeight.w900),
+                    title,
+                    style: heading(
+                      22,
+                      color: met ? SkyColors.ink : SkyColors.muted,
+                      weight: FontWeight.w700,
+                    ),
                   ),
                 ],
+              ),
+            ),
+            SizedBox(
+              height: 18 * scale,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (met) ...[
+                      const Icon(
+                        Icons.check_circle_rounded,
+                        size: 15,
+                        color: _teal,
+                      ),
+                      const SizedBox(width: 3),
+                    ],
+                    Text(
+                      hint,
+                      style: bodyText(14, color: tone, weight: FontWeight.w900),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -991,6 +1089,7 @@ class _LevelResultStageState extends State<LevelResultStage>
         (widget.initialDailyKey != p.today?.dayKey ||
             !widget.initialDailyComplete);
     final next = _next;
+    final soon = LevelResultStage.comingSoonNews(level);
     final news = <Widget>[
       if (c.saved && c.levelComplete)
         if (level == Campaign.chapterOf(level).bossLevel &&
@@ -1005,6 +1104,15 @@ class _LevelResultStageState extends State<LevelResultStage>
             Icons.lock_open_rounded,
             SkyColors.mint,
             '${next.id} ${next.name} is open!',
+          )
+        else if (next == null && soon != null)
+          // Next is hidden: the rest of the chapter is not in this build.
+          strip(
+            Icons.flight_takeoff_rounded,
+            SkyColors.lavender,
+            soon,
+            fill: const Color(0xffece7ff),
+            edge: SkyColors.purple.withValues(alpha: .55),
           ),
       if (newDailyCard)
         strip(
@@ -1316,4 +1424,78 @@ class _BigStarsPainter extends CustomPainter {
       old.slots != slots ||
       old.pops != pops ||
       old.spacing != spacing;
+}
+
+/// A beaten guardian's shield on the finish gate: the shield of its map node
+/// (beaten: mint rim and a tick) with its headwear on it, hung from the gate's
+/// checkered beam over the FINISH sign, in a soft pool of light. The gate is
+/// drawn in screen heights, so this is too: the shield is as wide as the sign
+/// (.27 of the height), hanging from the beam's foot.
+class _TrophyPainter extends CustomPainter {
+  const _TrophyPainter({
+    required this.boss,
+    required this.x,
+    required this.pop,
+    required this.sway,
+    required this.glow,
+  });
+  final BossKind boss;
+
+  /// The gate's centre, in screen heights.
+  final double x;
+
+  /// 0 to 1 and a little past: how far the shield has popped in.
+  final double pop;
+
+  /// How far the shield swings on its hook, in radians.
+  final double sway;
+
+  /// The pool of light's strength, 0 to 1.
+  final double glow;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final h = size.height;
+    final r = .135 * h / .94;
+    final w = MapGuardianPainter.halfWidth(r) * 2 + 4;
+    final tall =
+        MapGuardianPainter.halfHeight(r) * 2 + MapGuardianPainter.depth + 4;
+    final hook = Offset(x * h, .226 * h);
+    // The light the shield gives off, under it.
+    final centre = hook.translate(0, tall * .5);
+    canvas.drawCircle(
+      centre,
+      h * .3,
+      Paint()
+        ..shader = ui.Gradient.radial(
+          centre,
+          h * .3,
+          [
+            SkyColors.cream.withValues(alpha: .55 * glow),
+            SkyColors.cream.withValues(alpha: .18 * glow),
+            SkyColors.cream.withValues(alpha: 0),
+          ],
+          const [0, .5, 1],
+        ),
+    );
+    canvas.save();
+    canvas.translate(hook.dx, hook.dy);
+    canvas.rotate(sway);
+    canvas.scale(math.max(pop, 0));
+    canvas.translate(-w / 2, 0);
+    MapGuardianPainter(
+      look: MapNodeLook.cleared,
+      radius: r,
+      boss: boss,
+    ).paint(canvas, Size(w, tall));
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(_TrophyPainter old) =>
+      old.boss != boss ||
+      old.x != x ||
+      old.pop != pop ||
+      old.sway != sway ||
+      old.glow != glow;
 }

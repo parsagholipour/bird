@@ -15,6 +15,7 @@ import 'sky_boss.dart';
 import 'sky_enemy.dart';
 import 'sky_door.dart';
 import 'sprint.dart';
+import 'steam_geyser.dart';
 import 'tether.dart';
 import 'world_region.dart';
 export 'duel.dart';
@@ -31,8 +32,16 @@ export 'sky_boss.dart';
 export 'sky_enemy.dart';
 export 'sky_door.dart';
 export 'sprint.dart';
+export 'steam_geyser.dart';
 export 'tether.dart';
 export 'world_region.dart';
+
+// Rules version 43's pigeon raids, steam vents and King Coo's fight live in
+// their own files: extensions on FlightSimulation, which keep its hooks here
+// to a few lines.
+part 'alley_pigeon_rules.dart';
+part 'king_coo_rules.dart';
+part 'steam_rules.dart';
 
 enum RunPhase { countdown, playing, paused, ended }
 
@@ -105,11 +114,31 @@ class SkyStar {
   double x;
   final double _y;
   final Obstacle? passage;
-  double get y => passage?.target ?? _y;
+  double get y => heldY ?? gateY;
+
+  /// The star's own line: where its gate's opening (or its place on the
+  /// route) puts it.
+  double get gateY => passage?.target ?? _y;
   final StarTrio? trio;
   final int trioSlot;
   bool collected = false, missed = false;
   double? collectedAt, collectedY;
+
+  /// Alley Pigeon raids (rules version 43): the pigeon that has reserved
+  /// this star as its prey, whether the star rides in a thief's beak (it is
+  /// not collectable and is drawn by the pigeon), and whether a hit freed it
+  /// and it floats back to its gate line (a freed star the bird misses does
+  /// not reset the streak).
+  SkyEnemy? thief;
+  bool carried = false, rescued = false;
+
+  /// When a hit freed this star (elapsed time) and the height it was freed
+  /// at, for [AlleyPigeon.floatY]; null until then.
+  double? freedAt, freedY;
+
+  /// The height a thief carries the star at, or a freed star has floated
+  /// to; null for every star no pigeon has touched.
+  double? heldY;
   static const radius = .027;
 }
 
@@ -136,6 +165,7 @@ class BirdRock {
     this.damage = baseDamage,
     this.charge = 0,
     this.owner,
+    this.releasedAt,
   }) {
     if (damage <= 0) throw ArgumentError.value(damage, 'damage');
     if (!(charge >= 0 && charge <= 1)) {
@@ -153,6 +183,13 @@ class BirdRock {
   /// The duel player who threw it, or null. It can hit their rival and
   /// open a mystery box for them, and flies through what they sent.
   final int? owner;
+
+  /// The boss's age as the rock left the beak, or null when no boss was
+  /// fighting. The Searchlight Gargoyle judges his lamp at this moment, not
+  /// where the rock lands: a rock released while the lamp is open counts
+  /// however long it flies, so the shots that count are the ones fired in the
+  /// vent the player sees, at any screen width.
+  final double? releasedAt;
   double get radius => baseRadius * PowerShot.radiusScale(charge);
   static const baseDamage = 10;
   static const baseRadius = .014, speed = 1.65;
@@ -361,6 +398,15 @@ class FlightSimulation {
         'Needs a touch Star Trail',
       );
     }
+    // A plan that uses rules 43's additions must not fly under older rules,
+    // which would meet an enemy, a hazard or a boss they do not know.
+    if (rulesVersion < plan.minRulesVersion) {
+      throw ArgumentError.value(
+        rulesVersion,
+        'rulesVersion',
+        'Level ${plan.levelId} needs rules version ${plan.minRulesVersion}',
+      );
+    }
     setWeaponDamage(weaponDamage);
   }
   final GameMode rules;
@@ -371,8 +417,11 @@ class FlightSimulation {
   static FlightPlan _planFor(CoopMode? coop, FlightPlan plan) =>
       coop == CoopMode.duel && plan is EndlessPlan ? const DuelPlan() : plan;
 
-  /// Replay journals keep the rules they were recorded with.
-  static const currentRulesVersion = 42;
+  /// Replay journals keep the rules they were recorded with. 42 added co-op
+  /// and duel flights ([coopRulesVersion]); 43 added New York's pigeons,
+  /// steam and guardians ([newYorkRulesVersion]). Solo endless flights and
+  /// chapters 1 and 2 fly at 43 exactly as at 42 and at 41.
+  static const currentRulesVersion = 43;
   final int rulesVersion;
 
   /// Two birds, roped together or each on its own ([CoopMode]), fly endless
@@ -483,6 +532,12 @@ class FlightSimulation {
   /// flights under 41 behave exactly as under 40.
   static const campaignRulesVersion = 41;
 
+  /// Rules version 43, "New York": the Alley Pigeon, steam geysers and the
+  /// mini-bosses, reachable only through a level plan's data (see
+  /// [LevelPlan.minRulesVersion]). Endless flights and chapters 1 and 2 fly
+  /// exactly as at 41.
+  static const newYorkRulesVersion = 43;
+
   /// Every schedule knob of this flight. See [FlightPlan].
   final FlightPlan plan;
 
@@ -581,6 +636,30 @@ class FlightSimulation {
   /// Render-only splashes where cannonballs and the bird met the Pirate
   /// Captain's sea. The rules never read them.
   final List<SeaSplash> seaSplashes = [];
+
+  // -------------------------------------------------------------------
+  // Rules version 43, "New York": what the art, the audio and the UI read.
+  // Counters only ever rise, so cues can edge-detect them, and a seek that
+  // re-simulates restores them exactly. The pigeon rules are in
+  // alley_pigeon_rules.dart and the steam rules in steam_rules.dart.
+
+  /// Alley Pigeon raids: warnings begun, dives started, stars snatched,
+  /// stars won back from a thief (a hit, a kill, a ram or a touch), stars
+  /// lost for good (the thief escaped with one), and pigeons defeated.
+  int pigeonWarnings = 0, pigeonDives = 0, starsSnatched = 0;
+  int starsFreed = 0, starsLost = 0, pigeonsDefeated = 0;
+
+  /// Pigeon formations laid so far: the level's `flocks` are read by it.
+  int _pigeonEntries = 0;
+
+  /// The steam vents on screen, left to right, laid from
+  /// [LevelRoute.geysers] as they come within reach and cleared when a boss
+  /// arrives. Hisses and bursts near the bird, rides (a billow that lifted
+  /// it), scalds and hops cleared unscathed are counted in the `steam…`
+  /// counters.
+  final List<SteamVent> steamVents = [];
+  int steamHisses = 0, steamBursts = 0, steamRides = 0;
+  int steamScalds = 0, steamClears = 0;
   int bossesDefeated = 0;
   static const bossInterval = EndlessPlan.secondsBetweenBosses;
   static const bossBonus = 30;
@@ -603,6 +682,22 @@ class FlightSimulation {
 
   /// Baron Bat returns upgraded after his debut. See [SkyBoss.upgraded].
   bool get supportsUpgradedBaron => supportsGentleDebut && rulesVersion >= 40;
+
+  /// Rules version 43, "New York". Each is reachable only through a level
+  /// plan's data, which no plan below 43 can hold.
+  ///
+  /// Alley Pigeons raid stars ([SkyEnemy.pigeon], [PigeonFlight]).
+  bool get supportsAlleyPigeon =>
+      supportsCombat && rulesVersion >= newYorkRulesVersion;
+
+  /// Steam geysers ([LevelPlan.steam], [LevelRoute.geysers], [steamVents]).
+  bool get supportsSteamGeysers =>
+      isTrail && rulesVersion >= newYorkRulesVersion;
+
+  /// The campaign-only mini-bosses King Coo and the Searchlight Gargoyle
+  /// ([BossKind.campaignOnly]).
+  bool get supportsMiniBosses =>
+      supportsBosses && rulesVersion >= newYorkRulesVersion;
   bool get supportsHeartPickups =>
       supportsBosses && isTrail && rulesVersion >= 24 && plan.heartPickups;
   bool get supportsEnemyAttacks => supportsCombat && rulesVersion >= 18;
@@ -1003,6 +1098,7 @@ class FlightSimulation {
             : weaponDamage,
         charge: charge,
         owner: duel ? flock.indexOf(_view) : null,
+        releasedAt: boss?.phase == BossPhase.attacking ? boss!.age : null,
       ),
     );
     if (supportsPowerShots) {
@@ -1257,6 +1353,15 @@ class FlightSimulation {
         _screeched();
         if (phase == RunPhase.ended) break;
       }
+      if (boss case final warden? when supportsMiniBosses) {
+        final spotted = flock
+            .where((bird) => warden.beamLit(bird.y, birdRadius))
+            .firstOrNull;
+        if (spotted != null) {
+          _spotted(warden, spotted);
+          if (phase == RunPhase.ended) break;
+        }
+      }
       for (final bird in flock) {
         // The partner's line keeps its own place in the formation.
         bird.flightPath.record(distance + (bird.x - birdX), bird.y);
@@ -1320,6 +1425,9 @@ class FlightSimulation {
       if (supportsHeartPickups && phase == RunPhase.playing) {
         _advanceHearts(scroll * step);
       }
+      if (supportsSteamGeysers && phase == RunPhase.playing) {
+        _advanceSteam(step);
+      }
       if (supportsRushPaths && phase == RunPhase.playing) {
         _advanceRushPath(step, scroll, viewportWidth);
       } else if (swarm.isNotEmpty && phase == RunPhase.playing) {
@@ -1361,9 +1469,18 @@ class FlightSimulation {
     while (_routePassage < route.passages.length &&
         route.passages[_routePassage] <= reach) {
       final center = rules.passageCenter(_index++, random, _previousCenter);
+      final before = _previousCenter;
       _previousCenter = center;
       final due = route.due[_routePassage];
-      _addPassage(route.passages[_routePassage++] - distance, center, due: due);
+      // A steam slot draws exactly what a gate draws, then lays a vent.
+      final vent = supportsSteamGeysers ? _geyserOf(route, _index) : null;
+      _addPassage(
+        route.passages[_routePassage++] - distance,
+        center,
+        due: due,
+        vent: vent,
+        before: before,
+      );
     }
     while (_routePiece < route.pieces.length) {
       final placed = route.pieces[_routePiece];
@@ -1425,7 +1542,13 @@ class FlightSimulation {
   /// [due] is the route second a campaign passage comes within reach of
   /// the widest screen. Its opening and motion follow that moment rather
   /// than when this screen lays it, so it is the same on every phone.
-  void _addPassage(double x, double center, {double? due}) {
+  void _addPassage(
+    double x,
+    double center, {
+    double? due,
+    SteamGeyser? vent,
+    double? before,
+  }) {
     // Height controls reward the complete calibrated movement. The collision
     // opening stays unchanged; its aiming mark follows the comfortable endpoint.
     final target = rulesVersion >= 3 && rules.mode.controlsHeight
@@ -1468,6 +1591,12 @@ class FlightSimulation {
       appearance: _obstacleAppearance(),
       door: hasDoor ? SkyDoor() : null,
     );
+    if (vent != null) {
+      // Everything above drew what a gate draws: a vent replaces the wall,
+      // its stars and the enemy, and the route goes on exactly as without it.
+      _layVent(vent, x, center, before ?? center);
+      return;
+    }
     obstacles.add(obstacle);
     if (_heartPassagesRemaining case final remaining?) {
       if (remaining == 1) {
@@ -1513,6 +1642,13 @@ class FlightSimulation {
     final enemy = supportsCombat && !hasDoor ? plan.enemyIndex(_index) : null;
     if (enemy != null) {
       final appearance = _enemyAppearance(enemy);
+      if (supportsAlleyPigeon && _isPigeon(appearance)) {
+        // A formation hovers over this passage's star trio (its prey).
+        _layFlock(x, target, appearance, [
+          if (collectsStars) ...stars.sublist(stars.length - 3),
+        ]);
+        return;
+      }
       enemies.add(
         SkyEnemy(
           x: x - _enemyPassageLead,
@@ -1704,7 +1840,10 @@ class FlightSimulation {
             target.lastShieldHitAt = target.age;
             continue;
           }
-          target.strike(supportsWeaponDamage ? rock.damage : 1);
+          target.strike(
+            supportsWeaponDamage ? rock.damage : 1,
+            releasedAt: rock.releasedAt,
+          );
           if (target.hp == 0) _defeatBoss(target);
         }
       }
@@ -1728,10 +1867,16 @@ class FlightSimulation {
         } else {
           end(EndReason.collision);
         }
+        if (supportsAlleyPigeon) _pigeonGone(enemy, atBird: true);
         return true;
       }
-      return enemy.x < -.1;
+      if (enemy.x < -.1) {
+        if (supportsAlleyPigeon) _pigeonGone(enemy);
+        return true;
+      }
+      return false;
     });
+    if (supportsAlleyPigeon) _advancePigeons(dt, scrollSpeed, viewportWidth);
     if (supportsEnemyAttacks) {
       _advanceEnemyAttacks(dt, viewportWidth, rush);
     }
@@ -1751,9 +1896,12 @@ class FlightSimulation {
         return true;
       }
       final reach = birdRadius + ammo.radius;
-      if (flock.any((bird) => _near(bird, ammo.x, ammo.y, reach))) {
+      final struck = flock
+          .where((bird) => _near(bird, ammo.x, ammo.y, reach))
+          .firstOrNull;
+      if (struck != null) {
         if (isTrail) {
-          _damage();
+          _hurt(struck);
         } else {
           end(EndReason.collision);
         }
@@ -1943,7 +2091,7 @@ class FlightSimulation {
       target.lastShieldHitAt = target.age;
       return;
     }
-    target.strike(damage);
+    target.strike(damage, releasedAt: rock.releasedAt);
     if (target.hp == 0) _defeatBoss(target);
   }
 
@@ -2025,6 +2173,7 @@ class FlightSimulation {
       sprintRings.clear();
       meteors.clear();
       lavaVents.clear();
+      steamVents.clear();
       swarm.clear();
       rushPath = null;
       galeDebris.clear();
@@ -2067,6 +2216,12 @@ class FlightSimulation {
         // The neck carries the jaws well left of the heart, so the dragon
         // keeps back to leave its fireballs room.
         ? math.max(birdX + .76, viewportWidth - .5)
+        : current.isKingCoo
+        // A hovering pouter pigeon; the crumb bombs and squadron need room.
+        ? math.max(birdX + .70, viewportWidth - .55)
+        : current.isGargoyle
+        // Perched on the tower ledge: he does not fly.
+        ? SearchlightGargoyle.anchorX(birdX, viewportWidth)
         : math.max(birdX + .55, viewportWidth - .72);
     final entrance =
         (current.cinematic
@@ -2084,6 +2239,9 @@ class FlightSimulation {
       // The dragon swoops in low, so its raised head and the roar's fire
       // stay in view under the letterbox.
       current.y = .5 + .08 * math.sin(entrance * math.pi);
+    } else if (current.isGargoyle) {
+      // Bolted to his ledge: he slides in on it and never swoops.
+      current.y = SearchlightGargoyle.anchorY;
     } else if (current.cinematic && current.phase == BossPhase.arriving) {
       current.y = .5 - .14 * math.sin(entrance * math.pi);
     }
@@ -2098,6 +2256,10 @@ class FlightSimulation {
         ? .5 + math.sin(fightingFor * 1.15) * .15
         : current.isSpitter
         ? .5 + math.sin(fightingFor * 1.05) * .13
+        : current.isKingCoo
+        ? .5 + math.sin(fightingFor * .9) * .06
+        : current.isGargoyle
+        ? SearchlightGargoyle.anchorY
         : .5 + math.sin(fightingFor * .85) * .10;
     if (current.isDragon) {
       // Each breath is aimed once, where the bird is as the inhale begins.
@@ -2143,6 +2305,7 @@ class FlightSimulation {
         current.fireIn = math.max(current.fireIn, BaronScreech.refire);
       }
     }
+    if (supportsMiniBosses && current.isGargoyle) _advanceGargoyle(current);
     current.fireIn -= dt;
     final target = _target(current.volleys);
     if (current.fireIn <= 0 && current.isDragon) {
@@ -2237,6 +2400,10 @@ class FlightSimulation {
       current.lastSummonAt = current.age;
       current.summonIn += current.summonInterval;
     }
+    // King Coo's bombs, puff, squadron and clouds (see king_coo_rules.dart).
+    if (current.isKingCoo && supportsMiniBosses) {
+      _advanceCoo(current);
+    }
   }
 
   /// The Ember Dragon's flock streams in from behind it in the swarm rush
@@ -2279,6 +2446,7 @@ class FlightSimulation {
 
   /// A ram ignores the enemy's remaining health; the reward is the same.
   void _defeatEnemy(SkyEnemy enemy, {bool rammed = false}) {
+    if (supportsAlleyPigeon) _pigeonDefeated(enemy, rammed: rammed);
     enemiesDefeated++;
     if (rammed) smashChain++;
     final bonus = isTrail ? 3 : 0;
@@ -3019,7 +3187,8 @@ class FlightSimulation {
     final rear = _rearX;
     for (final star in stars) {
       star.x -= travel;
-      if (star.collected || star.missed) continue;
+      // A thief's star is in its beak, out of reach until it is won back.
+      if (star.collected || star.missed || star.carried) continue;
       // A generous pickup halo rewards intention over pixel precision.
       final radius = pickupRadius;
       final taker = flock
@@ -3074,10 +3243,12 @@ class FlightSimulation {
       } else if (star.x < rear - radius) {
         star.missed = true;
         if (supportsStarTrios) star.trio?.missed = true;
-        combo = 0;
+        // A star won back from a thief that the bird lets go by costs no
+        // streak: only stars the course laid do.
+        if (!star.rescued) combo = 0;
       }
     }
-    stars.removeWhere((s) => s.x < -.1);
+    stars.removeWhere((s) => s.x < -.1 && !s.carried);
     starTrios.removeWhere((trio) => trio.x + .17 < -.1);
   }
 
@@ -3158,6 +3329,78 @@ class FlightSimulation {
     }
     if (elapsed >= invulnerableUntil) screechHits++;
     _damage();
+  }
+
+  /// The Searchlight Gargoyle's beam hurts like a course edge (Classic ends,
+  /// Star Trail loses the shield, then a heart, with the usual recovery):
+  /// he has "spotted" [bird].
+  void _spotted(SkyBoss warden, FlightBird bird) {
+    if (!collectsStars) {
+      end(EndReason.collision);
+      return;
+    }
+    if (viewing(bird, () => elapsed >= invulnerableUntil)) {
+      warden.spots++;
+      warden.lastSpotAt = warden.age;
+    }
+    _hurt(bird);
+  }
+
+  /// One step of the Searchlight Gargoyle's fight: aim each sweep once, as
+  /// its warning begins, from where the bird is, and let fall the feathers
+  /// this cycle's schedule has reached. All of it follows the boss's clock,
+  /// so pause, seek and replay are exact, and none of it draws a random
+  /// number.
+  void _advanceGargoyle(SkyBoss warden) {
+    if (warden.sweepWarnings > warden.sweepsAimed) {
+      warden.sweepsAimed = warden.sweepWarnings;
+      // Each sweep takes its turn at a bird of the flock (the lead first).
+      warden.beamSide = SearchlightGargoyle.aimAt(
+        _target(warden.sweepsAimed - 1).y,
+      );
+      warden.slitSweep = SearchlightGargoyle.slitAt(
+        enraged: warden.enraged,
+        furySweeps: warden.furySweeps,
+      );
+      if (warden.enraged) warden.furySweeps++;
+      if (warden.slitSweep) {
+        warden.sweepSlit++;
+      } else {
+        warden.sweepZone++;
+      }
+    }
+    if (warden.featherCycle != warden.gargoyleCycleNumber) {
+      warden.featherCycle = warden.gargoyleCycleNumber;
+      warden.featherSlot = 0;
+    }
+    final due = SearchlightGargoyle.launchesDue(
+      warden.gargoyleCycle,
+      enraged: warden.enraged,
+      slit: warden.slitSweep,
+    );
+    while (warden.featherSlot < due) {
+      warden.featherSlot++;
+      warden.feathersLaunched++;
+      // A stone feather falls from the cornice above and ahead of a bird (the
+      // flock's take turns), aimed to cross its column at the height it has
+      // as the feather leaves.
+      final target = _target(warden.feathersLaunched - 1);
+      final shot = SearchlightGargoyle.featherShot(
+        target.y,
+        enraged: warden.enraged,
+      );
+      bossAmmo.add(
+        BossAmmo(
+          x: target.x + SearchlightGargoyle.featherOffsetX,
+          y: SearchlightGargoyle.featherY,
+          vx: shot.vx,
+          vy: shot.vy,
+          gravity: SearchlightGargoyle.featherGravity,
+          radius: SearchlightGargoyle.featherRadius,
+          feather: true,
+        ),
+      );
+    }
   }
 
   void _event(FlightEventKind kind, [int value = 0]) =>

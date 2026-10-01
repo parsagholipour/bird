@@ -154,7 +154,8 @@ void main() {
     const progress = [0.0, .12, .35, .5, .78, 1.0];
     await _sheet(
       tester,
-      const Size(1200, 82 * 6),
+      // Two strips taller for New York's two mini-boss lairs (rules 43).
+      const Size(1200, 82 * 8),
       (context) => Row(
         children: [
           _strips([

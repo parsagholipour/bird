@@ -51,6 +51,7 @@ FACES_DART = ROOT / 'lib' / 'game' / 'flight_voice_faces.dart'
 FACES_CACHE = BUILD / 'faces.json'
 STORY_SOURCES = ROOT / 'docs' / 'story-voices-sources.json'
 STORY_DIR = ROOT / 'assets' / 'audio' / 'story'
+FLIGHT_VOICES = ROOT / 'lib' / 'game' / 'flight_voices.dart'
 # A flow holds at most 1000 nodes, so the takes span two.
 FLOWS = [
     'https://elevenlabs.io/app/flows/hEMhHloboMc0KYrmkkGy',
@@ -173,13 +174,20 @@ def mouth_curve(path):
 
 
 def story_extras():
-    """The story clips the flight also plays: the sprint calls and the
-    bosses' name-card lines."""
+    """The story clips the flight also plays, as lib/game/flight_voices.dart
+    names them: the sprint calls, the chapter bosses' name-card lines and
+    any card it names outright (New York's guardians). A clip still pending
+    its recording is left out until it has one."""
+    named = set(re.findall(r"_story\('([\w-]+)'\)", FLIGHT_VOICES.read_text()))
     extras = {}
     for clip in json.loads(STORY_SOURCES.read_text())['clips']:
         name = clip['name']
-        if name.startswith('sprint-') or re.fullmatch(r'before-\d-8-4', name):
-            extras[name] = (clip['prompt'], STORY_DIR / f'{name}.ogg')
+        path = STORY_DIR / f'{name}.ogg'
+        if not path.exists():
+            continue
+        if (name.startswith('sprint-') or name in named
+                or re.fullmatch(r'before-\d-8-4', name)):
+            extras[name] = (clip['prompt'], path)
     return extras
 
 

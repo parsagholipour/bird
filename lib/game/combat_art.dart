@@ -2,11 +2,13 @@ import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 import '../domain/game_rules.dart';
 import '../ui/theme.dart';
+import 'alley_pigeon_overlay_art.dart';
 import 'ammo_shatter_art.dart';
 import 'enemy_design.dart';
 import 'enemy_ammo_impact_art.dart';
 import 'enemy_art.dart';
 import 'enemy_defeat_art.dart';
+import 'king_coo_staging_art.dart';
 import 'stone_art.dart';
 
 abstract final class CombatArt {
@@ -16,7 +18,18 @@ abstract final class CombatArt {
     FlightSimulation sim, {
     required bool reducedMotion,
   }) {
+    // The pigeons' telegraph (ring and swoop line on the prey) sits under
+    // the enemies, so a diving pigeon passes over it.
+    AlleyPigeonOverlayArt.paint(
+      canvas,
+      height,
+      sim,
+      reducedMotion: reducedMotion,
+    );
     for (final enemy in sim.enemies) {
+      // King Coo's squadron comes out from behind him: his stage paints those
+      // pigeons under the figure until they are clear of it.
+      if (KingCooStaging.squadBehind(sim.boss, enemy, height)) continue;
       if (sim.rulesVersion >= 18) {
         EnemyArt.paint(
           canvas,

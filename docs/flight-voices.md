@@ -37,6 +37,23 @@ grumbles as it flies off. A boss's line can draw the bird's answer right
 after it: an arrival, a taunt, half health and the defeat are little
 exchanges.
 
+**New York's guardians are silent in flight.** King Coo and the Searchlight
+Gargoyle (rules version 43, campaign only) have no in-flight lines yet. They
+have their own clip keys (`coo`, `gargoyle`; `FlightVoices.bossKey`), never
+another boss's, so they cannot borrow a voice, and `FlightVoices.voicedBosses`
+lists the five bosses the script (`flight-voices-sources.json`) covers. Every
+pool asked for a guardian (`coo-arrive`, `pip-boss-coo`, `gargoyle-taunt`,
+...) is empty, and an empty pool says nothing, so their fights run in silence
+apart from the bird's own lines and the effects. Their name-card lines are
+the story's pending clips (`before-3-2-6`, `before-3-4-4`,
+`docs/story-voices-sources.json`): the `coo-card` and `gargoyle-card` pools
+fill by themselves when those takes are recorded. The Alley Pigeon is not
+spotted aloud (no `spot-pigeon` line; it never borrows a bat's). To give a
+guardian a voice later, add it to `voicedBosses`, write its lines into the
+script and regenerate the clip tables with `tool/prepare_flight_voices.py`.
+Their faces do not move for speech: their rigs do not read `FlightSpeech`
+(`talking_faces_art_test`, "the guardians stay unaffected").
+
 ## Never the same line
 
 - **Freshness.** A moment draws from the least recently said half of its
@@ -142,6 +159,12 @@ story's (trimmed to speech, one linear gain, mono Ogg Vorbis, quality 2)
 at −16 LUFS, 2 dB over the story, to sit above the flight's music and
 effects, and at 24 kHz rather than 44.1: a third smaller, with the whole
 of the voice's range.
+
+The story clips the flight plays (the sprint calls and the bosses' name
+cards, New York's guardians' included) get their mouth frames from the
+story's recordings. After recording one of them with
+`tool/prepare_story_voices.py`, run this tool once more so it has them;
+`flight_voices_test` fails until it does.
 
 To change a line, edit its `text` and `prompt` in the sources file and run
 `script`: a changed prompt loses its old generation. Then generate a new

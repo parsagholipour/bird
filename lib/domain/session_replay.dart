@@ -122,6 +122,10 @@ class ReplayTape {
             json['course'] != FlightCourse.starTrail.name)) {
       throw const FormatException('Invalid level plan');
     }
+    // A plan that uses rules 43's additions cannot have been flown at 41.
+    if (plan != null && recordedVersion < plan.minRulesVersion) {
+      throw const FormatException('Level plan needs newer rules');
+    }
     final tape = ReplayTape(
       recordedVersion: recordedVersion,
       course: FlightCourse.named(json['course'] as String? ?? 'classic'),

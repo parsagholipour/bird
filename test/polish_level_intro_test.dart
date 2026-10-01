@@ -384,7 +384,9 @@ void main() {
                 reason: '$reason: "$text" under the story key',
               );
             }
-            // The hint's note and the boss's band both stop short of it.
+            // The hint's note and the boss's band both stop short of it. A
+            // chapter boss has the BOSS FIGHT band; a guardian (3-2 and 3-4
+            // since the New York level data) the GUARDIAN ribbon instead.
             for (final box in [
               if (level.hint != null)
                 find
@@ -393,13 +395,15 @@ void main() {
                       matching: find.byType(Container),
                     )
                     .first,
-              if (level.isBoss)
+              if (level.isChapterBoss)
                 find
                     .ancestor(
                       of: find.text('BOSS FIGHT'),
                       matching: find.byType(Container),
                     )
                     .last,
+              if (level.isGuardian)
+                find.byKey(const ValueKey('level-intro-guardian')),
             ]) {
               expect(
                 tester.getRect(box).overlaps(key),

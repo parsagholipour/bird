@@ -35,7 +35,16 @@ void main() {
         expect(level.number, j + 1);
         expect(Campaign.chapterOf(level), same(chapter));
         expect(Campaign.level(level.id), same(level));
-        expect(level.isBoss, j == 7, reason: level.id);
+        // Only the last level is the chapter's boss; New York's two
+        // guardians (3-2 King Coo, 3-4 the Searchlight Gargoyle) also end in
+        // a boss, a campaign-only mini-boss. `isBoss` means any boss.
+        expect(level.isChapterBoss, j == 7, reason: level.id);
+        expect(
+          level.isBoss,
+          j == 7 || level.id == '3-2' || level.id == '3-4',
+          reason: level.id,
+        );
+        expect(level.isGuardian, level.isBoss && j != 7, reason: level.id);
       }
       expect(chapter.bossLevel.boss, chapter.boss);
       expect(
@@ -87,6 +96,9 @@ void main() {
       final id = level.id;
       expect(plan.problem, isNull, reason: id);
       if (level.isBoss) {
+        // A boss level (a chapter's or a guardian's) is a 30 s run-up with
+        // no set pieces; it may hold pigeons and, in a guardian's run-up,
+        // a light steam layer (a steam slot is not a set piece).
         expect(level.length, 30, reason: id);
         expect(plan.pieces, isEmpty, reason: id);
       } else {
@@ -143,7 +155,27 @@ void main() {
         expect(rushes, isNot(contains(SetPieceKind.shuffled)), reason: id);
       }
       expect(plan.shoot, chapter > 1 || level.number >= 3, reason: id);
-      expect(plan.sprint, chapter > 1 || level.number >= 5, reason: id);
+      // Sprint is on from 1-5, except in the Searchlight Gargoyle's level
+      // (3-4): a sprint makes his feathers close faster than the lane they
+      // were aimed for, which his fairness proof assumes away.
+      expect(
+        plan.sprint,
+        (chapter > 1 || level.number >= 5) && id != '3-4',
+        reason: id,
+      );
+      // New York's additions (rules 43) come in order: the Alley Pigeon at
+      // 3-2, steam at 3-3; nothing before, nothing in Paris yet.
+      final newYork = level.region == WorldRegion.newYork;
+      final pigeons = enemies.contains(EnemyKind.alleyPigeon);
+      expect(pigeons, id == '3-2' || id == '3-3' || id == '3-4', reason: id);
+      expect(plan.flocks.isNotEmpty, pigeons, reason: id);
+      expect(plan.steam.isEmpty, id != '3-3' && id != '3-4', reason: id);
+      expect(plan.usesNewYork, newYork && level.number > 1, reason: id);
+      expect(
+        plan.minRulesVersion,
+        newYork && level.number > 1 ? 43 : 41,
+        reason: id,
+      );
     }
     CampaignLevel at(String id) => Campaign.level(id)!;
     expect(at('1-1').plan.families, [ObstacleKind.garden]);
@@ -165,13 +197,37 @@ void main() {
       (SetPieceKind.skyfall, 60),
     ]);
     expect(at('3-1').plan.lineup, contains(EnemyKind.duskMoth));
-    expect(at('3-4').plan.pieces.single.kind, SetPieceKind.gale);
+    // New York: two guardians and two full levels, none with a set piece.
+    // The Swarm rush and the Gale moved to Paris (3-7 and 3-6).
+    for (final id in ['3-1', '3-2', '3-3', '3-4']) {
+      expect(at(id).plan.pieces, isEmpty, reason: id);
+    }
+    expect(at('3-2').boss, BossKind.kingCoo);
+    expect(at('3-4').boss, BossKind.searchlightGargoyle);
+    expect(at('3-3').plan.steam, SteamPlan.steady);
+    expect(at('3-4').plan.steam, SteamPlan.sparse);
+    expect(at('3-6').plan.pieces.first.kind, SetPieceKind.gale);
+    expect(at('3-7').plan.pieces.map((p) => p.kind), [
+      SetPieceKind.swarm,
+      SetPieceKind.gale,
+    ]);
     expect(at('4-2').plan.pieces.single.kind, SetPieceKind.eruption);
     expect(at('5-1').plan.pieces.single.kind, SetPieceKind.shuffled);
-    for (final id in ['1-1', '1-2', '1-3', '1-5', '2-1', '2-2', '2-3', '2-5']) {
+    for (final id in [
+      '1-1', '1-2', '1-3', '1-5', '2-1', '2-2', '2-3', '2-5',
+      // New York: moths, the Alley Pigeon, steam and the Gargoyle's lamp;
+      // Paris introduces the Gale and the Swarm rush the stop gave up.
+      '3-1', '3-2', '3-3', '3-4', '3-6', '3-7',
+    ]) {
       expect(at(id).hint, isNotNull, reason: id);
       expect(at(id).hintIsNew, isTrue, reason: id);
     }
+    expect(at('3-2').hint, contains('pigeons'));
+    expect(at('3-3').hint, contains('Hop the hot ones'));
+    expect(at('3-3').hint, contains('ride the soft ones'));
+    expect(at('3-4').hint, contains('light'));
+    expect(at('3-6').hint, contains('Gale'));
+    expect(at('3-7').hint, contains('flocks'));
     expect(at('1-4').hint, isNull);
     expect(at('5-1').hintIsNew, isFalse);
   });
@@ -189,15 +245,33 @@ void main() {
       final (two, three) = level.chapter == 1
           ? marksFor(stars, .45, .75)
           : marksFor(stars, .5, .8);
-      expect((marks.two, marks.three), (two, three), reason: level.id);
+      if (level.id == '3-4') {
+        // The one exception: the Gargoyle's steam run-up has its third mark
+        // at 75% (27 of 36), not 30. Its steam arcs and pigeons cost a casual
+        // pilot two stars more than King Coo's run-up, and the review found
+        // 30 out of reach for 35 to 62% of them (see docs/validation.md). Its
+        // thief cap, (36 - 27) / 2 = 4, still covers the three pigeons.
+        expect((marks.two, marks.three), (two, 27), reason: level.id);
+        expect(marks.three, (stars * .75).round(), reason: level.id);
+      } else {
+        expect((marks.two, marks.three), (two, three), reason: level.id);
+      }
       expect(marks.three, lessThan(stars), reason: level.id);
     }
     int stars(String id) => routeOf(Campaign.level(id)!).stars;
     expect(stars('1-1'), 81);
     expect(stars('1-8'), 36);
     expect(stars('2-7'), 111);
-    // A gale lays no stars for about 14 passages.
-    expect(stars('3-2') - stars('3-4'), 42);
+    // New York (real routes): 3-1 81 (27 passages; 96 at 70 s before the fix
+    // round); the two run-ups 12 passages, 36; Steam Alley 30 passages, 90
+    // (114 at 80 s), the same as without its vents (a vent keeps its slot's
+    // three stars). The gale and the swarm that used to shorten 3-4 and 3-3
+    // moved to Paris: 3-6's gale lays no stars for 14 passages.
+    expect(stars('3-1'), 81);
+    expect(stars('3-2'), 36);
+    expect(stars('3-3'), 90);
+    expect(stars('3-4'), 36);
+    expect(stars('3-6'), 69);
     expect(stars('4-3'), 69);
     expect(stars('5-8'), 36);
   });

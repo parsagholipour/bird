@@ -52,7 +52,7 @@ const _chapters = [
     [
       (
         WorldRegion.newYork,
-        ['Moth Light', 'Wheels in the Rain', 'Swarm Alley', 'Storm Warning'],
+        ['Moth Light', 'Wheels in the Rain', 'Steam Alley', 'Storm Warning'],
       ),
       (
         WorldRegion.paris,

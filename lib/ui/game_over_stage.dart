@@ -320,8 +320,12 @@ class _GameOverStageState extends State<GameOverStage>
                         Container(
                           padding: const EdgeInsets.fromLTRB(8, 0, 8, 1),
                           decoration: BoxDecoration(
-                            color: level.isBoss
+                            // The result's chip colours: a chapter's boss coral, a
+                            // guardian lavender.
+                            color: level.isChapterBoss
                                 ? SkyColors.coral
+                                : level.isGuardian
+                                ? SkyColors.lavender
                                 : SkyColors.yellow,
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
@@ -647,7 +651,11 @@ class _GameOverStageState extends State<GameOverStage>
                     : '${at - r.stars} more stars for $mark stars',
                 excludeSemantics: true,
                 child: at == null
-                    ? _marksReached()
+                    ? _marksReached(
+                        beat: boss != null && boss.isMiniBoss
+                            ? boss.name
+                            : null,
+                      )
                     : _nextMark(mark, at, r.stars, count),
               ),
             ],
@@ -680,7 +688,11 @@ class _GameOverStageState extends State<GameOverStage>
                       fit: BoxFit.scaleDown,
                       child: Text(
                         boss != null
-                            ? '${boss.name.toUpperCase()} LEFT'
+                            // "KING COO LEFT" reads as "went away": a guardian
+                            // says what is left of him.
+                            ? boss.isMiniBoss
+                                  ? '${boss.name.toUpperCase()}: ${boss.hp} HP LEFT'
+                                  : '${boss.name.toUpperCase()} LEFT'
                             : 'ROUTE FLOWN',
                         maxLines: 1,
                         style: label,
@@ -782,8 +794,9 @@ class _GameOverStageState extends State<GameOverStage>
     ],
   );
 
-  /// Both star marks were reached, so the finish is all that is missing.
-  Widget _marksReached() => Row(
+  /// Both star marks were reached, so the finish is all that is missing; a
+  /// guardian's level says what is left to do ([beat] is his name).
+  Widget _marksReached({String? beat}) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
       SizedBox(
@@ -792,12 +805,19 @@ class _GameOverStageState extends State<GameOverStage>
         child: CustomPaint(painter: MapStarsPainter(3)),
       ),
       const SizedBox(width: 8),
-      Text(
-        'Both marks reached',
-        style: bodyText(
-          14,
-          color: const Color(0xff2e7d6f),
-          weight: FontWeight.w900,
+      Flexible(
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            beat == null
+                ? 'Both marks reached'
+                : 'Both marks reached. Beat $beat!',
+            style: bodyText(
+              14,
+              color: const Color(0xff2e7d6f),
+              weight: FontWeight.w900,
+            ),
+          ),
         ),
       ),
     ],

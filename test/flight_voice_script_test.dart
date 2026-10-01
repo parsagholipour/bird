@@ -25,7 +25,7 @@ Set<String> birdMoments() => {
   ],
   for (final region in WorldRegion.values)
     'region-${FlightVoices.regionKey(region)}',
-  for (final boss in BossKind.values) ...[
+  for (final boss in FlightVoices.voicedBosses) ...[
     'boss-${FlightVoices.bossKey(boss)}',
     'boss-down-${FlightVoices.bossKey(boss)}',
   ],
@@ -50,7 +50,7 @@ void main() {
     final asked = {
       for (final bird in CampaignVoices.birds)
         for (final moment in birdMoments()) '$bird-$moment',
-      for (final boss in BossKind.values)
+      for (final boss in FlightVoices.voicedBosses)
         for (final moment in bossMoments(boss))
           '${FlightVoices.bossKey(boss)}-$moment',
     };

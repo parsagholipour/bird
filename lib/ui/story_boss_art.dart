@@ -17,6 +17,10 @@ import '../game/dusk_moth_head_art.dart';
 import '../game/dusk_moth_kit.dart';
 import '../game/dusk_moth_pose.dart';
 import '../game/dusk_moth_wing_art.dart';
+import '../game/gargoyle_layout.dart';
+import '../game/gargoyle_story_art.dart';
+import '../game/king_coo_pose.dart' show KingCooMood;
+import '../game/king_coo_story_art.dart';
 import '../game/pirate_boss_rig.dart';
 import '../game/pirate_captain_body_art.dart';
 import '../game/pirate_captain_face_art.dart';
@@ -67,6 +71,23 @@ abstract final class StoryBossArt {
       origin: const Offset(40, -28),
       reach: const Rect.fromLTRB(-2.7, -5.4, 5.4, 2.6),
     ),
+    // King Coo's own fit (K8): his feet on the floor line (the chest stands
+    // 2.35 radii above it), his figure centred on the stage place.
+    BossKind.kingCoo => (
+      unit: 50,
+      origin: const Offset(-35, -118),
+      reach: const Rect.fromLTRB(-2.8, -3.0, 4.2, 2.5),
+    ),
+    // The Searchlight Gargoyle stands with his talons on the floor line: the
+    // lamp is the ledge's height (2.95 units) above it. He is all of 8.8
+    // units wide and 6.9 tall, so the unit is small. The reach runs up to
+    // the top of the tower pier behind him (it runs off the top of the stage;
+    // a listener's shade layer is cut to this box, so it must hold the pier).
+    BossKind.searchlightGargoyle => (
+      unit: 30,
+      origin: Offset(0, -GargoyleLayout.ledgeY * 30),
+      reach: const Rect.fromLTRB(-4.4, -9.0, 4.8, 3.4),
+    ),
   };
 
   /// Paints [kind] in rig units. [talk] (0 to 1) opens its mouth as the
@@ -92,6 +113,18 @@ abstract final class StoryBossArt {
         _pirate(c, m, beaten, talk, blink);
       case BossKind.dragon:
         _dragon(c, m, beaten, talk, blink);
+      // King Coo and the Gargoyle each paint from their own rig, in their own
+      // pose for the mood (never the Baron's, never a placeholder).
+      case BossKind.kingCoo:
+        KingCooStoryArt.paint(
+          c,
+          KingCooMood.values.byName(m.name),
+          beaten: beaten,
+          talk: talk,
+          blink: blink,
+        );
+      case BossKind.searchlightGargoyle:
+        GargoyleStoryArt.paint(c, mood, beaten: beaten, talk: talk, blink: blink);
     }
   }
 

@@ -1,0 +1,840 @@
+{
+  "rulesVersion": 41,
+  "catalog": {
+    "1-1": {
+      "plan": "{\"id\":\"1-1\",\"region\":\"jungle\",\"length\":60.0,\"start\":0.0,\"seed\":1101,\"families\":[\"garden\"],\"lineup\":[],\"cadence\":2,\"toughness\":0,\"shoot\":false,\"sprint\":false,\"panels\":0.0,\"pieces\":[],\"boss\":null,\"marks\":[35,60]}",
+      "route": "-5a2cd7b68903bb80",
+      "passages": 27,
+      "routeStars": 81,
+      "pieces": 0,
+      "marks": [
+        35,
+        60
+      ],
+      "isBoss": false,
+      "boss": ""
+    },
+    "1-2": {
+      "plan": "{\"id\":\"1-2\",\"region\":\"jungle\",\"length\":60.0,\"start\":0.0,\"seed\":1102,\"families\":[\"garden\",\"windLift\"],\"lineup\":[],\"cadence\":2,\"toughness\":0,\"shoot\":false,\"sprint\":false,\"panels\":0.0,\"pieces\":[],\"boss\":null,\"marks\":[35,60]}",
+      "route": "-5a2cd7b68903bb80",
+      "passages": 27,
+      "routeStars": 81,
+      "pieces": 0,
+      "marks": [
+        35,
+        60
+      ],
+      "isBoss": false,
+      "boss": ""
+    },
+    "1-3": {
+      "plan": "{\"id\":\"1-3\",\"region\":\"jungle\",\"length\":65.0,\"start\":10.0,\"seed\":1103,\"families\":[\"garden\",\"windLift\"],\"lineup\":[\"simpleBat\",\"caveBat\"],\"cadence\":4,\"toughness\":0,\"shoot\":true,\"sprint\":false,\"panels\":0.0,\"pieces\":[],\"boss\":null,\"marks\":[40,65]}",
+      "route": "-17c9fb57c4fc8908",
+      "passages": 29,
+      "routeStars": 87,
+      "pieces": 0,
+      "marks": [
+        40,
+        65
+      ],
+      "isBoss": false,
+      "boss": ""
+    },
+    "1-4": {
+      "plan": "{\"id\":\"1-4\",\"region\":\"brazil\",\"length\":70.0,\"start\":20.0,\"seed\":1104,\"families\":[\"garden\",\"windLift\",\"petalGate\"],\"lineup\":[\"simpleBat\",\"caveBat\"],\"cadence\":2,\"toughness\":0,\"shoot\":true,\"sprint\":false,\"panels\":0.0,\"pieces\":[],\"boss\":null,\"marks\":[45,70]}",
+      "route": "-2d20dbb5749fa900",
+      "passages": 32,
+      "routeStars": 96,
+      "pieces": 0,
+      "marks": [
+        45,
+        70
+      ],
+      "isBoss": false,
+      "boss": ""
+    },
+    "1-5": {
+      "plan": "{\"id\":\"1-5\",\"region\":\"brazil\",\"length\":70.0,\"start\":30.0,\"seed\":1105,\"families\":[\"garden\",\"windLift\",\"petalGate\"],\"lineup\":[\"simpleBat\",\"caveBat\"],\"cadence\":2,\"toughness\":0,\"shoot\":true,\"sprint\":true,\"panels\":0.0,\"pieces\":[],\"boss\":null,\"marks\":[45,70]}",
+      "route": "710610a87aceee0c",
+      "passages": 32,
+      "routeStars": 96,
+      "pieces": 0,
+      "marks": [
+        45,
+        70
+      ],
+      "isBoss": false,
+      "boss": ""
+    },
+    "1-6": {
+      "plan": "{\"id\":\"1-6\",\"region\":\"aztec\",\"length\":75.0,\"start\":40.0,\"seed\":1106,\"families\":[\"garden\",\"windLift\",\"petalGate\"],\"lineup\":[\"simpleBat\",\"caveBat\"],\"cadence\":2,\"toughness\":0,\"shoot\":true,\"sprint\":true,\"panels\":0.0,\"pieces\":[],\"boss\":null,\"marks\":[45,80]}",
+      "route": "5129122f82dc006f",
+      "passages": 35,
+      "routeStars": 105,
+      "pieces": 0,
+      "marks": [
+        45,
+        80
+      ],
+      "isBoss": false,
+      "boss": ""
+    },
+    "1-7": {
+      "plan": "{\"id\":\"1-7\",\"region\":\"aztec\",\"length\":80.0,\"start\":50.0,\"seed\":1107,\"families\":[\"garden\",\"windLift\",\"petalGate\"],\"lineup\":[\"simpleBat\",\"caveBat\"],\"cadence\":2,\"toughness\":0,\"shoot\":true,\"sprint\":true,\"panels\":0.0,\"pieces\":[],\"boss\":null,\"marks\":[50,85]}",
+      "route": "2fe8cf0d46fb509b",
+      "passages": 38,
+      "routeStars": 114,
+      "pieces": 0,
+      "marks": [
+        50,
+        85
+      ],
+      "isBoss": false,
+      "boss": ""
+    },
+    "1-8": {
+      "plan": "{\"id\":\"1-8\",\"region\":\"aztec\",\"length\":30.0,\"start\":40.0,\"seed\":1108,\"families\":[\"garden\",\"windLift\",\"petalGate\"],\"lineup\":[\"simpleBat\",\"caveBat\"],\"cadence\":2,\"toughness\":0,\"shoot\":true,\"sprint\":true,\"panels\":0.0,\"pieces\":[],\"boss\":\"baronBat\",\"marks\":[15,25]}",
+      "route": "41dccb74ceee1be9",
+      "passages": 12,
+      "routeStars": 36,
+      "pieces": 0,
+      "marks": [
+        15,
+        25
+      ],
+      "isBoss": true,
+      "boss": "baronBat"
+    },
+    "2-1": {
+      "plan": "{\"id\":\"2-1\",\"region\":\"rome\",\"length\":65.0,\"start\":40.0,\"seed\":2101,\"families\":[\"garden\",\"windLift\",\"petalGate\"],\"lineup\":[\"simpleBat\",\"spitterBeetle\",\"caveBat\",\"spitterBeetle\"],\"cadence\":2,\"toughness\":1,\"shoot\":true,\"sprint\":true,\"panels\":0.0,\"pieces\":[],\"boss\":null,\"marks\":[45,70]}",
+      "route": "704fad835848a9c6",
+      "passages": 30,
+      "routeStars": 90,
+      "pieces": 0,
+      "marks": [
+        45,
+        70
+      ],
+      "isBoss": false,
+      "boss": ""
+    },
+    "2-2": {
+      "plan": "{\"id\":\"2-2\",\"region\":\"rome\",\"length\":70.0,\"start\":50.0,\"seed\":2102,\"families\":[\"garden\",\"windLift\",\"petalGate\"],\"lineup\":[\"simpleBat\",\"spitterBeetle\",\"caveBat\"],\"cadence\":2,\"toughness\":1,\"shoot\":true,\"sprint\":true,\"panels\":0.35,\"pieces\":[],\"boss\":null,\"marks\":[50,75]}",
+      "route": "-3b1e4a3dbc9c1dd2",
+      "passages": 32,
+      "routeStars": 96,
+      "pieces": 0,
+      "marks": [
+        50,
+        75
+      ],
+      "isBoss": false,
+      "boss": ""
+    },
+    "2-3": {
+      "plan": "{\"id\":\"2-3\",\"region\":\"rome\",\"length\":75.0,\"start\":45.0,\"seed\":2103,\"families\":[\"garden\",\"windLift\",\"petalGate\"],\"lineup\":[\"simpleBat\",\"spitterBeetle\",\"caveBat\"],\"cadence\":2,\"toughness\":1,\"shoot\":true,\"sprint\":true,\"panels\":0.25,\"pieces\":[{\"kind\":\"wildfire\",\"at\":25.0,\"after\":false}],\"boss\":null,\"marks\":[45,75]}",
+      "route": "-4cd13a03427ef2bb",
+      "passages": 25,
+      "routeStars": 93,
+      "pieces": 1,
+      "marks": [
+        45,
+        75
+      ],
+      "isBoss": false,
+      "boss": ""
+    },
+    "2-4": {
+      "plan": "{\"id\":\"2-4\",\"region\":\"egypt\",\"length\":75.0,\"start\":60.0,\"seed\":2104,\"families\":[\"garden\",\"windLift\",\"petalGate\",\"switchback\"],\"lineup\":[\"simpleBat\",\"spitterBeetle\",\"caveBat\"],\"cadence\":2,\"toughness\":1,\"shoot\":true,\"sprint\":true,\"panels\":0.25,\"pieces\":[],\"boss\":null,\"marks\":[55,85]}",
+      "route": "1269a14c0f7ff7d7",
+      "passages": 35,
+      "routeStars": 105,
+      "pieces": 0,
+      "marks": [
+        55,
+        85
+      ],
+      "isBoss": false,
+      "boss": ""
+    },
+    "2-5": {
+      "plan": "{\"id\":\"2-5\",\"region\":\"egypt\",\"length\":80.0,\"start\":65.0,\"seed\":2105,\"families\":[\"garden\",\"windLift\",\"petalGate\",\"switchback\"],\"lineup\":[\"simpleBat\",\"spitterBeetle\",\"caveBat\"],\"cadence\":2,\"toughness\":1,\"shoot\":true,\"sprint\":true,\"panels\":0.25,\"pieces\":[{\"kind\":\"skyfall\",\"at\":30.0,\"after\":false}],\"boss\":null,\"marks\":[50,80]}",
+      "route": "5504f967133ab41f",
+      "passages": 28,
+      "routeStars": 102,
+      "pieces": 1,
+      "marks": [
+        50,
+        80
+      ],
+      "isBoss": false,
+      "boss": ""
+    },
+    "2-6": {
+      "plan": "{\"id\":\"2-6\",\"region\":\"arabia\",\"length\":80.0,\"start\":75.0,\"seed\":2106,\"families\":[\"garden\",\"windLift\",\"petalGate\",\"switchback\",\"lanternDrift\"],\"lineup\":[\"simpleBat\",\"spitterBeetle\",\"caveBat\"],\"cadence\":2,\"toughness\":1,\"shoot\":true,\"sprint\":true,\"panels\":0.25,\"pieces\":[],\"boss\":null,\"marks\":[55,90]}",
+      "route": "12decd60bf6577a7",
+      "passages": 38,
+      "routeStars": 114,
+      "pieces": 0,
+      "marks": [
+        55,
+        90
+      ],
+      "isBoss": false,
+      "boss": ""
+    },
+    "2-7": {
+      "plan": "{\"id\":\"2-7\",\"region\":\"arabia\",\"length\":90.0,\"start\":90.0,\"seed\":2107,\"families\":[\"garden\",\"windLift\",\"petalGate\",\"switchback\",\"lanternDrift\"],\"lineup\":[\"simpleBat\",\"spitterBeetle\",\"caveBat\"],\"cadence\":2,\"toughness\":1,\"shoot\":true,\"sprint\":true,\"panels\":0.25,\"pieces\":[{\"kind\":\"wildfire\",\"at\":25.0,\"after\":false},{\"kind\":\"skyfall\",\"at\":60.0,\"after\":false}],\"boss\":null,\"marks\":[55,90]}",
+      "route": "686c12afa863263e",
+      "passages": 25,
+      "routeStars": 111,
+      "pieces": 2,
+      "marks": [
+        55,
+        90
+      ],
+      "isBoss": false,
+      "boss": ""
+    },
+    "2-8": {
+      "plan": "{\"id\":\"2-8\",\"region\":\"arabia\",\"length\":30.0,\"start\":75.0,\"seed\":2108,\"families\":[\"garden\",\"windLift\",\"petalGate\",\"switchback\",\"lanternDrift\"],\"lineup\":[\"simpleBat\",\"spitterBeetle\",\"caveBat\"],\"cadence\":2,\"toughness\":1,\"shoot\":true,\"sprint\":true,\"panels\":0.25,\"pieces\":[],\"boss\":\"spitterBeetle\",\"marks\":[20,30]}",
+      "route": "3acb1f207536e03c",
+      "passages": 12,
+      "routeStars": 36,
+      "pieces": 0,
+      "marks": [
+        20,
+        30
+      ],
+      "isBoss": true,
+      "boss": "spitterBeetle"
+    }
+  },
+  "flights": {
+    "1-1": {
+      "summary": "t=60.01 ended completed score=312 gates=27 stars=78 hearts=3 bosses=0 rush=0 gales=0 doors=0 enemies=0 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=78/81 levelStars=3 score=312 hearts=3 route=60.008",
+      "checkpoints": [
+        "5048bd654116df67",
+        "-4683f699cc8cfc65",
+        "-6a6a24f0358633a5",
+        "-10dc510bc81881c0",
+        "49df6d677b6c409c",
+        "101c0208e9a251de",
+        "1e01e1e892877c4f"
+      ]
+    },
+    "1-2": {
+      "summary": "t=60.01 ended completed score=315 gates=27 stars=79 hearts=3 bosses=0 rush=0 gales=0 doors=0 enemies=0 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=79/81 levelStars=3 score=315 hearts=3 route=60.008",
+      "checkpoints": [
+        "-3411c4a7d4e9cc58",
+        "-4eddcac82475c86b",
+        "1470a2526f0c8e3c",
+        "-4220a8227f545031",
+        "b265c8e051deb5",
+        "-73101b566cb0dbe1",
+        "50dd9a8d3349cb20"
+      ]
+    },
+    "1-3": {
+      "summary": "t=65.01 ended completed score=239 gates=27 stars=77 hearts=3 bosses=0 rush=0 gales=0 doors=0 enemies=6 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=77/87 levelStars=3 score=239 hearts=3 route=65.008",
+      "checkpoints": [
+        "740d0b47c5fb186f",
+        "55e4ebb280f9c09a",
+        "-1c2af248c3063b6c",
+        "-1b59aec07321df2a",
+        "6574e92d20d9384",
+        "-5c07e1eeeacf16e4",
+        "1c5e9924bbb7b39c"
+      ]
+    },
+    "1-4": {
+      "summary": "t=70.01 ended completed score=332 gates=29 stars=90 hearts=3 bosses=0 rush=0 gales=0 doors=0 enemies=13 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=90/96 levelStars=3 score=332 hearts=3 route=70.008",
+      "checkpoints": [
+        "54f35315e09d6e87",
+        "5eab2a5ef24cf841",
+        "-274beb4ea554963c",
+        "a31017339702e6e",
+        "-4eacf4c91f5d6603",
+        "-6ca57cd448ec276a",
+        "30d2a5e214a7a36e",
+        "-6a6d40f966c5fb2d"
+      ]
+    },
+    "1-5": {
+      "summary": "t=63.07 ended completed score=347 gates=29 stars=92 hearts=3 bosses=0 rush=0 gales=0 doors=0 enemies=11 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=92/96 levelStars=3 score=347 hearts=3 route=70.006",
+      "checkpoints": [
+        "-25b250782c21772d",
+        "f3cf13fb15d9833",
+        "-64503cd2f8d9cc3f",
+        "-3b5b51e49d7f1b9b",
+        "-74667f3ce6ef18ac",
+        "-17678496c98f8d4e",
+        "-530d405a1064cddc"
+      ]
+    },
+    "1-6": {
+      "summary": "t=68.07 ended completed score=319 gates=29 stars=88 hearts=2 bosses=0 rush=0 gales=0 doors=0 enemies=17 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=88/105 levelStars=3 score=319 hearts=2 route=75.006",
+      "checkpoints": [
+        "6b74570b4a4dea4b",
+        "43913bd6f07ac794",
+        "-290fd7e4241eb344",
+        "4db4cc11d89a1c61",
+        "3a29dd3203151b70",
+        "-67eb202182e1d23e",
+        "-2713715573ab13bd",
+        "-1e61c2342346ddb1"
+      ]
+    },
+    "1-7": {
+      "summary": "t=73.07 ended completed score=450 gates=35 stars=110 hearts=3 bosses=0 rush=0 gales=0 doors=0 enemies=15 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=110/114 levelStars=3 score=450 hearts=3 route=80.006",
+      "checkpoints": [
+        "-4ba69e66324330d8",
+        "7b1f322bef2c39a",
+        "2c7e31d1d8def3a3",
+        "-4be4297c92a127bc",
+        "-332ac82fe25a23a1",
+        "-6c2e4399e1329102",
+        "2de167ee67f32576",
+        "4e0d1c3480220165"
+      ]
+    },
+    "1-8": {
+      "summary": "t=44.17 ended completed score=169 gates=12 stars=34 hearts=3 bosses=1 rush=0 gales=0 doors=0 enemies=6 draws=null",
+      "outcome": "end=completed finish=crossed bosses=1 stars=34/36 levelStars=3 score=169 hearts=3 route=48.331",
+      "checkpoints": [
+        "515bcc2307933ba0",
+        "-51413d11f24d5431",
+        "-32ad337452f92453",
+        "-5ef7b45a9e468d01",
+        "6b2db1e1436342d2"
+      ]
+    },
+    "2-1": {
+      "summary": "t=59.46 ended completed score=255 gates=23 stars=75 hearts=3 bosses=0 rush=0 gales=0 doors=0 enemies=10 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=75/90 levelStars=3 score=255 hearts=3 route=65.007",
+      "checkpoints": [
+        "22bb79670a38ede6",
+        "72c2ebcd000e3306",
+        "-1e70b8e1b1afd953",
+        "10ccad939e4173bb",
+        "359eea11dc109f6a",
+        "6d0b02719dbe6059",
+        "7b6a6566e2af13e7"
+      ]
+    },
+    "2-2": {
+      "summary": "t=63.07 ended completed score=394 gates=32 stars=94 hearts=3 bosses=0 rush=0 gales=0 doors=9 enemies=8 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=94/96 levelStars=3 score=394 hearts=3 route=70.006",
+      "checkpoints": [
+        "-6022bc18561327b4",
+        "4b4564acc4b496e",
+        "5b4765e1e514b302",
+        "-1e24e3f811337cfb",
+        "-43262c931d5d105f",
+        "-78eaaedf9b832814",
+        "-2f82ceb6c0cf1533"
+      ]
+    },
+    "2-3": {
+      "summary": "t=56.99 ended completed score=304 gates=24 stars=79 hearts=3 bosses=0 rush=1 gales=0 doors=7 enemies=9 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=79/93 levelStars=3 score=304 hearts=3 route=75.008",
+      "checkpoints": [
+        "4cfe9bc8b74da347",
+        "-6462a954d17b600f",
+        "-3a2b9540200d8c2e",
+        "722a0edb2c28596d",
+        "-357fd5fe345e29c",
+        "-593828d88de40997",
+        "6e80c6377debcf2e"
+      ]
+    },
+    "2-4": {
+      "summary": "t=68.07 ended completed score=373 gates=32 stars=96 hearts=2 bosses=0 rush=0 gales=0 doors=8 enemies=11 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=96/105 levelStars=3 score=373 hearts=2 route=75.006",
+      "checkpoints": [
+        "-1dff82745c6cbf45",
+        "-25604574038c9696",
+        "-56f2b53e01add536",
+        "-a009999faa3a4a8",
+        "-249160936f3dc635",
+        "-5fddb4670d032893",
+        "7e4f99baf71110b0",
+        "-ab01680cbf11e88"
+      ]
+    },
+    "2-5": {
+      "summary": "t=64.05 ended completed score=408 gates=27 stars=92 hearts=3 bosses=0 rush=1 gales=0 doors=6 enemies=12 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=92/102 levelStars=3 score=408 hearts=3 route=80.005",
+      "checkpoints": [
+        "5c8c9797b7fcd9d8",
+        "5908dc6c0c2bf44",
+        "bb26e8f448d5660",
+        "-180264cb383dd5e5",
+        "-47db0ef1ec7b31e",
+        "4361f0596aa3a6b9",
+        "4ea03089dc349fa4"
+      ]
+    },
+    "2-6": {
+      "summary": "t=73.07 ended completed score=381 gates=33 stars=103 hearts=2 bosses=0 rush=0 gales=0 doors=6 enemies=12 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=103/114 levelStars=3 score=381 hearts=2 route=80.006",
+      "checkpoints": [
+        "6b7f5beaab3bcf97",
+        "7f62de99cad4bd42",
+        "48deb68c71ebe10c",
+        "-41c9fa0b060011f4",
+        "3cbdf1b4a86442a9",
+        "-25f1ba61ba927c79",
+        "6d64c84e17b57904",
+        "267aa07e72505411"
+      ]
+    },
+    "2-7": {
+      "summary": "t=62.68 ended completed score=395 gates=23 stars=92 hearts=3 bosses=0 rush=2 gales=0 doors=6 enemies=11 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=92/111 levelStars=3 score=395 hearts=3 route=90.003",
+      "checkpoints": [
+        "-658c441356a024a9",
+        "548af727c9696239",
+        "6f7cb1245d8501cd",
+        "33df018e4083212b",
+        "77d17dc4ec92267f",
+        "5b8e2009222e2909",
+        "18633257e30bef6a"
+      ]
+    },
+    "2-8": {
+      "summary": "t=43.97 ended completed score=194 gates=12 stars=36 hearts=3 bosses=1 rush=0 gales=0 doors=3 enemies=4 draws=null",
+      "outcome": "end=completed finish=crossed bosses=1 stars=36/36 levelStars=3 score=194 hearts=3 route=48.131",
+      "checkpoints": [
+        "-21eefdef9b2a4a67",
+        "682f0534bc91492e",
+        "-1f2ebfef56f48ede",
+        "-3ce7567346c6699f",
+        "-44e25aabb72465d5"
+      ]
+    },
+    "1-3@w1.6": {
+      "summary": "t=65.01 ended completed score=280 gates=28 stars=82 hearts=3 bosses=0 rush=0 gales=0 doors=0 enemies=5 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=82/87 levelStars=3 score=280 hearts=3 route=65.008",
+      "checkpoints": [
+        "304567c6df56f49c",
+        "-53a945a9114e01f2",
+        "98199405b7ec3ab",
+        "-20c1e5f07244bb44",
+        "-5146babbff866192",
+        "7c0f5b03f9be3bbb",
+        "65c473b07eee50af"
+      ]
+    },
+    "1-3@w2.4": {
+      "summary": "t=65.01 ended completed score=239 gates=27 stars=77 hearts=3 bosses=0 rush=0 gales=0 doors=0 enemies=6 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=77/87 levelStars=3 score=239 hearts=3 route=65.008",
+      "checkpoints": [
+        "-9b65e4874cf6f25",
+        "39c49f29b8f49884",
+        "e91bf37c03d4d",
+        "-124bd404269471ce",
+        "-123cab5dc6d86fd7",
+        "2f004461514b37ae",
+        "54d0bfc1b46bf9cf"
+      ]
+    },
+    "1-5@w1.6": {
+      "summary": "t=63.07 ended completed score=373 gates=28 stars=95 hearts=2 bosses=0 rush=0 gales=0 doors=0 enemies=10 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=95/96 levelStars=3 score=373 hearts=2 route=70.006",
+      "checkpoints": [
+        "-3711e3778e3b4609",
+        "45401ec3ae07ba79",
+        "7f310bebee89b373",
+        "-1f855bbd8f6c0107",
+        "10eea6d954bd971d",
+        "4926c242796e1860",
+        "-7d9dccb6b3b81548"
+      ]
+    },
+    "1-5@w2.4": {
+      "summary": "t=63.07 ended completed score=306 gates=26 stars=88 hearts=2 bosses=0 rush=0 gales=0 doors=0 enemies=9 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=88/96 levelStars=3 score=306 hearts=2 route=70.006",
+      "checkpoints": [
+        "-2c167c86c4272309",
+        "1229451d20a32334",
+        "-7b74a2a718efd8d6",
+        "5c0ac6854e0668",
+        "-64cf722f5f8c5623",
+        "-222849d95054b6c2",
+        "5c18b854c955b1f6"
+      ]
+    },
+    "2-1@w1.6": {
+      "summary": "t=59.46 ended completed score=219 gates=24 stars=75 hearts=2 bosses=0 rush=0 gales=0 doors=0 enemies=10 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=75/90 levelStars=3 score=219 hearts=2 route=65.007",
+      "checkpoints": [
+        "-296837e93f939dad",
+        "6cc3e140727ea009",
+        "-3dfffaff3e0ea0a6",
+        "31d4bc20a05fd289",
+        "1f25234cc175dc06",
+        "259a909d2b29a322",
+        "-58a1bb632e00af15"
+      ]
+    },
+    "2-1@w2.4": {
+      "summary": "t=59.46 ended completed score=228 gates=27 stars=71 hearts=2 bosses=0 rush=0 gales=0 doors=0 enemies=13 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=71/90 levelStars=3 score=228 hearts=2 route=65.007",
+      "checkpoints": [
+        "4454937459d2ca59",
+        "-1ab141c5a9cff876",
+        "-35bdb96578743daa",
+        "-b622730f386d795",
+        "6d15cdf824d358aa",
+        "449a8caa59bbd139",
+        "7ac999e54cde7795"
+      ]
+    },
+    "2-3@w1.6": {
+      "summary": "t=58.98 ended completed score=296 gates=24 stars=77 hearts=3 bosses=0 rush=1 gales=0 doors=7 enemies=9 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=77/93 levelStars=3 score=296 hearts=3 route=75.001",
+      "checkpoints": [
+        "791c2977c22e1215",
+        "7917f5083ec3fb7e",
+        "4e9ec5a656e25d4e",
+        "20114e9c75925c31",
+        "-703fb8dd23fde5c0",
+        "-42864e2d9785bea6",
+        "-55b11da1f20ff0de"
+      ]
+    },
+    "2-3@w2.4": {
+      "summary": "t=58.99 ended completed score=321 gates=23 stars=77 hearts=3 bosses=0 rush=1 gales=0 doors=7 enemies=11 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=77/93 levelStars=3 score=321 hearts=3 route=75.006",
+      "checkpoints": [
+        "1be51686a7705ea2",
+        "cd1718fbf014681",
+        "50836d648771f9d5",
+        "3f055f6df3af5899",
+        "13bec1c4bf873d3c",
+        "-507491bed6d26fba",
+        "6ec02a674e3eb2c5"
+      ]
+    },
+    "2-5@w1.6": {
+      "summary": "t=64.07 ended completed score=400 gates=26 stars=93 hearts=3 bosses=0 rush=1 gales=0 doors=6 enemies=11 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=93/102 levelStars=3 score=400 hearts=3 route=80.008",
+      "checkpoints": [
+        "-13bbfdb34ac1d7d6",
+        "-58ae59b21ec6cfb2",
+        "-5dec8896d37ba6a",
+        "45277adab99a2527",
+        "-211ee86d76375b46",
+        "347803b528c0c6fb",
+        "1a72efed0f7fd045"
+      ]
+    },
+    "2-5@w2.4": {
+      "summary": "t=64.07 ended completed score=442 gates=27 stars=98 hearts=3 bosses=0 rush=1 gales=0 doors=6 enemies=12 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=98/102 levelStars=3 score=442 hearts=3 route=80.008",
+      "checkpoints": [
+        "-3a53b5f1a54e6c75",
+        "1b0fe825852b224c",
+        "-35c219f9b9860161",
+        "-54298e52f32b3263",
+        "-15b62c144dd3d7f1",
+        "6d3eb5e05c5d2080",
+        "-298b6a62994af991"
+      ]
+    },
+    "2-7@w1.6": {
+      "summary": "t=62.66 ended completed score=392 gates=22 stars=92 hearts=3 bosses=0 rush=2 gales=0 doors=6 enemies=11 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=92/111 levelStars=3 score=392 hearts=3 route=90.002",
+      "checkpoints": [
+        "170deda9a5eddd48",
+        "128318d8efd6000e",
+        "-42d62ddc9f5f45d5",
+        "-46afdf45765e511a",
+        "-2e227ac2fdc44d1c",
+        "-3828c05e451dee7",
+        "-5df10c2c7753871c"
+      ]
+    },
+    "2-7@w2.4": {
+      "summary": "t=62.66 ended completed score=396 gates=23 stars=93 hearts=3 bosses=0 rush=2 gales=0 doors=6 enemies=11 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=93/111 levelStars=3 score=396 hearts=3 route=90.002",
+      "checkpoints": [
+        "-699b87930f762b5a",
+        "5dd1f73ed52cc3b9",
+        "17705f1fe8ac0ea1",
+        "8c06525e12390d1",
+        "-4cfec9351b95f2a4",
+        "180fe6e7c91f6de7",
+        "-36e2e5958b1ff60d"
+      ]
+    },
+    "1-8@w1.6": {
+      "summary": "t=42.86 ended completed score=152 gates=12 stars=34 hearts=3 bosses=1 rush=0 gales=0 doors=0 enemies=5 draws=null",
+      "outcome": "end=completed finish=crossed bosses=1 stars=34/36 levelStars=3 score=152 hearts=3 route=47.019",
+      "checkpoints": [
+        "-5d36f2c82350d48c",
+        "-282000d470f56420",
+        "-1e8e71e2ee897c0c",
+        "71bdce429031185c",
+        "-40ede31a03ed12f5"
+      ]
+    },
+    "1-8@w2.4": {
+      "summary": "t=43.28 ended completed score=164 gates=11 stars=34 hearts=3 bosses=1 rush=0 gales=0 doors=0 enemies=6 draws=null",
+      "outcome": "end=completed finish=crossed bosses=1 stars=34/36 levelStars=3 score=164 hearts=3 route=47.439",
+      "checkpoints": [
+        "38636f988a7ae7e8",
+        "-7a7676aecdb47f5b",
+        "4cf990ce3a313ad7",
+        "-4228bbb5f2ef4ef3",
+        "66e6f454a3ceda33"
+      ]
+    },
+    "1-8@dmg10": {
+      "summary": "t=51.34 ended completed score=172 gates=12 stars=34 hearts=3 bosses=1 rush=0 gales=0 doors=0 enemies=7 draws=null",
+      "outcome": "end=completed finish=crossed bosses=1 stars=34/36 levelStars=3 score=172 hearts=3 route=55.499",
+      "checkpoints": [
+        "-763466d6e51e6199",
+        "-76ff9d126f51de0a",
+        "-c08817ea27f272c",
+        "-4d1a06788c8407ce",
+        "-4bb0b8aed5b298ba",
+        "-766d96528ab95393"
+      ]
+    },
+    "2-8@w1.6": {
+      "summary": "t=44.15 ended completed score=180 gates=12 stars=36 hearts=3 bosses=1 rush=0 gales=0 doors=3 enemies=3 draws=null",
+      "outcome": "end=completed finish=crossed bosses=1 stars=36/36 levelStars=3 score=180 hearts=3 route=48.311",
+      "checkpoints": [
+        "32e09b14c0472a04",
+        "-4307b827af0d0800",
+        "-605e4f0fcca90427",
+        "-1f309f79450e511b",
+        "-731d67679b5f204e"
+      ]
+    },
+    "2-8@w2.4": {
+      "summary": "t=55.30 ended completed score=171 gates=12 stars=35 hearts=3 bosses=1 rush=0 gales=0 doors=3 enemies=4 draws=null",
+      "outcome": "end=completed finish=crossed bosses=1 stars=35/36 levelStars=3 score=171 hearts=3 route=60.847",
+      "checkpoints": [
+        "7775cf5ef084d3f8",
+        "6bbc547509a77aa0",
+        "-4fea5e3e099b4f16",
+        "2c6e5629d0893c38",
+        "-1504775d7b32cfd8",
+        "574d493715fb6011"
+      ]
+    },
+    "2-8@dmg10": {
+      "summary": "t=54.69 ended completed score=180 gates=12 stars=36 hearts=3 bosses=1 rush=0 gales=0 doors=3 enemies=3 draws=null",
+      "outcome": "end=completed finish=crossed bosses=1 stars=36/36 levelStars=3 score=180 hearts=3 route=58.851",
+      "checkpoints": [
+        "-e0c6936bfc39d0a",
+        "5377984f2458559c",
+        "-1216edda01d41f86",
+        "-3bfa84f3907fae69",
+        "-5e2c4abeca0c34f1",
+        "-55c504dcb8f7a795"
+      ]
+    },
+    "1-4@mortal": {
+      "summary": "t=70.01 ended completed score=332 gates=29 stars=90 hearts=3 bosses=0 rush=0 gales=0 doors=0 enemies=13 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=90/96 levelStars=3 score=332 hearts=3 route=70.008",
+      "checkpoints": [
+        "54f35315e09d6e87",
+        "5eab2a5ef24cf841",
+        "-274beb4ea554963c",
+        "a31017339702e6e",
+        "-4eacf4c91f5d6603",
+        "-6ca57cd448ec276a",
+        "30d2a5e214a7a36e",
+        "-6a6d40f966c5fb2d"
+      ]
+    },
+    "2-2@mortal": {
+      "summary": "t=63.07 ended completed score=394 gates=32 stars=94 hearts=3 bosses=0 rush=0 gales=0 doors=9 enemies=8 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=94/96 levelStars=3 score=394 hearts=3 route=70.006",
+      "checkpoints": [
+        "-6022bc18561327b4",
+        "4b4564acc4b496e",
+        "5b4765e1e514b302",
+        "-1e24e3f811337cfb",
+        "-43262c931d5d105f",
+        "-78eaaedf9b832814",
+        "-2f82ceb6c0cf1533"
+      ]
+    },
+    "2-8@mortal": {
+      "summary": "t=43.97 ended completed score=194 gates=12 stars=36 hearts=3 bosses=1 rush=0 gales=0 doors=3 enemies=4 draws=null",
+      "outcome": "end=completed finish=crossed bosses=1 stars=36/36 levelStars=3 score=194 hearts=3 route=48.131",
+      "checkpoints": [
+        "-21eefdef9b2a4a67",
+        "682f0534bc91492e",
+        "-1f2ebfef56f48ede",
+        "-3ce7567346c6699f",
+        "-44e25aabb72465d5"
+      ]
+    },
+    "1-3@mortal,sloppy": {
+      "summary": "t=47.20 ended collision score=143 gates=13 stars=48 hearts=0 bosses=0 rush=0 gales=0 doors=0 enemies=5 draws=null",
+      "outcome": "end=collision finish=none bosses=0 stars=48/72 levelStars=0 score=143 hearts=0 route=47.200",
+      "checkpoints": [
+        "-6da1b5193aec55d",
+        "32a20ee465bb31e4",
+        "-4aa45dda260d7122",
+        "-2a5edb2b3330a6cd",
+        "-4db8837a627ada07",
+        "2559e5d90b04864a"
+      ]
+    },
+    "1-8@mortal,sloppy": {
+      "summary": "t=44.17 ended completed score=136 gates=9 stars=29 hearts=2 bosses=1 rush=0 gales=0 doors=0 enemies=6 draws=null",
+      "outcome": "end=completed finish=crossed bosses=1 stars=29/36 levelStars=3 score=136 hearts=2 route=48.331",
+      "checkpoints": [
+        "303befcc7c1c3b7c",
+        "10b26319daa951a9",
+        "3c14610f155b400a",
+        "6953f0f6a11e0f38",
+        "-38f0af74f7ab35c3"
+      ]
+    },
+    "2-1@mortal,sloppy": {
+      "summary": "t=15.12 ended collision score=34 gates=2 stars=12 hearts=0 bosses=0 rush=0 gales=0 doors=0 enemies=2 draws=null",
+      "outcome": "end=collision finish=none bosses=0 stars=12/27 levelStars=0 score=34 hearts=0 route=16.556",
+      "checkpoints": [
+        "-4ade93411de044e4",
+        "42ec34ca3e91b7da"
+      ]
+    },
+    "2-2@mortal,sloppy": {
+      "summary": "t=63.07 ended completed score=297 gates=27 stars=86 hearts=1 bosses=0 rush=0 gales=0 doors=9 enemies=7 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=86/96 levelStars=3 score=297 hearts=1 route=70.006",
+      "checkpoints": [
+        "-6022bc18561327b4",
+        "32523d39f80b8f1f",
+        "-34ec87ee6f0248a8",
+        "d7ad9fc99f8109a",
+        "157c1c7da0d0ad80",
+        "2ed4898750848db6",
+        "-46e333b5683c77a"
+      ]
+    },
+    "2-3@mortal,sloppy": {
+      "summary": "t=57.39 ended completed score=251 gates=21 stars=66 hearts=2 bosses=0 rush=1 gales=0 doors=7 enemies=5 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=66/93 levelStars=2 score=251 hearts=2 route=75.003",
+      "checkpoints": [
+        "-7601d47d9312b18",
+        "4319e8137af73f5d",
+        "1a40f5533638bbf8",
+        "4560c60b02f1f15d",
+        "-2a7a01a12e6745f5",
+        "-1fa8f8fba8b66cc0",
+        "272f92cb7bfd3716"
+      ]
+    },
+    "2-5@mortal,sloppy": {
+      "summary": "t=64.11 ended completed score=292 gates=22 stars=78 hearts=1 bosses=0 rush=1 gales=0 doors=6 enemies=11 draws=null",
+      "outcome": "end=completed finish=crossed bosses=0 stars=78/102 levelStars=2 score=292 hearts=1 route=80.002",
+      "checkpoints": [
+        "66fb0905d4b8eb81",
+        "-180a466dffac31f0",
+        "-4d3167491e083791",
+        "15d2dd649ab038c1",
+        "6a42f7ce1648767",
+        "-159a954457aee718",
+        "-76ccd97649d65548"
+      ]
+    },
+    "2-8@mortal,sloppy": {
+      "summary": "t=43.97 ended completed score=150 gates=11 stars=33 hearts=2 bosses=1 rush=0 gales=0 doors=3 enemies=4 draws=null",
+      "outcome": "end=completed finish=crossed bosses=1 stars=33/36 levelStars=3 score=150 hearts=2 route=48.131",
+      "checkpoints": [
+        "792183060b891d07",
+        "b5cfb3fad027ecf",
+        "-431e0cd940624293",
+        "63f257f21aa0e03d",
+        "3e1acc09876db588"
+      ]
+    },
+    "2-7@w1.6,mortal,sloppy": {
+      "summary": "t=19.04 ended collision score=50 gates=4 stars=17 hearts=0 bosses=0 rush=0 gales=0 doors=3 enemies=4 draws=null",
+      "outcome": "end=collision finish=none bosses=0 stars=17/27 levelStars=0 score=50 hearts=0 route=21.812",
+      "checkpoints": [
+        "44de11dbd5f1dab0",
+        "5ba9d96a271e838f",
+        "-a90ad4fa158b0b8"
+      ]
+    },
+    "2-8@w2.4,dmg10,mortal,sloppy": {
+      "summary": "t=21.51 ended collision score=67 gates=7 stars=25 hearts=0 bosses=0 rush=0 gales=0 doors=3 enemies=0 draws=null",
+      "outcome": "end=collision finish=none bosses=0 stars=25/36 levelStars=0 score=67 hearts=0 route=24.283",
+      "checkpoints": [
+        "-2d314ed7357998bb",
+        "-649294c666df99ae",
+        "376d28188471ceb7"
+      ]
+    }
+  },
+  "tapes": {
+    "endless-star-trail": {
+      "file": "test/fixtures/frozen_tapes/endless-star-trail.json",
+      "sha": "-4da66496d560aa80",
+      "events": 10255,
+      "summary": "t=97.00 ended quit score=545 gates=31 stars=118 hearts=4 bosses=1 rush=2 gales=0 doors=0 enemies=19 draws=null",
+      "outcome": "end=quit finish=none bosses=1 stars=118/150 levelStars=0 score=545 hearts=4 route=123.471",
+      "checkpoints": [
+        "-312d77cecd861e8f",
+        "38cda7c4c440a81",
+        "-253a2cfce8de3e56",
+        "-451e63d29a2b4d2",
+        "8f95156bb7eb495",
+        "-1b570e7c5b35d423",
+        "-448dd476d6417281",
+        "5a8609a559e1db32",
+        "-d367f84d778b28f",
+        "-5171284cd3d66721",
+        "208b503e48eea070",
+        "409020e4d79af021"
+      ]
+    },
+    "campaign-2-3-wildfire": {
+      "file": "test/fixtures/frozen_tapes/campaign-2-3-wildfire.json",
+      "sha": "6a3f60f06d6bc613",
+      "events": 5129,
+      "summary": "t=47.00 ended quit score=273 gates=19 stars=68 hearts=2 bosses=0 rush=1 gales=0 doors=6 enemies=9 draws=null",
+      "outcome": "end=quit finish=none bosses=0 stars=68/87 levelStars=0 score=273 hearts=2 route=65.020",
+      "checkpoints": [
+        "71f758f18af5ed12",
+        "-9405d72336e591c",
+        "-1ec4d307f94ee063",
+        "-3e9b28814fb819f1",
+        "140f66ddab72e0ae",
+        "-7023a731a6788dff",
+        "-190265c84bd9c4fc"
+      ]
+    },
+    "campaign-2-8-spitter-king": {
+      "file": "test/fixtures/frozen_tapes/campaign-2-8-spitter-king.json",
+      "sha": "-3d9946c02b46de76",
+      "events": 4744,
+      "summary": "t=43.37 ended completed score=180 gates=12 stars=36 hearts=3 bosses=1 rush=0 gales=0 doors=3 enemies=3 draws=null",
+      "outcome": "end=completed finish=crossed bosses=1 stars=36/36 levelStars=3 score=180 hearts=3 route=47.531",
+      "checkpoints": [
+        "-744e2ee3e60bf94e",
+        "54959f9094cf090d",
+        "-f0a9a147ff5778b",
+        "5939810094111679",
+        "-3ffe3b134977d3a6",
+        "20ab9134cba5e3b8"
+      ]
+    }
+  }
+}

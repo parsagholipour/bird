@@ -9,6 +9,21 @@ Every take is trimmed to its speech with a short breath of room either side,
 brought to one loudness so no character shouts over another, and saved as a
 mono Ogg Vorbis file in assets/audio/story/. The clip lengths are written to
 lib/game/campaign_voice_clips.dart, which the game reads to pace each line.
+
+A clip whose entry says "status": "pending recording" is written and in the
+game but has no take yet: it is skipped (never an error) and the game shows
+its text without a voice. See docs/story-voices-recording.md (a walkthrough from
+zero to a recorded clip) and docs/story-voices.md ("Adding a new character or voice").
+
+    python3 tool/prepare_story_voices.py              master every recorded clip
+    python3 tool/prepare_story_voices.py --only NAME  master just these clips
+    python3 tool/prepare_story_voices.py --status     what is recorded, pending
+                                                      or missing (no FFmpeg)
+    python3 tool/prepare_story_voices.py --checklist  rewrite the generated clip list
+                                                      of docs/story-voices-recording.md
+                                                      (only between its markers; "-" prints)
+    python3 tool/prepare_story_voices.py --tags       audio tags: proven and unproven
+    python3 tool/prepare_story_voices.py --voices     every voice, id and clip count
 """
 import argparse
 import hashlib
@@ -23,6 +38,9 @@ SOURCE_DIR = ROOT / 'build' / 'story-voices' / 'source'
 OUT_DIR = ROOT / 'assets' / 'audio' / 'story'
 CLIPS_DART = ROOT / 'lib' / 'game' / 'campaign_voice_clips.dart'
 VERIFY = ROOT / 'build' / 'story-voices' / 'verification.json'
+
+# What a clip's entry says while its take has not been recorded.
+PENDING = 'pending recording'
 
 # Speech sits under the music at the level of the existing voice cues.
 LOUDNESS = -18.0
@@ -103,26 +121,284 @@ def write_clips(lengths):
     CLIPS_DART.write_text('\n'.join(lines))
 
 
+def is_pending(clip):
+    return clip.get('status') == PENDING
+
+
+def read_table():
+    """The clip lengths already in the generated Dart table, by name."""
+    if not CLIPS_DART.exists():
+        return {}
+    return {m[0]: int(m[1]) for m in re.findall(
+        r"'([\w-]+)': (\d+),", CLIPS_DART.read_text())}
+
+
+def sha256(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def status(data, source_dir):
+    """Print what is recorded, pending or wrong. No FFmpeg needed."""
+    clips = data['clips']
+    table = read_table()
+    recorded = [c for c in clips if not is_pending(c)]
+    pending = [c for c in clips if is_pending(c)]
+    problems = []
+    takes = 0
+    for clip in recorded:
+        name = clip['name']
+        take = source_dir / f'{name}.mp3'
+        if not take.exists():
+            problems.append(f'{name}: recorded, but its take is missing from {source_dir}')
+        else:
+            takes += 1
+            if clip.get('source_sha256') and sha256(take) != clip['source_sha256']:
+                problems.append(f'{name}: its take changed since it was recorded '
+                                '(update source_sha256, or restore the take)')
+        if name not in table:
+            problems.append(f'{name}: recorded, but not mastered yet (run the script)')
+        if not (OUT_DIR / f'{name}.ogg').exists():
+            problems.append(f'{name}: recorded, but assets/audio/story/{name}.ogg is missing')
+    waiting = [c for c in pending if (source_dir / f"{c['name']}.mp3").exists()]
+    for name in sorted(set(table) - {c['name'] for c in recorded}):
+        problems.append(f'{name}: in the clip table, but not a recorded clip of the sources file')
+    print(f'Recorded: {len(recorded)} clips '
+          f'({takes} takes found in {source_dir}, {len(table)} mastered)')
+    print(f'Pending recording: {len(pending)} clips, '
+          f'{len(waiting)} with a take waiting')
+    proven = proven_tags(data)
+    for clip in pending:
+        mark = 'take found' if clip in waiting else 'to record '
+        odd = unproven(clip, proven)
+        note = f'  (unproven tags: {len(odd)})' if odd else ''
+        print(f"  [{mark}] {clip['name']:<24} {clip['voice']}{note}")
+    for clip in data.get('optional_clips', []):
+        print(f"  [optional  ] {clip['name']:<24} {clip['voice']} (no hook in the game yet)")
+    if waiting:
+        print('A pending clip with a take waiting: fill in its entry (voice_id, '
+              'generation_id, source_sha256) and delete its status, then run the '
+              'script. See docs/story-voices-recording.md.')
+    risky = [c for c in pending if unproven(c, proven)]
+    if risky:
+        print(f'{len(risky)} pending clips use audio tags that no recorded take has '
+              'used: record those first and transcribe them (--tags lists them).')
+    # A clone without the takes would print one line per take: say it once.
+    missing = [p for p in problems if 'is missing from' in p]
+    rest = [p for p in problems if p not in missing]
+    if missing:
+        print(f'! {len(missing)} recorded takes are missing from {source_dir}: restore '
+              'the backup (docs/story-voices.md, "Backing up the takes") or pass '
+              '--source-dir')
+    for problem in rest:
+        print(f'! {problem}')
+    if not problems:
+        print('No problems.')
+
+
+TAG = re.compile(r'\[([^\]]+)\]')
+
+# Proven stand-ins for a tag, to try if a take speaks the tag aloud. Change a
+# clip's prompt (never its text) and note the swap in its entry.
+SWAPS = {
+    'pompously': '[dramatically] or [haughtily]',
+    'wistfully': '[sadly]',
+    'nervously': '[nervous]',
+    'quietly': '[softly]',
+    'sniffs': '[sighs]',
+    'deadpan': '[dryly]',
+    'theatrically': '[dramatically]',
+    'happily': '[happy]',
+    'ecstatic': '[overjoyed]',
+    'fuming': '[angry]',
+    'suspiciously': '[knowingly]',
+    'pleading': '[worried]',
+    'delighted gasp': '[gasps] [delighted]',
+    'softly, voice cracking': '[softly] [trembling voice]',
+}
+
+
+def tags_of(clip):
+    return [t.strip().lower() for t in TAG.findall(clip['prompt'])]
+
+
+def proven_tags(data):
+    """Tags used by a recorded take: heard, transcribed, known not to be read aloud."""
+    counts = {}
+    for clip in data['clips']:
+        if is_pending(clip):
+            continue
+        for tag in tags_of(clip):
+            counts[tag] = counts.get(tag, 0) + 1
+    return counts
+
+
+def unproven(clip, proven):
+    return [t for t in dict.fromkeys(tags_of(clip)) if t not in proven]
+
+
+def tags(data):
+    """The tag vocabulary of the recorded takes and the tags no take has used."""
+    proven = proven_tags(data)
+    print(f'{len(proven)} tags are used by the recorded takes (clips using each):')
+    for tag, n in sorted(proven.items(), key=lambda kv: (-kv[1], kv[0])):
+        print(f'  {n:4}  [{tag}]')
+    where = {}
+    for clip in data['clips']:
+        if is_pending(clip):
+            for tag in unproven(clip, proven):
+                where.setdefault(tag, []).append(clip['name'])
+    print(f'{len(where)} tags appear only in pending clips (none is proven not to be read '
+          'aloud: record those clips first and transcribe them):')
+    for tag, names in sorted(where.items()):
+        swap = SWAPS.get(tag, '(no stand-in listed)')
+        print(f'  [{tag}]  stand-in {swap}: {", ".join(names)}')
+
+
+def voices(data):
+    """Every voice, its id and how many clips it speaks."""
+    count = {}
+    for clip in data['clips']:
+        key = (clip['voice'], clip.get('voice_id') or clip.get('planned_voice_id')
+               or '(not chosen)')
+        count[key] = count.get(key, 0) + 1
+    for (name, vid), n in sorted(count.items(), key=lambda kv: -kv[1]):
+        print(f'{n:4}  {vid:<22} {name}')
+
+
+BEGIN = '<!-- checklist:begin'
+END = '<!-- checklist:end -->'
+RECORDING_DOC = ROOT / 'docs' / 'story-voices-recording.md'
+
+
+def checklist_lines(data):
+    """The pending clips as Markdown, in story order: what waits, then each clip."""
+    pending = [c for c in data['clips'] if is_pending(c)]
+    proven = proven_tags(data)
+    out = [f"Model `{data['model']}`, {data['generations']} generation per clip, "
+           f"export `{data.get('export_format', 'mp3_44100_128')}`. Flow: {data['flow']}",
+           '']
+    out += ['**What waits** (a voice with an id can be recorded now; a voice still '
+            'to audition waits for section 2):', '',
+            '| Voice | Id | Clips |', '| --- | --- | --- |']
+    groups = {}
+    for clip in pending:
+        key = (clip['voice'], clip.get('planned_voice_id'))
+        groups[key] = groups.get(key, 0) + 1
+    for (voice, vid), n in groups.items():
+        out.append(f"| {voice} | {'`' + vid + '`' if vid else 'to audition'} | {n} |")
+    out.append('')
+    risky = [c for c in pending if unproven(c, proven)]
+    if risky:
+        out += ['**Record these first** (they use tags no recorded take has used; '
+                'transcribe them to check no tag is read aloud, section 3):', '']
+        for clip in risky:
+            odd = ', '.join(f'[{t}]' for t in unproven(clip, proven))
+            out.append(f"- `{clip['name']}`: {odd}")
+        out.append('')
+    last = None
+    for n, clip in enumerate(pending, 1):
+        scene = re.sub(r'-(\d+)(-(pip|peaches|minty|orbit))?$', '', clip['name'])
+        if scene != last:
+            last = scene
+            count = sum(1 for c in pending if c['name'].startswith(scene + '-'))
+            out += [f'### {scene} ({count} clips)', '']
+        name = clip['name']
+        voice = clip['voice']
+        if clip.get('planned_voice_id'):
+            voice += f" (`{clip['planned_voice_id']}`)"
+        out.append(f'- [ ] **{n}/{len(pending)} `{name}`**: {voice}')
+        if clip.get('fallback_voice'):
+            out.append(f"  - Fallback: {clip['fallback_voice']} (`{clip['fallback_voice_id']}`)")
+        odd = unproven(clip, proven)
+        if odd:
+            swaps = '; '.join(f"[{t}] -> {SWAPS.get(t, 'no stand-in listed')}" for t in odd)
+            out.append(f'  - Unproven tags, check by transcription (stand-ins if read '
+                       f'aloud): {swaps}')
+        out += ['  - Prompt, exactly:', '', '    ```', f"    {clip['prompt']}", '    ```', '',
+                f"  - Model `{data['model']}`, {data['generations']} generation.",
+                f"  - Save the take as `build/story-voices/source/{name}.mp3`; "
+                f"it becomes `assets/audio/story/{name}.ogg`."]
+        if clip.get('plays'):
+            out.append(f"  - {clip['plays']}")
+        out.append('')
+    return out
+
+
+def write_checklist(data, target):
+    """Print the checklist, or rewrite only the generated part of a document.
+
+    The document keeps everything outside the two marker comments (the backup
+    warning, the audition, the settings, the walkthrough), so regenerating
+    never erases it.
+    """
+    body = '\n'.join(checklist_lines(data)).rstrip() + '\n'
+    if target == '-':
+        print(body, end='')
+        return
+    path = Path(target)
+    text = path.read_text()
+    a, b = text.find(BEGIN), text.find(END)
+    if a < 0 or b < a:
+        raise SystemExit(f'{path}: the {BEGIN} ... {END} markers are missing; '
+                         'add them where the clip list belongs, or use --checklist -')
+    a = text.index('\n', a) + 1
+    path.write_text(text[:a] + '\n' + body + '\n' + text[b:])
+    pending = sum(1 for c in data['clips'] if is_pending(c))
+    print(f'{path.name}: {pending} pending clips written between the markers')
+
+
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=__doc__,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--only', nargs='*', help='clip names to redo')
+    parser.add_argument('--source-dir', type=Path, default=SOURCE_DIR,
+                        help=f'where the downloaded takes are (default {SOURCE_DIR})')
+    parser.add_argument('--status', action='store_true',
+                        help='list recorded, pending and problem clips; no FFmpeg')
+    parser.add_argument('--checklist', nargs='?', const=str(RECORDING_DOC), metavar='FILE',
+                        help='rewrite the generated clip list of docs/story-voices-recording.md '
+                             '(or FILE); "-" prints it instead. Nothing outside the markers changes')
+    parser.add_argument('--tags', action='store_true',
+                        help='the audio tags the recorded takes use, and those that only pending clips use')
+    parser.add_argument('--voices', action='store_true',
+                        help='every voice, its id and its clip count')
     args = parser.parse_args()
-    clips = json.loads(SOURCES.read_text())['clips']
+    data = json.loads(SOURCES.read_text())
+    if args.status:
+        status(data, args.source_dir)
+        return
+    if args.checklist:
+        write_checklist(data, args.checklist)
+        return
+    if args.tags:
+        tags(data)
+        return
+    if args.voices:
+        voices(data)
+        return
+    clips = data['clips']
+    names = {clip['name'] for clip in clips}
+    for name in args.only or []:
+        if name not in names:
+            raise SystemExit(f'Unknown clip: {name}')
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    old = {}
-    if CLIPS_DART.exists():
-        old = {m[0]: int(m[1]) for m in re.findall(
-            r"'([\w-]+)': (\d+),", CLIPS_DART.read_text())}
-    lengths, report = {}, {}
+    old = read_table()
+    lengths, report, skipped = {}, {}, []
     for clip in clips:
         name = clip['name']
         target = OUT_DIR / f'{name}.ogg'
+        if is_pending(clip):
+            # Written, but not recorded: nothing to master, and the game
+            # shows its text without a voice.
+            skipped.append(name)
+            continue
         if args.only and name not in args.only and name in old:
             lengths[name] = old[name]
             continue
-        source = SOURCE_DIR / f'{name}.mp3'
+        source = args.source_dir / f'{name}.mp3'
         if not source.exists():
-            raise SystemExit(f'Missing source take: {source}')
+            raise SystemExit(f'Missing source take: {source}; restore the takes, '
+                             'or master only new clips with --only')
         seconds = master(source, target)
         lengths[name] = round(seconds * 1000)
         report[name] = {
@@ -132,10 +408,21 @@ def main():
         }
     write_clips(lengths)
     VERIFY.parent.mkdir(parents=True, exist_ok=True)
-    VERIFY.write_text(json.dumps(report, indent=1))
+    # Keep the report of the clips this run left alone (--only).
+    kept = json.loads(VERIFY.read_text()) if VERIFY.exists() else {}
+    kept.update(report)
+    VERIFY.write_text(json.dumps(
+        {name: kept[name] for name in lengths if name in kept}, indent=1))
     total = sum(p.stat().st_size for p in OUT_DIR.glob('*.ogg'))
     print(f'{len(lengths)} clips, {sum(lengths.values()) / 1000:.1f} s, '
           f'{total / 1e6:.2f} MB')
+    if skipped:
+        print(f'{len(skipped)} clips pending recording, skipped '
+              f'(run with --status to see them)')
+    for name in args.only or []:
+        if name in skipped:
+            print(f'{name} is pending recording: fill in its entry in '
+                  f'{SOURCES.name} and delete its status first')
 
 
 if __name__ == '__main__':

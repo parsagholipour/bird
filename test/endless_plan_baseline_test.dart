@@ -519,7 +519,7 @@ void main() {
   });
 
   test('rules version 42 flies solo endless exactly like 41', () {
-    expect(FlightSimulation.currentRulesVersion, 42);
+    expect(FlightSimulation.coopRulesVersion, 42);
     for (final width in [1.6, 2.4]) {
       final (v41, _) = Flight(
         'v41',
@@ -539,7 +539,41 @@ void main() {
     }
   });
 
+  test('rules version 43 flies solo endless exactly like 42 and like 41', () {
+    // 43 is New York (data only); 42 is Fly Together. A solo endless flight
+    // meets neither, so all three versions fly the same flight.
+    expect(FlightSimulation.currentRulesVersion, 43);
+    for (final width in [1.6, 2.4]) {
+      final (v41, _) = Flight(
+        'v41',
+        rules: _tap,
+        version: 41,
+        seconds: 400,
+        width: width,
+      ).fly();
+      final (v42, _) = Flight(
+        'v42',
+        rules: _tap,
+        version: 42,
+        seconds: 400,
+        width: width,
+      ).fly();
+      final (v43, _) = Flight(
+        'v43',
+        rules: _tap,
+        version: 43,
+        seconds: 400,
+        width: width,
+      ).fly();
+      expect(v43.checkpoints, v42.checkpoints, reason: 'width $width vs 42');
+      expect(v43.checkpoints, v41.checkpoints, reason: 'width $width vs 41');
+    }
+  });
+
   test('rules version 41 flies endless exactly like 40', () {
+    // The current version moved on (42 co-op, 43 New York); 41 still flies as
+    // it did.
+    expect(FlightSimulation.currentRulesVersion, greaterThanOrEqualTo(41));
     for (final width in [1.6, 2.4]) {
       final (v40, _) = Flight(
         'v40',
@@ -555,6 +589,67 @@ void main() {
         width: width,
       ).fly();
       expect(v41.checkpoints, v40.checkpoints);
+    }
+  });
+
+  test('rules version 43 flies endless exactly like 41 (New York is data)', () {
+    // Rules 43 adds the Alley Pigeon, steam geysers and two mini-bosses, all
+    // reachable only through a campaign level plan: endless never meets them.
+    expect(FlightSimulation.currentRulesVersion, 43);
+    for (final width in [1.6, 2.2, 2.4]) {
+      final (v41, _) = Flight(
+        'v41',
+        rules: _tap,
+        version: 41,
+        seconds: 560,
+        width: width,
+      ).fly();
+      final (v43, summary) = Flight(
+        'v43',
+        rules: _tap,
+        version: 43,
+        seconds: 560,
+        width: width,
+      ).fly();
+      expect(v43.checkpoints, v41.checkpoints, reason: 'width $width');
+      expect(summary, contains('bosses='));
+    }
+  });
+
+  test('no endless flight, at any version, meets a campaign-only kind', () {
+    final bosses = <BossKind>{};
+    final enemies = <EnemyKind>{};
+    for (final version in [34, 38, 40, 41, 42, 43]) {
+      final random = CountingRandom(7);
+      final sim = FlightSimulation(
+        rules: TapFlyMode(rulesVersion: version),
+        practice: false,
+        course: FlightCourse.starTrail,
+        rulesVersion: version,
+        weaponDamage: 60,
+        random: random,
+      );
+      var now = 0.0;
+      for (var frame = 1; frame <= 560 * 50; frame++) {
+        now += 20;
+        touchPilot(sim, frame, now, keepAlive: true);
+        sim.tick(.02, now);
+        if (sim.boss case final boss?) bosses.add(boss.kind);
+        enemies.addAll(sim.enemies.map((e) => e.kind));
+      }
+    }
+    expect(bosses.where((kind) => kind.campaignOnly), isEmpty);
+    expect(enemies.where((kind) => kind.campaignOnly), isEmpty);
+    // The endless cycle never indexes past the first five kinds.
+    for (final version in [38, 40, 42, 43]) {
+      for (var defeated = 0; defeated < 200; defeated++) {
+        final encounter = FlightPlan.endless.bossEncounter(defeated, version);
+        expect(encounter.kind.campaignOnly, isFalse);
+        expect(encounter.kind.index, lessThan(BossKind.endlessCycle));
+      }
+    }
+    for (final index in EndlessPlan.enemyLineup) {
+      expect(EnemyKind.values[index].campaignOnly, isFalse);
     }
   });
 
@@ -585,7 +680,11 @@ void main() {
       hearts |= sim.heartPickups.isNotEmpty;
     }
     expect(sim.phase, RunPhase.playing);
-    expect(bosses, BossKind.values.toSet());
+    // Every endless boss, and never a campaign-only mini-boss (New York).
+    expect(bosses, {
+      for (final kind in BossKind.values)
+        if (!kind.campaignOnly) kind,
+    });
     expect(upgraded, isTrue);
     expect(kinds, RushPathKind.values.toSet());
     expect(sim.galesBlown, greaterThan(0));

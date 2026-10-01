@@ -6,6 +6,10 @@ import '../domain/sky_boss.dart' show BossKind;
 import '../game/boss_rig.dart';
 import '../game/dragon_boss_rig.dart';
 import '../game/dusk_moth_boss_rig.dart';
+import '../game/gargoyle_kit.dart' show GargoyleTone;
+import '../game/gargoyle_story_art.dart';
+import '../game/king_coo_boss_rig.dart';
+import '../game/king_coo_staging_art.dart' show KingCooStaging;
 import '../game/pirate_boss_rig.dart';
 import '../game/spitter_boss_rig.dart';
 import '../game/star_art.dart';
@@ -21,6 +25,9 @@ abstract final class CampaignHeadwear {
     BossKind.duskMoth => const Rect.fromLTRB(-.8, -1.0, .56, .26),
     BossKind.pirate => const Rect.fromLTRB(-1.2, -1.4, 1.75, .22),
     BossKind.dragon => const Rect.fromLTRB(-.36, -.42, .36, .16),
+    BossKind.kingCoo => KingCooStaging.capReach,
+    // The Gargoyle's brow visor, about its seat (measured from the render).
+    BossKind.searchlightGargoyle => GargoyleStoryArt.visorReach,
   };
 
   static void paint(Canvas canvas, Rect box, BossKind boss) {
@@ -41,6 +48,17 @@ abstract final class CampaignHeadwear {
         PirateBossRig.hat(canvas, worn: false);
       case BossKind.dragon:
         DragonBossRig.crownPaint(canvas);
+      case BossKind.kingCoo:
+        // The police cap he loses: the rig's own, band centre at the origin.
+        KingCooBossRig.capPaint(canvas);
+      case BossKind.searchlightGargoyle:
+        // Under 34 px (the map shield, the card's ribbon, the route mark) the
+        // emblem is the brass lens alone; larger, the lens under its hood.
+        GargoyleStoryArt.visor(
+          canvas,
+          const GargoyleTone(),
+          box.shortestSide < GargoyleStoryArt.lensOnlyBelow,
+        );
     }
     canvas.restore();
   }
@@ -52,6 +70,8 @@ abstract final class CampaignHeadwear {
     BossKind.duskMoth => 'Dusk Empress',
     BossKind.pirate => 'Pirate Captain',
     BossKind.dragon => 'Ember Dragon',
+    BossKind.kingCoo => 'King Coo',
+    BossKind.searchlightGargoyle => 'Searchlight Gargoyle',
   };
 
   /// Each chapter's stamp colour, chosen so the headwear stands out on it.
@@ -61,6 +81,11 @@ abstract final class CampaignHeadwear {
     BossKind.duskMoth => const Color(0xff3a4478),
     BossKind.pirate => const Color(0xff3f9cc0),
     BossKind.dragon => const Color(0xffd24a3c),
+    // The brass of his badge: the navy cap stands out on it.
+    BossKind.kingCoo => const Color(0xffe0a93a),
+    // Night indigo (L about 24): his brass lens and pale hood read on it, and
+    // King Coo keeps the amber.
+    BossKind.searchlightGargoyle => const Color(0xff2f3a6b),
   };
 }
 

@@ -71,12 +71,27 @@ void main() {
         expect(cues.advance(boss), ['boss_summon']);
         boss.hp = boss.maxHp ~/ 2;
         boss.enragedAt = boss.age;
-        expect(cues.advance(boss), contains('boss_enrage'));
+        // The mini-bosses have their own fury and ending (see
+        // new_york_audio_cues_test): King Coo roars and deflates, the
+        // Gargoyle's fury and shattering are in the mids a phone plays.
+        expect(
+          cues.advance(boss),
+          contains(switch (kind) {
+            BossKind.kingCoo => 'coo_roar',
+            BossKind.searchlightGargoyle => 'gargoyle_fury',
+            _ => 'boss_enrage',
+          }),
+        );
         boss.hp = 0;
         boss.defeatedAt = boss.age;
         expect(cues.advance(boss), ['boss_break']);
         boss.age += .9;
-        expect(cues.advance(boss), ['boss_burst']);
+        expect(cues.advance(boss), switch (kind) {
+          // He inflates from the end of the hit-stop, then pops.
+          BossKind.kingCoo => ['coo_inflate', 'coo_defeat'],
+          BossKind.searchlightGargoyle => ['gargoyle_shatter'],
+          _ => ['boss_burst'],
+        });
         boss.age += 1;
         expect(cues.advance(boss), ['boss_victory']);
         expect(cues.advance(boss), isEmpty);

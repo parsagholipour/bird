@@ -13,6 +13,14 @@ class CombatAudioCues {
   int _ringSprints = 0, _smashes = 0, _rushWarnings = 0, _rushEscapes = 0;
   int _eruptions = 0, _gusts = 0, _galeWarnings = 0, _galesWeathered = 0;
   int _splashes = 0, _emberSplits = 0;
+  // New York: Alley Pigeon raids and Steam Geysers.
+  int _pigeonWarnings = 0, _pigeonDives = 0, _snatches = 0, _freed = 0;
+  int _pigeonDefeats = 0;
+  int _steamHisses = 0, _steamBursts = 0, _steamRides = 0;
+  // When (flight seconds) a pigeon last landed a snatch or a rescued star
+  // sounded, and a steam burst last sounded: they mask each other.
+  double _landedAt = double.negativeInfinity,
+      _burstAt = double.negativeInfinity;
   final Set<SkyEnemy> _charging = {};
   double _elapsed = 0;
   bool _magnet = false;
@@ -20,6 +28,33 @@ class CombatAudioCues {
   /// Per bird, so either co-op player's charge and recharge chime.
   List<bool> _fullCharge = const [], _sprintReady = const [];
   int _doorsDestroyed = 0;
+
+  /// A vent only sounds while it is near the bird: between a little behind it
+  /// and just past the right edge of the screen (report 03 §4). With no live
+  /// vent listed the rules' counters are taken at their word.
+  static bool _ventAudible(FlightSimulation sim) =>
+      sim.steamVents.isEmpty ||
+      sim.steamVents.any(
+        (vent) =>
+            vent.x >= FlightSimulation.birdX - .1 &&
+            vent.x <= FlightSimulation.birdX + 1.8,
+      );
+
+  /// A steam burst and a pigeon's snatch (or a star won back) within this
+  /// many seconds of each other would hide one another: the burst's 5-6 kHz
+  /// hiss masks the snatch's 2.8 kHz onset (the review measured them 33 ms
+  /// apart at the same loudness). The cue layer plays the burst and its clang
+  /// ducked (`steam_burst_duck`, `pipe_clang_duck`: 5 and 8 dB lower) when the
+  /// snatch is first or at the same step, and lifts the snatch
+  /// (`pigeon_snatch_lift`: 3 dB) when the burst was first.
+  static const duckWindow = .3;
+  static bool _near(double now, double then) =>
+      now - then >= 0 && now - then <= duckWindow;
+
+  /// Pigeons never ring the shooters' `enemy_charge`: their telegraph is the
+  /// coo that [advance] plays for each warning.
+  static bool _chargesUp(SkyEnemy e) =>
+      e.charge > 0 && e.kind != EnemyKind.alleyPigeon;
 
   List<String> advance(FlightSimulation sim, {bool silent = false}) {
     final fresh = !identical(_simulation, sim);
@@ -43,6 +78,10 @@ class CombatAudioCues {
         now[i] && !(i < before.length && before[i]),
     ].any((risen) => risen);
     final cues = <String>[];
+    // A seek or a new flight forgets the last snatch and burst.
+    if (fresh || silent || backwards) {
+      _landedAt = _burstAt = double.negativeInfinity;
+    }
     if (!fresh && !silent && !backwards) {
       if (sim.shots > _shots) {
         cues.add(
@@ -69,10 +108,40 @@ class CombatAudioCues {
       if (sim.galeWarnings > _galeWarnings) cues.add('rush_alarm');
       if (sim.gusts > _gusts) cues.add('gust_warning');
       if (sim.galesWeathered > _galesWeathered) cues.add('rush_clear');
-      // Swarm bats go down like any bat.
-      if (sim.enemiesDefeated + sim.swarmSmashed > _deaths) {
+      // Swarm bats go down like any bat; a pigeon has its own defeat.
+      if (sim.enemiesDefeated - sim.pigeonsDefeated + sim.swarmSmashed >
+          _deaths) {
         cues.add('enemy_death');
       }
+      // Alley Pigeon: the coo as it marks its star, the flap as it dives,
+      // the snatch, the star won back, its own defeat.
+      if (sim.pigeonWarnings > _pigeonWarnings) cues.add('pigeon_coo');
+      if (sim.pigeonDives > _pigeonDives) cues.add('pigeon_flap');
+      final snatched = sim.starsSnatched > _snatches;
+      final landed = snatched || sim.starsFreed > _freed;
+      if (snatched) {
+        cues.add(
+          _near(sim.elapsed, _burstAt) ? 'pigeon_snatch_lift' : 'pigeon_snatch',
+        );
+      }
+      if (sim.starsFreed > _freed) cues.add('star_rescue');
+      if (sim.pigeonsDefeated > _pigeonDefeats) cues.add('pigeon_defeat');
+      // Steam Geysers: the hiss of the warning, the burst (with the grate's
+      // clang), the updraft that catches the bird.
+      if (_ventAudible(sim)) {
+        if (sim.steamHisses > _steamHisses) cues.add('steam_hiss');
+        if (sim.steamBursts > _steamBursts) {
+          final ducked = landed || _near(sim.elapsed, _landedAt);
+          cues.addAll(
+            ducked
+                ? ['steam_burst_duck', 'pipe_clang_duck']
+                : ['steam_burst', 'pipe_clang'],
+          );
+          _burstAt = sim.elapsed;
+        }
+        if (sim.steamRides > _steamRides) cues.add('steam_ride');
+      }
+      if (landed) _landedAt = sim.elapsed;
       if (sim.rockImpacts > _impacts) cues.add('rock_hit');
       // Cannonballs and the bird hitting the Pirate Captain's sea.
       if (sim.cannonSplashes + sim.birdSplashes > _splashes) {
@@ -90,7 +159,7 @@ class CombatAudioCues {
       if (_magnet && !sim.magnetActive && sim.phase == RunPhase.playing) {
         cues.add('magnet_end');
       }
-      if (sim.enemies.any((e) => e.charge > 0 && !_charging.contains(e))) {
+      if (sim.enemies.any((e) => _chargesUp(e) && !_charging.contains(e))) {
         cues.add('enemy_charge');
       }
     }
@@ -109,7 +178,15 @@ class CombatAudioCues {
     _gusts = sim.gusts;
     _galeWarnings = sim.galeWarnings;
     _galesWeathered = sim.galesWeathered;
-    _deaths = sim.enemiesDefeated + sim.swarmSmashed;
+    _deaths = sim.enemiesDefeated - sim.pigeonsDefeated + sim.swarmSmashed;
+    _pigeonWarnings = sim.pigeonWarnings;
+    _pigeonDives = sim.pigeonDives;
+    _snatches = sim.starsSnatched;
+    _freed = sim.starsFreed;
+    _pigeonDefeats = sim.pigeonsDefeated;
+    _steamHisses = sim.steamHisses;
+    _steamBursts = sim.steamBursts;
+    _steamRides = sim.steamRides;
     _impacts = sim.rockImpacts;
     _splashes = sim.cannonSplashes + sim.birdSplashes;
     _emberSplits = sim.emberSplits;
@@ -120,7 +197,7 @@ class CombatAudioCues {
     _doorsDestroyed = sim.doorsDestroyed;
     _charging
       ..clear()
-      ..addAll(sim.enemies.where((e) => e.charge > 0));
+      ..addAll(sim.enemies.where(_chargesUp));
     return cues;
   }
 }

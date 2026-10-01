@@ -4,6 +4,7 @@ import 'enemy_ammo_art.dart';
 import 'enemy_health_bar_art.dart';
 import 'enemy_hit_art.dart';
 import 'enemy_designs/aimed_enemy.dart';
+import 'enemy_designs/alley_pigeon.dart';
 import 'enemy_designs/simple_bat.dart';
 import 'enemy_designs/patrol_bat.dart';
 import 'enemy_designs/spread_enemy.dart';
@@ -31,7 +32,14 @@ abstract final class EnemyArt {
       canvas.rotate(hit.tilt);
       canvas.scale(hit.scaleX, hit.scaleY);
     }
-    if (enemy.x < FlightSimulation.birdX) canvas.scale(-1, 1);
+    // A star-raiding pigeon faces right (toward its prey, then away with
+    // the star) from the start of its warning; everything else, and a
+    // gliding pigeon, turns to watch the bird once it has passed it.
+    final flip = switch (enemy.pigeon) {
+      final raid? when raid.facingRight => true,
+      _ => enemy.x < FlightSimulation.birdX,
+    };
+    if (flip) canvas.scale(-1, 1);
     if (!reducedMotion) canvas.rotate(enemy.flightBank);
     final flash = hit != null && hit.flash > 0;
     if (flash) {
@@ -46,16 +54,30 @@ abstract final class EnemyArt {
       EnemyKind.spitterBeetle => AimedEnemyArt.paint,
       EnemyKind.duskMoth => SpreadEnemyArt.paint,
       EnemyKind.simpleBat => SimpleBatArt.paint,
+      EnemyKind.alleyPigeon => AlleyPigeonArt.paint,
     };
-    painter(
-      canvas,
-      radius,
-      seconds: time,
-      reducedMotion: reducedMotion,
-      lookY: look,
-      charge: enemy.charge,
-      recoil: enemy.recoil,
-    );
+    if (enemy.kind == EnemyKind.alleyPigeon) {
+      // The raid pose (crouch, dive, star in the beak) is not in the shared
+      // painter signature: read it from the enemy's own raid state.
+      AlleyPigeonArt.paintEnemy(
+        canvas,
+        radius,
+        enemy,
+        lookY: look,
+        hitAge: hitAge,
+        reducedMotion: reducedMotion,
+      );
+    } else {
+      painter(
+        canvas,
+        radius,
+        seconds: time,
+        reducedMotion: reducedMotion,
+        lookY: look,
+        charge: enemy.charge,
+        recoil: enemy.recoil,
+      );
+    }
     if (flash) canvas.restore();
     canvas.restore();
     EnemyHitArt.paint(

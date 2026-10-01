@@ -12,7 +12,9 @@ import 'star_trio_art.dart';
 import 'star_group_aura.dart';
 import 'star_pickup_art.dart';
 import 'star_art.dart';
+import 'alley_pigeon_overlay_art.dart';
 import 'arrival_art.dart';
+import 'gargoyle_feather_art.dart';
 import 'gate_art.dart';
 import 'obstacle_art.dart';
 import 'combat_art.dart';
@@ -24,6 +26,7 @@ import 'gale_art.dart';
 import 'rush_art.dart';
 import 'sprint_art.dart';
 import 'knockout_art.dart';
+import 'steam_geyser_art.dart';
 import 'tether_art.dart';
 import 'flight_voices.dart' show FlightSpeech;
 
@@ -108,6 +111,23 @@ class BirdGame extends FlameGame {
     }
   }
 
+  /// The world's zoom while the camera is shaken by [shake] (pixels) on a
+  /// [w] by [h] screen. The shaken world is slid by the offset, so it has to be
+  /// scaled up a little about the screen's centre or its edge shows; the zoom
+  /// is that much and no more: exactly 1 at rest, `1 + 2.2 * max(|dx| / w,
+  /// |dy| / h)` while it shakes (2.2 is a little over the 2.0 the edges
+  /// need). It used to be a constant 1.018 whenever the offset was not zero,
+  /// which popped the whole picture 1.8% on the first frame of every hit
+  /// and back on the last, however small the shake.
+  static double shakeZoom(Offset shake, double w, double h) {
+    if (shake == Offset.zero ||
+        !(w > 0 && h > 0) ||
+        !(shake.dx.isFinite && shake.dy.isFinite)) {
+      return 1.0;
+    }
+    return 1 + 2.2 * math.max(shake.dx.abs() / w, shake.dy.abs() / h);
+  }
+
   @override
   void render(Canvas canvas) {
     super.render(canvas);
@@ -129,7 +149,7 @@ class BirdGame extends FlameGame {
         h;
     if (shake != Offset.zero) {
       canvas.translate(w / 2, h / 2);
-      canvas.scale(1.018);
+      canvas.scale(shakeZoom(shake, w, h));
       canvas.translate(-w / 2 + shake.dx, -h / 2 + shake.dy);
     }
     if (!transparent) {
@@ -278,6 +298,12 @@ class BirdGame extends FlameGame {
         }
       }
     }
+    SteamGeyserArt.vents(
+      canvas,
+      Size(w, h),
+      simulation,
+      reducedMotion: reducedMotion,
+    );
     if (simulation.magnetActive) {
       for (final body in simulation.flock) {
         simulation.viewing(body, () => _magnet(canvas, h));
@@ -313,7 +339,12 @@ class BirdGame extends FlameGame {
           reducedMotion: reducedMotion,
         );
       }
-      if (star.collected || star.x * h > w + h * StarArt.reach) continue;
+      // A star in a pigeon's beak is drawn by the pigeon (rules version 43).
+      if (star.collected ||
+          star.carried ||
+          star.x * h > w + h * StarArt.reach) {
+        continue;
+      }
       StarArt.paint(
         canvas,
         Offset(star.x * h, star.y * h),
@@ -323,6 +354,15 @@ class BirdGame extends FlameGame {
         // A star's course position never changes, so neither does its rhythm.
         phase: star.x + simulation.distance,
       );
+      if (star.freedAt != null) {
+        AlleyPigeonOverlayArt.freed(
+          canvas,
+          h,
+          star,
+          simulation.elapsed,
+          reducedMotion: reducedMotion,
+        );
+      }
     }
     for (final heart in simulation.heartPickups) {
       if (heart.x * h > w + h * .07) continue;
@@ -423,6 +463,15 @@ class BirdGame extends FlameGame {
     // The boss plate and banners are HUD; a knockout and its stage hide them.
     if (simulation.boss case final boss? when ko == null) {
       BossArt.healthBar(canvas, Size(w, h), boss, reducedMotion: reducedMotion);
+      // The Gargoyle's feathers enter at the top edge, under the bar's strip:
+      // the ones that touch it are drawn again over it (G6).
+      GargoyleFeatherArt.overBar(
+        canvas,
+        Size(w, h),
+        simulation.bossAmmo,
+        boss,
+        reducedMotion: reducedMotion,
+      );
     }
     if (ko == null) {
       RushArt.banner(
@@ -619,6 +668,12 @@ class BirdGame extends FlameGame {
     GaleArt.buffet(canvas, h, simulation, reducedMotion: reducedMotion);
     SprintArt.aura(canvas, h, simulation, reducedMotion: reducedMotion);
     paintBird(Offset(cx, cy));
+    SteamGeyserArt.feedback(
+      canvas,
+      Size(size.x, h),
+      simulation,
+      reducedMotion: reducedMotion,
+    );
     CombatArt.paintCharge(canvas, h, simulation, reducedMotion: reducedMotion);
     if (pose.flapWake > 0) {
       final t = pose.flapWake;
@@ -711,7 +766,7 @@ class BirdGame extends FlameGame {
     }
     // Field lines show which nearby stars the expanded pickup halo will catch.
     for (final star in simulation.stars) {
-      if (star.collected || star.missed) continue;
+      if (star.collected || star.missed || star.carried) continue;
       final position = Offset(star.x * h, star.y * h);
       final separation = (position - center).distance / h;
       if (separation > .34) continue;

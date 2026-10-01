@@ -11,6 +11,7 @@ import 'story_backdrop.dart';
 import 'story_cast_art.dart';
 import 'story_speech.dart';
 import 'story_stage.dart';
+import 'story_to_be_continued.dart'; // New York: the end card
 import 'theme.dart';
 import 'ui_sounds.dart';
 
@@ -135,7 +136,7 @@ class _StoryScenePlayerState extends State<StoryScenePlayer>
 
   late final List<StoryActor> _cast = [
     if (_scene.boss case final boss?)
-      StoryBoss(boss, beaten: _scene.id.startsWith('after-')),
+      StoryBoss(boss, beaten: _scene.bossBeaten),
     StoryPostmaster(facingLeft: _scene.boss == null),
     StoryCourier(widget.bird),
   ];
@@ -365,17 +366,28 @@ class _StoryScenePlayerState extends State<StoryScenePlayer>
                             child: _Settle(
                               key: ValueKey(_index),
                               still: still,
-                              child: StorySpeech(
-                                text: line.text,
-                                voice: StoryVoice.of(name, line.text),
-                                label: name == null
-                                    ? line.text
-                                    : '$name: ${line.text}',
-                                write: _write,
-                                step: _index + 1,
-                                of: scene.lines.length,
-                                bob: still ? null : _seconds,
-                              ),
+                              // New York: the caption that closes a chapter that
+                              // is not finished ("To be continued…") wears
+                              // its own end card in the panel's place.
+                              child: ToBeContinued.matches(line)
+                                  ? ToBeContinued(
+                                      text: line.text,
+                                      write: _write,
+                                      step: _index + 1,
+                                      of: scene.lines.length,
+                                      bob: still ? null : _seconds,
+                                    )
+                                  : StorySpeech(
+                                      text: line.text,
+                                      voice: StoryVoice.of(name, line.text),
+                                      label: name == null
+                                          ? line.text
+                                          : '$name: ${line.text}',
+                                      write: _write,
+                                      step: _index + 1,
+                                      of: scene.lines.length,
+                                      bob: still ? null : _seconds,
+                                    ),
                             ),
                           ),
                         ),

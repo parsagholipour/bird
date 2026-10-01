@@ -5,6 +5,7 @@ import 'package:flutter/painting.dart';
 import '../domain/sky_enemy.dart';
 import '../ui/theme.dart';
 import 'enemy_designs/aimed_enemy.dart';
+import 'enemy_designs/alley_pigeon.dart';
 import 'enemy_designs/patrol_bat.dart';
 import 'enemy_designs/simple_bat.dart';
 import 'enemy_designs/spread_enemy.dart';
@@ -172,8 +173,20 @@ abstract final class EnemyDefeatArt {
       EnemyKind.spitterBeetle => AimedEnemyArt.paint,
       EnemyKind.duskMoth => SpreadEnemyArt.paint,
       EnemyKind.simpleBat => SimpleBatArt.paint,
+      EnemyKind.alleyPigeon => AlleyPigeonArt.paint,
     };
-    painter(c, radius, seconds: 0, reducedMotion: true);
+    if (kind == EnemyKind.alleyPigeon) {
+      // Knocked silly: the pigeon's X eyes and open beak, wings up.
+      AlleyPigeonArt.paint(
+        c,
+        radius,
+        seconds: 0,
+        reducedMotion: true,
+        dazed: true,
+      );
+    } else {
+      painter(c, radius, seconds: 0, reducedMotion: true);
+    }
     if (flash > 0) c.restore();
     c.restore();
   }
@@ -291,7 +304,8 @@ abstract final class EnemyDefeatArt {
     if (t <= 0) return;
     final count = rammed ? 9 : 6;
     final from = rammed ? -2.9 : -2.3, to = rammed ? 1.1 : .9;
-    final floaty = tint.debris == _Debris.scale;
+    final floaty =
+        tint.debris == _Debris.scale || tint.debris == _Debris.feather;
     for (var i = 0; i < count; i++) {
       final u = _hash(i + 20, seed), v = _hash(i + 40, seed);
       final life = seconds - _launch - .06 * v;
@@ -328,14 +342,18 @@ abstract final class EnemyDefeatArt {
         final shape = switch (tint.debris) {
           _Debris.fur => _furShape,
           _Debris.shell => _shellShape,
+          _Debris.feather => _featherShape,
           _ => _scaleShape,
         };
-        c.drawPath(shape, Paint()..color = tint.chip);
+        // Every third feather is one of the pigeon's iridescent neck ones.
+        final neck = tint.debris == _Debris.feather && i % 3 == 2;
+        c.drawPath(shape, Paint()..color = neck ? _neckFeather : tint.chip);
         c.drawPath(switch (tint.debris) {
           _Debris.fur => _furShine,
           _Debris.shell => _shellShine,
+          _Debris.feather => _featherShine,
           _ => _scaleShine,
-        }, Paint()..color = tint.chipLight);
+        }, Paint()..color = neck ? _neckFeatherLight : tint.chipLight);
         c.drawPath(
           shape,
           Paint()
@@ -462,6 +480,19 @@ abstract final class EnemyDefeatArt {
     ..lineTo(-.44, -.08)
     ..close();
 
+  // A pigeon's feather: a long leaf that flutters down like a wing scale.
+  static final _featherShape = Path()
+    ..moveTo(0, 1)
+    ..cubicTo(-.78, .42, -.72, -.5, 0, -1.08)
+    ..cubicTo(.72, -.5, .78, .42, 0, 1)
+    ..close();
+  static final _featherShine = Path()
+    ..addOval(
+      Rect.fromCenter(center: const Offset(-.2, -.1), width: .22, height: .86),
+    );
+  static const _neckFeather = Color(0xff2fd9b4);
+  static const _neckFeatherLight = Color(0xffa8f5e0);
+
   // A soft wing scale that flutters down instead of dropping.
   static final _scaleShape = Path()
     ..moveTo(0, -1)
@@ -500,7 +531,7 @@ abstract final class EnemyDefeatArt {
   }
 }
 
-enum _Debris { fur, shell, scale, star }
+enum _Debris { fur, shell, scale, star, feather }
 
 /// Cloud and debris colours taken from the enemy that went down.
 class _Tint {
@@ -521,6 +552,7 @@ class _Tint {
     EnemyKind.caveBat => _caveBat,
     EnemyKind.spitterBeetle => _beetle,
     EnemyKind.duskMoth => _moth,
+    EnemyKind.alleyPigeon => _pigeon,
     null => _plain,
   };
 
@@ -559,6 +591,17 @@ class _Tint {
     Color(0xfff6c6a6),
     Color(0xff4b343d),
     _Debris.scale,
+  );
+  // A cool blue-grey puff with the pigeon's own feathers (every third one
+  // teal, from its neck), falling like scales.
+  static const _pigeon = _Tint(
+    Color(0xff18182f),
+    Color(0xffd3d8ee),
+    Color(0xfff6f7fe),
+    Color(0xff7d86ae),
+    Color(0xffb4bcdc),
+    Color(0xff2e3358),
+    _Debris.feather,
   );
   static const _plain = _Tint(
     SkyColors.ink,

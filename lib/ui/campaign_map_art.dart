@@ -371,6 +371,234 @@ class MapNodePainter extends CustomPainter {
       old.pressed != pressed;
 }
 
+/// The colours of a guardian's name plaque on the map, with the contrast each
+/// text on it must keep (WCAG AA for small text, 4.5:1).
+abstract final class GuardianPlaqueLook {
+  /// The plaque's slate when its level is locked: cream lettering on it is
+  /// 4.8:1.
+  static const lockedFill = Color(0xff5e727d);
+
+  /// The colour of the GUARDIAN line and the plaque's edge for [boss]: its own
+  /// stamp colour where that reads on the plaque's ink (4.5:1 or more, King
+  /// Coo's brass), else the stamp colour lightened (the Gargoyle's indigo).
+  static Color accent(BossKind boss) {
+    final field = CampaignHeadwear.field(boss);
+    return contrast(field, SkyColors.ink) >= 4.5
+        ? field
+        : Color.lerp(field, SkyColors.cream, .6)!;
+  }
+
+  /// WCAG contrast of two opaque colours, 1 to 21.
+  static double contrast(Color a, Color b) {
+    final hi = math.max(a.computeLuminance(), b.computeLuminance());
+    final lo = math.min(a.computeLuminance(), b.computeLuminance());
+    return (hi + .05) / (lo + .05);
+  }
+}
+
+/// A guardian's node: a mini-boss's shield, not a level coin and not a chapter
+/// lair. A steel rim round a field in the guardian's stamp colour, with the
+/// headwear it loses in its defeat pinned in the middle. It stands on the same
+/// hard base as the coins, a size under the lair's, and takes the same looks:
+/// a yellow rim when it is the next level, mint and ticked once beaten, and
+/// pale with the headwear dimmed while locked.
+///
+/// [radius] is the coin radius the shield is sized from: it is a little
+/// narrower than a coin of that radius and a little taller.
+class MapGuardianPainter extends CustomPainter {
+  const MapGuardianPainter({
+    required this.look,
+    required this.radius,
+    required this.boss,
+    this.pressed = false,
+  });
+  final MapNodeLook look;
+  final double radius;
+  final BossKind boss;
+  final bool pressed;
+
+  static const depth = MapNodePainter.depth;
+
+  /// The shield's half width and half height for a coin [radius].
+  static double halfWidth(double radius) => radius * .94;
+  static double halfHeight(double radius) => radius * 1.1;
+
+  /// The shield's outline round [c]: a gently arched top, straight sides and a
+  /// rounded point.
+  static Path shield(Offset c, double a, double b) => Path()
+    ..moveTo(c.dx - a, c.dy - b * .76)
+    ..quadraticBezierTo(c.dx, c.dy - b * 1.0, c.dx + a, c.dy - b * .76)
+    ..lineTo(c.dx + a, c.dy + b * .04)
+    ..cubicTo(
+      c.dx + a,
+      c.dy + b * .5,
+      c.dx + a * .5,
+      c.dy + b * .8,
+      c.dx,
+      c.dy + b,
+    )
+    ..cubicTo(
+      c.dx - a * .5,
+      c.dy + b * .8,
+      c.dx - a,
+      c.dy + b * .5,
+      c.dx - a,
+      c.dy + b * .04,
+    )
+    ..close();
+
+  (Color rim, Color base, Color field) get _colors => switch (look) {
+    MapNodeLook.locked => (
+      const Color(0xffdfe7ea),
+      const Color(0xffa9bcc4),
+      const Color(0xffc3d0d6),
+    ),
+    MapNodeLook.open => (
+      const Color(0xffe9f0f3),
+      const Color(0xff9db0b9),
+      CampaignHeadwear.field(boss),
+    ),
+    MapNodeLook.current => (
+      SkyColors.yellow,
+      SkyColors.gold,
+      CampaignHeadwear.field(boss),
+    ),
+    MapNodeLook.cleared => (
+      const Color(0xffbfe6c9),
+      const Color(0xff6fb795),
+      CampaignHeadwear.field(boss),
+    ),
+  };
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final c = size.center(Offset.zero).translate(0, -depth / 2);
+    final a = halfWidth(radius), b = halfHeight(radius);
+    final (rim, base, field) = _colors;
+    final locked = look == MapNodeLook.locked;
+    final edge = Paint()
+      ..color = locked ? SkyColors.ink.withValues(alpha: .55) : SkyColors.ink
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.6
+      ..strokeJoin = StrokeJoin.round;
+    final press = pressed ? depth - 1 : 0.0;
+    // Soft ground shadow, then the base, then the face.
+    canvas.drawOval(
+      Rect.fromCenter(
+        center: c.translate(0, b + depth + 1),
+        width: a * 1.5,
+        height: radius * .32,
+      ),
+      Paint()..color = SkyColors.ink.withValues(alpha: .16),
+    );
+    final lip = shield(c.translate(0, depth), a, b);
+    canvas.drawPath(lip, Paint()..color = base);
+    canvas.drawPath(lip, edge);
+    final top = c.translate(0, press);
+    final outer = shield(top, a, b);
+    canvas.drawPath(
+      outer,
+      Paint()
+        ..shader = ui.Gradient.linear(
+          top.translate(0, -b),
+          top.translate(0, b),
+          [Color.lerp(rim, Colors.white, .35)!, rim, base],
+          const [0, .45, 1],
+        ),
+    );
+    canvas.drawPath(outer, edge);
+    // The field, set into the rim and lit from the top.
+    final inner = shield(top.translate(0, b * .03), a * .74, b * .75);
+    canvas.drawPath(
+      inner,
+      Paint()
+        ..shader = ui.Gradient.linear(
+          top.translate(0, -b * .7),
+          top.translate(0, b * .7),
+          [
+            Color.lerp(field, Colors.white, .28)!,
+            field,
+            Color.lerp(field, SkyColors.ink, .2)!,
+          ],
+          const [0, .5, 1],
+        ),
+    );
+    canvas.drawPath(inner, edge..strokeWidth = 2);
+    // A gloss along the upper left of the rim.
+    canvas.drawArc(
+      Rect.fromCenter(
+        center: top.translate(0, -b * .1),
+        width: a * 1.72,
+        height: b * 1.5,
+      ),
+      math.pi * 1.04,
+      math.pi * .3,
+      false,
+      Paint()
+        ..color = Colors.white.withValues(alpha: .65)
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round
+        ..strokeWidth = radius * .1,
+    );
+    if (look == MapNodeLook.cleared) {
+      MapNodePainter._check(canvas, top.translate(a * .08, -b * .02), radius);
+    }
+    // A locked shield wears the same padlock coin as a locked level coin, on
+    // the corner where a beaten one wears its tick.
+    if (locked) _padlock(canvas, top.translate(a * .7, -b * .62), radius);
+    final box = Rect.fromCenter(
+      center: top.translate(0, -b * .01),
+      width: a * 1.06,
+      height: b * .7,
+    );
+    if (locked) {
+      canvas.saveLayer(
+        box.inflate(radius * .3),
+        Paint()
+          ..colorFilter = CampaignRegionStill.dim(.9)
+          ..color = Colors.white.withValues(alpha: .7),
+      );
+      CampaignHeadwear.paint(canvas, box, boss);
+      canvas.restore();
+    } else {
+      CampaignHeadwear.paint(canvas, box, boss);
+    }
+  }
+
+  /// A cream coin with the yellow padlock, on the shield's upper right.
+  static void _padlock(Canvas canvas, Offset at, double radius) {
+    final r = math.max(9.0, radius * .36);
+    canvas.drawCircle(
+      at.translate(0, 1.6),
+      r,
+      Paint()..color = SkyColors.ink.withValues(alpha: .35),
+    );
+    canvas.drawCircle(at, r, Paint()..color = SkyColors.cream);
+    canvas.drawCircle(
+      at,
+      r,
+      Paint()
+        ..color = SkyColors.ink
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.8,
+    );
+    canvas.save();
+    canvas.translate(at.dx - r * .58, at.dy - r * .62);
+    const MapPadlockPainter(
+      color: SkyColors.ink,
+      fill: SkyColors.yellow,
+    ).paint(canvas, Size(r * 1.16, r * 1.26));
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(MapGuardianPainter old) =>
+      old.look != look ||
+      old.radius != radius ||
+      old.boss != boss ||
+      old.pressed != pressed;
+}
+
 /// A padlock glyph: a chunky ink-edged body and shackle.
 class MapPadlockPainter extends CustomPainter {
   const MapPadlockPainter({this.color = SkyColors.muted, this.fill});

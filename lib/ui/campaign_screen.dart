@@ -10,9 +10,11 @@ import '../data/providers.dart';
 import '../domain/campaign.dart';
 import '../domain/campaign_progress.dart';
 import '../domain/campaign_story.dart';
+import '../domain/world_region.dart';
 import 'campaign_chrome.dart';
 import 'campaign_map.dart';
 import 'campaign_postcard.dart';
+import 'campaign_text_scale.dart';
 import 'components.dart';
 import 'level_intro.dart';
 import 'match_hud.dart' show MatchPlate;
@@ -118,7 +120,7 @@ class _CampaignScreenState extends ConsumerState<CampaignScreen> {
     _nudgeTimer?.cancel();
     // A stop that is not in this build has its Coming soon ribbon on the map
     // already, which answers the tap; a second notice would cover it.
-    if (!Campaign.chapterOf(level).playable) {
+    if (!Campaign.playable(level)) {
       setState(() => _nudge = null);
       return;
     }
@@ -148,6 +150,15 @@ class _CampaignScreenState extends ConsumerState<CampaignScreen> {
           ? fresh(progress.sceneAfter(Campaign.chapters[due - 1]))
           : null;
     }
+    // A guardian's last word plays once its level is first beaten, on the map
+    // the result returns to (New York).
+    if (_revisit == null) {
+      for (final level in Campaign.levels) {
+        if (!level.isGuardian) continue;
+        final last = fresh(progress.sceneLast(level));
+        if (last != null) return last;
+      }
+    }
     final intro = _intro;
     return _revisit == null && intro != null && progress.unlocked(intro)
         ? fresh(progress.sceneBefore(intro))
@@ -175,6 +186,11 @@ class _CampaignScreenState extends ConsumerState<CampaignScreen> {
     final chapter = Campaign.chapterOf(level);
     return [
       ?CampaignStory.before(level),
+      // A beaten guardian's last word, which ends on the "To be continued…"
+      // card at 3-4.
+      ?(level.isGuardian && progress.cleared(level)
+          ? CampaignStory.lastWord(level)
+          : null),
       if (level == chapter.bossLevel && progress.cleared(level))
         CampaignStory.after(chapter),
     ];
@@ -249,26 +265,32 @@ class _CampaignScreenState extends ConsumerState<CampaignScreen> {
       children: [
         // Under a scene, card or postcard the map holds its frame: its bird,
         // glows and pulses cost no frames until the overlay closes.
-        TickerMode(
-          enabled: !covered,
-          child: CampaignMap(
-            stops: _stopsOf(campaign),
-            bird: progress.settings.bird,
-            reducedMotion: still,
-            chromeHidden: covered,
-            focusStop: _focus,
-            onLevel: _open,
-            onLockedLevel: _locked,
-            onPostcard: (chapter) => setState(() => _revisit = chapter),
-            leading: MapKey(
-              glyph: MapGlyph.back,
-              label: 'Back home',
+        // Under a scene, card or postcard the map is out of the semantics tree
+        // too, so a screen reader meets the card first and not the map's
+        // forty-odd buttons.
+        ExcludeSemantics(
+          excluding: covered,
+          child: TickerMode(
+            enabled: !covered,
+            child: CampaignMap(
+              stops: _stopsOf(campaign),
+              bird: progress.settings.bird,
               reducedMotion: still,
-              onPressed: () => context.go('/'),
-            ),
-            trailing: CampaignStarTotal(
-              stars: campaign.totalStars,
-              of: campaignStarsInBuild,
+              chromeHidden: covered,
+              focusStop: _focus,
+              onLevel: _open,
+              onLockedLevel: _locked,
+              onPostcard: (chapter) => setState(() => _revisit = chapter),
+              leading: MapKey(
+                glyph: MapGlyph.back,
+                label: 'Back home',
+                reducedMotion: still,
+                onPressed: () => context.go('/'),
+              ),
+              trailing: CampaignStarTotal(
+                stars: campaign.totalStars,
+                of: campaignStarsInBuild,
+              ),
             ),
           ),
         ),
@@ -481,12 +503,8 @@ class _LostMapPainter extends CustomPainter {
 }
 
 /// Level stars there are to earn in this build: three for each playable
-/// level.
-final int campaignStarsInBuild =
-    Campaign.levels
-        .where((level) => Campaign.chapterOf(level).playable)
-        .length *
-    3;
+/// level. A getter, not a constant, so a build that opens New York counts it.
+int get campaignStarsInBuild => Campaign.playableLevels.length * 3;
 
 /// The map's stops from the saved progress, one per region in trip order.
 List<CampaignMapStop> campaignStops(CampaignProgress progress) {
@@ -509,7 +527,14 @@ List<CampaignMapStop> campaignStops(CampaignProgress progress) {
                   stars: progress.stars(level),
                   isCurrent:
                       identical(level, current) && progress.unlocked(level),
-                  boss: level.boss,
+                  // A guardian's node is a shield only in a stop the build has
+                  // opened; a closed stop keeps its plain locked coins (and
+                  // must not draw the guardian as a chapter lair).
+                  boss: level.isGuardian && !Campaign.playable(level)
+                      ? null
+                      : level.boss,
+                  guardian: level.isGuardian && Campaign.playable(level),
+                  lockNote: _lockNote(progress, level),
                 ),
           ];
           return CampaignMapStop(
@@ -518,7 +543,8 @@ List<CampaignMapStop> campaignStops(CampaignProgress progress) {
             route: chapter.route,
             nodes: nodes,
             locked: nodes.every((node) => node.locked),
-            comingSoon: !chapter.playable,
+            comingSoon: Campaign.comingSoon(region),
+            soonNote: _soonNote(chapter, region),
             postcard:
                 region == chapter.regions.last &&
                 progress.chapterComplete(chapter),
@@ -526,6 +552,25 @@ List<CampaignMapStop> campaignStops(CampaignProgress progress) {
         }(),
   ];
 }
+
+/// What unlocks [level] when it is locked in this build, for the screen reader
+/// ("Beat King Coo to unlock"); null when it is open, beaten, or not in this
+/// build (its stop's Coming soon ribbon says that).
+String? _lockNote(CampaignProgress progress, CampaignLevel level) =>
+    Campaign.playable(level) &&
+        !progress.cleared(level) &&
+        !progress.unlocked(level)
+    ? lockedNudge(level)
+    : null;
+
+/// What the Coming soon ribbon across [region]'s clouds says: "Coming soon",
+/// or, in a chapter the build has partly opened, the stop's own name, as in
+/// "Paris — coming soon".
+String _soonNote(CampaignChapter chapter, WorldRegion region) =>
+    Campaign.comingSoon(region) &&
+        Campaign.playableLevels.any((level) => level.chapter == chapter.number)
+    ? '${region.title} — coming soon'
+    : 'Coming soon';
 
 /// A short message over the map's foot when a locked level is tapped: the
 /// map's yellow notice ribbon, which pops in and fades before the screen
@@ -610,6 +655,9 @@ class _IntroLayer extends StatelessWidget {
     final height = MediaQuery.sizeOf(context).height;
     // Composed for a 360-high phone; a taller screen grows it a little.
     final grow = (height / 360).clamp(1.0, 1.2);
+    // A larger system text size composes the card on a taller box, which the
+    // card then scales down to the screen.
+    final design = LevelIntroCard.sizeFor(CampaignTextScale.of(context));
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -630,8 +678,8 @@ class _IntroLayer extends StatelessWidget {
           child: Center(
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                maxWidth: LevelIntroCard.size.width * grow,
-                maxHeight: LevelIntroCard.size.height * grow,
+                maxWidth: design.width * grow,
+                maxHeight: design.height * grow,
               ),
               child: LevelIntroCard(
                 key: ValueKey('level-intro-${level.id}'),

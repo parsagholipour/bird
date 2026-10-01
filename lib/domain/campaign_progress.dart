@@ -72,8 +72,9 @@ class LevelRecord {
 /// Where the courier stands on the map, from the saved [LevelRecord]s.
 ///
 /// The first level is open from the start. Finishing a level unlocks the
-/// next one, so beating a chapter's boss opens the next chapter. Chapters
-/// that are not [CampaignChapter.playable] in this build stay locked.
+/// next one, so beating a chapter's boss opens the next chapter; a guardian
+/// ([CampaignLevel.isGuardian]) opens only the next level. Levels that are
+/// not [Campaign.playable] in this build stay locked.
 class CampaignProgress {
   CampaignProgress(
     Iterable<LevelRecord> records, {
@@ -93,7 +94,7 @@ class CampaignProgress {
   int stars(CampaignLevel level) => record(level).bestStars;
 
   bool unlocked(CampaignLevel level) {
-    if (!Campaign.chapterOf(level).playable) return false;
+    if (!Campaign.playable(level)) return false;
     final previous = Campaign.before(level);
     return previous == null || cleared(previous);
   }
@@ -130,6 +131,17 @@ class CampaignProgress {
         : null;
   }
 
+  /// The scene to play once a guardian ([CampaignLevel.isGuardian]) has
+  /// been beaten: its last word at the lair ([CampaignStory.lastWord]). It
+  /// plays by itself once, after the level's first finish; a level with no
+  /// last word gives null.
+  StoryScene? sceneLast(CampaignLevel level) {
+    final scene = CampaignStory.lastWord(level);
+    return scene == null || !cleared(level) || storyWatched.contains(scene.id)
+        ? null
+        : scene;
+  }
+
   /// The first unlocked level not yet finished or, once every unlocked
   /// level is finished, the one last flown.
   CampaignLevel get current {
@@ -147,12 +159,16 @@ class CampaignProgress {
   DateTime _playedAt(CampaignLevel level) =>
       record(level).lastPlayedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
 
-  /// Level stars earned across the campaign: 3 per level at most.
+  /// Level stars earned across the campaign: 3 per level at most, over the
+  /// levels this build can fly ([Campaign.playable]), so the total never
+  /// exceeds the "N / 48" or "N / 60" it is shown against (a build with New
+  /// York closed ignores stars a save earned in it).
   int get totalStars => _sum(Campaign.levels);
   int starsInChapter(CampaignChapter chapter) => _sum(chapter.levels);
   int starsInRegion(WorldRegion region) =>
       _sum(Campaign.levels.where((level) => level.region == region));
 
-  int _sum(Iterable<CampaignLevel> levels) =>
-      levels.fold(0, (sum, level) => sum + stars(level));
+  int _sum(Iterable<CampaignLevel> levels) => levels
+      .where(Campaign.playable)
+      .fold(0, (sum, level) => sum + stars(level));
 }

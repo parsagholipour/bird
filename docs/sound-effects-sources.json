@@ -139,5 +139,890 @@
         }
       ]
     }
+  },
+  "synthesised": {
+    "note": "Original deterministic syntheses: no source takes, no network, no ElevenLabs. Each cue is one branch of synth() in tool/prepare_sound_effects.py, mastered by master() to a -3.10 dBFS peak (coo_roar, gargoyle_awaken and gargoyle_strike also to a soft-knee RMS target) as mono 44.1 kHz signed 16-bit PCM, and is reproducible byte for byte. Refresh the files entries after a re-render with `python3 tool/check_sound_effects.py --update-sources`; `--verify-sources` fails on a mismatch.",
+    "new_york": {
+      "date": "2026-10-01",
+      "command": "python3 tool/prepare_sound_effects.py --only pigeon_coo pigeon_flap pigeon_snatch pigeon_defeat star_rescue steam_hiss steam_burst pipe_clang steam_ride gargoyle_strike gargoyle_awaken beam_warning beam_sweep beam_spot lamp_vent lamp_glance feather_drop coo_roar coo_whistle crumb_throw crumb_splat squad_flutter coo_puff coo_pop coo_defeat coo_shout gargoyle_fury gargoyle_shatter coo_inflate",
+      "seed_ranges": {
+        "steam": "201-249",
+        "alley_pigeon": "251-299",
+        "king_coo": "301-399",
+        "searchlight_gargoyle": "401-499",
+        "existing_cues": "up to 191"
+      },
+      "mastering": {
+        "target_peak": "0.70 (-3.10 dBFS)",
+        "rms_soft_knee_db": {
+          "coo_roar": -14,
+          "gargoyle_awaken": -14,
+          "gargoyle_strike": -16,
+          "coo_shout": -14,
+          "gargoyle_fury": -14,
+          "gargoyle_shatter": -15,
+          "crumb_throw": -17,
+          "crumb_splat": -17
+        },
+        "dc_block": "master(dc_block=True) for every New York cue"
+      },
+      "cues": {
+        "pigeon_coo": {
+          "report": "reports/02-alley-pigeon.md",
+          "fires_on": "CombatAudioCues: FlightSimulation.pigeonWarnings rises (each pigeon's 0.80 s warning)",
+          "spec": {
+            "volume": 0.3,
+            "priority": 1,
+            "seconds": 0.55,
+            "cooldownMs": 180,
+            "variants": 2
+          },
+          "helpers": [
+            "coo_voice"
+          ],
+          "seeds": "251-256 (+take)",
+          "takes": "take 2 is a whole tone (x1.1225) higher",
+          "files": [
+            {
+              "asset": "pigeon_coo.wav",
+              "seconds": 0.55,
+              "peak_db": -3.1,
+              "rms_db": -14.29,
+              "sha256": "d18769a80d909ed8f45630eb65ea1ed6793eb51e898922e8ecebd43d3e183884"
+            },
+            {
+              "asset": "pigeon_coo_2.wav",
+              "seconds": 0.55,
+              "peak_db": -3.1,
+              "rms_db": -14.28,
+              "sha256": "42295d178d627c7159260e04212f499b191d4af82ee6c244d22615811fe507c6"
+            }
+          ]
+        },
+        "pigeon_flap": {
+          "report": "reports/02-alley-pigeon.md",
+          "fires_on": "CombatAudioCues: FlightSimulation.pigeonDives rises (each dive)",
+          "spec": {
+            "volume": 0.42,
+            "priority": 1,
+            "seconds": 0.34,
+            "cooldownMs": 80,
+            "variants": 2
+          },
+          "helpers": [
+            "clap",
+            "whoosh"
+          ],
+          "seeds": "261-272 (+take)",
+          "takes": "take 2 shifts every clap 4 ms later and reseeds",
+          "files": [
+            {
+              "asset": "pigeon_flap.wav",
+              "seconds": 0.34,
+              "peak_db": -3.1,
+              "rms_db": -21.46,
+              "sha256": "d870f24874c03e7e46105d79edcf9ab55f20aa49dfa0db183eddb6af8dabfff4"
+            },
+            {
+              "asset": "pigeon_flap_2.wav",
+              "seconds": 0.34,
+              "peak_db": -3.1,
+              "rms_db": -22.38,
+              "sha256": "08bcecbb0f5b207cdcecd7895778674130332950145f9e3eb5d08fdb285b8f1e"
+            }
+          ]
+        },
+        "pigeon_snatch": {
+          "report": "reports/02-alley-pigeon.md",
+          "fires_on": "CombatAudioCues: FlightSimulation.starsSnatched rises",
+          "spec": {
+            "volume": 0.6,
+            "priority": 3,
+            "seconds": 0.42,
+            "cooldownMs": 120,
+            "variants": 1
+          },
+          "helpers": [
+            "clap",
+            "tick",
+            "bell",
+            "whistle"
+          ],
+          "seeds": "273, 277",
+          "files": [
+            {
+              "asset": "pigeon_snatch.wav",
+              "seconds": 0.42,
+              "peak_db": -3.1,
+              "rms_db": -20.74,
+              "sha256": "62141f8a92ebb5fdbb354e8bde04a23e27efee5c3966909c0dca2b73e288a6d8"
+            }
+          ]
+        },
+        "pigeon_defeat": {
+          "report": "reports/02-alley-pigeon.md",
+          "fires_on": "CombatAudioCues: FlightSimulation.pigeonsDefeated rises (replaces enemy_death for pigeons)",
+          "spec": {
+            "volume": 0.34,
+            "priority": 2,
+            "seconds": 0.5,
+            "cooldownMs": 65,
+            "variants": 2
+          },
+          "helpers": [
+            "chirp",
+            "puff",
+            "impact",
+            "coo_voice"
+          ],
+          "seeds": "281-286 (+take)",
+          "takes": "take 2 is a whole tone higher",
+          "files": [
+            {
+              "asset": "pigeon_defeat.wav",
+              "seconds": 0.5,
+              "peak_db": -3.1,
+              "rms_db": -16.97,
+              "sha256": "ea99af08cd97c3144119b7c42299ac13ffdf0b3bd57a2968e7b7b82023da7816"
+            },
+            {
+              "asset": "pigeon_defeat_2.wav",
+              "seconds": 0.5,
+              "peak_db": -3.1,
+              "rms_db": -18.36,
+              "sha256": "74da70e8cb8805faab01ea4c0bc7648bc83cbd316c83f056c176c7defc46fe67"
+            }
+          ]
+        },
+        "star_rescue": {
+          "report": "reports/02-alley-pigeon.md",
+          "fires_on": "CombatAudioCues: FlightSimulation.starsFreed rises",
+          "spec": {
+            "volume": 0.34,
+            "priority": 3,
+            "seconds": 0.45,
+            "cooldownMs": 100,
+            "variants": 1
+          },
+          "helpers": [
+            "bell",
+            "whoosh",
+            "tick"
+          ],
+          "seeds": "291",
+          "files": [
+            {
+              "asset": "star_rescue.wav",
+              "seconds": 0.45,
+              "peak_db": -3.1,
+              "rms_db": -16.0,
+              "sha256": "c32729ef95b064409ab040db183639d81ae778c19314f5e65fb90321df3a8156"
+            }
+          ]
+        },
+        "steam_hiss": {
+          "report": "reports/03-steam-geysers.md",
+          "fires_on": "CombatAudioCues: FlightSimulation.steamHisses rises (vent within birdX-0.1 .. birdX+1.8)",
+          "spec": {
+            "volume": 0.4,
+            "priority": 3,
+            "seconds": 1.5,
+            "cooldownMs": 500,
+            "variants": 1
+          },
+          "helpers": [
+            "steam_noise",
+            "clang"
+          ],
+          "seeds": "201, 210-214",
+          "files": [
+            {
+              "asset": "steam_hiss.wav",
+              "seconds": 1.5,
+              "peak_db": -3.1,
+              "rms_db": -20.46,
+              "sha256": "e359d28a38b3b58696e1cbd74274baa5f56a5e77504e901e1970531a038cfc99"
+            }
+          ],
+          "fix_round": "1.5 s (was 1.4 s) to fill the vent's whole warning, with a sixth knock at 1.40 s"
+        },
+        "steam_burst": {
+          "report": "reports/03-steam-geysers.md",
+          "fires_on": "CombatAudioCues: FlightSimulation.steamBursts rises, together with pipe_clang",
+          "spec": {
+            "volume": 0.52,
+            "priority": 3,
+            "seconds": 0.8,
+            "cooldownMs": 250,
+            "variants": 2
+          },
+          "helpers": [
+            "impact",
+            "steam_noise",
+            "clang"
+          ],
+          "seeds": "221-230 (+take)",
+          "takes": "take 2 reseeds every layer and raises the clang 7%",
+          "files": [
+            {
+              "asset": "steam_burst.wav",
+              "seconds": 0.8,
+              "peak_db": -3.1,
+              "rms_db": -18.04,
+              "sha256": "2d6e16f1aa07bbc79fd0f4a5d6321b0ab9f3507de28b8fe842cb71944ccb3625"
+            },
+            {
+              "asset": "steam_burst_2.wav",
+              "seconds": 0.8,
+              "peak_db": -3.1,
+              "rms_db": -17.36,
+              "sha256": "d82871da0210bfdea7d9f3f9a1f93c2643c1295c837560da51f3a85d980004a5"
+            }
+          ]
+        },
+        "pipe_clang": {
+          "report": "reports/03-steam-geysers.md",
+          "fires_on": "CombatAudioCues: layered on every steam_burst",
+          "spec": {
+            "volume": 0.26,
+            "priority": 1,
+            "seconds": 0.45,
+            "cooldownMs": 250,
+            "variants": 2
+          },
+          "helpers": [
+            "clang",
+            "impact"
+          ],
+          "seeds": "231-236 (+take)",
+          "takes": "take 2 raises both strikes 9%",
+          "files": [
+            {
+              "asset": "pipe_clang.wav",
+              "seconds": 0.45,
+              "peak_db": -3.1,
+              "rms_db": -18.68,
+              "sha256": "c61c82484a7aa3ac9fca33d148a8ef2754e88484a80893388aaebf7cf05c0dff"
+            },
+            {
+              "asset": "pipe_clang_2.wav",
+              "seconds": 0.45,
+              "peak_db": -3.1,
+              "rms_db": -17.8,
+              "sha256": "993cd70df3b9d164b89e3ab60b417e8349866612dae21a68266e0ac54bbab71a"
+            }
+          ]
+        },
+        "steam_ride": {
+          "report": "reports/03-steam-geysers.md",
+          "fires_on": "CombatAudioCues: FlightSimulation.steamRides rises",
+          "spec": {
+            "volume": 0.4,
+            "priority": 2,
+            "seconds": 0.6,
+            "cooldownMs": 400,
+            "variants": 1
+          },
+          "helpers": [
+            "updraft",
+            "whoosh",
+            "bell"
+          ],
+          "seeds": "241, 243",
+          "files": [
+            {
+              "asset": "steam_ride.wav",
+              "seconds": 0.6,
+              "peak_db": -3.1,
+              "rms_db": -17.06,
+              "sha256": "ff776968b4359a4ad416f927ba05163fb8c7a5a06fe6b2e4ca571963364735e3"
+            }
+          ]
+        },
+        "gargoyle_strike": {
+          "report": "reports/04-gargoyle.md",
+          "fires_on": "BossAudioCues: the reveal edge (age 1.65 s) of the Searchlight Gargoyle, in place of boss_reveal",
+          "spec": {
+            "volume": 0.85,
+            "priority": 4,
+            "seconds": 1.1,
+            "cooldownMs": 1000,
+            "variants": 1
+          },
+          "helpers": [
+            "boom",
+            "band_noise",
+            "crackle",
+            "clang"
+          ],
+          "seeds": "401, 403, 405, 407",
+          "files": [
+            {
+              "asset": "gargoyle_strike.wav",
+              "seconds": 1.1,
+              "peak_db": -3.1,
+              "rms_db": -15.92,
+              "sha256": "5c9086e8feccafb7968cb6453a8bf69fea6d1f3142e82c87808fefb5623a41e9"
+            }
+          ]
+        },
+        "gargoyle_awaken": {
+          "report": "reports/04-gargoyle.md",
+          "fires_on": "BossAudioCues: the roar edge (age 2.65 s) of the Searchlight Gargoyle, in place of boss_roar",
+          "spec": {
+            "volume": 0.85,
+            "priority": 4,
+            "seconds": 2.0,
+            "cooldownMs": 1000,
+            "variants": 1
+          },
+          "helpers": [
+            "growl",
+            "stone_grind",
+            "crumble",
+            "bell"
+          ],
+          "seeds": "411, 413, 415",
+          "files": [
+            {
+              "asset": "gargoyle_awaken.wav",
+              "seconds": 2.0,
+              "peak_db": -3.1,
+              "rms_db": -13.9,
+              "sha256": "6c1dfbb02ae942863fd8914612b5031b434d2969c541587bdfe4dbaec994eb97"
+            }
+          ]
+        },
+        "beam_warning": {
+          "report": "reports/04-gargoyle.md",
+          "fires_on": "BossAudioCues: SkyBoss.sweepWarnings rises (cycle second 2.0)",
+          "spec": {
+            "volume": 0.65,
+            "priority": 4,
+            "seconds": 1.5,
+            "cooldownMs": 1000,
+            "variants": 1
+          },
+          "helpers": [
+            "impact",
+            "whistle",
+            "arc_buzz",
+            "crackle",
+            "chirp"
+          ],
+          "seeds": "421, 423, 424, 425",
+          "files": [
+            {
+              "asset": "beam_warning.wav",
+              "seconds": 1.5,
+              "peak_db": -3.1,
+              "rms_db": -20.0,
+              "sha256": "e3426a74adf1f7e45f1259d06c738f6c98c604bd13ef6f344d49c2e643b1514c"
+            }
+          ]
+        },
+        "beam_sweep": {
+          "report": "reports/04-gargoyle.md",
+          "fires_on": "BossAudioCues: SkyBoss.sweepIgnitions rises (cycle second 3.5; lasts to the vent at 6.4)",
+          "spec": {
+            "volume": 0.42,
+            "priority": 3,
+            "seconds": 2.9,
+            "cooldownMs": 1000,
+            "variants": 1
+          },
+          "helpers": [
+            "arc_buzz",
+            "crackle",
+            "whoosh"
+          ],
+          "seeds": "431, 433, 435",
+          "files": [
+            {
+              "asset": "beam_sweep.wav",
+              "seconds": 2.9,
+              "peak_db": -3.1,
+              "rms_db": -16.88,
+              "sha256": "d536ae6ec5609d007e5ea63951da0d1e8f490842ea325f36f6257a87fe44aa17"
+            }
+          ]
+        },
+        "beam_spot": {
+          "report": "reports/04-gargoyle.md",
+          "fires_on": "BossAudioCues: SkyBoss.spots rises (the bird is caught in the beam)",
+          "spec": {
+            "volume": 0.55,
+            "priority": 3,
+            "seconds": 0.4,
+            "cooldownMs": 400,
+            "variants": 1
+          },
+          "helpers": [
+            "impact",
+            "bell"
+          ],
+          "seeds": "441",
+          "files": [
+            {
+              "asset": "beam_spot.wav",
+              "seconds": 0.4,
+              "peak_db": -3.1,
+              "rms_db": -20.21,
+              "sha256": "e9a178907d7e868ef0c40ece4b89da5275d6a305a6e5c8d861d84c13d5028105"
+            }
+          ]
+        },
+        "lamp_vent": {
+          "report": "reports/04-gargoyle.md",
+          "fires_on": "BossAudioCues: SkyBoss.lampOpens rises (cycle second 6.4)",
+          "spec": {
+            "volume": 0.4,
+            "priority": 3,
+            "seconds": 1.3,
+            "cooldownMs": 1000,
+            "variants": 1
+          },
+          "helpers": [
+            "chirp",
+            "sea_noise",
+            "whistle"
+          ],
+          "seeds": "453, 455",
+          "files": [
+            {
+              "asset": "lamp_vent.wav",
+              "seconds": 1.3,
+              "peak_db": -3.1,
+              "rms_db": -18.94,
+              "sha256": "5de7618b333f770b10dcf60bc27c57823ff77236cbfe825a28322c15568936e0"
+            }
+          ]
+        },
+        "lamp_glance": {
+          "report": "reports/04-gargoyle.md",
+          "fires_on": "BossAudioCues: SkyBoss.lastGlanceAt advances (a rock glances off the shuttered lamp)",
+          "spec": {
+            "volume": 0.3,
+            "priority": 2,
+            "seconds": 0.25,
+            "cooldownMs": 75,
+            "variants": 2
+          },
+          "helpers": [
+            "bell",
+            "impact"
+          ],
+          "seeds": "461-462 (+take)",
+          "takes": "take 2 is 9% higher",
+          "files": [
+            {
+              "asset": "lamp_glance.wav",
+              "seconds": 0.25,
+              "peak_db": -3.1,
+              "rms_db": -19.0,
+              "sha256": "db15bfa452177e64c2a9bd0d6106a7b1eff4b654d9238e13d783e37d79f91bbc"
+            },
+            {
+              "asset": "lamp_glance_2.wav",
+              "seconds": 0.25,
+              "peak_db": -3.1,
+              "rms_db": -18.83,
+              "sha256": "675beac3a6df121da33deed773d756b7c5ccc77f7ad17e34e04cfb0eafe46eec"
+            }
+          ]
+        },
+        "feather_drop": {
+          "report": "reports/04-gargoyle.md",
+          "fires_on": "BossAudioCues: SkyBoss.feathersLaunched rises",
+          "spec": {
+            "volume": 0.28,
+            "priority": 2,
+            "seconds": 0.55,
+            "cooldownMs": 150,
+            "variants": 2
+          },
+          "helpers": [
+            "band_noise",
+            "tick",
+            "whoosh"
+          ],
+          "seeds": "471-474 (+take)",
+          "takes": "take 2 shifts the rustle up 10% and the tick 12%",
+          "files": [
+            {
+              "asset": "feather_drop.wav",
+              "seconds": 0.55,
+              "peak_db": -3.1,
+              "rms_db": -19.28,
+              "sha256": "cdc84df9fd43c4cfd96714b5590cf83b0bb048ad9831500852ea285494946ac0"
+            },
+            {
+              "asset": "feather_drop_2.wav",
+              "seconds": 0.55,
+              "peak_db": -3.1,
+              "rms_db": -19.68,
+              "sha256": "62dd7adf8141b21cf926bc70525dcb50349c79065ee99563f951dcb521028375"
+            }
+          ]
+        },
+        "coo_roar": {
+          "report": "reports/05-king-coo.md",
+          "fires_on": "BossAudioCues: the roar edge (age 2.65 s) and the fury edge of King Coo, in place of boss_roar / boss_enrage",
+          "spec": {
+            "volume": 0.95,
+            "priority": 4,
+            "seconds": 1.6,
+            "cooldownMs": 600,
+            "variants": 1
+          },
+          "helpers": [
+            "impact",
+            "coo_voice",
+            "growl"
+          ],
+          "seeds": "301, 303, 305, 307, 309",
+          "files": [
+            {
+              "asset": "coo_roar.wav",
+              "seconds": 1.6,
+              "peak_db": -3.1,
+              "rms_db": -13.75,
+              "sha256": "e7b0b42c6e46c1ab39260ae7192d0fc6b20ecf2837aa58676b420a5d2407e098"
+            }
+          ]
+        },
+        "coo_whistle": {
+          "report": "reports/05-king-coo.md",
+          "fires_on": "BossAudioCues: SkyBoss.whistles rises (the rules blow the whistle at cycle second 9.2)",
+          "spec": {
+            "volume": 0.3,
+            "priority": 4,
+            "seconds": 0.85,
+            "cooldownMs": 500,
+            "variants": 1
+          },
+          "helpers": [
+            "pea_whistle"
+          ],
+          "seeds": "311, 313",
+          "files": [
+            {
+              "asset": "coo_whistle.wav",
+              "seconds": 0.85,
+              "peak_db": -3.1,
+              "rms_db": -12.59,
+              "sha256": "58beed5e1fcc49a70603bdbfa4a0a861c5b2152592c1c10ba3487d4bb7629e94"
+            }
+          ],
+          "fix_round": "the long blast now starts at 0.12 s (was 0.30 s) and the cue is 0.85 s (was 1.0 s), so it sounds while the 0.4 s blast pose is on"
+        },
+        "crumb_throw": {
+          "report": "reports/05-king-coo.md",
+          "fires_on": "BossAudioCues: SkyBoss.lobsLaunched rises (the bomb is tossed)",
+          "spec": {
+            "volume": 0.4,
+            "priority": 3,
+            "seconds": 0.36,
+            "cooldownMs": 150,
+            "variants": 1
+          },
+          "helpers": [
+            "band_noise",
+            "impact",
+            "crinkle"
+          ],
+          "seeds": "321, 323, 326",
+          "files": [
+            {
+              "asset": "crumb_throw.wav",
+              "seconds": 0.36,
+              "peak_db": -3.1,
+              "rms_db": -15.89,
+              "sha256": "f17146e0913fb348175196fa9a37d4b3ee005abf35f8b3b110286f3ca8483390"
+            }
+          ],
+          "fix_round": "re-synthesised in the mids: a 1.7 kHz swish, a lighter thwup and crinkle grains (was whoosh, thump, crumble); band 31% -> 84%"
+        },
+        "crumb_splat": {
+          "report": "reports/05-king-coo.md",
+          "fires_on": "BossAudioCues: SkyBoss.lobBursts rises (the cloud bursts)",
+          "spec": {
+            "volume": 0.45,
+            "priority": 3,
+            "seconds": 0.6,
+            "cooldownMs": 150,
+            "variants": 1
+          },
+          "helpers": [
+            "impact",
+            "band_noise",
+            "crinkle"
+          ],
+          "seeds": "331, 337, 338",
+          "files": [
+            {
+              "asset": "crumb_splat.wav",
+              "seconds": 0.6,
+              "peak_db": -3.1,
+              "rms_db": -16.79,
+              "sha256": "95e2c06de520d906bbcea6a0af70363eb92ef8fc03a8d652aa76b40374656576"
+            }
+          ],
+          "fix_round": "re-synthesised in the mids: a soft pop, a 1.4 kHz wet slap and 18 crinkle grains; band 26% -> 75%"
+        },
+        "squad_flutter": {
+          "report": "reports/05-king-coo.md",
+          "fires_on": "BossAudioCues: with every coo_whistle, and again for a fury picket (SquadPlan.delay seconds later)",
+          "spec": {
+            "volume": 0.42,
+            "priority": 3,
+            "seconds": 0.95,
+            "cooldownMs": 500,
+            "variants": 1
+          },
+          "helpers": [
+            "wing_claps",
+            "coo_voice",
+            "whoosh"
+          ],
+          "seeds": "341, 343-345, 349",
+          "files": [
+            {
+              "asset": "squad_flutter.wav",
+              "seconds": 0.95,
+              "peak_db": -3.1,
+              "rms_db": -18.2,
+              "sha256": "df64cf7eedf1677e7d990b18a7843f71490ce8336c840322960c4445248e8203"
+            }
+          ]
+        },
+        "coo_puff": {
+          "report": "reports/05-king-coo.md",
+          "fires_on": "BossAudioCues: SkyBoss.puffs rises (cycle second 7.6)",
+          "spec": {
+            "volume": 0.42,
+            "priority": 4,
+            "seconds": 1.5,
+            "cooldownMs": 800,
+            "variants": 1
+          },
+          "helpers": [
+            "whoosh",
+            "squeak",
+            "impact",
+            "bell"
+          ],
+          "seeds": "351, 353",
+          "files": [
+            {
+              "asset": "coo_puff.wav",
+              "seconds": 1.5,
+              "peak_db": -3.1,
+              "rms_db": -13.92,
+              "sha256": "a5e3e81f7c5193f8619dbd3047441d5af628409943ced1236f736da5ad1223b5"
+            }
+          ]
+        },
+        "coo_pop": {
+          "report": "reports/05-king-coo.md",
+          "fires_on": "BossAudioCues: SkyBoss.pops rises",
+          "spec": {
+            "volume": 0.55,
+            "priority": 4,
+            "seconds": 0.75,
+            "cooldownMs": 400,
+            "variants": 1
+          },
+          "helpers": [
+            "impact",
+            "whoosh",
+            "squeak",
+            "crumble",
+            "coo_voice"
+          ],
+          "seeds": "361, 363, 365, 367",
+          "files": [
+            {
+              "asset": "coo_pop.wav",
+              "seconds": 0.75,
+              "peak_db": -3.1,
+              "rms_db": -18.14,
+              "sha256": "f5db8f3275b403feb6632e2728bff7560273d224bdda4b6c69b2fed30d826571"
+            }
+          ]
+        },
+        "coo_defeat": {
+          "report": "reports/05-king-coo.md",
+          "fires_on": "BossAudioCues: the defeat burst edge (0.85 s after defeat) of King Coo, in place of boss_burst",
+          "spec": {
+            "volume": 0.85,
+            "priority": 4,
+            "seconds": 1.6,
+            "cooldownMs": 1000,
+            "variants": 1
+          },
+          "helpers": [
+            "impact",
+            "whoosh",
+            "coo_voice"
+          ],
+          "seeds": "371, 373, 375, 377, 379",
+          "files": [
+            {
+              "asset": "coo_defeat.wav",
+              "seconds": 1.6,
+              "peak_db": -3.1,
+              "rms_db": -19.31,
+              "sha256": "06e18fbe9661e0d7f2128ce574109399a2ef1125309bc4111171d5de56b69a7b"
+            }
+          ]
+        },
+        "coo_shout": {
+          "report": "reports/22-review-motion-audio.md (defect 5)",
+          "fires_on": "BossAudioCues: the roar edge (age 2.65 s) of King Coo, in place of coo_roar (which is now his fury's); 0.85 s to his beak's 0.8 s swell",
+          "spec": {
+            "volume": 0.95,
+            "priority": 4,
+            "seconds": 0.85,
+            "cooldownMs": 600,
+            "variants": 1
+          },
+          "helpers": [
+            "coo_voice",
+            "growl",
+            "impact"
+          ],
+          "seeds": "381-387",
+          "files": [
+            {
+              "asset": "coo_shout.wav",
+              "seconds": 0.85,
+              "peak_db": -3.1,
+              "rms_db": -14.04,
+              "sha256": "d0be4305d9cd5bce5bdf63928d742ca68178ddadb0ec0eae17c05976e888cf33"
+            }
+          ]
+        },
+        "gargoyle_fury": {
+          "report": "reports/22-review-motion-audio.md (defect 6)",
+          "fires_on": "BossAudioCues: the Gargoyle's fury edge (hp <= 80), in place of the generic boss_enrage (phone-silent: 0.2% of its energy in 250 Hz-8 kHz)",
+          "spec": {
+            "volume": 0.45,
+            "priority": 4,
+            "seconds": 1.2,
+            "cooldownMs": 800,
+            "variants": 1
+          },
+          "helpers": [
+            "impact",
+            "band_noise",
+            "stone_grind",
+            "arc_buzz",
+            "crackle",
+            "bell"
+          ],
+          "seeds": "481-489",
+          "files": [
+            {
+              "asset": "gargoyle_fury.wav",
+              "seconds": 1.2,
+              "peak_db": -3.1,
+              "rms_db": -13.32,
+              "sha256": "56e17c7c244ed975195fded49c5f322f3e236d44574b7685e1258ead079384a1"
+            }
+          ]
+        },
+        "gargoyle_shatter": {
+          "report": "reports/22-review-motion-audio.md (defect 6)",
+          "fires_on": "BossAudioCues: the burst edge (0.85 s after the defeat) of the Gargoyle, in place of the generic boss_burst (6% in band)",
+          "spec": {
+            "volume": 0.45,
+            "priority": 4,
+            "seconds": 1.2,
+            "cooldownMs": 1000,
+            "variants": 1
+          },
+          "helpers": [
+            "impact",
+            "band_noise",
+            "crackle",
+            "crinkle",
+            "bell",
+            "crumble",
+            "wing_claps"
+          ],
+          "seeds": "491-499",
+          "files": [
+            {
+              "asset": "gargoyle_shatter.wav",
+              "seconds": 1.2,
+              "peak_db": -3.1,
+              "rms_db": -14.47,
+              "sha256": "5167bdc5fca01198069260e09ba7bceb99d69a6be4b73830c8e96a8bf14b5694"
+            }
+          ]
+        },
+        "coo_inflate": {
+          "report": "reports/22-review-motion-audio.md (defect 6)",
+          "fires_on": "BossAudioCues: King Coo's defeat at +0.12 s (the end of the hit-stop), the chest inflating until the pop at +0.85 s",
+          "spec": {
+            "volume": 0.45,
+            "priority": 3,
+            "seconds": 0.75,
+            "cooldownMs": 1000,
+            "variants": 1
+          },
+          "helpers": [
+            "updraft",
+            "squeak",
+            "tick"
+          ],
+          "seeds": "391",
+          "files": [
+            {
+              "asset": "coo_inflate.wav",
+              "seconds": 0.75,
+              "peak_db": -3.1,
+              "rms_db": -17.58,
+              "sha256": "2c6a05b0daa4e899bee01b46883dd7f9dafce7dbab81841785b4e65490e045d6"
+            }
+          ]
+        }
+      },
+      "levels": {
+        "note": "Cues that are another cue's WAV at another level (SoundSpec.file): the cue layer plays a steam burst and its clang ducked, and a snatch lifted, when a snatch and a burst land within 0.3 s of each other. tool/prepare_sound_effects.py renders nothing for them.",
+        "steam_burst_duck": {
+          "file": "steam_burst",
+          "volume": 0.29,
+          "relative_db": -5.0
+        },
+        "pipe_clang_duck": {
+          "file": "pipe_clang",
+          "volume": 0.1,
+          "relative_db": -8.0
+        },
+        "pigeon_snatch_lift": {
+          "file": "pigeon_snatch",
+          "volume": 0.85,
+          "relative_db": 3.0
+        }
+      },
+      "fix_round": {
+        "date": "2026-10-01",
+        "report": "reports/22-review-motion-audio.md",
+        "new": [
+          "coo_shout",
+          "gargoyle_fury",
+          "gargoyle_shatter",
+          "coo_inflate"
+        ],
+        "changed": [
+          "crumb_throw",
+          "crumb_splat",
+          "coo_whistle",
+          "steam_hiss"
+        ]
+      }
+    }
   }
 }

@@ -198,6 +198,12 @@ void main() {
       'MaterialIcons',
     )..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'))).load();
   });
+  // New York is open in the build as it ships (`NEW_YORK_OPEN` defaults to
+  // true); a test that reads the star total forces the state it means.
+  tearDown(() {
+    Campaign.openedForTest = false;
+    Campaign.closedForTest = false;
+  });
 
   group('chrome', () {
     const phone = Size(640, 360);
@@ -205,6 +211,7 @@ void main() {
     testWidgets('the keys and the star total are full-size touch targets', (
       tester,
     ) async {
+      Campaign.openedForTest = true;
       await _open(tester, phone, stars: _midway);
       await _goTo(tester, 4, phone);
       final keys = find.byType(MapKey);
@@ -220,7 +227,17 @@ void main() {
             .height,
         MapKey.size,
       );
+      // Open, as the build ships: 20 playable levels, 60 stars.
+      expect(find.bySemanticsLabel('23 of 60 campaign stars'), findsOneWidget);
+    });
+
+    testWidgets('with New York closed (NEW_YORK_OPEN=false) the star total is '
+        'of 48', (tester) async {
+      Campaign.closedForTest = true;
+      await _open(tester, phone, stars: _midway);
+      await _goTo(tester, 4, phone);
       expect(find.bySemanticsLabel('23 of 48 campaign stars'), findsOneWidget);
+      expect(find.byType(MapKey), findsNWidgets(3));
     });
 
     testWidgets('a locked level says what unlocks it, and says it again '

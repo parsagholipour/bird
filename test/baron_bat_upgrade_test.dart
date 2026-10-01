@@ -101,8 +101,16 @@ void main() {
     // Only a Baron Bat is ever upgraded.
     for (final kind in BossKind.values.skip(1)) {
       expect(
-        SkyBoss(number: 6, x: 1, kind: kind, upgraded: true).screeches,
+        // A mini-boss (rules 43) is cinematic only, so every kind is.
+        SkyBoss(
+          number: 6,
+          x: 1,
+          kind: kind,
+          upgraded: true,
+          cinematic: true,
+        ).screeches,
         isFalse,
+        reason: kind.name,
       );
     }
     expect(SkyBoss(number: 6, x: 1).screeches, isFalse);

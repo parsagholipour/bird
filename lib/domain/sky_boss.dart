@@ -2,15 +2,40 @@ import 'dart:math' as math;
 
 import 'baron_screech.dart';
 import 'dragon_breath.dart';
+import 'king_coo.dart';
+import 'searchlight_gargoyle.dart';
 
 export 'baron_screech.dart';
 export 'dragon_breath.dart';
+export 'king_coo.dart';
+export 'searchlight_gargoyle.dart';
 
 enum BossPhase { arriving, attacking, defeated }
 
 /// Declaration order is the encounter order; [BossKind.pirate] joins the
 /// cycle in rules version 34 and [BossKind.dragon] in rules version 38.
-enum BossKind { baronBat, spitterBeetle, duskMoth, pirate, dragon }
+///
+/// [kingCoo] and [searchlightGargoyle] (rules version 43) are mini-boss
+/// guardians of New York: [campaignOnly], they sit after the endless cycle
+/// and only a campaign level plan can name them. Append, never reorder.
+enum BossKind {
+  baronBat,
+  spitterBeetle,
+  duskMoth,
+  pirate,
+  dragon,
+  kingCoo,
+  searchlightGargoyle;
+
+  /// The endless boss cycle is the first [endlessCycle] kinds, in order.
+  static const endlessCycle = 5;
+
+  /// Kinds no endless flight meets, at any rules version.
+  bool get campaignOnly => switch (this) {
+    kingCoo || searchlightGargoyle => true,
+    baronBat || spitterBeetle || duskMoth || pirate || dragon => false,
+  };
+}
 
 /// Encounter time advances only with the simulation, including in replays.
 class SkyBoss {
@@ -26,8 +51,14 @@ class SkyBoss {
     int? maxHp,
   }) : maxHp = maxHp ?? healthFor(kind, number) {
     if (this.maxHp <= 0) throw ArgumentError.value(this.maxHp, 'maxHp');
+    // The mini-bosses arrive and fall in the cinematic staging only.
+    assert(!kind.campaignOnly || cinematic, 'mini-bosses are cinematic');
     hp = this.maxHp;
-    if (screeches) {
+    if (isKingCoo || isGargoyle) {
+      // Neither shoots volleys or calls lineup helpers: each fights on a
+      // fixed combat-time cycle (see [KingCoo], [SearchlightGargoyle]).
+      fireIn = summonIn = double.infinity;
+    } else if (screeches) {
       // The upgraded Baron sends his bats in pairs on the screech's clock.
       summonIn = double.infinity;
     } else if (isSpitter) {
@@ -61,6 +92,9 @@ class SkyBoss {
     BossKind.duskMoth => 240 + (number - 3).clamp(0, 4) * 30,
     BossKind.pirate => 300 + (number - 4).clamp(0, 4) * 30,
     BossKind.dragon => 360 + (number - 5).clamp(0, 4) * 30,
+    // The mini-bosses have one health at every encounter number.
+    BossKind.kingCoo => KingCoo.maxHp,
+    BossKind.searchlightGargoyle => SearchlightGargoyle.maxHp,
   };
 
   /// Damage may skip over half health or zero after a weapon upgrade.
@@ -71,6 +105,7 @@ class SkyBoss {
     hp = (hp - damage).clamp(0, maxHp);
     if (hp < before) {
       lastDamage = before - hp;
+      previousHitAt = lastHitAt;
       lastHitAt = age;
       if (!wasEnraged && enraged) enragedAt = age;
     }
@@ -96,12 +131,19 @@ class SkyBoss {
   bool get isMoth => kind == BossKind.duskMoth;
   bool get isPirate => kind == BossKind.pirate;
   bool get isDragon => kind == BossKind.dragon;
+  bool get isKingCoo => kind == BossKind.kingCoo;
+  bool get isGargoyle => kind == BossKind.searchlightGargoyle;
+
+  /// A campaign-only guardian: King Coo or the Searchlight Gargoyle.
+  bool get isMiniBoss => kind.campaignOnly;
   String get name => switch (kind) {
     BossKind.baronBat => 'Baron Bat',
     BossKind.spitterBeetle => 'Spitter King',
     BossKind.duskMoth => 'Dusk Empress',
     BossKind.pirate => 'Pirate Captain',
     BossKind.dragon => 'Ember Dragon',
+    BossKind.kingCoo => 'King Coo',
+    BossKind.searchlightGargoyle => 'Searchlight Gargoyle',
   };
   String get title => switch (kind) {
     BossKind.baronBat => upgraded ? 'THE STORM RETURNS' : 'LORD OF THE STORM',
@@ -109,6 +151,8 @@ class SkyBoss {
     BossKind.duskMoth => 'KEEPER OF THE TWILIGHT VEIL',
     BossKind.pirate => 'TERROR OF THE HIGH TIDE',
     BossKind.dragon => 'SOVEREIGN OF THE BURNING SKY',
+    BossKind.kingCoo => 'COMMISSIONER OF THE CURB',
+    BossKind.searchlightGargoyle => 'WATCHMAN OF THE TALLEST TOWER',
   };
   double get muzzleOffset => radius * (isSpitter || isMoth ? 1.05 : 1);
   double get muzzleX => x - muzzleOffset;
@@ -119,6 +163,13 @@ class SkyBoss {
     // Horizontal speed only: cannonballs fly on a ballistic arc.
     BossKind.pirate => enraged ? .6 : .5,
     BossKind.dragon => enraged ? .62 : .52,
+    // King Coo fires no shots. The Gargoyle's stone feathers fly at this
+    // horizontal speed (see [SearchlightGargoyle.featherShot]).
+    BossKind.kingCoo => 0,
+    BossKind.searchlightGargoyle =>
+      enraged
+          ? SearchlightGargoyle.furyFeatherSpeed
+          : SearchlightGargoyle.featherSpeed,
   };
   double get volleyInterval => switch (kind) {
     BossKind.baronBat => enraged ? 1.55 : 2.15,
@@ -126,12 +177,17 @@ class SkyBoss {
     BossKind.duskMoth => enraged ? 1.2 : 1.65,
     BossKind.pirate => enraged ? 1.5 : 2.1,
     BossKind.dragon => enraged ? 1.55 : 2.0,
+    // The mini-bosses never fire volleys: their attacks run on fixed cycles.
+    BossKind.kingCoo || BossKind.searchlightGargoyle => double.infinity,
   };
   double get summonInterval => switch (kind) {
     BossKind.baronBat => enraged ? 4.5 : 6,
     BossKind.spitterBeetle => enraged ? 3.8 : 4.8,
     BossKind.duskMoth => enraged ? 3.6 : 4.6,
-    BossKind.pirate || BossKind.dragon => double.infinity,
+    BossKind.pirate ||
+    BossKind.dragon ||
+    BossKind.kingCoo ||
+    BossKind.searchlightGargoyle => double.infinity,
   };
   List<double> get volleyOffsets => switch (kind) {
     BossKind.baronBat =>
@@ -164,6 +220,7 @@ class SkyBoss {
     // A fireball at the bird, then a pair that brackets it. In fury the
     // lone fireball splits into embers ([splitsVolley]).
     BossKind.dragon => volleys.isEven ? const [0] : const [-.22, .22],
+    BossKind.kingCoo || BossKind.searchlightGargoyle => const [],
   };
   static const radius = .115;
 
@@ -411,7 +468,11 @@ class SkyBoss {
   bool get swarmFollowsUp => enraged && !debut;
 
   /// Rules damage for a hit worth [damage]: doubled on the open heart.
-  int strike(int damage) {
+  /// [releasedAt] is this boss's age as the rock left the bird, when known
+  /// ([BirdRock.releasedAt]): the Searchlight Gargoyle judges his lamp then.
+  int strike(int damage, {double? releasedAt}) {
+    if (isKingCoo) return _strikeCoo(damage);
+    if (isGargoyle) return _lampStrike(damage, releasedAt);
     if (!coreExposed) return takeDamage(damage);
     lastCoreHitAt = age;
     return takeDamage(damage * coreMultiplier);
@@ -525,6 +586,337 @@ class SkyBoss {
         : 'Dodge the fireballs and bats · Watch for the screech';
   }
 
+  // ---------------------------------------------------------------------
+  // King Coo, Commissioner of the Curb (rules version 43, campaign only):
+  // crumb bombs, a chest that puffs to whistle in a squadron, and a weak
+  // point (see [KingCoo]).
+  //
+  // The clock-driven getters are pure functions of the boss's age. The state
+  // below is what the rules latch and count as the fight runs
+  // (`king_coo_rules.dart`): crumb bombs locked at fixed cycle times, the
+  // puff window, the squadron, and the pop. None of it draws from a random.
+
+  /// Combat seconds: the boss's age less its arrival.
+  double get combatTime => age - arrivalDuration;
+
+  bool get _cooFighting => isKingCoo && phase == BossPhase.attacking;
+
+  /// The position in his 14 s cycle, or 0 when he is not fighting.
+  double get cooCycle => _cooFighting ? KingCoo.cycleTime(combatTime) : 0;
+
+  /// The cycle number from 0, or -1 when he is not fighting.
+  int get cooCycleNumber => _cooFighting ? KingCoo.cycleNumber(combatTime) : -1;
+
+  /// The crumb bombs latched so far, oldest first: where each ring locked
+  /// and when. The rules append one at each lock; every phase and radius is
+  /// a pure function of the boss's age ([CrumbLob]). Never pruned, so the
+  /// counters below only rise; the art reads [liveLobs].
+  final List<CrumbLob> lobs = [];
+
+  /// The bombs still to draw: locked and not yet gone, while he fights. A
+  /// defeat (or the arrival) leaves none on screen.
+  List<CrumbLob> get liveLobs => phase != BossPhase.attacking
+      ? const []
+      : [
+          for (final lob in lobs)
+            if (age < lob.crumbsEndAt) lob,
+        ];
+
+  /// Rules latches: the cycle whose rings are being locked, how many of its
+  /// rings are locked, and whether that cycle locks fury's three (set at its
+  /// first ring, so fury changes the next ring pattern cleanly and never
+  /// mixes a single and a bracket in one cycle); the puffs planned and
+  /// whistles decided so far; how many of the planned squadrons are out;
+  /// and whether this cycle's whistle blew.
+  int lobCycle = -1, lobsInCycle = 0;
+  bool lobFury = false;
+  int puffsLatched = 0, whistlesLatched = 0, squadReleased = 0;
+  bool squadCalled = false;
+
+  /// Times a crumb cloud caught the bird, and when a hit last landed on the
+  /// taut chest (the x2 window). Render-only, like the dragon's
+  /// [lastCoreHitAt].
+  int crumbHits = 0;
+  double lastPuffHitAt = double.negativeInfinity;
+
+  /// Lobs whose ring has locked, whose bomb has been tossed, and whose cloud
+  /// has burst, for edge-triggered cues.
+  int get lobsLocked => lobs.length;
+  int get lobsLaunched => lobs.where((lob) => age >= lob.launchAt).length;
+  int get lobBursts => lobs.where((lob) => age >= lob.burstAt).length;
+
+  /// Health lost to puffed hits in the current window; at
+  /// [KingCoo.popDamage] the chest pops. The rules reset it as each window
+  /// opens.
+  int puffDamage = 0;
+
+  /// When the chest last popped (boss age), or null. A pop closes the window
+  /// that step and, if the whistle has not blown, cancels the squadron.
+  double? poppedAt;
+
+  /// Whistles blown and pops so far, for edge-triggered cues. A pop before
+  /// the whistle means it never blows and [whistles] does not rise.
+  int whistles = 0, pops = 0;
+
+  /// The squadron (or squadrons) planned as the current puff opened: lanes
+  /// fixed then, released at the whistle (see [KingCoo.squad]). Empty until
+  /// the rules plan one.
+  List<SquadPlan> squad = const [];
+
+  /// The squadron (or squadrons) a pop before the whistle called off: what
+  /// [squad] held when the chest popped, kept for the art that dissolves it
+  /// (render-only: nothing in the rules reads it). Cleared as the next puff
+  /// plans a new one.
+  List<SquadPlan> cancelledSquad = const [];
+
+  /// Boss age at which squadron [plan] (one of [squad]) is released: the
+  /// whistle of the cycle whose puff planned it, plus its delay. The art's
+  /// clock for the lanes and the queue behind him. Whether it is released at
+  /// all is [squadCalled].
+  double squadReleaseAt(SquadPlan plan) =>
+      arrivalDuration +
+      math.max(0, puffsLatched - 1) * KingCoo.period +
+      KingCoo.whistleAt +
+      plan.delay;
+
+  /// Boss age at which the pigeon of [slot] in [plan] crosses screen column
+  /// [column] (the bird's), from where he hovers: the time a lane must be
+  /// clear by.
+  double squadCrossesAt(SquadPlan plan, SquadSlot slot, double column) =>
+      squadReleaseAt(plan) + (x + slot.behind - column) / KingCoo.squadSpeed;
+
+  /// Whether the chest popped in the current cycle's window.
+  bool get popped {
+    final at = poppedAt;
+    if (!_cooFighting || at == null) return false;
+    final windowStart =
+        arrivalDuration + cooCycleNumber * KingCoo.period + KingCoo.puffAt;
+    return at >= windowStart;
+  }
+
+  /// Puff windows begun and whistles that have come due, from the clock, for
+  /// edge-triggered cues (the rules count blown whistles in [whistles]).
+  int get puffs => _cooFighting ? KingCoo.count(combatTime, KingCoo.puffAt) : 0;
+  int get whistlesDue =>
+      _cooFighting ? KingCoo.count(combatTime, KingCoo.whistleAt) : 0;
+
+  /// Whether the chest is taut and rocks count double: the window is open
+  /// and he has not popped.
+  bool get puffWindow =>
+      _cooFighting && KingCoo.windowOpen(cooCycle) && !popped;
+
+  /// How puffed the chest is, 0 (fluffed) to 1 (taut and lit): the art's
+  /// channel, which eases to 0 when he pops.
+  double get puffAmount =>
+      _cooFighting && !popped ? KingCoo.puffAmount(cooCycle) : 0;
+
+  /// A rock's hit on his chest, as [strike] sees it: half damage while he is
+  /// fluffed, double in the puff window. Puffed damage adds up; at
+  /// [KingCoo.popDamage] the chest pops (the window closes that instant, see
+  /// [popped]) and, if the whistle has not blown, there is no squadron.
+  int _strikeCoo(int damage) {
+    final puffed = puffWindow;
+    final dealt = takeDamage(KingCoo.strikeDamage(damage, puffed: puffed));
+    if (puffed && dealt > 0) {
+      lastPuffHitAt = age;
+      puffDamage += dealt;
+      if (puffDamage >= KingCoo.popDamage) {
+        poppedAt = age;
+        pops++;
+      }
+    }
+    return dealt;
+  }
+
+  String get cooHint {
+    final cycle = cooCycle;
+    if (popped) {
+      // A pop after the whistle keeps the squadron that is already out.
+      final early =
+          poppedAt! <
+          arrivalDuration + cooCycleNumber * KingCoo.period + KingCoo.whistleAt;
+      if (early) return 'POP! · No squadron';
+      if (cycle < KingCoo.squadCrossesBy) {
+        return 'SQUADRON · Follow the open lane!';
+      }
+    }
+    if (puffWindow) {
+      return cycle >= KingCoo.whistleAt
+          ? 'SQUADRON · Follow the open lane!'
+          : 'PUFFED · Shoot his chest (x2)!';
+    }
+    if (squadCalled &&
+        squad.isNotEmpty &&
+        cycle >= KingCoo.whistleAt &&
+        cycle < KingCoo.squadCrossesBy) {
+      return 'SQUADRON · Follow the open lane!';
+    }
+    final locked = lobs.any((lob) => age >= lob.lockedAt && age < lob.burstAt);
+    if (locked) return 'CRUMB BOMB · Leave the ring!';
+    return enraged
+        ? 'FURY · Stay between the rings'
+        : 'Dodge the crumb bombs · Shoot his chest when it puffs';
+  }
+
+  // ---------------------------------------------------------------------
+  // Searchlight Gargoyle (rules version 43, campaign only): a perched
+  // statue that sweeps a beam across the sky and opens his chest lamp in the
+  // vent after each sweep (see [SearchlightGargoyle]).
+  //
+  // Every getter is a pure function of the boss's age and of what the rules
+  // latched as each warning began. The rules (game_rules `_advanceGargoyle`,
+  // `_spotted`) aim each sweep once, drop the feathers, and hurt the bird
+  // that touches a beam; a hit on the lamp circle takes damage only if the
+  // lamp was open as the rock left the bird ([lampOpenAtRelease]), so health,
+  // and with it fury, changes only in the vent or in the second or so of the
+  // next cycle's perch that the last rocks of the vent are still flying: a
+  // fight's fury is constant from each warning (2.0 s) to the end of its sweep.
+
+  bool get _gargoyleFighting => isGargoyle && phase == BossPhase.attacking;
+
+  /// The position in his 9 s cycle, or 0 when he is not fighting.
+  double get gargoyleCycle =>
+      _gargoyleFighting ? SearchlightGargoyle.cycleTime(combatTime) : 0;
+
+  /// The cycle number from 0, or -1 when he is not fighting.
+  int get gargoyleCycleNumber =>
+      _gargoyleFighting ? SearchlightGargoyle.cycleNumber(combatTime) : -1;
+
+  /// Where the current (or last) sweep comes from and whether it is fury's
+  /// slit of two beams. The rules aim it once, as each warning begins
+  /// ([sweepsAimed] catches up with [sweepWarnings]); these are the latches.
+  BeamSide beamSide = BeamSide.high;
+  bool slitSweep = false;
+  int sweepsAimed = 0;
+
+  /// Counters the rules keep: zone and slit sweeps aimed (every sweep is
+  /// one or the other, so they add up to [sweepsAimed]), stone feathers
+  /// launched, and the last time (boss age) a rock glanced off the shuttered
+  /// lamp. All render-only or cue-only except [sweepsAimed].
+  int sweepZone = 0, sweepSlit = 0, feathersLaunched = 0;
+  double lastGlanceAt = double.negativeInfinity;
+
+  /// Times the bird was caught in a beam and hurt by it (a bird still
+  /// recovering from a hurt is not counted again). Render-only ("SPOTTED!")
+  /// and a cue's edge.
+  int spots = 0;
+
+  /// Boss age when the bird was last caught in a beam and hurt (render-only,
+  /// like [lastGlanceAt]: the health bar's SPOTTED! flash reads it).
+  double lastSpotAt = double.negativeInfinity;
+
+  /// Sweeps aimed while enraged: every second one is a slit of two beams
+  /// ([SearchlightGargoyle.slitAt]), the first a zone sweep.
+  int furySweeps = 0;
+
+  /// How many of the cycle numbered [featherCycle]'s feathers have left: the
+  /// rules' cursor into [featherSchedule], reset as each cycle begins.
+  int featherCycle = -1, featherSlot = 0;
+
+  GargoylePhase get gargoylePhase => _gargoyleFighting
+      ? SearchlightGargoyle.phase(gargoyleCycle)
+      : GargoylePhase.perch;
+
+  /// Whether the chest lamp is open: only then do rocks hurt him. Always
+  /// false outside the fight.
+  bool get lampOpen =>
+      _gargoyleFighting && SearchlightGargoyle.lampOpen(gargoyleCycle);
+
+  /// 0 (shuttered) to 1 (open): the art's channel.
+  double get lampOpenness =>
+      _gargoyleFighting ? SearchlightGargoyle.lampOpenness(gargoyleCycle) : 0;
+
+  /// 0 to 1 through the 1.5 s warning before each sweep, else 0.
+  double get sweepWarning =>
+      _gargoyleFighting ? SearchlightGargoyle.warning(gargoyleCycle) : 0;
+
+  /// Whether a beam burns now: from ignition to the vent.
+  bool get beamOn =>
+      _gargoyleFighting && SearchlightGargoyle.beamOn(gargoyleCycle);
+
+  /// Sweeps whose warning has begun, beams that have ignited and vents that
+  /// have opened, for edge-triggered cues and for aiming.
+  int get sweepWarnings => _gargoyleFighting
+      ? SearchlightGargoyle.count(combatTime, SearchlightGargoyle.warnAt)
+      : 0;
+  int get sweepIgnitions => _gargoyleFighting
+      ? SearchlightGargoyle.count(combatTime, SearchlightGargoyle.sweepAt)
+      : 0;
+  int get lampOpens => _gargoyleFighting
+      ? SearchlightGargoyle.count(combatTime, SearchlightGargoyle.ventAt)
+      : 0;
+
+  /// The lit band's half-height at the bird's column.
+  double get beamHalf => SearchlightGargoyle.half(enraged: enraged);
+
+  /// The centres of the beams burning at the bird's column (one, or two in a
+  /// slit sweep, upper first), or empty while none burns. Fury glides the
+  /// beams in 1.5 s rather than 1.8 s. This is what the art draws and what
+  /// [beamLit] tests.
+  List<double> get beamCentres => !beamOn
+      ? const []
+      : SearchlightGargoyle.centres(
+          gargoyleCycle,
+          side: beamSide,
+          slit: slitSweep,
+          fury: enraged,
+        );
+
+  /// Whether a circle at [py] with [pr] is caught in a burning beam.
+  bool beamLit(double py, double pr) {
+    final half = beamHalf;
+    return beamCentres.any(
+      (centre) => SearchlightGargoyle.lit(centre, half, py, pr),
+    );
+  }
+
+  /// When this cycle's feathers fall (cycle seconds), given the latched
+  /// sweep. The perch feather (.2 s) is first in every schedule; the rest
+  /// follow the sweep the warning latched. The rules launch them as
+  /// [featherSlot] catches up.
+  List<double> get featherSchedule =>
+      SearchlightGargoyle.feathers(enraged: enraged, slit: slitSweep);
+
+  /// Whether a rock that left the bird when this boss was [bossAge] seconds
+  /// old counts: the lamp was open then (cycle time 6.4 to 9.0 s). Judged at
+  /// the release, not where the rock lands, the window the player can use is
+  /// the vent they see: a rock takes 0.35 to 0.75 s to arrive, depending on
+  /// the screen's width, and judged on arrival the last stretch of the vent
+  /// would glance at one width and not at another.
+  bool lampOpenAtRelease(double bossAge) {
+    final t = bossAge - arrivalDuration;
+    return isGargoyle &&
+        t >= 0 &&
+        SearchlightGargoyle.lampOpen(SearchlightGargoyle.cycleTime(t));
+  }
+
+  /// A hit on the chest circle: full damage when the lamp was open as the
+  /// rock left ([releasedAt], else as it lands), else the rock clinks off the
+  /// shutters ([lastGlanceAt]) and nothing is lost. The rock is spent either
+  /// way (the rules consume it before it gets here).
+  int _lampStrike(int damage, double? releasedAt) {
+    final open = releasedAt == null ? lampOpen : lampOpenAtRelease(releasedAt);
+    if (!open) {
+      lastGlanceAt = age;
+      return 0;
+    }
+    return takeDamage(damage);
+  }
+
+  String get gargoyleHint {
+    if (beamOn) {
+      return 'BEAM · Stay in the dark';
+    }
+    if (sweepWarning > 0) {
+      if (slitSweep) return 'FURY · Slip between the beams';
+      return beamSide == BeamSide.high
+          ? 'BEAM INCOMING · Fly low!'
+          : 'BEAM INCOMING · Fly high!';
+    }
+    if (lampOpen) return 'LAMP OPEN · Shoot the lamp!';
+    return 'SHUTTERS CLOSED · Save your shots';
+  }
+
   static const shieldRadius = radius * 1.85;
   static const shieldPeriod = 8.0, shieldStartsAt = 5.0;
   static const shieldSeconds = 1.6, shieldWarningSeconds = .8;
@@ -568,6 +960,22 @@ class SkyBoss {
   double x, y = .5, age = 0;
   double fireIn = 1.2, summonIn = 5;
   double lastHitAt = double.negativeInfinity;
+
+  /// Render-only: when the hit BEFORE [lastHitAt] landed (negative infinity
+  /// for the first hit). Rapid fire lands a hit on top of the last one's
+  /// reaction (the weapon's cooldown is .28 s, and a rock grazing the top of
+  /// his circle lands up to .05 s later than one fired level with it, so
+  /// hits land .28 s apart on average and at least about .22 s apart; a fan
+  /// blade's lag is up to .27 s),
+  /// so the art reads both and nothing snaps back to rest when a hit lands
+  /// again, and a re-hit's flash is damped by [hitGap]. Set by every landed
+  /// hit of every boss ([takeDamage]); a glance, a shielded hit and a hit
+  /// that takes nothing leave it alone.
+  double previousHitAt = double.negativeInfinity;
+
+  /// Seconds between the last two landed hits (infinity for the first).
+  double get hitGap =>
+      previousHitAt.isFinite ? lastHitAt - previousHitAt : double.infinity;
   double lastShieldHitAt = double.negativeInfinity;
   double lastHullHitAt = double.negativeInfinity;
   double lastVolleyAt = double.negativeInfinity;
@@ -596,6 +1004,7 @@ class BossAmmo {
     this.radius = baseRadius,
     this.splitAfter,
     this.ember = false,
+    this.feather = false,
   });
   double x, y, vy;
   final double vx;
@@ -610,6 +1019,11 @@ class BossAmmo {
 
   /// One of the embers a split fireball bursts into.
   final bool ember;
+
+  /// One of the Searchlight Gargoyle's stone feathers: it falls from the top
+  /// edge ([gravity] pulls it down) and is gone at the bottom, so it may
+  /// rise above the screen.
+  final bool feather;
 
   /// Seconds in flight, counted only for shots that split.
   double age = 0;

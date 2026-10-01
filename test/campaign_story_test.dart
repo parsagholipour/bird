@@ -9,6 +9,15 @@ import 'campaign_progress_test.dart' show finished, ids, level;
 /// Typewriter quotes and three dots have no place in text the game prints.
 final _plain = RegExp('[\'"]|\\.\\.\\.');
 
+/// New York's guardians: the mini-bosses of 3-2 and 3-4, who meet the
+/// courier at their lair and have a last word, but are no chapter's boss
+/// (no flame seal, no postcard). The level data names them once the rules
+/// and the levels land; the story is written for them either way.
+const _guardians = {
+  '3-2': BossKind.kingCoo,
+  '3-4': BossKind.searchlightGargoyle,
+};
+
 void main() {
   test('every level carries a delivery that fits its card and result', () {
     for (final level in Campaign.levels) {
@@ -24,11 +33,22 @@ void main() {
       // The cargo names the parcel; the thank-you is a sentence.
       expect(delivery.cargo, isNot(endsWith('.')), reason: id);
       expect(delivery.thanks, matches(RegExp(r'[.!?]$')), reason: id);
-      // A lair's letter is for its boss, who signs the grumble back.
-      if (level.isBoss) {
-        final boss = SkyBoss(number: 1, x: 0, kind: level.boss!).name;
-        expect(delivery.from, boss, reason: id);
-        expect(delivery.cargo, contains(boss.split(' ').last), reason: id);
+      // A chapter boss's letter is for the boss, who signs the grumble
+      // back. A guardian only stands in the way of an ordinary delivery,
+      // whose sender thanks the courier as usual.
+      if (level.boss != null) {
+        final boss = SkyBoss(
+          number: 1,
+          x: 0,
+          kind: level.boss!,
+          cinematic: true,
+        ).name;
+        if (level.isChapterBoss) {
+          expect(delivery.from, boss, reason: id);
+          expect(delivery.cargo, contains(boss.split(' ').last), reason: id);
+        } else {
+          expect(delivery.from, isNot(boss), reason: id);
+        }
       }
     }
     expect(Campaign.levels.map((l) => l.delivery.cargo).toSet(), hasLength(40));
@@ -39,7 +59,7 @@ void main() {
   });
 
   test('scenes open the campaign, each route and each new region, and meet '
-      'each boss at its lair', () {
+      'each boss and each guardian at its lair', () {
     final before = {
       for (final level in Campaign.levels)
         if (CampaignStory.before(level) != null) level.id,
@@ -52,8 +72,10 @@ void main() {
         // …and its boss.
         chapter.bossLevel.id,
       ],
+      // …and each guardian, whose lair is not the chapter's.
+      ..._guardians.keys,
     });
-    expect(before, hasLength(18));
+    expect(before, hasLength(20));
     expect(CampaignStory.prologue, same(CampaignStory.before(level('1-1'))));
     expect(CampaignStory.prologue.region, isNull);
 
@@ -63,17 +85,25 @@ void main() {
       expect(scene.id, 'before-${level.id}');
       // It happens where the level flies; only the prologue is at the club.
       expect(scene.region, level.id == '1-1' ? null : level.region);
-      expect(scene.boss, level.boss, reason: scene.id);
+      expect(scene.boss, _guardians[level.id] ?? level.boss, reason: scene.id);
+      // Whatever boss the level data names is the one the scene meets.
+      if (level.boss != null) expect(scene.boss, level.boss, reason: scene.id);
+      // A level with a mini-boss is one of the guardians the story knows.
+      if (level.isGuardian) {
+        expect(_guardians, contains(level.id), reason: level.id);
+      }
+      expect(scene.bossBeaten, isFalse, reason: scene.id);
     }
     for (final chapter in Campaign.chapters) {
       final scene = CampaignStory.after(chapter);
       expect(scene.id, 'after-${chapter.number}');
       expect(scene.region, chapter.bossLevel.region);
       expect(scene.boss, chapter.boss);
+      expect(scene.bossBeaten, isTrue, reason: scene.id);
     }
-    expect(CampaignStory.scenes, hasLength(23));
-    expect(CampaignStory.scenes.map((s) => s.id).toSet(), hasLength(23));
-    expect(CampaignStory.scene('after-3'), same(CampaignStory.scenes[13]));
+    expect(CampaignStory.scenes, hasLength(27));
+    expect(CampaignStory.scenes.map((s) => s.id).toSet(), hasLength(27));
+    expect(CampaignStory.scene('after-3'), same(CampaignStory.scenes[17]));
     expect(CampaignStory.scene('nope'), isNull);
     // In the order the story tells them.
     expect(CampaignStory.scenes.take(6).map((s) => s.id), [
@@ -84,6 +114,149 @@ void main() {
       'after-1',
       'before-2-1',
     ]);
+    // New York: a guardian's last word follows its lair, before the next
+    // level's scene.
+    expect(CampaignStory.scenes.skip(10).map((s) => s.id), [
+      'before-3-1',
+      'before-3-2',
+      'last-3-2',
+      'before-3-4',
+      'last-3-4',
+      'before-3-5',
+      'before-3-8',
+      'after-3',
+      'before-4-1',
+      'before-4-4',
+      'before-4-8',
+      'after-4',
+      'before-5-1',
+      'before-5-3',
+      'before-5-6',
+      'before-5-8',
+      'after-5',
+    ]);
+  });
+
+  test(
+    'a guardian has a last word after its fall, and no other level does',
+    () {
+      final last = {
+        for (final level in Campaign.levels)
+          if (CampaignStory.lastWord(level) != null) level.id,
+      };
+      expect(last, _guardians.keys.toSet());
+      for (final MapEntry(key: id, value: boss) in _guardians.entries) {
+        final scene = CampaignStory.lastWord(level(id))!;
+        expect(scene.id, 'last-$id');
+        expect(scene.region, level(id).region);
+        expect(scene.boss, boss);
+        expect(scene.bossBeaten, isTrue);
+        expect(scene, isNot(same(CampaignStory.before(level(id)))));
+        // Beaten, it speaks first and is sad about it, as a chapter boss is.
+        expect(scene.lines.first.speaker, StorySpeaker.boss, reason: id);
+        expect(scene.lines.first.mood, StoryMood.sad, reason: id);
+        // Bill has the last spoken word, offering it a place at the club.
+        final spoken = scene.lines.where(
+          (l) => l.speaker != StorySpeaker.caption,
+        );
+        expect(spoken.last.speaker, StorySpeaker.postmaster, reason: id);
+        // No flame seal comes up: a guardian was sent no letter.
+        final text = scene.lines.map((l) => l.text).join(' ');
+        expect(text, isNot(contains('seal')), reason: id);
+      }
+      // A chapter's boss has the after scene, which brings the postcard.
+      for (final chapter in Campaign.chapters) {
+        expect(CampaignStory.lastWord(chapter.bossLevel), isNull);
+      }
+      // Bill tells the courier up front that it is not a seal fight.
+      final coo = CampaignStory.before(level('3-2'))!;
+      expect(coo.lines.map((l) => l.text).join(' '), contains('No flame seal'));
+      // The chapter's own trail still counts three seals after its boss.
+      expect(
+        CampaignStory.after(Campaign.chapters[2]).lines.map((l) => l.text),
+        contains(
+          'Three seals now. And every one posted from the edge of the map.',
+        ),
+      );
+    },
+  );
+
+  test('the guardians\' scenes read as one story, and no line outruns the '
+      'recorded ones', () {
+    String text(String scene, int line) =>
+        CampaignStory.scene(scene)!.lines[line].text;
+    StoryMood mood(String scene, int line) =>
+        CampaignStory.scene(scene)!.lines[line].mood;
+    // He is a stone eagle: his beak, not a nose, is chipped; and the courier
+    // does not hold back the bread cart until the fight is over.
+    expect(
+      text('last-3-4', 0),
+      allOf(contains('beak'), isNot(contains('nose'))),
+    );
+    expect(
+      text('last-3-2', 1),
+      startsWith('Commissioner, I remember a bread cart'),
+    );
+    // The vane is the tower's (the keeper's thank-you on 3-4), the courier
+    // gives the Gargoyle what he asked for, and "You looked" answers it.
+    expect(text('before-3-4', 2), contains('the tower’s weather vane'));
+    expect(text('last-3-4', 1), contains('I couldn’t look away'));
+    expect(text('last-3-4', 1), contains('the tower’s new weather vane'));
+    expect(text('last-3-4', 2), startsWith('You looked.'));
+    expect(mood('last-3-4', 2), StoryMood.happy);
+    // King Coo's job is his own title, offered in the pigeonholes.
+    expect(text('last-3-2', 5), contains('Commissioner wanted'));
+    expect(text('last-3-2', 6), contains('The Commissioner accepts'));
+    // "Guardian" is the word the map and the card use, so Bill says it; the
+    // steam is "vents" everywhere, and the squadron's open lane is the HUD's.
+    expect(text('before-3-2', 5), contains('this guardian'));
+    expect(text('before-3-2', 7), contains('open lane'));
+    expect(
+      text('last-3-2', 7),
+      allOf(contains('Vents hiss'), contains('burst')),
+    );
+    // The gag that pays off, and the recorded term for the mail.
+    expect(text('before-3-4', 5), contains('Don’t mention pigeons'));
+    expect(text('last-3-4', 5), contains('the pigeons may stay'));
+    expect(text('last-3-4', 3), contains('night mail'));
+    for (final id in ['before-3-2', 'last-3-2', 'before-3-4', 'last-3-4']) {
+      for (final line in CampaignStory.scene(id)!.lines) {
+        final lowered = line.text.toLowerCase();
+        expect(lowered, isNot(contains('pipes')), reason: line.text);
+        expect(lowered, isNot(contains('night post')), reason: line.text);
+        expect(lowered, isNot(contains('green lane')), reason: line.text);
+        // The longest recorded line is 82 characters; the new ones stay
+        // within a few of it, so no line is a mouthful for the voice.
+        expect(line.text.length, lessThanOrEqualTo(85), reason: line.text);
+      }
+    }
+  });
+
+  test('the stop ends on a To be continued caption, until Paris opens', () {
+    final ending = CampaignStory.lastWord(level('3-4'))!;
+    expect(ending.endsStop, isTrue);
+    final line = ending.lines.last;
+    expect(line.endOfStop, isTrue);
+    // Nobody says it: it is a caption, and it names the next stop.
+    expect(line.speaker, StorySpeaker.caption);
+    expect(line.mood, StoryMood.plain);
+    expect(line.text, startsWith('To be continued…'));
+    expect(line.text, contains('Paris'));
+    // It is the only one, and it is always a scene's very last line.
+    final marked = [
+      for (final scene in CampaignStory.scenes)
+        for (final (i, l) in scene.lines.indexed)
+          if (l.endOfStop) (scene.id, i == scene.lines.length - 1),
+    ];
+    expect(marked, [('last-3-4', true)]);
+    for (final scene in CampaignStory.scenes) {
+      expect(scene.endsStop, scene.id == 'last-3-4', reason: scene.id);
+    }
+    // An ordinary caption is not one.
+    expect(const StoryLine.caption('Somewhere.').endOfStop, isFalse);
+    expect(const StoryLine.bill('Hello.').endOfStop, isFalse);
+    // Paris's own arrival scene is still there for the day it opens.
+    expect(CampaignStory.before(level('3-5'))!.id, 'before-3-5');
   });
 
   test('scenes are short, and every line fits the speech panel', () {
@@ -138,6 +311,47 @@ void main() {
     }
   });
 
+  test('each guardian says its card line at the lair, as it does in the '
+      'flight', () {
+    expect(CampaignStory.guardianLines.keys.toSet(), _guardians.keys.toSet());
+    for (final MapEntry(key: id, value: card)
+        in CampaignStory.guardianLines.entries) {
+      // What the entrance name card prints: short, in the level's data.
+      expect(card.length, lessThanOrEqualTo(43), reason: id);
+      expect(card, isNot(contains(_plain)), reason: id);
+      if (level(id).boss != null) {
+        expect(Campaign.bossLine(level(id)), card, reason: id);
+      }
+      final scene = CampaignStory.before(level(id))!;
+      final taunts = scene.lines.where((l) => l.speaker == StorySpeaker.boss);
+      expect(taunts.map((l) => l.text), contains(card), reason: id);
+      // Bill has the last word of the lair scene: the fight's tip.
+      expect(scene.lines.last.speaker, StorySpeaker.postmaster, reason: id);
+      // The card line is the boss's last, right before Bill's tip.
+      expect(scene.lines[scene.lines.length - 2].text, card, reason: id);
+    }
+    // Three mechanics are explained where Bill already speaks.
+    String bill(String id, int line) =>
+        CampaignStory.before(level(id))!.lines[line].text;
+    expect(bill('3-2', 5), contains('star-grabbing'));
+    expect(
+      bill('3-2', 7),
+      allOf(contains('puffs up'), contains('crumb bombs')),
+    );
+    expect(
+      bill('3-4', 5),
+      allOf(contains('Stay in the dark'), contains('lamp')),
+    );
+    expect(
+      CampaignStory.lastWord(level('3-2'))!.lines.last.text,
+      contains('Steam Alley'),
+    );
+    expect(
+      CampaignStory.lastWord(level('3-2'))!.lines.last.text,
+      contains('hiss'),
+    );
+  });
+
   test('the story opens and closes on the club rule', () {
     final prologue = CampaignStory.prologue.lines;
     final ending = CampaignStory.after(Campaign.chapters.last).lines;
@@ -183,6 +397,32 @@ void main() {
       // Finished before the story was told: its card's key tells it.
       progress = CampaignProgress(finished(ids('1-1', '1-4')));
       expect(progress.sceneBefore(level('1-4')), isNull);
+    });
+
+    test('a guardian\'s last word, once, after its first finish', () {
+      final l = level('3-2');
+      final scene = CampaignStory.lastWord(l)!;
+      // Until the guardian is beaten there is nothing to say.
+      var progress = CampaignProgress(finished(['3-1']));
+      expect(progress.sceneLast(l), isNull);
+      final records = finished(ids('1-1', '3-2'));
+      progress = CampaignProgress(records);
+      expect(progress.sceneLast(l), same(scene));
+      // Watched once, it does not come again.
+      progress = CampaignProgress(records, storyWatched: {scene.id});
+      expect(progress.sceneLast(l), isNull);
+      // Neither its lair scene nor anything else stands in for it.
+      progress = CampaignProgress(records, storyWatched: {'before-3-2'});
+      expect(progress.sceneLast(l), same(scene));
+      // A level with no last word has none to play.
+      expect(CampaignProgress(records).sceneLast(level('3-1')), isNull);
+      expect(CampaignProgress(records).sceneLast(level('1-8')), isNull);
+      // A guardian brings no postcard and does not finish the chapter: only
+      // the chapter's boss does.
+      final chapter = Campaign.chapters[2];
+      expect(progress.chapterComplete(chapter), isFalse);
+      expect(progress.postcardDue(chapter), isFalse);
+      expect(progress.sceneAfter(chapter), isNull);
     });
 
     test('a boss\'s last scene, with its postcard', () {

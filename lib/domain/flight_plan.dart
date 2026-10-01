@@ -5,6 +5,7 @@ import 'level_plan.dart';
 import 'obstacle.dart';
 import 'rush_path.dart';
 import 'sky_boss.dart';
+import 'sky_enemy.dart';
 import 'world_region.dart';
 
 /// The boss a flight meets next: its kind, its encounter number (which sets
@@ -40,6 +41,16 @@ abstract class FlightPlan {
 
   /// The campaign level this plan flies, or null for endless.
   String? get levelId;
+
+  /// The lowest rules version that can fly this plan. Endless flies any; a
+  /// level plan that uses rules 43's additions needs 43 (see
+  /// [LevelPlan.minRulesVersion]).
+  int get minRulesVersion => 0;
+
+  /// The random an Alley Pigeon formation draws its prey from, for the
+  /// [entry]th pigeon entry of a lineup. Endless has no pigeons; it would
+  /// share the flight's random.
+  math.Random flockRandom(int entry, math.Random flight) => flight;
 
   /// The one region the flight holds, or null to tour the world.
   WorldRegion? get region;
@@ -173,8 +184,12 @@ class EndlessPlan extends FlightPlan {
   int? enemyIndex(int passage) => passage.isOdd ? passage ~/ 2 : null;
 
   @override
-  int enemyAppearance(int index, {required bool bossHelper}) =>
-      enemyLineup[index % (bossHelper ? 3 : enemyLineup.length)];
+  int enemyAppearance(int index, {required bool bossHelper}) {
+    final appearance =
+        enemyLineup[index % (bossHelper ? 3 : enemyLineup.length)];
+    assert(!EnemyKind.values[appearance].campaignOnly);
+    return appearance;
+  }
 
   /// Later encounters toughen the lineup without changing enemies in flight.
   @override
@@ -189,8 +204,10 @@ class EndlessPlan extends FlightPlan {
   /// many bosses have fallen as its position in the cycle.
   @override
   BossEncounter bossEncounter(int bossesDefeated, int rulesVersion) {
+    // Campaign-only kinds (index >= BossKind.endlessCycle) never appear here:
+    // the cycle is the first five, at every rules version.
     final kind = rulesVersion >= 38
-        ? BossKind.values[bossesDefeated % 5]
+        ? BossKind.values[bossesDefeated % BossKind.endlessCycle]
         : rulesVersion >= 34
         ? BossKind.values[bossesDefeated % 4]
         : rulesVersion >= 22
@@ -198,6 +215,7 @@ class EndlessPlan extends FlightPlan {
         : rulesVersion >= 21 && bossesDefeated.isOdd
         ? BossKind.spitterBeetle
         : BossKind.baronBat;
+    assert(!kind.campaignOnly, 'a mini-boss entered the endless cycle');
     return (
       kind: kind,
       number: bossesDefeated + 1,

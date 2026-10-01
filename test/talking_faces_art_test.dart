@@ -104,6 +104,8 @@ Offset faceOf(BossKind kind) => switch (kind) {
   BossKind.duskMoth => const Offset(-1, -.25),
   BossKind.pirate => const Offset(-.5, -.4),
   BossKind.dragon => const Offset(-1.3, -1.9),
+  // The guardians do not talk in flight (no recorded lines yet).
+  BossKind.kingCoo || BossKind.searchlightGargoyle => Offset.zero,
 };
 
 /// Paints [boss] as the flight does, with [focus] (rig units from its
@@ -367,8 +369,32 @@ void main() {
     });
   });
 
+  group('the guardians stay unaffected', () {
+    // King Coo and the Searchlight Gargoyle have no in-flight voice: a line
+    // said by anyone, even one keyed to them, leaves their pictures as they
+    // are (their rigs do not read speech).
+    for (final kind in BossKind.values.where(
+      (kind) => !FlightVoices.voicedBosses.contains(kind),
+    )) {
+      test('${kind.name} paints the same whoever speaks', () async {
+        final silent = await boss(kind);
+        for (final speaker in [null, kind, BossKind.dragon]) {
+          for (final mood in StoryMood.values) {
+            for (var mouth = 0; mouth <= FlightSpeech.mouths; mouth++) {
+              expect(
+                await boss(kind, speech: say(speaker, mood, mouth)),
+                silent,
+                reason: '${speaker?.name} $mood $mouth',
+              );
+            }
+          }
+        }
+      });
+    }
+  });
+
   group('the bosses talk', () {
-    for (final kind in BossKind.values) {
+    for (final kind in FlightVoices.voicedBosses) {
       test(
         '${kind.name} opens its mouth to the words and shows the mood',
         () async {
@@ -551,7 +577,7 @@ void main() {
 
     test('bosses: silence, then moods by mouth frames', () async {
       if (!capture) return;
-      for (final kind in BossKind.values) {
+      for (final kind in FlightVoices.voicedBosses) {
         // Close-up: moods (rows) by mouth frames (columns), silence first.
         const cw = 300.0, ch = 260.0;
         // The Empress and the Captain have small faces: closer.

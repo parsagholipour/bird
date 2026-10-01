@@ -18,7 +18,13 @@ const _skies = [
   ('TWILIGHT', Color(0xff485584), Color(0xffadb6da), Color(0xff626c9f)),
 ];
 
-const _kinds = BossKind.values;
+/// The review sheets cover the five chapter bosses. New York's mini-bosses
+/// (rules 43, campaign only) hold a placeholder pellet until their own ammo
+/// art lands, and ny_placeholder_art_test covers it.
+final _kinds = [
+  for (final kind in BossKind.values)
+    if (!kind.campaignOnly) kind,
+];
 
 String _label(BossKind kind) => switch (kind) {
   BossKind.baronBat => 'Baron Bat · ember shot',
@@ -26,6 +32,8 @@ String _label(BossKind kind) => switch (kind) {
   BossKind.duskMoth => 'Dusk Empress · pollen rosette',
   BossKind.pirate => 'Pirate Captain · cannonball',
   BossKind.dragon => 'Ember Dragon · fireball',
+  BossKind.kingCoo => 'King Coo · placeholder pellet',
+  BossKind.searchlightGargoyle => 'Searchlight Gargoyle · placeholder pellet',
 };
 
 double _speed(BossKind kind, bool enraged) =>

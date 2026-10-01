@@ -788,8 +788,13 @@ and the rules never read it.
 A Tap & Fly campaign of 40 levels in five chapters of eight, one chapter per
 boss in boss order, flies every region once (design, level tables and text:
 `docs/campaign.md`; level data: `lib/domain/campaign.dart`). Chapters 1 and 2
-(16 levels, 48 level stars) are playable. Chapters 3–5 are level data, shown
-on the map and locked as "Coming soon". Endless Star Trail does not change.
+(16 levels, 48 level stars) are playable, and so is New York, the first stop
+of chapter 3 (3-1 to 3-4, rules version 43, see "New York's levels" below):
+20 levels, 60 level stars. Paris and chapters 4–5 are level data, shown on
+the map and locked as "Coming soon". New York is open by default, decided in
+one place (`Campaign.openingEnabled`); `--dart-define=NEW_YORK_OPEN=false`
+closes it again (16 levels, 48 level stars). Endless Star Trail does not
+change.
 
 **Flight plans.** `FlightSimulation` takes a `FlightPlan` (default
 `FlightPlan.endless`) and asks it for every schedule knob instead of checking
@@ -940,23 +945,34 @@ or a replay tape.
 - A `StoryScene` has an id, a region (none for the Sky Club post), the boss
   who speaks in it, if any, and three to nine `StoryLine`s. A line has a
   speaker (the courier, Postmaster Bill, the boss, or a caption), text of at
-  most 100 characters and a mood (plain, happy, surprised, angry or sad).
+  most 100 characters and a mood (plain, happy, surprised, angry or sad). A
+  caption that closes a stop whose chapter is unfinished is a
+  `StoryLine.endOfStop` ("To be continued…"; `StoryScene.endsStop`).
 - `CampaignStory.before(level)` is the scene ahead of a level: the prologue
   before 1-1, a route's opening before its first level, an arrival at the
-  first level of each later region, and the scene at a boss's lair.
-  `CampaignStory.after(chapter)` is the boss's last word. That makes 18
-  scenes before levels and 5 after bosses.
+  first level of each later region, and the scene at a boss's or a
+  guardian's lair. `CampaignStory.after(chapter)` is the chapter boss's last
+  word and `CampaignStory.lastWord(level)` a guardian's (3-2 and 3-4). That
+  makes 20 scenes before levels, 2 guardians' last words and 5 after bosses:
+  27.
 - Each scene plays by itself once. `CampaignProgress.prologueDue` holds
   until the prologue is watched or 1-1 is cleared. `sceneBefore(level)` is
   due while the scene is unwatched and the level is not yet cleared.
   `sceneAfter(chapter)` is due while the chapter's postcard is due and the
-  scene is unwatched.
+  scene is unwatched. `sceneLast(level)` is due once a guardian's level is
+  cleared and its last word is unwatched; a guardian brings no postcard.
 - Watched scene ids are saved in the `preferences` table under
   `storyWatched`, joined by commas, so the schema stays at 5. Marking a scene
   twice changes nothing. Reset clears it with the other preferences.
 - Every level has a `Delivery`: a cargo line of at most 42 characters for
   its card, and a thank-you of at most 48 characters with a signer of at
-  most 24 for its result. A boss level's delivery is signed by its boss.
+  most 24 for its result. A chapter boss's delivery is signed by the boss; a
+  guardian's level carries an ordinary one.
+- A story line may be written before it is recorded: its clip is then
+  *pending recording* in `docs/story-voices-sources.json`, and the scene
+  prints the line and plays nothing for it, paced as with Character voices
+  off (`CampaignVoices` gives no asset for a clip that is not in
+  `campaignVoiceClips`).
 
 **Counting.**
 - Endless records, totals, bests and the recent-flights list read only runs
@@ -991,20 +1007,23 @@ summaries store `level`, and the library lists them as "1-3 · Bat Patrol".
 
 The screens:
 - **Home:** a mint Campaign key beside Play shows the level stars earned
-  ("12 / 48"). Play keeps its pre-campaign place, filling the row it once
-  shared with the retired Practice key.
+  ("12 / 60", or "12 / 48" with `NEW_YORK_OPEN=false`; the total counts only
+  levels the build can fly). Play keeps its pre-campaign
+  place, filling the row it once shared with the retired Practice key.
   While the save loads or can't be read, the map's back key still leads
   Home.
 - **Map:** one stop per region, with level nodes showing their stars. Tapping
   an open node opens the level card. Tapping a locked one wiggles it, and a
-  note shows for 2.4 s: "Finish 1-2 to unlock" or "Beat Baron Bat to
-  unlock". On a stop marked "Coming soon", the ribbon flutters instead (still
-  under Reduced Motion). The map's keys, star total and stop titles hide
+  note shows for 2.4 s: "Finish 1-2 to unlock", "Beat Baron Bat to unlock"
+  (or "Beat King Coo to unlock" on 3-3). On a stop marked "Coming soon", the
+  ribbon flutters instead (still under Reduced Motion); with New York open,
+  Paris's ribbon reads "Paris — coming soon". A guardian's level is a shield
+  node with a GUARDIAN plaque, not a lair. The map's keys, star total and stop titles hide
   while a scene, level card or postcard is open, and the map holds its frame
   under them.
 - **Story scene:** the map shows what is due in this order: the prologue, a
-  fallen boss's last word, that chapter's postcard, the scene before the
-  open level, then the level's card. A scene shows its region behind (the
+  fallen boss's last word, that chapter's postcard, a beaten guardian's last
+  word, the scene before the open level, then the level's card. A scene shows its region behind (the
   Sky Club's mail room when it has none), the cast along the speech panel
   and the line in the panel, written out over 26 ms a character
   (0.26–1.7 s). A tap anywhere, Enter or Space finishes the line being
@@ -1053,8 +1072,11 @@ The screens:
   (`BirdGame.hideBird`) for the result's own courier. A flight that ends any
   other way without a knockout, such as a stall, shows the result with 0
   stars.
-- **Result:** the title reads "Delivered!", "Victory!" after a boss, or "Try
-  again!". Three stars land at 34%, 46% and 58% of a 1.9 s entrance, each
+- **Result:** the title reads "Delivered!", "Victory!" after a chapter's boss,
+  "Guardian down!" after a guardian, or "Try again!". A guardian's result
+  carries an ordinary friend's thank-you and no chapter strip or postcard
+  strip; after 3-4 a lavender strip says "Paris is coming soon!" and Next is
+  hidden. Three stars land at 34%, 46% and 58% of a 1.9 s entrance, each
   earned one with a chime, and the keys arm at 55%. Next shows when the next
   level is playable and opens `/campaign?level=<next>`. Retry flies the same
   level again straight into the countdown. A finished level shows its
@@ -1165,7 +1187,8 @@ bird, and `coop`, the mode (`roped` when absent). Its flaps are journaled as `fl
 their format and reject these. The replay draws both birds, and the rope
 when roped. A co-op flight's id ends with `-coop-roped` or `-coop-free`, so
 the session library names its mode.
-Solo flights under rules version 42 fly exactly as under version 41.
+Solo flights under rules version 42 fly exactly as under version 41, and
+under 43 (New York) exactly as under 42.
 
 **Presentation.** The rope hangs in a parabola of its length and sways a
 little; it straightens and warms toward coral as it nears its length. A hard
@@ -1251,6 +1274,498 @@ enters). Star power is a spinning rainbow burst behind the bird that shrinks
 and throbs through its last second. Reduced Motion keeps the box still, shows
 an opened box under its prize without the pop or the flight, and holds the
 star power still.
+
+### New York (rules version 43), scaffold
+
+Rules version 43 "New York" is one bump for the Alley Pigeon, steam geysers
+and two campaign-only mini-bosses (King Coo, the Searchlight Gargoyle). All
+four are reachable only through a campaign level plan, so endless flights and
+chapters 1 and 2 fly at 43 exactly as they did at 42 (Fly Together, above) and
+at 41, and a tape recorded at 41 or 42 replays at its own version (frozen
+fixtures: `test/fixtures/frozen_rules41.json` and `test/fixtures/frozen_tapes/`,
+flown at 41, 42 and 43). Co-op and duel flights stay at 42
+(`FlightSimulation.coopRulesVersion`): they are endless-only and refuse a
+level plan, and a New York plan refuses to fly below 43. The design is in `ny-ws/reports/`; the public
+names each part of the program builds against are in `SCAFFOLD.md` of the
+program tree. This section records what has landed.
+
+- `FlightSimulation.currentRulesVersion` is 43 and
+  `FlightSimulation.newYorkRulesVersion` is 43 (`coopRulesVersion` stays 42).
+  `supportsAlleyPigeon`, `supportsSteamGeysers` and `supportsMiniBosses` are
+  true from 43.
+- `LevelPlan.minRulesVersion` is 43 when the plan has an Alley Pigeon in its
+  lineup, `flocks`, a `steam` layer or a campaign-only boss, else 41. The
+  `FlightSimulation` constructor throws `ArgumentError` below it, and
+  `ReplayTape.fromJson` rejects a plan newer than the tape's version.
+- `LevelPlan.toJson` writes `flocks` and `steam` only when a plan uses them,
+  and a missing key reads as empty, so a rules 41 plan and tape keep the same
+  bytes.
+- `EnemyKind.alleyPigeon` (index 4), `BossKind.kingCoo` (5) and
+  `BossKind.searchlightGargoyle` (6) are appended. `EnemyKind.campaignOnly`
+  and `BossKind.campaignOnly` mark them; the endless boss cycle is the first
+  `BossKind.endlessCycle` (5) kinds and the endless enemy lineup names four,
+  both guarded by assertions and tests.
+- `CampaignChapter.opened` and `Campaign.playable(level)` let a build open
+  part of a chapter that is not `playable`. Chapter 3 lists New York;
+  `Campaign.openingEnabled` is true by default, so a plain build, `make build`
+  and `make install` open 3-1 to 3-4; `--dart-define=NEW_YORK_OPEN=false`
+  (`make build DEFINES=--dart-define=NEW_YORK_OPEN=false`) closes them to
+  "Coming soon" again, the rollback. Both states are tested (tests force the
+  closed one with `Campaign.closedForTest`), and `CampaignProgress.totalStars`
+  counts only the levels the build can fly. A
+  guardian (`CampaignLevel.isGuardian`, a level that ends in a mini-boss)
+  unlocks only the next level: the postcard, the chapter unlock and the flame
+  seal belong to the chapter's boss level (`isChapterBoss`).
+- The rules of all four have landed, each below, and so has the art: the Alley
+  Pigeon (`AlleyPigeonArt`), King Coo (`KingCooBossRig` and `KingCooStaging`),
+  the Searchlight Gargoyle (`GargoyleBossRig` and `GargoyleEncounterArt`),
+  each below. `NyPlaceholderArt` now only stands in the exhaustive switches'
+  arms that neither guardian can reach. The steam has its own art
+  (`SteamGeyserArt`, drawn by two calls in `bird_game.dart`: the vents behind
+  the stars and the bird, the bird's scald ring and lift streaks over it; at
+  most 80 draw calls a vent, no layer, blur or shader, and Reduced Motion
+  still shows each phase).
+- Every New York rule is a function of the simulation clock and draws no
+  number from the flight's shared random, so a level's route, passages and
+  enemies are the same with and without them, pause and seeks are exact, and
+  a recorded flight replays tick for tick.
+
+### New York's levels (rules version 43)
+
+The catalog's 3-1 to 3-4 (`lib/domain/campaign.dart`; the design is
+`docs/campaign.md`):
+
+| Level | Plan |
+| --- | --- |
+| 3-1 Moth Light | 60 s finish line, lineup bat, moth, cave bat, beetle (a rules 41 plan: it uses nothing New York adds) |
+| 3-2 Wheels in the Rain | a 30 s run-up (start 1:25, sun wheels, pigeon lineup with flocks of 1, 1, 1; no steam, no set piece), then King Coo (140 HP). Guardian |
+| 3-3 Steam Alley | 65 s, start 1:40, seed 3111, the alley's lineup with flocks 1, 2, 2, 2, 2, 2 (five formations, nine pigeons), `SteamPlan.steady` (seven vents, hop and ride alternating from passage 4), no set piece |
+| 3-4 Storm Warning | a 30 s run-up (start 1:30, switchbacks and sun wheels, the alley's lineup with flocks 1, 2, `SteamPlan.sparse`: three vents), no Sprint, then the Searchlight Gargoyle (160 HP). Guardian |
+
+- A boss level (a guardian's too) holds no set piece: `LevelPlan.problem` still
+  returns `'boss'` for one. The Gale and the Swarm rush that New York's two
+  full levels used to hold belong to Paris (3-6 and 3-7 keep them and carry
+  the NEW hints).
+- Star marks are 50% and 80% of the real route's stars rounded to fives: 81
+  (40 / 65), 36 (20 / 30), 90 (45 / 70) and, with one exception, 36 (20 / 27:
+  the Gargoyle's ★★★ is 75% because his run-up's steam arcs and pigeons cost a
+  casual pilot two stars more than King Coo's). The pigeons' worst case (3, 9
+  and 3 stars against caps of 3, 10 and 4) and the vents (which keep their
+  passage's stars) leave ★★★ in reach: `ny_star_marks_test`.
+- The fix round (R5, `docs/validation.md`) changed three levels after the
+  review's hostile play test: 3-1 from 70 s and moths on half the enemies to
+  60 s and one in four, 3-3 from 80 s (seed 3103, 114 route stars, eight vents)
+  to 65 s (seed 3111, 90 stars, seven vents), 3-4's ★★★ from 30 to 27, and the
+  3-3 and 3-4 card hints ("Vents hiss, then burst. Hop the hot ones, ride the
+  soft ones." and "... No Sprint here."). A flight saved before keeps its whole
+  plan and replays on the old level (a legacy tape is frozen).
+- 3-4 turns Sprint off (`LevelPlan.sprint` false): a sprint would close the
+  Gargoyle's feathers faster than the lane they were aimed for, which his
+  fairness proof assumes away. 3-2 keeps it: King Coo's clouds are fixed to
+  the screen and his squadron flies a track of the boss clock, so a sprint
+  cannot move or shorten a hazard (`ny_levels_flight_test`).
+- The name card of a guardian reads GUARDIAN (`BossEncounterArt.nameCardEyebrow`)
+  where a chapter boss's reads ENCOUNTER and its number; the card's line is the
+  level's own `bossLine`.
+- New York's data is frozen at rules 43 beside the rules 41 fixtures
+  (`test/fixtures/frozen_ny43.json`, `test/fixtures/frozen_ny_tapes/`,
+  `frozen_ny43_test.dart`): the four plans and routes, bot flights, pilot
+  flights of both guardians at 640 and 800 px wide and four saved tapes (one
+  of them the 80 s Steam Alley as shipped before the fix round).
+
+### Alley Pigeon (rules version 43)
+
+The Alley Pigeon (`EnemyKind.alleyPigeon`, campaign only) steals stars. It
+fires nothing; its health is `10 + 5 * toughness` (20 in chapter 3). A level
+lays one when a lineup entry names it: a formation of `plan.flockSizeFor(k)`
+pigeons (1 to 3; `LevelPlan.flocks`), each bound at lay time to a star of the
+passage's trio (one takes one of the three stars, two take the first and one
+of the others, three take all; the only draw is one `nextInt` from the plan's own
+`flockRandom`, never the flight's). They glide in from the top right and hover
+over their star, above the lane or below it.
+
+- **Raid.** A hunter warns for 0.80 s (it faces the bird, its star ringed) when
+  its star is on screen and still at least 1.3 s of course (and .40) ahead of
+  the bird (else it is a glider for good), dives for 0.44 s and takes the star
+  at its centre. It gloats in the lane for 0.65 s and climbs away; a star it
+  carries off the screen is lost, and its trio's bonus with it. Nothing but the
+  star is lost: a snatch is not damage and never resets the streak.
+- **Hits.** Any damaging hit before the snatch spooks the pigeon (it flees
+  from where it is, the star untouched). A hit on a thief, or its defeat (+3),
+  frees the star: it hops from the pigeon and floats back to its gate line,
+  catchable. A Sprint ram or touching a thief drops the star into the bird's
+  beak (a touch still costs the shield or a heart like any enemy).
+- **Fairness.** `AlleyPigeon.thiefCap(routeStars, threeStarMark)` is half the
+  slack between a level's stars and its three-star mark, and a pigeon begins
+  its warning only while `starsLost + thievesCommitted < thiefBudget`, so a
+  player who never shoots can always still earn three stars (tested over twelve
+  seeds per level).
+- **Counters** (audio and UI): `pigeonWarnings`, `pigeonDives`,
+  `starsSnatched`, `starsFreed`, `starsLost`, `pigeonsDefeated`.
+- **Squadron.** King Coo's squadron pigeons are the same pigeon in its glider
+  variant (`SkyEnemy.squad`): no prey, no raid state, never a snatch, placed
+  by the boss's squad track. A rock or a ram defeats one exactly as it does a
+  raider and raises both `enemiesDefeated` and `pigeonsDefeated`.
+
+### Steam Geysers (rules version 43)
+
+Steam vents are a plan layer (`LevelPlan.steam`, `LevelRoute.geysers`), not an
+obstacle family: slots are passages `first, first + every, ...` (3-3: from the
+4th, every 4th, to the 34th; `H` hop and `R` ride alternating). A slot draws
+exactly what a gate draws and then lays a vent instead of the wall, stars and
+enemy, so route digests, passages, stars and the goal are identical with and
+without steam.
+
+- **Cycle** (route clock, period 4.2 s): hiss 1.5 s (the warning), burst
+  0.5 s (hot), billow 1.25 s (cool), sleep to the next. The state is a pure
+  function of the route clock, whatever the speed.
+- **Hop vents** scald: during the burst the column from the plume top to the
+  mouth (half-width `SteamCycle.hitHalfWidth`) hurts like a course edge
+  (`_damage()`: shield, then a heart, 1.5 s recovery). The plume top is
+  `clamp(c - .06, max(T_min(k), c_prev - .22), .64)` (`T_min = max(.42,
+  .58 - .04 k)` over hop number k, `c` the slot's gate centre, `c_prev` the
+  previous gate's), so every vent can be passed from the previous gate.
+- **Both kinds lift** in the billow: a bird within `liftHalfWidth` of a vent
+  is pushed up at most `SteamCycle.liftSpeed`, never above `top - .03`; a flap
+  still wins. A ride vent's soft steam never scalds; a ride that lifted the
+  bird pays +2, a hop vent the bird never touched +1. A Sprint ram does not
+  smash steam. Boss arrival clears the vents.
+- **Counters:** `steamHisses`, `steamBursts` (one of each per vent passed,
+  while it is within earshot), `steamRides`, `steamScalds`, `steamClears`.
+- **Checks.** `SteamPlan.routeProblem(route, length)` (no slot within a passage
+  of a set piece, the last vent passed at least 2 s before the goal or the
+  boss) for a level's data; `test/steam_reach_test.dart` ports the
+  reachability proof (870 starts in each of 12 rows, none scalded) and flies
+  120 real flights of a slow tapper who touches no hop vent.
+
+### King Coo (rules version 43)
+
+The Commissioner of the Curb (`BossKind.kingCoo`, campaign only) guards 3-2.
+Health 140, fury at 70; he hovers at `x = max(birdX + .70, width - .55)`,
+`y = .5 + .06 sin(.9 t)`. The fight is a fixed 14 s cycle on the combat clock
+`t = age - 4.6`, with no random draw.
+
+- **Crumb bombs.** A ring locks on the bird's height at 0.6 s and 3.0 s (fury:
+  0.6, 2.4 and 4.2 s, each a pair of clouds .30 above and below the ring, one
+  left out if it would lie outside .12 to .88, so the bird's own height is
+  clear). The bomb is thrown 0.8 s after the lock and bursts 1.4 s later into a
+  cloud that hurts like a course edge for 1 s (its drawn radius is its hurt
+  radius). Clouds are fixed on the screen, so a Sprint cannot move them, and
+  they never block a rock.
+- **The puff.** From 7.6 s to 10.0 s his chest is taut: rocks do double
+  damage there, and three puffed hits (60) pop him. Outside the window the
+  chest is fluffed and takes half (at least 1). A pop before the whistle
+  cancels it and its squadron.
+- **The whistle.** At 9.2 s a squadron of Alley Pigeon gliders takes the
+  lanes fixed at the puff (a V on even cycles, a picket wall with one 0.30 gap
+  on odd cycles, both in fury with the picket 1.4 s behind). They fly left at
+  .62 a second on their tracks; touching one hurts, a rock or a ram defeats it.
+- **Checks.** `test/king_coo_fair_test.dart` proves that a bird tapping at
+  most five times a second has a safe sequence from every state that survives
+  the screen edges, for every hazard and both lob-to-lob chains, and flies the
+  search's own policy through the real simulation (104 runs, never hurt).
+  `CooBot` fights take 9 to 12 s at best and 32 to 37 s for a novice bot; a
+  human first-timer is expected to need about a minute, which is the playtest
+  gate.
+
+**Presentation.** King Coo faces the bird and fills the right of the
+screen, a pouter pigeon in a police cap, drawn by his own rig
+(`lib/game/king_coo_*`; one rig unit is 11.5% of the screen height, his chest
+sits on the rules' `boss.x, boss.y`, and every motion is a pure function of
+the boss clock):
+
+- a taut-chested body: a pale pink-white breast that is a scalloped, fluffed globe
+  (radius .84) and, puffed, a smooth lit circle exactly the size of the hit
+  circle (radius 1.00) with a brass badge on it, on a slim teardrop body that
+  tapers to a narrow four-feather tail;
+- one hide under one ink outline: body, chest and ruff share a single fill
+  and outline, so no seam shows inside the figure, and the moon's rim and the
+  window glow set him off against dark skies;
+- an iridescent neck under a scalloped ruff and a round head whose hinged
+  beak leads the face (by at least .28 of a radius in every pose, and the
+  throat notch stays open), a grumpy half-lidded amber eye, and the cap: navy
+  wool with gold piping, a brass badge, a siren dome that blinks red and blue
+  and rain that runs off it;
+- long coral legs; pigeon wings with two dark bars, one folded along the
+  flank and one the throwing arm (it whips through the toss and its tip is at
+  the rules' release point at the launch); a crumb sack on a strap and a
+  whistle on a chain.
+
+Every pose fits inside the screen at 640x360 and 800x360 and inside the
+art's own layer.
+
+Its poses:
+
+- **Hover:** a waddle at 1.6 beats a second (2.1 in fury), the bob and the
+  head thrust on each step.
+- **Lob:** dips into the sack, winds the bomb back, holds, and swings so that
+  the bomb leaves the wing tip at the rules' launch.
+- **Puff:** the chest swells from 7.6 s to full at 9.2 s, front-loaded so the
+  taut look matches the x2 window; the tail fans.
+- **Whistle:** the whistle rises at 8.5 s and is blown at 9.2 s with the siren
+  strobing; his own squadron comes out from behind him.
+- **Hit:** a white flash, a squint and a flinch, and a star on the chest (gold
+  and x2 for a puffed hit).
+- **Pop:** he squashes, his eyes turn to Xs, the cap flies off and he
+  recovers by 3.6 s.
+- **Fury:** the breast flushes hot pink, both wings stomp down, the feet
+  stamp, he scowls and the cap is cocked.
+
+The telegraphs sit under the stars, the pigeons and the bird. Each bomb's ring
+is dashed, locks where the bird was, grows as it nears and turns red for its
+last 0.3 s; the bomb arcs from the wing tip to it, and the cloud's drawn
+radius is its hurt radius. Fury's bracket shows both rings and the corridor
+between. From 7.6 s the lanes of the whistle show how the squadron will fly (a
+V or a picket, with traffic cones at the edges of the gap and the safe lane
+green), a red and blue wash pulses on the rain and the scenery, and a queue
+of pigeons waits behind him. His plate is a navy police plate under a brass
+rim, with a shield medallion whose lamp blinks as his own siren does, a gauge
+that is a crusty loaf of crumbs that cracks as health drops, a whistle at the
+fury mark (70) and a `PUFFED x2` tag with three POP pips while the chest is
+taut. The arrival warns THE CURB IS CLOSED (4.6 s): a shadow slides in (half
+the rules' arc, so the cap stays under the letterbox) with one orange eye and
+a siren strobing red and blue; at 1.9 s the world blanches and the colour
+floods in (0.12 s; 0.25 s and no flash under Reduced Motion); he rears at
+2.35 s, COOs at 2.65 s and his own GUARDIAN card slams in at 2.85 s with the
+campaign's quote. The defeat (3.8 s): a 0.12 s hit-stop, he inflates, his cap
+leaves from exactly where it sat at 0.3 s (it later lands, hops and lies with
+its siren still blinking), and at 0.85 s he pops like a pillow in feathers
+and crumbs while his squadron deserts him and the badge floats up. His
+squadron's pigeons are painted under his figure until they have flown clear
+of it. Under Reduced Motion the waddle, the sways, the swell's overshoot, the
+flash, the strike, the cap's tumble and the desertion are dropped and every
+state (puffed, whistling, popped, fury) stays; the figure fades before the
+burst. His story portraits are the same rig in the six moods (five moods and
+the beaten king, with a bagel and a pretzel as props); the cap is the
+keepsake.
+
+**Audio and replay.** `coo_roar` plays on the COO! (2.65 s) and again on the
+fury, `crumb_throw` as the bomb leaves the wing, `crumb_splat` as the cloud
+blooms, `coo_puff` at 7.6 s, `coo_whistle` at 9.2 s with `squad_flutter` a
+beat behind it, `coo_pop` on a pop and `coo_defeat` at 0.85 s after the blow.
+The arrival's reveal cue (1.65 s) leads the flash by 0.25 s and the in-flight
+card's voice, when it is recorded, belongs at the slam (2.85 s). The cues read
+the rules' counters and never feed back into them, and a seek replays
+silently.
+
+Checks:
+`test/king_coo_staging_test.dart` (nothing leaves the screen, the bars or his
+layer in any state at 640 and 800, with and without Reduced Motion; every phase
+of a real-rules fight renders; the cap leaves with no pop; at most two bounded
+layers, no blur, no shader built after the first frame; every audio cue lands
+on its beat) and `test/king_coo_story_art_test.dart`.
+
+Fix round (after the independent reviews). While his rocks count double (the
+rules' `puffWindow`, the pose's `doubleDamage`) the taut chest wears a bold
+amber ring just inside the hit circle (still exactly the hit circle: pinned
+on an isolated scan), a warm heart, a beating inner ring, an "x2" roundel
+pinned to its lower left, a gold halo and two ripples leaving its edge; while
+it swells, feathers stand up round it and shake loose. His rocks' state reads
+at 120 px and under Reduced Motion. The victory pays off: a shower of crumbs
+and feathers over the whole sky, the cap tossed to the middle of the screen
+where it lands at 1.4x, spins like a coin and lies lit by its siren with the
+brass badge floating beside it, and three pigeons dropping in to peck at the
+crumbs. The name card's quote sits on a navy plank in larger type, and the
+letters type in at 3.2 s, after the shout. His letterbox is the dragon's and
+the Gargoyle's rule exactly. The squadron's gliders are individuals (three
+plumages by slot, a little size, wingbeat tempo and bank each). Checks:
+`test/king_coo_fix_test.dart`.
+
+### Searchlight Gargoyle (rules version 43)
+
+The Watchman of the Tallest Tower (`BossKind.searchlightGargoyle`) is the
+guardian of 3-4. It is campaign only (a level plan names it; the endless
+cycle never reaches index 6) and every rule below is gated by
+`supportsMiniBosses`. He is perched: no hover and no arrival swoop, at
+`x = max(birdX + .74, width - .50)`, `y = .5`; his hit circle is the usual
+.115 (the chest lamp). Health is 160 at every encounter number, fury at 80.
+Arrival is 4.6 s and defeat 3.8 s, as for the other cinematic bosses; nothing
+burns or falls during either, and defeat clears the feathers and the beam.
+
+Everything runs on the combat clock `t = age - 4.6`, `x = t mod 9`:
+
+- 0 to 2.0 s perch (shuttered); 2.0 to 3.5 s warning (1.5 s); 3.5 to 6.4 s
+  sweep; 6.4 to 9.0 s vent (lamp open, nothing attacks).
+- The sweep is aimed once, as the warning begins, from the bird's height: a
+  bird above the middle (height < .5) draws the beam from above. The beam is
+  defined where it crosses the bird's column: from above `.16` to `.42`,
+  from below `.84` to `.58`, gliding 1.8 s (fury 1.5 s) and then holding. The
+  lit band is .09 tall each way (fury .095). Touching it hurts like a course
+  edge: Classic ends the run, Star Trail loses the shield, then a heart, with
+  the usual 1.5 s recovery.
+- The lamp is shuttered except in the vent, and it is judged as a rock
+  leaves the bird (`BirdRock.releasedAt`, the boss's age at the release;
+  `SkyBoss.lampOpenAtRelease`), not where the rock lands: a rock released
+  while the lamp is open takes full damage however long it flies (0.35 s on a
+  narrow sky, 0.76 s on the widest), so the shots that count are the ones
+  fired in the vent the player sees, 2.6 s at every screen width. A rock or a
+  shatter blast released while it is shuttered is spent without damage
+  (`lastGlanceAt`, the clink). Health (and fury) therefore changes in the
+  vent and in the half second of the next perch that its last rocks are still
+  flying, never between a warning and the end of its sweep.
+- Stone feathers (`BossAmmo(feather: true)`) leave the top edge at
+  `(birdX + .62, -.06)`, aimed to cross the bird's column at the height the
+  bird had as they left: 1.72 s of flight (fury 1.41 s), gravity .30, radius
+  .028. A calm cycle drops two (at .2 s and 4.6 s), a fury zone cycle three
+  (.2, 4.5, 5.2) and a fury slit cycle one (.2).
+- Fury alternates: the first fury sweep is a zone sweep and every second one
+  after it a slit of two beams (upper `.12` to `.21`, lower `.88` to `.79`,
+  1.5 s, then held), leaving a dark gap .343 to .657 for the bird's centre, a
+  corridor .314 tall (it was .214, `.26` and `.74`: a player hovering by
+  tapping with a thumb 50 to 100 ms late and 40 ms jittery held it 52 to 70%
+  of the time; now 95 to 99%, `test/gargoyle_lag.dart`).
+- No random draw is made. The latches (`beamSide`, `slitSweep`,
+  `sweepsAimed`, `furySweeps`, `featherSlot`) follow the clock, so pause,
+  replay and seeks are exact. `SkyBoss.beamCentres`/`beamLit` and
+  `SearchlightGargoyle.centres` are what the art draws and the rules test.
+- Fairness is proved exhaustively (`test/searchlight_gargoyle_fairness_test.dart`):
+  over every tap sequence at five taps a second, all 351 survivable start
+  states (117 each for a calm zone sweep, a fury zone sweep and a slit) have a
+  safe path; so do 324 after 0.3 s and 303 after 0.45 s without a tap; the
+  whole cycle from the perch feather's launch too. The warning is fair down to
+  1.3 s (0.7, 0.9 and 1.1 s leave 31, 14 and 2 unwinnable starts), so 1.5 s
+  ships, and `SearchlightGargoyle.minWarnSeconds` guards it. Those paths are
+  flown through the real simulation in `searchlight_gargoyle_test.dart`. The
+  slit's search tolerates a 0.08 margin of error (0.04 before the corridor was
+  widened), and a cycle whose perch feather left calm but whose sweep is fury's
+  (fury begun by the last rocks of a vent) has a safe path from every start
+  too (`searchlight_gargoyle_fix_test.dart`).
+- `SkyBoss.previousHitAt` (render-only) is the time of the hit before
+  `lastHitAt`, set by every landed hit of every boss; `hitGap` is the
+  difference. The art reads it so nothing snaps when hits land .28 s apart.
+
+**Presentation.** The Gargoyle faces the bird from a ledge on the right of
+the screen, drawn by `GargoyleEncounterArt` (the Gargoyle branches of
+`BossEncounterArt` only dispatch to it) from the parts in `lib/game/gargoyle_*`
+and never by another boss's fall-through. One rig unit is 11.5% of the screen
+height and the chest lamp sits on the rules' `boss.x, boss.y`:
+
+- a stepped Art Deco body of violet-grey stone with steel: a crest of three
+  low swept blades, a hooked beak, a brow visor and two lens eyes, a ruff, a
+  stepped chest, thighs and talons gripping the ledge's lip, and a tail of
+  five blades;
+- the searchlight lamp is his chest: a brass octagon of eleven louvres round a
+  lens, which is also the hit circle; shuttered except in the vent, cracks
+  open in the stone from the first hits and run on in fury, and steam
+  escapes through the ports at the shoulder;
+- two fans of seven steel blades for wings, the far fan dimmer and higher,
+  with one loosened blade that is the feather he drops;
+- the world he stands on: a stepped tower top (a cornice with a brass band and
+  a chevron frieze, three corbels, a shaft with lit and dark windows, a pier
+  behind him in three setbacks), the weather-vane mount empty until the
+  story's courier fills it, and a twig nest with a dozing pigeon.
+
+Every pose fits inside the screen at 640x360 and 800x360, and the moon's rim
+on his upper edges sets him off from the night.
+
+Its poses:
+
+- **Perch:** the lamp shuttered, the lenses pulsing at a third of their glow,
+  the brow a little lowered, the talons on the lip and the fans ruffling.
+- **Warning:** the lenses climb to full, the brow drops over them and the head
+  bows or lifts toward the beam's side while he leans toward the bird.
+- **Sweep:** the head follows the beam; in fury the second lens fires too and
+  the slit's two beams close.
+- **Vent:** the louvres open, the beak is ajar, steam jets from the ports at his
+  shoulder and the lenses dim.
+- **Hit:** a bleached flash, a wince that lifts the brow and a shiver of the
+  whole figure.
+- **Glance:** a rock off the shuttered lamp rattles the louvres and throws a
+  brass spark.
+- **Roar and fury:** the head thrown up, the beak wide and the fans flung open;
+  in fury the lenses are white-hot and the seams crack amber.
+
+The warning washes the swept fan in amber hatching, marches hazard tape along
+the ray that borders the safe side, veils the safe side in deep blue and runs
+a cool dashed line with chevrons toward it, ticking faster toward the end; a
+tag at the left spells the dodge out (FLY LOW, FLY HIGH or SLIP BETWEEN THE
+BEAMS) with a three-pip gauge. The beam is an amber body with a pale core
+added as light (scenery inside it brightens), two hard hairlines and drifting
+motes, a flare at the lens; in fury it is orange with a near-white core. It is
+placed from the rules' band at the bird's column (never from a constant), and
+the beam test reads the rules' own band. Beams and warning sit in the backdrop, under the stars, his feathers
+and the bird, so they are never mistaken for New York's own searchlights (cream,
+faint, no edge). A stone feather shows a dust telegraph where it will enter; a
+feather that touches the plate's strip is drawn again over it. His plate is a
+stepped steel plate in a brass rim, with an octagon lens medallion, an amber
+gauge cut into brass segments, a brass spool at the fury mark and a `LAMP OPEN`
+tag over the vent; `SPOTTED!` flashes over the bird when it is caught. His
+own name card slams in on the roar (2.85 s) with GUARDIAN, THE SEARCHLIGHT
+GARGOYLE, WATCHMAN OF THE TALLEST TOWER and the campaign's line.
+
+The arrival is "stone to life": a storm (rain, a darkening sky) over the
+caption, the tower sliding in from the right at .95 s with nine pigeons dozing
+on his shoulders, lightning striking the vane mount's pin at 1.65 s (the instant
+of `gargoyle_strike`), the stone cracking and cooling to colour, the lenses
+igniting first, the pigeons flushed, the fan unfolding and the roar at 2.65 s
+(`gargoyle_awaken`) with three rings, the letterbox timed as the Ember
+Dragon's (open for the roar, out 0.2 s early), and a soft presentation-only
+sweep that finds the bird and ends in an iris (no beam is ever lit in a
+cutscene). In the fight distant lightning flickers every other cycle (9% of the
+sky, one a cycle, never in the vent), and a hit, the tipping into fury and the
+killing blow shiver him locally. The defeat is a white-out (the one bounded
+layer), cracks that run on, the lamp's glass breaking at .6 s, the burst at
+.85 s, a heap of limestone and steel, the visor tumbling off the ledge,
+pigeons bursting out and two lenses left lit on the rubble; the victory card
+says GUARDIAN DOWN!. Reduced Motion keeps every state (lamp, flare, warning,
+cracks, fury, the stone fade, a still bolt and roar) and drops the motion
+(rain, flicker, flash, sway, flush, rings, sweep, jolts, flight); its letterbox
+is thinner and does not open. The story paints him through `GargoyleStoryArt`
+(six moods, the delivered vane and a crest pigeon after his fall) and the
+keepsake is his brow visor hooded over a lens.
+
+**Audio and replay.** `gargoyle_strike` plays on the bolt (1.65 s) and
+`gargoyle_awaken` on the roar (2.65 s), each within one 60 Hz step of its
+picture; `beam_warning` at the warning's start, `beam_sweep` at the beam's
+ignition, `beam_spot` when the bird is caught, `lamp_vent` as the lamp opens,
+`lamp_glance` on a rock off the shuttered lamp, `feather_drop` as a feather
+leaves and `boss_enrage`, `boss_break` and `boss_burst` as for the others. The
+victory sound plays 0.25 s after its card begins, as the dragon's does.
+Counters that drive the cues (`sweepWarnings`, `sweepIgnitions`, `spots`,
+`lampOpens`, `lastGlanceAt`, `feathersLaunched`) are presentation only; the
+tower's slide, the pigeons' flush, the visor's tumble and the distant
+lightning have no sound yet. Seeks replay silently.
+
+Checks: `test/gargoyle_staging_test.dart` (the hooks, the arrival clock, the
+letterbox, at most one bounded layer, no blur, the frame's budget of 342
+draw ops, no shader built after the prewarm, Reduced Motion, every audio cue's
+edge against its picture's), `test/gargoyle_staging_scan_test.dart` (none of his
+solid pixels is cut by the layer, the screen or the letterbox in 86 states at
+640 and 800, with and without Reduced Motion, and a whole fight flown through
+the real game renders every phase) and `test/gargoyle_story_test.dart`.
+
+### Guardians in the encounter (rules version 43)
+
+What King Coo and the Searchlight Gargoyle share in `BossEncounterArt` and the
+screens around it (`test/ny_guardians_stage_test.dart` renders one whole
+encounter of each through the real game and pins it):
+
+- **Dispatch.** Each is drawn by his own stage (`KingCooStaging`,
+  `GargoyleEncounterArt`), dispatched explicitly in the backdrop, the boss
+  pass, the foreground and every kind switch (tint, light, ammo style, plate
+  skin, story fit, keepsake): never the Baron's fall-through and never one for
+  the other. They are campaign-only and never enter the endless cycle.
+- **One wording.** The name card's small word is GUARDIAN (the level card's
+  ribbon, the map's shield and the result's "Guardian down!" say the same, and
+  no player-facing string says mini-boss); the victory card's title is
+  GUARDIAN DOWN! for both (`BossEncounterArt.victoryTitle`), SKY RECLAIMED
+  stays the chapter bosses', and each card carries the level's own line in
+  quotes (`bossLine`).
+- **One letterbox.** Both close and lift the bars on the dragon's arrival
+  timing; the Gargoyle opens them for his roar as the dragon does, King Coo
+  keeps them shut for his COO!, and King Coo's bars come in behind the dying
+  figure 0.2 s later than the others.
+- **Layering.** King Coo's squadron is painted by the shared enemy pass,
+  except the pigeons still at his back, which his stage paints under his
+  figure (so they come out from behind him); the Gargoyle's feathers are
+  painted by his stage right after his figure and again over the plate's
+  strip, and his beams are in the backdrop. Each branch is keyed on its own
+  boss, so a pigeon is drawn for the Gargoyle and a feather never reaches
+  King Coo's frame.
+- **Story.** `StoryBossArt` paints each from his own rig in the six moods
+  (`KingCooStoryArt`, `GargoyleStoryArt`) with his own stage fit, and
+  `CampaignHeadwear` shows King Coo's cap and the Gargoyle's brow visor on the
+  stamp.
 
 ### Touch boss encounters (rules version 15)
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../domain/game_rules.dart' show BossKind, FinishLine;
 import '../game/bird_puppet.dart';
 import 'campaign_keepsake_art.dart';
+import 'campaign_map_art.dart' show MapGuardianPainter;
 import 'match_hud.dart';
 import 'theme.dart';
 
@@ -555,6 +556,27 @@ class _RoutePainter extends CustomPainter {
   /// The boss's lair: a post in the boss's color on the line, crowned with
   /// the headwear it loses, as on the map.
   void _lair(Canvas canvas, Offset at, BossKind boss) {
+    if (boss.campaignOnly) {
+      // A guardian, not a chapter's lair: a little shield on the line, and
+      // its headwear a size smaller, as on the map.
+      final field = CampaignHeadwear.field(boss);
+      final shield = MapGuardianPainter.shield(at.translate(0, -1), 6.6, 7.6);
+      canvas.drawPath(shield, Paint()..color = field);
+      canvas.drawPath(
+        shield,
+        Paint()
+          ..color = SkyColors.ink
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2.4
+          ..strokeJoin = StrokeJoin.round,
+      );
+      CampaignHeadwear.paint(
+        canvas,
+        Rect.fromCenter(center: at.translate(0, -18), width: 22, height: 17),
+        boss,
+      );
+      return;
+    }
     canvas.drawCircle(at, 7, Paint()..color = SkyColors.ink);
     canvas.drawCircle(at, 4.5, Paint()..color = CampaignHeadwear.field(boss));
     CampaignHeadwear.paint(

@@ -238,7 +238,7 @@ void main() {
     await audio.configure(const GameSettings(music: false, voices: false));
     audio.effect('sprint');
     await drainAudio();
-    expect(host.loads, isNot(contains(contains('/story/'))));
+    expect(host.loads, isNot(contains(contains('audio/story/'))));
     expect(host.loads, contains(endsWith('sprint.wav')));
   });
 

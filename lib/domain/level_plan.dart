@@ -52,7 +52,8 @@ class StarMarks {
   int reached(int stars) => (stars >= two ? 1 : 0) + (stars >= three ? 1 : 0);
 }
 
-/// A campaign level's rules (rules version 41): one region, a fixed route of
+/// A campaign level's rules (rules version 41; 43 for a plan that uses New
+/// York's additions, see [minRulesVersion]): one region, a fixed route of
 /// generated passages to a finish line or a boss, and the hazards the level
 /// allows. Replays save the whole plan, so a level retuned later still
 /// replays the way it was flown.
@@ -78,6 +79,8 @@ class LevelPlan extends FlightPlan {
     this.panels = 0,
     this.pieces = const [],
     this.boss,
+    this.flocks = const [],
+    this.steam = SteamPlan.none,
   });
 
   final String id;
@@ -112,9 +115,52 @@ class LevelPlan extends FlightPlan {
   final double panels;
   final List<SetPiece> pieces;
 
-  /// The boss that ends the level, or null for a finish line.
+  /// The boss that ends the level, or null for a finish line. A
+  /// campaign-only boss ([BossKind.campaignOnly]) is a mini-boss: a
+  /// guardian, not its chapter's boss.
   final BossKind? boss;
   final StarMarks marks;
+
+  /// Whether the boss that ends this level is a campaign-only mini-boss
+  /// (King Coo, the Searchlight Gargoyle), rules version 42.
+  bool get hasMiniBoss => boss?.campaignOnly ?? false;
+
+  /// How many Alley Pigeons each pigeon entry of the [lineup] lays (one to
+  /// three), cycled in order; empty means singles. Rules version 42. Written
+  /// to a tape only when not empty.
+  final List<int> flocks;
+
+  /// The steam layer (rules version 43): vents that replace walls on chosen
+  /// passages. [SteamPlan.none] for most levels; written to a tape only when
+  /// it has slots. The route lays them as `LevelRoute.geysers`.
+  final SteamPlan steam;
+
+  /// Whether the plan uses anything rules version 43 adds: an Alley Pigeon
+  /// in the lineup or flocks, a steam layer, or a mini-boss.
+  bool get usesNewYork =>
+      lineup.any((kind) => kind.campaignOnly) ||
+      flocks.isNotEmpty ||
+      !steam.isEmpty ||
+      hasMiniBoss;
+
+  /// The lowest rules version that can fly this plan: 43 when it uses New
+  /// York's additions, else 41. The [FlightSimulation] constructor and
+  /// [ReplayTape.fromJson] refuse anything below it, so old rules never
+  /// meet an enemy, hazard or boss they do not know.
+  @override
+  int get minRulesVersion => usesNewYork
+      ? FlightSimulation.newYorkRulesVersion
+      : FlightSimulation.campaignRulesVersion;
+
+  /// How many pigeons the [entry]th pigeon entry of the lineup lays (from 0).
+  int flockSizeFor(int entry) =>
+      flocks.isEmpty ? 1 : flocks[entry % flocks.length];
+
+  /// A level draws each pigeon formation's prey from its own random, so
+  /// adding pigeons to a lineup never moves a passage, panel or set piece.
+  @override
+  math.Random flockRandom(int entry, math.Random flight) =>
+      math.Random((seed * 6151 + (entry + 1) * 15485863) & 0x3fffffff);
 
   @override
   String get levelId => id;
@@ -214,6 +260,10 @@ class LevelPlan extends FlightPlan {
     ],
     'boss': boss?.name,
     'marks': [marks.two, marks.three],
+    // New York's keys are written only when a plan uses them, so a tape of
+    // any older plan is byte-identical to what rules 41 saved.
+    if (flocks.isNotEmpty) 'flocks': flocks,
+    if (!steam.isEmpty) 'steam': steam.toJson(),
   };
 
   /// Reads a plan saved by [toJson]. Anything malformed throws a
@@ -237,6 +287,15 @@ class LevelPlan extends FlightPlan {
     final boss = json['boss'];
     final marks = list(json['marks']);
     if (id is! String || marks.length != 2) invalid();
+    // Missing keys read as empty: plans saved at rules 41 have neither.
+    final flocks = json.containsKey('flocks')
+        ? [for (final size in list(json['flocks'])) whole(size)]
+        : const <int>[];
+    final steam = json.containsKey('steam')
+        ? SteamPlan.fromJson(json['steam'])
+        : SteamPlan.none;
+    if (json.containsKey('flocks') && flocks.isEmpty) invalid();
+    if (json.containsKey('steam') && steam.isEmpty) invalid();
     final plan = LevelPlan(
       id: id,
       region: named(WorldRegion.values, json['region']),
@@ -268,6 +327,8 @@ class LevelPlan extends FlightPlan {
       ],
       boss: boss == null ? null : named(BossKind.values, boss),
       marks: StarMarks(whole(marks[0]), whole(marks[1])),
+      flocks: flocks,
+      steam: steam,
     );
     if (plan.problem case final _?) invalid();
     return plan;
@@ -289,6 +350,16 @@ class LevelPlan extends FlightPlan {
     }
     if (boss != null && (pieces.isNotEmpty || lineup.isEmpty)) return 'boss';
     if (marks.two < 1 || marks.three < marks.two) return 'marks';
+    for (final size in flocks) {
+      if (size < AlleyPigeon.minFlock || size > AlleyPigeon.maxFlock) {
+        return 'flocks';
+      }
+    }
+    // A vent replaces a wall, never an enemy-led passage.
+    final steamProblem = steam.problem(
+      enemyAt: (passage) => enemyIndex(passage) != null,
+    );
+    if (steamProblem != null) return steamProblem;
     return null;
   }
 }
@@ -310,6 +381,7 @@ class LevelRoute {
     required this.pieces,
     required this.goal,
     required this.boss,
+    required this.geysers,
   });
 
   factory LevelRoute.lay(
@@ -372,6 +444,22 @@ class LevelRoute {
     }
     final goal = world(plan.length);
     layUntil(goal, FinishLine.clearance);
+    // Steam vents sit on chosen passages (closed form: no random draws, so
+    // the rest of the route is the same as without them).
+    final geysers = <SteamGeyser>[];
+    final slots = plan.steam.slots(passages.length);
+    for (final (i, slot) in slots.indexed) {
+      final kind = plan.steam.kindAt(i);
+      final x = passages[slot - 1] + SteamGeyser.centreOffset;
+      geysers.add(
+        SteamGeyser(
+          slot: slot,
+          x: x,
+          kind: kind,
+          burstAt: routeAt(x - birdX) - SteamCycle.arrival(kind),
+        ),
+      );
+    }
     return LevelRoute._(
       passages: List.unmodifiable(passages),
       due: List.unmodifiable([
@@ -380,6 +468,7 @@ class LevelRoute {
       pieces: List.unmodifiable(pieces),
       goal: goal,
       boss: plan.boss != null,
+      geysers: List.unmodifiable(geysers),
     );
   }
 
@@ -395,6 +484,11 @@ class LevelRoute {
   /// Where the finish line sits or, when [boss], where the boss arrives.
   final double goal;
   final bool boss;
+
+  /// The steam vents the plan's layer lays (rules version 43), in route
+  /// order. Empty for every plan without steam. They take the place of a
+  /// wall on their passage, so [passages] and [stars] do not change.
+  final List<SteamGeyser> geysers;
 
   /// Stars laid along the route: three before every passage and every beat
   /// of a rush path. A gale lays none.

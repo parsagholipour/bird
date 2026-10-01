@@ -309,7 +309,10 @@ void main() {
               ..age = age
               ..fireIn = 5;
         // The storm frame does not drift or flash while motion is reduced.
-        expect(await draw(boss(6), backdrop), await draw(boss(7.3), backdrop));
+        // (The Gargoyle's warning is a STATE and shows under Reduced Motion:
+        // judged in his perch, 1.4 s and 1.9 s into the fight.)
+        final (stormA, stormB) = kind == BossKind.searchlightGargoyle ? (6.0, 6.5) : (6.0, 7.3);
+        expect(await draw(boss(stormA), backdrop), await draw(boss(stormB), backdrop));
         expect(
           await draw(boss(1.3), backdrop),
           await draw(boss(1.5), backdrop),
@@ -325,9 +328,13 @@ void main() {
           return const Offset(-1, -1);
         }
 
-        // The dragon's own card slams in on its roar (2.85 s), so it is
-        // judged once it is there.
-        final (cardA, cardB) = kind == BossKind.dragon ? (3.0, 3.5) : (2.0, 3.0);
+        // The dragon's, King Coo's and the Gargoyle's own cards slam in on
+        // their roars (2.85 s), so they are judged once they are there.
+        final (cardA, cardB) = kind == BossKind.kingCoo
+            ? (3.4, 3.9)
+            : kind == BossKind.dragon || kind == BossKind.searchlightGargoyle
+            ? (3.0, 3.5)
+            : (2.0, 3.0);
         expect(
           leftmost(await draw(boss(cardA), BossEncounterArt.foreground)).dx,
           leftmost(await draw(boss(cardB), BossEncounterArt.foreground)).dx,

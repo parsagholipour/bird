@@ -1053,6 +1053,10 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                       ? '. ${sim.boss!.tideHint}'
                       : sim.boss!.isDragon
                       ? '. ${sim.boss!.breathHint}'
+                      : sim.boss!.isKingCoo
+                      ? '. ${sim.boss!.cooHint}'
+                      : sim.boss!.isGargoyle
+                      ? '. ${sim.boss!.gargoyleHint}'
                       : sim.boss!.screeches
                       ? '. ${sim.boss!.screechHint}'
                       : ''}',

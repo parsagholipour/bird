@@ -13,6 +13,7 @@ class CampaignChapter {
     required this.postscript,
     required this.levels,
     this.playable = true,
+    this.opened = const {},
   });
   final int number;
 
@@ -34,6 +35,16 @@ class CampaignChapter {
   /// Chapters 3–5 sit on the map, locked, as "Coming soon".
   final bool playable;
 
+  /// The stops of a chapter that is not [playable] whose levels can be
+  /// flown while the build opens them ([Campaign.openingEnabled], on by
+  /// default): New York opens ahead of Paris and the Dusk Empress. Ask [Campaign.playable]
+  /// about a level rather than reading this.
+  final Set<WorldRegion> opened;
+
+  /// The chapter's boss level: its last, the lair of [boss]. Only this level
+  /// ends the chapter: it unlocks the next chapter, earns the flame seal and
+  /// brings the postcard. A guardian earlier in the chapter
+  /// ([CampaignLevel.isGuardian]) does none of these.
   CampaignLevel get bossLevel => levels.last;
 }
 
@@ -59,9 +70,14 @@ class CampaignLevel {
     required this.plan,
     this.hint,
     this.hintIsNew = true,
+    this.bossLine,
   });
   final String name;
   final Delivery delivery;
+
+  /// The line on a guardian's entrance name card, without quotes, when this
+  /// level's boss is not its chapter's (see [Campaign.bossLine]).
+  final String? bossLine;
 
   /// The one-line hint on the intro card; the card marks it NEW when
   /// [hintIsNew].
@@ -76,7 +92,22 @@ class CampaignLevel {
   WorldRegion get region => plan.region;
   StarMarks get marks => plan.marks;
   BossKind? get boss => plan.boss;
+
+  /// Whether the level ends in any boss: a chapter's boss or a guardian.
   bool get isBoss => plan.boss != null;
+
+  /// Whether this is its chapter's boss level: the lair that ends the
+  /// chapter ([CampaignChapter.bossLevel]).
+  bool get isChapterBoss =>
+      isBoss && id == Campaign.chapterOf(this).bossLevel.id;
+
+  /// Whether the level ends in a campaign-only mini-boss before its chapter's
+  /// boss: King Coo on 3-2, the Searchlight Gargoyle on 3-4. A guardian
+  /// unlocks the next level only: no chapter unlock, flame seal or postcard.
+  bool get isGuardian => isBoss && !isChapterBoss;
+
+  /// The rules' word for [isGuardian].
+  bool get isMiniBoss => isGuardian;
 
   /// Cruising seconds to the finish line, or the run-up before the boss.
   double get length => plan.length;
@@ -106,6 +137,65 @@ abstract final class Campaign {
 
   static CampaignChapter chapterOf(CampaignLevel level) =>
       chapters[level.chapter - 1];
+
+  /// Whether the build opens the stops that chapters list in
+  /// [CampaignChapter.opened]: New York (3-1 to 3-4) is OPEN by default, so a
+  /// plain `flutter run`, `make build` and `make install` all ship it. This
+  /// is the one place the decision is made. Roll it back with
+  /// `--dart-define=NEW_YORK_OPEN=false` (`make build DEFINES=--dart-define=
+  /// NEW_YORK_OPEN=false`): the map shows New York "Coming soon" again, the
+  /// star total is 48, and saves, schema and recorded flights are untouched
+  /// (a New York tape still opens in a build that knows rules 43). Paris
+  /// deletes the flag later.
+  static const bool openingEnabled = bool.fromEnvironment(
+    'NEW_YORK_OPEN',
+    defaultValue: true,
+  );
+
+  static bool _openedForTest = false, _closedForTest = false;
+
+  /// TEST ONLY: forces the stops in [CampaignChapter.opened] open for the
+  /// rest of a test whatever the build says; `false` hands the decision back
+  /// to the build. A test that sets it must reset it in a tearDown.
+  static set openedForTest(bool open) => _openedForTest = open;
+
+  /// TEST ONLY: forces them closed, the state of a build made with
+  /// `NEW_YORK_OPEN=false` (it wins over [openedForTest]); `false` hands the
+  /// decision back to the build. A test that sets it must reset it in a
+  /// tearDown, so no other test meets a closed New York.
+  static set closedForTest(bool closed) => _closedForTest = closed;
+
+  /// Whether the opened stops can be flown right now: the build's choice,
+  /// or a test's override.
+  static bool get stopsOpen =>
+      !_closedForTest && (openingEnabled || _openedForTest);
+
+  /// Whether [level] can be flown in this build: any level of a playable
+  /// chapter, and the levels of an opened stop of a chapter that is not.
+  /// The one place that knows; every screen and the progress rules ask it.
+  static bool playable(CampaignLevel level) {
+    final chapter = chapterOf(level);
+    return chapter.playable ||
+        (stopsOpen && chapter.opened.contains(level.region));
+  }
+
+  /// The levels that can be flown in this build, in order.
+  static List<CampaignLevel> get playableLevels => [
+    for (final level in levels)
+      if (playable(level)) level,
+  ];
+
+  /// Whether the map's stop for [region] has nothing to fly yet: it keeps
+  /// its "Coming soon" ribbon.
+  static bool comingSoon(WorldRegion region) =>
+      !levels.any((level) => level.region == region && playable(level));
+
+  /// The line on [level]'s boss's entrance name card, without quotes: a
+  /// guardian's own, else its chapter's boss line on the chapter's boss
+  /// level, else null (a level without a boss).
+  static String? bossLine(CampaignLevel level) =>
+      level.bossLine ??
+      (level.isChapterBoss ? chapterOf(level).bossLine : null);
 
   /// The level after [level], across chapters, or null after the last.
   static CampaignLevel? after(CampaignLevel level) {
@@ -137,12 +227,25 @@ abstract final class Campaign {
 
   static const _bat = EnemyKind.simpleBat, _caveBat = EnemyKind.caveBat;
   static const _beetle = EnemyKind.spitterBeetle, _moth = EnemyKind.duskMoth;
+  static const _pigeon = EnemyKind.alleyPigeon;
   static const _bats = [_bat, _caveBat];
 
   /// Bats and beetles; the intro level shows a beetle every fourth passage.
   static const _beetleIntro = [_bat, _beetle, _caveBat, _beetle];
   static const _beetles = [_bat, _beetle, _caveBat];
-  static const _mothIntro = [_bat, _moth, _beetle, _moth];
+
+  /// Moth Light's lineup: a moth leads the second enemy passage and every
+  /// fourth enemy after it, between bats, a cave bat and a beetle. (Moths used
+  /// to be half the enemies, which made 3-1 the hardest ordinary level for a
+  /// casual player; see docs/validation.md, "New York fix round".)
+  static const _mothIntro = [_bat, _moth, _caveBat, _beetle];
+
+  /// New York's pigeon lesson: four enemy passages in seven lead with an
+  /// Alley Pigeon (3-2's run-up, with flocks of one).
+  static const _pigeonIntro = [_pigeon, _bat, _pigeon, _moth];
+
+  /// The alley's mix (3-3 and 3-4): a pigeon on passages 3, 9, 15 ... .
+  static const _alley = [_bat, _pigeon, _moth, _beetle, _pigeon, _caveBat];
 
   /// The endless lineup.
   static const _all = [_bat, _beetle, _moth, _caveBat];
@@ -514,6 +617,8 @@ abstract final class Campaign {
           'Paris sends a croissant. New York sends a pretzel.',
       postscript: 'P.S. The harbour bells have stopped ringing.',
       playable: false,
+      // New York opens ahead of Paris (see [Campaign.openingEnabled]).
+      opened: {_newYork},
       levels: [
         CampaignLevel(
           name: 'Moth Light',
@@ -526,16 +631,19 @@ abstract final class Campaign {
           plan: LevelPlan(
             id: '3-1',
             region: _newYork,
-            length: 70,
+            length: 60,
             start: 75,
             seed: 3101,
             families: _road,
             lineup: _mothIntro,
             toughness: 2,
             panels: .25,
-            marks: StarMarks(50, 75),
+            marks: StarMarks(40, 65),
           ),
         ),
+        // New York's first guardian: a 30 s run-up that introduces the Alley
+        // Pigeon (flocks of one), then King Coo. A boss level holds no set
+        // pieces and no steam; the marks count the run-up's 36 route stars.
         CampaignLevel(
           name: 'Wheels in the Rain',
           delivery: Delivery(
@@ -543,41 +651,58 @@ abstract final class Campaign {
             from: 'The newsstand pigeons',
             thanks: 'Dry feathers at last. You’re a hero.',
           ),
+          hint: 'Alley pigeons swoop in to grab stars. Shoot them first!',
+          bossLine: 'Nobody flies till the bread cart is found!',
           plan: LevelPlan(
             id: '3-2',
             region: _newYork,
-            length: 75,
-            start: 90,
+            length: 30,
+            start: 85,
             seed: 3102,
-            families: [..._road, _wheels],
-            lineup: _all,
+            families: [_garden, _lift, _petal, _wheels],
+            lineup: _pigeonIntro,
+            flocks: [1, 1, 1],
             toughness: 2,
             panels: .25,
-            marks: StarMarks(55, 85),
+            boss: BossKind.kingCoo,
+            marks: StarMarks(20, 30),
           ),
         ),
+        // The steam's level: seven vents (the steady layer, hop and ride
+        // alternating from the fourth passage, cut short by the 65 s route),
+        // between gates that pigeons (one, then pairs) and the alley's
+        // enemies lead. Renamed from Swarm Alley; the Swarm rush moved to
+        // Paris. 65 s and seed 3111 (no stone door in the first ten passages)
+        // since the fix round: at 80 s a casual player had no heart recovery
+        // to last it (steam was only 6% of the hearts lost).
         CampaignLevel(
-          name: 'Swarm Alley',
+          name: 'Steam Alley',
           delivery: Delivery(
             'Hot pretzels for the night-shift cabbies',
             from: 'The night cabbies',
             thanks: 'Still warm! How fast do you fly?',
           ),
-          hint: 'Sprint through the flocks.',
+          hint: 'Vents hiss, then burst. Hop the hot ones, ride the soft ones.',
           plan: LevelPlan(
             id: '3-3',
             region: _newYork,
-            length: 80,
+            length: 65,
             start: 100,
-            seed: 3103,
-            families: [..._road, _wheels],
-            lineup: _all,
+            seed: 3111,
+            families: [_garden, _lift, _petal, _wheels],
+            lineup: _alley,
+            flocks: [1, 2, 2, 2, 2, 2],
+            steam: SteamPlan.steady,
             toughness: 2,
             panels: .25,
-            pieces: [SetPiece(_swarm, at: 25)],
-            marks: StarMarks(50, 80),
+            marks: StarMarks(45, 70),
           ),
         ),
+        // New York's second guardian: a run-up with a light steam layer
+        // (two rides and a hop) and pigeons, then the Searchlight Gargoyle.
+        // No Sprint here: a sprint makes his feathers close faster than the
+        // lane they were aimed for (the fairness proof assumes none). The
+        // gale moved to Paris.
         CampaignLevel(
           name: 'Storm Warning',
           delivery: Delivery(
@@ -585,19 +710,31 @@ abstract final class Campaign {
             from: 'The tower keeper',
             thanks: 'It spins! It points! It’s perfect.',
           ),
-          hint: 'Gale! Watch the ! and take the open side.',
+          hint:
+              'Stay out of the light. Shoot the lamp when it opens! '
+              'No Sprint here.',
+          bossLine: 'Hold still! Nobody ever stays in the light.',
           plan: LevelPlan(
             id: '3-4',
             region: _newYork,
-            length: 75,
+            length: 30,
             start: 90,
             seed: 3104,
-            families: [..._road, _wheels],
-            lineup: _all,
+            families: [_garden, _lift, _switchback, _wheels],
+            lineup: _alley,
+            flocks: [1, 2],
+            steam: SteamPlan.sparse,
             toughness: 2,
             panels: .25,
-            pieces: [SetPiece(_gale, at: 20)],
-            marks: StarMarks(30, 50),
+            sprint: false,
+            boss: BossKind.searchlightGargoyle,
+            // ★★★ at 27 of the run-up's 36 stars (75%, not the usual 30): its
+            // three vents' stars sit on arcs above the plumes and its pigeons
+            // take up to three, which cost a casual player two stars more
+            // than 3-2's run-up (★★★ for a casual pilot: 38 to 65% at 30, 85
+            // to 100% at 27, as 3-2 is at 30). The thief cap becomes
+            // (36 - 27) / 2 = 4, above the three pigeons it lays.
+            marks: StarMarks(20, 27),
           ),
         ),
         CampaignLevel(
@@ -627,6 +764,8 @@ abstract final class Campaign {
             from: 'The accordion player',
             thanks: 'The pages blew in right on the beat.',
           ),
+          // The Gale moved here from New York's 3-4: Paris introduces it.
+          hint: 'Gale! Watch the ! and take the open side.',
           plan: LevelPlan(
             id: '3-6',
             region: _paris,
@@ -651,6 +790,9 @@ abstract final class Campaign {
             from: 'The baker',
             thanks: 'I said yes! I mean… thank you.',
           ),
+          // The Swarm rush moved here from New York's 3-3: Paris introduces
+          // it (the gale is a reprise).
+          hint: 'Sprint through the flocks.',
           plan: LevelPlan(
             id: '3-7',
             region: _paris,
