@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/painting.dart';
 
+import '../domain/campaign_story.dart' show StoryMood;
 import '../domain/sky_boss.dart';
 import 'boss_motion.dart';
 import 'dragon_kit.dart';
@@ -205,7 +206,10 @@ final class DragonPose {
       final d = b.defeatedAt!;
       copy.defeatedAt = d.isFinite ? d : age;
     }
-    return (copy, BossMotion(copy, reducedMotion: m.reducedMotion));
+    return (
+      copy,
+      BossMotion(copy, reducedMotion: m.reducedMotion, speech: m.speech),
+    );
   }
 
   DragonPose._(
@@ -237,7 +241,8 @@ final class DragonPose {
        recoil = m.reducedMotion ? 0.0 : m.recoil,
        shot = m.defeated ? 0.0 : m.recoil,
        wince = m.defeated ? 0.0 : m.hit,
-       blink = m.blink,
+       blink = _lids(m),
+       mood = m.mood,
        death = m.defeated ? m.death : 0.0,
        flash = m.defeated
            ? 0.0
@@ -315,8 +320,40 @@ final class DragonPose {
                   (1 - inhale * .5) *
                   (1 - roar * .3) *
                   (1 - (defeated ? 0.0 : e.exhale) * .7);
-    gape = _gapeOf(_age);
+    // A line said in the fight parts the jaws with its words, but never
+    // while the dragon is busy with its fire or a roar.
+    gape = m.voiced(
+      _gapeOf(_age),
+      rest: switch (mood) {
+        StoryMood.happy => .12,
+        StoryMood.surprised => .2,
+        StoryMood.angry => .1,
+        _ => 0,
+      },
+      range: switch (mood) {
+        StoryMood.angry => .55,
+        StoryMood.sad => .3,
+        _ => .42,
+      },
+      // A third of the way into any of them is busy enough: the jaws are
+      // the fire's from the moment it gathers.
+      busy:
+          math.max(
+            math.max(math.max(inhale, blast), math.max(roar, wind)),
+            math.max(math.max(charge, brace), call),
+          ) *
+          3,
+    );
   }
+
+  /// The blink lid with the mood of a line on it: heavy in sorrow, narrowed
+  /// in a gloat, thrown up (below zero) when startled.
+  static double _lids(BossMotion m) => switch (m.mood) {
+    StoryMood.sad => math.max(m.blink, .42),
+    StoryMood.happy => math.max(m.blink, .14),
+    StoryMood.surprised => m.blink - .12,
+    _ => m.blink,
+  };
 
   /// The rest pose: calm, wings half raised, nothing charging.
   static final still = () {
@@ -384,6 +421,20 @@ final class DragonPose {
 
   /// The blink lid, the eye's aim (-1 up .. 1 down), the defeat's clock.
   final double blink, aim, death;
+
+  /// The mood of a line the dragon is saying, or null (BossMotion.mood).
+  final StoryMood? mood;
+
+  /// Where the eye looks, -1 up .. 1 down: along [aim], or at the ground in
+  /// a sorry line. The head itself keeps to [aim].
+  double get look {
+    final down = switch (mood) {
+      StoryMood.sad => .9,
+      StoryMood.surprised => -.4,
+      _ => 0.0,
+    };
+    return (aim + down).clamp(-1.0, 1.0);
+  }
 
   /// Raw pulses: fury onset (1.1 s) and a swarm call landing (0.7 s).
   final double rage, summon;
@@ -473,13 +524,16 @@ final class DragonPose {
   /// How far the jaws are open, 0 to 1: a sliver while sniffing, wider as the
   /// dragon rears (.15 to .35), a dip at the hold (the coil), wide at the
   /// snap and the roar, and a wide snap at a fireball's launch that closes
-  /// over 0.3 s.
+  /// over 0.3 s. A line's words open it too, while nothing else does.
   late final double gape;
 
-  /// How hard it glares.
+  /// How hard it glares (an angry line glares too).
   double get glare => defeated
       ? 0
-      : math.max(math.max(fury, alert * .6), math.max(brace, inhale));
+      : math.max(
+          math.max(math.max(fury, alert * .6), math.max(brace, inhale)),
+          mood == StoryMood.angry ? 1 : 0,
+        );
 
   /// The heart's light: dim at rest with a slow heartbeat, blazing while it
   /// is open.

@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'tracking.dart';
 import 'flight_course.dart';
 import 'bird_motion.dart';
+import 'duel.dart';
 import 'finish_line.dart';
 import 'flight_path.dart';
 import 'flight_plan.dart';
@@ -14,7 +15,9 @@ import 'sky_boss.dart';
 import 'sky_enemy.dart';
 import 'sky_door.dart';
 import 'sprint.dart';
+import 'tether.dart';
 import 'world_region.dart';
+export 'duel.dart';
 export 'finish_line.dart';
 export 'flight_course.dart';
 export 'flight_path.dart';
@@ -28,6 +31,7 @@ export 'sky_boss.dart';
 export 'sky_enemy.dart';
 export 'sky_door.dart';
 export 'sprint.dart';
+export 'tether.dart';
 export 'world_region.dart';
 
 enum RunPhase { countdown, playing, paused, ended }
@@ -131,6 +135,7 @@ class BirdRock {
     required this.y,
     this.damage = baseDamage,
     this.charge = 0,
+    this.owner,
   }) {
     if (damage <= 0) throw ArgumentError.value(damage, 'damage');
     if (!(charge >= 0 && charge <= 1)) {
@@ -144,6 +149,10 @@ class BirdRock {
   // A shot retains the weapon's damage at the instant it was fired.
   final int damage;
   final double charge;
+
+  /// The duel player who threw it, or null. It can hit their rival and
+  /// open a mystery box for them, and flies through what they sent.
+  final int? owner;
   double get radius => baseRadius * PowerShot.radiusScale(charge);
   static const baseDamage = 10;
   static const baseRadius = .014, speed = 1.65;
@@ -316,11 +325,32 @@ class FlightSimulation {
     this.course = FlightCourse.classic,
     this.rulesVersion = currentRulesVersion,
     int weaponDamage = BirdRock.baseDamage,
-    this.plan = FlightPlan.endless,
+    FlightPlan plan = FlightPlan.endless,
+    this.coop,
     math.Random? random,
-  }) : random = plan.courseRandom(random),
-       _nextBossAt = plan.firstBossAt,
-       _nextRushAt = plan.firstRushAt {
+  }) : plan = _planFor(coop, plan),
+       random = plan.courseRandom(random),
+       flock = [
+         if (coop == CoopMode.duel) ...[
+           // Rivals share the column, one above the other.
+           FlightBird(homeX: birdX)..y = Duel.startHeights[0],
+           FlightBird(homeX: birdX)..y = Duel.startHeights[1],
+         ] else ...[
+           FlightBird(homeX: coop != null ? birdX - Tether.spread : birdX),
+           if (coop != null) FlightBird(homeX: birdX + Tether.spread),
+         ],
+       ],
+       _nextBossAt = _planFor(coop, plan).firstBossAt,
+       _nextRushAt = _planFor(coop, plan).firstRushAt {
+    if (coop != null &&
+        (rules.mode != PlayMode.touch ||
+            rulesVersion < coopRulesVersion ||
+            plan.levelId != null)) {
+      throw ArgumentError.value(coop, 'coop', 'Needs an endless touch flight');
+    }
+    if (coop == CoopMode.duel && course != FlightCourse.starTrail) {
+      throw ArgumentError.value(coop, 'coop', 'A duel flies Star Trail');
+    }
     if (plan.levelId != null &&
         (rules.mode != PlayMode.touch ||
             course != FlightCourse.starTrail ||
@@ -337,9 +367,117 @@ class FlightSimulation {
   final bool practice;
   final FlightCourse course;
 
+  /// A duel flies the endless course as a [DuelPlan].
+  static FlightPlan _planFor(CoopMode? coop, FlightPlan plan) =>
+      coop == CoopMode.duel && plan is EndlessPlan ? const DuelPlan() : plan;
+
   /// Replay journals keep the rules they were recorded with.
-  static const currentRulesVersion = 41;
+  static const currentRulesVersion = 42;
   final int rulesVersion;
+
+  /// Two birds, roped together or each on its own ([CoopMode]), fly endless
+  /// touch flights from rules version 42. Solo flights under 42 behave
+  /// exactly as under 41.
+  static const coopRulesVersion = 42;
+
+  /// The birds flying: one, or two on a co-op flight. The first is the solo
+  /// bird and player 1's; the second is player 2's.
+  final List<FlightBird> flock;
+  FlightBird get lead => flock.first;
+  FlightBird? get partner => flock.length > 1 ? flock[1] : null;
+
+  /// Two birds flying: a co-op flight, roped or not, or a duel.
+  bool get paired => flock.length > 1;
+
+  /// How a co-op flight's birds fly together; null for a solo flight.
+  final CoopMode? coop;
+  bool get roped => coop == CoopMode.roped;
+
+  /// Two rivals fight ([Duel]): each bird keeps its own hearts, shield and
+  /// recovery, and mystery boxes fly in.
+  bool get duel => coop == CoopMode.duel;
+
+  /// The bird whose [hearts], [shield] and recovery the rules change: the
+  /// one being viewed on a duel, otherwise the first bird for everyone.
+  FlightBird get _keeper => duel ? _view : lead;
+
+  /// A duel's mystery boxes on screen, opened ones for a moment after.
+  final List<MysteryBox> boxes = [];
+
+  /// Meteor showers still falling on a duel.
+  final List<MeteorShower> meteorShowers = [];
+
+  /// Boxes opened by either duel bird, and rocks that struck a rival.
+  /// Presentation counters, like the splashes.
+  int boxesOpened = 0, rivalStrikes = 0;
+
+  /// The duel's winner once it has ended: player 0 or 1, whoever is still
+  /// flying. Null while it goes on, after a draw or when it was left.
+  int? get duelWinner {
+    if (!duel || endReason != EndReason.collision) return null;
+    final [first, second] = [for (final bird in flock) bird.downAt != null];
+    return first == second ? null : (first ? 1 : 0);
+  }
+
+  /// The bird that [birdY], [velocity], [ammo], [sprinting] and the other
+  /// per-bird readouts describe: the lead, except inside [viewing].
+  late FlightBird _view = lead;
+
+  /// Reads the per-bird state of [bird] instead of the lead's while [read]
+  /// runs, so the bird's art and controls can draw a partner exactly like
+  /// the solo bird. The rules never step inside it.
+  T viewing<T>(FlightBird bird, T Function() read) {
+    final previous = _view;
+    _view = bird;
+    try {
+      return read();
+    } finally {
+      _view = previous;
+    }
+  }
+
+  /// Where the bird being described flies across the screen: [birdX] for a
+  /// solo flight, its place in the formation on a co-op one.
+  double get birdScreenX => _view.x;
+
+  /// How hard the rope last pulled, as the speed it took out of the pair,
+  /// and when. Presentation only, like the splash counters.
+  double ropePull = 0, ropePulledAt = double.negativeInfinity;
+
+  /// Hard rope snaps so far, and when the latest came: a cue counter and
+  /// the rope's flash.
+  int ropeSnaps = 0;
+  double ropeSnappedAt = double.negativeInfinity;
+  static const _snapPull = .25;
+  bool _ropeTaut = false;
+
+  /// The screen column of the rearmost bird. Pickups, gates and gale
+  /// debris count as passed once they are behind it.
+  double get _rearX {
+    var rear = lead.x;
+    for (final bird in flock) {
+      rear = math.min(rear, bird.x);
+    }
+    return rear;
+  }
+
+  /// The pair's mean height, or the solo bird's.
+  double get _flockY {
+    if (!paired) return lead.y;
+    var sum = 0.0;
+    for (final bird in flock) {
+      sum += bird.y;
+    }
+    return sum / flock.length;
+  }
+
+  /// Aimed attacks take turns between the birds, counted by [shot].
+  FlightBird _target(int shot) => flock[shot % flock.length];
+
+  static bool _near(FlightBird bird, double x, double y, double reach) {
+    final dx = bird.x - x, dy = bird.y - y;
+    return dx * dx + dy * dy <= reach * reach;
+  }
 
   /// Campaign levels (a [LevelPlan]) fly from rules version 41. Endless
   /// flights under 41 behave exactly as under 40.
@@ -495,7 +633,8 @@ class FlightSimulation {
   int screechHits = 0;
   int dryFires = 0;
   double lastShotCharge = 0;
-  double lastShotAt = double.negativeInfinity;
+  double get lastShotAt => _view.lastShotAt;
+  set lastShotAt(double value) => _view.lastShotAt = value;
   static const shotCooldown = .28;
   bool get supportsPowerShots => supportsCombat && rulesVersion >= 28;
 
@@ -503,14 +642,18 @@ class FlightSimulation {
   /// [PowerShot.shatterCharge].
   bool get supportsShatter => supportsPowerShots && rulesVersion >= 36;
 
-  /// Share of the ammo reserve left, from 0 to 1. See [PowerShot].
-  double ammo = 1;
-  double? chargeStartedAt;
+  /// Share of the bird's ammo reserve left, from 0 to 1. See [PowerShot].
+  /// Each bird of a co-op flight has its own.
+  double get ammo => _view.ammo;
+  set ammo(double value) => _view.ammo = value;
+  double? get chargeStartedAt => _view.chargeStartedAt;
+  set chargeStartedAt(double? value) => _view.chargeStartedAt = value;
 
   /// Reserve at the moment the current press started. Refill changes [ammo]
   /// while the button is held, and the 500 ms full-charge window has to
   /// start from when the shot could first reach full power.
-  double? _chargeAmmo;
+  double? get _chargeAmmo => _view.chargeAmmo;
+  set _chargeAmmo(double? value) => _view.chargeAmmo = value;
 
   // A charge only exists while its press can still be released into a shot.
   bool get charging => chargeStartedAt != null && phase == RunPhase.playing;
@@ -561,6 +704,14 @@ class FlightSimulation {
     _chargeAmmo = null;
   }
 
+  void _endCharges() {
+    for (final bird in flock) {
+      bird
+        ..chargeStartedAt = null
+        ..chargeAmmo = null;
+    }
+  }
+
   double get shotCost => PowerShot.cost(shotCharge);
   int _weaponDamage = BirdRock.baseDamage;
   int get weaponDamage => supportsWeaponDamage ? _weaponDamage : 1;
@@ -586,10 +737,20 @@ class FlightSimulation {
       supportsPowerShots && _combatReady && plan.shoot && !charging;
 
   bool get supportsSprint => supportsCombat && rulesVersion >= 29;
-  double lastSprintAt = double.negativeInfinity;
+  double get lastSprintAt => _view.lastSprintAt;
+  set lastSprintAt(double value) => _view.lastSprintAt = value;
+
+  /// Sprints by either bird.
   int sprints = 0;
   double get sprintAge => elapsed - lastSprintAt;
-  bool get sprinting => supportsSprint && sprintAge < Sprint.seconds;
+  bool get sprinting => _sprintingOf(_view);
+  bool _sprintingOf(FlightBird bird) =>
+      supportsSprint && elapsed - bird.lastSprintAt < Sprint.seconds;
+
+  /// 0 to 1 as [bird]'s burst surges and eases, like its scroll boost.
+  double _surgeOf(FlightBird bird) => _sprintingOf(bird)
+      ? (Sprint.boost(elapsed - bird.lastSprintAt) - 1) / (Sprint.peakBoost - 1)
+      : 0;
   double get sprintRemaining => sprinting ? Sprint.seconds - sprintAge : 0;
   double get sprintCooldownRemaining => supportsSprint
       ? math.max(0, lastSprintAt + Sprint.cooldown - elapsed)
@@ -600,7 +761,19 @@ class FlightSimulation {
       plan.sprint &&
       sprintCooldownRemaining == 0;
 
-  double get sprintBoost => sprinting ? Sprint.boost(sprintAge) : 1;
+  /// The course follows the pair's middle, so one sprinting bird drags the
+  /// other along at its average boost: half the extra speed of a sprint by
+  /// both.
+  double get sprintBoost {
+    if (!paired) return sprinting ? Sprint.boost(sprintAge) : 1;
+    var extra = 0.0;
+    for (final bird in flock) {
+      if (_sprintingOf(bird)) {
+        extra += Sprint.boost(elapsed - bird.lastSprintAt) - 1;
+      }
+    }
+    return 1 + extra / flock.length;
+  }
 
   bool get supportsRushPaths => supportsSprint && isTrail && rulesVersion >= 32;
   RushPath? rushPath;
@@ -649,16 +822,30 @@ class FlightSimulation {
   double get courseBoost =>
       math.max(math.max(sprintBoost, ringSprintBoost), galeBoost);
 
-  /// Either sprint smashes bats, stone panels and rubble.
-  bool get ramming => sprinting || ringSprinting;
+  /// Either sprint smashes bats, stone panels and rubble. On a co-op
+  /// flight only the bird that sprints rams; a ring sprint carries both.
+  bool get ramming => _rams(_view);
+  bool _rams(FlightBird bird) =>
+      _sprintingOf(bird) || ringSprinting || _starPowered(bird);
+
+  /// Whether a duel bird's star power is on ([BoxPrize.starPower]).
+  bool _starPowered(FlightBird bird) => duel && elapsed < bird.starPowerUntil;
+  bool get starPowered => _starPowered(_view);
+  double get starPowerRemaining =>
+      _starPowered(_view) ? _view.starPowerUntil - elapsed : 0;
   bool get _rushHoldsSpawns => rushPath?.holdsSpawns ?? false;
   static const birdX = .47, birdRadius = .038;
   static const _enemyPassageLead = .55, _enemyEntryMargin = .15;
   RunPhase phase = RunPhase.countdown;
   EndReason? endReason;
-  double birdY = .5, velocity = 0, countdown = 3, elapsed = 0, distance = 0;
-  final FlightPath flightPath = FlightPath();
-  double lastFlapAt = double.negativeInfinity;
+  double countdown = 3, elapsed = 0, distance = 0;
+  double get birdY => _view.y;
+  set birdY(double value) => _view.y = value;
+  double get velocity => _view.velocity;
+  set velocity(double value) => _view.velocity = value;
+  FlightPath get flightPath => _view.flightPath;
+  double get lastFlapAt => _view.lastFlapAt;
+  set lastFlapAt(double value) => _view.lastFlapAt = value;
   static const jumpGlideSeconds = 3.0, starGlideSeconds = .75;
   static const maxGlideSeconds = 5.0, glideFallSpeed = .06;
   static const glideEaseOutSeconds = 1.25, maxJumpFallSpeed = .20;
@@ -675,15 +862,22 @@ class FlightSimulation {
   int gates = 0, collectedStars = 0, combo = 0, bestCombo = 0;
   int completedTrios = 0;
   static const maxHearts = 5;
-  int perfectPasses = 0, perfectStreak = 0, hearts = 3;
-  bool shield = true;
-  double invulnerableUntil = 0;
+  int perfectPasses = 0, perfectStreak = 0;
+
+  /// The flight's hearts, shield and hit recovery, shared by a co-op pair.
+  /// Each duel bird has its own, read inside [viewing].
+  int get hearts => _keeper.hearts;
+  set hearts(int value) => _keeper.hearts = value;
+  bool get shield => _keeper.shield;
+  set shield(bool value) => _keeper.shield = value;
+  double get invulnerableUntil => _keeper.invulnerableUntil;
+  set invulnerableUntil(double value) => _keeper.invulnerableUntil = value;
   double get recoveryRemaining =>
       isTrail ? math.max(0, invulnerableUntil - elapsed) : 0;
   int magnetCharge = 0, magnetActivations = 0;
   double magnetUntil = 0;
   static const magnetDuration = 8.0;
-  bool get supportsMagnet => collectsStars && rulesVersion >= 3;
+  bool get supportsMagnet => collectsStars && rulesVersion >= 3 && !duel;
   double get magnetRemaining =>
       supportsMagnet ? math.max(0, magnetUntil - elapsed) : 0;
   bool get magnetActive => magnetRemaining > 0;
@@ -696,7 +890,9 @@ class FlightSimulation {
   bool get supportsStarTrios => collectsStars && rulesVersion >= 6;
   bool get subtleStarRewards => collectsStars && rulesVersion >= 30;
   int get multiplier => 1 + (combo ~/ 6).clamp(0, 2);
-  int get shieldCharge => collectedStars % 9;
+
+  /// Stars towards the next shield: the flight's, or a duel bird's own.
+  int get shieldCharge => (duel ? _view.stars : collectedStars) % 9;
   double get remainingSeconds => math.max(0, course.duration - elapsed);
   String get clockLabel {
     if (timed) return '${remainingSeconds.ceil()}s';
@@ -746,25 +942,51 @@ class FlightSimulation {
     return math.max(interval, mode.cycleSeconds / 2 + occupied / speed + .15);
   }
 
-  bool startCharge() {
+  /// [player] picks the bird of a co-op flight; each has its own reserve,
+  /// charge and cooldowns.
+  bool startCharge({int player = 0}) => _for(player, () {
     if (!canCharge) return false;
     chargeStartedAt = elapsed;
     _chargeAmmo = ammo;
     return true;
-  }
+  });
 
   /// The cooldown runs from the press, on the same clock as the burst.
-  bool sprint() {
+  bool sprint({int player = 0}) => _for(player, () {
     if (!canSprint) return false;
     lastSprintAt = elapsed;
+    _view.sprints++;
     sprints++;
     return true;
+  });
+
+  /// One co-op player's flap. The solo bird flaps through [apply].
+  bool flap(int player) {
+    if (player < 0 ||
+        player >= flock.length ||
+        rules.mode.controlsHeight ||
+        phase != RunPhase.playing ||
+        _holding) {
+      return false;
+    }
+    final bird = flock[player]
+      ..velocity = rules.flapImpulse
+      ..lastFlapAt = elapsed;
+    bird.flaps++;
+    flaps++;
+    return true;
   }
+
+  bool _for(int player, bool Function() act) =>
+      player >= 0 && player < flock.length && viewing(flock[player], act);
 
   /// Releases the held charge, or fires a tapped rock when nothing is held.
   /// A full charge also calls this on its own once it has been held for
   /// [PowerShot.maxFullHoldSeconds].
-  bool shoot({bool reducedMotion = false}) {
+  bool shoot({int player = 0, bool reducedMotion = false}) =>
+      _for(player, () => _shoot(reducedMotion: reducedMotion));
+
+  bool _shoot({required bool reducedMotion}) {
     final charge = shotCharge;
     _endCharge();
     if (!canShoot) {
@@ -780,6 +1002,7 @@ class FlightSimulation {
             ? PowerShot.damage(weaponDamage, charge)
             : weaponDamage,
         charge: charge,
+        owner: duel ? flock.indexOf(_view) : null,
       ),
     );
     if (supportsPowerShots) {
@@ -787,6 +1010,7 @@ class FlightSimulation {
     }
     lastShotAt = elapsed;
     lastShotCharge = charge;
+    _view.shots++;
     shots++;
     return true;
   }
@@ -803,7 +1027,7 @@ class FlightSimulation {
       reducedMotion: reducedMotion,
     );
     final lead = BirdRock.baseRadius * (PowerShot.radiusScale(charge) - 1);
-    return (x: birdX + mouth.x + lead, y: birdY + mouth.y);
+    return (x: birdScreenX + mouth.x + lead, y: birdY + mouth.y);
   }
 
   String get regionName => switch ((elapsed / 20).floor() % 3) {
@@ -853,6 +1077,7 @@ class FlightSimulation {
     } else if (input.flap && phase == RunPhase.playing && !_holding) {
       velocity = rules.flapImpulse;
       lastFlapAt = elapsed;
+      lead.flaps++;
       flaps++;
       if (supportsJumpGlide) {
         // Refresh the base allowance without erasing time earned from stars.
@@ -951,10 +1176,12 @@ class FlightSimulation {
         // Let the player watch the reveal and victory without falling into a
         // boundary. No input queues up to launch the bird when control returns.
         // A campaign boss level keeps holding through its victory glide.
-        birdY += (.52 - birdY) * (1 - math.exp(-step * 3));
-        birdY = birdY.clamp(birdRadius + .001, 1 - birdRadius - .001);
-        velocity = 0;
-        _endCharge();
+        for (final bird in flock) {
+          bird.y += (.52 - bird.y) * (1 - math.exp(-step * 3));
+          bird.y = bird.y.clamp(birdRadius + .001, 1 - birdRadius - .001);
+          bird.velocity = 0;
+        }
+        _endCharges();
       } else if (!rules.mode.controlsHeight) {
         if (smoothJumpDescent && velocity >= 0) {
           _advanceJumpDescent(step);
@@ -968,7 +1195,13 @@ class FlightSimulation {
           }
         }
         birdY += velocity * step;
+        // A co-op partner flies plain touch flaps.
+        for (final bird in flock.skip(1)) {
+          bird.velocity += rules.gravity * step;
+          bird.y += bird.velocity * step;
+        }
       }
+      if (paired) _advanceFormation(step);
       if (boss == null) _spawnIn -= step * boost;
       for (final obstacle in obstacles) {
         obstacle.x -= scroll * step;
@@ -992,48 +1225,71 @@ class FlightSimulation {
         _addPassage(x, center);
         _spawnIn += spawnInterval;
       }
-      if (birdY - birdRadius <= 0 || birdY + birdRadius >= 1) {
-        if (!collectsStars) {
-          end(EndReason.collision);
-          break;
+      var crashed = false;
+      for (final bird in flock) {
+        if (bird.y - birdRadius <= 0 || bird.y + birdRadius >= 1) {
+          if (!collectsStars) {
+            end(EndReason.collision);
+            crashed = true;
+            break;
+          }
+          _hurt(bird);
+          bird.y = bird.y.clamp(birdRadius + .001, 1 - birdRadius - .001);
+          bird.velocity = 0;
         }
-        _damage();
-        birdY = birdY.clamp(birdRadius + .001, 1 - birdRadius - .001);
-        velocity = 0;
       }
+      if (crashed) break;
       if (boss?.waterLevel case final sea? when !bossCutscene) {
-        if (birdY + birdRadius >= sea) _splashDown(sea);
+        for (final bird in flock) {
+          if (bird.y + birdRadius >= sea) _splashDown(sea, bird);
+        }
         if (phase == RunPhase.ended) break;
       }
-      if (boss case final dragon? when dragon.scorches(birdY, birdRadius)) {
+      if (boss case final dragon?
+          when flock.any((bird) => dragon.scorches(bird.y, birdRadius))) {
         _scorch();
         if (phase == RunPhase.ended) break;
       }
       if (boss case final baron?
-          when baron.screechHits(birdX, birdY, birdRadius)) {
+          when flock.any(
+            (bird) => baron.screechHits(bird.x, bird.y, birdRadius),
+          )) {
         _screeched();
         if (phase == RunPhase.ended) break;
       }
-      flightPath.record(distance, birdY);
-      if (!ramming) smashChain = 0;
+      for (final bird in flock) {
+        // The partner's line keeps its own place in the formation.
+        bird.flightPath.record(distance + (bird.x - birdX), bird.y);
+      }
+      if (!flock.any(_rams)) smashChain = 0;
+      final rear = _rearX;
       for (final o in obstacles) {
         if (phase == RunPhase.ended) break;
-        if (ramming) {
-          _ramPanel(o);
-          _smashObstacle(o);
-        }
-        if (!o.hit && _touches(o)) {
-          if (!isTrail) {
-            end(EndReason.collision);
-            break;
+        for (final bird in flock) {
+          if (_rams(bird)) {
+            _ramPanel(o, bird);
+            _smashObstacle(o, bird);
           }
-          o.hit = true;
-          _damage();
+          if (!_wallSpent(o, bird) && _touches(o, bird)) {
+            if (!isTrail) {
+              end(EndReason.collision);
+              crashed = true;
+              break;
+            }
+            o.hit = true;
+            if (duel) _wallHits[o] = (_wallHits[o] ?? 0) | _bit(bird);
+            _hurt(bird);
+          }
+          if (o.x < bird.x + birdRadius &&
+              o.x + o.width > bird.x - birdRadius) {
+            o.maxDeviation = math.max(
+              o.maxDeviation,
+              (bird.y - o.target).abs(),
+            );
+          }
         }
-        if (o.x < birdX + birdRadius && o.x + o.width > birdX - birdRadius) {
-          o.maxDeviation = math.max(o.maxDeviation, (birdY - o.target).abs());
-        }
-        if (!o.scored && o.x + o.width < birdX - birdRadius) {
+        if (crashed) break;
+        if (!o.scored && o.x + o.width < rear - birdRadius) {
           o.scored = true;
           if (!o.hit && !o.rubble) {
             gates++;
@@ -1075,7 +1331,11 @@ class FlightSimulation {
       }
       if (supportsCombat && phase == RunPhase.playing) {
         _advanceCombat(step, scroll, viewportWidth, rush: scroll - speed);
-        if (_fullHoldExpired) shoot(reducedMotion: reducedMotion);
+        for (var player = 0; player < flock.length; player++) {
+          if (viewing(flock[player], () => _fullHoldExpired)) {
+            shoot(player: player, reducedMotion: reducedMotion);
+          }
+        }
       }
       if (supportsRushPaths && phase == RunPhase.playing) {
         _scheduleRushPath(viewportWidth);
@@ -1083,6 +1343,9 @@ class FlightSimulation {
       if (supportsGales && phase == RunPhase.playing) _scheduleGale();
       if (route != null && phase == RunPhase.playing) {
         _advanceFinish(viewportWidth);
+      }
+      if (duel && phase == RunPhase.playing) {
+        _advanceDuel(step, scroll, viewportWidth);
       }
       obstacles.removeWhere((o) => o.x + o.width < -.1);
       events.removeWhere((e) => elapsed - e.at > 2);
@@ -1235,6 +1498,17 @@ class FlightSimulation {
         );
       }
     }
+    if (duel &&
+        _index >= Duel.firstBoxPassage &&
+        (_index - Duel.firstBoxPassage) % Duel.boxEvery == 0) {
+      boxes.add(
+        MysteryBox(
+          x: x - Duel.boxLead,
+          y: Duel.boxHeight(target, random),
+          phase: _index * 2.399963,
+        ),
+      );
+    }
     // Enemies share the aiming height and remain in front of their building.
     final enemy = supportsCombat && !hasDoor ? plan.enemyIndex(_index) : null;
     if (enemy != null) {
@@ -1294,6 +1568,30 @@ class FlightSimulation {
         )
       : 1;
 
+  /// Each bird eases back to its place (a sprinting one surges ahead of
+  /// it), then the rope (on a roped flight) keeps them together and their
+  /// bodies keep them apart.
+  void _advanceFormation(double step) {
+    for (final bird in flock) {
+      Tether.cruise(bird, _holding ? 0 : _surgeOf(bird), step);
+    }
+    if (!roped) {
+      if (duel) _starPowerContact();
+      Tether.bump(lead, partner!);
+      return;
+    }
+    final pull = Tether.bind(lead, partner!);
+    if (pull > 0) {
+      if (!_ropeTaut && pull >= _snapPull) {
+        ropeSnaps++;
+        ropeSnappedAt = elapsed;
+      }
+      ropePull = pull;
+      ropePulledAt = elapsed;
+    }
+    _ropeTaut = pull > 0;
+  }
+
   void _advanceJumpDescent(double dt) {
     final ending = (1 - _glideRemaining / glideEaseOutSeconds).clamp(0.0, 1.0);
     final ease = ending * ending * (3 - 2 * ending);
@@ -1313,8 +1611,12 @@ class FlightSimulation {
     double viewportWidth, {
     required double rush,
   }) {
-    if (supportsPowerShots && elapsed - lastShotAt >= PowerShot.refillDelay) {
-      ammo = math.min(1, ammo + PowerShot.refillPerSecond * dt);
+    if (supportsPowerShots) {
+      for (final bird in flock) {
+        if (elapsed - bird.lastShotAt >= PowerShot.refillDelay) {
+          bird.ammo = math.min(1, bird.ammo + PowerShot.refillPerSecond * dt);
+        }
+      }
     }
     for (final enemy in enemies) {
       enemy.x -= scrollSpeed * enemy.drift * dt;
@@ -1368,6 +1670,7 @@ class FlightSimulation {
       }
       if (spent.contains(rock) || rock.rebounding) continue;
       for (final enemy in enemies) {
+        if (enemy.sender != null && enemy.sender == rock.owner) continue;
         final dx = rock.x - enemy.x, dy = rock.y - enemy.y;
         final radius = rock.radius + SkyEnemy.radius;
         if (dx * dx + dy * dy > radius * radius) continue;
@@ -1413,13 +1716,15 @@ class FlightSimulation {
           (rock.rebounding && (rock.x < -.2 || rock.y > 1.2)),
     );
     enemies.removeWhere((enemy) {
-      final dx = birdX - enemy.x, dy = birdY - enemy.y;
-      const radius = birdRadius + SkyEnemy.radius;
-      if (dx * dx + dy * dy <= radius * radius) {
-        if (ramming) {
+      for (final bird in flock) {
+        if (_sentBy(enemy.sender, bird) ||
+            !_near(bird, enemy.x, enemy.y, birdRadius + SkyEnemy.radius)) {
+          continue;
+        }
+        if (_rams(bird)) {
           _defeatEnemy(enemy, rammed: true);
         } else if (isTrail) {
-          _damage();
+          _hurt(bird, by: enemy.sender);
         } else {
           end(EndReason.collision);
         }
@@ -1445,9 +1750,8 @@ class FlightSimulation {
         cannonSplashes++;
         return true;
       }
-      final dx = birdX - ammo.x, dy = birdY - ammo.y;
       final reach = birdRadius + ammo.radius;
-      if (dx * dx + dy * dy <= reach * reach) {
+      if (flock.any((bird) => _near(bird, ammo.x, ammo.y, reach))) {
         if (isTrail) {
           _damage();
         } else {
@@ -1511,7 +1815,12 @@ class FlightSimulation {
       enemy.fireIn -= dt;
       final fan = enemy.attack == EnemyAttack.fan;
       if (enemy.fireIn > 0 || enemyAmmo.length + (fan ? 3 : 1) > 12) continue;
-      final aim = math.atan2(birdY - enemy.y, birdX - enemy.muzzleX);
+      // A sent enemy spits only at its sender's rival.
+      final target = switch (enemy.sender) {
+        final sender? => flock[1 - sender],
+        null => _target(enemy.volleys),
+      };
+      final aim = math.atan2(target.y - enemy.y, target.x - enemy.muzzleX);
       final speed = fan ? .34 : .44;
       for (final offset in fan ? [-.30, 0.0, .30] : [0.0]) {
         enemyAmmo.add(
@@ -1522,6 +1831,7 @@ class FlightSimulation {
             vy: math.sin(aim + offset) * speed,
             attack: enemy.attack,
             bornAt: elapsed,
+            sender: enemy.sender,
           ),
         );
       }
@@ -1553,7 +1863,10 @@ class FlightSimulation {
       // A well-timed shot can cancel a pellet instead of demanding a dodge
       // while the player is lining up with a narrow gate.
       for (final rock in rocks) {
-        if (rock.rebounding) continue;
+        if (rock.rebounding ||
+            (ammo.sender != null && rock.owner == ammo.sender)) {
+          continue;
+        }
         final dx = rock.x - ammo.x, dy = rock.y - ammo.y;
         final reach = rock.radius + EnemyAmmo.radius;
         if (dx * dx + dy * dy <= reach * reach) {
@@ -1567,12 +1880,15 @@ class FlightSimulation {
           return true;
         }
       }
-      final dx = birdX - ammo.x, dy = birdY - ammo.y;
       const reach = birdRadius + EnemyAmmo.radius;
-      if (dx * dx + dy * dy > reach * reach) return false;
-      _ammoImpact(ammo, AmmoStop.struck);
+      final struck = flock.where(
+        (bird) =>
+            !_sentBy(ammo.sender, bird) && _near(bird, ammo.x, ammo.y, reach),
+      );
+      if (struck.isEmpty) return false;
+      _ammoImpact(ammo, AmmoStop.struck, struck.first.y);
       if (isTrail) {
-        _damage();
+        _hurt(struck.first, by: ammo.sender);
       } else {
         end(EndReason.collision);
       }
@@ -1631,18 +1947,19 @@ class FlightSimulation {
     if (target.hp == 0) _defeatBoss(target);
   }
 
-  void _ammoImpact(EnemyAmmo ammo, AmmoStop stop) => enemyAmmoImpacts.add(
-    EnemyAmmoImpact(
-      x: ammo.x,
-      y: ammo.y,
-      worldX: distance + ammo.x,
-      birdY: birdY,
-      direction: math.atan2(ammo.vy, ammo.vx),
-      attack: ammo.attack,
-      stop: stop,
-      at: elapsed,
-    ),
-  );
+  void _ammoImpact(EnemyAmmo ammo, AmmoStop stop, [double? y]) =>
+      enemyAmmoImpacts.add(
+        EnemyAmmoImpact(
+          x: ammo.x,
+          y: ammo.y,
+          worldX: distance + ammo.x,
+          birdY: y ?? birdY,
+          direction: math.atan2(ammo.vy, ammo.vx),
+          attack: ammo.attack,
+          stop: stop,
+          at: elapsed,
+        ),
+      );
 
   /// Which slot of the Spitter King's full fan stays open, drawn from the
   /// flight's seeded random. A side slot only qualifies while its lane, where
@@ -1734,7 +2051,7 @@ class FlightSimulation {
           _heartPassagesRemaining = 2 + random.nextInt(6);
         }
         _spawnIn = 0;
-        _previousCenter = plan.resumeCenter(birdY);
+        _previousCenter = plan.resumeCenter(_flockY);
       }
       return;
     }
@@ -1786,7 +2103,10 @@ class FlightSimulation {
       // Each breath is aimed once, where the bird is as the inhale begins.
       if (current.breaths > current.breathsAimed) {
         current.breathsAimed = current.breaths;
-        current.breathLane = DragonBreath.aimAt(birdY, debut: current.debut);
+        current.breathLane = DragonBreath.aimAt(
+          _target(current.breaths).y,
+          debut: current.debut,
+        );
       }
       // Each flock is called once, at the bird's height as the call comes.
       if (current.swarmCallsDue > current.swarmCalls) {
@@ -1808,7 +2128,7 @@ class FlightSimulation {
       if (current.screechWarnings > current.screechesAimed) {
         current.screechesAimed = current.screechWarnings;
         final index = current.screechesAimed - 1;
-        current.screechGap = BaronScreech.aimAt(birdY, index);
+        current.screechGap = BaronScreech.aimAt(_target(index).y, index);
       }
       if (current.batPairsDue > current.batPairs) {
         current.batPairs = current.batPairsDue;
@@ -1824,8 +2144,12 @@ class FlightSimulation {
       }
     }
     current.fireIn -= dt;
+    final target = _target(current.volleys);
     if (current.fireIn <= 0 && current.isDragon) {
-      final aim = math.atan2(birdY - current.mouthY, birdX - current.mouthX);
+      final aim = math.atan2(
+        target.y - current.mouthY,
+        target.x - current.mouthX,
+      );
       final split = current.splitsVolley;
       for (final offset in current.volleyOffsets) {
         final speed = current.projectileSpeed;
@@ -1845,7 +2169,7 @@ class FlightSimulation {
       current.fireIn += current.volleyInterval;
     } else if (current.fireIn <= 0 && current.isPirate) {
       for (final offset in current.volleyOffsets) {
-        final shot = current.cannonShot(birdX, birdY + offset);
+        final shot = current.cannonShot(target.x, target.y + offset);
         bossAmmo.add(
           BossAmmo(
             x: shot.x,
@@ -1862,7 +2186,7 @@ class FlightSimulation {
       current.fireIn += current.volleyInterval;
     } else if (current.fireIn <= 0) {
       final muzzleX = current.muzzleX;
-      final aim = math.atan2(birdY - current.y, birdX - muzzleX);
+      final aim = math.atan2(target.y - current.y, target.x - muzzleX);
       if (current.isSpitter && rulesVersion >= 37) {
         current.openSlot = _openAcidSlot(current, muzzleX, aim);
       }
@@ -1918,7 +2242,7 @@ class FlightSimulation {
   /// The Ember Dragon's flock streams in from behind it in the swarm rush
   /// path's formation, level at the bird's height, never along an edge.
   void _callFlock(SkyBoss dragon, double viewportWidth) {
-    final y = birdY.clamp(.15, .85);
+    final y = _target(dragon.summons).y.clamp(.15, .85);
     for (var k = 0; k < Rush.flockSize; k++) {
       swarm.add(
         SwarmBat(
@@ -1972,24 +2296,24 @@ class FlightSimulation {
   }
 
   /// Only the panel breaks; the wall around it keeps its normal collision.
-  void _ramPanel(Obstacle o) {
+  void _ramPanel(Obstacle o, FlightBird bird) {
     final panel = o.door;
-    if (panel == null || !_circleTouchesDoor(birdX, birdY, birdRadius, o)) {
+    if (panel == null || !_circleTouchesDoor(bird.x, bird.y, birdRadius, o)) {
       return;
     }
-    panel.takeDamage(panel.hp, hitY: birdY, rammed: true);
+    panel.takeDamage(panel.hp, hitY: bird.y, rammed: true);
     doorsDestroyed++;
   }
 
   /// Any sprint breaks rubble; a ring sprint smashes ordinary walls too.
   /// The bow wave breaks the whole barrier as the bird passes, through its
   /// opening or not, so a sprint leaves nothing standing behind it.
-  void _smashObstacle(Obstacle o) {
+  void _smashObstacle(Obstacle o, FlightBird bird) {
     if (o.smashed || !(o.rubble || ringSprinting)) return;
     const reach = birdRadius + Rush.ramReach;
-    if (birdX + reach < o.x || birdX - reach > o.x + o.width) return;
+    if (bird.x + reach < o.x || bird.x - reach > o.x + o.width) return;
     o.smashedAt = elapsed;
-    o.smashY = birdY;
+    o.smashY = bird.y;
     smashes++;
     smashChain++;
     score += Rush.smashPoints;
@@ -1997,7 +2321,7 @@ class FlightSimulation {
       FlightEvent(
         FlightEventKind.smashed,
         elapsed,
-        birdY,
+        bird.y,
         value: smashChain,
         gateWorldX: distance + o.x,
       ),
@@ -2031,10 +2355,10 @@ class FlightSimulation {
     final travel = scroll * dt;
     sprintRings.removeWhere((ring) {
       ring.x -= travel;
-      final dx = birdX - ring.x, dy = birdY - ring.y;
       if (!ring.collected &&
-          dx * dx + dy * dy <=
-              SprintRing.pickupRadius * SprintRing.pickupRadius) {
+          flock.any(
+            (bird) => _near(bird, ring.x, ring.y, SprintRing.pickupRadius),
+          )) {
         ring.collected = true;
         ring.collectedAt = elapsed;
         _ringSprint();
@@ -2069,7 +2393,8 @@ class FlightSimulation {
       case RushPhase.running:
         switch (path.kind) {
           case RushPathKind.wildfire:
-            _advanceFire(path, dt, bird);
+            // The fire catches the rearmost bird.
+            _advanceFire(path, dt, distance + _rearX);
           case RushPathKind.skyfall:
             _advanceSkyfall(path, dt, bird);
           case RushPathKind.eruption:
@@ -2226,19 +2551,23 @@ class FlightSimulation {
       m.age += dt;
       m.x += (m.vx - scroll) * dt;
       m.y += m.vy * dt;
-      final dx = birdX - m.x, dy = birdY - m.y;
-      final reach = birdRadius + Meteor.radius + (ramming ? Rush.ramReach : 0);
-      if (dx * dx + dy * dy <= reach * reach) {
-        if (ramming) {
+      for (final bird in flock) {
+        if (_sentBy(m.sender, bird)) continue;
+        final ram = _rams(bird);
+        final reach = birdRadius + Meteor.radius + (ram ? Rush.ramReach : 0);
+        if (!_near(bird, m.x, m.y, reach)) continue;
+        if (ram) {
           smashChain++;
           _smashMeteor(m, chain: smashChain);
         } else {
-          _damage();
+          _hurt(bird, by: m.sender);
         }
         return true;
       }
       for (final rock in rocks) {
-        if (rock.rebounding) continue;
+        if (rock.rebounding || (m.sender != null && rock.owner == m.sender)) {
+          continue;
+        }
         final rx = rock.x - m.x, ry = rock.y - m.y;
         final hit = rock.radius + Meteor.radius;
         if (rx * rx + ry * ry <= hit * hit) {
@@ -2282,12 +2611,15 @@ class FlightSimulation {
       final top = vent.plumeTop(elapsed);
       if (top < 1 && elapsed >= invulnerableUntil) {
         const half = LavaVent.width / 2;
-        final dx = birdX - birdX.clamp(vent.x - half, vent.x + half);
-        final dy = birdY - birdY.clamp(top, 1.0);
-        if (dx * dx + dy * dy <= birdRadius * birdRadius) {
-          rushPath?.catches++;
-          _damage();
-          _event(FlightEventKind.scorched);
+        for (final bird in flock) {
+          final dx = bird.x - bird.x.clamp(vent.x - half, vent.x + half);
+          final dy = bird.y - bird.y.clamp(top, 1.0);
+          if (dx * dx + dy * dy <= birdRadius * birdRadius) {
+            rushPath?.catches++;
+            _damage();
+            _event(FlightEventKind.scorched);
+            break;
+          }
         }
       }
       return vent.x < -.2;
@@ -2328,22 +2660,26 @@ class FlightSimulation {
           (bat.route?.routeY(distance + bat.x) ?? bat.height) +
           bat.lane +
           .012 * math.sin(bat.age * 9 + bat.phase);
-      final dx = birdX - bat.x, dy = birdY - bat.y;
-      final reach =
-          birdRadius + SwarmBat.radius + (ramming ? Rush.ramReach : 0);
-      if (dx * dx + dy * dy <= reach * reach) {
-        if (ramming) {
+      for (final bird in flock) {
+        if (_sentBy(bat.sender, bird)) continue;
+        final ram = _rams(bird);
+        final reach = birdRadius + SwarmBat.radius + (ram ? Rush.ramReach : 0);
+        if (!_near(bird, bat.x, bat.y, reach)) continue;
+        if (ram) {
           smashChain++;
           _smashBat(bat, chain: smashChain);
         } else if (isTrail) {
-          _damage();
+          _hurt(bird, by: bat.sender);
         } else {
           end(EndReason.collision);
         }
         return true;
       }
       for (final rock in rocks) {
-        if (rock.rebounding) continue;
+        if (rock.rebounding ||
+            (bat.sender != null && rock.owner == bat.sender)) {
+          continue;
+        }
         final rx = rock.x - bat.x, ry = rock.y - bat.y;
         final hit = rock.radius + SwarmBat.radius;
         if (rx * rx + ry * ry <= hit * hit) {
@@ -2436,7 +2772,7 @@ class FlightSimulation {
   /// gusts add a second piece above or below it, so the bird has to pick
   /// the open side.
   void _gust(Gale current, double scroll, double viewportWidth) {
-    final aimed = birdY.clamp(Gale.top, Gale.bottom);
+    final aimed = _target(current.gusts).y.clamp(Gale.top, Gale.bottom);
     final lanes = [aimed];
     if (current.gusts.isOdd) {
       final spread =
@@ -2468,13 +2804,12 @@ class FlightSimulation {
       d.age += dt;
       d.x -= (GaleDebris.speed + scroll) * dt;
       if (d.hitAt == null && !d.dodged) {
-        final dx = birdX - d.x, dy = birdY - d.y;
         const reach = birdRadius + GaleDebris.radius;
-        if (dx * dx + dy * dy <= reach * reach) {
+        if (flock.any((bird) => _near(bird, d.x, d.y, reach))) {
           d.hitAt = elapsed;
           gale?.hits++;
           _damage();
-        } else if (d.x + GaleDebris.radius < birdX - birdRadius) {
+        } else if (d.x + GaleDebris.radius < _rearX - birdRadius) {
           d.dodged = true;
           galeDodges++;
           gale?.dodges++;
@@ -2502,13 +2837,148 @@ class FlightSimulation {
     galesWeathered++;
     _event(FlightEventKind.galeWeathered, current.bonus);
     _spawnIn = 0;
-    _previousCenter = plan.resumeCenter(birdY);
+    _previousCenter = plan.resumeCenter(_flockY);
     _nextRushAt = _scheduleClock + plan.rushAfterGale;
     // Leave the rush path its full lead before the next boss. A level plan
     // lays its rushes on the route and never schedules one here (its
     // rushAfterGale is infinite), which must not push its boss away for good.
     if (_nextRushAt.isFinite) {
       _nextBossAt = math.max(_nextBossAt, _nextRushAt + Rush.bossLead + 1);
+    }
+  }
+
+  /// Moves the duel's boxes, opens those a bird or its rock touches, drops
+  /// meteor showers and rock hits on rivals, then ends the duel once a bird
+  /// is down.
+  void _advanceDuel(double dt, double scroll, double viewportWidth) {
+    for (final box in boxes) {
+      box.x -= scroll * dt;
+      if (box.opened) continue;
+      for (final (player, bird) in flock.indexed) {
+        const reach = birdRadius + MysteryBox.radius;
+        if (bird.downAt == null && _near(bird, box.x, box.y, reach)) {
+          _openBox(box, player, viewportWidth);
+          break;
+        }
+      }
+    }
+    rocks.removeWhere((rock) {
+      final owner = rock.owner;
+      if (rock.rebounding || owner == null) return false;
+      final rival = flock[1 - owner];
+      if (rival.downAt == null &&
+          _near(rival, rock.x, rock.y, birdRadius + rock.radius)) {
+        rivalStrikes++;
+        _hurt(rival, by: owner);
+        return true;
+      }
+      for (final box in boxes) {
+        if (box.opened) continue;
+        final dx = rock.x - box.x, dy = rock.y - box.y;
+        final reach = rock.radius + MysteryBox.radius;
+        if (dx * dx + dy * dy <= reach * reach) {
+          _openBox(box, owner, viewportWidth);
+          return true;
+        }
+      }
+      return false;
+    });
+    boxes.removeWhere(
+      (box) =>
+          box.x < -.2 ||
+          (box.opened && elapsed - box.openedAt! > MysteryBox.burstSeconds),
+    );
+    for (final shower in meteorShowers) {
+      if (elapsed < shower.nextAt) continue;
+      // Each meteor is aimed where the rival flies as it falls, so the
+      // rival has to keep moving.
+      final rival = flock[1 - shower.sender];
+      const lead = Rush.meteorLead;
+      meteors.add(
+        Meteor(
+          x: birdX + speed * lead + Rush.meteorDrift,
+          y: Rush.meteorTop,
+          vx: -Rush.meteorDrift / lead,
+          vy: (rival.y.clamp(.12, .88) - Rush.meteorTop) / lead,
+          aimed: true,
+          sender: shower.sender,
+        ),
+      );
+      shower
+        ..left -= 1
+        ..nextAt += Duel.showerInterval;
+    }
+    meteorShowers.removeWhere((shower) => shower.left <= 0);
+    if (flock.any((bird) => bird.downAt != null)) end(EndReason.collision);
+  }
+
+  /// [player] opens [box] and gets its prize: a help for their own bird, or
+  /// an attack on their rival.
+  void _openBox(MysteryBox box, int player, double viewportWidth) {
+    final bird = flock[player], rival = flock[1 - player];
+    final prize = viewing(
+      bird,
+      () => Duel.roll(random, hearts: hearts, shield: shield),
+    );
+    box
+      ..openedAt = elapsed
+      ..opener = player
+      ..prize = prize;
+    bird.boxesOpened++;
+    boxesOpened++;
+    // The prize's own sticker bursts out of the box, so a help raises no
+    // floating label of its own.
+    switch (prize) {
+      case BoxPrize.heart:
+        bird.hearts = math.min(Duel.maxHearts, bird.hearts + 1);
+      case BoxPrize.shield:
+        bird.shield = true;
+      case BoxPrize.starPower:
+        bird.starPowerUntil = elapsed + Duel.starPowerSeconds;
+      case BoxPrize.batSwarm:
+        // A line of bats at the rival's height, as it was when sent.
+        final y = rival.y.clamp(.1, .9);
+        for (var k = 0; k < Duel.swarmSize; k++) {
+          swarm.add(
+            SwarmBat(
+              x: viewportWidth + .1 + k * Duel.batSpacing,
+              y: y,
+              lane: 0,
+              phase: (boxesOpened * Duel.swarmSize + k) * 2.399963,
+              sender: player,
+            ),
+          );
+        }
+      case BoxPrize.spitter:
+        const appearance = 1;
+        assert(EnemyKind.values[appearance] == EnemyKind.spitterBeetle);
+        enemies.add(
+          SkyEnemy(
+            x: viewportWidth + .1,
+            y: rival.y.clamp(.2, .8),
+            appearance: appearance,
+            maxHp: _enemyHealth(appearance),
+            flightPhase: boxesOpened * 2.399963,
+            drift: Duel.spitterDrift,
+            sender: player,
+          ),
+        );
+      case BoxPrize.meteorShower:
+        meteorShowers.add(
+          MeteorShower(sender: player, nextAt: elapsed + Duel.showerDelay),
+        );
+    }
+  }
+
+  /// A star-powered duel bird that touches its rival hurts it.
+  void _starPowerContact() {
+    for (final (player, bird) in flock.indexed) {
+      final rival = flock[1 - player];
+      if (_starPowered(bird) &&
+          rival.downAt == null &&
+          _near(bird, rival.x, rival.y, Tether.contact + .01)) {
+        _hurt(rival, by: player);
+      }
     }
   }
 
@@ -2526,17 +2996,19 @@ class FlightSimulation {
   }
 
   void _advanceHearts(double travel) {
+    final rear = _rearX;
     heartPickups.removeWhere((heart) {
       heart.x -= travel;
-      final dx = birdX - heart.x, dy = birdY - heart.y;
-      if (dx * dx + dy * dy <= SkyHeart.pickupRadius * SkyHeart.pickupRadius) {
+      if (flock.any(
+        (bird) => _near(bird, heart.x, heart.y, SkyHeart.pickupRadius),
+      )) {
         if (hearts < maxHearts) {
           hearts++;
           _event(FlightEventKind.heart, 1);
         }
         return true;
       }
-      return heart.x < birdX - SkyHeart.pickupRadius;
+      return heart.x < rear - SkyHeart.pickupRadius;
     });
   }
 
@@ -2544,13 +3016,17 @@ class FlightSimulation {
     for (final trio in starTrios) {
       trio.x -= travel;
     }
+    final rear = _rearX;
     for (final star in stars) {
       star.x -= travel;
       if (star.collected || star.missed) continue;
-      final dx = birdX - star.x, dy = birdY - star.y;
       // A generous pickup halo rewards intention over pixel precision.
       final radius = pickupRadius;
-      if (dx * dx + dy * dy <= radius * radius) {
+      final taker = flock
+          .where((bird) => _near(bird, star.x, star.y, radius))
+          .firstOrNull;
+      if (taker != null) {
+        taker.stars++;
         final previousMultiplier = multiplier;
         star.collected = true;
         star.collectedAt = elapsed;
@@ -2586,11 +3062,16 @@ class FlightSimulation {
         if (multiplier > previousMultiplier) {
           _event(FlightEventKind.streak, multiplier);
         }
-        if (isTrail && collectedStars % 9 == 0 && !shield) {
-          shield = true;
-          _event(FlightEventKind.shieldReady);
+        // A duel bird's own stars charge its own shield.
+        if (isTrail &&
+            (duel ? taker.stars : collectedStars) % 9 == 0 &&
+            !viewing(taker, () => shield)) {
+          viewing(taker, () {
+            shield = true;
+            _event(FlightEventKind.shieldReady);
+          });
         }
-      } else if (star.x < birdX - radius) {
+      } else if (star.x < rear - radius) {
         star.missed = true;
         if (supportsStarTrios) star.trio?.missed = true;
         combo = 0;
@@ -2600,12 +3081,16 @@ class FlightSimulation {
     starTrios.removeWhere((trio) => trio.x + .17 < -.1);
   }
 
-  void _damage() {
+  /// Hurts the flight, or on a duel the bird being viewed. Returns whether
+  /// it took the hit (its shield may have taken it instead). A duel bird
+  /// that loses its last heart is down; the step ends the duel.
+  bool _damage() {
     if (elapsed < invulnerableUntil ||
         phase == RunPhase.ended ||
         victoryGlide) {
-      return;
+      return false;
     }
+    if (duel && (_view.downAt != null || _starPowered(_view))) return false;
     combo = 0;
     perfectStreak = 0;
     invulnerableUntil = elapsed + 1.5;
@@ -2617,24 +3102,41 @@ class FlightSimulation {
     } else {
       hearts--;
       _event(FlightEventKind.hit);
-      if (hearts <= 0) end(EndReason.collision);
+      if (hearts <= 0) {
+        if (duel) {
+          _view.downAt = elapsed;
+        } else {
+          end(EndReason.collision);
+        }
+      }
     }
+    return true;
   }
+
+  /// Hurts [bird]: the shared hearts of a solo or team flight, only that
+  /// bird's on a duel, where a hit sent by player [by] counts for them.
+  void _hurt(FlightBird bird, {int? by}) {
+    if (viewing(bird, _damage) && by != null) flock[by].hitsLanded++;
+  }
+
+  /// Whether duel player [sender] sent the hazard: it flies through them.
+  bool _sentBy(int? sender, FlightBird bird) =>
+      sender != null && identical(flock[sender], bird);
 
   /// The Pirate Captain's sea hurts like a boundary. The bird splashes back
   /// out with a free flap so a surge never pins it under.
-  void _splashDown(double sea) {
+  void _splashDown(double sea, FlightBird bird) {
     if (!collectsStars) {
       end(EndReason.collision);
       return;
     }
     if (elapsed >= invulnerableUntil) {
-      seaSplashes.add(SeaSplash(x: birdX, at: elapsed, bird: true));
+      seaSplashes.add(SeaSplash(x: bird.x, at: elapsed, bird: true));
       birdSplashes++;
     }
-    _damage();
-    birdY = sea - birdRadius - .001;
-    velocity = math.min(velocity, rules.flapImpulse * .8);
+    _hurt(bird);
+    bird.y = sea - birdRadius - .001;
+    bird.velocity = math.min(bird.velocity, rules.flapImpulse * .8);
   }
 
   /// The Ember Dragon's flame hurts like a course edge; the recovery that
@@ -2661,8 +3163,17 @@ class FlightSimulation {
   void _event(FlightEventKind kind, [int value = 0]) =>
       events.add(FlightEvent(kind, elapsed, birdY, value: value));
 
-  bool _touches(Obstacle o) =>
-      _circleTouchesObstacle(birdX, birdY, birdRadius, o);
+  bool _touches(Obstacle o, FlightBird bird) =>
+      _circleTouchesObstacle(bird.x, bird.y, birdRadius, o);
+
+  /// A wall hurts once: anyone who touches it on a solo or team flight,
+  /// each duel bird on its own ([_wallHits]).
+  bool _wallSpent(Obstacle o, FlightBird bird) =>
+      duel ? (_wallHits[o] ?? 0) & _bit(bird) != 0 : o.hit;
+
+  /// The walls each duel bird has touched, a bit per player.
+  final Expando<int> _wallHits = Expando();
+  int _bit(FlightBird bird) => 1 << flock.indexOf(bird);
 
   bool _circleTouchesDoor(double x, double y, double radius, Obstacle o) {
     if (o.door == null || o.door!.destroyed || o.smashed) return false;
@@ -2722,7 +3233,7 @@ class FlightSimulation {
     if (phase != RunPhase.paused) return;
     if (!canPause && started) return;
     phase = RunPhase.countdown;
-    _endCharge();
+    _endCharges();
     countdown = 3;
     _inputValid = false;
     _lastValidMs = double.negativeInfinity;

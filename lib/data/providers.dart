@@ -91,6 +91,17 @@ class ProgressController extends AsyncNotifier<ProgressSnapshot> {
     await refresh();
   }
 
+  /// Saves a co-op flight's best, apart from the solo records.
+  Future<void> saveCoop(CoopMode mode, RunResult run) async {
+    await _repo.saveCoop(mode, run);
+    await refresh();
+  }
+
+  Future<void> chooseCoop(int first, int second, CoopMode mode) async {
+    await _repo.chooseCoop(first, second, mode);
+    await refresh();
+  }
+
   Future<void> reset() async {
     await ref.read(sessionRepositoryProvider).reset();
     ref.invalidate(sessionsProvider);

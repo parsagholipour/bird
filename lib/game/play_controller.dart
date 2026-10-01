@@ -38,6 +38,8 @@ class PlayController extends ChangeNotifier {
     required this.audio,
     required this.saveSession,
     this.bird = 0,
+    this.partner,
+    this.coopMode = CoopMode.roped,
     this.weaponDamage = BirdRock.baseDamage,
     this.reducedMotion = false,
     this.recordAudio = false,
@@ -53,6 +55,10 @@ class PlayController extends ChangeNotifier {
          level == null ||
              (mode == PlayMode.touch && course == FlightCourse.starTrail),
          'A campaign level is a Tap & Fly Star Trail',
+       ),
+       assert(
+         partner == null || (mode == PlayMode.touch && level == null),
+         'Co-op is an endless Tap & Fly flight',
        ),
        clock = clock ?? DateTime.now {
     if (isTouch) return;
@@ -85,12 +91,23 @@ class PlayController extends ChangeNotifier {
   bool get isTouch => mode == PlayMode.touch;
   // Touch time advances with gameplay so pauses produce no gaps in the replay.
   double _touchTime = 0;
-  bool _touchFlap = false;
+  bool _touchFlap = false, _partnerFlap = false;
   double get nowMs => isTouch ? _touchTime : source!.nowMs;
   final Future<void> Function(RunResult) saveRun;
   final SkyAudio audio;
   final Future<void> Function(SavedSession) saveSession;
   final int bird;
+
+  /// Player 2's bird on a co-op flight, flying with player 1's [bird]; null
+  /// for a solo flight.
+  final int? partner;
+  bool get coop => partner != null;
+
+  /// Whether a co-op flight's birds share the rope, or fight a duel.
+  final CoopMode coopMode;
+
+  /// Two players fighting each other rather than flying as a team.
+  bool get duel => coop && coopMode == CoopMode.duel;
   final int weaponDamage;
   final bool reducedMotion;
 
@@ -318,49 +335,61 @@ class PlayController extends ChangeNotifier {
     _clips.clear();
   }
 
-  void flap() {
+  /// [player] 1 is the partner on a co-op flight.
+  void flap({int player = 0}) {
     if (isTouch &&
         !_disposed &&
         stage == PlayStage.flying &&
         simulation?.phase == RunPhase.playing) {
-      _touchFlap = true;
+      if (player == 0) {
+        _touchFlap = true;
+      } else if (coop && player == 1) {
+        _partnerFlap = true;
+      }
     }
   }
 
-  /// Pressing Shoot starts a power shot; releasing it calls [shoot].
-  void startCharge() {
-    if (_disposed ||
-        stage != PlayStage.flying ||
-        simulation?.canCharge != true) {
-      return;
-    }
-    recorder?.command('charge');
-    notify();
-  }
-
-  void shoot() {
+  /// Reads [player]'s bird: its Shoot and Sprint state on a co-op flight.
+  bool _ready(int player, bool Function(FlightSimulation sim) check) {
     final sim = simulation;
-    // A rejected release is still journaled when it ends a held charge.
-    // Once a full charge has fired itself, lifting the button must not
-    // spend a second rock.
     if (_disposed ||
         stage != PlayStage.flying ||
         sim == null ||
-        !(sim.supportsPowerShots ? sim.charging : sim.canShoot)) {
-      return;
+        player < 0 ||
+        player >= sim.flock.length) {
+      return false;
     }
-    recorder?.command('shoot');
-    audio.syncCombat(sim);
+    return sim.viewing(sim.flock[player], () => check(sim));
+  }
+
+  /// A co-op journal names the player behind each action.
+  int? _who(int player) => coop ? player : null;
+
+  /// Pressing Shoot starts a power shot; releasing it calls [shoot].
+  void startCharge({int player = 0}) {
+    if (!_ready(player, (sim) => sim.canCharge)) return;
+    recorder?.command('charge', null, _who(player));
     notify();
   }
 
-  void sprint() {
-    if (_disposed ||
-        stage != PlayStage.flying ||
-        simulation?.canSprint != true) {
+  void shoot({int player = 0}) {
+    // A rejected release is still journaled when it ends a held charge.
+    // Once a full charge has fired itself, lifting the button must not
+    // spend a second rock.
+    if (!_ready(
+      player,
+      (sim) => sim.supportsPowerShots ? sim.charging : sim.canShoot,
+    )) {
       return;
     }
-    recorder?.command('sprint');
+    recorder?.command('shoot', null, _who(player));
+    audio.syncCombat(simulation!);
+    notify();
+  }
+
+  void sprint({int player = 0}) {
+    if (!_ready(player, (sim) => sim.canSprint)) return;
+    recorder?.command('sprint', null, _who(player));
     audio.syncCombat(simulation!);
     notify();
   }
@@ -382,6 +411,12 @@ class PlayController extends ChangeNotifier {
       _touchTime += dt * 1000;
       now = _touchTime;
       final before = simulation!.flaps;
+      if (coop) {
+        // Each player's flap is its own journal entry.
+        if (_touchFlap) recorder?.command('flap', null, 0);
+        if (_partnerFlap) recorder?.command('flap', null, 1);
+        _touchFlap = _partnerFlap = false;
+      }
       recorder?.apply(
         MovementInput(valid: true, flap: _touchFlap),
         TrackingSample(
@@ -393,7 +428,7 @@ class PlayController extends ChangeNotifier {
         ),
         now,
       );
-      _touchFlap = false;
+      _touchFlap = _partnerFlap = false;
       if (simulation!.flaps > before) audio.effect('flap');
     }
     recorder?.tick(dt, now, width);
@@ -598,7 +633,7 @@ class PlayController extends ChangeNotifier {
       return;
     }
     interpreter?.reset();
-    _touchFlap = false;
+    _touchFlap = _partnerFlap = false;
     source?.recordDiagnostic('PushUpBird reset: t=$nowMs reason=fly');
     recorder = FlightRecorder(
       ReplayTape(
@@ -614,18 +649,23 @@ class PlayController extends ChangeNotifier {
         originMs: nowMs,
         // A level ignores the seed and lays its own fixed route.
         plan: level?.plan,
+        partner: partner,
+        coop: coopMode,
       ),
       () => nowMs,
     );
     simulation = recorder!.simulation;
-    audio.voices = FlightVoices(
-      bird: bird,
-      mode: mode,
-      level: level,
-      best: best,
-      retry: _retrying,
-      memory: voiceMemory,
-    );
+    // Player 1's bird would cheer or mourn a duel as its own flight.
+    audio.voices = duel
+        ? null
+        : FlightVoices(
+            bird: bird,
+            mode: mode,
+            level: level,
+            best: best,
+            retry: _retrying,
+            memory: voiceMemory,
+          );
     _retrying = false;
     audio.syncCombat(simulation!, silent: true);
     stage = PlayStage.flying;
@@ -716,7 +756,10 @@ class PlayController extends ChangeNotifier {
     }
     final date = clock();
     result = RunResult(
-      id: '${date.microsecondsSinceEpoch}-${mode.name}',
+      // A co-op flight is named for it: the session library tells it apart.
+      id:
+          '${date.microsecondsSinceEpoch}-'
+          '${coop ? 'coop-${coopMode.name}' : mode.name}',
       mode: mode,
       course: course,
       gates: game.gates,
@@ -744,6 +787,8 @@ class PlayController extends ChangeNotifier {
       stage = PlayStage.results;
     }
     final endCue = switch (game.endReason!) {
+      // A knockout ends a duel with a winner.
+      EndReason.collision when duel => 'complete',
       EndReason.completed => 'complete',
       EndReason.collision ||
       EndReason.trackingLost ||
@@ -779,7 +824,7 @@ class PlayController extends ChangeNotifier {
   }
 
   void pause() {
-    _touchFlap = false;
+    _touchFlap = _partnerFlap = false;
     recorder?.command('break');
     if (simulation?.phase == RunPhase.ended) {
       unawaited(finish());
@@ -798,7 +843,7 @@ class PlayController extends ChangeNotifier {
   Future<void> resume() async {
     if (simulation?.phase != RunPhase.paused) return;
     if (isTouch) {
-      _touchFlap = false;
+      _touchFlap = _partnerFlap = false;
       recorder?.command('resume');
       notify();
     } else if (!cameraActive) {
@@ -814,7 +859,7 @@ class PlayController extends ChangeNotifier {
 
   void background() {
     if (_disposed) return;
-    _touchFlap = false;
+    _touchFlap = _partnerFlap = false;
     ++_operation;
     cameraActive = false;
     unawaited(_stopCamera());

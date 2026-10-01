@@ -17,6 +17,8 @@ class ReplayTape {
     this.recordedVersion = version,
     this.weaponDamage = BirdRock.baseDamage,
     this.plan,
+    this.partner,
+    this.coop = CoopMode.roped,
     List<List<dynamic>>? events,
   }) : events = events ?? [];
   static const version = FlightSimulation.currentRulesVersion;
@@ -31,6 +33,11 @@ class ReplayTape {
   /// 41, so a level retuned later still replays exactly. Null for endless.
   final LevelPlan? plan;
   String? get levelId => plan?.id;
+
+  /// Player 2's bird on a co-op flight (rules version 42), flying with
+  /// [bird] as [coop] says. Null for a solo flight.
+  final int? partner;
+  final CoopMode coop;
   final double cycleSeconds, originMs;
   final List<List<dynamic>> events;
   double get durationMs =>
@@ -47,6 +54,7 @@ class ReplayTape {
     rulesVersion: recordedVersion,
     weaponDamage: weaponDamage,
     plan: plan ?? FlightPlan.endless,
+    coop: partner == null ? null : coop,
     random: Random(seed),
   );
   Map<String, dynamic> toJson() => {
@@ -64,6 +72,10 @@ class ReplayTape {
       'level': plan!.id,
       'plan': plan!.toJson(),
     },
+    if (recordedVersion >= FlightSimulation.coopRulesVersion && partner != null)
+      'partner': partner,
+    if (recordedVersion >= FlightSimulation.coopRulesVersion && partner != null)
+      'coop': coop.name,
     'events': events,
   };
   factory ReplayTape.fromJson(Map<String, dynamic> json) {
@@ -87,6 +99,23 @@ class ReplayTape {
       throw const FormatException('Invalid level plan');
     }
     final plan = planJson == null ? null : LevelPlan.fromJson(planJson);
+    // A co-op flight names player 2's bird from rules version 42.
+    final partner = recordedVersion >= FlightSimulation.coopRulesVersion
+        ? json['partner']
+        : null;
+    if (partner is! int? ||
+        (partner != null &&
+            (partner < 0 ||
+                partner > 3 ||
+                plan != null ||
+                json['mode'] != PlayMode.touch.name))) {
+      throw const FormatException('Invalid partner');
+    }
+    final coop = partner == null ? null : json['coop'] ?? CoopMode.roped.name;
+    if (coop is! String? ||
+        (coop != null && !CoopMode.values.any((m) => m.name == coop))) {
+      throw const FormatException('Invalid co-op mode');
+    }
     if (plan != null &&
         (plan.id != level ||
             json['mode'] != PlayMode.touch.name ||
@@ -105,6 +134,8 @@ class ReplayTape {
       originMs: (json['originMs'] as num).toDouble(),
       weaponDamage: weaponDamage,
       plan: plan,
+      partner: partner,
+      coop: coop == null ? CoopMode.roped : CoopMode.values.byName(coop),
       events: (json['events'] as List)
           .map((e) => List<dynamic>.from(e as List))
           .toList(),
@@ -132,10 +163,13 @@ class ReplayTape {
             if (recordedVersion >= 26) 'weaponDamage',
             if (recordedVersion >= 28) 'charge',
             if (recordedVersion >= 29) 'sprint',
+            if (tape.partner != null) 'flap',
           ].contains(event[1])) {
         throw const FormatException('Invalid replay timeline');
       }
       bool number(int i) => event[i] is num && (event[i] as num).isFinite;
+      bool player(Object? value) =>
+          tape.partner != null && (value == 0 || value == 1);
       final valid = switch (event[1]) {
         'input' =>
           event.length == 10 &&
@@ -158,6 +192,11 @@ class ReplayTape {
           event.length == 3 && EndReason.values.any((r) => r.name == event[2]),
         'weaponDamage' =>
           event.length == 3 && event[2] is int && (event[2] as int) > 0,
+        // A co-op journal names the player behind each action.
+        'flap' => event.length == 3 && player(event[2]),
+        'shoot' ||
+        'charge' ||
+        'sprint' => event.length == 2 || event.length == 3 && player(event[2]),
         _ => event.length == 2,
       };
       if (!valid) throw const FormatException('Invalid replay event');
@@ -208,8 +247,10 @@ class FlightRecorder {
     );
   }
 
-  void command(String kind, [EndReason? reason]) {
-    _add(kind, [if (reason != null) reason.name]);
+  /// [player] names the bird behind a co-op flight's flap, charge, shot or
+  /// sprint. Solo journals leave it out.
+  void command(String kind, [EndReason? reason, int? player]) {
+    _add(kind, [if (reason != null) reason.name, ?player]);
     applyReplayEvent(
       simulation,
       tape.events.last,
@@ -234,6 +275,7 @@ void applyReplayEvent(
   bool reducedMotion = false,
 }) {
   double n(int i) => (e[i] as num).toDouble();
+  final player = e.length > 2 && e[2] is int ? e[2] as int : 0;
   switch (e[1]) {
     case 'input':
       simulation.apply(
@@ -267,12 +309,14 @@ void applyReplayEvent(
       simulation.resume();
     case 'end':
       simulation.end(EndReason.values.byName(e[2] as String));
+    case 'flap':
+      simulation.flap(e[2] as int);
     case 'charge':
-      simulation.startCharge();
+      simulation.startCharge(player: player);
     case 'shoot':
-      simulation.shoot(reducedMotion: reducedMotion);
+      simulation.shoot(player: player, reducedMotion: reducedMotion);
     case 'sprint':
-      simulation.sprint();
+      simulation.sprint(player: player);
     case 'weaponDamage':
       simulation.setWeaponDamage(e[2] as int);
   }

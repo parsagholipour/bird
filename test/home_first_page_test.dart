@@ -10,7 +10,6 @@ import 'package:go_router/go_router.dart';
 import 'package:push_up_bird/data/progress_repository.dart';
 import 'package:push_up_bird/data/providers.dart';
 import 'package:push_up_bird/domain/tracking.dart';
-import 'package:push_up_bird/ui/home_parts.dart';
 import 'package:push_up_bird/ui/home_screen.dart';
 import 'package:push_up_bird/ui/play_button.dart';
 import 'package:push_up_bird/ui/theme.dart';
@@ -259,7 +258,6 @@ void main() {
           ).inflate(.5);
           for (final finder in [
             find.byKey(const ValueKey('play')),
-            find.text('Practice'),
             find.byKey(const ValueKey('daily-adventure')),
             find.text('Birds'),
             find.text('Passport'),
@@ -289,7 +287,6 @@ void main() {
     await tester.pumpAndSettle();
     for (final (name, finder) in [
       ('Play', find.byKey(const ValueKey('play'))),
-      ('Practice', find.byType(HomePracticeButton)),
       ('Adventure', find.byKey(const ValueKey('daily-adventure'))),
       ('Birds', pressable('Birds')),
       ('Passport', pressable('Passport')),
@@ -336,24 +333,15 @@ void main() {
     await tester.tap(find.byTooltip('Close flight goals'));
     await tester.pumpAndSettle();
     expect(location(router), '/');
-    for (final practice in [false, true]) {
-      await tester.tap(
-        practice ? find.text('Practice') : find.byKey(const ValueKey('play')),
-      );
-      await tester.pumpAndSettle();
-      expect(
-        find.text(practice ? 'Choose your practice' : 'Choose your mode'),
-        findsOneWidget,
-      );
-      await tester.tap(find.text('Tap & Fly'));
-      await tester.pumpAndSettle();
-      final uri = router.routerDelegate.currentConfiguration.uri;
-      expect(uri.path, '/play/touch');
-      expect(uri.queryParameters['practice'] == 'true', practice);
-      expect(uri.queryParameters['course'], 'starTrail');
-      router.go('/');
-      await tester.pumpAndSettle();
-    }
+    expect(find.text('Practice'), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('play')));
+    await tester.pumpAndSettle();
+    expect(find.text('Choose your mode'), findsOneWidget);
+    await tester.tap(find.text('Tap & Fly'));
+    await tester.pumpAndSettle();
+    final uri = router.routerDelegate.currentConfiguration.uri;
+    expect(uri.path, '/play/touch');
+    expect(uri.queryParameters, {'course': 'starTrail'});
     expect(tester.takeException(), isNull);
   });
 

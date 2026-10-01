@@ -19,10 +19,12 @@ import 'combat_art.dart';
 import 'boss_art.dart';
 import 'heart_pickup_art.dart';
 import 'door_art.dart';
+import 'duel_art.dart';
 import 'gale_art.dart';
 import 'rush_art.dart';
 import 'sprint_art.dart';
 import 'knockout_art.dart';
+import 'tether_art.dart';
 import 'flight_voices.dart' show FlightSpeech;
 
 class BirdGame extends FlameGame {
@@ -37,6 +39,7 @@ class BirdGame extends FlameGame {
     this.transparent = false,
     this.knockout,
     this.speech,
+    this.partnerBird,
   });
   FlightSimulation simulation;
   final void Function(double dt, double now, double width)? advance;
@@ -44,6 +47,10 @@ class BirdGame extends FlameGame {
   bool transparent;
   final double Function() nowMs;
   final int bird;
+
+  /// Player 2's bird on a co-op flight; null flies [bird] as its partner.
+  final int? partnerBird;
+  int _birdOf(int player) => player == 0 ? bird : partnerBird ?? bird;
   final bool reducedMotion;
   final void Function() onChanged;
 
@@ -107,6 +114,8 @@ class BirdGame extends FlameGame {
     final w = size.x, h = size.y;
     if (h <= 0) return;
     final ko = knockout?.call();
+    // Who is talking: the boss's face and the bird's follow the line.
+    final said = speech?.call();
     if (ko != null) _knockoutWorld(canvas, ko, w, h);
     canvas.save();
     canvas.clipRect(Rect.fromLTWH(0, 0, w, h));
@@ -269,7 +278,11 @@ class BirdGame extends FlameGame {
         }
       }
     }
-    if (simulation.magnetActive) _magnet(canvas, h);
+    if (simulation.magnetActive) {
+      for (final body in simulation.flock) {
+        simulation.viewing(body, () => _magnet(canvas, h));
+      }
+    }
     for (final trio in simulation.starTrios) {
       if ((trio.x - .2) * h > w) continue;
       if (simulation.subtleStarRewards) {
@@ -321,9 +334,31 @@ class BirdGame extends FlameGame {
         reducedMotion: reducedMotion,
       );
     }
+    if (simulation.duel) {
+      DuelArt.boxes(
+        canvas,
+        Size(w, h),
+        simulation,
+        reducedMotion: reducedMotion,
+      );
+    }
     RushArt.vents(canvas, Size(w, h), simulation, reducedMotion: reducedMotion);
     RushArt.rings(canvas, Size(w, h), simulation, reducedMotion: reducedMotion);
-    BossArt.paint(canvas, Size(w, h), simulation, reducedMotion: reducedMotion);
+    BossArt.paint(
+      canvas,
+      Size(w, h),
+      simulation,
+      reducedMotion: reducedMotion,
+      speech: said,
+    );
+    if (simulation.duel) {
+      DuelArt.marks(
+        canvas,
+        Size(w, h),
+        simulation,
+        reducedMotion: reducedMotion,
+      );
+    }
     CombatArt.paint(canvas, h, simulation, reducedMotion: reducedMotion);
     RushArt.swarm(canvas, Size(w, h), simulation, reducedMotion: reducedMotion);
     RushArt.meteors(
@@ -340,174 +375,38 @@ class BirdGame extends FlameGame {
     );
     // A knockout draws its own tumbling bird over the dimmed world.
     if (ko == null && !hideBird) {
-      final cx = FlightSimulation.birdX * h, cy = simulation.birdY * h;
-      final pose = BirdPose.forFlight(
-        simulation,
-        reducedMotion: reducedMotion,
-        bird: bird,
-      );
-      if (simulation.recoveryRemaining > 0) {
-        // A shrinking arc explains the brief hit protection without flashing
-        // the bird or making its collision position harder to read.
-        final recovery = Rect.fromCircle(
-          center: Offset(cx, cy),
-          radius: h * .096,
-        );
-        canvas.drawCircle(
-          recovery.center,
-          recovery.width / 2,
-          Paint()..color = SkyColors.cream.withValues(alpha: .2),
-        );
-        canvas.drawArc(
-          recovery,
-          -math.pi / 2,
-          math.pi * 2 * (simulation.recoveryRemaining / 1.5).clamp(0, 1),
-          false,
-          Paint()
-            ..color = SkyColors.cream
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 3
-            ..strokeCap = StrokeCap.round,
-        );
-      }
-      if (simulation.collectsStars &&
-          !simulation.subtleStarRewards &&
-          simulation.multiplier == 3) {
-        // Star power is a visible reward, with a quiet static form in Reduced Motion.
-        for (var i = 0; i < 3; i++) {
-          final angle =
-              -math.pi / 2 +
-              i * math.pi * 2 / 3 +
-              (reducedMotion ? 0 : _time * .7);
-          final sparkle =
-              Offset(cx, cy) +
-              Offset(math.cos(angle), math.sin(angle)) * h * .095;
-          // Small collectibles circle the bird, each point facing outward.
-          StarArt.mini(
+      TetherArt.rope(canvas, h, simulation, reducedMotion: reducedMotion);
+      // Player 1's bird flies behind and is drawn over its partner. Only
+      // player 1's bird talks.
+      for (final (player, body) in simulation.flock.indexed.toList().reversed) {
+        simulation.viewing(body, () {
+          if (simulation.duel) {
+            DuelArt.starPower(
+              canvas,
+              h,
+              simulation,
+              reducedMotion: reducedMotion,
+            );
+          }
+          _paintFlyer(
             canvas,
-            sparkle,
-            h * .015,
-            rotation: angle + math.pi / 2,
+            h,
+            bird: player == 0 ? bird : partnerBird ?? bird,
+            said: player == 0 ? said : null,
           );
-        }
+          if (simulation.paired) {
+            TetherArt.badge(canvas, h, simulation, player: player);
+          }
+        });
       }
-      if (simulation.phase == RunPhase.playing) {
-        BirdTrail.paint(
-          canvas,
-          bird: bird,
-          anchor: Offset(cx, cy),
-          unit: h * .014,
-          seconds: _time,
-          animate: !reducedMotion,
-          empowered: !simulation.subtleStarRewards && simulation.multiplier > 1,
-          // Reduced Motion keeps the rigid trail instead of a swinging tail.
-          path: reducedMotion
-              ? null
-              : [
-                  for (final p in simulation.flightPath.recent)
-                    Offset(
-                      cx + (p.distance - simulation.distance) * h,
-                      p.y * h,
-                    ),
-                ],
-          flown: simulation.flightPath.flown * h,
-        );
-      }
-      if (simulation.isTrail && simulation.shield) {
-        canvas.drawCircle(
-          Offset(cx, cy),
-          h * .078,
-          Paint()..color = SkyColors.cream.withValues(alpha: .16),
-        );
-        canvas.drawCircle(
-          Offset(cx, cy),
-          h * .078,
-          Paint()
-            ..color = SkyColors.teal.withValues(alpha: .8)
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 2,
-        );
-        canvas.drawArc(
-          Rect.fromCircle(center: Offset(cx, cy), radius: h * .068),
-          -2.6,
-          .7,
-          false,
-          Paint()
-            ..color = SkyColors.white
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 3
-            ..strokeCap = StrokeCap.round,
-        );
-      }
-      final bw = h * BirdFlightMotion.size;
-      void paintBird(Offset center) {
-        canvas.save();
-        canvas.translate(center.dx, center.dy);
-        canvas.rotate(pose.tilt);
-        canvas.scale(1 + pose.spring, 1 - pose.spring);
-        BirdPuppet.paint(
-          canvas,
-          Rect.fromLTWH(-bw * .48, -bw * .43, bw, bw * 224 / 256),
-          bird: bird,
-          wing: pose.wing,
-          expression: pose.expression,
-        );
-        canvas.restore();
-      }
-
-      RushArt.afterimages(
+    }
+    if (simulation.duel && ko == null) {
+      DuelArt.bursts(
         canvas,
-        h,
-        simulation,
-        reducedMotion: reducedMotion,
-        paint: (center, alpha, tint) {
-          canvas.saveLayer(
-            Rect.fromCircle(center: center, radius: bw),
-            Paint()
-              ..color = SkyColors.white.withValues(alpha: alpha)
-              ..colorFilter = ColorFilter.mode(
-                tint.withValues(alpha: .55),
-                BlendMode.srcATop,
-              ),
-          );
-          paintBird(center);
-          canvas.restore();
-        },
-      );
-      GaleArt.buffet(canvas, h, simulation, reducedMotion: reducedMotion);
-      SprintArt.aura(canvas, h, simulation, reducedMotion: reducedMotion);
-      paintBird(Offset(cx, cy));
-      CombatArt.paintCharge(
-        canvas,
-        h,
+        Size(w, h),
         simulation,
         reducedMotion: reducedMotion,
       );
-      if (pose.flapWake > 0) {
-        final t = pose.flapWake;
-        final fadeIn = (t / .18).clamp(0.0, 1.0);
-        final opacity = ((1 - t) * .7 * fadeIn * fadeIn * (3 - 2 * fadeIn))
-            .clamp(0.0, .7);
-        final wake = Paint()
-          ..color = SkyColors.cream.withValues(alpha: opacity)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.5
-          ..strokeCap = StrokeCap.round;
-        for (var i = 0; i < 2; i++) {
-          final offset = h * (.024 + i * .018 + t * .03);
-          canvas.drawArc(
-            Rect.fromCenter(
-              center: Offset(cx - h * .039, cy + offset),
-              width: h * (.055 + t * .045),
-              height: h * .03,
-            ),
-            .3,
-            math.pi * .7,
-            false,
-            wake,
-          );
-        }
-      }
     }
     RushArt.effects(canvas, h, simulation, reducedMotion: reducedMotion);
     GaleArt.impacts(canvas, h, simulation, reducedMotion: reducedMotion);
@@ -535,15 +434,218 @@ class BirdGame extends FlameGame {
     }
     if (ko != null) {
       canvas.restore();
-      KnockoutArt.paint(
+      KnockoutArt.rope(
         canvas,
         Size(w, h),
         simulation,
-        bird: bird,
         seconds: ko,
         reducedMotion: reducedMotion,
         shake: shake,
       );
+      // A co-op pair tumbles together, each bird from where it was. A duel's
+      // winner stays up, bright over the dimmed world, by its player tag.
+      for (final (player, body) in simulation.flock.indexed.toList().reversed) {
+        if (simulation.duel && body.downAt == null) {
+          simulation.viewing(body, () {
+            _paintFlyer(canvas, h, bird: _birdOf(player), said: null);
+            TetherArt.badge(canvas, h, simulation, player: player);
+          });
+          continue;
+        }
+        simulation.viewing(
+          body,
+          () => KnockoutArt.paint(
+            canvas,
+            Size(w, h),
+            simulation,
+            bird: player == 0 ? bird : partnerBird ?? bird,
+            seconds: ko,
+            reducedMotion: reducedMotion,
+            shake: shake,
+            // Only player 1's bird talks.
+            beak: player == 0 && said != null && said.bird ? said.mouth : 0,
+          ),
+        );
+      }
+    }
+  }
+
+  /// The bird [simulation] describes, with everything drawn around it: its
+  /// recovery arc, star power, trail, shield, sprint and charge. A co-op
+  /// flight draws each of its birds this way inside [FlightSimulation.viewing].
+  void _paintFlyer(
+    Canvas canvas,
+    double h, {
+    required int bird,
+    required FlightSpeech? said,
+  }) {
+    final cx = simulation.birdScreenX * h, cy = simulation.birdY * h;
+    // Flown lines keep their world place, measured from the solo column.
+    final column = FlightSimulation.birdX * h;
+    final pose = BirdPose.forFlight(
+      simulation,
+      reducedMotion: reducedMotion,
+      bird: bird,
+    );
+    if (simulation.recoveryRemaining > 0) {
+      // A shrinking arc explains the brief hit protection without flashing
+      // the bird or making its collision position harder to read.
+      final recovery = Rect.fromCircle(
+        center: Offset(cx, cy),
+        radius: h * .096,
+      );
+      canvas.drawCircle(
+        recovery.center,
+        recovery.width / 2,
+        Paint()..color = SkyColors.cream.withValues(alpha: .2),
+      );
+      canvas.drawArc(
+        recovery,
+        -math.pi / 2,
+        math.pi * 2 * (simulation.recoveryRemaining / 1.5).clamp(0, 1),
+        false,
+        Paint()
+          ..color = SkyColors.cream
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 3
+          ..strokeCap = StrokeCap.round,
+      );
+    }
+    if (simulation.collectsStars &&
+        !simulation.subtleStarRewards &&
+        simulation.multiplier == 3) {
+      // Star power is a visible reward, with a quiet static form in Reduced Motion.
+      for (var i = 0; i < 3; i++) {
+        final angle =
+            -math.pi / 2 +
+            i * math.pi * 2 / 3 +
+            (reducedMotion ? 0 : _time * .7);
+        final sparkle =
+            Offset(cx, cy) +
+            Offset(math.cos(angle), math.sin(angle)) * h * .095;
+        // Small collectibles circle the bird, each point facing outward.
+        StarArt.mini(canvas, sparkle, h * .015, rotation: angle + math.pi / 2);
+      }
+    }
+    if (simulation.phase == RunPhase.playing) {
+      BirdTrail.paint(
+        canvas,
+        bird: bird,
+        anchor: Offset(cx, cy),
+        unit: h * .014,
+        seconds: _time,
+        animate: !reducedMotion,
+        empowered: !simulation.subtleStarRewards && simulation.multiplier > 1,
+        // Reduced Motion keeps the rigid trail instead of a swinging tail.
+        path: reducedMotion
+            ? null
+            : [
+                for (final p in simulation.flightPath.recent)
+                  Offset(
+                    column + (p.distance - simulation.distance) * h,
+                    p.y * h,
+                  ),
+              ],
+        flown: simulation.flightPath.flown * h,
+      );
+    }
+    if (simulation.isTrail && simulation.shield) {
+      canvas.drawCircle(
+        Offset(cx, cy),
+        h * .078,
+        Paint()..color = SkyColors.cream.withValues(alpha: .16),
+      );
+      canvas.drawCircle(
+        Offset(cx, cy),
+        h * .078,
+        Paint()
+          ..color = SkyColors.teal.withValues(alpha: .8)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2,
+      );
+      canvas.drawArc(
+        Rect.fromCircle(center: Offset(cx, cy), radius: h * .068),
+        -2.6,
+        .7,
+        false,
+        Paint()
+          ..color = SkyColors.white
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 3
+          ..strokeCap = StrokeCap.round,
+      );
+    }
+    final bw = h * BirdFlightMotion.size;
+    // While the bird says a line its face takes the line's mood and the
+    // beak follows the words; Reduced Motion keeps the beak shut.
+    final voice = said != null && said.bird ? said : null;
+    final beak = reducedMotion ? 0 : voice?.mouth ?? 0;
+    void paintBird(Offset center) {
+      canvas.save();
+      canvas.translate(center.dx, center.dy);
+      canvas.rotate(pose.tilt);
+      canvas.scale(1 + pose.spring, 1 - pose.spring);
+      BirdPuppet.paint(
+        canvas,
+        Rect.fromLTWH(-bw * .48, -bw * .43, bw, bw * 224 / 256),
+        bird: bird,
+        wing: pose.wing,
+        expression: pose.expression,
+        mood: voice?.mood,
+        beak: beak,
+      );
+      canvas.restore();
+    }
+
+    RushArt.afterimages(
+      canvas,
+      h,
+      simulation,
+      reducedMotion: reducedMotion,
+      paint: (center, alpha, tint) {
+        canvas.saveLayer(
+          Rect.fromCircle(center: center, radius: bw),
+          Paint()
+            ..color = SkyColors.white.withValues(alpha: alpha)
+            ..colorFilter = ColorFilter.mode(
+              tint.withValues(alpha: .55),
+              BlendMode.srcATop,
+            ),
+        );
+        paintBird(center);
+        canvas.restore();
+      },
+    );
+    GaleArt.buffet(canvas, h, simulation, reducedMotion: reducedMotion);
+    SprintArt.aura(canvas, h, simulation, reducedMotion: reducedMotion);
+    paintBird(Offset(cx, cy));
+    CombatArt.paintCharge(canvas, h, simulation, reducedMotion: reducedMotion);
+    if (pose.flapWake > 0) {
+      final t = pose.flapWake;
+      final fadeIn = (t / .18).clamp(0.0, 1.0);
+      final opacity = ((1 - t) * .7 * fadeIn * fadeIn * (3 - 2 * fadeIn)).clamp(
+        0.0,
+        .7,
+      );
+      final wake = Paint()
+        ..color = SkyColors.cream.withValues(alpha: opacity)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5
+        ..strokeCap = StrokeCap.round;
+      for (var i = 0; i < 2; i++) {
+        final offset = h * (.024 + i * .018 + t * .03);
+        canvas.drawArc(
+          Rect.fromCenter(
+            center: Offset(cx - h * .039, cy + offset),
+            width: h * (.055 + t * .045),
+            height: h * .03,
+          ),
+          .3,
+          math.pi * .7,
+          false,
+          wake,
+        );
+      }
     }
   }
 
@@ -558,7 +660,15 @@ class BirdGame extends FlameGame {
     }
     final zoom = KnockoutArt.zoom(ko, reducedMotion: reducedMotion);
     if (zoom != 1) {
-      final focus = KnockoutArt.focus(simulation, h);
+      // A duel zooms in on the bird that went down.
+      final fallen = simulation.flock.firstWhere(
+        (bird) => bird.downAt != null,
+        orElse: () => simulation.lead,
+      );
+      final focus = simulation.viewing(
+        fallen,
+        () => KnockoutArt.focus(simulation, h),
+      );
       canvas.translate(focus.dx, focus.dy);
       canvas.scale(zoom);
       canvas.translate(-focus.dx, -focus.dy);
@@ -566,7 +676,7 @@ class BirdGame extends FlameGame {
   }
 
   void _magnet(Canvas canvas, double h) {
-    final center = Offset(FlightSimulation.birdX * h, simulation.birdY * h);
+    final center = Offset(simulation.birdScreenX * h, simulation.birdY * h);
     final radius = simulation.pickupRadius * h;
     final field = Rect.fromCircle(center: center, radius: radius);
     canvas.drawCircle(

@@ -17,19 +17,16 @@ void advance(PlayController controller, int frames) {
   }
 }
 
-PlayController touchController({
-  FlightCourse course = FlightCourse.classic,
-  bool practice = false,
-}) => PlayController(
-  mode: PlayMode.touch,
-  practice: practice,
-  course: course,
-  source: null,
-  audio: SilentAudio(),
-  recordAudio: true,
-  saveRun: (_) async {},
-  saveSession: (_) async {},
-);
+PlayController touchController({FlightCourse course = FlightCourse.classic}) =>
+    PlayController(
+      mode: PlayMode.touch,
+      course: course,
+      source: null,
+      audio: SilentAudio(),
+      recordAudio: true,
+      saveRun: (_) async {},
+      saveSession: (_) async {},
+    );
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -86,9 +83,9 @@ void main() {
   }
 
   test(
-    'touch practice clears pending taps across pause, background and retry',
+    'touch flight clears pending taps across pause, background and retry',
     () async {
-      final controller = touchController(practice: true);
+      final controller = touchController();
       addTearDown(controller.dispose);
       await controller.fly();
       advance(controller, 150);

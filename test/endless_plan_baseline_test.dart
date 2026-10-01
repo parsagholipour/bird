@@ -518,8 +518,28 @@ void main() {
     }
   });
 
+  test('rules version 42 flies solo endless exactly like 41', () {
+    expect(FlightSimulation.currentRulesVersion, 42);
+    for (final width in [1.6, 2.4]) {
+      final (v41, _) = Flight(
+        'v41',
+        rules: _tap,
+        version: 41,
+        seconds: 400,
+        width: width,
+      ).fly();
+      final (v42, _) = Flight(
+        'v42',
+        rules: _tap,
+        version: 42,
+        seconds: 400,
+        width: width,
+      ).fly();
+      expect(v42.checkpoints, v41.checkpoints);
+    }
+  });
+
   test('rules version 41 flies endless exactly like 40', () {
-    expect(FlightSimulation.currentRulesVersion, 41);
     for (final width in [1.6, 2.4]) {
       final (v40, _) = Flight(
         'v40',

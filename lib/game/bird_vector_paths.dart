@@ -264,7 +264,21 @@ final _birdRigs = <_BirdRig>[
       ),
     ],
     upperBeak: [],
-    lowerBeak: [],
+    lowerBeak: [
+      _BirdLayer(
+        Path()
+          ..moveTo(166, 121)
+          ..cubicTo(177, 125, 190, 126, 199, 125)
+          ..cubicTo(198, 133, 188, 139, 177, 136)
+          ..cubicTo(170, 134, 167, 128, 166, 121)
+          ..close(),
+        fill: const Color(0xffd75e4f),
+        stroke: const Color(0xff203b45),
+        strokeWidth: 4,
+        roundCap: true,
+        roundJoin: true,
+      ),
+    ],
   ),
   // design/peaches.svg
   _BirdRig(
@@ -1000,8 +1014,8 @@ final _birdRigs = <_BirdRig>[
         Path()
           ..moveTo(166, 109)
           ..cubicTo(182, 106, 206, 110, 234, 118)
-          ..cubicTo(208, 118.5, 184, 118, 164, 117)
-          ..cubicTo(162.5, 114.5, 163.5, 110.5, 166, 109)
+          ..cubicTo(208, 117.8, 184, 116.5, 164, 115.5)
+          ..cubicTo(163, 113, 164, 110.5, 166, 109)
           ..close(),
         fill: const Color(0xfff47d64),
         stroke: const Color(0xff203b45),
@@ -1012,10 +1026,10 @@ final _birdRigs = <_BirdRig>[
     lowerBeak: [
       _BirdLayer(
         Path()
-          ..moveTo(164, 117)
-          ..cubicTo(184, 118, 208, 118.5, 234, 118)
+          ..moveTo(164, 115.5)
+          ..cubicTo(184, 116.5, 208, 117.8, 234, 118)
           ..cubicTo(206, 121, 182, 124, 166, 122)
-          ..cubicTo(164.5, 121, 164, 119, 164, 117)
+          ..cubicTo(164, 120.5, 163.5, 118, 164, 115.5)
           ..close(),
         fill: const Color(0xffd75e4f),
         stroke: const Color(0xff203b45),
@@ -1027,7 +1041,7 @@ final _birdRigs = <_BirdRig>[
   // design/orbit.svg
   _BirdRig(
     wingPivot: const Offset(90, 112),
-    beakHinge: const Offset(172, 122),
+    beakHinge: const Offset(170, 119),
     nearPupil: const Offset(146.5, 92.5),
     farPupil: const Offset(179, 92),
     body: [

@@ -24,7 +24,6 @@ void main() {
     final source = SessionSource();
     final controller = PlayController(
       mode: PlayMode.jump,
-      practice: true,
       course: FlightCourse.starTrail,
       source: source,
       audio: SilentAudio(),

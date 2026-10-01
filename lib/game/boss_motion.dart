@@ -1,12 +1,46 @@
 import 'dart:math' as math;
 import 'package:flutter/painting.dart';
+import '../domain/campaign_story.dart' show StoryMood;
 import '../domain/sky_boss.dart';
+import 'flight_voices.dart' show FlightSpeech;
 
 /// Pure, seekable animation: no wall clocks, frame history or random particles.
 class BossMotion {
-  const BossMotion(this.boss, {required this.reducedMotion});
+  const BossMotion(this.boss, {required this.reducedMotion, this.speech});
   final SkyBoss boss;
   final bool reducedMotion;
+
+  /// The line this boss is saying, if any (the flight's voices; never a
+  /// replay's). The rigs open the mouth with [talk] and set the face to
+  /// [mood] on top of what the fight already does.
+  final FlightSpeech? speech;
+
+  /// The mood of the line being said, while it is said and as the face
+  /// settles after it; null in silence and once the boss is beaten.
+  StoryMood? get mood => defeated ? null : speech?.mood;
+
+  /// How far the words open the mouth this frame, 0 shut to 1 wide: 0 in
+  /// the pauses and in silence, and always under Reduced Motion, where the
+  /// mood still shows but the mouth keeps still.
+  double get talk => mood == null || reducedMotion
+      ? 0
+      : (speech!.mouth / FlightSpeech.mouths).clamp(0.0, 1.0);
+
+  /// [fight], the mouth the fight itself makes (a roar, a windup, the shot),
+  /// with the words on top: [rest] held through the line and [range] more
+  /// with each word. The words get less room the wider the fight's mouth is,
+  /// or the more [busy] the boss is with an attack that holds its mouth (a
+  /// breath, a roar), so an attack always wins over talking.
+  double voiced(
+    double fight, {
+    double rest = 0,
+    double range = 1,
+    double busy = 0,
+  }) {
+    if (mood == null) return fight;
+    final room = 1 - math.max(fight, busy).clamp(0.0, 1.0);
+    return fight + (rest + talk * range).clamp(0.0, 1.0) * room * room;
+  }
   static double ramp(double value, double from, double to) =>
       ((value - from) / (to - from)).clamp(0.0, 1.0);
   static double ease(double t) => t * t * (3 - 2 * t);

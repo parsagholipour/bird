@@ -363,10 +363,7 @@ void main() {
   test(
     'the controller journals a press, its release and a paused release',
     () async {
-      final controller = touchController(
-        course: FlightCourse.starTrail,
-        practice: true,
-      );
+      final controller = touchController(course: FlightCourse.starTrail);
       addTearDown(controller.dispose);
       await controller.fly();
       controller.startCharge();
@@ -415,10 +412,7 @@ void main() {
   test(
     'holding a full charge fires once, and lifting does not fire again',
     () async {
-      final controller = touchController(
-        course: FlightCourse.starTrail,
-        practice: true,
-      );
+      final controller = touchController(course: FlightCourse.starTrail);
       addTearDown(controller.dispose);
       await controller.fly();
       final sim = controller.simulation!;

@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/painting.dart';
+import '../domain/campaign_story.dart' show StoryMood;
 import '../domain/sky_boss.dart';
 import 'baron_storm_art.dart';
 import 'baron_storm_pose.dart';
@@ -415,7 +416,19 @@ abstract final class BossRig {
   ]) {
     final charge = motion.defeated ? 0.0 : boss.charge;
     final wince = motion.wince, blink = motion.blink;
-    final eyeShift = look * .09;
+    // A line's mood over the fight's own face: the lids (a smug half-lid
+    // for a gloat, thrown wide, a scowl, a droop), the brows' tilt and
+    // where he looks.
+    final (lidMood, browMood, gaze) = switch (motion.mood) {
+      StoryMood.happy => (.03, -.06, 0.0),
+      StoryMood.surprised => (-.12, -.14, -.4),
+      StoryMood.angry => (.1, .1, 0.0),
+      StoryMood.sad => (.15, -.22, .8),
+      _ => (0.0, 0.0, 0.0),
+    };
+    final surprised = motion.mood == StoryMood.surprised;
+    final scowl = fury || motion.mood == StoryMood.angry;
+    final eyeShift = (look + gaze).clamp(-1.0, 1.0) * .09;
     for (final side in [-1.0, 1.0]) {
       final center = Offset(side * _eyeX, _eyeY);
       final eye = Rect.fromCenter(center: center, width: .56, height: .48);
@@ -456,8 +469,10 @@ abstract final class BossRig {
           fill(ink),
         );
       } else {
+        // Startled, the pupils shrink to points.
+        final size = surprised ? .72 : 1.0;
         c.drawOval(
-          Rect.fromCenter(center: pupil, width: .2, height: .27),
+          Rect.fromCenter(center: pupil, width: .2 * size, height: .27 * size),
           fill(ink),
         );
       }
@@ -468,7 +483,8 @@ abstract final class BossRig {
       );
       // A heavy lid slants toward the nose; it drops in fury, charge and
       // blinks.
-      final drop = .02 + (fury ? .07 : 0) + charge * .05 + blink * .48;
+      final drop =
+          .02 + (fury ? .07 : 0) + charge * .05 + blink * .48 + lidMood;
       final outer = Offset(side * .66, -.47 + drop);
       final inner = Offset(side * .07, -.33 + drop);
       final lid = Path()..moveTo(outer.dx, outer.dy);
@@ -488,7 +504,7 @@ abstract final class BossRig {
     // Tapered brows: steeper in fury, lifted and worried in defeat.
     var tilt = motion.defeated
         ? -.16
-        : (fury ? .07 : 0) + charge * .04 - wince * .05;
+        : (fury ? .07 : 0) + charge * .04 - wince * .05 + browMood;
     // The upgraded Baron scowls as the screech builds.
     if (storm != null && !motion.defeated) tilt += storm.glow * .09;
     for (final side in [-1.0, 1.0]) {
@@ -515,7 +531,7 @@ abstract final class BossRig {
       );
     }
     _mouth(c, motion, charge, fury, storm);
-    if (fury) {
+    if (scowl) {
       // A popping anger mark on the temple away from the bird.
       final mark = Path();
       for (var turn = 0; turn < 4; turn++) {
@@ -541,8 +557,26 @@ abstract final class BossRig {
     bool fury, [
     BaronStormPose? storm,
   ]) {
-    final open = motion.mouth.clamp(0.0, 1.0);
-    const left = Offset(-.44, .02), right = Offset(.36, .07);
+    // A line's words open it on top of the fight's own mouth, from ajar
+    // (a gloat, a gasp) to wide (a bellow).
+    final (rest, range) = switch (motion.mood) {
+      StoryMood.happy => (.2, .55),
+      StoryMood.surprised => (.3, .45),
+      StoryMood.angry => (.1, .8),
+      StoryMood.sad => (0.0, .45),
+      _ => (0.0, .65),
+    };
+    final open = motion
+        .voiced(motion.mouth, rest: rest, range: range)
+        .clamp(0.0, 1.0);
+    // Its corners turn up in a gloat and down in sorrow.
+    final smile = switch (motion.mood) {
+      StoryMood.happy => 1.0,
+      StoryMood.sad => -1.0,
+      _ => 0.0,
+    };
+    final left = Offset(-.44 - smile.abs() * .03, .02 - smile * .08);
+    final right = Offset(.36 + smile.abs() * .03, .07 - smile * .08);
     const top = Offset(-.04, .14);
     Offset along(double t) =>
         left * ((1 - t) * (1 - t)) + top * (2 * t * (1 - t)) + right * (t * t);

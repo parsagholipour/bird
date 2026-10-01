@@ -51,7 +51,7 @@ void main() {
         ],
       );
       await container.read(progressProvider.future);
-      appRouter.go('/play/jump?practice=true');
+      appRouter.go('/play/jump');
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
@@ -138,7 +138,7 @@ void main() {
       for (final other in [
         find.byKey(const ValueKey('match-health')),
         find.byType(FlightScore),
-        find.byTooltip('Pause practice'),
+        find.byTooltip('Pause flight'),
       ]) {
         expect(meter.overlaps(tester.getRect(other)), isFalse);
       }

@@ -14,6 +14,7 @@ import 'ui/records_screen.dart';
 import 'ui/replay_screen.dart';
 import 'ui/settings_screen.dart';
 import 'ui/play_screen.dart';
+import 'ui/coop_screen.dart';
 import 'ui/calibration_probe.dart';
 import 'ui/theme.dart';
 import 'ui/passport_screen.dart';
@@ -89,6 +90,7 @@ final appRouter = GoRouter(
       path: '/settings',
       builder: (context, state) => const SettingsScreen(),
     ),
+    GoRoute(path: '/coop', builder: (context, state) => const CoopScreen()),
     GoRoute(
       path: '/lab',
       builder: (context, state) => const CalibrationProbe(),

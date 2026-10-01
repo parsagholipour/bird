@@ -35,6 +35,7 @@ void main() {
   group('director', () {
     test('a pool plays every line before any returns, then rests it', () {
       final director = FlightVoiceDirector(
+        talk: 1,
         bank: bank({'pip-takeoff': 6}),
         memory: FlightVoiceMemory(),
         random: Random(1),
@@ -43,17 +44,19 @@ void main() {
       expect(said, hasLength(6));
       expect(said.toSet(), hasLength(6));
       // The pool is spent: nothing fresh until 12 other lines are said.
-      expect(director.offer(VoiceCue.of('takeoff', 'pip-takeoff'), 200), isNull);
+      expect(
+        director.offer(VoiceCue.of('takeoff', 'pip-takeoff'), 200),
+        isNull,
+      );
     });
 
     test('no clip repeats while fewer than its rest of lines were said', () {
       final memory = FlightVoiceMemory();
       // A realistic spread: many pools of one to eight lines.
       final sizes = [1, 1, 2, 2, 3, 3, 4, 5, 6, 8];
-      final pools = [
-        for (var i = 0; i < 30; i++) 'pip-moment$i',
-      ];
+      final pools = [for (var i = 0; i < 30; i++) 'pip-moment$i'];
       final director = FlightVoiceDirector(
+        talk: 1,
         bank: bank({
           for (var i = 0; i < pools.length; i++) pools[i]: sizes[i % 10],
         }),
@@ -70,9 +73,7 @@ void main() {
       expect(said.length, greaterThan(1000));
       for (var i = 0; i < said.length; i++) {
         final pool = FlightVoiceBank.poolOf(said[i]);
-        final rest = FlightVoiceDirector.rest(
-          director.bank[pool].length,
-        );
+        final rest = FlightVoiceDirector.rest(director.bank[pool].length);
         final next = said.indexOf(said[i], i + 1);
         if (next >= 0) expect(next - i, greaterThanOrEqualTo(rest));
       }
@@ -82,6 +83,7 @@ void main() {
       final memory = FlightVoiceMemory();
       final pools = bank({'pip-takeoff': 6});
       final first = FlightVoiceDirector(
+        talk: 1,
         bank: pools,
         memory: memory,
         random: Random(2),
@@ -92,6 +94,7 @@ void main() {
       expect(restored.since(opened.clip.name), 0);
       for (var seed = 0; seed < 30; seed++) {
         final next = FlightVoiceDirector(
+          talk: 1,
           bank: pools,
           memory: FlightVoiceMemory.decode(memory.encode()),
           random: Random(seed),
@@ -111,6 +114,7 @@ void main() {
       for (var flight = 0; flight < 40; flight++) {
         memory.flights++;
         final line = FlightVoiceDirector(
+          talk: 1,
           bank: pools,
           memory: memory,
           random: Random(flight),
@@ -127,6 +131,7 @@ void main() {
     test('lines keep a gap and a budget; the campaign talks more', () {
       int lines(bool campaign) => run(
         FlightVoiceDirector(
+          talk: 1,
           bank: bank({'pip-panel-break': 300}),
           memory: FlightVoiceMemory(),
           campaign: campaign,
@@ -145,6 +150,7 @@ void main() {
 
     test('an urgent warning cuts chatter, but not a line that matters', () {
       final director = FlightVoiceDirector(
+        talk: 1,
         bank: bank({
           'pip-idle': 4,
           'pip-rush-wildfire': 3,
@@ -154,10 +160,7 @@ void main() {
         random: Random(1),
       );
       expect(director.offer(VoiceCue.of('idle', 'pip-idle'), 0), isNotNull);
-      final fire = director.offer(
-        VoiceCue.of('rush', 'pip-rush-wildfire'),
-        1,
-      );
+      final fire = director.offer(VoiceCue.of('rush', 'pip-rush-wildfire'), 1);
       expect(fire?.urgency, VoiceUrgency.urgent);
       // A last heart waits for the warning to end, then gets the word.
       expect(
@@ -174,6 +177,7 @@ void main() {
 
     test('a line that matters waits briefly for the voice', () {
       final director = FlightVoiceDirector(
+        talk: 1,
         bank: bank({'pip-streak': 2, 'pip-last-heart': 2}, ms: 1500),
         memory: FlightVoiceMemory(),
         random: Random(1),
@@ -192,6 +196,7 @@ void main() {
 
     test('a reply follows its line without the usual gap', () {
       final director = FlightVoiceDirector(
+        talk: 1,
         bank: bank({'baron-taunt': 80, 'pip-retort': 50}),
         memory: FlightVoiceMemory(),
         random: Random(4),
@@ -227,6 +232,7 @@ void main() {
       FlightVoiceMemory? memory,
       int seed = 1,
     }) => FlightVoices(
+      talk: 1,
       bird: 0,
       mode: PlayMode.touch,
       level: level,
@@ -248,7 +254,10 @@ void main() {
       sim.elapsed += 30;
       expect(v.update(sim), isNull);
 
-      final again = voices(pools: {'pip-takeoff': 6, 'pip-retry': 5}, retry: true);
+      final again = voices(
+        pools: {'pip-takeoff': 6, 'pip-retry': 5},
+        retry: true,
+      );
       final next = playing();
       again.update(next, mute: true);
       next.elapsed += 1;
@@ -286,11 +295,7 @@ void main() {
     test('fire gets its own hit line; the last heart outranks it', () {
       final sim = playing();
       final v = voices(
-        pools: {
-          'pip-hit-fire': 3,
-          'pip-hit': 6,
-          'pip-last-heart': 5,
-        },
+        pools: {'pip-hit-fire': 3, 'pip-hit': 6, 'pip-last-heart': 5},
       );
       v.update(sim, mute: true);
       sim.elapsed += 20;
@@ -362,6 +367,7 @@ void main() {
 
     test('ordinary lines share a budget; warnings stay outside it', () {
       final director = FlightVoiceDirector(
+        talk: 1,
         bank: bank({'pip-hit': 40, 'pip-gale': 40, 'pip-enemy-down': 40}),
         memory: FlightVoiceMemory(),
         random: Random(2),
@@ -413,6 +419,7 @@ void main() {
       var clock = 100.0;
       final sim = playing();
       final v = FlightVoices(
+        talk: 1,
         bird: 0,
         mode: PlayMode.touch,
         bank: FlightVoices.recorded,
@@ -467,7 +474,10 @@ void main() {
       expect(FlightVoices.regionKey(WorldRegion.newYork), 'new-york');
       expect(FlightVoices.regionKey(WorldRegion.jungle), 'jungle');
       expect(FlightVoices.bossKey(BossKind.duskMoth), 'empress');
-      expect(FlightVoices.recorded['pip-sprint'].length, greaterThanOrEqualTo(4));
+      expect(
+        FlightVoices.recorded['pip-sprint'].length,
+        greaterThanOrEqualTo(4),
+      );
     });
   });
 }

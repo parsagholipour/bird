@@ -84,8 +84,8 @@ final class StoryCourier extends StoryActor {
             StoryMood.surprised => BirdExpression.startled,
             _ => BirdExpression.neutral,
           };
-    // The wing says what the beak cannot: up when glad or startled, and a
-    // little flick with every syllable.
+    // The beak opens with the words, as in flight, and the wing talks too:
+    // up when glad or startled, and a little flick with every syllable.
     final lift = switch (mood) {
       StoryMood.happy => -.42,
       StoryMood.surprised => -.62,
@@ -102,6 +102,7 @@ final class StoryCourier extends StoryActor {
       bird: bird,
       wing: lift - face.mouth * .3,
       expression: expression,
+      beak: (face.mouth * BirdPuppet.beaks / StoryFaces.mouths).round(),
     );
     if (!face.blink) _brows(canvas, mood);
     if (mood == StoryMood.sad || mood == StoryMood.surprised) {

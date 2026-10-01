@@ -21,7 +21,6 @@ void main() {
       SavedSession? saved;
       final controller = PlayController(
         mode: PlayMode.squat,
-        practice: true,
         source: source,
         audio: SilentAudio(),
         saveRun: (_) async {},

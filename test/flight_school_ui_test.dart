@@ -9,6 +9,7 @@ import 'package:push_up_bird/data/progress_repository.dart';
 import 'package:push_up_bird/data/providers.dart';
 import 'package:push_up_bird/data/session_repository.dart';
 import 'package:push_up_bird/domain/game_rules.dart';
+import 'package:push_up_bird/domain/tracking.dart';
 import 'package:push_up_bird/game/bird_game.dart';
 import 'package:push_up_bird/main.dart';
 import 'package:push_up_bird/ui/flight_school_screen.dart';
@@ -158,12 +159,12 @@ void main() {
         await tester.pump();
         expect(find.byType(PlayScreen), findsOneWidget);
         final play = tester.widget<PlayScreen>(find.byType(PlayScreen));
-        expect(play.practice, isTrue);
+        expect(play.mode, PlayMode.jump);
         expect(play.course, FlightCourse.starTrail);
         expect(
           cameras,
           1,
-          reason: 'Only the explicit camera-practice handoff creates tracking',
+          reason: 'Only the explicit camera handoff creates tracking',
         );
         await tester.pumpWidget(const SizedBox());
         container.dispose();

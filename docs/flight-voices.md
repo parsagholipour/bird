@@ -50,24 +50,35 @@ exchanges.
   said is kept in the phone's preferences (`flightVoices`), so the next
   flight and the next launch carry on from there. A moment with no fresh
   line stays silent.
-- **Pacing.** After a line ends, the next waits: 16 s for small talk, 7 s
-  for an ordinary line, 2.5 s for one that matters and 0.5 s for a warning.
-  Lines share a budget of 5 a minute; warnings and once-a-flight lines
-  (takeoff, cargo, last heart, record, a boss's arrival, half health and
-  fall, the knockout, the delivery) stand outside it. Each kind of line
-  has its own cooldown (a hit at most every 12 s, a shield bump every 20 s,
-  a sprint call every 6 s) and a chance of being said at all: every rush
-  and gale warning, most hits, 60% of sprints, a third of enemy knockouts.
-- **The campaign talks more:** 9 s, 4.5 s and 1.5 s gaps, 8 lines a minute,
-  higher chances and cooldowns cut by 30%, small talk after 13 s of quiet
-  instead of 22, and lines it alone has (cargo, region, star marks,
-  delivery).
+- **Talkativeness.** The rules below were tuned first; the game then talks
+  at 0.39 of that (`FlightVoiceDirector.talkativeness`), halving how much
+  is said without removing any moment: every chance is multiplied by 0.39,
+  and the gaps, cooldowns, budget and quiet stretches are stretched by the
+  same factor. Warnings keep their 0.5 s gap. The figures below are the
+  rules before that factor, with what the game uses in brackets.
+- **Pacing.** After a line ends, the next waits: 16 s for small talk (41),
+  7 s for an ordinary line (18), 2.5 s for one that matters (6.4) and
+  0.5 s for a warning. Lines share a budget of 5 a minute (2); warnings and
+  once-a-flight lines (takeoff, cargo, last heart, record, a boss's
+  arrival, half health and fall, the knockout, the delivery) stand outside
+  it. Each kind of line has its own cooldown (a hit at most every 12 s
+  (31), a shield bump every 20 s (51), a sprint call every 6 s (15)) and a
+  chance of being said at all: every rush and gale warning (39%), most
+  hits, 60% of sprints (23%), a third of enemy knockouts (12%).
+- **The campaign talks more:** 9 s, 4.5 s and 1.5 s gaps (23, 12, 3.8),
+  8 lines a minute (3), higher chances and cooldowns cut by 30%, small
+  talk after 13 s of quiet instead of 22 (33 s and 56 s), and lines it
+  alone has (cargo, region, star marks, delivery).
+- **First times.** Bill's tip for a rush the player has never heard is
+  kept until it has been said, so a skipped chance never loses it.
 - **Urgency.** A warning ("Fire!") may cut short small talk or an ordinary
   line. A line that matters and finds the voice busy waits up to 2 s, then
   is dropped: a late line is worse than none.
-- **Measured:** a seeded autopilot flying five minutes of endless Tap & Fly
-  (five bosses, five rushes, a gale, a sprint whenever ready) hears 35
-  lines from 26 different moments; a campaign level about 9 a minute.
+- **Measured:** 24 seeded autopilot flights (five minutes of endless Tap &
+  Fly with five bosses, five rushes and a gale, and five campaign levels,
+  four birds, sprinting whenever ready) said 305 lines at the first
+  tuning and 148 now, 49%; another 24 flights, 312 and 152.
+  `test/flight_voices_flight_test.dart` holds it near half.
 
 ## Checked by transcription
 
@@ -92,6 +103,20 @@ read out; the only differences were spellings ("whiz", "Youch").
 - Pausing, retrying and leaving the flight stop the line being
   said. Replays and Flight School stay quiet (their sprints keep the story
   calls).
+- The speaker's face follows the line (`FlightSpeech`, read once a frame by
+  `BirdGame`). The mouth opens to the take's own loudness curve, 50 ms a
+  step, and the face shows the line's mood: a plain line keeps the face the
+  flight gave it; glad, startled, angry and sorry lines set the eyes, brows
+  and (for the bosses) the mouth's shape, and hold them 0.35 s past the
+  last word. The bird's beak parts about a hinge in its art
+  (`design/*.svg`, `Beak hinge`), into four cached frames per mood; it keeps
+  talking through a knockout's tumble with its dizzy eyes. A boss's face
+  moves only for its own lines, and its attacks (a windup, the shot, a
+  roar, the dragon's breath) keep their mouth over the words; a beaten boss
+  plays its defeat. Under Reduced Motion the mouth stays shut and the mood
+  still shows. Review sheets: `flutter test --no-pub
+  --dart-define=CAPTURE_TALKING_FACES=true test/talking_faces_art_test.dart`
+  writes build/visual-review/talking-faces/.
 - **Settings → Character voices** turns them off with the story's voices.
 
 ## Remaking the clips

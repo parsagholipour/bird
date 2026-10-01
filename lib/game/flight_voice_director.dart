@@ -200,8 +200,16 @@ class FlightVoiceDirector {
     required this.bank,
     required this.memory,
     this.campaign = false,
+    this.talk = talkativeness,
     Random? random,
   }) : _random = random ?? Random();
+
+  /// How often the characters talk, against the [rules]' chances: every
+  /// kind of line is said this share of the times its rules allow. Halved
+  /// from the first tuning on the owner's ask: nothing removed, half as
+  /// often.
+  static const talkativeness = .39;
+  final double talk;
 
   final FlightVoiceBank bank;
   FlightVoiceMemory memory;
@@ -373,17 +381,18 @@ class FlightVoiceDirector {
     'defeated': VoiceRule(always: true, VoiceUrgency.high),
   };
 
-  /// Seconds of quiet a line needs after the last one ended.
+  /// Seconds of quiet a line needs after the last one ended, stretched as
+  /// [talk] falls. Warnings keep theirs.
   double _gap(VoiceUrgency urgency) => switch (urgency) {
-    VoiceUrgency.chatter => campaign ? 9 : 16,
-    VoiceUrgency.normal => campaign ? 4.5 : 7,
-    VoiceUrgency.high => campaign ? 1.5 : 2.5,
+    VoiceUrgency.chatter => (campaign ? 9 : 16) / talk,
+    VoiceUrgency.normal => (campaign ? 4.5 : 7) / talk,
+    VoiceUrgency.high => (campaign ? 1.5 : 2.5) / talk,
     VoiceUrgency.urgent => .5,
   };
 
   /// Lines allowed in any minute, warnings and [VoiceRule.always] lines
   /// aside.
-  int get _budget => campaign ? 8 : 5;
+  double get _budget => (campaign ? 8 : 5) * talk;
 
   /// Seconds a line that matters waits for the voice to come free, and the
   /// breath it leaves after the line it waited for.
@@ -458,11 +467,12 @@ class FlightVoiceDirector {
     for (final option in cue.options) {
       final rule = rules[option.kind];
       if (rule == null) continue;
-      final cooldown = rule.cooldown * (campaign ? .7 : 1);
+      final cooldown = rule.cooldown * (campaign ? .7 : 1) / talk;
       final last = _lastKind[option.kind];
       if (last != null && now - last < cooldown) continue;
       if (!rolled &&
-          _random.nextDouble() >= (campaign ? rule.campaign : rule.chance)) {
+          _random.nextDouble() >=
+              (campaign ? rule.campaign : rule.chance) * talk) {
         continue;
       }
       final clip = _pick(option.pool);

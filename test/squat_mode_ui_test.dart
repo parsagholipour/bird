@@ -46,7 +46,7 @@ void main() {
         ],
       );
       await container.read(progressProvider.future);
-      appRouter.go('/play/squat?practice=true');
+      appRouter.go('/play/squat');
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,

@@ -116,7 +116,7 @@ void main() {
   test(
     'shots respect cooldown and cannot queue during countdown or pause',
     () async {
-      final controller = touchController(practice: true);
+      final controller = touchController();
       addTearDown(controller.dispose);
       // A tap is a press and a release. Holding is covered in power_shot_test.
       void tap() {

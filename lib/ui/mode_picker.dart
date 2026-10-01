@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import '../game/tether_art.dart';
 import '../domain/tracking.dart';
 import 'components.dart';
 import 'mode_picker_art.dart';
@@ -38,7 +40,14 @@ Future<PlayMode?> showModePicker(BuildContext context) => showDialog<PlayMode>(
                 children: [
                   Row(
                     children: [
-                      const SizedBox(width: 48),
+                      // Two players, one phone; the strip below explains it.
+                      RoundButton(
+                        key: const ValueKey('mode-coop-quick'),
+                        icon: Icons.people_alt_rounded,
+                        label: 'Fly Together: two players',
+                        color: SkyColors.mint,
+                        onPressed: () => _flyTogether(context),
+                      ),
                       Expanded(
                         child: Column(
                           children: [
@@ -134,6 +143,10 @@ Future<PlayMode?> showModePicker(BuildContext context) => showDialog<PlayMode>(
                                   ),
                                 ),
                               ),
+                            const Padding(
+                              padding: EdgeInsets.only(top: 16),
+                              child: _CoopStrip(),
+                            ),
                           ],
                         );
                       },
@@ -320,4 +333,61 @@ class _ModeCardState extends State<_ModeCard> {
       ),
     );
   }
+}
+
+/// Two players, one phone: the co-op flight, under the four solo modes.
+class _CoopStrip extends StatelessWidget {
+  const _CoopStrip();
+
+  @override
+  Widget build(BuildContext context) => TextButton(
+    key: const ValueKey('mode-coop'),
+    onPressed: () {
+      UiSounds.effect(context);
+      _flyTogether(context);
+    },
+    style: TextButton.styleFrom(
+      foregroundColor: SkyColors.ink,
+      backgroundColor: SkyColors.cream,
+      padding: const EdgeInsets.fromLTRB(16, 10, 20, 10),
+      minimumSize: const Size(48, 56),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: const BorderSide(color: SkyColors.ink, width: 2),
+      ),
+    ),
+    child: Row(
+      children: [
+        for (final color in TetherArt.players)
+          Container(
+            width: 30,
+            height: 30,
+            margin: const EdgeInsets.only(right: 6),
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            child: const Icon(
+              Icons.touch_app_rounded,
+              size: 18,
+              color: SkyColors.white,
+            ),
+          ),
+        const SizedBox(width: 8),
+        Text('Fly Together', style: heading(20, weight: FontWeight.w700)),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            'Two players, one phone. Fly roped together, '
+            'each on your own, or fight 1 v 1.',
+            style: bodyText(13, color: SkyColors.muted),
+          ),
+        ),
+        const Icon(Icons.arrow_forward_rounded),
+      ],
+    ),
+  );
+}
+
+void _flyTogether(BuildContext context) {
+  final router = GoRouter.of(context);
+  Navigator.pop(context);
+  router.go('/coop');
 }

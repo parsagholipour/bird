@@ -242,33 +242,37 @@ void main() {
     expect(host.loads, contains(endsWith('sprint.wav')));
   });
 
-  test('a live flight\'s voices take the sprint call and duck lighter', () async {
-    final host = AndroidAudioHost()..install();
-    final audio = SkyAudio(effectClock: () => 0, random: Random(3));
-    addTearDown(audio.dispose);
-    await audio.configure(const GameSettings());
-    await waitForTrack(host, 'sky_flight.ogg');
-    final sim = playing();
-    audio.voices = FlightVoices(
-      bird: 0,
-      mode: PlayMode.touch,
-      random: Random(1),
-    );
-    audio.syncCombat(sim, silent: true);
-    expect(sim.sprint(), isTrue);
-    audio.syncCombat(sim);
-    await drainAudio();
-    final calls = [
-      for (final path in host.loads)
-        if (path.contains('/story/sprint-pip-')) path,
-    ];
-    expect(calls, hasLength(1), reason: 'said once, by the voices');
-    expect(host.loads, contains(endsWith('sprint.wav')));
-    expect(host.volumes[host.music], closeTo(.42, 1e-9));
-    await audio.stopEffects();
-    await drainAudio();
-    expect(host.volumes[host.music], .70);
-  });
+  test(
+    'a live flight\'s voices take the sprint call and duck lighter',
+    () async {
+      final host = AndroidAudioHost()..install();
+      final audio = SkyAudio(effectClock: () => 0, random: Random(3));
+      addTearDown(audio.dispose);
+      await audio.configure(const GameSettings());
+      await waitForTrack(host, 'sky_flight.ogg');
+      final sim = playing();
+      audio.voices = FlightVoices(
+        talk: 1,
+        bird: 0,
+        mode: PlayMode.touch,
+        random: Random(1),
+      );
+      audio.syncCombat(sim, silent: true);
+      expect(sim.sprint(), isTrue);
+      audio.syncCombat(sim);
+      await drainAudio();
+      final calls = [
+        for (final path in host.loads)
+          if (path.contains('/story/sprint-pip-')) path,
+      ];
+      expect(calls, hasLength(1), reason: 'said once, by the voices');
+      expect(host.loads, contains(endsWith('sprint.wav')));
+      expect(host.volumes[host.music], closeTo(.42, 1e-9));
+      await audio.stopEffects();
+      await drainAudio();
+      expect(host.volumes[host.music], .70);
+    },
+  );
 
   test('a spoken line ducks the music until it ends or is hushed', () async {
     final host = AndroidAudioHost()..install();

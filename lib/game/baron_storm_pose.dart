@@ -127,7 +127,7 @@ class BaronStormPose {
 /// The base motion with the screech's jaw, wings and crown on top.
 class _StormMotion extends BossMotion {
   _StormMotion(this.pose, this.base)
-    : super(base.boss, reducedMotion: base.reducedMotion);
+    : super(base.boss, reducedMotion: base.reducedMotion, speech: base.speech);
   final BaronStormPose pose;
   final BossMotion base;
 

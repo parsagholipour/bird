@@ -165,14 +165,13 @@ void main() {
     },
   );
   test(
-    'practice flights pause, restore music, and finish with saveable results',
+    'camera flights pause, restore music, and finish with saveable results',
     () async {
       final source = SessionSource();
       final audio = CountingAudio();
       RunResult? result;
       final controller = PlayController(
         mode: PlayMode.pushUp,
-        practice: true,
         course: FlightCourse.starTrail,
         source: source,
         audio: audio,
@@ -189,7 +188,7 @@ void main() {
       await controller.finish();
       expect(controller.stage, PlayStage.results);
       expect(controller.canSaveSession, isTrue);
-      expect(result!.practice, isTrue);
+      expect(result!.practice, isFalse);
       expect(result!.course, FlightCourse.starTrail);
       expect(result!.reason, EndReason.breakTaken);
       controller.dispose();
@@ -252,7 +251,6 @@ void main() {
       var shouldFail = true;
       final controller = PlayController(
         mode: PlayMode.pushUp,
-        practice: true,
         source: source,
         audio: SilentAudio(),
         saveRun: (_) async {

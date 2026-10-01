@@ -53,7 +53,7 @@ void main() {
           ],
         );
         await container.read(progressProvider.future);
-        appRouter.go('/play/touch?practice=true&course=starTrail');
+        appRouter.go('/play/touch?course=starTrail');
         await tester.pumpWidget(
           UncontrolledProviderScope(
             container: container,

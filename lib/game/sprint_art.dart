@@ -90,7 +90,7 @@ abstract final class SprintArt {
     final t = ram(sim);
     if (t <= 0) return;
     final extra = overdrive(sim);
-    final center = Offset(FlightSimulation.birdX * height, sim.birdY * height);
+    final center = Offset(sim.birdScreenX * height, sim.birdY * height);
     final pulse = reducedMotion ? 0.0 : math.sin(sim.elapsed * 26) * .05;
     final nose = center.dx + height * .055;
     final half = height * (.05 + .022 * rush(sim) + .02 * extra);

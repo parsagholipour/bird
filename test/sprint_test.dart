@@ -395,10 +395,7 @@ void main() {
   }
 
   test('the controller journals accepted sprints only', () async {
-    final controller = touchController(
-      course: FlightCourse.starTrail,
-      practice: true,
-    );
+    final controller = touchController(course: FlightCourse.starTrail);
     addTearDown(controller.dispose);
     await controller.fly();
     controller.sprint();

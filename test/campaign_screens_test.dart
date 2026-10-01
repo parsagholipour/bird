@@ -34,7 +34,6 @@ import 'package:push_up_bird/ui/campaign_map.dart';
 import 'package:push_up_bird/ui/campaign_postcard.dart';
 import 'package:push_up_bird/ui/components.dart';
 import 'package:push_up_bird/ui/game_over_stage.dart';
-import 'package:push_up_bird/ui/home_parts.dart' show HomePracticeButton;
 import 'package:push_up_bird/ui/level_intro.dart';
 import 'package:push_up_bird/ui/level_result.dart';
 import 'package:push_up_bird/ui/play_screen.dart';
@@ -331,25 +330,12 @@ void main() {
       expect(_path(), '/');
     });
 
-    // Play and Practice exactly where they were before the campaign
-    // (measured from the pre-campaign Home), so the endless way in stays as
-    // it is.
-    for (final (size, play, practice) in const [
-      (
-        Size(640, 360),
-        Rect.fromLTWH(132.8246, 175.52, 180.7754, 48.64),
-        Rect.fromLTWH(44.8, 175.52, 80.3446, 48.64),
-      ),
-      (
-        Size(800, 360),
-        Rect.fromLTWH(166.0308, 174.4, 225.9692, 60.8),
-        Rect.fromLTWH(56, 174.4, 100.4308, 60.8),
-      ),
-      (
-        Size(1000, 450),
-        Rect.fromLTWH(207.5385, 218, 282.4615, 76),
-        Rect.fromLTWH(70, 218, 125.5385, 76),
-      ),
+    // Play fills the row it once shared with Practice (measured from the
+    // pre-campaign Home), so the endless way in stays where it was.
+    for (final (size, play) in const [
+      (Size(640, 360), Rect.fromLTWH(44.8, 175.52, 268.8, 48.64)),
+      (Size(800, 360), Rect.fromLTWH(56, 174.4, 336, 60.8)),
+      (Size(1000, 450), Rect.fromLTWH(70, 218, 420, 76)),
     ]) {
       testWidgets('Play keeps its size and place at ${size.width.round()}; '
           'the Campaign key is a full 48 dp beside it', (tester) async {
@@ -366,18 +352,12 @@ void main() {
         }
 
         same(tester.getRect(find.byKey(const ValueKey('play'))), play, 'Play');
-        same(
-          tester.getRect(find.byType(HomePracticeButton)),
-          practice,
-          'Practice',
-        );
         final key = tester.getRect(find.byKey(const ValueKey('campaign')));
         expect(key.height, greaterThanOrEqualTo(48));
         expect(key.width, greaterThanOrEqualTo(48));
         expect((Offset.zero & size).contains(key.topLeft), isTrue);
         expect((Offset.zero & size).contains(key.bottomRight), isTrue);
         expect(key.overlaps(play), isFalse);
-        expect(key.overlaps(practice), isFalse);
         expect(
           find.byKey(const ValueKey('campaign')).hitTestable(),
           findsOneWidget,

@@ -43,7 +43,6 @@ class _App {
 Future<_App> _open(
   WidgetTester tester,
   Size size, {
-  bool practice = false,
   bool reduced = false,
 }) async {
   tester.view.physicalSize = size;
@@ -67,7 +66,7 @@ Future<_App> _open(
     ],
   );
   await container.read(progressProvider.future);
-  appRouter.go('/play/touch${practice ? '?practice=true' : ''}');
+  appRouter.go('/play/touch');
   await tester.pumpWidget(
     UncontrolledProviderScope(
       container: container,
@@ -350,27 +349,9 @@ void main() {
       app.container.dispose();
     });
 
-    testWidgets('practice and save-error stages ($w)', (tester) async {
-      final app = await _open(tester, size, practice: true);
-      var game = await _takeOff(tester);
-      final controller = _controller(tester);
-      await _flyAndCrash(tester, game, seconds: 20);
-      while (controller.stage == PlayStage.fallen) {
-        game.update(1 / 60);
-      }
-      await _paint(tester, game);
-      await tester.pumpAndSettle();
-      expect(find.text('PRACTICE'), findsOneWidget);
-      expect(
-        find.text('Practice flights leave your records untouched.'),
-        findsOneWidget,
-      );
-      await capture(tester, 'death/stage-$w-practice');
-      await tester.pumpWidget(const SizedBox());
-      app.container.dispose();
-
+    testWidgets('save-error stage ($w)', (tester) async {
       final scored = await _open(tester, size);
-      game = await _takeOff(tester);
+      final game = await _takeOff(tester);
       final scoredController = _controller(tester);
       scored.repository.fail = true;
       await _flyAndCrash(tester, game, seconds: 35, score: 18);

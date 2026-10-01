@@ -154,10 +154,25 @@ String sessionTitle(RunResult run) {
   final level = run.levelId == null ? null : Campaign.level(run.levelId!);
   if (level != null) return '${level.id} · ${level.name}';
   if (run.levelId != null) return 'Level ${run.levelId}';
+  // A co-op flight's id ends with its mode, such as "-coop-free".
+  if (run.id.contains('-coop')) {
+    final mode = CoopMode.values.firstWhere(
+      (mode) => run.id.endsWith('-coop-${mode.name}'),
+      orElse: () => CoopMode.roped,
+    );
+    return 'Fly Together · ${mode.title}';
+  }
   return '${run.mode.title}'
       '${run.course != FlightCourse.classic ? ' · ${run.course.title}' : ''}'
       '${run.practice ? ' · Practice' : ''}';
 }
+
+/// The hearts and shields a replay sounds out: both of a duel's birds.
+int _hearts(FlightSimulation sim) =>
+    sim.duel ? sim.flock.fold(0, (n, bird) => n + bird.hearts) : sim.hearts;
+int _shields(FlightSimulation sim) => sim.duel
+    ? sim.flock.where((bird) => bird.shield).length
+    : (sim.shield ? 1 : 0);
 
 /// Wings earned so far, for the wing chime. A level's collection marks take
 /// their place, as in live play, read from the plan the replay flies.
@@ -221,6 +236,7 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
           simulation: player.simulation,
           nowMs: () => 0,
           bird: session.tape.bird,
+          partnerBird: session.tape.partner,
           reducedMotion: session.tape.reducedMotion,
           playback: true,
           onChanged: () {},
@@ -279,8 +295,8 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
     final oldMagnets = _player!.simulation.magnetActivations;
     final oldWings = _wings(_player!.simulation);
     final oldFlightTime = _player!.simulation.elapsed;
-    final oldHearts = _player!.simulation.hearts;
-    final oldShield = _player!.simulation.shield;
+    final oldHearts = _hearts(_player!.simulation);
+    final oldShields = _shields(_player!.simulation);
     final oldPhase = _player!.simulation.phase;
     final oldCount = _player!.simulation.countdown.ceil();
     _position = (_position + dt.clamp(0, 100) * _speed).clamp(
@@ -311,10 +327,12 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
       } else if (!sim.collectsStars && sim.score > oldScore) {
         _audio.effect('point');
       }
-      if (sim.isTrail && sim.hearts < oldHearts) _audio.effect('bump');
-      if (sim.isTrail && sim.hearts > oldHearts) _audio.effect('heart');
-      if (sim.isTrail && !sim.shield && oldShield) _audio.effect('shield_pop');
-      if (sim.isTrail && sim.shield && !oldShield) _audio.effect('shield');
+      if (sim.isTrail && _hearts(sim) < oldHearts) _audio.effect('bump');
+      if (sim.isTrail && _hearts(sim) > oldHearts) _audio.effect('heart');
+      if (sim.isTrail && _shields(sim) < oldShields) {
+        _audio.effect('shield_pop');
+      }
+      if (sim.isTrail && _shields(sim) > oldShields) _audio.effect('shield');
       if (sim.timed &&
           oldFlightTime < sim.course.duration - 10 &&
           sim.elapsed >= sim.course.duration - 10) {
@@ -705,7 +723,7 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                             ),
                           if (_player!.simulation.isTrail)
                             Text(
-                              '${_player!.simulation.hearts} hearts · ${_player!.simulation.clockLabel}',
+                              '${_player!.simulation.duel ? 'P1 ${_player!.simulation.lead.hearts} · P2 ${_player!.simulation.partner!.hearts}' : _player!.simulation.hearts} hearts · ${_player!.simulation.clockLabel}',
                               style: bodyText(11, color: Colors.white),
                             ),
                           if (_player!.simulation.magnetActive)

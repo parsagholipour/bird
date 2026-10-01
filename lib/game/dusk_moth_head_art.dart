@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/painting.dart';
 
+import '../domain/campaign_story.dart' show StoryMood;
 import 'dusk_moth_boss_rig.dart' show DuskMothBossRig;
 import 'dusk_moth_kit.dart';
 import 'dusk_moth_pose.dart';
@@ -156,24 +157,45 @@ abstract final class DuskMothHeadArt {
   }) {
     final tone = p.tone;
     final fury = p.fury;
-    final glare = p.glare;
     final near = squeeze == 1;
     final (w, h) = (_eyeHalf.dx, _eyeHalf.dy);
+    // A line's mood over the fight's own look: a contented half-lid, the
+    // lids thrown up, a scowl, or a droop at the far corner, looking down.
+    final (scowl, lidMood, wide, tip, gaze) = switch (p.mood) {
+      StoryMood.happy => (0.0, -.04, 0.0, -.06, 0.0),
+      StoryMood.surprised => (0.0, 0.0, .9, 0.0, -.4),
+      StoryMood.angry => (.9, 0.0, 0.0, .04, 0.0),
+      StoryMood.sad => (0.0, .2, 0.0, -.1, .9),
+      _ => (0.0, 0.0, 0.0, 0.0, 0.0),
+    };
+    final glare = math.max(p.glare, scowl);
     // The upper lid is a straight cut, lowest at the bird's side, so she
     // always glares: a stern set in contempt, a scowl in fury, squeezed
     // when struck, thrown up in the roar, shut on a blink.
     final lid =
-        (.14 + glare * .3 + p.wince * .4 + p.blink * .8).clamp(0.0, 1.0) *
-        (1 - p.shout * .85);
+        (.14 + glare * .3 + p.wince * .4 + p.blink * .8 + lidMood).clamp(
+          0.0,
+          1.0,
+        ) *
+        (1 - math.max(p.shout, wide) * .85);
     final shut = p.defeated ? 1.0 : lid;
     final edge = -h + h * 2 * shut;
-    final slant = .13 + glare * .06;
+    final slant = .13 + glare * .06 + tip;
+    // A gloat pushes the lower lid up into a smile.
+    final happy = p.mood == StoryMood.happy && !p.defeated;
     final below = Path()
       ..moveTo(-w - .1, edge + slant)
-      ..lineTo(w + .12, edge - slant)
-      ..lineTo(w + .12, h + .3)
-      ..lineTo(-w - .1, h + .3)
-      ..close();
+      ..lineTo(w + .12, edge - slant);
+    if (happy) {
+      below
+        ..lineTo(w + .12, h * .7)
+        ..quadraticBezierTo(0, -h * .1, -w - .1, h * .7);
+    } else {
+      below
+        ..lineTo(w + .12, h + .3)
+        ..lineTo(-w - .1, h + .3);
+    }
+    below.close();
     DuskMothKit.glow(
       c,
       at,
@@ -226,11 +248,17 @@ abstract final class DuskMothHeadArt {
       DuskMothKit.fill(const Color(0xffb8622e).withValues(alpha: .28)),
     );
     // The pupil follows the bird, and thins to a slit as she glares.
-    final look = Offset(near ? -.05 : -.09, p.aim * .075 + .02);
+    final look = Offset(
+      near ? -.05 : -.09,
+      (p.aim + gaze).clamp(-1.0, 1.0) * .075 + .02,
+    );
     final pupil = Rect.fromCenter(
       center: look,
-      width: (.16 - glare * .08 - p.charge * .02) * (near ? 1 : 1.5),
-      height: .3,
+      width:
+          (.16 - glare * .08 - p.charge * .02) *
+          (near ? 1 : 1.5) *
+          (1 - wide * .3),
+      height: .3 * (1 - wide * .3),
     );
     c.drawOval(pupil, DuskMothKit.fill(const Color(0xff2a1a3e)));
     c.drawOval(
@@ -253,6 +281,17 @@ abstract final class DuskMothHeadArt {
     c.restore();
     c.drawPath(shape, DuskMothKit.line(_ink, .045));
     c.restore();
+    if (happy) {
+      c.save();
+      c.clipPath(shape);
+      c.drawPath(
+        Path()
+          ..moveTo(w + .12, h * .7)
+          ..quadraticBezierTo(0, -h * .1, -w - .1, h * .7),
+        DuskMothKit.line(_ink, .07),
+      );
+      c.restore();
+    }
     // The kohl line that cuts the lid runs on into a wing-flick.
     final cut = Path()
       ..moveTo(-w * .96, edge + slant * .96)
@@ -296,7 +335,7 @@ abstract final class DuskMothHeadArt {
     final g = p.gape;
     // The proboscis coils under the chin and unwinds into the port on the
     // windup or the roar.
-    final curl = 1 - math.max(p.charge, p.shout);
+    final curl = 1 - math.max(math.max(p.charge, p.shout), p.voice * .6);
     if (curl > .02) {
       final coil = Path()..moveTo(-1.05, .06);
       for (var i = 1; i <= 26; i++) {
@@ -312,10 +351,11 @@ abstract final class DuskMothHeadArt {
       c.drawPath(coil, DuskMothKit.line(_ink, .07));
       c.drawPath(coil, DuskMothKit.line(_rose, .03));
     }
+    // Words open it wider than the fight does, so they read at her size.
     final rect = Rect.fromCenter(
       center: mouth,
-      width: .17 + g * .05,
-      height: .12 + g * .17 + p.recoil * .03,
+      width: .17 + g * .05 + p.voice * .06,
+      height: .12 + g * .17 + p.recoil * .03 + p.voice * .1,
     );
     // A rose lip under the dark port, and two small fangs that grow as it
     // opens. Both keep clear of the exact centre of the port.

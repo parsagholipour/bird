@@ -138,8 +138,7 @@ class _FlightSchoolScreenState extends ConsumerState<FlightSchoolScreen>
       : 'Tap anywhere to flap. Release between taps.';
   String get _lesson =>
       'Collect a whole star trio for +5. Follow the gaps, charge a magnet and keep your shield.';
-  void _camera(String mode) =>
-      context.go('/play/$mode?course=${course.name}');
+  void _camera(String mode) => context.go('/play/$mode?course=${course.name}');
 
   @override
   Widget build(BuildContext context) {

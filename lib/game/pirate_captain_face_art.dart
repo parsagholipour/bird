@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/painting.dart';
 
+import '../domain/campaign_story.dart' show StoryMood;
 import 'pirate_boss_rig.dart' show PirateBossRig;
 
 /// What the Pirate Captain's face is doing, straight from the boss clock.
@@ -24,6 +25,8 @@ final class PirateFaceState {
     this.dizzy = false,
     this.jiggle = 0,
     this.braid = 0,
+    this.talk = 0,
+    this.mood,
   });
 
   /// Seconds on the boss clock (0 when the face must sit still).
@@ -37,11 +40,38 @@ final class PirateFaceState {
   /// Swing of the earring and of the braids.
   final double jiggle, braid;
 
-  /// How far the mouth is thrown open by a bellow, the shot or the tide call.
-  double get shout => math.max(roar, math.max(recoil * .9, tide * .55));
+  /// How far the words of a line he is saying open his mouth, 0 to 1, and
+  /// that line's mood (null in silence).
+  final double talk;
+  final StoryMood? mood;
 
-  /// How hard he glares: the enraged scowl, or the aim before a shot.
-  double get glare => dizzy ? 0 : math.max(fury, charge * .85);
+  /// How far the mouth is thrown open by a bellow, the shot, the tide call
+  /// or his words.
+  double get shout =>
+      math.max(math.max(roar, talk), math.max(recoil * .9, tide * .55));
+
+  /// How hard he glares: the enraged scowl, the aim before a shot, or an
+  /// angry line.
+  double get glare => dizzy
+      ? 0
+      : math.max(
+          math.max(fury, charge * .85),
+          mood == StoryMood.angry ? .9 : 0,
+        );
+
+  /// His eye thrown open: the roar, or a startled line.
+  double get wide => math.max(roar, mood == StoryMood.surprised ? .7 : 0);
+
+  /// Where he looks (-1 up, 1 down): toward the bird, or at his boots in a
+  /// sorry line.
+  double get look {
+    final down = switch (mood) {
+      StoryMood.sad => .9,
+      StoryMood.surprised => -.3,
+      _ => 0.0,
+    };
+    return (aim + down).clamp(-1.0, 1.0);
+  }
 
   /// Teeth bared and clenched.
   double get snarl => dizzy ? 0 : math.max(charge, fury * .6) * (1 - shout);
@@ -177,7 +207,9 @@ abstract final class PirateCaptainFaceArt {
     _mustache(c, s);
     _nose(c, s);
     _brows(c, s);
-    if (s.fury > 0) _vein(c, s);
+    // An angry line pops the vein too; a sorry one breaks a sweat.
+    if (s.fury > 0 || (s.mood == StoryMood.angry && !s.dizzy)) _vein(c, s);
+    if (s.mood == StoryMood.sad && !s.dizzy) _sweat(c);
   }
 
   // --------------------------------------------------------- head & skin --
@@ -504,7 +536,7 @@ abstract final class PirateCaptainFaceArt {
     const e = PirateBossRig.eyeCenter;
     // A wide almond, a touch narrower for the turn, that the roar throws
     // open.
-    final kx = .98 + s.roar * .06, ky = 1.08 + s.roar * .4;
+    final kx = .98 + s.wide * .06, ky = 1.08 + s.wide * .4;
     Offset q(double dx, double dy) => e + Offset(dx * kx, dy * ky);
     final almond = Path()
       ..moveTo(q(-.135, .02).dx, q(-.135, .02).dy)
@@ -563,8 +595,8 @@ abstract final class PirateCaptainFaceArt {
     final glare = s.glare;
     // The lid: half-lowered and smug at rest, a slit in a glare, shut in a
     // blink, wide open in the roar.
-    final lookLid = s.aim > 0 ? s.aim * .1 : s.aim * .05;
-    final lid = (math.max(.13 + glare * .3 + lookLid, s.blink) * (1 - s.roar))
+    final lookLid = s.look > 0 ? s.look * .1 : s.look * .05;
+    final lid = (math.max(.13 + glare * .3 + lookLid, s.blink) * (1 - s.wide))
         .clamp(0.0, 1.0);
     if (lid > .9) {
       // A blink: the closed lid curves like a smile.
@@ -581,8 +613,9 @@ abstract final class PirateCaptainFaceArt {
     c.save();
     c.clipPath(almond);
     final drift = s.time == 0 ? 0.0 : math.sin(s.time * .9) * .006;
-    final pupil = e + Offset(-.058 + s.aim.abs() * .006 + drift, s.aim * .045);
-    final irisR = .078 - s.roar * .012;
+    final pupil =
+        e + Offset(-.058 + s.look.abs() * .006 + drift, s.look * .045);
+    final irisR = .078 - s.wide * .012;
     // Turned toward the corner, the iris narrows a little.
     Rect round(double r) =>
         Rect.fromCenter(center: pupil, width: r * 1.8, height: r * 2);
@@ -600,7 +633,7 @@ abstract final class PirateCaptainFaceArt {
         _fill(_ink),
       );
     } else {
-      c.drawOval(round(.04 - s.roar * .012), _fill(_ink));
+      c.drawOval(round(.04 - s.wide * .012), _fill(_ink));
     }
     c.drawCircle(pupil + const Offset(-.022, -.03), .026, _fill(_bone));
     c.drawCircle(
@@ -709,8 +742,10 @@ abstract final class PirateCaptainFaceArt {
     // jump up in the roar, and slump when he is dazed. The far one arches
     // over his good eye, shorter for the turn; the near one is cocked over
     // the patch.
-    final knit = s.glare * .07 + s.ouch * .06;
-    final lift = s.roar * .08 + s.tide * .03 + (s.aim < 0 ? -s.aim * .02 : 0);
+    // A sorry line tips them up at the nose instead.
+    final knit =
+        s.glare * .07 + s.ouch * .06 - (s.mood == StoryMood.sad ? .07 : 0);
+    final lift = s.wide * .08 + s.tide * .03 + (s.aim < 0 ? -s.aim * .02 : 0);
     final daze = s.dizzy ? 1.0 : 0.0;
     final flat = s.glare * .5;
     final brows = <(List<Offset>, double Function(double))>[];
@@ -925,9 +960,16 @@ abstract final class PirateCaptainFaceArt {
     // tucked behind the nose to the long near wing across the cheek: it
     // twitches up with the grin, flares in the roar and wilts when he is
     // knocked out.
+    // It bobs with his words too, and perks up or droops with their mood.
     final lift =
         s.roar * .06 +
         s.recoil * .04 +
+        s.talk * .03 +
+        switch (s.mood) {
+          StoryMood.happy => .03,
+          StoryMood.sad => -.04,
+          _ => 0,
+        } +
         (s.dizzy ? -.07 : .01 + math.sin(s.time * 2.4) * .006);
     final pts = _spline([
       Offset(-.73, -.12 - lift),
@@ -968,15 +1010,21 @@ abstract final class PirateCaptainFaceArt {
     final open = s.shout;
     final snarl = math.max(s.snarl, s.ouch * .8);
     // Idle grin -> gritted snarl -> bellow, blended by the state weights.
-    var hw = .21, corner = -.03, depth = .12, slant = .04;
+    // A glad line keeps the grin's corners up as he talks; a sorry one
+    // turns them down.
+    final happy = s.mood == StoryMood.happy ? 1.0 : 0.0;
+    var hw = .21 + happy * .02,
+        corner = -.03 - happy * .03 + (s.mood == StoryMood.sad ? .07 : 0),
+        depth = .12,
+        slant = .04;
     hw += (.22 - hw) * snarl;
     corner += (.03 - corner) * snarl;
     depth += (.16 - depth) * snarl;
     slant *= 1 - snarl;
     hw += (.18 - hw) * open;
-    corner += (.0 - corner) * open;
+    corner += (.0 - corner) * open * (1 - happy * .7);
     depth += (.3 - depth) * open;
-    slant *= 1 - open;
+    slant *= 1 - open * (1 - happy * .7);
     if (s.dizzy) {
       hw = .13;
       corner = .03;
@@ -1092,5 +1140,25 @@ abstract final class PirateCaptainFaceArt {
     }
     c.drawPath(mark, _line(_ink, .075));
     c.drawPath(mark, _line(_ember, .034));
+  }
+
+  /// A bead of sweat at the temple, as in the story's sorry captain.
+  static void _sweat(Canvas c) {
+    c.save();
+    c.translate(.12, -.4);
+    c.scale(.13);
+    final drop = Path()
+      ..moveTo(0, -1)
+      ..cubicTo(.75, 0, .6, .8, 0, .8)
+      ..cubicTo(-.6, .8, -.75, 0, 0, -1)
+      ..close();
+    c.drawPath(drop, _fill(const Color(0xff9fe0f2)));
+    c.drawPath(drop, _line(_ink, .3));
+    c.drawLine(
+      const Offset(-.2, .1),
+      const Offset(-.2, .36),
+      _line(const Color(0xffffffff), .2),
+    );
+    c.restore();
   }
 }

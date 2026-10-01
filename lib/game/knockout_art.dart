@@ -6,6 +6,7 @@ import '../domain/bird_motion.dart';
 import '../domain/game_rules.dart';
 import '../ui/theme.dart';
 import 'bird_puppet.dart';
+import 'tether_art.dart';
 
 /// The cartoon knockout after the last heart is lost, drawn over the frozen
 /// flight. Every frame is a pure function of the seconds since the fatal
@@ -79,7 +80,7 @@ abstract final class KnockoutArt {
 
   /// Where the world zooms from: the bird at the moment of the bump.
   static Offset focus(FlightSimulation sim, double h) =>
-      Offset(FlightSimulation.birdX * h, sim.birdY * h);
+      Offset(sim.birdScreenX * h, sim.birdY * h);
 
   /// The sea the bird falls into during the Pirate Captain's encounter.
   static double? _sea(FlightSimulation sim) {
@@ -111,7 +112,7 @@ abstract final class KnockoutArt {
     double t, {
     required bool reducedMotion,
   }) {
-    final x0 = FlightSimulation.birdX, y0 = sim.birdY;
+    final x0 = sim.birdScreenX, y0 = sim.birdY;
     if (reducedMotion) return Offset(x0, y0);
     final u = math.max(0.0, t - hitStop);
     final (v0, _) = _launch(y0);
@@ -140,7 +141,9 @@ abstract final class KnockoutArt {
   }
 
   /// Draws the knockout over the dimmed world: flash, burst, feathers, the
-  /// tumbling bird with its dizzy stars and, at sea, the plunge.
+  /// tumbling bird with its dizzy stars and, at sea, the plunge. [beak] opens
+  /// the tumbling bird's beak while a line it is saying goes on through the
+  /// fall (BirdPuppet.beaks); the calm Reduced Motion bird keeps it shut.
   static void paint(
     Canvas canvas,
     Size size,
@@ -149,6 +152,7 @@ abstract final class KnockoutArt {
     required double seconds,
     required bool reducedMotion,
     Offset shake = Offset.zero,
+    int beak = 0,
   }) {
     final t = seconds;
     if (!t.isFinite || t < 0) return;
@@ -160,8 +164,46 @@ abstract final class KnockoutArt {
     if (reducedMotion) {
       _calm(canvas, h, sim, bird, t);
     } else {
-      _tumble(canvas, size, sim, bird, t);
+      _tumble(canvas, size, sim, bird, t, beak);
     }
+    canvas.restore();
+  }
+
+  /// A co-op pair's rope, tied between the two birds as they tumble. In
+  /// Reduced Motion it fades out with them.
+  static void rope(
+    Canvas canvas,
+    Size size,
+    FlightSimulation sim, {
+    required double seconds,
+    required bool reducedMotion,
+    Offset shake = Offset.zero,
+  }) {
+    final partner = sim.partner;
+    final h = size.height;
+    if (partner == null ||
+        !sim.roped ||
+        !seconds.isFinite ||
+        seconds < 0 ||
+        h <= 0) {
+      return;
+    }
+    Offset at(FlightBird bird) => sim.viewing(
+      bird,
+      () => birdCenter(sim, seconds, reducedMotion: reducedMotion),
+    );
+    canvas.save();
+    canvas.clipRect(Offset.zero & size);
+    canvas.translate(shake.dx, shake.dy);
+    TetherArt.between(
+      canvas,
+      h,
+      at(sim.lead) + TetherArt.tie,
+      at(partner) + TetherArt.tie,
+      seconds: sim.elapsed,
+      opacity: reducedMotion ? 1 - _smooth((seconds - .3) / .75) : 1,
+      reducedMotion: reducedMotion,
+    );
     canvas.restore();
   }
 
@@ -177,7 +219,7 @@ abstract final class KnockoutArt {
     final fade = 1 - _smooth((t - .3) / .75);
     if (fade <= 0) return;
     final bw = h * BirdFlightMotion.size;
-    final center = Offset(FlightSimulation.birdX * h, sim.birdY * h);
+    final center = Offset(sim.birdScreenX * h, sim.birdY * h);
     final shrink = 1 - .08 * _smooth(t / 1.05);
     c.saveLayer(
       Rect.fromCircle(center: center, radius: bw * 1.2),
@@ -219,10 +261,11 @@ abstract final class KnockoutArt {
     FlightSimulation sim,
     int bird,
     double t,
+    int beak,
   ) {
     final h = size.height;
     final bw = h * BirdFlightMotion.size;
-    final x0 = FlightSimulation.birdX, y0 = sim.birdY;
+    final x0 = sim.birdScreenX, y0 = sim.birdY;
     final sea = _sea(sim);
     final contact = _contact(sim);
     final u = math.max(0.0, t - hitStop);
@@ -269,6 +312,7 @@ abstract final class KnockoutArt {
         // Wings flail through the fall.
         wing: t < hitStop ? -.55 : -.2 + .62 * math.sin(u * 27),
         whiten: t < .035 ? 1 : (1 - (t - .035) / .03).clamp(0.0, 1.0),
+        beak: beak,
       );
       c.restore();
       _orbit(c, kb, head, u, behind: false);
@@ -356,6 +400,7 @@ abstract final class KnockoutArt {
     double scaleX = 1,
     double scaleY = 1,
     double whiten = 0,
+    int beak = 0,
   }) {
     c.save();
     c.rotate(angle);
@@ -372,6 +417,7 @@ abstract final class KnockoutArt {
       bird: bird,
       wing: wing,
       expression: expression,
+      beak: beak,
     );
     if (whiten > 0) c.restore();
     c.restore();

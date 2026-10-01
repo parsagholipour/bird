@@ -100,7 +100,6 @@ Future<_Flight> _launch(
   required String mode,
   required Size size,
   bool reduced = true,
-  bool practice = false,
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -126,7 +125,7 @@ Future<_Flight> _launch(
     if (folder.existsSync()) folder.deleteSync(recursive: true);
   });
   await container.read(progressProvider.future);
-  appRouter.go('/play/$mode?course=starTrail&practice=$practice');
+  appRouter.go('/play/$mode?course=starTrail');
   await tester.pumpWidget(
     UncontrolledProviderScope(
       container: container,

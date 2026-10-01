@@ -7,6 +7,7 @@ import 'baron_storm_pose.dart';
 import 'boss_motion.dart';
 import 'boss_encounter_art.dart';
 import 'boss_health_bar_art.dart';
+import 'flight_voices.dart' show FlightSpeech;
 
 abstract final class BossArt {
   static Offset cameraOffset(SkyBoss? boss, bool reducedMotion) =>
@@ -41,11 +42,15 @@ abstract final class BossArt {
     );
   }
 
+  /// The boss of [sim]. [speech] is whoever is talking this frame: the
+  /// boss's face follows it only when the boss on screen is the one saying
+  /// the line.
   static void paint(
     Canvas canvas,
     Size size,
     FlightSimulation sim, {
     required bool reducedMotion,
+    FlightSpeech? speech,
   }) {
     final boss = sim.boss;
     if (boss == null) return;
@@ -54,7 +59,11 @@ abstract final class BossArt {
         canvas,
         size,
         sim,
-        BossMotion(boss, reducedMotion: reducedMotion),
+        BossMotion(
+          boss,
+          reducedMotion: reducedMotion,
+          speech: speech?.boss == boss.kind ? speech : null,
+        ),
       );
       return;
     }

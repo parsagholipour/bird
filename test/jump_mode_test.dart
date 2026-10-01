@@ -79,7 +79,6 @@ void main() {
       final source = SessionSource();
       final controller = PlayController(
         mode: PlayMode.jump,
-        practice: true,
         source: source,
         audio: SilentAudio(),
         saveRun: (_) async {},

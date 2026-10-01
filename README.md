@@ -54,8 +54,7 @@ separate records for each control. See the
 **Home** opens on a sunny title scene: your equipped bird hops on its island
 under turning sun rays, and a dotted star trail leads from the **Play** button to
 it. **Play** opens a mode picker for Push-Up Flight, Tap & Fly, Jump & Fly and
-Squat & Fly on Star Trail; the **Practice** key beside it opens the same picker
-for unscored flights. The mint **Campaign** key on Play's other side opens the
+Squat & Fly on Star Trail. The mint **Campaign** key beside it opens the
 campaign map and shows the level stars earned. A row of pictograms shows the four ways to fly (push-ups,
 squats, jumps, taps). The bird greets you by name, a pill shows your best flight
 (or welcomes a first-time player), and a dock of five shortcuts leads to today's
@@ -136,8 +135,8 @@ Dodge his aimed fireballs, spread volleys and small bat helpers while using
 Shoot to drain his visible health bar. He attacks faster below half health.
 Winning earns 30 Star Trail points and restores your shield, then normal flight
 resumes. Another boss arrives after 45 more seconds of normal flight. Baron
-Bat starts with 12 HP and reaches a maximum of 24 HP. Practice supports the same
-encounters; movement controls stay free of bosses. Version 15
+Bat starts with 12 HP and reaches a maximum of 24 HP. Movement controls stay
+free of bosses. Version 15
 replays preserve the whole fight, including pauses, shots and victories.
 Version 16 gives summoned enemies the new enemy artwork. Boss timing and damage
 stay on the version 15 rules.
@@ -332,6 +331,44 @@ To render the campaign for review, run these tests with their capture flags:
   every mood) and every scene to
   `build/visual-review/campaign/polish/story/`.
 
+**Fly Together (version 42):** two players share one phone. Open **Play**
+and choose **Fly Together** under the four modes (or the two-player button at
+the top of the picker), and each player picks a bird. Choose **Roped** to tie
+the birds together, or **No rope** to fly side by side. Player 1 taps the left
+half of the sky and has Shoot and Sprint in the bottom-left corner; player 2
+has the right half and the bottom-right corner. On a keyboard, player 1 flaps
+with W, sprints with A and holds D to shoot; player 2 uses Up, Left and Right.
+Roped, the two birds are tied together. The rope hangs slack while they stay
+close and stops them 0.30 screen heights apart. When it snaps taut, the two
+birds share the pull like two equal weights: a bird flapping alone lifts both
+at half its speed, so the pair climbs only a quarter as high, while flapping
+together climbs as high as a solo bird. A sprint surges that bird ahead and
+drags its partner along on the rope (or nudges it, sprinting from behind). The
+course speeds up by the pair's average boost: 1.75× for one sprinter and
+2.5× for both. Only the sprinting bird smashes things; a sprint ring carries
+both. Hearts, shield, score, stars and the magnet are shared. Either bird can
+collect a pickup or get hurt, gates count once both birds are past, and aimed
+attacks take turns between them. Each bird has its own ammo, charge and sprint
+cooldown. With **No rope**, each bird flies on its own: a lone flap lifts only
+that bird, nothing drags, and the birds only bump when they meet; hearts,
+shield and score are still shared. Each mode keeps its own team best and
+flight count, shown in **Records** next to the solo bests and kept apart from
+the solo records, the passport and the daily adventures. Save session replays
+both birds and their rope. Solo flights under rules 42 fly exactly as under 41.
+
+**Fly Together 1 v 1 (version 42):** choose **1 v 1** on the Fly Together
+screen to fight instead of teaming up, with the same controls. Each bird has
+its own hearts and shield, and the last bird flying wins. Every other gate
+brings a **mystery box** floating above or below it: fly into it, or shoot
+it, to open it. Half the time it sends an attack after your rival (a bat
+swarm, a spitter beetle or a meteor shower, glowing in your colour, which
+flies straight through you); otherwise it helps you with a heart, a shield or
+five seconds of star power (nothing hurts you, you smash what you touch, and
+touching your rival hurts them). Your rocks hurt your rival too, once one of
+you has surged ahead. There are no bosses or ordinary enemies in a duel.
+Results name the winner and keep a series score until you leave; Records
+counts your duels.
+
 **Extra lives (version 24):** after each boss victory, one heart appears in a
 random safe opening before the next boss. Fly into it to gain one additional
 life, up to a maximum of five hearts. Missed hearts disappear; the HUD
@@ -392,7 +429,7 @@ This writes `build/visual-review/spitter-boss-cinematic-preview.mp4`.
 drag to steer or tap to flap. Learn the actual stars, gates, letters and cloud
 friends without a camera. Lessons can pause or restart freely and never change
 records, the passport, daily adventures or saved sessions. When ready, jump directly
-into push-up or jump practice for the selected course.
+into a push-up, jump or squat flight on the selected course.
 
 Perfect gates now charge a **Star Magnet** in the star courses: three perfect
 passes grant eight seconds of extra pickup reach. Push-up aiming marks and stars
@@ -636,8 +673,8 @@ Android backup disabled.
 Open **Records → Saved sessions** for corner-camera, camera-background and
 gameplay-only views. Tap the replay to hide or show controls over the video
 without resizing it. Controls include play/pause, scrub, restart, ±5 seconds,
-0.5×–2× speed, camera-corner placement, recorded-audio mute and game sound on/off. Practice sessions
-are also saveable. Delete removes replay files; Reset local progress removes all
+0.5×–2× speed, camera-corner placement, recorded-audio mute and game sound on/off.
+Delete removes replay files; Reset local progress removes all
 saved sessions as well as scores/settings. Camera capture may be unavailable on
 hardware that cannot run three CameraX streams; its gameplay journal still works.
 

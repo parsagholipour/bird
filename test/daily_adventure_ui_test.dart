@@ -157,7 +157,6 @@ void main() {
         );
         expect(screen.mode, mode);
         expect(screen.course, FlightCourse.starTrail);
-        expect(screen.practice, isFalse);
         expect(container.read(selectedCourseProvider), FlightCourse.starTrail);
         await tester.pumpWidget(const SizedBox());
         container.dispose();

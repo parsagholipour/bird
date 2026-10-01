@@ -95,7 +95,7 @@ void main() {
       isFalse,
       reason: 'Do not layer the menu track over gameplay',
     );
-    appRouter.go('/play/touch?practice=true');
+    appRouter.go('/play/touch');
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     expect(menu.playing, isFalse);

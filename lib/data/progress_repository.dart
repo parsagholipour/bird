@@ -150,6 +150,36 @@ class ModeRecord {
   final int stars, perfectPasses, bestCombo, completions;
 }
 
+/// One co-op mode's team best and how many flights it has had. A duel has
+/// no team, so it only counts its flights.
+class CoopRecord {
+  const CoopRecord({this.best = 0, this.flights = 0});
+  final int best, flights;
+}
+
+/// Co-op flights: two players on one phone, their birds roped together or
+/// not ([CoopMode]). Each mode keeps its own record, apart from the solo
+/// records, the passport and the daily adventures.
+class CoopProgress {
+  const CoopProgress({
+    this.records = const {},
+    this.birds = (0, 1),
+    this.mode = CoopMode.roped,
+  });
+  final Map<CoopMode, CoopRecord> records;
+  CoopRecord record(CoopMode mode) => records[mode] ?? const CoopRecord();
+
+  /// Co-op flights in every mode, duels included.
+  int get flights => records.values.fold(0, (n, r) => n + r.flights);
+
+  /// Duels fought.
+  int get duels => record(CoopMode.duel).flights;
+
+  /// The birds players 1 and 2 chose last, and the mode.
+  final (int, int) birds;
+  final CoopMode mode;
+}
+
 class ProgressSnapshot {
   const ProgressSnapshot({
     this.settings = const GameSettings(),
@@ -165,9 +195,13 @@ class ProgressSnapshot {
     this.birdsFlown = const {},
     this.recent = const [],
     this.adventures = const [],
+    this.coop = const CoopProgress(),
     this._campaign,
   });
   final GameSettings settings;
+
+  /// Co-op flights, kept apart from everything below.
+  final CoopProgress coop;
 
   /// Endless records: campaign levels never count here, nor in anything
   /// summed from them below.
@@ -262,6 +296,13 @@ abstract interface class ProgressRepository {
   Future<void> saveFlightVoices(String memory);
   Future<void> setSetting(SettingKey key, bool value);
   Future<void> equipBird(int bird);
+
+  /// Saves a co-op flight in [mode] once per id: its mode's best and flight
+  /// count. It never touches the solo records.
+  Future<void> saveCoop(CoopMode mode, RunResult result);
+
+  /// Remembers the birds players 1 and 2 chose for co-op, and the mode.
+  Future<void> chooseCoop(int first, int second, CoopMode mode);
   Future<void> reset();
   Future<void> close();
 }
@@ -362,6 +403,19 @@ class SqliteProgressRepository implements ProgressRepository {
       ),
       birdsFlown: birdsFlown,
       recent: rows.map(_runResult).toList(),
+      coop: CoopProgress(
+        records: {
+          for (final mode in CoopMode.values)
+            mode: CoopRecord(
+              best: int.tryParse(prefs[_coopKey('Best', mode)] ?? '') ?? 0,
+              flights:
+                  int.tryParse(prefs[_coopKey('Flights', mode)] ?? '') ?? 0,
+            ),
+        },
+        birds: _coopBirds(prefs[_coopBirdsKey], selected),
+        mode:
+            CoopMode.values.asNameMap()[prefs[_coopModeKey]] ?? CoopMode.roped,
+      ),
       adventures: [
         for (var i = 6; i >= 0; i--)
           DailyAdventure.forDate(
@@ -561,6 +615,61 @@ class SqliteProgressRepository implements ProgressRepository {
         .insertOnConflictUpdate(
           PreferencesCompanion.insert(key: 'bird', value: '$bird'),
         );
+  }
+
+  static const _coopBirdsKey = 'coopBirds', _coopModeKey = 'coopMode';
+
+  /// Each co-op mode's own preference, such as `coopBest.free`.
+  static String _coopKey(String name, CoopMode mode) =>
+      'coop$name.${mode.name}';
+
+  /// The saved co-op birds, or the equipped bird and the next one.
+  static (int, int) _coopBirds(String? saved, int equipped) {
+    final first = equipped >= 0 && equipped < birdNames.length ? equipped : 0;
+    final fallback = (first, (first + 1) % birdNames.length);
+    final parts = saved?.split(',').map(int.tryParse).toList();
+    if (parts == null || parts.length != 2) return fallback;
+    final [a, b] = parts;
+    bool valid(int? bird) =>
+        bird != null && bird >= 0 && bird < birdNames.length;
+    return valid(a) && valid(b) ? (a!, b!) : fallback;
+  }
+
+  Future<void> _remember(String key, String value) => db
+      .into(db.preferences)
+      .insertOnConflictUpdate(
+        PreferencesCompanion.insert(key: key, value: value),
+      );
+
+  @override
+  Future<void> saveCoop(CoopMode mode, RunResult result) => db.transaction(
+    () async {
+      if (result.score < 0) throw ArgumentError('Invalid run statistics');
+      final prefs = {
+        for (final row in await db.select(db.preferences).get())
+          row.key: row.value,
+      };
+      // A retried save must not count the flight twice.
+      if (prefs[_coopKey('Last', mode)] == result.id) return;
+      final best = int.tryParse(prefs[_coopKey('Best', mode)] ?? '') ?? 0;
+      final flights = int.tryParse(prefs[_coopKey('Flights', mode)] ?? '') ?? 0;
+      await _remember(_coopKey('Last', mode), result.id);
+      await _remember(_coopKey('Flights', mode), '${flights + 1}');
+      if (mode.team && result.score > best) {
+        await _remember(_coopKey('Best', mode), '${result.score}');
+      }
+    },
+  );
+
+  @override
+  Future<void> chooseCoop(int first, int second, CoopMode mode) async {
+    for (final bird in [first, second]) {
+      if (bird < 0 || bird >= birdNames.length) {
+        throw ArgumentError.value(bird, 'bird');
+      }
+    }
+    await _remember(_coopBirdsKey, '$first,$second');
+    await _remember(_coopModeKey, mode.name);
   }
 
   @override

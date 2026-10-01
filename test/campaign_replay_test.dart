@@ -112,7 +112,7 @@ void main() {
 
   test('only campaign tapes from rules 41 carry a level and its plan', () {
     final campaign = recordLevel(level('1-2'), seconds: 5).tape.toJson();
-    expect(campaign['version'], 41);
+    expect(campaign['version'], FlightSimulation.currentRulesVersion);
     expect(campaign['level'], '1-2');
     expect(campaign['plan'], isA<Map<String, Object?>>());
     final endless = recordFlight(PlayMode.touch).toJson();

@@ -38,13 +38,11 @@ void main() {
   });
 
   for (final scenario in [
-    (course: FlightCourse.classic, mode: PlayMode.pushUp, practice: false),
-    (course: FlightCourse.starTrail, mode: PlayMode.jump, practice: false),
-    (course: FlightCourse.starTrail, mode: PlayMode.pushUp, practice: true),
+    (course: FlightCourse.classic, mode: PlayMode.pushUp),
+    (course: FlightCourse.starTrail, mode: PlayMode.jump),
   ]) {
-    final scored = !scenario.practice;
     testWidgets(
-      'record audio without persistent HUD: ${scenario.course} ${scenario.mode} $scored',
+      'record audio without persistent HUD: ${scenario.course} ${scenario.mode}',
       (tester) async {
         tester.view.physicalSize = const Size(800, 360);
         tester.view.devicePixelRatio = 1;
@@ -93,7 +91,7 @@ void main() {
         );
         await container.read(progressProvider.future);
         appRouter.go(
-          '/play/${scenario.mode.name}?course=${scenario.course.name}&practice=${scenario.practice}',
+          '/play/${scenario.mode.name}?course=${scenario.course.name}',
         );
         await tester.pumpWidget(
           UncontrolledProviderScope(
@@ -138,43 +136,36 @@ void main() {
           await tester.pump(const Duration(milliseconds: 16));
           game.pauseEngine();
           await tester.pumpAndSettle();
-          if (scored) {
-            expect(audio.records, score > 14 ? 1 : 0);
-            expect(find.text('$score'), findsOneWidget);
-            expect(find.byType(RecordChase), findsNothing);
-            await capture(tester, 'record-${scenario.course.name}-$score');
-          } else {
-            expect(find.byType(RecordChase), findsNothing);
-            expect(audio.records, 0);
-          }
+          expect(audio.records, score > 14 ? 1 : 0);
+          expect(find.text('$score'), findsOneWidget);
+          expect(find.byType(RecordChase), findsNothing);
+          await capture(tester, 'record-${scenario.course.name}-$score');
           expect(tester.takeException(), isNull);
         }
         controller.notify();
         controller.notify();
-        expect(audio.records, scored ? 1 : 0);
+        expect(audio.records, 1);
 
-        if (scored) {
-          await tester.runAsync(controller.finish);
-          await tester.pumpAndSettle();
-          expect(
-            container
-                .read(progressProvider)
-                .requireValue
-                .record(scenario.mode, scenario.course)
-                .best,
-            21,
-          );
-          await tester.runAsync(controller.retry);
-          await tester.pump();
-          await fly();
-          expect(find.text('0/3 flight wings'), findsNothing);
-          expect(find.byType(RecordChase), findsNothing);
-          controller.simulation!.score = 22;
-          controller.notify();
-          await tester.pumpAndSettle();
-          expect(find.text('22'), findsOneWidget);
-          expect(audio.records, 2);
-        }
+        await tester.runAsync(controller.finish);
+        await tester.pumpAndSettle();
+        expect(
+          container
+              .read(progressProvider)
+              .requireValue
+              .record(scenario.mode, scenario.course)
+              .best,
+          21,
+        );
+        await tester.runAsync(controller.retry);
+        await tester.pump();
+        await fly();
+        expect(find.text('0/3 flight wings'), findsNothing);
+        expect(find.byType(RecordChase), findsNothing);
+        controller.simulation!.score = 22;
+        controller.notify();
+        await tester.pumpAndSettle();
+        expect(find.text('22'), findsOneWidget);
+        expect(audio.records, 2);
         await tester.pumpWidget(const SizedBox());
         container.dispose();
         await tester.runAsync(() async {

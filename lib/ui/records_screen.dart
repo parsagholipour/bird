@@ -5,6 +5,7 @@ import '../data/providers.dart';
 import '../domain/tracking.dart';
 import '../domain/flight_course.dart';
 import '../domain/flight_goals.dart';
+import '../domain/tether.dart';
 import 'components.dart';
 import 'theme.dart';
 import 'flight_goals.dart';
@@ -53,7 +54,7 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
                                       'Your star points to beat',
                                       style: heading(25),
                                     ),
-                                    const SizedBox(height: 20),
+                                    const SizedBox(height: 12),
                                     for (final modes in [
                                       [PlayMode.pushUp, PlayMode.jump],
                                       [PlayMode.touch, PlayMode.squat],
@@ -88,9 +89,38 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
                                       ),
                                       const SizedBox(height: 10),
                                     ],
+                                    // Fly Together keeps a team best for
+                                    // each team mode, apart from the solo
+                                    // ones. Duels only count.
+                                    Row(
+                                      children: [
+                                        for (final mode
+                                            in CoopMode.values.where(
+                                              (m) => m.team,
+                                            )) ...[
+                                          if (mode != CoopMode.values.first)
+                                            const SizedBox(width: 12),
+                                          Expanded(
+                                            child: _best(
+                                              'Fly Together · ${mode.title}',
+                                              p.coop.record(mode).best,
+                                              mode == CoopMode.roped
+                                                  ? SkyColors.sand
+                                                  : SkyColors.skyDeep,
+                                              key: ValueKey(
+                                                'coop-record-${mode.name}',
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
                                     const Spacer(),
                                     Text(
-                                      '${p.totalRuns} scored flights  ·  ${p.totalObstacles} gates\n${p.totalRepetitions} push-ups · ${p.totalSquats} squats',
+                                      '${p.totalRuns} scored flights  ·  ${p.totalObstacles} gates'
+                                      '${p.coop.flights > p.coop.duels ? '  ·  ${p.coop.flights - p.coop.duels} together' : ''}'
+                                      '${p.coop.duels > 0 ? '  ·  ${p.coop.duels} duels' : ''}'
+                                      '\n${p.totalRepetitions} push-ups · ${p.totalSquats} squats',
                                       style: bodyText(
                                         16,
                                         color: SkyColors.muted,
@@ -240,7 +270,8 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
     );
   }
 
-  Widget _best(String name, int best, Color color) => Container(
+  Widget _best(String name, int best, Color color, {Key? key}) => Container(
+    key: key,
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
     decoration: BoxDecoration(
       color: color,

@@ -42,12 +42,16 @@ class Meteor {
     required this.vx,
     required this.vy,
     required this.aimed,
+    this.sender,
   });
   double x, y;
   final double vx, vy;
   final bool aimed;
   double age = 0;
   static const radius = .044;
+
+  /// The duel player whose mystery box dropped it on their rival, or null.
+  final int? sender;
 }
 
 /// A vent under the route. It rumbles once a cruising bird is
@@ -98,12 +102,16 @@ class SwarmBat {
     this.route,
     required this.lane,
     required this.phase,
+    this.sender,
   }) : height = y;
   double x, y;
   final RushPath? route;
   final double height, lane, phase;
   double age = 0;
   static const radius = .036;
+
+  /// The duel player whose mystery box sent it after their rival, or null.
+  final int? sender;
 }
 
 class RushPath {

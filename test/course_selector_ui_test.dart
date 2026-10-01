@@ -52,7 +52,7 @@ void main() {
     expect(find.text('STAR TRAIL'), findsNothing);
     expect(find.byKey(const ValueKey('play')), findsOneWidget);
     expect(find.text('60s · 3 hearts'), findsNothing);
-    expect(find.text('Practice'), findsOneWidget);
+    expect(find.text('Practice'), findsNothing);
     expect(find.text('Tap & Fly'), findsNothing);
     expect(find.text('Jump & Fly'), findsNothing);
     expect(find.text('Other ways to play'), findsNothing);

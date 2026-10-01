@@ -548,7 +548,8 @@ Wording changes:
   thank-you note.
 - **Screens:**
   - Home: a mint **Campaign** key beside Play, with a map and the level stars
-    earned ("12 / 48"). Play and Practice keep their size and place;
+    earned ("12 / 48"). Play keeps its place, filling the row it once shared
+    with the retired Practice key;
   - the map (`/campaign`);
   - the level card, over the map (whose chapter ribbon captions it): region
     picture, level number and name (a boss band with the boss's crown on boss

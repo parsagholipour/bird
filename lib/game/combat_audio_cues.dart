@@ -15,15 +15,33 @@ class CombatAudioCues {
   int _splashes = 0, _emberSplits = 0;
   final Set<SkyEnemy> _charging = {};
   double _elapsed = 0;
-  bool _magnet = false, _fullCharge = false, _sprintReady = false;
+  bool _magnet = false;
+
+  /// Per bird, so either co-op player's charge and recharge chime.
+  List<bool> _fullCharge = const [], _sprintReady = const [];
   int _doorsDestroyed = 0;
 
   List<String> advance(FlightSimulation sim, {bool silent = false}) {
     final fresh = !identical(_simulation, sim);
     final backwards = !fresh && sim.elapsed < _elapsed;
-    final fullCharge = sim.shotCharge >= 1;
+    final fullCharge = [
+      for (final bird in sim.flock)
+        sim.viewing(bird, () => sim.shotCharge >= 1),
+    ];
     // Only a recharge after a used sprint chimes, never the flight start.
-    final sprintReady = sim.sprints > 0 && sim.sprintCooldownRemaining == 0;
+    final sprintReady = [
+      for (final bird in sim.flock)
+        sim.viewing(
+          bird,
+          () =>
+              (sim.paired ? bird.sprints : sim.sprints) > 0 &&
+              sim.sprintCooldownRemaining == 0,
+        ),
+    ];
+    bool rose(List<bool> now, List<bool> before) => [
+      for (var i = 0; i < now.length; i++)
+        now[i] && !(i < before.length && before[i]),
+    ].any((risen) => risen);
     final cues = <String>[];
     if (!fresh && !silent && !backwards) {
       if (sim.shots > _shots) {
@@ -32,9 +50,9 @@ class CombatAudioCues {
         );
       }
       if (sim.dryFires > _dryFires) cues.add('ammo_empty');
-      if (fullCharge && !_fullCharge) cues.add('shot_charged');
+      if (rose(fullCharge, _fullCharge)) cues.add('shot_charged');
       if (sim.sprints > _sprints) cues.add('sprint');
-      if (sprintReady && !_sprintReady) cues.add('sprint_ready');
+      if (rose(sprintReady, _sprintReady)) cues.add('sprint_ready');
       if (sim.ringSprints > _ringSprints) {
         cues.add('sprint_ring');
         // Only the start of a chain gets the sprint's whoosh and voice.

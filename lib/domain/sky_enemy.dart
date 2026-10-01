@@ -13,6 +13,7 @@ class SkyEnemy {
     this.appearance = 0,
     this.flightPhase,
     this.drift = 1,
+    this.sender,
     int? maxHp,
   }) : maxHp = maxHp ?? healthFor(appearance) {
     if (this.maxHp <= 0) throw ArgumentError.value(this.maxHp, 'maxHp');
@@ -58,6 +59,10 @@ class SkyEnemy {
   /// of a boss's debut encounter drift slower ([debutDrift]).
   final double drift;
   static const debutDrift = .6;
+
+  /// The duel player whose mystery box sent this enemy after their rival,
+  /// or null for an ordinary one. It flies through its sender.
+  final int? sender;
   static const radius = .045, warningSeconds = .75;
   double age = 0, fireIn = 1.1;
   double lastShotAt = double.negativeInfinity;
@@ -126,10 +131,15 @@ class EnemyAmmo {
     required this.vy,
     required this.attack,
     this.bornAt = double.negativeInfinity,
+    this.sender,
   });
   double x, y;
   final double vx, vy;
   final EnemyAttack attack;
+
+  /// The duel player who sent the enemy that fired it ([SkyEnemy.sender]).
+  /// It only hits that player's rival.
+  final int? sender;
 
   /// Simulation time at launch, for the launch pop only. Render-only: no
   /// rule reads it, so it cannot change collisions, scoring or replays.

@@ -63,6 +63,7 @@ class FlightVoices {
     FlightVoiceBank? bank,
     Random? random,
     double Function()? clock,
+    double talk = FlightVoiceDirector.talkativeness,
   }) : bird = CampaignVoices.birds[bird % CampaignVoices.birds.length],
        _random = random ?? Random(),
        _clock = clock ?? _wallClock,
@@ -70,6 +71,7 @@ class FlightVoices {
          bank: bank ?? recorded,
          memory: (memory ?? FlightVoiceMemory())..flights += 1,
          campaign: level != null,
+         talk: talk,
          random: random,
        );
 
@@ -171,10 +173,10 @@ class FlightVoices {
   );
 
   /// Seconds of quiet before the bird says something to pass the time.
-  double get _idleAfter => level != null ? 13 : 22;
+  double get _idleAfter => (level != null ? 13 : 22) / director.talk;
 
   /// Seconds of quiet before a boss taunts.
-  double get _tauntAfter => level != null ? 7 : 10;
+  double get _tauntAfter => (level != null ? 7 : 10) / director.talk;
 
   FlightSimulation? _sim;
   bool _tookOff = false, _ended = false, _record = false, _stretch = false;
@@ -211,7 +213,11 @@ class FlightVoices {
       final said = director.offer(cue, now);
       if (said != null) line = said;
     }
-    if (line != null) _said = (line: line, start: _clock() + line.delay);
+    if (line != null) {
+      _said = (line: line, start: _clock() + line.delay);
+      final tip = RegExp(r'-rush-first-(\w+)-\d+$').firstMatch(line.clip.name);
+      if (tip != null) memory.met.add('rush-${tip[1]}');
+    }
     return line;
   }
 
@@ -355,7 +361,8 @@ class FlightVoices {
     // Set pieces.
     final rush = sim.rushPath?.kind;
     if (sim.rushWarnings > _rushWarnings && rush != null) {
-      final first = memory.met.add('rush-${rush.name}');
+      // The tip is for the first time it is heard, not merely met.
+      final first = !memory.met.contains('rush-${rush.name}');
       cues.add(
         VoiceCue([
           if (first) _bird('rush', 'rush-first-${rush.name}'),

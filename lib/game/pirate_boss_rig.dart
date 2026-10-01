@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/painting.dart';
 
+import '../domain/campaign_story.dart' show StoryMood;
 import '../domain/sky_boss.dart';
 import 'boss_motion.dart';
 import 'pirate_captain_face_art.dart';
@@ -129,6 +130,8 @@ abstract final class PirateBossRig {
         dizzy: p.dizzy,
         jiggle: p.jiggle,
         braid: p.braid,
+        talk: p.talk,
+        mood: p.mood,
       ),
     );
     c.restore();
@@ -224,7 +227,8 @@ class _Pose {
       dizzy = m.defeated,
       blink = m.blink,
       fury = boss.enraged && !m.defeated ? .8 + m.rage * .2 : 0,
-      aim = lookY.isFinite ? lookY.clamp(-1.0, 1.0) : 0.0 {
+      aim = lookY.isFinite ? lookY.clamp(-1.0, 1.0) : 0.0,
+      mood = m.mood {
     breath = math.sin(time * 2.4) * .02;
     final hit = m.reducedMotion ? 0.0 : m.hit;
     // The tide answers his hook: he raises it through the warning and holds
@@ -232,6 +236,17 @@ class _Pose {
     final call = _tideCall(boss) * (1 - roar);
     tide = call;
     shot = m.recoil;
+    // A line's words, quiet while he bellows, fires or calls the tide.
+    talk = m.voiced(
+      0,
+      rest: switch (mood) {
+        StoryMood.surprised => .25,
+        StoryMood.happy => .1,
+        _ => 0,
+      },
+      range: mood == StoryMood.sad ? .55 : .8,
+      busy: math.max(math.max(roar, m.recoil), math.max(charge, call)),
+    );
     final furyShake = fury > 0 && time != 0 ? math.sin(time * 17) * .04 : 0.0;
     mouth = dizzy
         ? .35
@@ -335,6 +350,8 @@ class _Pose {
 
   final double time, charge, recoil, wince, roar, blink, fury, aim;
   final bool dizzy;
+  final StoryMood? mood;
+  late final double talk;
   late final double breath, mouth, squawk, flutter, fringe, braid, jiggle;
   // The tide call, for the face's smug bellow.
   late final double tide;

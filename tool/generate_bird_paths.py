@@ -21,7 +21,8 @@ Every bird is a 256 x 224 SVG that shares Pip's layer conventions:
   `Pleased` and `Startled` overlays. Closed eyes replace the eye group where it
   sits; the startled brows are drawn on top of everything. Its `Beak hinge`
   circle is where the beak opens to talk, and its `Upper beak` and `Lower
-  beak` shapes are the halves that replace a whole beak while it is open.
+  beak` shapes are halves drawn while it is open, in place of a whole beak
+  or of the body's own half.
 """
 from pathlib import Path
 import math

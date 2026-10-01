@@ -11,7 +11,6 @@ import 'play_session_test.dart'
 
 /// A touch flight through its countdown, flying level.
 Future<PlayController> _touchFlight({
-  bool practice = false,
   bool reducedMotion = false,
   List<RunResult>? saves,
   Future<void> Function(RunResult)? saveRun,
@@ -19,7 +18,6 @@ Future<PlayController> _touchFlight({
 }) async {
   final controller = PlayController(
     mode: PlayMode.touch,
-    practice: practice,
     source: null,
     audio: audio ?? SilentAudio(),
     reducedMotion: reducedMotion,
@@ -125,17 +123,6 @@ void main() {
     controller.dispose();
   });
 
-  test('practice flights get the same knockout', () async {
-    final saves = <RunResult>[];
-    final controller = await _touchFlight(practice: true, saves: saves);
-    await _crash(controller);
-    expect(controller.stage, PlayStage.fallen);
-    expect(saves.single.practice, isTrue);
-    _frames(controller, KnockoutArt.seconds + .05);
-    expect(controller.stage, PlayStage.results);
-    controller.dispose();
-  });
-
   test('backgrounding during the knockout lands on the stage', () async {
     final controller = await _touchFlight();
     await _crash(controller);
@@ -185,7 +172,6 @@ void main() {
     // Built inside the test's fake clock so its fallback timer is too.
     final controller = PlayController(
       mode: PlayMode.touch,
-      practice: true,
       source: null,
       audio: SilentAudio(),
       saveRun: (_) async {},

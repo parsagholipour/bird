@@ -387,7 +387,7 @@ abstract final class GaleArt {
     if (gale == null) return;
     final t = gale.wind(sim.elapsed);
     if (t <= 0) return;
-    final bird = Offset(FlightSimulation.birdX * h, sim.birdY * h);
+    final bird = Offset(sim.birdScreenX * h, sim.birdY * h);
     for (final (i, lane) in const [-.088, -.062, .064, .09].indexed) {
       final side = lane.sign;
       final loop = h * .62;

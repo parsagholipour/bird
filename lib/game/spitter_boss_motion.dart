@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import '../domain/campaign_story.dart' show StoryMood;
 import 'boss_motion.dart';
 
 /// Seekable secondary motion. The body and muzzle stay with the simulation;
@@ -58,6 +59,19 @@ class SpitterBossMotion {
 
   /// Mandibles part with the windup and clack shut on the spit.
   double get jaw => math.max(charge * .8, recoil);
+
+  /// The mood of a line the King is saying, or null (BossMotion.mood).
+  StoryMood? get mood => motion.mood;
+
+  /// How far a line's words open his trumpet and swell his jowl, 0 to 1:
+  /// held a little open in a gasp, and given no room while the trumpet is
+  /// busy with a spit.
+  double get voice => motion.voiced(
+    0,
+    rest: mood == StoryMood.surprised ? .25 : 0,
+    range: mood == StoryMood.sad ? .6 : 1,
+    busy: math.max(charge, motion.recoil),
+  );
 
   /// How full the vat and crown vials stand: pressure raises the acid, the
   /// spit drops it, and fury keeps it boiling high.

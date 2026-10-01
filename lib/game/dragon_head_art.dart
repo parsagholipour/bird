@@ -40,7 +40,7 @@ final class DragonHeadPose {
         angle: pose.head.angle,
         gape: pose.gape,
         glare: pose.glare,
-        look: pose.aim,
+        look: pose.look,
         blink: pose.blink,
         wince: pose.wince,
         throat: pose.throat,

@@ -61,25 +61,16 @@ void main() {
       await tester.tap(find.byTooltip('Close mode picker'));
       await tester.pumpAndSettle();
       await capture(tester, 'home-play-menu');
-      for (final (label, mode, practice) in [
-        ('Push-Up Flight', 'push-up', false),
-        ('Tap & Fly', 'touch', false),
-        ('Jump & Fly', 'jump', false),
-        ('Squat & Fly', 'squat', false),
-        ('Push-Up Flight', 'push-up', true),
-        ('Tap & Fly', 'touch', true),
-        ('Jump & Fly', 'jump', true),
-        ('Squat & Fly', 'squat', true),
+      for (final (label, mode) in [
+        ('Push-Up Flight', 'push-up'),
+        ('Tap & Fly', 'touch'),
+        ('Jump & Fly', 'jump'),
+        ('Squat & Fly', 'squat'),
       ]) {
-        await tester.tap(
-          practice ? find.text('Practice') : find.byKey(const ValueKey('play')),
-        );
+        await tester.tap(find.byKey(const ValueKey('play')));
         await tester.pumpAndSettle();
         expect(appRouter.routeInformationProvider.value.uri.path, '/');
-        expect(
-          find.text(practice ? 'Choose your practice' : 'Choose your mode'),
-          findsOneWidget,
-        );
+        expect(find.text('Choose your mode'), findsOneWidget);
         for (final title in [
           'Push-Up Flight',
           'Tap & Fly',
@@ -97,21 +88,14 @@ void main() {
         if (mode == 'jump') {
           expect(find.text('Show your whole body.'), findsOneWidget);
           expect(find.text('Stand tall and still'), findsOneWidget);
-          await capture(
-            tester,
-            practice ? 'jump-practice-setup' : 'jump-mode-setup',
-          );
+          await capture(tester, 'jump-mode-setup');
         }
         if (mode == 'squat') {
           expect(find.text('Find your comfortable squat'), findsOneWidget);
           expect(find.textContaining('Squat to descend.'), findsOneWidget);
-          await capture(
-            tester,
-            practice ? 'squat-practice-setup' : 'squat-mode-setup',
-          );
+          await capture(tester, 'squat-mode-setup');
         }
-        expect(route.queryParameters['course'], 'starTrail');
-        expect(route.queryParameters['practice'] == 'true', practice);
+        expect(route.queryParameters, {'course': 'starTrail'});
         expect(tester.takeException(), isNull);
         appRouter.go('/');
         await tester.pumpAndSettle();

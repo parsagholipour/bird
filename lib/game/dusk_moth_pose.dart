@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import '../domain/campaign_story.dart' show StoryMood;
 import '../domain/sky_boss.dart';
 import 'boss_motion.dart';
 import 'dusk_moth_kit.dart';
@@ -42,8 +43,19 @@ final class DuskMothPose {
           : 0.0,
       shelter =
           (boss.shielded ? 1.0 : BossMotion.ease(boss.shieldWarning)) * .1,
+      mood = m.mood,
       _phase = _beatPhase(boss) {
     breath = time == 0 ? 0 : math.sin(time * 3) * .026;
+    voice = m.voiced(
+      0,
+      rest: switch (mood) {
+        StoryMood.surprised => .3,
+        StoryMood.happy => .12,
+        _ => 0,
+      },
+      range: mood == StoryMood.sad ? .6 : .9,
+      busy: math.max(charge, math.max(shout, recoil)),
+    );
   }
 
   final bool defeated, still;
@@ -55,6 +67,13 @@ final class DuskMothPose {
   late final double breath;
   final double _phase;
 
+  /// The mood of a line she is saying, or null (BossMotion.mood).
+  final StoryMood? mood;
+
+  /// How far that line's words open her mouth, 0 to 1, given no room while
+  /// the mouth is busy with a windup, a shot or a shout.
+  late final double voice;
+
   /// The shock of a hit as motion: 0 under Reduced Motion and in the defeat.
   double get jolt => flash / .55;
 
@@ -64,9 +83,10 @@ final class DuskMothPose {
   /// How hard she glares: the enraged scowl or the aim before a shot.
   double get glare => defeated ? 0 : math.max(fury, charge * .85);
 
-  /// How far the mouth is open: the roar, the windup, or the shot.
-  double get gape =>
-      defeated ? 0 : math.max(shout, math.max(charge * .9, recoil * .7));
+  /// How far the mouth is open: the roar, the windup, the shot, or words.
+  double get gape => defeated
+      ? 0
+      : math.max(math.max(shout, voice), math.max(charge * .9, recoil * .7));
 
   /// The wingbeat as a lift: 1 raised high, -1 swept down. [lag] delays a
   /// part behind the near forewing (radians of the beat), so the hindwings,

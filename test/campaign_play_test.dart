@@ -184,7 +184,7 @@ void main() {
         expect(sim.plan, same(bat.plan));
         expect(sim.levelId, '1-3');
         expect(sim.region, bat.region);
-        expect(sim.rulesVersion, FlightSimulation.campaignRulesVersion);
+        expect(sim.rulesVersion, FlightSimulation.currentRulesVersion);
         final tape = controller.recorder!.tape;
         expect(tape.plan, same(bat.plan));
         expect(tape.levelId, '1-3');

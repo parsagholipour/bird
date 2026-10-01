@@ -453,8 +453,8 @@ Rules 1–32, camera modes and Classic have no gales.
 Scored flights can pause. The pause button (shown for every flight) opens the
 “Take a breather.” panel with **Finish flight** and **Keep flying**. Taking a
 break or backgrounding the app pauses a scored flight instead of ending it, and
-a flight already paused stays paused through a background. Keep flying starts the
-same three-second resume countdown as practice: tracking must be fresh, the
+a flight already paused stays paused through a background. Keep flying starts a
+three-second resume countdown: tracking must be fresh, the
 camera restarts if the app left it, and a held charge is cancelled. Pauses freeze
 every clock, so they never change collision, attack or score timing. A collision,
 long tracking or posture loss and a simulation stall still end a scored flight,
@@ -464,8 +464,8 @@ scored flights on a break or background, so older replays reproduce exactly.
 ### Knockout and game-over stage (presentation only)
 
 A flight that ends with `EndReason.collision` (the last heart, or any Classic
-collision) enters `PlayStage.fallen` before `PlayStage.results`, in scored and
-practice flights and every control mode. `_finish` still builds the
+collision) enters `PlayStage.fallen` before `PlayStage.results`, in every
+control mode. `_finish` still builds the
 `RunResult`, plays `game_over`, stops the camera and saves the run at the moment
 of the bump, so an app killed mid-animation keeps its run. The rules, journal,
 `RunResult` and replays do not change: the knockout has its own clock
@@ -508,7 +508,6 @@ come this flight's stats as tiles (reps or flaps, flight time, perfect passes,
 then streak or rank). A progress row follows, with flight wings (goal details
 on tap) and the postcard, stamp-earned or next-stamp link (with a progress
 bar). Last come save status with tap-to-retry, and session and camera messages.
-Practice tags the score, and its note takes the progress row's place.
 
 The actions sit under the scoreboard, in the same place after every flight.
 **Home** and **Save session / Watch replay** are cream keys. **Fly again** is
@@ -992,7 +991,8 @@ summaries store `level`, and the library lists them as "1-3 · Bat Patrol".
 
 The screens:
 - **Home:** a mint Campaign key beside Play shows the level stars earned
-  ("12 / 48"). Play and Practice keep their pre-campaign size and place.
+  ("12 / 48"). Play keeps its pre-campaign place, filling the row it once
+  shared with the retired Practice key.
   While the save loads or can't be read, the map's back key still leads
   Home.
 - **Map:** one stop per region, with level nodes showing their stars. Tapping
@@ -1089,6 +1089,169 @@ appear whole and its speakers hold still, and the finish pennants hold
 still. The level readouts don't pulse. The result fades in over
 0.5 s with every star in place.
 
+### Fly Together co-op (rules version 42)
+
+Two players fly one endless Tap & Fly Star Trail on one phone, their birds
+roped together (**Roped**) or each on its own (**No rope**). Play's mode
+picker offers **Fly Together** below the four solo modes, and a two-player
+button in its header. Each player picks one of the four birds (both may pick
+the same one), and a toggle picks the mode. The picks and the mode are
+remembered.
+
+**Controls.** A touch on the left half of the sky flaps player 1's bird and
+one on the right half flaps player 2's. Each player has a Shoot and a Sprint
+button in their bottom corner, Shoot outermost, tagged P1 (coral) or P2
+(teal); the same tags float over the birds. Keyboard: W, A and D (hold) flap,
+sprint and shoot for player 1; Up, Left and Right (hold) for player 2.
+Pause, hearts, shield and score sit where solo Tap & Fly has them, with the
+magnet meter under the hearts. During the
+countdown each half of the sky is tinted in its player's colour.
+
+**Formation.** Player 1's bird cruises 0.10 screen heights behind the solo
+bird's column and player 2's 0.10 ahead of it. Each bird has its own height,
+vertical speed, screen column and horizontal speed. A critically damped
+spring (stiffness 30, damping 11) holds each bird to its place. Both birds
+use touch gravity and flap impulse; a flap sets that bird's vertical speed.
+
+**Rope.** The birds' centres can be at most 0.30 apart. While the rope is
+slack it does nothing. Past its length, each bird moves half the excess back
+along the rope and the speed along it that pulls them apart is shared
+equally between them (an inelastic pull between equal weights). A bird that
+flaps alone from a taut hang therefore lifts the pair at half its speed, and
+their middle climbs a quarter as high; two flaps together climb like one
+solo flap. The birds bump at 0.09: each moves half the overlap apart and their
+closing speed is shared in the same way.
+
+**Sprint.** A sprint behaves as in rules version 29 for its own bird: one
+burst, its own 15-second cooldown. The sprinting bird's place moves up to 0.26
+ahead with the burst's envelope, so it surges forward and the rope drags its
+partner (a sprint from behind nudges the front bird ahead). The course speed
+multiplier is one plus the pair's average extra boost: 1.75× at the peak of one
+bird's sprint, 2.5× when both sprint. Only a sprinting bird rams enemies,
+stone panels, rubble, meteors and swarm bats. A sprint ring sprints both birds
+and lets both ram.
+
+**Shared and per bird.** Hearts, shield, recovery, score, combo, stars, the
+star magnet and gates are shared. Each bird has its own ammo reserve, charge,
+shot cooldown and sprint cooldown, and fires from its own beak. Every hazard
+checks both birds: course edges, walls, panels, enemies and their pellets,
+boss ammo, the Pirate Captain's sea, the Ember Dragon's breath, Baron Bat's
+screech, meteors, lava plumes, swarm bats and gale debris. A hit to either
+bird costs the pair's shield or a heart once, with the usual recovery. Either
+bird collects a star, heart or sprint ring. Stars count as missed, and gates
+and gale debris as passed, only once they are behind the rearmost bird. A gate
+is perfect when both birds pass within 0.075 of its mark. The wildfire
+catches the rearmost bird. Aimed attacks take turns between the birds: enemy
+and boss volleys, the Dragon's breath and flocks, Baron Bat's screech and
+gale gusts alternate targets by their own counts. Passages resume at the
+pair's middle height after a boss or gale.
+
+**No rope.** Everything above holds except the rope: nothing holds the birds
+within its length and nothing drags. A flap lifts only its own bird, as high
+as a solo flap, and a sprint surges only the sprinter ahead. The course still
+follows the pair's average boost, and the birds still bump at 0.09.
+
+**Records.** Each co-op mode saves its own team best and flight count (once
+per flight id). Records shows them as **Fly Together · Roped** and **Fly
+Together · No rope** beside the four solo bests, and counts co-op flights
+beside the scored flights. They never count toward the solo records, the
+passport, daily adventures or flight goals. Results show the mode, the team
+score, time, stars, gates and each player's flaps, with Fly again, Change
+birds, Save session and Home.
+
+**Journal.** A co-op tape (rules version 42) stores `partner`, player 2's
+bird, and `coop`, the mode (`roped` when absent). Its flaps are journaled as `flap` events naming the player, and its
+`charge`, `shoot` and `sprint` events name the player too. Solo journals keep
+their format and reject these. The replay draws both birds, and the rope
+when roped. A co-op flight's id ends with `-coop-roped` or `-coop-free`, so
+the session library names its mode.
+Solo flights under rules version 42 fly exactly as under version 41.
+
+**Presentation.** The rope hangs in a parabola of its length and sways a
+little; it straightens and warms toward coral as it nears its length. A hard
+snap (shared speed of at least 0.25) flashes it and sends a ripple along it.
+Reduced Motion keeps the sag and tint without the sway or ripple. Player 1's
+bird is drawn over player 2's; only player 1's bird speaks in flight. A
+knockout tumbles both birds, still roped together.
+
+### Fly Together 1 v 1 duel (rules version 42)
+
+A third Fly Together mode, **1 v 1**, flies the same two birds against each
+other on an endless Tap & Fly Star Trail, with the co-op controls, keyboard
+keys, side tints and player tags. The last bird flying wins.
+
+**Course.** The endless course without bosses, rush paths, gales, ordinary
+enemies or heart pickups (a `DuelPlan`), so every enemy in the sky was sent
+by a player. Passages, their families, stars, pace and openings are as in an
+endless flight. Both birds cruise in the solo bird's column; player 1 starts
+at height 0.38 and player 2 at 0.62. They bump at 0.09 as without the rope,
+and a sprint surges only the sprinter ahead.
+
+**Hearts.** Each bird has its own three hearts, shield and 1.5-second hit
+recovery; only the bird that is hit loses them. A wall hurts each bird that
+touches it once. A bird's own stars charge its own shield (every ninth).
+A bird that loses its last heart is down, and the step it went down on ends
+the duel: the other bird wins, or two birds down on the same step draw. There
+is no star magnet. Score, combo and gates are still kept for the pair but
+are not shown.
+
+**Mystery boxes.** From the second passage, every other passage carries a box
+(radius 0.042) 0.55 ahead of its left edge, 0.15 to 0.22 above or below its
+aiming height (flipped to the other side if that would leave 0.14–0.86). A
+bird opens a box by touching it, or by hitting it with one of its rocks. What
+it holds is drawn when it opens: an attack or a help at even odds, then one of
+three. A heart at five hearts becomes a shield (star power if shielded), and
+a shield while shielded becomes a heart (star power at five hearts).
+
+* **Bat swarm:** five swarm bats, 0.09 apart, enter beyond the right edge at
+  the rival's height and fly straight at swarm speed.
+* **Spitter beetle:** a spitter beetle (20 HP) enters at the rival's height
+  (0.2–0.8) and closes in at 0.42 of the course speed, spitting aimed pellets
+  at the rival only.
+* **Meteor shower:** three meteors, the first 0.3 s after the box opens and
+  then 0.6 s apart, each aimed where the rival flies as it falls.
+* **Heart:** one more heart, up to five.
+* **Shield:** a shield.
+* **Star power:** for five seconds nothing hurts the bird, it rams (smashes
+  bats, meteors, enemies, panels and rubble like a sprint), and touching its
+  rival (centres within 0.10) hurts the rival.
+
+Everything a player sends carries that player as its sender: it flies
+straight through its sender, its pellets only hit the rival, and the
+sender's own rocks fly through it. The rival can shoot it down or ram it.
+
+**Rocks.** A rock that touches the rival hurts it. Level in the column, the
+birds cannot hit each other; a rock can only reach a rival that has surged
+ahead, as a sprint does.
+
+**Records and results.** A duel counts toward the Fly Together flights but
+keeps no best; Records shows the number of duels. Results name the winner
+(or a draw, or a stopped duel), keep a series score for as long as the
+screen stays open, and show the time and each player's hearts left, boxes
+opened and hits landed (rocks, star power and sent attacks), with Rematch,
+Change birds, Save session and Home. The bird that went down tumbles in the
+knockout while the winner stays up, bright, by its tag. Neither bird speaks in
+flight. A duel's tape stores `coop: duel`; its id ends with `-coop-duel`.
+
+**HUD.** Each player's hearts and shield sit in their own top corner under a
+PLAYER 1 or PLAYER 2 tag, with a star-power meter while it lasts and, for
+1.8 s after a box opens, a banner in the player's colour naming the prize
+(an attack also names the rival it went after). Pause sits between them at
+the top. A help sounds the unlock fanfare and an attack the boss summons.
+
+**Art.** A closed box is a violet gift with a gold bow and a cream question
+mark in a ring of light; it bobs, and its lid hops every 2.6 s. Opening it
+pops it in the opener's colour over the birds: the lid flies off, confetti
+scatters and the prize's sticker (round for a help, spiky for an attack)
+jumps out, then flies into the opener's bird or off toward where the attack
+comes from. A help raises no floating label of its own. Everything a player
+sent wears a ring in their colour with a P1 or P2 tag beside it (one ring
+around a whole bat swarm; a tag by a meteor's warning arrow before it
+enters). Star power is a spinning rainbow burst behind the bird that shrinks
+and throbs through its last second. Reduced Motion keeps the box still, shows
+an opened box under its prize without the pop or the flight, and holds the
+star power still.
+
 ### Touch boss encounters (rules version 15)
 
 After 45 seconds of active touch flight in Star Trail or Classic,
@@ -1109,8 +1272,8 @@ resume ordinary gates with safe approach distance. Schedule the next encounter
 
 Boss clocks freeze on pause, resume countdown and run end. Replay reconstructs
 all attacks and victories deterministically from the existing input journal.
-Versions 1–14 retain their previous rules. Practice includes bosses; Cloud
-Cruise and non-touch control modes do not. Reduced Motion removes decorative
+Versions 1–14 retain their previous rules. Cloud Cruise and non-touch control
+modes have no bosses. Reduced Motion removes decorative
 wing motion, hit flashes and defeat travel while retaining gameplay movement.
 
 ### Post-boss heart pickup (rules version 24)
@@ -1414,7 +1577,7 @@ Build the Android camera/calibration screen first and test it on the connected p
 - Increase difficulty through tighter gaps and faster scrolling, while keeping transitions within the movement range and cadence established during calibration.
 - Award one point per cleared obstacle; count completed down/up cycles separately.
 - A collision ends the run. Hold the last input through tracking glitches of up to 0.5 seconds while simulation continues; longer tracking/posture loss ends the run.
-- Taking a break or backgrounding pauses the run, scored or practice, and it resumes after a countdown; rules versions before 35 ended a scored run instead. Tracking loss and collisions still end a scored run.
+- Taking a break or backgrounding pauses the run, and it resumes after a countdown; rules versions before 35 ended a scored run instead. Tracking loss and collisions still end a scored run.
 
 **Jump & Fly**
 
@@ -1433,9 +1596,9 @@ Build the Android camera/calibration screen first and test it on the connected p
 - Learn hip height above the ankles at each endpoint. Require a visible hip drop of at least 10% of standing body height; map the learned comfortable range continuously to bird height. Squatting lowers the bird and standing raises it without gravity or jump boosts.
 - Use a three-frame median, 65 ms smoothing and 6% endpoint margins. Count one full standing–squat–standing cycle; jitter, a held position and interrupted cycles cannot add repetitions.
 - Reject missing/stale joints, changes in camera distance and lifted feet. Tracking interruptions restart calibration; during flight they use the existing hold, pause and end rules.
-- Use alternating high/low passages and spacing based on the calibrated cadence across every course. Save squat statistics separately from push-ups, jumps and touch; scored squats contribute to daily goals and passport progress. Practice remains unscored.
+- Use alternating high/low passages and spacing based on the calibrated cadence across every course. Save squat statistics separately from push-ups, jumps and touch; squats contribute to daily goals and passport progress.
 - Append the persisted mode at index 3, preserving existing records. Replay version 10 adds squat journals with height and repetition inputs; previous journals retain their rules.
-- Expose scored starts in the Play mode picker and unscored starts in the Practice mode picker, with grounded squat artwork, calibration feedback, a squat counter and a separate personal best.
+- Expose squat starts in the Play mode picker, with grounded squat artwork, calibration feedback, a squat counter and a separate personal best.
 
 Run only the detector required by the selected mode.
 
@@ -1445,7 +1608,7 @@ Use a playful cartoon direction: expressive chunky birds, layered skies and floa
 
 Build:
 
-- Animated home screen: title lockup, a hero Play key with a Practice key on one side and a Campaign key on the other, the four control pictograms, the equipped bird on its island, a best-flight pill and a dock of five shortcuts. It is full-bleed on any phone shape, keeps every target at least 48 dp on typical phones, and is fully still with Reduced Motion.
+- Animated home screen: title lockup, a hero Play key with a Campaign key beside it, the four control pictograms, the equipped bird on its island, a best-flight pill and a dock of five shortcuts. It is full-bleed on any phone shape, keeps every target at least 48 dp on typical phones, and is fully still with Reduced Motion.
 - Illustrated setup, camera permissions, calibration, and countdown.
 - Large gameplay graphics, score, and simple tracking feedback.
 - Results with score, best score, mode-specific statistics, and retry. A fatal collision first plays a short cartoon knockout, then shows the same results on a game-over stage over the frozen flight (see Knockout and game-over stage).
@@ -1458,7 +1621,7 @@ Birds are cosmetic only: they never change the collision circle, movement or sco
 ## Validation and delivery
 
 - Test calibration, height mapping, posture rejection, looking down, partial visibility, jitter, stale samples, and jump takeoff/landing hysteresis and replay compatibility.
-- Test collisions, obstacle reachability, scoring, interruption rules, practice behavior, and separation of mode records.
+- Test collisions, obstacle reachability, scoring, interruption rules, pause behavior, and separation of mode records.
 - Verify camera denial/revocation, background/foreground transitions, mode switching, and camera cleanup.
 - Verify saved records and the equipped bird survive restart and database migrations.
 - Visually inspect all screens on the connected phone, including readability from the required exercise position.
@@ -1479,10 +1642,15 @@ Deliver an installable Android APK, reproducible build instructions, and the sha
 
 ## Session replay
 
-Results offer **Save session** independently of automatic score records, including
-practice flights. Records → Saved sessions lists the full saved library and lets
+Results offer **Save session** independently of automatic score records.
+Records → Saved sessions lists the full saved library and lets
 players replay or delete a session without changing score totals. Reset local
 progress also removes saved sessions and camera videos.
+
+There is no Practice mode any more; every flight started from the app is
+scored. Practice runs and sessions saved by earlier builds keep their
+`practice` flag, so they stay out of records, goals and the passport, and they
+still replay.
 
 The player supports a movable corner camera rectangle over gameplay, camera
 video behind transparent bird/obstacles, and gameplay only. All modes have
@@ -1499,8 +1667,8 @@ stores movement inputs and exact simulation steps, including timestamps, random
 seed, rule parameters and interruption commands, and for a campaign level its
 id and whole plan (see Campaign). Replay version 1 uses the current
 FlightSimulation rules; future rule changes must preserve that version or provide
-an explicit migration. Practice camera restarts create additional clips on the
-same monotonic timeline. Failed camera capture permits gameplay-only saves.
+an explicit migration. Camera restarts after a pause create additional clips on
+the same monotonic timeline. Failed camera capture permits gameplay-only saves.
 
 
 Microphone recording is off by default. The setup switch reads **Record microphone

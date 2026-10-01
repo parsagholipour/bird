@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/painting.dart';
 
+import '../domain/campaign_story.dart' show StoryMood;
 import '../domain/sky_boss.dart';
 import 'boss_motion.dart';
 import 'spitter_boss_motion.dart';
@@ -762,10 +763,14 @@ abstract final class SpitterBossRig {
     _rim(c, _headPath, _white.withValues(alpha: .35), .1);
     c.drawPath(_headPath, _line(ink, .085));
     // Jowl sac: the acid store swells and brightens through the windup.
+    // It also puffs with every word he says, like a frog's throat.
     final jowl = Rect.fromCenter(
-      center: Offset(-.4 - p.charge * .03, .27 + p.charge * .06),
-      width: .5 + p.charge * .24 - p.recoil * .1,
-      height: .3 + p.charge * .26 - p.recoil * .08,
+      center: Offset(
+        -.4 - p.charge * .03 - p.voice * .02,
+        .27 + p.charge * .06 + p.voice * .04,
+      ),
+      width: .5 + p.charge * .24 - p.recoil * .1 + p.voice * .14,
+      height: .3 + p.charge * .26 - p.recoil * .08 + p.voice * .14,
     );
     c.drawOval(
       jowl,
@@ -797,7 +802,8 @@ abstract final class SpitterBossRig {
   /// stays centered on the projectile origin, so the spit never wanders
   /// through any pose. The bell swells and glows as the acid is driven up.
   static void _mouth(Canvas c, SpitterBossMotion p, _Brew brew) {
-    final swell = 1 + p.charge * .24 + p.recoil * .1;
+    // A line's words flare the bell and open its throat.
+    final swell = 1 + p.charge * .24 + p.recoil * .1 + p.voice * .2;
     // Tipped down a touch, like a tuba, so the bell shows its flare.
     c.save();
     c.translate(-1.05, 0);
@@ -826,8 +832,8 @@ abstract final class SpitterBossRig {
     c.drawOval(
       Rect.fromCenter(
         center: const Offset(-1.05, 0),
-        width: .17,
-        height: .42 * swell + p.recoil * .06,
+        width: .17 + p.voice * .04,
+        height: .42 * swell + p.recoil * .06 + p.voice * .1,
       ),
       _fill(ink),
     );
@@ -881,6 +887,18 @@ abstract final class SpitterBossRig {
     c.drawOval(_eyeBox, _fill(ink));
     c.drawOval(_lens, fury ? _lensFury : _lensCalm);
     final squint = p.motion.defeated ? 0.0 : p.motion.hit;
+    // A line's mood over the fight's own look: a smug lid for a gloat, the
+    // lid thrown up and the iris shrunk in a gasp, a scowl, a downcast droop.
+    // [slant] tips the lid down at the front (the bird's side), [browTilt]
+    // turns the brow up at the front.
+    final (lidMood, slant, gaze, irisMood, browTilt) = switch (p.mood) {
+      StoryMood.happy => (-.12, .04, -.2, 1.0, .1),
+      StoryMood.surprised => (-.32, .02, -.4, .78, .12),
+      StoryMood.angry => (.12, .17, 0.0, .9, -.22),
+      StoryMood.sad => (.2, -.12, .8, 1.0, .32),
+      _ => (0.0, .06, 0.0, 1.0, 0.0),
+    };
+    final look = (aim + gaze).clamp(-1.0, 1.0);
     c.save();
     c.clipPath(_lensPath);
     if (p.motion.defeated) {
@@ -897,8 +915,8 @@ abstract final class SpitterBossRig {
     } else {
       // An amber iris (hot red in fury) around a slit pupil, tracking the bird.
       c.save();
-      c.translate(-.67 - aim.abs() * .015, -.38 + aim * .1);
-      final size = (fury ? .9 : 1.0) * (1 - p.charge * .12);
+      c.translate(-.67 - look.abs() * .015, -.38 + look * .1);
+      final size = (fury ? .9 : 1.0) * (1 - p.charge * .12) * irisMood;
       c.scale(size);
       c.drawOval(_irisBox, fury ? _irisFury : _irisCalm);
       c.drawOval(_irisBox, _line(ink, .025));
@@ -921,30 +939,56 @@ abstract final class SpitterBossRig {
                   p.charge * .12 +
                   squint * .34 +
                   (fury ? .06 : 0) +
+                  lidMood +
                   // The lid follows the gaze: up lifts it, down lowers it.
-                  (aim < 0 ? aim * .1 : aim * .05) +
+                  (look < 0 ? look * .1 : look * .05) +
                   p.blink * .66);
       final lidPath = Path()
         ..moveTo(_lens.left - .05, _lens.top - .1)
         ..lineTo(_lens.right + .05, _lens.top - .1)
-        ..lineTo(_lens.right + .05, lid - .06)
-        ..lineTo(_lens.left - .05, lid + .06)
+        ..lineTo(_lens.right + .05, lid - slant)
+        ..lineTo(_lens.left - .05, lid + slant)
         ..close();
       c.drawPath(lidPath, _fill(_lid));
       c.drawLine(
-        Offset(_lens.left - .05, lid + .06),
-        Offset(_lens.right + .05, lid - .06),
+        Offset(_lens.left - .05, lid + slant),
+        Offset(_lens.right + .05, lid - slant),
         _line(ink, .05),
       );
+      if (p.mood == StoryMood.happy) {
+        // A gloat pushes the lower lid up into a smile.
+        final smile = Path()
+          ..moveTo(_lens.left - .05, _lens.bottom + .1)
+          ..lineTo(_lens.left - .05, _lens.bottom - .05)
+          ..quadraticBezierTo(
+            _lens.center.dx,
+            _lens.bottom - .3,
+            _lens.right + .05,
+            _lens.bottom - .05,
+          )
+          ..lineTo(_lens.right + .05, _lens.bottom + .1)
+          ..close();
+        c.drawPath(smile, _fill(_lid));
+        c.drawPath(smile, _line(ink, .05));
+      }
     }
     c.restore();
     c.drawArc(_lens.deflate(.03), 3.85, 1.4, false, _line(_cream, .03));
     if (p.motion.defeated) return;
     // Heavy brow ridge, gilded, dropping into a scowl with fury.
-    final drop = p.charge * .05 + (fury ? .06 : 0);
+    final drop =
+        p.charge * .05 +
+        (fury ? .06 : 0) +
+        (p.mood == StoryMood.angry ? .1 : 0) -
+        (p.mood == StoryMood.surprised ? .08 : 0);
     c.save();
     c.clipPath(_headPath);
     c.translate(0, drop * .8);
+    if (browTilt != 0) {
+      c.translate(-.6, -.62);
+      c.rotate(browTilt);
+      c.translate(.6, .62);
+    }
     c.drawPath(_brow, _fill(_deep));
     c.drawPath(_brow, _line(ink, .065));
     c.drawCircle(const Offset(-.82, -.63), .03, _fill(gold));
