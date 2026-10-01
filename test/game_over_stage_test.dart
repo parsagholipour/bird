@@ -155,7 +155,6 @@ Future<(PlayController, BirdGame)> _standalone(
 }) async {
   final controller = PlayController(
     mode: PlayMode.touch,
-    practice: false,
     course: course,
     source: null,
     audio: SilentAudio(),

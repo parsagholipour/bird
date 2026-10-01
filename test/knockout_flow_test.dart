@@ -264,7 +264,6 @@ void main() {
       final saves = <RunResult>[];
       final controller = PlayController(
         mode: PlayMode.pushUp,
-        practice: false,
         source: source,
         audio: SilentAudio(),
         saveRun: (run) async => saves.add(run),

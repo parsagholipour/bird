@@ -114,7 +114,7 @@ class _HeardAudio extends SilentAudio {
   @override
   void effect(String name, {int? variant}) => heard.add(name);
   @override
-  void speak(String asset) => said.add(asset);
+  void speak(String asset, {double duck = .35}) => said.add(asset);
 }
 
 class _App {

@@ -13,6 +13,7 @@ import '../domain/game_rules.dart';
 import '../tracking/native_tracking_source.dart';
 import '../tracking/tracking_api.g.dart' show MicrophoneAccess;
 import 'audio.dart';
+import 'flight_voices.dart';
 import 'knockout_art.dart';
 
 /// [fallen] plays the knockout after a fatal collision; the run is already
@@ -31,7 +32,6 @@ enum PlayStage {
 class PlayController extends ChangeNotifier {
   PlayController({
     required this.mode,
-    required this.practice,
     this.course = FlightCourse.starTrail,
     required this.source,
     required this.saveRun,
@@ -43,14 +43,16 @@ class PlayController extends ChangeNotifier {
     this.recordAudio = false,
     this.rememberRecordAudio,
     this.level,
+    this.best = 0,
+    FlightVoiceMemory? voiceMemory,
+    this.rememberVoices,
     DateTime Function()? clock,
-  }) : assert(mode == PlayMode.touch || source != null),
+  }) : voiceMemory = voiceMemory ?? FlightVoiceMemory(),
+       assert(mode == PlayMode.touch || source != null),
        assert(
          level == null ||
-             (mode == PlayMode.touch &&
-                 course == FlightCourse.starTrail &&
-                 !practice),
-         'A campaign level is a scored Tap & Fly Star Trail',
+             (mode == PlayMode.touch && course == FlightCourse.starTrail),
+         'A campaign level is a Tap & Fly Star Trail',
        ),
        clock = clock ?? DateTime.now {
     if (isTouch) return;
@@ -77,7 +79,6 @@ class PlayController extends ChangeNotifier {
     });
   }
   final PlayMode mode;
-  final bool practice;
   final FlightCourse course;
   final DateTime Function() clock;
   final NativeTrackingSource? source;
@@ -98,6 +99,39 @@ class PlayController extends ChangeNotifier {
   /// plan and the result carries the level id.
   final CampaignLevel? level;
   bool get campaign => level != null;
+
+  /// The endless record this flight chases, for the bird's "new record".
+  final int best;
+
+  /// What the characters have said, shared by every flight so none repeats
+  /// the last ([FlightVoices]). It may be swapped for the saved memory once
+  /// that has loaded.
+  FlightVoiceMemory voiceMemory;
+
+  /// The face of whoever is talking in flight this frame, if anyone.
+  FlightSpeech? get speech => audio.voices?.speech;
+
+  /// Switches to the saved memory once it has loaded.
+  void useVoiceMemory(FlightVoiceMemory memory) {
+    voiceMemory = memory;
+    audio.voices?.memory = memory;
+  }
+
+  /// Saves [voiceMemory] when a flight ends.
+  final Future<void> Function(FlightVoiceMemory)? rememberVoices;
+
+  /// The next flight tries again after one that was lost.
+  bool _retrying = false;
+
+  void _rememberVoices() {
+    final remember = rememberVoices;
+    if (remember == null) return;
+    unawaited(
+      remember(voiceMemory).catchError((Object error) {
+        debugPrint('PushUpBird voices: $error');
+      }),
+    );
+  }
 
   /// Level stars (0–3) this flight earned: none until it crosses the
   /// finish line (or beats a boss level's boss), then one for finishing and
@@ -128,7 +162,7 @@ class PlayController extends ChangeNotifier {
   }
 
   /// Only this user-invoked action may request the microphone. Camera startup,
-  /// replay, practice resume and retry only check existing access.
+  /// replay, resume and retry only check existing access.
   Future<void> setRecordAudio(bool enabled) async {
     if (isTouch ||
         _disposed ||
@@ -570,7 +604,7 @@ class PlayController extends ChangeNotifier {
       ReplayTape(
         mode: mode,
         course: course,
-        practice: practice,
+        practice: false,
         seed: Random().nextInt(1 << 32),
         cycleSeconds:
             squat.result?.cycleSeconds ?? body.result?.cycleSeconds ?? 3,
@@ -584,6 +618,15 @@ class PlayController extends ChangeNotifier {
       () => nowMs,
     );
     simulation = recorder!.simulation;
+    audio.voices = FlightVoices(
+      bird: bird,
+      mode: mode,
+      level: level,
+      best: best,
+      retry: _retrying,
+      memory: voiceMemory,
+    );
+    _retrying = false;
     audio.syncCombat(simulation!, silent: true);
     stage = PlayStage.flying;
     result = null;
@@ -680,7 +723,7 @@ class PlayController extends ChangeNotifier {
       stars: game.collectedStars,
       bestCombo: game.bestCombo,
       perfectPasses: game.perfectPasses,
-      practice: practice,
+      practice: false,
       score: game.score,
       repetitions: game.repetitions,
       flaps: game.flaps,
@@ -690,6 +733,7 @@ class PlayController extends ChangeNotifier {
       bird: bird,
       levelId: game.levelId,
     );
+    _rememberVoices();
     // A fatal bump plays its knockout first; saving still starts right now.
     if (game.endReason == EndReason.collision) {
       stage = PlayStage.fallen;
@@ -808,6 +852,7 @@ class PlayController extends ChangeNotifier {
   Future<void> retry() async {
     await _finishing;
     await _sessionSave;
+    _retrying = result?.reason != EndReason.completed;
     await audio.stopEffects();
     if (saveError.isNotEmpty) {
       await persist();

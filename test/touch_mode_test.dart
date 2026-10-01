@@ -201,7 +201,6 @@ void main() {
 
       final controller = PlayController(
         mode: PlayMode.touch,
-        practice: false,
         source: null,
         audio: SilentAudio(),
         saveRun: repo.saveRun,

@@ -23,6 +23,7 @@ import 'gale_art.dart';
 import 'rush_art.dart';
 import 'sprint_art.dart';
 import 'knockout_art.dart';
+import 'flight_voices.dart' show FlightSpeech;
 
 class BirdGame extends FlameGame {
   BirdGame({
@@ -35,6 +36,7 @@ class BirdGame extends FlameGame {
     this.playback = false,
     this.transparent = false,
     this.knockout,
+    this.speech,
   });
   FlightSimulation simulation;
   final void Function(double dt, double now, double width)? advance;
@@ -48,6 +50,10 @@ class BirdGame extends FlameGame {
   /// Seconds since a fatal bump while its knockout plays, held at the end
   /// under the game-over stage. Null keeps the plain ended frame (replays).
   final double? Function()? knockout;
+
+  /// Who is talking this frame (the bird or the boss), with the mood and
+  /// mouth to draw; null in silence, and always in replays.
+  final FlightSpeech? Function()? speech;
 
   /// Leaves the flight's bird, and everything drawn around it, out of the
   /// frame. A campaign level's result shows its own courier over the frozen

@@ -8,6 +8,7 @@ import 'boss_audio_cues.dart';
 import 'combat_audio_cues.dart';
 import 'sound_bank.dart';
 import 'campaign_voices.dart';
+import 'flight_voices.dart';
 
 enum SkyMusic {
   menu('audio/sky_menu.ogg'),
@@ -59,7 +60,33 @@ class SkyAudio {
       );
     }
     syncBoss(simulation.boss, silent: silent);
+    final line = voices?.update(
+      simulation,
+      mute: silent || _disposed || !_settings.voices,
+    );
+    if (line == null) return;
+    final revision = ++_flightLine;
+    if (line.delay <= 0) {
+      speak(line.asset, duck: flightDuck);
+    } else {
+      Timer(Duration(milliseconds: (line.delay * 1000).round()), () {
+        if (revision == _flightLine) speak(line.asset, duck: flightDuck);
+      });
+    }
   }
+
+  /// Counts in-flight lines, so a delayed one is dropped when another line
+  /// or a stop comes first.
+  int _flightLine = 0;
+
+  /// The live flight's voice-over, set by the flight's controller. Replays
+  /// and Flight School leave it null and stay quiet; the sprint calls then
+  /// come from [_playSprintVoice] as before.
+  FlightVoices? voices;
+
+  /// How far the music ducks under an in-flight line: less than under a
+  /// story line, so short calls never pump the flight's music.
+  static const flightDuck = .6;
 
   bool _bossPresent = false, _bossQuiet = false;
   void syncBoss(SkyBoss? boss, {bool silent = false}) {
@@ -89,6 +116,9 @@ class SkyAudio {
 
   /// The line being said, by its [_speech] revision, or null in silence.
   int? _speaking;
+
+  /// The music's level under the line being said.
+  double _duckTo = .35;
   final _clock = Stopwatch()..start();
   final _lastEffect = <String, int>{};
   final _variations = <String, int>{};
@@ -147,7 +177,7 @@ class SkyAudio {
           // A character speaking ducks it further.
           final volume =
               (_scene != SkyMusic.menu && _bossQuiet ? .14 : .70) *
-              (_speaking == null ? 1 : .35);
+              (_speaking == null ? 1 : _duckTo);
           if (!_playing || _loadedTrack != track) {
             if (_loadedTrack != null && _loadedTrack != track) {
               await _music.stop();
@@ -188,7 +218,9 @@ class SkyAudio {
     final now = _now;
     final last = _lastEffect[name];
     if (last != null && now - last < spec.cooldownMs / _rate) return;
-    if (name == 'sprint' && _settings.voices) _playSprintVoice();
+    if (name == 'sprint' && _settings.voices && voices == null) {
+      _playSprintVoice();
+    }
     // Free voices first. If full, steal only a less important sound. A shot
     // can never truncate a roar, damage cue, death or victory celebration.
     _EffectVoice? voice;
@@ -278,13 +310,19 @@ class SkyAudio {
     });
   }
 
-  /// Says one recorded line ([CampaignVoices]) over the music, which ducks
-  /// under it until the line ends. A new line cuts off the one before, and
-  /// [hush] stops it. Nothing plays while voices are turned off.
-  void speak(String asset) {
+  /// Says one recorded line ([CampaignVoices], [FlightVoices]) over the
+  /// music, which ducks to [duck] under it until the line ends. A new line
+  /// cuts off the one before, and [hush] stops it. Nothing plays while
+  /// voices are turned off.
+  void speak(String asset, {double duck = .35}) {
     if (_disposed || !_settings.voices) return;
     final voice = _speech;
     final revision = ++voice.revision;
+    if (_speaking != null && _duckTo != duck) {
+      _duckTo = duck;
+      unawaited(_syncMusic());
+    }
+    _duckTo = duck;
     _duck(revision);
     voice.pending = voice.pending.then((_) async {
       bool cancelled() =>
@@ -314,6 +352,8 @@ class SkyAudio {
 
   /// Stops the line being said, and brings the music back up.
   Future<void> hush() {
+    ++_flightLine;
+    voices?.hush();
     if (_disposed) return Future.value();
     final voice = _speech;
     ++voice.revision;

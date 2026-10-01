@@ -31,6 +31,7 @@
 </g>
 <g id="Rig" display="none">
 <circle id="Wing pivot" cx="95" cy="122" r="3" fill="#203B45"/>
+<circle id="Beak hinge" cx="165" cy="120" r="3" fill="#203B45"/>
 <path id="Blink" d="M121 98Q138 109 155 98M164 96Q174 103 184 96" stroke="#203B45" stroke-width="4.5" stroke-linecap="round"/>
 <path id="Pleased" d="M121 98Q138 78 155 98M164 96Q174 83 184 96" stroke="#203B45" stroke-width="4.5" stroke-linecap="round"/>
 <path id="Startled" d="M122 62Q132 55 144 58M166 65Q175 60 183 66" stroke="#203B45" stroke-width="3.5" stroke-linecap="round"/>

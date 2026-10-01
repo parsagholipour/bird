@@ -582,7 +582,7 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                 child: Card(
                   child: Padding(
                     padding: EdgeInsets.all(12),
-                    child: Text('Practice break'),
+                    child: Text('Taking a breather'),
                   ),
                 ),
               ),

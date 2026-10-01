@@ -6,6 +6,7 @@ final _birdRigs = <_BirdRig>[
   // design/pip.svg
   _BirdRig(
     wingPivot: const Offset(95, 122),
+    beakHinge: const Offset(165, 120),
     nearPupil: const Offset(146.5, 96.5),
     farPupil: const Offset(179, 96),
     body: [
@@ -99,7 +100,7 @@ final _birdRigs = <_BirdRig>[
         fill: const Color(0xffffffff),
         stroke: const Color(0xff203b45),
         strokeWidth: 4,
-        eye: _BirdEye.eye,
+        eye: _BirdEye.farEye,
       ),
       _BirdLayer(
         Path()
@@ -112,7 +113,7 @@ final _birdRigs = <_BirdRig>[
         fill: const Color(0xffffffff),
         stroke: const Color(0xff203b45),
         strokeWidth: 4,
-        eye: _BirdEye.eye,
+        eye: _BirdEye.nearEye,
       ),
       _BirdLayer(
         Path()
@@ -170,6 +171,7 @@ final _birdRigs = <_BirdRig>[
         strokeWidth: 4,
         roundCap: true,
         roundJoin: true,
+        beak: _BirdBeak.lower,
       ),
       _BirdLayer(
         Path()
@@ -183,6 +185,7 @@ final _birdRigs = <_BirdRig>[
         stroke: const Color(0xff203b45),
         strokeWidth: 4,
         roundJoin: true,
+        beak: _BirdBeak.upper,
       ),
       _BirdLayer(
         Path()
@@ -260,10 +263,13 @@ final _birdRigs = <_BirdRig>[
         roundCap: true,
       ),
     ],
+    upperBeak: [],
+    lowerBeak: [],
   ),
   // design/peaches.svg
   _BirdRig(
     wingPivot: const Offset(100, 134),
+    beakHinge: const Offset(167, 125),
     nearPupil: const Offset(146.5, 96.5),
     farPupil: const Offset(179, 96),
     body: [
@@ -438,7 +444,7 @@ final _birdRigs = <_BirdRig>[
         fill: const Color(0xffffffff),
         stroke: const Color(0xff203b45),
         strokeWidth: 4,
-        eye: _BirdEye.eye,
+        eye: _BirdEye.farEye,
       ),
       _BirdLayer(
         Path()
@@ -451,7 +457,7 @@ final _birdRigs = <_BirdRig>[
         fill: const Color(0xffffffff),
         stroke: const Color(0xff203b45),
         strokeWidth: 4,
-        eye: _BirdEye.eye,
+        eye: _BirdEye.nearEye,
       ),
       _BirdLayer(
         Path()
@@ -521,6 +527,7 @@ final _birdRigs = <_BirdRig>[
         stroke: const Color(0xff203b45),
         strokeWidth: 4,
         roundJoin: true,
+        beak: _BirdBeak.lower,
       ),
       _BirdLayer(
         Path()
@@ -535,6 +542,7 @@ final _birdRigs = <_BirdRig>[
         stroke: const Color(0xff203b45),
         strokeWidth: 4,
         roundJoin: true,
+        beak: _BirdBeak.upper,
       ),
       _BirdLayer(
         Path()
@@ -624,10 +632,13 @@ final _birdRigs = <_BirdRig>[
         roundCap: true,
       ),
     ],
+    upperBeak: [],
+    lowerBeak: [],
   ),
   // design/minty.svg
   _BirdRig(
     wingPivot: const Offset(102, 120),
+    beakHinge: const Offset(164, 116),
     nearPupil: const Offset(146.5, 96.5),
     farPupil: const Offset(179, 96),
     body: [
@@ -835,7 +846,7 @@ final _birdRigs = <_BirdRig>[
         fill: const Color(0xffffffff),
         stroke: const Color(0xff203b45),
         strokeWidth: 4,
-        eye: _BirdEye.eye,
+        eye: _BirdEye.farEye,
       ),
       _BirdLayer(
         Path()
@@ -848,7 +859,7 @@ final _birdRigs = <_BirdRig>[
         fill: const Color(0xffffffff),
         stroke: const Color(0xff203b45),
         strokeWidth: 4,
-        eye: _BirdEye.eye,
+        eye: _BirdEye.nearEye,
       ),
       _BirdLayer(
         Path()
@@ -905,6 +916,7 @@ final _birdRigs = <_BirdRig>[
         stroke: const Color(0xff203b45),
         strokeWidth: 4,
         roundJoin: true,
+        beak: _BirdBeak.shut,
       ),
       _BirdLayer(
         Path()
@@ -983,10 +995,39 @@ final _birdRigs = <_BirdRig>[
         roundCap: true,
       ),
     ],
+    upperBeak: [
+      _BirdLayer(
+        Path()
+          ..moveTo(166, 109)
+          ..cubicTo(182, 106, 206, 110, 234, 118)
+          ..cubicTo(208, 118.5, 184, 118, 164, 117)
+          ..cubicTo(162.5, 114.5, 163.5, 110.5, 166, 109)
+          ..close(),
+        fill: const Color(0xfff47d64),
+        stroke: const Color(0xff203b45),
+        strokeWidth: 4,
+        roundJoin: true,
+      ),
+    ],
+    lowerBeak: [
+      _BirdLayer(
+        Path()
+          ..moveTo(164, 117)
+          ..cubicTo(184, 118, 208, 118.5, 234, 118)
+          ..cubicTo(206, 121, 182, 124, 166, 122)
+          ..cubicTo(164.5, 121, 164, 119, 164, 117)
+          ..close(),
+        fill: const Color(0xffd75e4f),
+        stroke: const Color(0xff203b45),
+        strokeWidth: 4,
+        roundJoin: true,
+      ),
+    ],
   ),
   // design/orbit.svg
   _BirdRig(
     wingPivot: const Offset(90, 112),
+    beakHinge: const Offset(172, 122),
     nearPupil: const Offset(146.5, 92.5),
     farPupil: const Offset(179, 92),
     body: [
@@ -1264,7 +1305,7 @@ final _birdRigs = <_BirdRig>[
         fill: const Color(0xffffffff),
         stroke: const Color(0xff203b45),
         strokeWidth: 4,
-        eye: _BirdEye.eye,
+        eye: _BirdEye.farEye,
       ),
       _BirdLayer(
         Path()
@@ -1277,7 +1318,7 @@ final _birdRigs = <_BirdRig>[
         fill: const Color(0xffffffff),
         stroke: const Color(0xff203b45),
         strokeWidth: 4,
-        eye: _BirdEye.eye,
+        eye: _BirdEye.nearEye,
       ),
       _BirdLayer(
         Path()
@@ -1288,7 +1329,7 @@ final _birdRigs = <_BirdRig>[
           ..cubicTo(153.7843, 73.5, 160.5, 81.7827, 160.5, 92)
           ..close(),
         fill: const Color(0xffffc94d),
-        eye: _BirdEye.eye,
+        eye: _BirdEye.nearEye,
       ),
       _BirdLayer(
         Path()
@@ -1299,7 +1340,7 @@ final _birdRigs = <_BirdRig>[
           ..cubicTo(184.0228, 77.5, 188.5, 83.768, 188.5, 91.5)
           ..close(),
         fill: const Color(0xffffc94d),
-        eye: _BirdEye.eye,
+        eye: _BirdEye.farEye,
       ),
       _BirdLayer(
         Path()
@@ -1357,6 +1398,7 @@ final _birdRigs = <_BirdRig>[
         stroke: const Color(0xff203b45),
         strokeWidth: 4,
         roundJoin: true,
+        beak: _BirdBeak.upper,
       ),
       _BirdLayer(
         Path()
@@ -1445,6 +1487,21 @@ final _birdRigs = <_BirdRig>[
         stroke: const Color(0xff203b45),
         strokeWidth: 3.5,
         roundCap: true,
+      ),
+    ],
+    upperBeak: [],
+    lowerBeak: [
+      _BirdLayer(
+        Path()
+          ..moveTo(172, 121)
+          ..cubicTo(178, 125, 184, 126, 187, 128)
+          ..cubicTo(187, 133, 183, 137, 178, 136)
+          ..cubicTo(174, 135, 171, 129, 172, 121)
+          ..close(),
+        fill: const Color(0xffe8a73c),
+        stroke: const Color(0xff203b45),
+        strokeWidth: 4,
+        roundJoin: true,
       ),
     ],
   ),

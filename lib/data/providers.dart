@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'progress_repository.dart';
 import 'session_repository.dart';
 import '../game/audio.dart';
+import '../game/flight_voices.dart';
 import '../tracking/native_tracking_source.dart';
 import '../domain/campaign.dart';
 import '../domain/campaign_story.dart';
@@ -40,6 +41,14 @@ class CourseSelection extends Notifier<FlightCourse> {
   FlightCourse build() => FlightCourse.starTrail;
   void select(FlightCourse course) => state = course;
 }
+
+/// What the characters have said in flight, loaded once and shared by every
+/// flight so a new one never repeats the lines the last one used.
+final flightVoiceMemoryProvider = FutureProvider<FlightVoiceMemory>(
+  (ref) async => FlightVoiceMemory.decode(
+    await ref.watch(progressRepositoryProvider).loadFlightVoices(),
+  ),
+);
 
 final progressProvider =
     AsyncNotifierProvider<ProgressController, ProgressSnapshot>(
@@ -86,6 +95,7 @@ class ProgressController extends AsyncNotifier<ProgressSnapshot> {
     await ref.read(sessionRepositoryProvider).reset();
     ref.invalidate(sessionsProvider);
     await _repo.reset();
+    ref.invalidate(flightVoiceMemoryProvider);
     ref.read(selectedCourseProvider.notifier).select(FlightCourse.starTrail);
     await refresh();
   }

@@ -9,8 +9,10 @@ import 'package:push_up_bird/data/progress_repository.dart';
 import 'package:push_up_bird/domain/game_rules.dart';
 import 'package:push_up_bird/domain/tracking.dart';
 import 'package:push_up_bird/game/audio.dart';
+import 'package:push_up_bird/game/flight_voices.dart';
 import 'package:push_up_bird/game/play_controller.dart';
 import 'package:push_up_bird/game/sound_bank.dart';
+import 'touch_combat_test.dart' show playing;
 
 // Model Android's per-player focus: a GAIN request pauses the previous owner.
 // Unlike a SilentAudio double, this exercises SkyAudio and AudioPlayer together.
@@ -240,6 +242,34 @@ void main() {
     expect(host.loads, contains(endsWith('sprint.wav')));
   });
 
+  test('a live flight\'s voices take the sprint call and duck lighter', () async {
+    final host = AndroidAudioHost()..install();
+    final audio = SkyAudio(effectClock: () => 0, random: Random(3));
+    addTearDown(audio.dispose);
+    await audio.configure(const GameSettings());
+    await waitForTrack(host, 'sky_flight.ogg');
+    final sim = playing();
+    audio.voices = FlightVoices(
+      bird: 0,
+      mode: PlayMode.touch,
+      random: Random(1),
+    );
+    audio.syncCombat(sim, silent: true);
+    expect(sim.sprint(), isTrue);
+    audio.syncCombat(sim);
+    await drainAudio();
+    final calls = [
+      for (final path in host.loads)
+        if (path.contains('/story/sprint-pip-')) path,
+    ];
+    expect(calls, hasLength(1), reason: 'said once, by the voices');
+    expect(host.loads, contains(endsWith('sprint.wav')));
+    expect(host.volumes[host.music], closeTo(.42, 1e-9));
+    await audio.stopEffects();
+    await drainAudio();
+    expect(host.volumes[host.music], .70);
+  });
+
   test('a spoken line ducks the music until it ends or is hushed', () async {
     final host = AndroidAudioHost()..install();
     final audio = SkyAudio(effectClock: () => 0);
@@ -397,7 +427,6 @@ void main() {
     final audio = SkyAudio();
     final controller = PlayController(
       mode: PlayMode.touch,
-      practice: false,
       source: null,
       audio: audio,
       saveRun: (_) async {},

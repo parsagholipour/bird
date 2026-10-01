@@ -81,6 +81,10 @@ Scribe:
 - **Settings → Character voices** turns all of it off. The text and pacing
   of the scenes stay the same without it, at 26 ms a character.
 
+In flight the same cast has 1,241 more lines of its own: see
+[flight-voices.md](flight-voices.md). In a live flight the sprint calls
+join those lines, so they obey the same pacing and never-repeat rules.
+
 `lib/game/campaign_voices.dart` maps a scene line, a level or a bird to its
 clip. `SkyAudio.speak` and `hush` play them on a dedicated player that runs
 at normal speed whatever the flight's rate.

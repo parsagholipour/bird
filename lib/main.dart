@@ -123,8 +123,6 @@ final appRouter = GoRouter(
             'squat' => PlayMode.squat,
             _ => PlayMode.pushUp,
           },
-          practice:
-              level == null && state.uri.queryParameters['practice'] == 'true',
           course: level != null
               ? FlightCourse.starTrail
               : FlightCourse.named(state.uri.queryParameters['course']),
@@ -160,6 +158,8 @@ class _PushUpBirdAppState extends ConsumerState<PushUpBirdApp>
       (_, _) => _syncMenuMusic(),
       fireImmediately: true,
     );
+    // Load what the characters said in flight before the first flight.
+    ref.read(flightVoiceMemoryProvider);
     _calendar = Timer.periodic(const Duration(minutes: 1), (_) => _checkDay());
   }
 

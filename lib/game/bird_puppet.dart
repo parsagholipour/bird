@@ -2,14 +2,40 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/painting.dart';
 import '../domain/bird_motion.dart';
+import '../domain/campaign_story.dart' show StoryMood;
 import '../domain/game_rules.dart';
 
 part 'bird_vector_paths.dart';
 
 /// How a layer inside a bird's eye group reacts to an expression. Every eye
 /// layer hides while the eyes are closed; pupils and their catchlights shrink
-/// towards the pupil's centre when startled.
-enum _BirdEye { eye, nearPupil, farPupil, nearGlint, farGlint }
+/// towards the pupil's centre when startled. A mood's lids cut the near and
+/// far eye's own layers; [eye] belongs to both (Peaches' lashes).
+enum _BirdEye {
+  eye,
+  nearEye,
+  farEye,
+  nearPupil,
+  farPupil,
+  nearGlint,
+  farGlint;
+
+  /// A pupil or its catchlight: what a startled or dazed face changes.
+  bool get pupil => index >= nearPupil.index;
+
+  /// Whether the layer is the near eye's (true), the far eye's (false) or
+  /// both (null).
+  bool? get near => switch (this) {
+    nearEye || nearPupil || nearGlint => true,
+    farEye || farPupil || farGlint => false,
+    eye => null,
+  };
+}
+
+/// A layer of the beak: the [upper] and [lower] halves part about the rig's
+/// hinge to talk; a [shut] beak (Minty's bill) gives way to the rig's own
+/// halves while it is open.
+enum _BirdBeak { upper, lower, shut }
 
 /// [dazed] is the knockout face: pupils give way to dizzy spirals.
 enum BirdExpression { neutral, blink, pleased, startled, dazed }
@@ -23,6 +49,7 @@ class _BirdLayer {
     this.roundCap = false,
     this.roundJoin = false,
     this.eye,
+    this.beak,
     this.clip,
   });
   final Path path;
@@ -30,6 +57,7 @@ class _BirdLayer {
   final double strokeWidth;
   final bool roundCap, roundJoin;
   final _BirdEye? eye;
+  final _BirdBeak? beak;
 
   /// Markings are clipped to the body so they follow its outline exactly.
   final Path? clip;
@@ -58,11 +86,13 @@ class _BirdLayer {
 }
 
 /// One bird's artwork, compiled from its SVG in design/: the body layers, the
-/// wing that rotates around [wingPivot], and the face overlays each expression
-/// draws with that bird's own eye placement.
+/// wing that rotates around [wingPivot], the face overlays each expression
+/// draws with that bird's own eye placement, and the beak halves that open
+/// about [beakHinge] to talk where the body's beak is a single shape.
 class _BirdRig {
   const _BirdRig({
     required this.wingPivot,
+    required this.beakHinge,
     required this.nearPupil,
     required this.farPupil,
     required this.body,
@@ -70,9 +100,12 @@ class _BirdRig {
     required this.blink,
     required this.pleased,
     required this.startled,
+    required this.upperBeak,
+    required this.lowerBeak,
   });
-  final Offset wingPivot, nearPupil, farPupil;
+  final Offset wingPivot, beakHinge, nearPupil, farPupil;
   final List<_BirdLayer> body, wing, blink, pleased, startled;
+  final List<_BirdLayer> upperBeak, lowerBeak;
 }
 
 /// Visual pose derived only from replayable simulation state. It never changes

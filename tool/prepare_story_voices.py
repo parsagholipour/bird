@@ -69,7 +69,7 @@ def speech_bounds(path):
     return max(0.0, begin - LEAD), min(duration, finish + TAIL)
 
 
-def master(source, target):
+def master(source, target, rate=44100):
     start, end = speech_bounds(source)
     m = measure(source)
     loudnorm = (
@@ -82,7 +82,7 @@ def master(source, target):
     subprocess.run(
         ['ffmpeg', '-hide_banner', '-v', 'error', '-y', '-i', str(source),
          '-ss', f'{start:.3f}', '-to', f'{end:.3f}',
-         '-af', f'{loudnorm},{fades},aresample=44100',
+         '-af', f'{loudnorm},{fades},aresample={rate}',
          '-ac', '1', '-c:a', 'libvorbis', '-q:a', '2', str(target)],
         check=True,
     )

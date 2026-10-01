@@ -5,6 +5,7 @@ import 'package:push_up_bird/data/progress_repository.dart';
 import 'package:push_up_bird/domain/tracking.dart';
 import 'package:push_up_bird/domain/game_rules.dart';
 import 'package:push_up_bird/game/audio.dart';
+import 'package:push_up_bird/game/flight_voices.dart';
 import 'package:push_up_bird/game/play_controller.dart';
 import 'package:push_up_bird/tracking/native_tracking_source.dart';
 import 'package:push_up_bird/tracking/tracking_api.g.dart';
@@ -33,9 +34,11 @@ class SilentAudio implements SkyAudio {
   @override
   Future<void> stopEffects() async {}
   @override
-  void speak(String asset) {}
+  void speak(String asset, {double duck = .35}) {}
   @override
   Future<void> hush() async {}
+  @override
+  FlightVoices? voices;
 }
 
 class TestInterpreter implements MovementInterpreter {
@@ -148,7 +151,6 @@ void main() {
         final audio = RecordingAudio();
         final controller = PlayController(
           mode: PlayMode.touch,
-          practice: false,
           source: null,
           audio: audio,
           saveRun: (_) async {},
@@ -204,7 +206,6 @@ void main() {
       final saving = Completer<void>();
       final controller = PlayController(
         mode: PlayMode.pushUp,
-        practice: false,
         source: source,
         audio: SilentAudio(),
         saveRun: (_) async {
@@ -286,7 +287,6 @@ void main() {
       final source2 = SessionSource();
       final controller2 = PlayController(
         mode: PlayMode.pushUp,
-        practice: false,
         source: source2,
         audio: SilentAudio(),
         saveRun: (_) async {},

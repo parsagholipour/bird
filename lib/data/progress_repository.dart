@@ -130,7 +130,7 @@ class GameSettings {
   final bool music, effects, reducedMotion, recordAudio;
 
   /// The characters' recorded voices: the story's lines, the thank-you
-  /// notes and the birds' sprint calls.
+  /// notes and what the bird and the bosses say in flight.
   final bool voices;
   final int bird;
 }
@@ -255,6 +255,11 @@ abstract interface class ProgressRepository {
 
   /// Remembers that [scene] was watched, so it plays by itself once.
   Future<void> markStoryWatched(StoryScene scene);
+
+  /// The in-flight voice-over's memory of what was said
+  /// (FlightVoiceMemory.encode), or null before the first flight.
+  Future<String?> loadFlightVoices();
+  Future<void> saveFlightVoices(String memory);
   Future<void> setSetting(SettingKey key, bool value);
   Future<void> equipBird(int bird);
   Future<void> reset();
@@ -520,6 +525,22 @@ class SqliteProgressRepository implements ProgressRepository {
           PreferencesCompanion.insert(key: _storyKey, value: watched.join(',')),
         );
   });
+
+  static const _flightVoicesKey = 'flightVoices';
+
+  @override
+  Future<String?> loadFlightVoices() async => (await (db.select(
+    db.preferences,
+  )..where((p) => p.key.equals(_flightVoicesKey))).getSingleOrNull())?.value;
+
+  @override
+  Future<void> saveFlightVoices(String memory) async {
+    await db
+        .into(db.preferences)
+        .insertOnConflictUpdate(
+          PreferencesCompanion.insert(key: _flightVoicesKey, value: memory),
+        );
+  }
 
   @override
   Future<void> setSetting(SettingKey key, bool value) async {

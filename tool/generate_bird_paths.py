@@ -12,10 +12,16 @@ Every bird is a 256 x 224 SVG that shares Pip's layer conventions:
   rotated around the `Wing pivot` circle.
 * Shapes inside `<g id="Eyes">` hide while the eyes are closed. Ids ending in
   `pupil` or `catchlight` that start with `Face / Near` or `Face / Far` shrink
-  towards their pupil's centre when startled.
+  towards their pupil's centre when startled; the other `Near` and `Far`
+  shapes (the whites, Orbit's irises) belong to that eye, so a mood's lids cut
+  that eye alone.
+* Body shapes whose ids end in `beak` or `bill` are the beak: an `Upper` or
+  `Lower` one is that half, and any other is the whole beak, shut.
 * The hidden `<g id="Rig">` holds the `Wing pivot` circle and the `Blink`,
   `Pleased` and `Startled` overlays. Closed eyes replace the eye group where it
-  sits; the startled brows are drawn on top of everything.
+  sits; the startled brows are drawn on top of everything. Its `Beak hinge`
+  circle is where the beak opens to talk, and its `Upper beak` and `Lower
+  beak` shapes are the halves that replace a whole beak while it is open.
 """
 from pathlib import Path
 import math
@@ -187,7 +193,7 @@ def shape_segments(element, matrix):
     return transformed(segments, matrix)
 
 
-def layer_code(element, segments, eye, clip):
+def layer_code(element, segments, eye, clip, beak=None):
     attributes = element.attrib
     opacity = float(attributes.get('opacity', 1))
     options = []
@@ -204,6 +210,8 @@ def layer_code(element, segments, eye, clip):
             options.append('roundJoin: true')
     if eye:
         options.append(f'eye: _BirdEye.{eye}')
+    if beak:
+        options.append(f'beak: _BirdBeak.{beak}')
     if clip:
         options.append(f'clip: {path_code(clip, False)}')
     even_odd = attributes.get('fill-rule') == 'evenodd'
@@ -218,11 +226,22 @@ def eye_role(identifier):
         return f'{side}Pupil'
     if side and name.endswith('catchlight'):
         return f'{side}Glint'
+    if side:
+        return f'{side}Eye'
     return 'eye'
 
 
+def beak_role(identifier):
+    name = identifier.lower()
+    if not name.endswith(('beak', 'bill')):
+        return None
+    return 'upper' if 'upper' in name else 'lower' if 'lower' in name else 'shut'
+
+
 def compile_bird(name):
-    groups = {key: [] for key in ['body', 'wing', 'Blink', 'Pleased', 'Startled']}
+    groups = {key: [] for key in [
+        'body', 'wing', 'Blink', 'Pleased', 'Startled', 'Upper beak',
+        'Lower beak']}
     rig = {}
 
     def visit(element, matrix, context, eyes, clip):
@@ -236,7 +255,8 @@ def compile_bird(name):
             clip = clips[reference.group(1)]
         if identifier == 'Wing':
             context = 'wing'
-        elif identifier in ('Blink', 'Pleased', 'Startled'):
+        elif identifier in ('Blink', 'Pleased', 'Startled') or (
+                context == 'rig' and identifier in ('Upper beak', 'Lower beak')):
             context = identifier
         elif identifier == 'Eyes':
             eyes = True
@@ -245,12 +265,17 @@ def compile_bird(name):
             if identifier == 'Wing pivot':
                 rig['pivot'] = centre(segments)
                 return
+            if identifier == 'Beak hinge':
+                rig['hinge'] = centre(segments)
+                return
             role = eye_role(identifier) if eyes else None
             if role in ('nearPupil', 'farPupil'):
                 rig[role] = centre(segments)
             if context is None:
                 raise ValueError(f'{name}: shape {identifier!r} outside a layer')
-            groups[context].append(layer_code(element, segments, role, clip))
+            beak = beak_role(identifier) if context == 'body' else None
+            groups[context].append(
+                layer_code(element, segments, role, clip, beak))
             return
         if identifier == 'Rig':
             context = 'rig'
@@ -269,7 +294,7 @@ def compile_bird(name):
                     shape, parse_transform(shape.attrib.get('transform')))]
     for child in svg:
         visit(child, IDENTITY, None, False, None)
-    for key in ['pivot', 'nearPupil', 'farPupil']:
+    for key in ['pivot', 'hinge', 'nearPupil', 'farPupil']:
         if key not in rig:
             raise ValueError(f'{name}: missing {key}')
     groups.pop('rig', None)
@@ -283,6 +308,7 @@ def compile_bird(name):
     return f"""  // design/{name}.svg
   _BirdRig(
     wingPivot: {offset(rig['pivot'])},
+    beakHinge: {offset(rig['hinge'])},
     nearPupil: {offset(rig['nearPupil'])},
     farPupil: {offset(rig['farPupil'])},
     body: [
@@ -299,6 +325,12 @@ def compile_bird(name):
     ],
     startled: [
           {layers('Startled')}
+    ],
+    upperBeak: [
+          {layers('Upper beak')}
+    ],
+    lowerBeak: [
+          {layers('Lower beak')}
     ],
   ),"""
 

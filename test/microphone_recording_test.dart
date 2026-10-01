@@ -16,7 +16,6 @@ void main() {
   }) {
     final c = PlayController(
       mode: PlayMode.pushUp,
-      practice: false,
       source: source,
       audio: SilentAudio(),
       saveRun: (_) async {},

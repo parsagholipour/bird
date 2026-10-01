@@ -128,21 +128,18 @@ class _GameOverStageState extends State<GameOverStage>
     final newStamps = p.passport
         .where((s) => s.earned && !widget.initialStamps.contains(s.stamp))
         .toList();
-    final nextStamp = r.practice ? null : p.nextStamp;
+    final nextStamp = p.nextStamp;
     final newDailyCard =
-        !r.practice &&
         c.saved &&
         p.today?.complete == true &&
         (widget.initialDailyKey != p.today?.dayKey ||
             !widget.initialDailyComplete);
-    final isBest = !r.practice && level == null && r.score > widget.initialBest;
+    final isBest = level == null && r.score > widget.initialBest;
     final best = p.record(widget.mode, widget.course).best;
     final armed = _intro.value >= GameOverStage.armAt || _intro.isCompleted;
     final fade = _calm ? _intro.value.clamp(0.0, 1.0) : 1.0;
     final caption = isBest
         ? 'Bumped out on a brand-new best!'
-        : r.practice
-        ? 'Practice makes a happy bird.'
         : widget.splash
         ? 'A little splash in the sea.'
         : 'A little bump in the clouds.';
@@ -508,38 +505,7 @@ class _GameOverStageState extends State<GameOverStage>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Practice points are tagged right where they are counted.
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(widget.course.scoreLabel, style: _label),
-                  if (r.practice) ...[
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.fromLTRB(8, 2, 10, 2),
-                      decoration: BoxDecoration(
-                        color: SkyColors.mint,
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.spa_outlined,
-                            size: 14,
-                            color: SkyColors.ink,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            'PRACTICE',
-                            style: bodyText(12, weight: FontWeight.w900),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ],
-              ),
+              Text(widget.course.scoreLabel, style: _label),
               Flexible(
                 child: Transform.scale(
                   scale: 1 + .08 * land,
@@ -1061,7 +1027,7 @@ class _GameOverStageState extends State<GameOverStage>
         body: Text('Today’s postcard stamped!', style: title),
       );
     }
-    if (!r.practice && newStamps.isNotEmpty) {
+    if (newStamps.isNotEmpty) {
       final stamp = newStamps.first.stamp;
       return _chip(
         onTap: () => widget.onLeave('/passport'),
@@ -1175,30 +1141,6 @@ class _GameOverStageState extends State<GameOverStage>
                 color: SkyColors.coralDeep,
               ),
             ),
-          ),
-        )
-      else if (r.practice)
-        // Practice has no wings or stamps, so its note fills their place,
-        // flat so it does not look tappable.
-        Container(
-          constraints: const BoxConstraints(minHeight: 56),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: SkyColors.mint.withValues(alpha: .35),
-            borderRadius: BorderRadius.circular(18),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _badge(Icons.spa_outlined, SkyColors.mint),
-              const SizedBox(width: 10),
-              Flexible(
-                child: Text(
-                  'Practice flights leave your records untouched.',
-                  style: bodyText(14, weight: FontWeight.w900),
-                ),
-              ),
-            ],
           ),
         )
       else

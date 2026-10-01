@@ -21,13 +21,11 @@ import 'ui_sounds.dart';
 
 const _course = FlightCourse.starTrail;
 
-Future<void> _chooseMode(BuildContext context, {bool practice = false}) async {
-  final mode = await showModePicker(context, practice: practice);
+Future<void> _chooseMode(BuildContext context) async {
+  final mode = await showModePicker(context);
   if (mode == null || !context.mounted) return;
   final route = mode == PlayMode.pushUp ? 'push-up' : mode.name;
-  context.go(
-    '/play/$route?${practice ? 'practice=true&' : ''}course=${_course.name}',
-  );
+  context.go('/play/$route?course=${_course.name}');
 }
 
 class HomeScreen extends ConsumerWidget {
@@ -144,7 +142,7 @@ class _HomeScene extends StatelessWidget {
               top: 218,
               width: 420,
               height: 76,
-              child: _PlayRow(),
+              child: _PlayKey(),
             ),
             // The campaign waits beside Play, in the open sky before the
             // bird's island, so Play keeps its size and place. Its key is as
@@ -205,37 +203,18 @@ class _HomeScene extends StatelessWidget {
   }
 }
 
-class _PlayRow extends StatelessWidget {
+class _PlayKey extends StatelessWidget {
   @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      Expanded(
-        flex: 4,
-        child: HomeEntrance(
-          begin: .42,
-          end: .68,
-          pop: .6,
-          child: HomePracticeButton(
-            onPressed: () => _chooseMode(context, practice: true),
-          ),
-        ),
-      ),
-      const SizedBox(width: 12),
-      Expanded(
-        flex: 9,
-        child: HomeEntrance(
-          begin: .34,
-          end: .62,
-          pop: .6,
-          child: PlayButton(
-            key: const ValueKey('play'),
-            animated: true,
-            reducedMotion: HomeMotion.of(context).still,
-            onPressed: () => _chooseMode(context),
-          ),
-        ),
-      ),
-    ],
+  Widget build(BuildContext context) => HomeEntrance(
+    begin: .34,
+    end: .62,
+    pop: .6,
+    child: PlayButton(
+      key: const ValueKey('play'),
+      animated: true,
+      reducedMotion: HomeMotion.of(context).still,
+      onPressed: () => _chooseMode(context),
+    ),
   );
 }
 

@@ -139,7 +139,7 @@ class _FlightSchoolScreenState extends ConsumerState<FlightSchoolScreen>
   String get _lesson =>
       'Collect a whole star trio for +5. Follow the gaps, charge a magnet and keep your shield.';
   void _camera(String mode) =>
-      context.go('/play/$mode?practice=true&course=${course.name}');
+      context.go('/play/$mode?course=${course.name}');
 
   @override
   Widget build(BuildContext context) {

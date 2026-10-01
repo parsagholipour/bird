@@ -1066,7 +1066,10 @@ The screens:
   cuts off the one before; `hush`, `stopEffects` and disposal stop it. The
   music ducks to 35% of its level while a line plays and comes back when it
   ends. Sprints call out in the equipped bird's own voice, one of four calls
-  and never the same twice in a row. The Character voices setting
+  and never the same twice in a row. In a live flight the characters also
+  speak on it ([flight-voices.md](flight-voices.md)), with the music ducked
+  to 60%; the sprint calls then join the bird's in-flight lines. The
+  Character voices setting
   (`SettingKey.voices`, saved as the `voices` preference) silences all of
   it.
 - **Postcard:** when a chapter's postcard is due, the map shows it, after

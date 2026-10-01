@@ -7,10 +7,7 @@ import 'mode_picker_art.dart';
 import 'theme.dart';
 import 'ui_sounds.dart';
 
-Future<PlayMode?> showModePicker(
-  BuildContext context, {
-  bool practice = false,
-}) => showDialog<PlayMode>(
+Future<PlayMode?> showModePicker(BuildContext context) => showDialog<PlayMode>(
   context: context,
   useSafeArea: false,
   barrierColor: const Color(0xff12333d).withValues(alpha: .82),
@@ -48,9 +45,7 @@ Future<PlayMode?> showModePicker(
                             Semantics(
                               header: true,
                               child: Text(
-                                practice
-                                    ? 'Choose your practice'
-                                    : 'Choose your mode',
+                                'Choose your mode',
                                 textAlign: TextAlign.center,
                                 style:
                                     heading(
@@ -69,9 +64,7 @@ Future<PlayMode?> showModePicker(
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              practice
-                                  ? 'A little practice. A lot of possibility.'
-                                  : 'Four ways to find your wings.',
+                              'Four ways to find your wings.',
                               textAlign: TextAlign.center,
                               style: bodyText(
                                 13,

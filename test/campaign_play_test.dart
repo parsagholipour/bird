@@ -37,7 +37,6 @@ PlayController levelController(
   List<RunResult>? runs,
 }) => PlayController(
   mode: PlayMode.touch,
-  practice: false,
   level: level,
   source: null,
   audio: audio ?? CueAudio(),

@@ -40,12 +40,14 @@
 <ellipse id="Face / Near catchlight" cx="142.5" cy="85.5" rx="3.5" ry="3.5" fill="white"/>
 <ellipse id="Face / Far catchlight" cx="176.5" cy="86.5" rx="2.5" ry="2.5" fill="white"/>
 </g>
-<path id="Face / Beak" d="M170 112C178 106 192 108 196 118C198 126 194 132 188 136C188 128 184 124 178 124C172 124 168 120 170 112Z" fill="#FFC94D" stroke="#203B45" stroke-width="4" stroke-linejoin="round"/>
+<path id="Face / Upper beak" d="M170 112C178 106 192 108 196 118C198 126 194 132 188 136C188 128 184 124 178 124C172 124 168 120 170 112Z" fill="#FFC94D" stroke="#203B45" stroke-width="4" stroke-linejoin="round"/>
 <ellipse id="Face / Cheek" cx="146" cy="130" rx="9" ry="5" fill="#FF9CC0"/>
 <path id="Highlight" d="M64 90C64 74 70 62 82 56" stroke="#A9ABF0" stroke-width="7" stroke-linecap="round"/>
 </g>
 <g id="Rig" display="none">
 <circle id="Wing pivot" cx="90" cy="112" r="3" fill="#203B45"/>
+<circle id="Beak hinge" cx="172" cy="122" r="3" fill="#203B45"/>
+<path id="Lower beak" d="M172 121C178 125 184 126 187 128C187 133 183 137 178 136C174 135 171 129 172 121Z" fill="#E8A73C" stroke="#203B45" stroke-width="4" stroke-linejoin="round"/>
 <path id="Blink" d="M121 98Q138 109 155 98M164 96Q174 103 184 96" stroke="#203B45" stroke-width="4.5" stroke-linecap="round"/>
 <path id="Pleased" d="M121 98Q138 78 155 98M164 96Q174 83 184 96" stroke="#203B45" stroke-width="4.5" stroke-linecap="round"/>
 <path id="Startled" d="M122 58Q132 51 144 54M166 62Q175 57 183 63" stroke="#203B45" stroke-width="3.5" stroke-linecap="round"/>

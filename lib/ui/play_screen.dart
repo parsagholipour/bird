@@ -38,13 +38,11 @@ class PlayScreen extends ConsumerStatefulWidget {
   const PlayScreen({
     super.key,
     required this.mode,
-    this.practice = false,
     this.course = FlightCourse.starTrail,
     this.level,
   });
   final FlightCourse course;
   final PlayMode mode;
-  final bool practice;
 
   /// The campaign level to fly (a scored touch Star Trail), or null for
   /// endless.
@@ -114,7 +112,6 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     controller = PlayController(
       mode: widget.mode,
       course: widget.course,
-      practice: widget.practice,
       level: widget.level,
       source: widget.mode == PlayMode.touch
           ? null
@@ -132,7 +129,21 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         ref.invalidate(sessionsProvider);
       },
       saveRun: (run) => ref.read(progressProvider.notifier).save(run),
+      best: initialBest,
+      voiceMemory: ref.read(flightVoiceMemoryProvider).asData?.value,
+      rememberVoices: (memory) => ref
+          .read(progressRepositoryProvider)
+          .saveFlightVoices(memory.encode()),
     );
+    // The memory is loaded long before a first flight; this covers the
+    // rare cold start that flies before it arrives.
+    if (!ref.read(flightVoiceMemoryProvider).hasValue) {
+      unawaited(
+        ref.read(flightVoiceMemoryProvider.future).then((memory) {
+          if (mounted) controller.useVoiceMemory(memory);
+        }, onError: (_) {}),
+      );
+    }
     controller.addListener(changed);
     unawaited(controller.verifyMicrophoneAccess());
     // A level's card was on the map, so its flight counts straight in.
@@ -185,6 +196,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         onChanged: controller.tick,
         advance: controller.advance,
         knockout: () => controller.knockout,
+        speech: () => controller.speech,
       );
     }
     if (sim != null) {
@@ -194,8 +206,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
           ? FlightGoals.earned(FlightGoals.forSimulation(sim))
           : controller.level!.marks.reached(sim.collectedStars);
       final earnedWing = wings > previousWings;
-      if (!widget.practice &&
-          controller.level == null &&
+      if (controller.level == null &&
           initialBest > 0 &&
           previousScore <= initialBest &&
           sim.score > initialBest) {
@@ -245,7 +256,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         controller.saved &&
         // A knockout's award chime waits for its game-over stage.
         controller.stage != PlayStage.fallen &&
-        controller.result?.practice == false) {
+        controller.result != null) {
       final progress = ref.read(progressProvider).asData?.value;
       if (progress != null &&
           (progress.passport.any(
@@ -495,30 +506,15 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                         style: bodyText(14, color: SkyColors.muted),
                       ),
                       const SizedBox(height: 18),
-                      Row(
-                        children: [
-                          SkyButton(
-                            label: 'Start touch flight',
-                            icon: Icons.touch_app_rounded,
-                            color: SkyColors.mint,
-                            onPressed: () => controller.fly(),
-                          ),
-                          if (!widget.practice) ...[
-                            const SizedBox(width: 12),
-                            TextButton(
-                              onPressed: () => context.go(
-                                '/play/touch?practice=true&course=${widget.course.name}',
-                              ),
-                              child: const Text('Try a practice flight'),
-                            ),
-                          ],
-                        ],
+                      SkyButton(
+                        label: 'Start touch flight',
+                        icon: Icons.touch_app_rounded,
+                        color: SkyColors.mint,
+                        onPressed: () => controller.fly(),
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        widget.practice
-                            ? 'Practice · Pause whenever you like'
-                            : 'Scored flight · Pause any time · Separate touch records',
+                        'Scored flight · Pause any time · Separate touch records',
                         style: bodyText(13, color: SkyColors.muted),
                       ),
                     ],
@@ -543,10 +539,8 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
               ? 'Feet planted. Wings open.'
               : 'Small jumps. Big wings.',
           trailing: Pill(
-            '${widget.course.title.toUpperCase()} · ${widget.practice ? 'PRACTICE' : 'SCORED'}',
-            icon: widget.practice
-                ? Icons.spa_outlined
-                : Icons.emoji_events_outlined,
+            '${widget.course.title.toUpperCase()} · SCORED',
+            icon: Icons.emoji_events_outlined,
             color: SkyColors.yellow,
           ),
         ),
@@ -650,9 +644,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                     ),
                     const Spacer(),
                     Text(
-                      widget.practice
-                          ? 'Practice can pause. Save a local camera replay after your flight.'
-                          : widget.course == FlightCourse.starTrail
+                      widget.course == FlightCourse.starTrail
                           ? 'Three hearts + a shield. You can pause any time.'
                           : 'A collision or losing your position ends a scored flight. You can pause any time.',
                       style: bodyText(13, color: SkyColors.muted),
@@ -1109,7 +1101,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       right: 0,
       child: MatchAction(
         symbol: MatchSymbol.pause,
-        label: widget.practice ? 'Pause practice' : 'Pause flight',
+        label: 'Pause flight',
         onPressed: () {
           UiSounds.effect(context, 'pause');
           controller.pause();
@@ -1494,13 +1486,12 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     final newStamps = p.passport
         .where((p) => p.earned && !initialStamps.contains(p.stamp))
         .toList();
-    final nextStamp = r.practice ? null : p.nextStamp;
+    final nextStamp = p.nextStamp;
     final newDailyCard =
-        !r.practice &&
         controller.saved &&
         p.today?.complete == true &&
         (initialDailyKey != p.today?.dayKey || !initialDailyComplete);
-    final isBest = !r.practice && r.score > initialBest;
+    final isBest = r.score > initialBest;
     final reason = switch (r.reason) {
       EndReason.collision => 'A little bump in the clouds.',
       EndReason.trackingLost => 'We lost sight of you for a moment.',
@@ -1516,15 +1507,9 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       child: Column(
         children: [
           _header(
-            widget.practice
-                ? 'Practice makes a happy bird.'
-                : 'Every flight counts.',
+            'Every flight counts.',
             trailing: Pill(
-              isBest
-                  ? 'NEW PERSONAL BEST!'
-                  : widget.practice
-                  ? 'PRACTICE COMPLETE'
-                  : 'FLIGHT COMPLETE',
+              isBest ? 'NEW PERSONAL BEST!' : 'FLIGHT COMPLETE',
               icon: Icons.emoji_events_outlined,
               color: SkyColors.yellow,
             ),
@@ -1551,9 +1536,8 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                             isBest ||
                             FlightGoals.earned(goals) == 3 ||
                             newDailyCard ||
-                            (!r.practice &&
-                                (newStamps.isNotEmpty ||
-                                    r.reason == EndReason.completed)),
+                            newStamps.isNotEmpty ||
+                            r.reason == EndReason.completed,
                       ),
                       Text(
                         isBest
@@ -1582,7 +1566,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                             style: bodyText(13, weight: FontWeight.w900),
                           ),
                         ),
-                      ] else if (!r.practice && newStamps.isNotEmpty) ...[
+                      ] else if (newStamps.isNotEmpty) ...[
                         const SizedBox(height: 8),
                         TextButton.icon(
                           onPressed: () => leave('/passport'),
@@ -1746,9 +1730,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                                   )
                                 else
                                   Text(
-                                    r.practice
-                                        ? 'Practice flights leave your records untouched.'
-                                        : controller.saved
+                                    controller.saved
                                         ? 'Saved on this phone · ${p.totalObstacles} total gates'
                                         : 'Saving your flight…',
                                     style: bodyText(13, color: SkyColors.muted),

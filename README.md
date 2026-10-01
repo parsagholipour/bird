@@ -285,6 +285,15 @@ for the people you deliver to. The music ducks under a spoken line, and
 **Settings → Character voices** turns them off. See
 [story voices](docs/story-voices.md).
 
+They talk in flight too, in every mode. The equipped bird reacts in its own
+words: a hit, the last heart, a wildfire on its tail, the Dragon drawing
+breath, a new record, ten more push-ups. Each boss taunts, gloats and
+grumbles in its own fight, and the bird answers back. A campaign level
+opens on its cargo, and the bird talks about the region, the star marks
+and the delivery. No line comes back until many others have been said,
+even across launches, and lines stay rarer in endless flights. See
+[flight voices](docs/flight-voices.md).
+
 Reaching the finish earns ★. Collecting the level's first and second marks
 earns ★★ and ★★★. The marks are 45% and 75% of the stars on the route in
 chapter 1, and 50% and 80% after that, rounded to fives. In
