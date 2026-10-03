@@ -1,6 +1,4 @@
 import '../domain/squat_tracking.dart';
-import 'squat_setup_art.dart';
-import 'jump_setup_art.dart';
 import 'dart:async';
 import 'dart:io';
 import 'package:flame/game.dart';
@@ -26,7 +24,7 @@ import '../game/play_controller.dart';
 import 'calibration_probe.dart' show LandmarkPainter;
 import 'components.dart';
 import 'theme.dart';
-import 'setup_art.dart';
+import 'mini_setup.dart';
 import 'flight_portrait.dart';
 import 'flight_score.dart';
 import 'jump_glide_hud.dart';
@@ -507,7 +505,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     final color = miniColor(mode);
     final pushUp = mode == PlayMode.pushUp, squat = mode == PlayMode.squat;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(28, 22, 28, 22),
+      padding: const EdgeInsets.fromLTRB(28, 22, 28, 20),
       child: Column(
         children: [
           _header(
@@ -519,12 +517,14 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
             trailing: [
               MiniTag(
                 '${widget.course.title.toUpperCase()} · SCORED',
-                icon: Icons.emoji_events_rounded,
+                icon: widget.course.collectsStars
+                    ? Icons.star_rounded
+                    : Icons.emoji_events_rounded,
                 color: SkyColors.yellow,
               ),
             ],
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
           Expanded(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -536,46 +536,45 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                     padding: EdgeInsets.zero,
                     child: Column(
                       children: [
+                        // The picker's scene for this workout, grown into a
+                        // hero: the phone watching, you moving, the bird
+                        // answering.
                         Expanded(
-                          child: MiniArtBand(
+                          child: SetupHero(
+                            mode: mode,
                             color: color,
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-                              child: CustomPaint(
-                                size: const Size(
-                                  double.infinity,
-                                  double.infinity,
-                                ),
-                                painter: pushUp
-                                    ? const PushUpSetupArt()
-                                    : squat
-                                    ? const SquatSetupArt(color: SkyColors.ink)
-                                    : const JumpSetupArt(color: SkyColors.ink),
-                              ),
-                            ),
+                            bird: p.settings.bird,
+                            reducedMotion: controller.reducedMotion,
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(18, 2, 18, 14),
+                          padding: const EdgeInsets.fromLTRB(14, 0, 14, 10),
                           child: Column(
                             children: [
-                              Text(
-                                pushUp
-                                    ? 'Make a little room to move.'
-                                    : 'Show your whole body.',
-                                style: heading(24, weight: FontWeight.w700),
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  pushUp
+                                      ? 'Make a little room to move.'
+                                      : 'Show your whole body.',
+                                  style: heading(23, weight: FontWeight.w700),
+                                ),
                               ),
-                              const SizedBox(height: 6),
+                              const SizedBox(height: 3),
                               Text(
                                 pushUp
                                     ? 'Phone low. Show an arm and hip.\nFacing it? Keep both shoulders in view.'
                                     : squat
                                     ? 'Squat to descend. Stand to rise.\nKeep both feet on the floor.'
                                     : 'Jump for a boost + 3s glide.\nLand before jumping again.',
-                                style: bodyText(14, color: SkyColors.muted),
+                                style: bodyText(
+                                  13.5,
+                                  color: SkyColors.muted,
+                                  weight: FontWeight.w600,
+                                ).copyWith(height: 1.3),
                                 textAlign: TextAlign.center,
                               ),
-                              const SizedBox(height: 10),
+                              const SizedBox(height: 9),
                               _microphoneOption(),
                             ],
                           ),
@@ -584,7 +583,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                     ),
                   ),
                 ),
-                const SizedBox(width: 24),
+                const SizedBox(width: 22),
                 Expanded(
                   flex: 4,
                   child: Column(
@@ -593,19 +592,33 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                       Expanded(
                         child: MiniCard(
                           accent: color,
-                          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                          padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                'HOW TO FLY',
-                                style: bodyText(
-                                  12,
-                                  weight: FontWeight.w900,
-                                  color: SkyColors.muted,
-                                ).copyWith(letterSpacing: 1.2),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.flight_takeoff_rounded,
+                                    size: 15,
+                                    color: Color.lerp(
+                                      color,
+                                      SkyColors.ink,
+                                      .45,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'HOW TO FLY',
+                                    style: bodyText(
+                                      12,
+                                      weight: FontWeight.w900,
+                                      color: SkyColors.muted,
+                                    ).copyWith(letterSpacing: 1.4),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(height: 10),
+                              const SizedBox(height: 8),
                               // Long course notes or large text shrink the
                               // steps to fit rather than spill out of the card.
                               Expanded(
@@ -650,6 +663,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                                                     widget.course.collectsStars
                                                 ? 'Stars add 0.75s of glide, up to 5s. Collect trios for +5 points.'
                                                 : widget.course.instructions,
+                                            last: true,
                                           ),
                                         ],
                                       ),
@@ -657,37 +671,23 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.favorite_rounded,
-                                    size: 16,
-                                    color: SkyColors.coralDeep,
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Expanded(
-                                    child: Text(
-                                      widget.course == FlightCourse.starTrail
-                                          ? 'Three hearts + a shield. You can pause any time.'
-                                          : 'A collision or losing your position ends a scored flight. You can pause any time.',
-                                      style: bodyText(
-                                        12,
-                                        color: SkyColors.muted,
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                              const SizedBox(height: 6),
+                              SetupLives(
+                                hearts: widget.course == FlightCourse.starTrail,
+                                text: widget.course == FlightCourse.starTrail
+                                    ? 'Three hearts + a shield. You can pause any time.'
+                                    : 'A collision or losing your position ends a scored flight. You can pause any time.',
                               ),
                             ],
                           ),
                         ),
                       ),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 12),
                       MiniKey(
                         label: 'Set up my camera',
                         icon: Icons.camera_alt_rounded,
                         colors: miniKeyColors(mode),
+                        size: 22,
                         onPressed: controller.microphoneRequestPending
                             ? null
                             : () => controller.startCamera(),
@@ -703,86 +703,111 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     );
   }
 
-  Widget _microphoneOption() => Container(
-    padding: const EdgeInsets.fromLTRB(12, 4, 6, 6),
-    decoration: BoxDecoration(
-      color: SkyColors.white,
-      borderRadius: BorderRadius.circular(16),
-      border: Border.all(
-        color: SkyColors.ink.withValues(alpha: .18),
-        width: 1.5,
+  /// The optional microphone, as a toggle tile: a badge that lights up when
+  /// replays will carry sound, the switch at the far end.
+  Widget _microphoneOption() {
+    final on = controller.recordAudio;
+    return AnimatedContainer(
+      duration:
+          MediaQuery.disableAnimationsOf(context) || controller.reducedMotion
+          ? Duration.zero
+          : const Duration(milliseconds: 180),
+      padding: const EdgeInsets.fromLTRB(8, 5, 4, 5),
+      decoration: BoxDecoration(
+        color: on
+            ? Color.lerp(SkyColors.mint, SkyColors.cream, .55)
+            : SkyColors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: on ? SkyColors.teal : SkyColors.ink.withValues(alpha: .2),
+          width: 1.5,
+        ),
       ),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            const Icon(Icons.mic_rounded, size: 20),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text.rich(
-                TextSpan(
-                  text: 'Record microphone',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              SetupMicBadge(on: on),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TextSpan(
-                      text: ' · Optional',
-                      style: bodyText(13, color: SkyColors.muted),
+                    Text.rich(
+                      TextSpan(
+                        text: 'Record microphone',
+                        children: [
+                          TextSpan(
+                            text: on ? ' · On' : ' · Optional',
+                            style: bodyText(
+                              12.5,
+                              color: on ? SkyColors.teal : SkyColors.muted,
+                              weight: on ? FontWeight.w900 : FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: bodyText(13.5, weight: FontWeight.w800),
+                    ),
+                    const SizedBox(height: 1),
+                    Text(
+                      controller.microphoneMessage.isEmpty
+                          ? 'Add your voice and room sound to replays. Uses the microphone during flight only. Saved on this phone.'
+                          : controller.microphoneMessage,
+                      style: bodyText(
+                        10.5,
+                        color: SkyColors.muted,
+                      ).copyWith(height: 1.25),
                     ),
                   ],
                 ),
-                style: bodyText(14, weight: FontWeight.w800),
               ),
-            ),
-            Semantics(
-              label: 'Record microphone for replays',
-              child: Switch(
-                value: controller.recordAudio,
-                activeTrackColor: SkyColors.teal,
-                onChanged: controller.microphoneRequestPending
-                    ? null
-                    : controller.setRecordAudio,
+              Semantics(
+                label: 'Record microphone for replays',
+                child: Switch(
+                  value: on,
+                  activeTrackColor: SkyColors.teal,
+                  activeThumbColor: SkyColors.white,
+                  inactiveTrackColor: SkyColors.cream,
+                  inactiveThumbColor: SkyColors.muted,
+                  trackOutlineColor: WidgetStatePropertyAll(
+                    on ? SkyColors.ink : SkyColors.ink.withValues(alpha: .5),
+                  ),
+                  onChanged: controller.microphoneRequestPending
+                      ? null
+                      : controller.setRecordAudio,
+                ),
               ),
-            ),
-          ],
-        ),
-        Padding(
-          padding: const EdgeInsets.only(right: 6),
-          child: Text(
-            controller.microphoneMessage.isEmpty
-                ? 'Add your voice and room sound to replays. Uses the microphone during flight only. Saved on this phone.'
-                : controller.microphoneMessage,
-            style: bodyText(11.5, color: SkyColors.muted),
-          ),
-        ),
-        if (controller.microphoneSettingsAvailable)
-          TextButton(
-            onPressed: controller.source!.openSettings,
-            child: const Text('Microphone settings'),
-          ),
-      ],
-    ),
-  );
-
-  Widget _step(String number, String title, String subtitle) => Padding(
-    padding: const EdgeInsets.only(bottom: 9),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        MiniStepCoin(number, color: miniColor(widget.mode)),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: heading(19, weight: FontWeight.w700)),
-              const SizedBox(height: 2),
-              Text(subtitle, style: bodyText(13, color: SkyColors.muted)),
             ],
           ),
-        ),
-      ],
-    ),
+          if (controller.microphoneSettingsAvailable)
+            Padding(
+              padding: const EdgeInsets.only(left: 38),
+              child: TextButton.icon(
+                onPressed: controller.source!.openSettings,
+                icon: const Icon(Icons.settings_rounded, size: 16),
+                label: const Text('Microphone settings'),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _step(
+    String number,
+    String title,
+    String subtitle, {
+    bool last = false,
+  }) => SetupStep(
+    number: number,
+    title: title,
+    subtitle: subtitle,
+    color: miniColor(widget.mode),
+    last: last,
   );
   Widget _calibration(ProgressSnapshot p) {
     final ready = controller.stage == PlayStage.ready,
