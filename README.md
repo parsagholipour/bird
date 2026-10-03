@@ -76,7 +76,11 @@ earned, and opens the campaign map; the yellow **Endless** key breathes, shows
 your best endless flight and starts Tap & Fly on Star Trail immediately,
 with no setup screen. Below them, a quieter lavender **Mini games** key opens
 a picker with Push-Up Flight, Squat & Fly and Jump & Fly (camera workouts) and Fly Together
-(two players on one phone). The bird greets you by name, and a dock of five
+(two players on one phone). Every screen behind the picker (each workout's
+camera setup, calibration and result, and Fly Together's bird picks and
+results) wears Home's material: ink-outlined cards on a colored lip, sticker
+tags, the map's round back key and a pressable key for the way on, each
+workout in the color of its card in the picker. The bird greets you by name, and a dock of five
 shortcuts leads to today's adventure, birds, the passport, records and flight
 goals. Records groups the main game's bests (Endless and campaign stars) above
 the mini games'. The adventure tile

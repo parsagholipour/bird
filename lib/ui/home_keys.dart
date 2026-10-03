@@ -45,6 +45,24 @@ class HomeKeyColors {
     glow: Color(0x807fe0a8),
   );
 
+  /// Squat & Fly and the duel: the picker's coral.
+  static const coral = HomeKeyColors(
+    face: [Color(0xffffc2b3), Color(0xfff47d64)],
+    hovered: [Color(0xffffcfc3), Color(0xfff68d77)],
+    pressed: [Color(0xffffab97), Color(0xffe56b53)],
+    lip: Color(0xffad4636),
+    glow: Color(0x80f47d64),
+  );
+
+  /// A quiet paper key, for a way on that is not the main one.
+  static const paper = HomeKeyColors(
+    face: [Color(0xffffffff), Color(0xfffff1d9)],
+    hovered: [Color(0xffffffff), Color(0xfffff6e6)],
+    pressed: [Color(0xfffff5e3), Color(0xfff6e4c4)],
+    lip: Color(0xffc2ab84),
+    glow: Color(0x40ffffff),
+  );
+
   /// Mini games: a quieter lavender, so the two main keys lead.
   static const lavender = HomeKeyColors(
     face: [Color(0xffeee8ff), Color(0xffcbbdf7)],

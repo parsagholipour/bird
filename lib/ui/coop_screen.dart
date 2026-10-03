@@ -17,7 +17,9 @@ import '../game/play_controller.dart';
 import '../game/tether_art.dart';
 import 'components.dart';
 import 'flight_score.dart';
+import 'home_keys.dart' show HomeKeyColors;
 import 'match_hud.dart';
+import 'mini_chrome.dart';
 import 'theme.dart';
 import 'ui_sounds.dart';
 
@@ -315,36 +317,31 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
       padding: const EdgeInsets.fromLTRB(28, 18, 28, 14),
       child: Column(
         children: [
-          Row(
-            children: [
-              RoundButton(
-                icon: Icons.arrow_back_rounded,
-                label: 'Back home',
-                onPressed: leave,
-              ),
-              const SizedBox(width: 16),
-              Text('Fly Together', style: heading(30)),
-              const SizedBox(width: 12),
-              const Pill(
+          MiniHeader(
+            title: 'Fly Together',
+            onBack: leave,
+            leading: const [
+              MiniTag(
                 'TWO PLAYERS · ONE PHONE',
                 icon: Icons.people_alt_rounded,
                 color: SkyColors.mint,
               ),
-              const Spacer(),
-              Pill(
+            ],
+            trailing: [
+              MiniTag(
                 chosen.team
                     ? '${chosen.title.toUpperCase()}'
                           '${best > 0 ? ' BEST $best' : ': NO BEST YET'}'
                     : '1 V 1${duels > 0 ? ' · $duels DUELS' : ': FIRST DUEL'}',
                 key: const ValueKey('coop-best'),
                 icon: chosen.team
-                    ? Icons.emoji_events_outlined
+                    ? Icons.emoji_events_rounded
                     : Icons.sports_mma_rounded,
                 color: SkyColors.yellow,
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           Expanded(
             child: picked == null
                 ? const Center(child: CircularProgressIndicator())
@@ -383,7 +380,7 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
                     ],
                   ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           Row(
             children: [
               _ModeToggle(
@@ -409,14 +406,20 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
                 }, style: bodyText(13, color: SkyColors.muted)),
               ),
               const SizedBox(width: 20),
-              SkyButton(
-                key: const ValueKey('coop-start'),
-                label: chosen.team ? 'Fly together' : 'Fight!',
-                icon: chosen.team
-                    ? Icons.flight_takeoff_rounded
-                    : Icons.sports_mma_rounded,
-                color: chosen.team ? SkyColors.mint : SkyColors.coral,
-                onPressed: picked == null ? null : start,
+              SizedBox(
+                width: 210,
+                child: MiniKey(
+                  key: const ValueKey('coop-start'),
+                  label: chosen.team ? 'Fly together' : 'Fight!',
+                  icon: chosen.team
+                      ? Icons.flight_takeoff_rounded
+                      : Icons.sports_mma_rounded,
+                  colors: chosen.team
+                      ? HomeKeyColors.mint
+                      : HomeKeyColors.coral,
+                  height: 60,
+                  onPressed: picked == null ? null : start,
+                ),
               ),
             ],
           ),
@@ -841,7 +844,8 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
       color: SkyColors.ink.withValues(alpha: .38),
       child: SceneLayout(
         child: Center(
-          child: Panel(
+          child: MiniCard(
+            accent: SkyColors.mint,
             padding: const EdgeInsets.fromLTRB(32, 22, 32, 22),
             child: SizedBox(
               width: 700,
@@ -890,9 +894,9 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
                           ],
                         ),
                       ),
-                      Pill(
+                      MiniTag(
                         best ? 'NEW BEST!' : 'FLIGHT COMPLETE',
-                        icon: Icons.emoji_events_outlined,
+                        icon: Icons.emoji_events_rounded,
                         color: SkyColors.yellow,
                       ),
                     ],
@@ -930,48 +934,58 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
 
   /// Home, new birds, the session and another go, then any save error.
   List<Widget> _actions(PlayController flight) => [
-    Wrap(
-      spacing: 12,
-      runSpacing: 10,
-      alignment: WrapAlignment.center,
+    Row(
       children: [
-        SkyButton(
-          key: const ValueKey('coop-home'),
-          label: 'Home',
-          icon: Icons.home_rounded,
-          color: SkyColors.cream,
-          onPressed: leave,
-        ),
-        SkyButton(
-          key: const ValueKey('coop-change'),
-          label: 'Change birds',
-          icon: Icons.swap_horiz_rounded,
-          color: SkyColors.cream,
-          onPressed: changeBirds,
-        ),
-        SkyButton(
-          key: const ValueKey('coop-save'),
-          label: flight.sessionSaved
-              ? 'Saved'
-              : flight.sessionSaving
-              ? 'Saving…'
-              : 'Save session',
-          icon: flight.sessionSaved
-              ? Icons.check_rounded
-              : Icons.video_library_outlined,
-          color: SkyColors.cream,
-          busy: flight.sessionSaving,
-          onPressed: flight.canSaveSession && !flight.sessionSaved
-              ? flight.persistSession
-              : null,
-        ),
-        SkyButton(
-          key: const ValueKey('coop-retry'),
-          label: flight.duel ? 'Rematch' : 'Fly again',
-          icon: flight.duel ? Icons.sports_mma_rounded : Icons.replay_rounded,
-          color: flight.duel ? SkyColors.coral : SkyColors.mint,
-          onPressed: () => unawaited(flight.retry()),
-        ),
+        for (final (i, action) in [
+          MiniKey(
+            key: const ValueKey('coop-home'),
+            label: 'Home',
+            icon: Icons.home_rounded,
+            colors: HomeKeyColors.paper,
+            height: 54,
+            size: 17,
+            onPressed: leave,
+          ),
+          MiniKey(
+            key: const ValueKey('coop-change'),
+            label: 'Change birds',
+            icon: Icons.swap_horiz_rounded,
+            colors: HomeKeyColors.paper,
+            height: 54,
+            size: 17,
+            onPressed: changeBirds,
+          ),
+          MiniKey(
+            key: const ValueKey('coop-save'),
+            label: flight.sessionSaved
+                ? 'Saved'
+                : flight.sessionSaving
+                ? 'Saving…'
+                : 'Save session',
+            icon: flight.sessionSaved
+                ? Icons.check_rounded
+                : Icons.video_library_rounded,
+            colors: HomeKeyColors.paper,
+            height: 54,
+            size: 17,
+            busy: flight.sessionSaving,
+            onPressed: flight.canSaveSession && !flight.sessionSaved
+                ? flight.persistSession
+                : null,
+          ),
+          MiniKey(
+            key: const ValueKey('coop-retry'),
+            label: flight.duel ? 'Rematch' : 'Fly again',
+            icon: flight.duel ? Icons.sports_mma_rounded : Icons.replay_rounded,
+            colors: flight.duel ? HomeKeyColors.coral : HomeKeyColors.mint,
+            height: 54,
+            size: 17,
+            onPressed: () => unawaited(flight.retry()),
+          ),
+        ].indexed) ...[
+          if (i > 0) const SizedBox(width: 12),
+          Expanded(child: action),
+        ],
       ],
     ),
     if (flight.saveError.isNotEmpty || flight.sessionError.isNotEmpty) ...[
@@ -1027,7 +1041,8 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
       color: SkyColors.ink.withValues(alpha: .38),
       child: SceneLayout(
         child: Center(
-          child: Panel(
+          child: MiniCard(
+            accent: SkyColors.coral,
             padding: const EdgeInsets.fromLTRB(32, 22, 32, 22),
             child: SizedBox(
               width: 720,
@@ -1073,10 +1088,10 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
                           ],
                         ),
                       ),
-                      Pill(
+                      MiniTag(
                         'SERIES $one–$two',
                         key: const ValueKey('duel-series'),
-                        icon: Icons.emoji_events_outlined,
+                        icon: Icons.emoji_events_rounded,
                         color: SkyColors.yellow,
                       ),
                     ],
@@ -1171,87 +1186,124 @@ class _PlayerCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = TetherArt.players[player];
     final side = player == 0 ? 'left' : 'right';
-    return Container(
-      padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
-      decoration: BoxDecoration(
-        color: SkyColors.cream,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: color, width: 3),
-        boxShadow: [
-          BoxShadow(
-            color: SkyColors.ink.withValues(alpha: .1),
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
+    return MiniCard(
+      accent: color,
+      padding: EdgeInsets.zero,
       child: Column(
         children: [
-          Row(
-            children: [
-              Pill(
-                'PLAYER ${player + 1}',
-                color: color,
-                foreground: SkyColors.white,
-              ),
-              const Spacer(),
-              Text(
-                'Tap the $side half',
-                style: bodyText(12, color: SkyColors.muted),
-              ),
-            ],
-          ),
           Expanded(
-            child: Row(
-              children: [
-                Expanded(
-                  child: Center(
-                    child: BirdArt(
-                      key: ValueKey('coop-bird-$player-$bird'),
-                      bird: bird,
-                      size: 132,
-                      reducedMotion: reducedMotion,
+            child: MiniArtBand(
+              color: color,
+              child: Stack(
+                children: [
+                  Positioned(
+                    top: 12,
+                    left: 14,
+                    child: MiniTag(
+                      'PLAYER ${player + 1}',
+                      color: color,
+                      foreground: SkyColors.white,
                     ),
                   ),
-                ),
-                SizedBox(
-                  width: 120,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(birdNames[bird], style: heading(26)),
-                      const SizedBox(height: 4),
-                      Text(
-                        birdDescriptions[bird],
-                        style: bodyText(12, color: SkyColors.muted),
-                      ),
-                    ],
+                  Positioned(
+                    top: 16,
+                    right: 16,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.touch_app_rounded,
+                          size: 15,
+                          color: SkyColors.ink.withValues(alpha: .75),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Tap the $side half',
+                          style: bodyText(12, weight: FontWeight.w800),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                  Positioned.fill(
+                    top: 34,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 18),
+                      child: _PlayerBird(
+                        bird: bird,
+                        player: player,
+                        reducedMotion: reducedMotion,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              for (final i in birdOrder)
-                _BirdChoice(
-                  key: ValueKey('coop-pick-$player-$i'),
-                  bird: i,
-                  selected: i == bird,
-                  color: color,
-                  label: 'Player ${player + 1}: ${birdNames[i]}',
-                  onTap: () {
-                    UiSounds.effect(context, 'ui_toggle');
-                    onPick(i);
-                  },
-                ),
-            ],
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 2, 12, 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                for (final i in birdOrder)
+                  _BirdChoice(
+                    key: ValueKey('coop-pick-$player-$i'),
+                    bird: i,
+                    selected: i == bird,
+                    color: color,
+                    label: 'Player ${player + 1}: ${birdNames[i]}',
+                    onTap: () {
+                      UiSounds.effect(context, 'ui_toggle');
+                      onPick(i);
+                    },
+                  ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
+}
+
+/// The bird a player flies, with its name and a line about it.
+class _PlayerBird extends StatelessWidget {
+  const _PlayerBird({
+    required this.bird,
+    required this.player,
+    required this.reducedMotion,
+  });
+  final int bird, player;
+  final bool reducedMotion;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    children: [
+      Expanded(
+        child: Center(
+          child: BirdArt(
+            key: ValueKey('coop-bird-$player-$bird'),
+            bird: bird,
+            size: 132,
+            reducedMotion: reducedMotion,
+          ),
+        ),
+      ),
+      SizedBox(
+        width: 120,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(birdNames[bird], style: heading(26, weight: FontWeight.w700)),
+            const SizedBox(height: 4),
+            Text(
+              birdDescriptions[bird],
+              style: bodyText(12, color: SkyColors.ink),
+            ),
+          ],
+        ),
+      ),
+    ],
+  );
 }
 
 class _BirdChoice extends StatelessWidget {
@@ -1282,16 +1334,30 @@ class _BirdChoice extends StatelessWidget {
         duration: MediaQuery.disableAnimationsOf(context)
             ? Duration.zero
             : const Duration(milliseconds: 160),
-        width: 60,
-        height: 60,
+        width: 58,
+        height: 58,
         padding: const EdgeInsets.all(5),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: selected ? color.withValues(alpha: .22) : SkyColors.white,
+          color: selected
+              ? Color.lerp(color, SkyColors.cream, .55)
+              : SkyColors.white,
           border: Border.all(
-            color: selected ? color : SkyColors.ink.withValues(alpha: .15),
-            width: selected ? 3 : 1.5,
+            color: selected
+                ? SkyColors.ink
+                : SkyColors.ink.withValues(alpha: .2),
+            width: selected ? 2.5 : 1.5,
           ),
+          boxShadow: [
+            if (selected) ...[
+              BoxShadow(color: color, spreadRadius: 3),
+              const BoxShadow(
+                color: SkyColors.ink,
+                spreadRadius: 4.5,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ],
         ),
         child: BirdArt(bird: bird, size: 46, bob: false),
       ),
@@ -1404,13 +1470,8 @@ class _ModeToggle extends StatelessWidget {
   final ValueChanged<CoopMode> onChanged;
 
   @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(4),
-    decoration: BoxDecoration(
-      color: SkyColors.cream,
-      borderRadius: BorderRadius.circular(999),
-      border: Border.all(color: SkyColors.ink, width: 2),
-    ),
+  Widget build(BuildContext context) => MatchPlate(
+    padding: const EdgeInsets.all(3),
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -1442,6 +1503,9 @@ class _ModeToggle extends StatelessWidget {
                       ? SkyColors.mint
                       : SkyColors.coral,
                   borderRadius: BorderRadius.circular(999),
+                  border: choice != mode
+                      ? null
+                      : Border.all(color: SkyColors.ink, width: 2),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
