@@ -530,11 +530,17 @@ Studio. Android minimum SDK is 24. Dependencies are pinned in `pubspec.lock`.
 
 ```sh
 flutter pub get
-flutter analyze
-flutter test
+make test TESTS="test/tracking_test.dart test/game_rules_test.dart"
 flutter build apk --release --target-platform android-arm64
 adb install -r build/app/outputs/flutter-apk/app-release.apk
 ```
+
+Select test files for the behavior you changed; the command above is an example
+for tracking and game rules. `make test` requires explicit files and runs the
+analyzer plus those tests. Use `make test-fast` for a broader check without slow
+files, or `make test-full` for an intentional complete run. Both broad commands
+queue behind other test runs on this machine. See [AGENTS.md](AGENTS.md) for
+test selection and when broader coverage is needed.
 
 The APK is signed with the development key for sideload testing. Configure your
 own signing key before store distribution. No network or model download is

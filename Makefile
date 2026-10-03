@@ -1,4 +1,4 @@
-.PHONY: help deps analyze test test-fast devices run build install lab diag logs check generate
+.PHONY: help deps analyze test test-fast test-full devices run build install lab diag logs check generate
 
 FLUTTER ?= flutter
 ADB ?= $(firstword $(wildcard $(ANDROID_HOME)/platform-tools/adb $(ANDROID_SDK_ROOT)/platform-tools/adb) adb)
@@ -18,8 +18,9 @@ help:
 		'make lab      Build and sideload the camera-lab APK' \
 		'make diag     Build and sideload a profile APK that records tracking logs' \
 		'make logs     Pull the last two tracking logs from the phone into /tmp' \
-		'make test     Run Flutter analyzer and the full test suite (queued)' \
+		'make test TESTS="test/a_test.dart ..." Run analyzer and selected test files (queued)' \
 		'make test-fast Run Flutter analyzer and the suite minus slow tests (queued)' \
+		'make test-full Run Flutter analyzer and the full test suite (queued)' \
 		'make check    Verify packaged models and 16KB ELF alignment' \
 		'make generate Regenerate Pigeon and Drift bindings'
 
@@ -29,7 +30,19 @@ deps:
 analyze:
 	$(FLUTTER) analyze
 
-test: analyze
+test:
+	@if [ -z "$(strip $(TESTS))" ]; then \
+		printf '%s\n' 'Select affected files: make test TESTS="test/a_test.dart test/b_test.dart"' 'For an intentional full suite, use make test-full.' >&2; \
+		exit 2; \
+	fi; \
+	for file in $(TESTS); do \
+		case "$$file" in *_test.dart) ;; *) printf 'Expected a test file, got: %s\n' "$$file" >&2; exit 2 ;; esac; \
+		if [ ! -f "$$file" ]; then printf 'Test file not found: %s\n' "$$file" >&2; exit 2; fi; \
+	done
+	$(FLUTTER) analyze
+	TEST_RUN=targeted FLUTTER=$(FLUTTER) tool/test_full.sh $(TESTS)
+
+test-full: analyze
 	FLUTTER=$(FLUTTER) tool/test_full.sh
 
 test-fast: analyze

@@ -101,12 +101,15 @@ Trail at 1-, 4- and 9-second calibrated push-up cycles, legacy SQLite migrations
 old and new saved sessions, replay seeking, reward thresholds, bird unlock
 announcements and relaxed pause/finish behavior.
 
-Run the full test suite and analyzer:
+Run the analyzer and tests for the behaviors you changed, for example:
 
 ```sh
-flutter analyze
-flutter test
+make test TESTS="test/star_trail_test.dart test/experience_ui_test.dart"
 ```
+
+See [the test selection policy](../AGENTS.md) for choosing coverage. Use
+`make test-full` when a full suite is warranted; it shares the machine-wide
+test lock.
 
 Generate actual rendered UI review images (not mock screenshots):
 
