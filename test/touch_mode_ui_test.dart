@@ -77,10 +77,8 @@ void main() {
       await tester.pumpAndSettle();
       await capture(tester, 'touch-home-${width.toInt()}');
       expect(tester.takeException(), isNull);
-      await tester.tap(find.byKey(const ValueKey('play')));
-      await tester.pumpAndSettle();
-      await capture(tester, 'mode-picker-${width.toInt()}');
-      await tester.tap(find.text('Tap & Fly'));
+      // Endless is Tap & Fly on Star Trail, with no mode to choose.
+      await tester.tap(find.byKey(const ValueKey('endless')));
       await tester.pumpAndSettle();
       expect(
         tester.widget<PlayScreen>(find.byType(PlayScreen)).mode,
@@ -324,7 +322,15 @@ void main() {
       expect(tester.takeException(), isNull);
       appRouter.go('/records');
       await tester.pumpAndSettle();
-      expect(find.text('Tap & Fly'), findsNWidgets(2));
+      // The Endless best leads Records; the flight is listed as Tap & Fly.
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('record-endless')),
+          matching: find.text('Endless · Tap & Fly'),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Tap & Fly'), findsOneWidget);
       await capture(tester, 'touch-records-${width.toInt()}');
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox());

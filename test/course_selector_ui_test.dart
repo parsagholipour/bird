@@ -44,30 +44,37 @@ void main() {
       )..addFont(rootBundle.load('assets/fonts/$family.ttf'))).load();
     }
   });
-  testWidgets('Play reveals every mode and dismisses back to the menu', (
+  testWidgets('Mini games reveal every workout and dismiss back to the menu', (
     tester,
   ) async {
     await _pumpHome(tester);
 
     expect(find.text('STAR TRAIL'), findsNothing);
-    expect(find.byKey(const ValueKey('play')), findsOneWidget);
+    expect(find.byKey(const ValueKey('endless')), findsOneWidget);
+    expect(find.byKey(const ValueKey('mini-games')), findsOneWidget);
     expect(find.text('60s · 3 hearts'), findsNothing);
     expect(find.text('Practice'), findsNothing);
     expect(find.text('Tap & Fly'), findsNothing);
     expect(find.text('Jump & Fly'), findsNothing);
     expect(find.text('Other ways to play'), findsNothing);
-    await tester.tap(find.byKey(const ValueKey('play')));
+    await tester.tap(find.byKey(const ValueKey('mini-games')));
     await tester.pumpAndSettle();
-    expect(find.text('Tap to flap.\nAim & shoot.'), findsOneWidget);
-    expect(find.text('Tap & Fly').hitTestable(), findsOneWidget);
+    // Tap & Fly is the main game's Endless, not a mini game.
+    expect(find.text('Tap to flap.\nAim & shoot.'), findsNothing);
+    expect(find.text('Tap & Fly'), findsNothing);
     expect(find.text('Jump & Fly').hitTestable(), findsOneWidget);
     expect(find.text('Push-Up Flight').hitTestable(), findsOneWidget);
     expect(find.text('Squat & Fly').hitTestable(), findsOneWidget);
-    expect(find.text('No camera'), findsOneWidget);
-    await tester.tap(find.byTooltip('Close mode picker'));
+    expect(find.text('Fly Together').hitTestable(), findsOneWidget);
+    expect(find.text('Camera'), findsNWidgets(3));
+    await tester.tap(find.byTooltip('Close mini games'));
     await tester.pumpAndSettle();
-    expect(find.text('Tap & Fly'), findsNothing);
-    expect(find.byKey(const ValueKey('play')).hitTestable(), findsOneWidget);
+    expect(find.text('Jump & Fly'), findsNothing);
+    expect(find.byKey(const ValueKey('endless')).hitTestable(), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('mini-games')).hitTestable(),
+      findsOneWidget,
+    );
     expect(tester.takeException(), isNull);
     expect(find.byKey(const ValueKey('course-classic')), findsNothing);
     expect(find.byKey(const ValueKey('course-starTrail')), findsNothing);

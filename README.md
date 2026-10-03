@@ -1,8 +1,9 @@
 # Beakbound
 
 An offline bird courier adventure built with Flutter, Flame, CameraX and MediaPipe.
-Explore floating worlds, deliver letters, and take on cartoon bosses. Movement
-and touch mini-games offer more ways to fly alongside the campaign.
+Explore floating worlds, deliver letters, and take on cartoon bosses. The main
+game is the tap-to-fly **Campaign** and **Endless** flight; push-up, squat and
+jump workouts and two-player Fly Together are the **mini games**.
 
 The launcher, opening splash and About screen use the approved Special Delivery
 artwork with its corrected wing and clean outer edges. Store artwork lives in
@@ -67,18 +68,23 @@ separate records for each control. See the
 [arcade update notes](docs/arcade-expansion.md) for rules, design links and checks.
 
 **Home** opens on a sunny title scene: your equipped bird hops on its island
-under turning sun rays, and a dotted star trail leads from the **Play** button to
-it. **Play** opens a mode picker for Push-Up Flight, Tap & Fly, Jump & Fly and
-Squat & Fly on Star Trail. The mint **Campaign** key beside it opens the
-campaign map and shows the level stars earned. A row of pictograms shows the four ways to fly (push-ups,
-squats, jumps, taps). The bird greets you by name, a pill shows your best flight
-(or welcomes a first-time player), and a dock of five shortcuts leads to today's
-adventure, birds, the passport, records and flight goals. The adventure tile
+under turning sun rays, and a dotted star trail leads from the **Endless** key to
+it. The main game leads, with two keys of the same size under the title: the
+mint **Campaign** key shows a little map, the level the journey continues with
+(such as "1-3 · Canopy Run", or "Every letter delivered") and the level stars
+earned, and opens the campaign map; the yellow **Endless** key breathes, shows
+your best endless flight and starts Tap & Fly on Star Trail with no mode to
+choose. Below them, a quieter lavender **Mini games** key opens a picker with
+Push-Up Flight, Squat & Fly and Jump & Fly (camera workouts) and Fly Together
+(two players on one phone). The bird greets you by name, and a dock of five
+shortcuts leads to today's adventure, birds, the passport, records and flight
+goals. Records groups the main game's bests (Endless and campaign stars) above
+the mini games'. The adventure tile
 glows with its 0/3 count and turns gold when all three goals are done. Clouds
 drift, stars twinkle and the screen assembles itself on launch; with Reduced
 Motion the whole scene is still.
 
-**Tap & Fly**, in the **Play** mode picker, starts a full touch flight on Star Trail. Tap
+**Tap & Fly**, the **Endless** key on Home, starts a full touch flight on Star Trail. Tap
 anywhere in the sky to rise, then release and tap again. Touch flights have a
 stronger flap, narrower openings and closer buildings. Tap **Shoot** to spit a
 rock straight from the bird's beak at bats ahead, or hold it to charge a bigger
@@ -360,9 +366,8 @@ To render the campaign for review, run these tests with their capture flags:
   every mood) and every scene to
   `build/visual-review/campaign/polish/story/`.
 
-**Fly Together (version 42):** two players share one phone. Open **Play**
-and choose **Fly Together** under the four modes (or the two-player button at
-the top of the picker), and each player picks a bird. Choose **Roped** to tie
+**Fly Together (version 42):** two players share one phone. Open **Mini
+games** and choose **Fly Together**, and each player picks a bird. Choose **Roped** to tie
 the birds together, or **No rope** to fly side by side. Player 1 taps the left
 half of the sky and has Shoot and Sprint in the bottom-left corner; player 2
 has the right half and the bottom-right corner. On a keyboard, player 1 flaps

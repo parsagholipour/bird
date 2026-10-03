@@ -133,24 +133,25 @@ class DailyAdventureScreen extends ConsumerWidget {
               ],
             ),
             const SizedBox(width: 16),
+            // The main game's Endless first, then the mini games.
             for (final (label, mode, icon, color) in [
+              ('Endless', 'touch', Icons.touch_app_rounded, SkyColors.yellow),
               (
                 'Push-Up Flight',
                 'push-up',
                 Icons.fitness_center_rounded,
+                SkyColors.sand,
+              ),
+              (
+                'Squat & Fly',
+                'squat',
+                Icons.airline_seat_legroom_extra_rounded,
                 SkyColors.coral,
               ),
               (
                 'Jump & Fly',
                 'jump',
                 Icons.accessibility_new_rounded,
-                SkyColors.yellow,
-              ),
-              ('Tap & Fly', 'touch', Icons.touch_app_rounded, SkyColors.mint),
-              (
-                'Squat & Fly',
-                'squat',
-                Icons.airline_seat_legroom_extra_rounded,
                 SkyColors.lavender,
               ),
             ]) ...[

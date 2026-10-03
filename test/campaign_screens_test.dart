@@ -333,10 +333,12 @@ void main() {
       // 2-6), 63 stars.
       Campaign.openedForTest = true;
       await _open(tester, phone, stars: const {'1-1': 3, '1-2': 1});
-      expect(find.byKey(const ValueKey('play')), findsOneWidget);
+      expect(find.byKey(const ValueKey('endless')), findsOneWidget);
       final key = find.byKey(const ValueKey('campaign'));
       expect(key, findsOneWidget);
       expect(find.text('4 / 63'), findsOneWidget);
+      // The key says where the journey continues.
+      expect(find.text('1-3 · ${Campaign.level('1-3')!.name}'), findsOneWidget);
       expect(tester.getSize(key).height, greaterThanOrEqualTo(48));
       await _tap(tester, key);
       expect(_path(), '/campaign');
@@ -377,26 +379,28 @@ void main() {
       expect(find.text('63 / 51'), findsNothing);
     });
 
-    // Play fills the row it once shared with Practice (measured from the
-    // pre-campaign Home), so the endless way in stays where it was: 70, 218,
-    // 420 × 76 on the 1000 × 450 canvas. The reference phone shows that
-    // canvas at .792, 1.8 dp down, and every display shows the phone scaled.
+    // Campaign and Endless, the main game, share the row under the title at
+    // the same size: 250 × 108 at 50 and 310, 128 down the 1000 × 450
+    // canvas, with the 76-tall Mini games key under them. The reference
+    // phone shows that canvas at .792, 1.8 dp down, and every display shows
+    // the phone scaled.
     for (final size in const [
       Size(640, 360),
       Size(800, 360),
       Size(1000, 450),
     ]) {
-      testWidgets('Play keeps its size and place at ${size.width.round()}; '
-          'the Campaign key is a full 48 dp beside it', (tester) async {
+      testWidgets('Campaign and Endless lead Home side by side at '
+          '${size.width.round()}; Mini games sits under them', (tester) async {
         await _open(tester, size);
         final shown = ScreenFrame.shownIn(size);
         final s = ScreenFrame.scaleFor(size);
-        final play = Rect.fromLTWH(
-          shown.left + 70 * .792 * s,
-          shown.top + (1.8 + 218 * .792) * s,
-          420 * .792 * s,
-          76 * .792 * s,
-        );
+        Rect canvas(double left, double top, double width, double height) =>
+            Rect.fromLTWH(
+              shown.left + left * .792 * s,
+              shown.top + (1.8 + top * .792) * s,
+              width * .792 * s,
+              height * .792 * s,
+            );
         void same(Rect actual, Rect expected, String name) {
           for (final (a, b) in [
             (actual.left, expected.left),
@@ -408,17 +412,27 @@ void main() {
           }
         }
 
-        same(tester.getRect(find.byKey(const ValueKey('play'))), play, 'Play');
-        final key = tester.getRect(find.byKey(const ValueKey('campaign')));
-        expect(key.height, greaterThanOrEqualTo(48));
-        expect(key.width, greaterThanOrEqualTo(48));
-        expect((Offset.zero & size).contains(key.topLeft), isTrue);
-        expect((Offset.zero & size).contains(key.bottomRight), isTrue);
-        expect(key.overlaps(play), isFalse);
-        expect(
-          find.byKey(const ValueKey('campaign')).hitTestable(),
-          findsOneWidget,
-        );
+        final campaign = tester.getRect(find.byKey(const ValueKey('campaign')));
+        final endless = tester.getRect(find.byKey(const ValueKey('endless')));
+        final mini = tester.getRect(find.byKey(const ValueKey('mini-games')));
+        same(campaign, canvas(50, 128, 250, 108), 'Campaign');
+        same(endless, canvas(310, 128, 250, 108), 'Endless');
+        same(mini, canvas(50, 246, 510, 76), 'Mini games');
+        for (final (name, key) in [
+          ('Campaign', campaign),
+          ('Endless', endless),
+          ('Mini games', mini),
+        ]) {
+          expect(key.height, greaterThanOrEqualTo(48), reason: name);
+          expect(key.width, greaterThanOrEqualTo(48), reason: name);
+          expect((Offset.zero & size).contains(key.topLeft), isTrue);
+          expect((Offset.zero & size).contains(key.bottomRight), isTrue);
+        }
+        expect(campaign.overlaps(endless), isFalse);
+        expect(mini.top, greaterThan(campaign.bottom));
+        for (final key in ['campaign', 'endless', 'mini-games']) {
+          expect(find.byKey(ValueKey(key)).hitTestable(), findsOneWidget);
+        }
         expect(tester.takeException(), isNull);
       });
     }
@@ -477,7 +491,6 @@ void main() {
 
     testWidgets('a campaign flight counts as flown on Home', (tester) async {
       await _open(tester, phone, stars: const {'1-1': 1});
-      expect(find.text('Your first flight awaits'), findsNothing);
       expect(find.textContaining('Ready to fly?'), findsNothing);
     });
 
@@ -822,7 +835,9 @@ void main() {
         findsNothing,
       );
       expect(
-        find.bySemanticsLabel(RegExp('^New York. Chapter 3, The Lamplight Line')),
+        find.bySemanticsLabel(
+          RegExp('^New York. Chapter 3, The Lamplight Line'),
+        ),
         findsOneWidget,
       );
       expect(

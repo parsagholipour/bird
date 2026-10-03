@@ -128,7 +128,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       await capture(tester, 'home-classic');
-      expect(find.byKey(const ValueKey('play')), findsOneWidget);
+      expect(find.byKey(const ValueKey('endless')), findsOneWidget);
       await capture(tester, 'home-star-trail');
       if (player == 'new') {
         await tester.tap(find.text('Flight goals'));
@@ -144,7 +144,7 @@ void main() {
         );
         await tester.pumpAndSettle();
       }
-      await tester.tap(find.byKey(const ValueKey('play')));
+      await tester.tap(find.byKey(const ValueKey('mini-games')));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Push-Up Flight'));
       await tester.pumpAndSettle();
@@ -373,7 +373,7 @@ void main() {
       appRouter.go('/');
       await tester.pumpAndSettle();
       expect(
-        find.byKey(const ValueKey('play')),
+        find.byKey(const ValueKey('endless')),
         findsOneWidget,
         reason: 'Returning home should preserve the selected course',
       );

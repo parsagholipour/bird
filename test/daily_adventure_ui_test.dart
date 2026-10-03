@@ -87,8 +87,9 @@ void main() {
           tester.view.physicalSize = size;
           await tester.pumpAndSettle();
           expect(tester.takeException(), isNull, reason: '$size');
+          // Endless (Tap & Fly) leads; the mini games follow.
           for (final mode in PlayMode.values) {
-            expect(find.text(mode.title).hitTestable(), findsOneWidget);
+            expect(find.text(_label(mode)).hitTestable(), findsOneWidget);
           }
         }
         expect(
@@ -147,7 +148,7 @@ void main() {
           'complete' => (PlayMode.touch, 'touch'),
           _ => (PlayMode.pushUp, 'push-up'),
         };
-        await tester.tap(find.text(mode.title));
+        await tester.tap(find.text(_label(mode)));
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
         final screen = tester.widget<PlayScreen>(find.byType(PlayScreen));
@@ -165,3 +166,7 @@ void main() {
     );
   }
 }
+
+/// The postcard's launch key for [mode]: Tap & Fly is the main game's
+/// Endless.
+String _label(PlayMode mode) => mode == PlayMode.touch ? 'Endless' : mode.title;
