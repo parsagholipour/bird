@@ -76,7 +76,7 @@ Future<_App> _open(
       ),
     ),
   );
-  // The setup bird bobs forever with motion on, so pump rather than settle.
+  // Touch flights start immediately and the live game loop never settles.
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 500));
   return _App(container, repository);
@@ -90,10 +90,8 @@ BirdGame _game(WidgetTester tester) => tester
     .widget<GameWidget<BirdGame>>(find.byType(GameWidget<BirdGame>))
     .game!;
 
-/// Starts a touch flight and runs it through the countdown by hand.
+/// Loads the touch flight and runs it through the countdown by hand.
 Future<BirdGame> _takeOff(WidgetTester tester) async {
-  await tester.tap(find.text('Start touch flight'));
-  await tester.pump();
   final game = _game(tester);
   await tester.runAsync(() => game.loaded);
   await tester.pump();

@@ -164,8 +164,8 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     }
     controller.addListener(changed);
     unawaited(controller.verifyMicrophoneAccess());
-    // A level's card was on the map, so its flight counts straight in.
-    if (widget.level != null) {
+    // Touch flights count straight in; only camera modes need setup.
+    if (controller.isTouch) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) unawaited(controller.fly());
       });
@@ -433,9 +433,8 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                           ),
                         ),
                       ),
-                    // A level counts straight in; its card was on the map.
-                    if (stage == PlayStage.setup && level == null)
-                      controller.isTouch ? _touchSetup() : _setup(p),
+                    if (stage == PlayStage.setup && !controller.isTouch)
+                      _setup(p),
                     if (stage == PlayStage.starting ||
                         stage == PlayStage.calibration ||
                         stage == PlayStage.ready ||
@@ -511,80 +510,6 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       ?trailing,
     ],
   );
-  Widget _touchSetup() => Padding(
-    padding: const EdgeInsets.all(28),
-    child: Column(
-      children: [
-        // Tap & Fly on Star Trail is the main game's Endless.
-        _header(
-          'Endless flight',
-          trailing: Pill(
-            widget.course.title,
-            icon: Icons.touch_app_rounded,
-            color: SkyColors.mint,
-          ),
-        ),
-        const SizedBox(height: 20),
-        Expanded(
-          child: Panel(
-            child: Row(
-              children: [
-                Expanded(
-                  child: BirdArt(
-                    size: 200,
-                    bird: controller.bird,
-                    reducedMotion: controller.reducedMotion,
-                  ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Flap. Aim. Fire!', style: heading(32)),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Tap the sky to flap. Tap Shoot to fire at bats.\nHold Shoot for a bigger rock. Rapid fire drains ammo.\nSprint to smash bats and stone panels. Beware of bosses!',
-                        style: bodyText(18),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        widget.course.subtitle,
-                        style: bodyText(
-                          15,
-                          weight: FontWeight.w800,
-                          color: SkyColors.ink,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        'No camera needed · Save your flight as a replay',
-                        style: bodyText(14, color: SkyColors.muted),
-                      ),
-                      const SizedBox(height: 18),
-                      SkyButton(
-                        label: 'Start touch flight',
-                        icon: Icons.touch_app_rounded,
-                        color: SkyColors.mint,
-                        onPressed: () => controller.fly(),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        'Scored flight · Pause any time · Separate touch records',
-                        style: bodyText(13, color: SkyColors.muted),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
-
   Widget _setup(ProgressSnapshot p) => Padding(
     padding: const EdgeInsets.all(28),
     child: Column(

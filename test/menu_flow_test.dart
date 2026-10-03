@@ -1,10 +1,13 @@
 import 'package:drift/native.dart';
+import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:push_up_bird/data/progress_repository.dart';
 import 'package:push_up_bird/data/providers.dart';
+import 'package:push_up_bird/domain/game_rules.dart';
+import 'package:push_up_bird/game/bird_game.dart';
 import 'package:push_up_bird/main.dart';
 import 'play_session_test.dart' show SessionSource, SilentAudio;
 import 'experience_ui_test.dart' show capture;
@@ -63,13 +66,21 @@ void main() {
       await capture(tester, 'home-play-menu');
       // Endless is the main game's quick flight, straight from Home.
       await tester.tap(find.byKey(const ValueKey('endless')));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump();
       var route = appRouter.routeInformationProvider.value.uri;
       expect(route.path, '/play/touch');
       expect(route.queryParameters, {'course': 'starTrail'});
-      expect(find.text('Endless flight'), findsOneWidget);
-      expect(find.text('Start touch flight'), findsOneWidget);
-      await capture(tester, 'endless-setup');
+      expect(find.text('Endless flight'), findsNothing);
+      expect(find.text('Start touch flight'), findsNothing);
+      final game = tester
+          .widget<GameWidget<BirdGame>>(find.byType(GameWidget<BirdGame>))
+          .game!;
+      await tester.runAsync(() => game.loaded);
+      await tester.pump();
+      game.pauseEngine();
+      expect(game.simulation.phase, RunPhase.countdown);
+      await capture(tester, 'endless-countdown');
       appRouter.go('/');
       await tester.pumpAndSettle();
       for (final (label, mode) in [

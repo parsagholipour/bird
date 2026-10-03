@@ -73,9 +73,9 @@ it. The main game leads, with two keys of the same size under the title: the
 mint **Campaign** key shows a little map, the level the journey continues with
 (such as "1-3 · Canopy Run", or "Every letter delivered") and the level stars
 earned, and opens the campaign map; the yellow **Endless** key breathes, shows
-your best endless flight and starts Tap & Fly on Star Trail with no mode to
-choose. Below them, a quieter lavender **Mini games** key opens a picker with
-Push-Up Flight, Squat & Fly and Jump & Fly (camera workouts) and Fly Together
+your best endless flight and starts Tap & Fly on Star Trail immediately,
+with no setup screen. Below them, a quieter lavender **Mini games** key opens
+a picker with Push-Up Flight, Squat & Fly and Jump & Fly (camera workouts) and Fly Together
 (two players on one phone). The bird greets you by name, and a dock of five
 shortcuts leads to today's adventure, birds, the passport, records and flight
 goals. Records groups the main game's bests (Endless and campaign stars) above

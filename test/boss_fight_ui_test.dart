@@ -65,8 +65,6 @@ void main() {
         );
         await tester.pump(const Duration(milliseconds: 400));
         await tester.pump();
-        await tester.tap(find.text('Start touch flight'));
-        await tester.pump();
         final game = tester
             .widget<GameWidget<BirdGame>>(find.byType(GameWidget<BirdGame>))
             .game!;

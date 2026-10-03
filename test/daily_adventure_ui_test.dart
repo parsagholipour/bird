@@ -1,4 +1,5 @@
 import 'package:drift/native.dart';
+import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +8,7 @@ import 'package:push_up_bird/data/progress_repository.dart';
 import 'package:push_up_bird/data/providers.dart';
 import 'package:push_up_bird/domain/game_rules.dart';
 import 'package:push_up_bird/domain/tracking.dart';
+import 'package:push_up_bird/game/bird_game.dart';
 import 'package:push_up_bird/main.dart';
 import 'package:push_up_bird/ui/play_screen.dart';
 import 'daily_adventure_test.dart' show dailyRun;
@@ -149,7 +151,20 @@ void main() {
           _ => (PlayMode.pushUp, 'push-up'),
         };
         await tester.tap(find.text(_label(mode)));
-        await tester.pumpAndSettle();
+        if (mode == PlayMode.touch) {
+          await tester.pump();
+          await tester.pump();
+          expect(find.text('Start touch flight'), findsNothing);
+          final game = tester
+              .widget<GameWidget<BirdGame>>(find.byType(GameWidget<BirdGame>))
+              .game!;
+          await tester.runAsync(() => game.loaded);
+          await tester.pump();
+          game.pauseEngine();
+          expect(game.simulation.phase, RunPhase.countdown);
+        } else {
+          await tester.pumpAndSettle();
+        }
         expect(tester.takeException(), isNull);
         final screen = tester.widget<PlayScreen>(find.byType(PlayScreen));
         expect(

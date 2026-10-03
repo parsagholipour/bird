@@ -200,8 +200,7 @@ void main() {
       expect(tester.takeException(), isNull);
       await capture(tester, 'screens/map-$name');
       appRouter.go('/play/touch');
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Start touch flight'));
+      await tester.pump();
       await tester.pump();
       final view = find.byType(GameWidget<BirdGame>);
       final game = tester.widget<GameWidget<BirdGame>>(view).game!;

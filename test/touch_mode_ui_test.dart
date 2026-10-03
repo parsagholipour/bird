@@ -77,9 +77,10 @@ void main() {
       await tester.pumpAndSettle();
       await capture(tester, 'touch-home-${width.toInt()}');
       expect(tester.takeException(), isNull);
-      // Endless is Tap & Fly on Star Trail, with no mode to choose.
+      // Endless starts Tap & Fly on Star Trail with a single tap.
       await tester.tap(find.byKey(const ValueKey('endless')));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump();
       expect(
         tester.widget<PlayScreen>(find.byType(PlayScreen)).mode,
         PlayMode.touch,
@@ -90,17 +91,16 @@ void main() {
       );
       expect(find.byType(AndroidView), findsNothing);
       expect(find.text('Start camera'), findsNothing);
-      expect(find.text(FlightCourse.starTrail.subtitle), findsOneWidget);
+      expect(find.text('Endless flight'), findsNothing);
+      expect(find.text('Start touch flight'), findsNothing);
       expect(tester.takeException(), isNull);
-      await capture(tester, 'touch-setup-${width.toInt()}');
-      await tester.tap(find.text('Start touch flight'));
-      await tester.pump();
       final game = tester
           .widget<GameWidget<BirdGame>>(find.byType(GameWidget<BirdGame>))
           .game!;
       await tester.runAsync(() => game.loaded);
       await tester.pump();
       game.pauseEngine();
+      expect(game.simulation.phase, RunPhase.countdown);
       for (var i = 0; i < 151; i++) {
         game.update(.02);
       }
