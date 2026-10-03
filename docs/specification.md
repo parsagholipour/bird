@@ -2,7 +2,10 @@
 
 ## Summary
 
-Build a colorful, competitive, offline arcade game with four controls:
+Build a colorful, competitive, offline arcade game. The main game is flown
+with taps: the **Campaign** (a trip around the world, level by level) and the
+**Endless** flight (Tap & Fly on Star Trail). The camera workouts and Fly
+Together (two players, one phone) are the **mini games**. Four controls:
 
 - **Push-Up Flight:** body position controls bird height continuously. Pushing up raises the bird; lowering yourself brings it down. The face does not need to be visible.
 - **Squat & Fly:** squat to descend and stand to rise, with both feet planted. Calibrate a comfortable range before flying.
@@ -1081,12 +1084,17 @@ summaries store `level`, and the library lists them as "1-3 · Bat Patrol".
   another mode, redirects to `/campaign`.
 
 The screens:
-- **Home:** a mint Campaign key beside Play shows the level stars earned
-  ("12 / 63", or "12 / 51" with `NEW_YORK_OPEN=false`; the total counts only
-  levels the build can fly). Play keeps its pre-campaign
-  place, filling the row it once shared with the retired Practice key.
-  While the save loads or can't be read, the map's back key still leads
-  Home.
+- **Home:** the main game leads, with two keys of the same size under the
+  title (250 × 108 at 50 and 310, 128 down the 1000 × 450 canvas). The mint
+  Campaign key shows the level the journey continues with ("1-3 · Canopy
+  Run", the first unlocked level not yet cleared, or "Every letter
+  delivered") and the level stars earned ("12 / 63", or "12 / 51" with
+  `NEW_YORK_OPEN=false`; the total counts only levels the build can fly). The
+  yellow Endless key shows the best Tap & Fly Star Trail flight and starts
+  one straight away. A lavender Mini games key (510 × 76) sits under both and
+  opens the mini games: Push-Up Flight, Squat & Fly, Jump & Fly and Fly
+  Together. Every key stays a full 48 dp on a 640 × 360 phone. While the
+  save loads or can't be read, the map's back key still leads Home.
 - **Map:** one stop per region, with level nodes showing their stars. Tapping
   an open node opens the level card. Tapping a locked one wiggles it, and a
   note shows for 2.4 s: "Finish 1-2 to unlock", "Beat Baron Bat to unlock"
@@ -1195,9 +1203,9 @@ over 0.5 s with every star in place.
 ### Fly Together co-op (rules version 42)
 
 Two players fly one endless Tap & Fly Star Trail on one phone, their birds
-roped together (**Roped**) or each on its own (**No rope**). Play's mode
-picker offers **Fly Together** below the four solo modes, and a two-player
-button in its header. Each player picks one of the four birds (both may pick
+roped together (**Roped**) or each on its own (**No rope**). Home's Mini
+games picker offers **Fly Together** beside the three camera workouts. Each
+player picks one of the four birds (both may pick
 the same one), and a toggle picks the mode. The picks and the mode are
 remembered.
 

@@ -4,25 +4,29 @@ import 'package:go_router/go_router.dart';
 import '../data/passport_progress.dart';
 import '../data/providers.dart';
 import '../data/progress_repository.dart';
+import '../domain/campaign_progress.dart';
 import '../domain/game_rules.dart';
 import '../domain/tracking.dart';
 import 'campaign_screen.dart' show campaignStarsInBuild;
 import 'components.dart';
-import 'control_glyphs.dart';
 import 'flight_goals.dart';
-import 'home_campaign_key.dart';
+import 'home_keys.dart';
 import 'home_parts.dart';
 import 'home_world.dart';
 import 'launch_screen.dart';
 import 'menu_collectible_art.dart';
-import 'mode_picker.dart';
-import 'play_button.dart';
+import 'mini_games.dart';
 import 'theme.dart';
 
 const _course = FlightCourse.starTrail;
 
-Future<void> _chooseMode(BuildContext context) async {
-  final mode = await showModePicker(context);
+/// The main game is the campaign and the endless flight, both flown with
+/// taps; push-ups, squats, jumps and Fly Together are the mini games.
+void _flyEndless(BuildContext context) =>
+    context.go('/play/touch?course=${_course.name}');
+
+Future<void> _chooseMiniGame(BuildContext context) async {
+  final mode = await showMiniGames(context);
   if (mode == null || !context.mounted) return;
   final route = mode == PlayMode.pushUp ? 'push-up' : mode.name;
   context.go('/play/$route?course=${_course.name}');
@@ -69,24 +73,11 @@ class HomeScreen extends ConsumerWidget {
   );
 }
 
-/// The best Star Trail flight in any mode, so a player who taps or squats
-/// still sees their achievement.
-({int best, FlyControl? control}) _bestFlight(ProgressSnapshot progress) {
-  var best = 0;
-  FlyControl? control;
-  for (final (mode, flyControl) in [
-    (PlayMode.pushUp, FlyControl.pushUp),
-    (PlayMode.squat, FlyControl.squat),
-    (PlayMode.jump, FlyControl.jump),
-    (PlayMode.touch, FlyControl.tap),
-  ]) {
-    final score = progress.record(mode, _course).best;
-    if (score > best) {
-      best = score;
-      control = flyControl;
-    }
-  }
-  return (best: best, control: control);
+/// The level the campaign continues with, as the Campaign key shows it, or
+/// null once every level this build can fly is cleared.
+String? _nextLevel(CampaignProgress campaign) {
+  final level = campaign.current;
+  return campaign.cleared(level) ? null : '${level.id} · ${level.name}';
 }
 
 String _greeting(ProgressSnapshot progress) {
@@ -105,7 +96,6 @@ class _HomeScene extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final best = _bestFlight(progress);
     // The canvas is a fixed layout, so very large system text is held to a
     // size the pills and buttons were drawn for.
     return MediaQuery.withClampedTextScaling(
@@ -116,67 +106,67 @@ class _HomeScene extends StatelessWidget {
           children: [
             Positioned.fill(child: HomeWorld(bird: progress.settings.bird)),
             const Positioned.fill(child: HomeTitleSparkles()),
-            Positioned(
-              left: 24,
-              top: 12,
-              child: HomeEntrance(
-                begin: .02,
-                end: .3,
-                slide: const Offset(-20, 0),
-                curve: Curves.easeOutCubic,
-                child: HomeBestPill(
-                  best: best.best,
-                  control: best.control,
-                  firstFlight: progress.flightsFlown == 0,
-                ),
-              ),
-            ),
             const Positioned(right: 24, top: 10, child: _HomeTools()),
-            const Positioned(left: 60, top: 60, width: 440, child: HomeTitle()),
+            const Positioned(left: 60, top: 0, width: 440, child: HomeTitle()),
+            // The main game: the campaign and the endless flight, side by
+            // side and the same size, under the title.
             Positioned(
-              left: 70,
-              top: 218,
-              width: 420,
-              height: 76,
-              child: _PlayKey(),
-            ),
-            // The campaign waits beside Play, in the open sky before the
-            // bird's island, so Play keeps its size and place. Its key is as
-            // tall as Play's; the star tag hangs below it.
-            Positioned(
-              left: 501,
-              top: 218,
-              width: HomeCampaignButton.width,
-              height: HomeCampaignButton.height,
+              left: 50,
+              top: 128,
+              width: 250,
+              height: 108,
               child: HomeEntrance(
-                begin: .46,
-                end: .72,
+                begin: .3,
+                end: .58,
                 pop: .6,
-                child: HomeCampaignButton(
+                child: HomeCampaignKey(
                   key: const ValueKey('campaign'),
                   stars: progress.campaign.totalStars,
                   of: campaignStarsInBuild,
+                  next: _nextLevel(progress.campaign),
                   onPressed: () => context.go('/campaign'),
                 ),
               ),
             ),
-            const Positioned(
+            Positioned(
+              left: 310,
+              top: 128,
+              width: 250,
+              height: 108,
+              child: HomeEntrance(
+                begin: .36,
+                end: .64,
+                pop: .6,
+                child: HomeEndlessKey(
+                  key: const ValueKey('endless'),
+                  best: progress.record(PlayMode.touch, _course).best,
+                  animated: true,
+                  reducedMotion: HomeMotion.of(context).still,
+                  onPressed: () => _flyEndless(context),
+                ),
+              ),
+            ),
+            // The mini games wait on one quieter key below, still a full
+            // 48 dp on the smallest phones.
+            Positioned(
               left: 50,
-              top: 304,
-              width: 460,
-              child: Center(
-                child: HomeEntrance(
-                  begin: .5,
-                  end: .75,
-                  slide: Offset(0, 14),
-                  child: HomeHooks(),
+              top: 246,
+              width: 510,
+              height: 76,
+              child: HomeEntrance(
+                begin: .46,
+                end: .72,
+                slide: const Offset(0, 14),
+                child: HomeMiniGamesKey(
+                  key: const ValueKey('mini-games'),
+                  onPressed: () => _chooseMiniGame(context),
                 ),
               ),
             ),
             Positioned(
               left: 50,
-              top: 350,
-              width: 460,
+              top: 334,
+              width: 510,
               child: _Dock(progress: progress),
             ),
             Positioned(
@@ -197,21 +187,6 @@ class _HomeScene extends StatelessWidget {
       ),
     );
   }
-}
-
-class _PlayKey extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => HomeEntrance(
-    begin: .34,
-    end: .62,
-    pop: .6,
-    child: PlayButton(
-      key: const ValueKey('play'),
-      animated: true,
-      reducedMotion: HomeMotion.of(context).still,
-      onPressed: () => _chooseMode(context),
-    ),
-  );
 }
 
 class _BirdGreeting extends StatelessWidget {

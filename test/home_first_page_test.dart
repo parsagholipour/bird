@@ -11,7 +11,7 @@ import 'package:push_up_bird/data/progress_repository.dart';
 import 'package:push_up_bird/data/providers.dart';
 import 'package:push_up_bird/domain/tracking.dart';
 import 'package:push_up_bird/ui/home_screen.dart';
-import 'package:push_up_bird/ui/play_button.dart';
+import 'package:push_up_bird/ui/home_keys.dart';
 import 'package:push_up_bird/ui/theme.dart';
 import 'daily_adventure_test.dart' show dailyRun;
 
@@ -148,6 +148,7 @@ GoRouter stubRouter() => GoRouter(
   routes: [
     GoRoute(path: '/', builder: (context, state) => const HomeScreen()),
     for (final path in [
+      '/campaign',
       '/settings',
       '/daily',
       '/birds',
@@ -207,13 +208,7 @@ Future<GoRouter> pumpHome(
   );
   await tester.runAsync(() async {
     final context = tester.element(find.byType(Scaffold).first);
-    for (final asset in [
-      'pip',
-      'peaches',
-      'minty',
-      'orbit',
-      'island',
-    ]) {
+    for (final asset in ['pip', 'peaches', 'minty', 'orbit', 'island']) {
       await precacheImage(AssetImage('assets/images/$asset.png'), context);
     }
   });
@@ -262,7 +257,9 @@ void main() {
             screen.height - insets.bottom,
           ).inflate(.5);
           for (final finder in [
-            find.byKey(const ValueKey('play')),
+            find.byKey(const ValueKey('campaign')),
+            find.byKey(const ValueKey('endless')),
+            find.byKey(const ValueKey('mini-games')),
             find.byKey(const ValueKey('daily-adventure')),
             find.text('Birds'),
             find.text('Passport'),
@@ -290,7 +287,9 @@ void main() {
     await pumpHome(tester, phone, Profile.progressed, reduced: true);
     await tester.pumpAndSettle();
     for (final (name, finder) in [
-      ('Play', find.byKey(const ValueKey('play'))),
+      ('Campaign', find.byKey(const ValueKey('campaign'))),
+      ('Endless', find.byKey(const ValueKey('endless'))),
+      ('Mini games', find.byKey(const ValueKey('mini-games'))),
       ('Adventure', find.byKey(const ValueKey('daily-adventure'))),
       ('Birds', pressable('Birds')),
       ('Passport', pressable('Passport')),
@@ -314,9 +313,10 @@ void main() {
       reduced: true,
     );
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('play')), findsOneWidget);
+    expect(find.byKey(const ValueKey('endless')), findsOneWidget);
     expect(find.text('Jump & Fly'), findsNothing);
     for (final (finder, path) in [
+      (find.byKey(const ValueKey('campaign')), '/campaign'),
       (find.byTooltip('Settings'), '/settings'),
       (find.byKey(const ValueKey('daily-adventure')), '/daily'),
       (find.text('Birds'), '/birds'),
@@ -336,12 +336,22 @@ void main() {
     await tester.pumpAndSettle();
     expect(location(router), '/');
     expect(find.text('Practice'), findsNothing);
-    await tester.tap(find.byKey(const ValueKey('play')));
+    // The mini games open on a picker of their own; Tap & Fly is not one.
+    await tester.tap(find.byKey(const ValueKey('mini-games')));
     await tester.pumpAndSettle();
-    expect(find.text('Choose your mode'), findsOneWidget);
-    await tester.tap(find.text('Tap & Fly'));
+    expect(find.text('Mini games'), findsOneWidget);
+    expect(find.text('Tap & Fly'), findsNothing);
+    await tester.tap(find.text('Squat & Fly'));
     await tester.pumpAndSettle();
-    final uri = router.routerDelegate.currentConfiguration.uri;
+    var uri = router.routerDelegate.currentConfiguration.uri;
+    expect(uri.path, '/play/squat');
+    expect(uri.queryParameters, {'course': 'starTrail'});
+    router.go('/');
+    await tester.pumpAndSettle();
+    // Endless flies straight away: no mode to choose.
+    await tester.tap(find.byKey(const ValueKey('endless')));
+    await tester.pumpAndSettle();
+    uri = router.routerDelegate.currentConfiguration.uri;
     expect(uri.path, '/play/touch');
     expect(uri.queryParameters, {'course': 'starTrail'});
     expect(tester.takeException(), isNull);
@@ -350,13 +360,19 @@ void main() {
   testWidgets('the screen welcomes a new player', (tester) async {
     await pumpHome(tester, screens.first, Profile.fresh, reduced: true);
     await tester.pumpAndSettle();
-    expect(find.text('Your first flight awaits'), findsOneWidget);
+    expect(find.text('Set your first best'), findsOneWidget);
     expect(find.text('Hi, I’m Minty! Ready to fly?'), findsOneWidget);
     expect(find.text('0/3'), findsOneWidget);
     expect(find.textContaining('0 stars'), findsNothing);
-    for (final label in ['Push-ups', 'Squats', 'Jumps', 'Taps']) {
+    for (final label in ['CAMPAIGN', 'ENDLESS', 'MINI GAMES']) {
       expect(find.text(label), findsOneWidget);
     }
+    // The campaign starts at its first level.
+    expect(find.text('1-1 · First Delivery'), findsOneWidget);
+    expect(
+      find.bySemanticsLabel('Endless. Fly as far as you can.'),
+      findsOneWidget,
+    );
     expect(
       tester.getSemantics(find.byKey(const ValueKey('daily-adventure'))).label,
       'Today’s adventure. 0 of 3 goals complete.',
@@ -368,8 +384,12 @@ void main() {
   ) async {
     await pumpHome(tester, screens.first, Profile.progressed, reduced: true);
     await tester.pumpAndSettle();
-    expect(find.text('BEST · PUSH-UPS'), findsOneWidget);
-    expect(find.text('42 stars'), findsOneWidget);
+    // Endless shows the best touch flight; push-up flights are a mini game.
+    expect(find.text('Best 18'), findsOneWidget);
+    expect(
+      find.bySemanticsLabel('Endless. Fly as far as you can. Best: 18 stars.'),
+      findsOneWidget,
+    );
     expect(find.text('Minty is ready. Are you?'), findsOneWidget);
     expect(find.textContaining('/3'), findsOneWidget);
     expect(find.text('3/3'), findsNothing);
@@ -440,7 +460,7 @@ void main() {
     expect(await pixels(tester), still);
     expect(tester.binding.transientCallbackCount, 0);
     expect(
-      tester.widget<PlayButton>(find.byType(PlayButton)).reducedMotion,
+      tester.widget<HomeEndlessKey>(find.byType(HomeEndlessKey)).reducedMotion,
       isTrue,
     );
   });

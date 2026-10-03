@@ -52,38 +52,43 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
-      expect(find.byKey(const ValueKey('play')), findsOneWidget);
+      expect(find.byKey(const ValueKey('mini-games')), findsOneWidget);
       expect(find.text('Jump & Fly'), findsNothing);
-      await tester.tap(find.byKey(const ValueKey('play')));
+      await tester.tap(find.byKey(const ValueKey('mini-games')));
       await tester.pumpAndSettle();
       expect(find.text('Jump & Fly'), findsOneWidget);
-      await capture(tester, 'mode-picker');
-      await tester.tap(find.byTooltip('Close mode picker'));
+      await capture(tester, 'mini-games');
+      await tester.tap(find.byTooltip('Close mini games'));
       await tester.pumpAndSettle();
       await capture(tester, 'home-play-menu');
+      // Endless is the main game's quick flight, straight from Home.
+      await tester.tap(find.byKey(const ValueKey('endless')));
+      await tester.pumpAndSettle();
+      var route = appRouter.routeInformationProvider.value.uri;
+      expect(route.path, '/play/touch');
+      expect(route.queryParameters, {'course': 'starTrail'});
+      expect(find.text('Endless flight'), findsOneWidget);
+      expect(find.text('Start touch flight'), findsOneWidget);
+      await capture(tester, 'endless-setup');
+      appRouter.go('/');
+      await tester.pumpAndSettle();
       for (final (label, mode) in [
         ('Push-Up Flight', 'push-up'),
-        ('Tap & Fly', 'touch'),
-        ('Jump & Fly', 'jump'),
         ('Squat & Fly', 'squat'),
+        ('Jump & Fly', 'jump'),
       ]) {
-        await tester.tap(find.byKey(const ValueKey('play')));
+        await tester.tap(find.byKey(const ValueKey('mini-games')));
         await tester.pumpAndSettle();
         expect(appRouter.routeInformationProvider.value.uri.path, '/');
-        expect(find.text('Choose your mode'), findsOneWidget);
-        for (final title in [
-          'Push-Up Flight',
-          'Tap & Fly',
-          'Jump & Fly',
-          'Squat & Fly',
-        ]) {
+        expect(find.text('Mini games'), findsOneWidget);
+        for (final title in ['Push-Up Flight', 'Squat & Fly', 'Jump & Fly']) {
           expect(find.text(title).hitTestable(), findsOneWidget);
         }
         await tester.ensureVisible(find.text(label));
         await tester.pumpAndSettle();
         await tester.tap(find.text(label));
         await tester.pumpAndSettle();
-        final route = appRouter.routeInformationProvider.value.uri;
+        route = appRouter.routeInformationProvider.value.uri;
         expect(route.path, '/play/$mode');
         if (mode == 'jump') {
           expect(find.text('Show your whole body.'), findsOneWidget);

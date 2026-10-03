@@ -2,14 +2,17 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../game/tether_art.dart';
 import '../domain/tracking.dart';
 import 'components.dart';
 import 'mode_picker_art.dart';
 import 'theme.dart';
 import 'ui_sounds.dart';
 
-Future<PlayMode?> showModePicker(BuildContext context) => showDialog<PlayMode>(
+/// The mini games, apart from the main game's Campaign and Endless: three
+/// camera workouts (push-ups, squats and jumps steer the bird) and Fly
+/// Together for two players on one phone. Returns the workout chosen, or
+/// null; Fly Together leaves for its own screen.
+Future<PlayMode?> showMiniGames(BuildContext context) => showDialog<PlayMode>(
   context: context,
   useSafeArea: false,
   barrierColor: const Color(0xff12333d).withValues(alpha: .82),
@@ -40,21 +43,16 @@ Future<PlayMode?> showModePicker(BuildContext context) => showDialog<PlayMode>(
                 children: [
                   Row(
                     children: [
-                      // Two players, one phone; the strip below explains it.
-                      RoundButton(
-                        key: const ValueKey('mode-coop-quick'),
-                        icon: Icons.people_alt_rounded,
-                        label: 'Fly Together: two players',
-                        color: SkyColors.mint,
-                        onPressed: () => _flyTogether(context),
-                      ),
+                      // As wide as the close key, so the title sits on the
+                      // screen's center.
+                      const SizedBox(width: 48),
                       Expanded(
                         child: Column(
                           children: [
                             Semantics(
                               header: true,
                               child: Text(
-                                'Choose your mode',
+                                'Mini games',
                                 textAlign: TextAlign.center,
                                 style:
                                     heading(
@@ -73,7 +71,7 @@ Future<PlayMode?> showModePicker(BuildContext context) => showDialog<PlayMode>(
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              'Four ways to find your wings.',
+                              'Move to fly, or share the phone with a friend.',
                               textAlign: TextAlign.center,
                               style: bodyText(
                                 13,
@@ -85,7 +83,7 @@ Future<PlayMode?> showModePicker(BuildContext context) => showDialog<PlayMode>(
                       ),
                       RoundButton(
                         icon: Icons.close_rounded,
-                        label: 'Close mode picker',
+                        label: 'Close mini games',
                         onPressed: () => Navigator.pop(context),
                       ),
                     ],
@@ -95,12 +93,6 @@ Future<PlayMode?> showModePicker(BuildContext context) => showDialog<PlayMode>(
                     padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
                     child: LayoutBuilder(
                       builder: (context, constraints) {
-                        const modes = [
-                          PlayMode.pushUp,
-                          PlayMode.touch,
-                          PlayMode.jump,
-                          PlayMode.squat,
-                        ];
                         final largeText =
                             MediaQuery.textScalerOf(context).scale(12) > 16;
                         final columns =
@@ -118,7 +110,7 @@ Future<PlayMode?> showModePicker(BuildContext context) => showDialog<PlayMode>(
                           children: [
                             for (
                               var start = 0;
-                              start < modes.length;
+                              start < _games.length;
                               start += columns
                             )
                               Padding(
@@ -134,7 +126,7 @@ Future<PlayMode?> showModePicker(BuildContext context) => showDialog<PlayMode>(
                                         if (i > 0) const SizedBox(width: 12),
                                         Expanded(
                                           child: _ModeCard(
-                                            mode: modes[start + i],
+                                            mode: _games[start + i],
                                             artHeight: artHeight,
                                           ),
                                         ),
@@ -143,10 +135,6 @@ Future<PlayMode?> showModePicker(BuildContext context) => showDialog<PlayMode>(
                                   ),
                                 ),
                               ),
-                            const Padding(
-                              padding: EdgeInsets.only(top: 16),
-                              child: _CoopStrip(),
-                            ),
                           ],
                         );
                       },
@@ -162,9 +150,17 @@ Future<PlayMode?> showModePicker(BuildContext context) => showDialog<PlayMode>(
   },
 );
 
+/// The camera workouts, in the order the cards show them.
+const miniGameModes = [PlayMode.pushUp, PlayMode.squat, PlayMode.jump];
+
+/// Every card: the workouts, then Fly Together (null).
+const _games = <PlayMode?>[...miniGameModes, null];
+
 class _ModeCard extends StatefulWidget {
   const _ModeCard({required this.mode, required this.artHeight});
-  final PlayMode mode;
+
+  /// The workout, or null for Fly Together.
+  final PlayMode? mode;
   final double artHeight;
 
   @override
@@ -185,17 +181,23 @@ class _ModeCardState extends State<_ModeCard> {
     final mode = widget.mode;
     final (color, description) = switch (mode) {
       PlayMode.pushUp => (SkyColors.yellow, 'Lower to dip.\nPush up to soar.'),
-      PlayMode.touch => (SkyColors.mint, 'Tap to flap.\nAim & shoot.'),
-      PlayMode.jump => (SkyColors.lavender, 'Jump for lift.\nGlide for stars.'),
       PlayMode.squat => (SkyColors.coral, 'Squat low.\nStand to soar.'),
+      PlayMode.jump => (SkyColors.lavender, 'Jump for lift.\nGlide for stars.'),
+      null => (SkyColors.skyDeep, 'Two players, one phone.\nTeam up or duel.'),
+      // Tap & Fly is the main game's Endless, never a mini game.
+      PlayMode.touch => throw ArgumentError.value(mode, 'mode'),
     };
     final reducedMotion = MediaQuery.disableAnimationsOf(context);
     return TextButton(
-      key: ValueKey('mode-${mode.name}'),
+      key: ValueKey('mode-${mode?.name ?? 'coop'}'),
       statesController: states,
       onPressed: () {
         UiSounds.effect(context);
-        Navigator.pop(context, mode);
+        if (mode == null) {
+          _flyTogether(context);
+        } else {
+          Navigator.pop(context, mode);
+        }
       },
       style: TextButton.styleFrom(
         foregroundColor: SkyColors.ink,
@@ -279,16 +281,14 @@ class _ModeCardState extends State<_ModeCard> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(
-                                  mode == PlayMode.touch
-                                      ? Icons.touch_app_outlined
+                                  mode == null
+                                      ? Icons.people_alt_outlined
                                       : Icons.videocam_outlined,
                                   size: 12,
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  mode == PlayMode.touch
-                                      ? 'No camera'
-                                      : 'Camera',
+                                  mode == null ? '2 players' : 'Camera',
                                   style: bodyText(10, weight: FontWeight.w900),
                                 ),
                               ],
@@ -310,7 +310,7 @@ class _ModeCardState extends State<_ModeCard> {
                           ),
                           child: Center(
                             child: Text(
-                              mode.title,
+                              mode?.title ?? 'Fly Together',
                               textAlign: TextAlign.center,
                               style: heading(20, weight: FontWeight.w700),
                             ),
@@ -333,57 +333,6 @@ class _ModeCardState extends State<_ModeCard> {
       ),
     );
   }
-}
-
-/// Two players, one phone: the co-op flight, under the four solo modes.
-class _CoopStrip extends StatelessWidget {
-  const _CoopStrip();
-
-  @override
-  Widget build(BuildContext context) => TextButton(
-    key: const ValueKey('mode-coop'),
-    onPressed: () {
-      UiSounds.effect(context);
-      _flyTogether(context);
-    },
-    style: TextButton.styleFrom(
-      foregroundColor: SkyColors.ink,
-      backgroundColor: SkyColors.cream,
-      padding: const EdgeInsets.fromLTRB(16, 10, 20, 10),
-      minimumSize: const Size(48, 56),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-        side: const BorderSide(color: SkyColors.ink, width: 2),
-      ),
-    ),
-    child: Row(
-      children: [
-        for (final color in TetherArt.players)
-          Container(
-            width: 30,
-            height: 30,
-            margin: const EdgeInsets.only(right: 6),
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-            child: const Icon(
-              Icons.touch_app_rounded,
-              size: 18,
-              color: SkyColors.white,
-            ),
-          ),
-        const SizedBox(width: 8),
-        Text('Fly Together', style: heading(20, weight: FontWeight.w700)),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            'Two players, one phone. Fly roped together, '
-            'each on your own, or fight 1 v 1.',
-            style: bodyText(13, color: SkyColors.muted),
-          ),
-        ),
-        const Icon(Icons.arrow_forward_rounded),
-      ],
-    ),
-  );
 }
 
 void _flyTogether(BuildContext context) {

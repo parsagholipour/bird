@@ -2,12 +2,15 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../domain/tracking.dart';
 import '../game/bird_puppet.dart';
+import '../game/tether_art.dart';
 import 'theme.dart';
 
 /// Small, original game illustrations: each pose shows its actual control.
 class ModePickerArt extends CustomPainter {
   const ModePickerArt({required this.mode, required this.color});
-  final PlayMode mode;
+
+  /// The control shown; null shows Fly Together, two birds roped together.
+  final PlayMode? mode;
   final Color color;
 
   @override
@@ -43,10 +46,13 @@ class ModePickerArt extends CustomPainter {
     ]) {
       _spark(canvas, Offset(x, y), r);
     }
-    if (mode == PlayMode.touch) {
-      _touch(canvas);
-    } else {
-      _movement(canvas);
+    switch (mode) {
+      case null:
+        _together(canvas);
+      case PlayMode.touch:
+        _touch(canvas);
+      case _:
+        _movement(canvas);
     }
     canvas.restore();
     // The illustration flows into the paper face of the card.
@@ -721,6 +727,66 @@ class ModePickerArt extends CustomPainter {
       SkyColors.coral,
       7,
     );
+  }
+
+  /// Two birds on one rope, each under its player's tag, as Fly Together
+  /// draws them in flight.
+  void _together(Canvas canvas) {
+    const a = Offset(54, 94), b = Offset(134, 62);
+    // The flight's own rope, at a scale where it hangs in a soft curve.
+    const h = 340.0;
+    TetherArt.between(
+      canvas,
+      h,
+      a / h + TetherArt.tie,
+      b / h + TetherArt.tie,
+      seconds: 0,
+      reducedMotion: true,
+    );
+    for (final (i, center) in [a, b].indexed) {
+      BirdPuppet.paint(
+        canvas,
+        Rect.fromCenter(center: center, width: 84, height: 74),
+        bird: i == 0 ? 1 : 2,
+        wing: i == 0 ? -.35 : .2,
+      );
+      _tag(canvas, center + const Offset(0, -46), i);
+    }
+  }
+
+  /// A player's tag: "P1" or "P2" on a sticker in the player's colour.
+  void _tag(Canvas canvas, Offset center, int player) {
+    final pill = RRect.fromRectAndRadius(
+      Rect.fromCenter(center: center, width: 30, height: 17),
+      const Radius.circular(8.5),
+    );
+    canvas.drawRRect(
+      pill.shift(const Offset(0, 1.5)),
+      Paint()..color = SkyColors.ink.withValues(alpha: .2),
+    );
+    canvas.drawRRect(pill, Paint()..color = TetherArt.players[player]);
+    canvas.drawRRect(
+      pill,
+      Paint()
+        ..color = SkyColors.ink
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2,
+    );
+    final text = TextPainter(
+      text: TextSpan(
+        text: 'P${player + 1}',
+        style: const TextStyle(
+          fontFamily: 'Fredoka',
+          fontWeight: FontWeight.w700,
+          fontSize: 11.5,
+          height: 1,
+          color: SkyColors.white,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    text.paint(canvas, center - Offset(text.width / 2, text.height / 2));
+    text.dispose();
   }
 
   @override

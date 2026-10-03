@@ -515,8 +515,9 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     padding: const EdgeInsets.all(28),
     child: Column(
       children: [
+        // Tap & Fly on Star Trail is the main game's Endless.
         _header(
-          'Tap & Fly',
+          'Endless flight',
           trailing: Pill(
             widget.course.title,
             icon: Icons.touch_app_rounded,

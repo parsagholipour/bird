@@ -110,8 +110,10 @@ class HomeMotion extends InheritedWidget {
   final Animation<double> enter;
   final bool still;
 
-  static HomeMotion of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<HomeMotion>()!;
+  static HomeMotion of(BuildContext context) => maybeOf(context)!;
+
+  static HomeMotion? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<HomeMotion>();
 
   @override
   bool updateShouldNotify(HomeMotion oldWidget) => still != oldWidget.still;
@@ -489,9 +491,9 @@ class _SunPainter extends CustomPainter {
   bool shouldRepaint(_SunPainter oldDelegate) => oldDelegate.accent != accent;
 }
 
-/// Small far-off islands, the dotted star trail from the Play button and the
-/// stars along it. A pulse of light travels the trail from the button, and
-/// the bird's hop ends in a star that pops.
+/// Small far-off islands, the dotted star trail from the Endless key and the
+/// stars along it. A pulse of light travels the trail from the key, and the
+/// bird's hop ends in a star that pops.
 class _TrailPainter extends CustomPainter {
   _TrailPainter({required this.clock, required this.enter, required this.still})
     : super(repaint: Listenable.merge([clock, enter]));
@@ -515,11 +517,15 @@ class _TrailPainter extends CustomPainter {
     return points;
   }();
 
+  /// The first dot clear of the Endless key; the ones before it would sit
+  /// under the key, so the trail starts at its edge.
+  static final int _first = _dots.indexWhere((p) => p.dx > 566);
+
   // Stars sit on the trail at these dot indices and grow toward the bird.
   // The third hangs where the bird's hop reaches.
   static const _stars = [
-    (7, 13.0, -.15),
-    (14, 17.0, -.2),
+    (11, 13.0, -.15),
+    (17, 17.0, -.2),
     (23, 21.0, .12),
     (-1, 30.0, .15),
   ];
@@ -533,7 +539,7 @@ class _TrailPainter extends CustomPainter {
     (Offset(529, 122), 0.0),
     (Offset(958, 214), 1.7),
     (Offset(812, 30), 3.1),
-    (Offset(508, 224), 4.4),
+    (Offset(588, 214), 4.4),
     (Offset(640, 44), 2.3),
   ];
   static final Paint _sparkle = Paint()
@@ -550,11 +556,15 @@ class _TrailPainter extends CustomPainter {
     _flagIsland(canvas, const Offset(556, 386), .5, t, 0);
     _flagIsland(canvas, const Offset(944, 268), .85, t, 2.1);
     final n = _dots.length;
-    // The pulse leaves the Play button and runs to the bird, then rests.
-    final head = still ? -100.0 : (t * 15) % (n + 30);
-    for (var i = 0; i < n; i++) {
-      // The trail draws itself outward from the button as the screen opens.
-      final reveal = ((open - .3 - .3 * i / n) / .06).clamp(0.0, 1.0);
+    final shown = n - _first;
+    // The pulse leaves the Endless key and runs to the bird, then rests.
+    final head = still ? -100.0 : _first + (t * 15) % (shown + 30);
+    for (var i = _first; i < n; i++) {
+      // The trail draws itself outward from the key as the screen opens.
+      final reveal = ((open - .3 - .3 * (i - _first) / shown) / .06).clamp(
+        0.0,
+        1.0,
+      );
       if (reveal == 0) continue;
       final near = (1 - (head - i).abs() / 5).clamp(0.0, 1.0);
       if (near == 0) {

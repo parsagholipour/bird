@@ -6,7 +6,9 @@ import '../domain/tracking.dart';
 import '../domain/flight_course.dart';
 import '../domain/flight_goals.dart';
 import '../domain/tether.dart';
+import 'campaign_screen.dart' show campaignStarsInBuild;
 import 'components.dart';
+import 'mini_games.dart' show miniGameModes;
 import 'theme.dart';
 import 'flight_goals.dart';
 
@@ -54,41 +56,62 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
                                       'Your star points to beat',
                                       style: heading(25),
                                     ),
-                                    const SizedBox(height: 12),
-                                    for (final modes in [
-                                      [PlayMode.pushUp, PlayMode.jump],
-                                      [PlayMode.touch, PlayMode.squat],
-                                    ]) ...[
-                                      Row(
-                                        children: [
-                                          for (
-                                            var i = 0;
-                                            i < modes.length;
-                                            i++
-                                          ) ...[
-                                            if (i > 0)
-                                              const SizedBox(width: 12),
-                                            Expanded(
-                                              child: _best(
-                                                modes[i].title,
-                                                p.record(modes[i], course).best,
-                                                switch (modes[i]) {
-                                                  PlayMode.pushUp =>
-                                                    SkyColors.yellow,
-                                                  PlayMode.jump =>
-                                                    SkyColors.coral,
-                                                  PlayMode.touch =>
-                                                    SkyColors.mint,
-                                                  PlayMode.squat =>
-                                                    SkyColors.lavender,
-                                                },
-                                              ),
+                                    const SizedBox(height: 8),
+                                    // The main game leads; the mini games
+                                    // keep their own, smaller bests.
+                                    _section('Main game'),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: _best(
+                                            'Endless · Tap & Fly',
+                                            p
+                                                .record(PlayMode.touch, course)
+                                                .best,
+                                            SkyColors.yellow,
+                                            key: const ValueKey(
+                                              'record-endless',
                                             ),
-                                          ],
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: _best(
+                                            'Campaign stars\nof $campaignStarsInBuild',
+                                            p.campaign.totalStars,
+                                            SkyColors.mint,
+                                            key: const ValueKey(
+                                              'record-campaign',
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    _section('Mini games'),
+                                    Row(
+                                      children: [
+                                        for (final mode in miniGameModes) ...[
+                                          if (mode != miniGameModes.first)
+                                            const SizedBox(width: 8),
+                                          Expanded(
+                                            child: _best(
+                                              mode.title,
+                                              p.record(mode, course).best,
+                                              switch (mode) {
+                                                PlayMode.squat =>
+                                                  SkyColors.coral,
+                                                PlayMode.jump =>
+                                                  SkyColors.lavender,
+                                                _ => SkyColors.sand,
+                                              },
+                                              compact: true,
+                                            ),
+                                          ),
                                         ],
-                                      ),
-                                      const SizedBox(height: 10),
-                                    ],
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
                                     // Fly Together keeps a team best for
                                     // each team mode, apart from the solo
                                     // ones. Duels only count.
@@ -99,14 +122,15 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
                                               (m) => m.team,
                                             )) ...[
                                           if (mode != CoopMode.values.first)
-                                            const SizedBox(width: 12),
+                                            const SizedBox(width: 8),
                                           Expanded(
                                             child: _best(
                                               'Fly Together · ${mode.title}',
                                               p.coop.record(mode).best,
                                               mode == CoopMode.roped
-                                                  ? SkyColors.sand
+                                                  ? SkyColors.mint
                                                   : SkyColors.skyDeep,
+                                              compact: true,
                                               key: ValueKey(
                                                 'coop-record-${mode.name}',
                                               ),
@@ -270,19 +294,43 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
     );
   }
 
-  Widget _best(String name, int best, Color color, {Key? key}) => Container(
+  /// A small heading over a group of bests.
+  Widget _section(String title) => Padding(
+    padding: const EdgeInsets.only(bottom: 4),
+    child: Text(
+      title.toUpperCase(),
+      style: bodyText(
+        10.5,
+        color: SkyColors.muted,
+        weight: FontWeight.w900,
+      ).copyWith(letterSpacing: 1.2, height: 1.1),
+    ),
+  );
+
+  /// A best score on a coloured tile; [compact] for the mini games, under
+  /// the main game's.
+  Widget _best(
+    String name,
+    int best,
+    Color color, {
+    Key? key,
+    bool compact = false,
+  }) => Container(
     key: key,
-    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+    padding: EdgeInsets.symmetric(horizontal: 8, vertical: compact ? 5 : 8),
     decoration: BoxDecoration(
-      color: color,
-      borderRadius: BorderRadius.circular(18),
+      color: compact ? Color.lerp(color, SkyColors.cream, .35) : color,
+      borderRadius: BorderRadius.circular(compact ? 14 : 18),
     ),
     child: Row(
       children: [
-        Text('$best', style: heading(38)),
-        const SizedBox(width: 10),
+        Text('$best', style: heading(compact ? 26 : 38)),
+        SizedBox(width: compact ? 6 : 10),
         Expanded(
-          child: Text(name, style: bodyText(14, weight: FontWeight.w900)),
+          child: Text(
+            name,
+            style: bodyText(compact ? 11.5 : 14, weight: FontWeight.w900),
+          ),
         ),
       ],
     ),

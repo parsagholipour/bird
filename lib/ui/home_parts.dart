@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
 import '../app_brand.dart';
 import '../game/star_art.dart';
-import 'control_glyphs.dart';
 import 'home_world.dart';
 import 'theme.dart';
 import 'ui_sounds.dart';
@@ -153,9 +152,9 @@ class _TwinklePainter extends CustomPainter {
     ..strokeJoin = StrokeJoin.round;
 
   static const _spots = [
-    (Offset(488, 79), 12.0, 0.0),
-    (Offset(74, 105), 9.0, 2.1),
-    (Offset(476, 174), 7.0, 4.0),
+    (Offset(488, 69), 12.0, 0.0),
+    (Offset(74, 95), 9.0, 2.1),
+    (Offset(470, 112), 7.0, 4.0),
   ];
 
   @override
@@ -176,139 +175,6 @@ class _TwinklePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_TwinklePainter oldDelegate) => oldDelegate.still != still;
-}
-
-/// The best flight so far, or an invitation while there is no Star Trail
-/// score to show.
-class HomeBestPill extends StatelessWidget {
-  const HomeBestPill({
-    super.key,
-    required this.best,
-    this.control,
-    this.firstFlight = false,
-  });
-
-  /// Star points of the best Star Trail flight, with the control that earned
-  /// them; zero before the first one.
-  final int best;
-  final FlyControl? control;
-
-  /// Nobody has flown yet, so the invitation is a welcome.
-  final bool firstFlight;
-
-  @override
-  Widget build(BuildContext context) {
-    final invite = best <= 0 || control == null;
-    final invitation = firstFlight
-        ? 'Your first flight awaits'
-        : 'Your next flight awaits';
-    return Semantics(
-      label: invite
-          ? '$invitation.'
-          : 'Best flight: $best star points, ${control!.label.toLowerCase()}.',
-      excludeSemantics: true,
-      child: Container(
-        height: 46,
-        padding: const EdgeInsets.fromLTRB(9, 0, 16, 0),
-        decoration: BoxDecoration(
-          color: SkyColors.cream.withValues(alpha: .9),
-          borderRadius: BorderRadius.circular(23),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: .85),
-            width: 2,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: SkyColors.ink.withValues(alpha: .1),
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const CustomPaint(size: Size(30, 30), painter: _MedalPainter()),
-            const SizedBox(width: 9),
-            if (invite)
-              Text(invitation, style: heading(15))
-            else
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'BEST · ${control!.label.toUpperCase()}',
-                    style: bodyText(
-                      10.5,
-                      color: SkyColors.muted,
-                      weight: FontWeight.w900,
-                    ).copyWith(letterSpacing: .8, height: 1),
-                  ),
-                  Text('$best stars', style: heading(20).copyWith(height: 1)),
-                ],
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _MedalPainter extends CustomPainter {
-  const _MedalPainter();
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = size.center(Offset.zero);
-    canvas.drawCircle(center, 14.6, Paint()..color = SkyColors.gold);
-    canvas.drawCircle(center, 13, Paint()..color = SkyColors.yellow);
-    canvas.drawCircle(
-      center,
-      14.6,
-      Paint()
-        ..color = SkyColors.ink
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2,
-    );
-    StarArt.mini(canvas, center + const Offset(0, .5), 9.2, outline: 1.5);
-  }
-
-  @override
-  bool shouldRepaint(_MedalPainter oldDelegate) => false;
-}
-
-/// A single line that tells a new player their body is the controller.
-class HomeHooks extends StatelessWidget {
-  const HomeHooks({super.key});
-
-  @override
-  Widget build(BuildContext context) => Semantics(
-    label: 'Fly with push-ups, squats, jumps or taps.',
-    excludeSemantics: true,
-    child: Container(
-      height: 38,
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-        color: SkyColors.cream.withValues(alpha: .55),
-        borderRadius: BorderRadius.circular(19),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: .7),
-          width: 1.5,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (final (i, control) in FlyControl.values.indexed) ...[
-            if (i > 0) const SizedBox(width: 12),
-            ControlGlyph(control, size: 28),
-            const SizedBox(width: 5),
-            Text(control.label, style: bodyText(12.5, weight: FontWeight.w900)),
-          ],
-        ],
-      ),
-    ),
-  );
 }
 
 /// A shortcut in the dock: a little illustrated object and its name.

@@ -121,9 +121,9 @@ void main() {
         }
       });
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const ValueKey('play')));
+      await tester.tap(find.byKey(const ValueKey('mini-games')));
       await tester.pumpAndSettle();
-      await capture(tester, 'coop-mode-picker-${width.toInt()}');
+      await capture(tester, 'coop-mini-games-${width.toInt()}');
       await tester.ensureVisible(find.byKey(const ValueKey('mode-coop')));
       await tester.tap(find.byKey(const ValueKey('mode-coop')));
       await tester.pumpAndSettle();
