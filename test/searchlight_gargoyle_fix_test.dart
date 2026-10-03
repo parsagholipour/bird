@@ -430,7 +430,10 @@ void main() {
         }
         expect(boss.phase, BossPhase.defeated, reason: '$width');
         expect(boss.spots, 0);
-        expect((sim.hearts, sim.shield), (3, true), reason: '$width');
+        // Unscratched: the hearts a staged Gargoyle knocks loose (rules 44)
+        // may only add to the three.
+        expect(sim.hearts, greaterThanOrEqualTo(3), reason: '$width');
+        expect(sim.shield, isTrue, reason: '$width');
       }
     });
 

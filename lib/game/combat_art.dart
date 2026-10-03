@@ -10,6 +10,7 @@ import 'enemy_art.dart';
 import 'enemy_defeat_art.dart';
 import 'king_coo_staging_art.dart';
 import 'stone_art.dart';
+import 'straggler_art.dart';
 
 abstract final class CombatArt {
   static void paint(
@@ -37,6 +38,7 @@ abstract final class CombatArt {
           enemy,
           birdY: sim.birdY,
           reducedMotion: reducedMotion,
+          straggler: StragglerArt.isStraggler(sim, enemy),
         );
         if (sim.supportsWeaponDamage) {
           EnemyArt.healthBar(

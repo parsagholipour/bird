@@ -33,8 +33,10 @@ enum _BirdEye {
 }
 
 /// A layer of the beak: the [upper] and [lower] halves part about the rig's
-/// hinge to talk; a [shut] beak (Minty's bill) gives way to the rig's own
-/// halves while it is open.
+/// hinge to talk; a [shut] beak (a one-piece bill, which the generator still
+/// supports though no bird draws one now) gives way to the rig's own halves
+/// while it is open.
+// ignore: unused_field
 enum _BirdBeak { upper, lower, shut }
 
 /// [dazed] is the knockout face: pupils give way to dizzy spirals.
@@ -196,6 +198,7 @@ class BirdPose {
             FlightEventKind.streak ||
             FlightEventKind.perfect ||
             FlightEventKind.sprintRing ||
+            FlightEventKind.allRings ||
             FlightEventKind.smashed ||
             FlightEventKind.meteorSmashed ||
             FlightEventKind.swarmSmashed ||
@@ -489,7 +492,7 @@ abstract final class BirdPuppet {
   static const _gapes = [
     (drop: .5, lift: .15, line: .13, depth: 33.0), // Pip
     (drop: .45, lift: .22, line: .25, depth: 24.0), // Peaches
-    (drop: .2, lift: .09, line: .03, depth: 52.0), // Minty
+    (drop: .4, lift: .16, line: .14, depth: 46.0), // Minty
     (drop: .55, lift: .24, line: .45, depth: 20.0), // Orbit
   ];
 

@@ -1,0 +1,23 @@
+[
+  {
+    "id": "beakbound",
+    "name": "Beakbound",
+    "reason": "My recommendation. A bird adventure name that can grow with worlds, bosses and mini-games.",
+    "bg": "#225D69",
+    "accent": "#FFD45B"
+  },
+  {
+    "id": "sky-club",
+    "name": "Sky Club",
+    "reason": "The strongest connection to the existing courier story and its four playable birds.",
+    "bg": "#6FC4D6",
+    "accent": "#FFF9ED"
+  },
+  {
+    "id": "pip-and-co",
+    "name": "Pip & Co.",
+    "reason": "A friendly cast-led direction, with Pip as the face of the wider bird adventure.",
+    "bg": "#EC7766",
+    "accent": "#FFD45B"
+  }
+]

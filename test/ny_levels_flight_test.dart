@@ -68,6 +68,16 @@ void main() {
             final level = Campaign.level(id)!;
             // ignore: avoid_print
             print(_row(id, screen, skill, run));
+            // From rules 45 King Coo (his vanguard throwing, his health
+            // doubled, his stragglers back, as the owner chose) fells most
+            // mortal pilots; `ny_levels_spread_test` holds the rates.
+            if (id == '3-2' && !run.finished) {
+              expect(sim.endReason, EndReason.collision);
+              // Paired stragglers can fell a pilot that reached the boss
+              // with all three hearts, too.
+              expect(run.minHearts, 0);
+              return;
+            }
             expect(sim.endReason, EndReason.completed);
             expect(sim.finishLine!.crossed, isTrue);
             expect(sim.starsLaid, sim.route!.stars);
@@ -92,30 +102,38 @@ void main() {
   });
 
   group('the guardians fall', () {
-    for (final (id, kind, hp) in [
-      ('3-2', BossKind.kingCoo, 140),
-      ('3-4', BossKind.searchlightGargoyle, 160),
-    ]) {
-      // What each skill's fight takes, in combat seconds (the report's
-      // model: Coo 18 / 31 / 59 s, Gargoyle 35 / 62 / 133 s; R2 found its
-      // bots faster than that model because they never miss or dither).
+    for (final kind in [BossKind.kingCoo, BossKind.searchlightGargoyle]) {
+      final id = kind == BossKind.kingCoo ? '3-2' : '3-4';
+      final hp = SkyBoss.campaignHealthFor(kind);
+      // What each skill's fight takes, in combat seconds. Rules 44 made the
+      // guardians' fights long and staged (200 health for the Gargoyle) and
+      // 45 doubled King Coo's (840) and sends his stragglers back: the bots
+      // measured King Coo at about 100 / 155 / 210 s. Rules 46 made the
+      // Gargoyle as long (640 health, feathers over his open lamp): about
+      // 107 / 134 to 144 / 323 to 350 s (27 / 68 / 130 s at 44 and 45; his
+      // lamp is open 29% of the time, so the slowest shot takes longest).
+      // (At 43, with 140 and 160, the report's model was Coo 18 / 31 / 59 s
+      // and Gargoyle 35 / 62 / 133 s.) King Coo's pilots fly with their
+      // hearts topped up: from 45 he fells some of them, and this is his
+      // fight's length, not their survival (`ny_levels_spread_test`).
+      final keepAlive = kind == BossKind.kingCoo;
       final bands = switch (kind) {
         BossKind.kingCoo => {
-          Skill.sharp: (7.0, 25.0),
-          Skill.average: (12.0, 45.0),
-          Skill.casual: (20.0, 90.0),
+          Skill.sharp: (75.0, 135.0),
+          Skill.average: (115.0, 200.0),
+          Skill.casual: (160.0, 270.0),
         },
         _ => {
-          Skill.sharp: (25.0, 50.0),
-          Skill.average: (45.0, 100.0),
-          Skill.casual: (60.0, 170.0),
+          Skill.sharp: (85.0, 135.0),
+          Skill.average: (110.0, 185.0),
+          Skill.casual: (270.0, 420.0),
         },
       };
       for (final MapEntry(key: screen, value: width) in _screens.entries) {
         for (final skill in Skill.values) {
           final (least, most) = bands[skill]!;
           test('${kind.name} at $screen, ${skill.name}: $least to $most s', () {
-            final run = _fly(id, skill, width);
+            final run = _fly(id, skill, width, keepAlive: keepAlive);
             final sim = run.sim;
             final boss = run.boss!;
             expect(boss.kind, kind);
@@ -129,10 +147,29 @@ void main() {
             // casual King Coo bot was hit by his squadron in 31 of 32 fights
             // until R2's fix round showed that was its policy, not the rules;
             // the rates over shoot phases are in `ny_levels_spread_test`.
-            expect(run.fightHits, isEmpty, reason: '${run.fightHits}');
+            // From rules 45 King Coo's fight is long and his stragglers come
+            // back throwing: his crumb rings, his squadron and the
+            // stragglers catch a pilot a few times a fight; never anything
+            // else.
+            if (boss.isKingCoo) {
+              expect(
+                run.fightHits.map((hit) => hit.cause),
+                everyElement(
+                  anyOf(
+                    'crumb-cloud',
+                    'squad-pigeon',
+                    'pigeon-crumb',
+                    'enemy-vanguard',
+                  ),
+                ),
+              );
+              expect(run.fightHits.length, lessThanOrEqualTo(12));
+            } else {
+              expect(run.fightHits, isEmpty, reason: '${run.fightHits}');
+            }
             if (boss.isGargoyle) {
               expect(boss.spots, 0);
-            } else {
+            } else if (!keepAlive) {
               expect(sim.hearts, greaterThanOrEqualTo(run.heartsAtBoss!));
             }
             // The fight used his whole repertoire.
@@ -148,7 +185,8 @@ void main() {
       test('${kind.name}: slower players take longer', () {
         for (final MapEntry(value: width) in _screens.entries) {
           final times = [
-            for (final skill in Skill.values) _fly(id, skill, width).fight!,
+            for (final skill in Skill.values)
+              _fly(id, skill, width, keepAlive: keepAlive).fight!,
           ];
           expect(times[1], greaterThan(times[0]), reason: '$times');
           expect(times[2], greaterThan(times[1]), reason: '$times');
@@ -160,20 +198,25 @@ void main() {
   group('sprint in the guardians\' levels', () {
     test('King Coo\'s level offers it and his fight is proof against it', () {
       // A pilot that hammers sprint through the run-up and his whole fight,
-      // against one that never presses it: the same hazards come at the same
-      // times, it is hurt no more, and it wins.
+      // against one that never presses it: both win with at most three
+      // crumb hits, and the boss's hazards keep their timing. From rules 56
+      // paired stragglers make their routes (and hit counts) diverge.
       final width = _screens['800']!;
+      // Hearts topped up: from rules 45 his fight fells some average pilots,
+      // and this is about what a sprint changes, not survival.
       final calm = flyNewYork(
         '3-2',
         skill: Skill.average,
         width: width,
         sprints: false,
+        keepAlive: true,
       );
       var inFight = 0;
       final hasty = flyNewYork(
         '3-2',
         skill: Skill.average,
         width: width,
+        keepAlive: true,
         sprintsInFights: true,
         watch: (sim) {
           if (sim.boss?.phase == BossPhase.attacking && sim.sprinting) {
@@ -187,12 +230,16 @@ void main() {
       expect(inFight, greaterThan(60), reason: 'he fought a sprinting bird');
       for (final run in [calm, hasty]) {
         expect(run.sim.endReason, EndReason.completed);
-        expect(run.boss!.crumbHits, 0);
-        expect(run.sim.hearts, greaterThanOrEqualTo(run.heartsAtBoss!));
+        // From rules 45 his long fury catches a pilot now and then, sprinting
+        // or not.
+        expect(run.boss!.crumbHits, lessThanOrEqualTo(3));
       }
       // His clock is his own: the rings lock at the same cycle times.
+      // Up to his fury: a long fight (rules 45) reaches it at different
+      // times for different pilots, and fury locks its rings on its own beat.
       List<String> locks(NyRun run) => [
-        for (final lob in run.boss!.lobs) lob.lockedAt.toStringAsFixed(6),
+        for (final lob in run.boss!.lobs.takeWhile((lob) => !lob.fury))
+          lob.lockedAt.toStringAsFixed(6),
       ];
       final shared = math.min(locks(calm).length, locks(hasty).length);
       expect(shared, greaterThan(4));

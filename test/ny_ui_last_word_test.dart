@@ -60,11 +60,12 @@ Future<ProviderContainer> _open(
     for (final chapter in Campaign.chapters.take(2)) {
       await repo.markPostcardSeen(chapter);
     }
-    // Everything has been watched but the guardians' last words (and the
-    // scenes a test asks to meet fresh).
+    // Everything has been watched but New York's guardians' last words (and
+    // the scenes a test asks to meet fresh). Egypt's guardian (2-6) was
+    // beaten and heard long before.
     for (final scene in CampaignStory.scenes) {
       if (fresh.contains(scene.id)) continue;
-      if (!scene.id.startsWith('last-') || heard.contains(scene.id)) {
+      if (!scene.id.startsWith('last-3-') || heard.contains(scene.id)) {
         await repo.markStoryWatched(scene);
       }
     }
@@ -114,7 +115,7 @@ Future<void> _settle(WidgetTester tester, [int frames = 4]) async {
 
 const _chapters = {
   '1-1', '1-2', '1-3', '1-4', '1-5', '1-6', '1-7', '1-8', //
-  '2-1', '2-2', '2-3', '2-4', '2-5', '2-6', '2-7', '2-8',
+  '2-1', '2-2', '2-3', '2-4', '2-5', '2-6', '2-7', '2-8', '2-9',
 };
 
 void main() {

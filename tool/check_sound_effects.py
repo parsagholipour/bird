@@ -53,12 +53,21 @@ FAMILIES = {
     'fix': ['coo_shout', 'gargoyle_fury', 'gargoyle_shatter', 'coo_inflate',
             'steam_burst_duck', 'pipe_clang_duck', 'pigeon_snatch_lift'],
     'dragon': ['dragon_inhale', 'dragon_breath', 'ember_split'],
+    # The campaign finish line, in the order they play, with its fanfare.
+    'finish': ['finish_near', 'finish_snap', 'finish_cheer', 'complete',
+               'finish_swoop'],
     'boss': ['boss_warning', 'boss_reveal', 'boss_roar', 'boss_enrage',
              'boss_charge', 'boss_hit', 'boss_break', 'boss_burst',
              'boss_victory'],
 }
 FAMILIES['new_york'] = (FAMILIES['pigeon'] + FAMILIES['steam'] +
                         FAMILIES['gargoyle'] + FAMILIES['coo'] + FAMILIES['fix'])
+# Egypt (rules version 50): Neferhoo, the Mummy Courier (13 cues), and the
+# scuff ducked under his postage due (an alias of wrap_scuff's file).
+FAMILIES['egypt'] = ['hoopoe_roar', 'sand_devil', 'mail_call', 'letter_flick',
+                     'letter_return', 'postage_due', 'wrap_scuff', 'ankh_raise',
+                     'ankh_whir', 'ankh_catch', 'mummy_fury', 'mask_pop',
+                     'lost_letter', 'wrap_scuff_duck']
 
 
 def read_wav(path):

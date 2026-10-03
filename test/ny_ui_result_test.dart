@@ -30,7 +30,7 @@ void main() {
         LevelResultStage.wordFor(nyStorm, complete: true),
         'Guardian down!',
       );
-      for (final id in ['1-8', '2-8', '3-8', '4-8', '5-8']) {
+      for (final id in ['1-8', '2-9', '3-8', '4-8', '5-8']) {
         expect(
           LevelResultStage.wordFor(level(id), complete: true),
           'Victory!',
@@ -88,7 +88,7 @@ void main() {
     test('the chapter boss\'s stop and the end of the trip stay quiet', () {
       Campaign.openedForTest = true;
       // 2-8 leads into 3-1, which is playable now; 3-8 into chapter 4.
-      expect(LevelResultStage.comingSoonNews(level('2-8')), isNull);
+      expect(LevelResultStage.comingSoonNews(level('2-9')), isNull);
       expect(LevelResultStage.comingSoonNews(level('3-8')), isNull);
       expect(LevelResultStage.comingSoonNews(level('5-8')), isNull);
     });

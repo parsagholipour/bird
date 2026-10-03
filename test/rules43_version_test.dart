@@ -41,17 +41,23 @@ final features = <String, LevelPlan>{
 };
 
 void main() {
-  test('the current rules version is 43, New York; co-op stays at 42', () {
-    expect(FlightSimulation.currentRulesVersion, 43);
+  test('New York is rules version 43; co-op stays at 42', () {
+    // 44 (staged campaign bosses), 45 (a tougher King Coo), 46 (a fiercer
+    // Gargoyle), 47 (a campaign heart's reach), 48 (the returning endless
+    // Baron's health), 49 (the Gargoyle's level feathers), 50 (Egypt's
+    // guardian, Neferhoo), 51 (the all-rings bonus), 52 (a tougher
+    // Neferhoo), 53 (growing endless bosses), 54 (King Coo's quick fury) and
+    // 55 (a faster Neferhoo) came after it.
+    expect(FlightSimulation.currentRulesVersion, greaterThanOrEqualTo(55));
     expect(FlightSimulation.newYorkRulesVersion, 43);
     expect(FlightSimulation.coopRulesVersion, 42);
     expect(FlightSimulation.campaignRulesVersion, 41);
-    expect(ReplayTape.version, 43);
+    expect(ReplayTape.version, FlightSimulation.currentRulesVersion);
   });
 
   test('the three supports getters open at 43 and not at 42 or 41', () {
     for (final (version, open) in [(41, false), (42, false), (43, true)]) {
-      final sim = nyFlight(level('2-8').plan, version: version);
+      final sim = nyFlight(level('2-9').plan, version: version);
       expect(sim.supportsAlleyPigeon, open, reason: 'pigeon $version');
       expect(sim.supportsSteamGeysers, open, reason: 'steam $version');
       expect(sim.supportsMiniBosses, open, reason: 'mini-bosses $version');
@@ -80,6 +86,8 @@ void main() {
   test('every chapter 1 and 2 level needs only rules 41', () {
     for (final chapter in Campaign.chapters.take(2)) {
       for (final level in chapter.levels) {
+        // But Egypt's guardian (2-6), from rules 50 (rules50_version_test).
+        if (level.id == '2-6') continue;
         expect(level.plan.minRulesVersion, 41, reason: level.id);
         expect(level.plan.usesNewYork, isFalse, reason: level.id);
       }
@@ -105,7 +113,7 @@ void main() {
     expect(features['Searchlight Gargoyle']!.hasMiniBoss, isTrue);
     expect(features['pigeon in the lineup']!.hasMiniBoss, isFalse);
     // A chapter boss is not a mini-boss.
-    expect(level('2-8').plan.hasMiniBoss, isFalse);
+    expect(level('2-9').plan.hasMiniBoss, isFalse);
   });
 
   test('the simulation refuses a plan below its minimum rules version', () {
@@ -138,7 +146,7 @@ void main() {
     for (final MapEntry(:key, :value) in features.entries) {
       final tape = recordLevel(level('1-1'), plan: value, seconds: 2).tape;
       final json = roundTrip(tape.toJson());
-      expect(json['version'], 43, reason: key);
+      expect(json['version'], FlightSimulation.currentRulesVersion);
       expect(ReplayTape.fromJson(json).plan!.toJson(), value.toJson());
       // The same journal claiming to be a rules 41 or 42 flight cannot hold
       // it.
@@ -323,11 +331,11 @@ void main() {
     }
   });
 
-  test('a rules 43 tape of an old plan is the 41 format plus its version', () {
-    // Recorded at 43, a chapter 2 level carries no New York key: only the
-    // version differs from what rules 41 saved.
+  test('a current tape of an old plan is the 41 format plus its version', () {
+    // Recorded at 43 or later, a chapter 2 level carries no New York key:
+    // only the version differs from what rules 41 saved.
     final json = roundTrip(recordLevel(level('2-3'), seconds: 3).tape.toJson());
-    expect(json['version'], 43);
+    expect(json['version'], FlightSimulation.currentRulesVersion);
     final plan = json['plan'] as Map<String, dynamic>;
     expect(plan.containsKey('flocks'), isFalse);
     expect(plan.containsKey('steam'), isFalse);

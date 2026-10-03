@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1,
+    "dir": "01-hero-mascot",
+    "layersFixed": 143
+  },
+  {
+    "id": 4,
+    "dir": "04-island-adventure",
+    "layersFixed": 22
+  },
+  {
+    "id": 5,
+    "dir": "05-star-slingshot",
+    "layersFixed": 22
+  },
+  {
+    "id": 9,
+    "dir": "09-wing-medal",
+    "layersFixed": 12
+  },
+  {
+    "id": 11,
+    "dir": "11-motion-ribbon",
+    "layersFixed": 4
+  },
+  {
+    "id": 16,
+    "dir": "16-comic-pop",
+    "layersFixed": 8
+  },
+  {
+    "id": 18,
+    "dir": "18-bounce-spring",
+    "layersFixed": 4
+  }
+]

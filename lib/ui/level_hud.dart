@@ -444,6 +444,8 @@ class MatchRoute extends StatelessWidget {
     required this.bird,
     this.boss,
     this.width = 212,
+    this.approach = 0,
+    this.seconds = 0,
   });
 
   /// 0 at the start, 1 at the finish line. See
@@ -454,6 +456,11 @@ class MatchRoute extends StatelessWidget {
   /// The boss a boss level meets on the way, or null.
   final BossKind? boss;
   final double width;
+
+  /// How close the finish gate is, from 0 to 1 at the line
+  /// ([FinishGateArt.approach]): the flag glows and waves faster and
+  /// faster, on the flight's clock [seconds].
+  final double approach, seconds;
 
   static const height = 44.0;
 
@@ -471,7 +478,13 @@ class MatchRoute extends StatelessWidget {
         width: width,
         height: height,
         child: CustomPaint(
-          painter: _RoutePainter(progress.clamp(0.0, 1.0), bird, boss),
+          painter: _RoutePainter(
+            progress.clamp(0.0, 1.0),
+            bird,
+            boss,
+            approach.clamp(0.0, 1.0),
+            seconds,
+          ),
         ),
       ),
     ),
@@ -479,10 +492,17 @@ class MatchRoute extends StatelessWidget {
 }
 
 class _RoutePainter extends CustomPainter {
-  const _RoutePainter(this.progress, this.bird, this.boss);
+  const _RoutePainter(
+    this.progress,
+    this.bird,
+    this.boss,
+    this.approach,
+    this.seconds,
+  );
   final double progress;
   final int bird;
   final BossKind? boss;
+  final double approach, seconds;
 
   static const _thickness = 9.0, _start = 9.0, _flagRoom = 26.0;
 
@@ -587,9 +607,51 @@ class _RoutePainter extends CustomPainter {
   }
 
   /// A checkered finish flag on a pole, in ink and cream so it holds on the
-  /// plate at a glance.
+  /// plate at a glance. As the finish nears it glows and waves.
   void _flag(Canvas canvas, Offset foot) {
     final ink = Paint()..color = SkyColors.ink;
+    if (approach > 0) {
+      final glow = Offset(foot.dx + 10, foot.dy - 22);
+      final pulse = 1 + .12 * math.sin(seconds * 7);
+      final r = 30 * pulse;
+      canvas.drawCircle(
+        glow,
+        r,
+        Paint()
+          ..shader = RadialGradient(
+            colors: [
+              SkyColors.yellow.withValues(alpha: approach),
+              SkyColors.gold.withValues(alpha: .45 * approach),
+              SkyColors.gold.withValues(alpha: 0),
+            ],
+            stops: const [0, .55, 1],
+          ).createShader(Rect.fromCircle(center: glow, radius: r)),
+      );
+      // Two twinkles beside the flag, in turn.
+      for (final (i, at) in [
+        Offset(foot.dx - 9, foot.dy - 31),
+        Offset(foot.dx + 6, foot.dy - 6),
+      ].indexed) {
+        final k = approach * (.65 + .35 * math.sin(seconds * 6 + i * 2.6));
+        final twinkle = Path()
+          ..moveTo(at.dx, at.dy - 6 * k)
+          ..quadraticBezierTo(at.dx, at.dy, at.dx + 6 * k, at.dy)
+          ..quadraticBezierTo(at.dx, at.dy, at.dx, at.dy + 6 * k)
+          ..quadraticBezierTo(at.dx, at.dy, at.dx - 6 * k, at.dy)
+          ..quadraticBezierTo(at.dx, at.dy, at.dx, at.dy - 6 * k)
+          ..close();
+        canvas.drawPath(twinkle, Paint()..color = SkyColors.yellow);
+        canvas.drawPath(
+          twinkle,
+          Paint()
+            ..color = SkyColors.ink
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1.4
+            ..strokeJoin = StrokeJoin.round,
+        );
+      }
+    }
+    final wave = math.sin(seconds * (5 + 6 * approach)) * 2.8 * approach;
     final pole = Rect.fromLTWH(foot.dx - 1.7, foot.dy - 34, 3.4, 36);
     canvas.drawRRect(
       RRect.fromRectAndRadius(pole.inflate(1.5), const Radius.circular(3)),
@@ -601,9 +663,19 @@ class _RoutePainter extends CustomPainter {
     );
     final cloth = Path()
       ..moveTo(foot.dx + 1.5, foot.dy - 33)
-      ..lineTo(foot.dx + 24, foot.dy - 28)
-      ..lineTo(foot.dx + 24, foot.dy - 13)
-      ..lineTo(foot.dx + 1.5, foot.dy - 17)
+      ..quadraticBezierTo(
+        foot.dx + 12.75,
+        foot.dy - 30.5 - wave,
+        foot.dx + 24,
+        foot.dy - 28 + wave * .6,
+      )
+      ..lineTo(foot.dx + 24, foot.dy - 13 + wave * .6)
+      ..quadraticBezierTo(
+        foot.dx + 12.75,
+        foot.dy - 15 - wave,
+        foot.dx + 1.5,
+        foot.dy - 17,
+      )
       ..close();
     canvas.drawPath(
       cloth,
@@ -643,5 +715,7 @@ class _RoutePainter extends CustomPainter {
   bool shouldRepaint(_RoutePainter oldDelegate) =>
       progress != oldDelegate.progress ||
       bird != oldDelegate.bird ||
-      boss != oldDelegate.boss;
+      boss != oldDelegate.boss ||
+      approach != oldDelegate.approach ||
+      seconds != oldDelegate.seconds;
 }

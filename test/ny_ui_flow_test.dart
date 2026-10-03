@@ -170,6 +170,11 @@ void _fly(PlayController controller, {bool Function(FlightSimulation)? until}) {
     controller.advance(.02, 0, 2.2);
     controller.tick();
   }
+  // The game loop plays a finished level's celebration out before its
+  // result.
+  while (!controller.celebrationSettled) {
+    controller.advance(.02, 0, 2.2);
+  }
 }
 
 Future<void> _paint(WidgetTester tester, BirdGame game) async {
@@ -365,11 +370,14 @@ void main() {
           '/campaign',
           stars: {..._saveBefore('3-2'), '3-1': 3},
         );
-        expect(find.text('GUARDIAN'), findsNWidgets(2));
+        // New York's two shields, and Egypt's (Neferhoo on 2-6, rules 50)
+        // on the map's earlier page.
+        expect(find.text('GUARDIAN'), findsNWidgets(3));
         expect(find.text('King Coo'), findsOneWidget);
         expect(find.text('Searchlight Gargoyle'), findsOneWidget);
+        expect(find.text('Neferhoo'), findsOneWidget);
         expect(
-          find.bySemanticsLabel(RegExp(r'^[0-9]+ of 60 campaign stars$')),
+          find.bySemanticsLabel(RegExp(r'^[0-9]+ of 63 campaign stars$')),
           findsOneWidget,
         );
         await _shot(tester, 'app-map-next-guardian-$w');
@@ -457,7 +465,13 @@ void main() {
       expect((chip.decoration! as BoxDecoration).color, SkyColors.lavender);
       expect(find.text('3-2'), findsOneWidget);
       // What is left of him reads as health, not as "went away".
-      expect(find.text('KING COO: 140 HP LEFT'), findsOneWidget);
+      // His rules 44 health: he was not touched.
+      expect(
+        find.text(
+          'KING COO: ${SkyBoss.campaignHealthFor(BossKind.kingCoo)} HP LEFT',
+        ),
+        findsOneWidget,
+      );
       expect(find.text('KING COO LEFT'), findsNothing);
       expect(find.text('Both marks reached. Beat King Coo!'), findsOneWidget);
       await _shot(tester, 'knockout-guardian-800');
@@ -473,9 +487,13 @@ void main() {
     final map = tester.state<ScrollableState>(find.byType(Scrollable));
     map.position.jumpTo(6 * sizes[1].width);
     await _settle(tester, 2);
-    expect(find.text('GUARDIAN'), findsNothing);
+    // New York's guardians are plain coins; the one shield left is Egypt's
+    // (Neferhoo on 2-6, chapter 2, playable in this build too).
+    expect(find.text('GUARDIAN'), findsOneWidget);
+    expect(find.text('Neferhoo'), findsOneWidget);
+    expect(find.text('King Coo'), findsNothing);
     expect(find.text('Paris — coming soon'), findsNothing);
-    expect(find.text('0 / 48'), findsNothing);
+    expect(find.text('0 / 51'), findsNothing);
     expect(find.text('Coming soon'), findsWidgets);
     await _shot(tester, 'app-map-closed-new-york-800');
   });

@@ -6,6 +6,7 @@ import '../domain/sky_enemy.dart';
 import '../ui/theme.dart';
 import 'enemy_designs/aimed_enemy.dart';
 import 'enemy_designs/alley_pigeon.dart';
+import 'enemy_designs/mummy_bat.dart';
 import 'enemy_designs/patrol_bat.dart';
 import 'enemy_designs/simple_bat.dart';
 import 'enemy_designs/spread_enemy.dart';
@@ -174,6 +175,7 @@ abstract final class EnemyDefeatArt {
       EnemyKind.duskMoth => SpreadEnemyArt.paint,
       EnemyKind.simpleBat => SimpleBatArt.paint,
       EnemyKind.alleyPigeon => AlleyPigeonArt.paint,
+      EnemyKind.mummyBat => MummyBatArt.paint,
     };
     if (kind == EnemyKind.alleyPigeon) {
       // Knocked silly: the pigeon's X eyes and open beak, wings up.
@@ -553,6 +555,7 @@ class _Tint {
     EnemyKind.spitterBeetle => _beetle,
     EnemyKind.duskMoth => _moth,
     EnemyKind.alleyPigeon => _pigeon,
+    EnemyKind.mummyBat => _mummyBat,
     null => _plain,
   };
 
@@ -602,6 +605,17 @@ class _Tint {
     Color(0xffb4bcdc),
     Color(0xff2e3358),
     _Debris.feather,
+  );
+  // Neferhoo's mummy bat (rules 52): a linen puff, bandage scraps falling
+  // like scales. (T2 may retune it with the design.)
+  static const _mummyBat = _Tint(
+    Color(0xff3d3226),
+    Color(0xffeadfc6),
+    Color(0xfffffaf0),
+    Color(0xffc9b48a),
+    Color(0xffeadfc4),
+    Color(0xff4a3c2a),
+    _Debris.scale,
   );
   static const _plain = _Tint(
     SkyColors.ink,

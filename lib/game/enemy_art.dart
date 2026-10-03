@@ -3,20 +3,25 @@ import '../domain/game_rules.dart';
 import 'enemy_ammo_art.dart';
 import 'enemy_health_bar_art.dart';
 import 'enemy_hit_art.dart';
+import 'straggler_art.dart';
 import 'enemy_designs/aimed_enemy.dart';
 import 'enemy_designs/alley_pigeon.dart';
+import 'enemy_designs/mummy_bat.dart';
 import 'enemy_designs/simple_bat.dart';
 import 'enemy_designs/patrol_bat.dart';
 import 'enemy_designs/spread_enemy.dart';
 
 /// Directional silhouettes and attack cues, including the plain purple bat.
 abstract final class EnemyArt {
+  /// [straggler] is one of King Coo's vanguard pigeons come back (rules
+  /// version 45): it wears its scuffs and the "comes back" badge.
   static void paint(
     Canvas canvas,
     double height,
     SkyEnemy enemy, {
     required double birdY,
     required bool reducedMotion,
+    bool straggler = false,
   }) {
     final radius = height * SkyEnemy.radius;
     final look = ((birdY - enemy.y) * 3).clamp(-1.0, 1.0);
@@ -55,6 +60,7 @@ abstract final class EnemyArt {
       EnemyKind.duskMoth => SpreadEnemyArt.paint,
       EnemyKind.simpleBat => SimpleBatArt.paint,
       EnemyKind.alleyPigeon => AlleyPigeonArt.paint,
+      EnemyKind.mummyBat => MummyBatArt.paint,
     };
     if (enemy.kind == EnemyKind.alleyPigeon) {
       // The raid pose (crouch, dive, star in the beak) is not in the shared
@@ -66,6 +72,7 @@ abstract final class EnemyArt {
         lookY: look,
         hitAge: hitAge,
         reducedMotion: reducedMotion,
+        ragged: straggler,
       );
     } else {
       painter(
@@ -80,6 +87,13 @@ abstract final class EnemyArt {
     }
     if (flash) canvas.restore();
     canvas.restore();
+    if (straggler) {
+      StragglerArt.strayBadge(
+        canvas,
+        Offset(enemy.x * height, enemy.y * height),
+        radius,
+      );
+    }
     EnemyHitArt.paint(
       canvas,
       // Where the rock meets the front of the hit circle.

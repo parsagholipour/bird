@@ -137,7 +137,7 @@ void main() {
       final sim = cooFight();
       expect(sim.boss!.kind, BossKind.kingCoo);
       expect(sim.supportsMiniBosses, isTrue);
-      expect(sim.rulesVersion, FlightSimulation.currentRulesVersion);
+      expect(sim.rulesVersion, FlightSimulation.newYorkRulesVersion);
     });
 
     test('health 140 and fury at 70, at any weapon', () {
@@ -1142,6 +1142,8 @@ void main() {
       final recording = recordLevel(
         cooLevel(),
         weaponDamage: BirdRock.baseDamage,
+        // New York's fight: rules 44's warm-up calls no squadron this early.
+        version: FlightSimulation.newYorkRulesVersion,
         tapWhen: (sim) {
           // The shared run-up bot until he fights, then the dodging bot.
           final boss = sim.boss;
@@ -1154,7 +1156,7 @@ void main() {
       expect(live.bossesDefeated, 1);
       final tape = ReplayTape.fromJson(recording.tape.toJson());
       expect(tape.plan!.boss, BossKind.kingCoo);
-      expect(tape.recordedVersion, FlightSimulation.currentRulesVersion);
+      expect(tape.recordedVersion, FlightSimulation.newYorkRulesVersion);
       final player = ReplayPlayer(tape);
       final end = tape.durationMs;
       final first = math.max(0.0, end - 34000);
@@ -1257,7 +1259,10 @@ void main() {
       final sim = levelFlight(cooLevel(), weaponDamage: BirdRock.baseDamage);
       flyLevel(sim, until: (sim) => sim.boss?.phase == BossPhase.attacking);
       expect(sim.boss!.isKingCoo, isTrue);
-      fightBot(sim, CooBot(react: .2));
+      // Unhurt: rules 45's King Coo (840 health, his stragglers back) fells
+      // many pilots, and this is the level's path, not their survival
+      // (`ny_levels_spread_test`).
+      fightBot(sim, CooBot(react: .2), protect: true, seconds: 400);
       expect(sim.boss!.phase, BossPhase.defeated);
       flyLevel(sim);
       expect(sim.endReason, EndReason.completed);

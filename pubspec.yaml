@@ -1,5 +1,5 @@
 name: push_up_bird
-description: "Push-Up Bird: an offline movement-controlled arcade."
+description: "Beakbound: an offline bird courier adventure with movement and touch mini-games."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev

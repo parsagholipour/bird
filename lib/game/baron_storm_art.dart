@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/painting.dart';
 
+import 'baron_bat_art.dart';
 import 'baron_storm_pose.dart';
 import 'boss_rig.dart';
 
@@ -23,7 +24,7 @@ abstract final class BaronStormArt {
   /// In fury the sound runs hot.
   static const furySonic = Color(0xffff5a86), furyDeep = Color(0xffb01e5c);
 
-  static const _well = Color(0xff24163a), _concha = Color(0xff6c4d96);
+  static const _well = Color(0xff24163a), _concha = Color(0xffb47ab4);
   static const _rib = Color(0xffe3a2e6), _bronze = Color(0xffb97a3d);
   static const _lining = Color(0xffc2456a), _wine = Color(0xff6e2a4f);
   static const _deepWine = Color(0xff35122f);
@@ -69,6 +70,19 @@ abstract final class BaronStormArt {
         0, 0, 1, 0, //
         center.dx * (1 - k) + shift.dx, center.dy * (1 - k) + shift.dy, 0, 1,
       ]);
+
+  /// Light along the front edge, and the fur tuft at the root (as the
+  /// debut's ears).
+  static final _earRim = Path()
+    ..moveTo(.36, -.72)
+    ..quadraticBezierTo(.9, -1.32, 1.5, -1.46);
+  static final _earTuft = Path()
+    ..moveTo(.42, -.6)
+    ..quadraticBezierTo(.56, -.76, .74, -.8)
+    ..quadraticBezierTo(.66, -.72, .7, -.66)
+    ..quadraticBezierTo(.8, -.72, .88, -.68)
+    ..quadraticBezierTo(.78, -.6, .76, -.5)
+    ..close();
 
   /// Transverse ridges across the ear, bowed toward the tip like sonar
   /// arcs going out.
@@ -142,6 +156,8 @@ abstract final class BaronStormArt {
         _ribs,
         BossRig.line(Color.lerp(_rib, sonicCore, glow)!, .05 + glow * .02),
       );
+      c.drawPath(_earRim, BossRig.line(const Color(0xffb9a3e6), .03));
+      c.drawPath(_earTuft, BossRig.fill(const Color(0xffd6b6eb)));
       c.restore();
     }
   }
@@ -191,33 +207,62 @@ abstract final class BaronStormArt {
       i == 0 ? trim.moveTo(p.dx, p.dy) : trim.lineTo(p.dx, p.dy);
     }
     c.drawPath(trim, BossRig.line(BossRig.gold.withValues(alpha: .8), .035));
-    for (final side in [-1.0, 1.0]) {
-      final lapel = Path()
-        ..moveTo(side * .42, .3)
-        ..lineTo(side * 1.04, .1)
-        ..quadraticBezierTo(side * 1.02, -.34, side * 1.28, -.82)
-        ..lineTo(side * 1.02, -.62)
-        ..quadraticBezierTo(side * .8, -.5, side * .6, -.44)
-        ..close();
-      c.drawPath(
-        lapel.shift(const Offset(.03, .06)),
-        BossRig.fill(BossRig.ink),
-      );
-      c.drawPath(
-        lapel,
-        BossRig.gradient(const Rect.fromLTRB(-1.3, -.8, 1.3, .3), const [
-          _lining,
-          _wine,
-        ]),
-      );
-      c.drawPath(lapel, BossRig.line(BossRig.ink, .055));
-      c.drawPath(
-        Path()
-          ..moveTo(side * .98, .06)
-          ..quadraticBezierTo(side * .98, -.32, side * 1.16, -.66),
-        BossRig.line(BossRig.gold.withValues(alpha: .85), .03),
-      );
-    }
+    _collar(c);
+  }
+
+  /// The debut's stiff bat-wing collar, its outer edge cut into lightning
+  /// points and trimmed in gold (right half; mirrored).
+  static final _collarRight = Path()
+    ..moveTo(.42, .32)
+    ..lineTo(1.06, .16)
+    ..lineTo(1.18, -.08)
+    ..lineTo(1.1, -.13)
+    ..lineTo(1.28, -.4)
+    ..lineTo(1.19, -.44)
+    ..lineTo(1.38, -.84)
+    ..quadraticBezierTo(1.06, -.62, .84, -.46)
+    ..close();
+  static final _collarInnerRight = Path()
+    ..moveTo(.5, .24)
+    ..lineTo(.97, .1)
+    ..lineTo(1.06, -.08)
+    ..lineTo(1.0, -.13)
+    ..lineTo(1.15, -.38)
+    ..lineTo(1.08, -.42)
+    ..lineTo(1.22, -.68)
+    ..quadraticBezierTo(1.0, -.52, .84, -.4)
+    ..close();
+  static final _collarTrimRight = Path()
+    ..moveTo(1.06, .16)
+    ..lineTo(1.18, -.08)
+    ..lineTo(1.1, -.13)
+    ..lineTo(1.28, -.4)
+    ..lineTo(1.19, -.44)
+    ..lineTo(1.38, -.84);
+  static Path _both(Path right) => Path()
+    ..addPath(right, Offset.zero)
+    ..addPath(
+      right.transform(
+        Float64List.fromList([-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]),
+      ),
+      Offset.zero,
+    );
+  static final _collars = _both(_collarRight);
+  static final _collarInners = _both(_collarInnerRight);
+  static final _collarTrims = _both(_collarTrimRight);
+
+  static void _collar(Canvas c) {
+    c.drawPath(
+      _collars.shift(const Offset(.03, .06)),
+      BossRig.fill(BossRig.ink),
+    );
+    c.drawPath(_collars, BossRig.fill(_deepWine));
+    c.drawPath(_collarInners, BaronBatArt.collarLining);
+    c.drawPath(_collars, BossRig.line(BossRig.ink, .055));
+    c.drawPath(
+      _collarTrims,
+      BossRig.line(BossRig.gold.withValues(alpha: .9), .03),
+    );
   }
 
   // ---------------------------------------------------------------- wings --
@@ -370,6 +415,10 @@ abstract final class BaronStormArt {
   /// the defeat).
   static const crownBounds = Rect.fromLTRB(-1.05, -2.1, 1.05, -.55);
 
+  static final _crownPaint = BossRig.gradient(
+    const Rect.fromLTWH(-.9, -2.0, 1.8, 1.3),
+    const [BossRig.cream, BossRig.gold, _bronze],
+  );
   static final _crown = Path()
     ..moveTo(-.62, -.7)
     ..lineTo(-.9, -1.56)
@@ -395,28 +444,12 @@ abstract final class BaronStormArt {
     c.translate(0, -.84);
     c.rotate(.09);
     c.translate(0, .84);
+    BaronBatArt.crownCap(c);
     c.drawPath(_crown.shift(const Offset(.03, .06)), BossRig.fill(BossRig.ink));
-    c.drawPath(
-      _crown,
-      BossRig.gradient(const Rect.fromLTWH(-.9, -2.0, 1.8, 1.3), const [
-        BossRig.cream,
-        BossRig.gold,
-        _bronze,
-      ]),
-    );
+    c.drawPath(_crown, _crownPaint);
+    BaronBatArt.crownBandFill(c);
     c.drawPath(_crown, BossRig.line(BossRig.ink, .055));
-    c.drawPath(
-      Path()
-        ..moveTo(-.62, -.86)
-        ..quadraticBezierTo(0, -1.08, .62, -.86),
-      BossRig.line(_bronze, .05),
-    );
-    c.drawPath(
-      Path()
-        ..moveTo(-.5, -.93)
-        ..quadraticBezierTo(0, -1.12, .5, -.93),
-      BossRig.line(BossRig.cream.withValues(alpha: .7), .025),
-    );
+    BaronBatArt.crownBand(c, sonicOf(fury), deepOf(fury));
     // A bright seam down the spire.
     c.drawPath(
       Path()

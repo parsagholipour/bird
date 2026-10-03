@@ -6,7 +6,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:push_up_bird/domain/campaign.dart';
 import 'package:push_up_bird/domain/game_rules.dart';
 import 'package:push_up_bird/domain/session_replay.dart';
 
@@ -49,9 +48,7 @@ ReplayTape _load(FrozenTape frozen) => ReplayTape.fromJson(
 
 /// Records whatever part of the fixture is missing or asked for.
 void _recordFixture() {
-  final catalog = {
-    for (final level in frozenLevels) level.id: catalogEntry(level),
-  };
+  final catalog = {for (final id in frozenIds) id: catalogEntry(id)};
   final flights = {
     for (final flight in frozenFlights) flight.name: flight.fly().toJson(),
   };
@@ -82,10 +79,17 @@ void main() {
     return;
   }
 
-  // Runs at 41, at co-op's 42 and at whatever version is current (43).
+  // Runs at 41, at co-op's 42, at New York's 43, at 50 and at whatever
+  // version is current. From rules 44 a boss level's fight is long and
+  // staged, so the two boss levels match the recording up to 43 only (their
+  // 44 flights are pinned in boss_stages_test.dart). From rules 51 a flight
+  // that collects every ring of a rush path sprints longer, so it matches up
+  // to 50 only (all_rings_bonus_test.dart pins the bonus).
   final versions = {
     frozenVersion,
     FlightSimulation.coopRulesVersion,
+    FlightSimulation.newYorkRulesVersion,
+    FlightSimulation.allRingsRulesVersion - 1,
     FlightSimulation.currentRulesVersion,
   };
 
@@ -93,11 +97,9 @@ void main() {
     final stored = _stored();
     expect(stored['rulesVersion'], frozenVersion);
     expect(frozenLevels, hasLength(16));
-    expect((stored['catalog'] as Map).keys, [
-      for (final level in frozenLevels) level.id,
-    ]);
+    expect((stored['catalog'] as Map).keys, frozenIds);
     final flown = {for (final f in frozenFlights) f.level};
-    expect(flown, {for (final level in frozenLevels) level.id});
+    expect(flown, frozenIds.toSet());
     expect((stored['flights'] as Map).keys, [
       for (final f in frozenFlights) f.name,
     ]);
@@ -108,17 +110,16 @@ void main() {
 
   test('the 16 levels keep their saved plan JSON and their laid route', () {
     final catalog = (_stored()['catalog'] as Map).cast<String, dynamic>();
-    for (final level in frozenLevels) {
-      final entry = catalogEntry(level);
-      final expected = (catalog[level.id] as Map).cast<String, dynamic>();
+    for (final id in frozenIds) {
+      final entry = catalogEntry(id);
+      final expected = (catalog[id] as Map).cast<String, dynamic>();
       // The plan first: a new key written for an old plan shows here.
-      expect(entry['plan'], expected['plan'], reason: '${level.id} plan');
-      expect(entry, expected, reason: level.id);
+      expect(entry['plan'], expected['plan'], reason: '$id plan');
+      expect(entry, expected, reason: id);
     }
     // Star totals across the campaign as played at 41.
     final stars = [
-      for (final level in frozenLevels)
-        (catalog[level.id] as Map)['routeStars'] as int,
+      for (final id in frozenIds) (catalog[id] as Map)['routeStars'] as int,
     ];
     expect(stars.every((s) => s > 0), isTrue);
     expect(frozenLevels.length * 3, 48);
@@ -130,7 +131,15 @@ void main() {
       () {
         final flights = (_stored()['flights'] as Map).cast<String, dynamic>();
         for (final flight in frozenFlights) {
+          if (version >= FlightSimulation.bossStagesRulesVersion &&
+              frozenLevel(flight.level).isBoss) {
+            continue;
+          }
           final result = flight.fly(version: version);
+          if (version >= FlightSimulation.allRingsRulesVersion &&
+              result.allRings > 0) {
+            continue;
+          }
           final expected = (flights[flight.name] as Map)
               .cast<String, dynamic>();
           expect(result.outcome, expected['outcome'], reason: flight.name);
@@ -147,10 +156,11 @@ void main() {
 
   test('the frozen flights finish their levels and defeat their bosses', () {
     final flights = (_stored()['flights'] as Map).cast<String, dynamic>();
-    for (final level in frozenLevels) {
-      final outcome = (flights[level.id] as Map)['outcome'] as String;
-      expect(outcome, contains('end=completed'), reason: level.id);
-      expect(outcome, contains('finish=crossed'), reason: level.id);
+    for (final id in frozenIds) {
+      final level = frozenLevel(id);
+      final outcome = (flights[id] as Map)['outcome'] as String;
+      expect(outcome, contains('end=completed'), reason: id);
+      expect(outcome, contains('finish=crossed'), reason: id);
       expect(
         outcome,
         contains('bosses=${level.isBoss ? 1 : 0}'),
@@ -206,7 +216,7 @@ void main() {
     expect((json as Map).containsKey('plan'), isFalse);
     for (final frozen in frozenTapes.skip(1)) {
       final tape = _load(frozen);
-      expect(tape.plan!.toJson(), Campaign.level(frozen.level!)!.plan.toJson());
+      expect(tape.plan!.toJson(), frozenPlan(frozen.level!).toJson());
     }
   });
 }

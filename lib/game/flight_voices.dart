@@ -145,9 +145,11 @@ class FlightVoices {
           for (final call in const ['woohoo', 'turbo', 'gravity', 'whee'])
             ?_story('sprint-$bird-$call'),
         ],
+      // The fifth line of each chapter boss's lair scene (the Spitter King's
+      // lair is 2-9 since Egypt's guardian took 2-6).
       for (final chapter in Campaign.chapters)
         '${bossKey(chapter.boss)}-card': [
-          ?_story('before-${chapter.number}-8-4'),
+          ?_story('before-${chapter.bossLevel.id}-4'),
         ],
       // New York's two guardians say their name-card line (the 7th and 5th
       // lines of their lair scenes). Those takes are not recorded yet: the
@@ -156,6 +158,11 @@ class FlightVoices {
       '${bossKey(BossKind.searchlightGargoyle)}-card': [
         ?_story('before-3-4-4'),
       ],
+      // Egypt's guardian says his card line too: "Return to sender! This
+      // route has a courier.", line 7 of his lair scene `before-2-6`
+      // (`CampaignStory.guardianLines['2-6']`). Pending recording, so the
+      // pool is empty and the card is silent until the take is in.
+      '${bossKey(BossKind.neferhoo)}-card': [?_story('before-2-6-7')],
     },
   );
 
@@ -164,10 +171,11 @@ class FlightVoices {
     return ms == null ? null : VoiceClip(name, 'audio/story/$name.ogg', ms);
   }
 
-  /// A boss's name in clip names. King Coo and the Searchlight Gargoyle (New
-  /// York's guardians) have their own keys, never another boss's, so they can
-  /// never borrow its voice; they have no in-flight lines yet, so every pool
-  /// asked for them is empty and they stay silent (see [voicedBosses]).
+  /// A boss's name in clip names. The guardians (King Coo, the Searchlight
+  /// Gargoyle, Neferhoo) have their own keys, never another boss's, so they
+  /// can never borrow its voice; none has a recorded in-flight line yet, so
+  /// every pool asked for them is empty and they stay silent (see
+  /// [voicedBosses] and [pendingBosses]).
   static String bossKey(BossKind kind) => switch (kind) {
     BossKind.baronBat => 'baron',
     BossKind.spitterBeetle => 'spitter',
@@ -176,11 +184,13 @@ class FlightVoices {
     BossKind.dragon => 'dragon',
     BossKind.kingCoo => 'coo',
     BossKind.searchlightGargoyle => 'gargoyle',
+    BossKind.neferhoo => 'neferhoo',
   };
 
-  /// The bosses that have in-flight lines in `docs/flight-voices-sources.json`
-  /// (taunts, hurt cries, their bird's answers). The guardians have none
-  /// yet; adding theirs means adding them here and to the script.
+  /// The bosses that have recorded in-flight lines in
+  /// `docs/flight-voices-sources.json` (taunts, hurt cries, their bird's
+  /// answers). New York's guardians have none yet; adding theirs means adding
+  /// them here and to the script.
   static const voicedBosses = {
     BossKind.baronBat,
     BossKind.spitterBeetle,
@@ -188,6 +198,13 @@ class FlightVoices {
     BossKind.pirate,
     BossKind.dragon,
   };
+
+  /// The bosses whose in-flight lines are written in the script but not
+  /// recorded yet: Neferhoo (Egypt's guardian, rules 50), whose voice the
+  /// owner has still to pick from the auditions. The game asks for their
+  /// pools as for any boss's; every one is empty, so the fight is silent
+  /// until the takes are in. Then the boss moves to [voicedBosses].
+  static const pendingBosses = {BossKind.neferhoo};
 
   /// A region's name in clip names.
   static String regionKey(WorldRegion region) => region.name.replaceAllMapped(
@@ -218,6 +235,9 @@ class FlightVoices {
   bool _bossCharging = false, _bossShielded = false;
   int _breaths = 0, _screeches = 0, _tides = 0, _summons = 0;
   double _bossHit = double.negativeInfinity;
+
+  /// Neferhoo's mail calls, ankh throws and returned letters that landed.
+  int _mailCalls = 0, _ankhThrows = 0, _returnsLanded = 0;
 
   /// The line to say after this step of [sim], if any. With [mute] the
   /// flight is still followed, so turning voices back on never replays the
@@ -356,6 +376,9 @@ class FlightVoices {
           // New York's Alley Pigeon has no in-flight line: it is not spotted
           // aloud (and never borrows a bat's).
           EnemyKind.alleyPigeon => null,
+          // Neferhoo's mummy bats (rules 52) have no recorded line yet: the
+          // birds do not spot them aloud (nor borrow a bat's).
+          EnemyKind.mummyBat => null,
         };
         if (kind != null && _spotted.add(kind)) {
           cues.add(VoiceCue.of('spot', _mine('spot-$kind')));
@@ -452,6 +475,7 @@ class FlightVoices {
     }
     final calm =
         boss == null &&
+        !sim.vanguardFlying &&
         sim.phase == RunPhase.playing &&
         sim.rushPath == null &&
         sim.gale == null;
@@ -535,16 +559,26 @@ class FlightVoices {
         case BossKind.spitterBeetle || BossKind.duskMoth
             when charging && !_bossCharging:
           cues.add(VoiceCue.of('attack', '$key-attack'));
+        // Neferhoo's attack is the mail call, as its lane locks.
+        case BossKind.neferhoo when boss.neferhoo.mailLocks > _mailCalls:
+          cues.add(VoiceCue.of('attack', '$key-attack'));
         default:
           break;
       }
       if (boss.shielded && !_bossShielded) {
         cues.add(VoiceCue.of('moth-shield', _mine('moth-shield')));
       }
-      if (boss.summons > _summons) {
+      // Neferhoo summons nobody: his "summon" is the ankh, thrown.
+      if (boss.isNeferhoo
+          ? boss.neferhoo.ankhThrows > _ankhThrows
+          : boss.summons > _summons) {
         cues.add(VoiceCue.of('summon', '$key-summon'));
       }
-      if (boss.lastHitAt > _bossHit) {
+      // He cries out when one of his own letters lands home; a rock on his
+      // padded wraps says nothing.
+      if (boss.isNeferhoo
+          ? boss.neferhoo.returnsLanded > _returnsLanded
+          : boss.lastHitAt > _bossHit) {
         cues.add(VoiceCue.of('hurt', '$key-hurt'));
       }
     }
@@ -573,6 +607,12 @@ class FlightVoices {
     _tides = boss.tideSurges;
     _summons = boss.summons;
     _bossHit = boss.lastHitAt;
+    if (boss.isNeferhoo) {
+      final fight = boss.neferhoo;
+      _mailCalls = fight.mailLocks;
+      _ankhThrows = fight.ankhThrows;
+      _returnsLanded = fight.returnsLanded;
+    }
   }
 
   /// Events added since the last step. The list only grows at its end and

@@ -1,0 +1,57 @@
+# Heavy test files that tool/test_fast.sh leaves out; tool/test_full.sh
+# still runs them. One file per line, relative to test/. The trailing number
+# is the file's summed test time in a broad run (flutter test -r json:
+# testDone minus testStart, added up per suite), measured 2026-10-03 on a
+# busy machine, so read it as a ranking. A file at 15 s or more belongs here.
+neferhoo_staging_test.dart               # 148 s
+neferhoo_pilot_test.dart                 # 136 s
+frozen_rules49_test.dart                 # 122 s
+dragon_staging_test.dart                 # 119 s
+ny_levels_spread_test.dart               # 113 s
+neferhoo_tougher_pilot_test.dart         # 99 s
+neferhoo_tougher_fairness_test.dart      # 85 s
+boss_stages_review_test.dart             # 56 s
+dragon_fireball_test.dart                # 53 s
+boss_polish_encounter_art_test.dart      # 50 s
+finish_celebration_test.dart             # 49 s
+neferhoo_fairness_coarse_test.dart       # 48 s
+fiercer_gargoyle_test.dart               # 48 s
+boss_polish_ember_dragon_art_test.dart   # 48 s
+neferhoo_fairness_test.dart              # 48 s
+boss_stages_art_test.dart                # 45 s
+king_coo_fair_test.dart                  # 43 s
+endless_scenery_baseline_test.dart       # 43 s
+king_coo_staging_test.dart               # 42 s
+frozen_rules50_test.dart                 # 42 s
+endless_plan_baseline_test.dart          # 41 s
+campaign_regions_art_test.dart           # 38 s
+gargoyle_staging_scan_test.dart          # 38 s
+frozen_rules51_test.dart                 # 33 s
+world_regions_test.dart                  # 31 s
+neferhoo_budget_test.dart                # 30 s
+campaign_screens_test.dart               # 28 s
+dragon_envelope_test.dart                # 27 s
+boss_polish_pirate_captain_art_test.dart # 26 s
+dragon_breath_test.dart                  # 26 s
+gargoyle_fix_test.dart                   # 26 s
+ny_star_marks_test.dart                  # 25 s
+polish_level_intro_test.dart             # 24 s
+frozen_egypt50_test.dart                 # 24 s
+searchlight_gargoyle_fairness_test.dart  # 24 s
+neferhoo_envelope_test.dart              # 24 s
+frozen_rules45_test.dart                 # 23 s
+king_coo_envelope_test.dart              # 22 s
+mummy_bat_review_test.dart               # 21 s
+boss_polish_upgraded_baron_art_test.dart # 20 s
+world_regions_art_test.dart              # 20 s
+king_coo_casual_test.dart                # 19 s
+gargoyle_envelope_test.dart              # 19 s
+ny_guardians_stage_test.dart             # 19 s
+talking_faces_art_test.dart              # 18 s
+polish_s4_result_test.dart               # 18 s
+king_coo_crumb_test.dart                 # 17 s
+polish_story_scene_test.dart             # 17 s
+ny_ui_flow_test.dart                     # 17 s
+enemy_polish_hit_art_test.dart           # 16 s
+neferhoo_real_flight_test.dart           # 16 s
+king_coo_squad_test.dart                 # 16 s

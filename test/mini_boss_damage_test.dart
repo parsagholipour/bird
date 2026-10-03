@@ -37,8 +37,12 @@ int rockFor(BossKind kind, int dealt) =>
   return (sim: sim, score: sim.score);
 }
 
+/// New York's two mini-bosses (rules 43). Egypt's Neferhoo (rules 50) has
+/// his own damage rules (the wraps, returned letters): `neferhoo_*_test`.
+const _newYork = [BossKind.kingCoo, BossKind.searchlightGargoyle];
+
 void main() {
-  for (final kind in BossKind.values.where((kind) => kind.campaignOnly)) {
+  for (final kind in _newYork) {
     test(
       '$kind accepts arbitrary damage, crosses half health, and pays once',
       () {
@@ -81,7 +85,7 @@ void main() {
   }
 
   test('a mini-boss\'s hit circle is the usual boss circle', () {
-    for (final kind in BossKind.values.where((kind) => kind.campaignOnly)) {
+    for (final kind in _newYork) {
       final sim = fighting(kind).sim;
       final boss = sim.boss!;
       // A rock just outside the circle passes; one touching it lands.
@@ -104,7 +108,7 @@ void main() {
   });
 
   test('a mini-boss level clears the level\'s passages, enemies and steam', () {
-    for (final kind in BossKind.values.where((kind) => kind.campaignOnly)) {
+    for (final kind in _newYork) {
       final sim = fighting(kind).sim;
       expect(sim.obstacles, isEmpty);
       expect(sim.enemies, isEmpty);

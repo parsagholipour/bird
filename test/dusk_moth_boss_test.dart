@@ -31,12 +31,13 @@ void main() {
         (3, BossKind.duskMoth, 24),
         (4, BossKind.pirate, 30),
         (5, BossKind.dragon, 36),
-        (6, BossKind.baronBat, 24),
+        // The returning Baron has twice the health from rules 48.
+        (6, BossKind.baronBat, 48),
         (7, BossKind.spitterBeetle, 33),
         (8, BossKind.duskMoth, 36),
         (9, BossKind.pirate, 42),
         (10, BossKind.dragon, 48),
-        (11, BossKind.baronBat, 24),
+        (11, BossKind.baronBat, 48),
       ]) {
         final boss = sim.boss!;
         expect((boss.number, boss.kind, boss.hp), (number, kind, hp * 10));

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'app_brand.dart';
 import 'domain/tracking.dart';
 import 'domain/campaign.dart';
 import 'domain/flight_course.dart';
@@ -17,9 +18,9 @@ import 'ui/play_screen.dart';
 import 'ui/coop_screen.dart';
 import 'ui/calibration_probe.dart';
 import 'ui/theme.dart';
+import 'ui/screen_frame.dart';
 import 'ui/passport_screen.dart';
 import 'ui/daily_adventure_screen.dart';
-import 'ui/flight_school_screen.dart';
 import 'data/providers.dart';
 import 'domain/daily_adventure.dart';
 import 'game/audio.dart';
@@ -54,10 +55,6 @@ final appRouter = GoRouter(
         key: ValueKey(state.uri.toString()),
         level: state.uri.queryParameters['level'],
       ),
-    ),
-    GoRoute(
-      path: '/school',
-      builder: (context, state) => const FlightSchoolScreen(),
     ),
     GoRoute(
       path: '/daily',
@@ -171,7 +168,6 @@ class _PushUpBirdAppState extends ConsumerState<PushUpBirdApp>
     final inGame =
         path.startsWith('/play/') ||
         path.startsWith('/replay/') ||
-        path == '/school' ||
         path == '/lab';
     unawaited(
       _menuAudio.configure(
@@ -224,7 +220,7 @@ class _PushUpBirdAppState extends ConsumerState<PushUpBirdApp>
       ),
     );
     return MaterialApp.router(
-      title: 'Push-Up Bird',
+      title: AppBrand.name,
       debugShowCheckedModeBanner: false,
       theme: skyTheme(),
       routerConfig: appRouter,
@@ -234,15 +230,18 @@ class _PushUpBirdAppState extends ConsumerState<PushUpBirdApp>
           data: mediaQuery.copyWith(
             disableAnimations: reducedMotion || mediaQuery.disableAnimations,
           ),
-          child: UiSounds(
-            play: (cue) {
-              if (_foreground) _menuAudio.effect(cue);
-            },
-            speak: (asset) {
-              if (_foreground) _menuAudio.speak(asset);
-            },
-            hush: _menuAudio.hush,
-            child: child!,
+          // Every display shows the reference phone's picture, scaled.
+          child: ScreenFrame(
+            child: UiSounds(
+              play: (cue) {
+                if (_foreground) _menuAudio.effect(cue);
+              },
+              speak: (asset) {
+                if (_foreground) _menuAudio.speak(asset);
+              },
+              hush: _menuAudio.hush,
+              child: child!,
+            ),
           ),
         );
       },

@@ -2,9 +2,11 @@ import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 import '../domain/game_rules.dart';
 import '../ui/theme.dart';
+import 'boss_stage_hud_art.dart';
 import 'dragon_hud_art.dart';
 import 'gargoyle_hud_art.dart';
 import 'king_coo_hud_art.dart';
+import 'neferhoo_hud_art.dart';
 import 'ny_placeholder_art.dart';
 import 'pirate_hud_art.dart';
 
@@ -14,6 +16,11 @@ import 'pirate_hud_art.dart';
 /// Encounter states live inside the row instead of below it: fury tints the
 /// bar and flashes a short tag in the emptied track, and the Dusk Empress
 /// veil creeps over the bar and locks it with a shield badge.
+///
+/// A staged campaign boss's bar (rules version 44) is cut in three: its fury
+/// mark stands at a third, a stage gem at two thirds snaps as the boss grows
+/// stronger, the frame flares in gold and a STRONGER! card, with what the
+/// full fight brings, drops from the gem (BossStageHudArt).
 ///
 /// Everything is derived from the boss clock and hit history, so paused,
 /// replayed and captured frames repeat exactly.
@@ -68,6 +75,11 @@ abstract final class BossHealthBarArt {
   /// Accent color that identifies each boss on the strip.
   static Color accent(SkyBoss boss) => _ramp(boss.kind)[1];
 
+  /// The strip's unit on a screen of [size]: one pixel at 640 x 360. Plates
+  /// that take the strip's place (a vanguard's) use the same.
+  static double unit(Size size) =>
+      math.min(size.height / 360, size.width / 640).clamp(.8, 1.3);
+
   static List<Color> _ramp(BossKind kind) => switch (kind) {
     BossKind.baronBat => _baron,
     BossKind.spitterBeetle => _spitter,
@@ -76,13 +88,14 @@ abstract final class BossHealthBarArt {
     BossKind.dragon => DragonHudArt.lava,
     BossKind.kingCoo => KingCooHudArt.crust,
     BossKind.searchlightGargoyle => GargoyleHudArt.ramp(),
+    BossKind.neferhoo => NeferhooHudArt.ramp,
   };
 
   /// The strip, for layout checks.
-  static Rect bounds(Size size, SkyBoss boss) => _Layout(size).strip;
+  static Rect bounds(Size size, SkyBoss boss) => _Layout(size, boss).strip;
 
   /// The health track inside the strip.
-  static Rect track(Size size, SkyBoss boss) => _Layout(size).bar;
+  static Rect track(Size size, SkyBoss boss) => _Layout(size, boss).bar;
 
   static void paint(
     Canvas c,
@@ -94,7 +107,7 @@ abstract final class BossHealthBarArt {
     // A dragon or King Coo whose clock has gone bad is not drawn (nothing to
     // trust).
     if ((boss.isDragon || boss.isKingCoo) && !boss.age.isFinite) return;
-    final l = _Layout(size);
+    final l = _Layout(size, boss);
     final u = l.u;
     final defeated = boss.phase == BossPhase.defeated;
     final arriving = boss.phase == BossPhase.arriving;
@@ -126,6 +139,8 @@ abstract final class BossHealthBarArt {
     // The Searchlight Gargoyle's is a stepped steel plate in a brass rim
     // (GargoyleHudArt).
     final gargoyle = boss.isGargoyle;
+    // Neferhoo's is a lapis cartouche in a gold rim (NeferhooHudArt).
+    final neferhoo = boss.isNeferhoo;
     if (dragon || gargoyle) {
       // Each hit shudders the plate by a pixel.
       final jolt = dragon
@@ -139,7 +154,7 @@ abstract final class BossHealthBarArt {
       c.save();
       c.translate(jolt.dx, jolt.dy);
     }
-    if (!pirate && !dragon && !king && !gargoyle) {
+    if (!pirate && !dragon && !king && !gargoyle && !neferhoo) {
       c.drawRRect(
         strip.shift(Offset(0, 1.5 * u)),
         Paint()..color = _nightDeep.withValues(alpha: .2),
@@ -153,6 +168,9 @@ abstract final class BossHealthBarArt {
     final onset = !reducedMotion && furyAge >= 0 && furyAge < .6
         ? 1 - furyAge / .6
         : 0.0;
+    // A staged boss growing stronger flares the frame the same way, in gold.
+    final rise = BossStageHudArt.flare(boss, reduced: reducedMotion);
+    final flash = math.max(fresh * .6, math.max(onset, rise));
     final border = shielded
         ? _veil.withValues(alpha: .8)
         : warning > 0
@@ -170,7 +188,7 @@ abstract final class BossHealthBarArt {
         fury: fury,
         defeated: defeated,
         wave: wave,
-        flash: math.max(fresh * .6, onset),
+        flash: flash,
         time: boss.age,
         reduced: reducedMotion,
       );
@@ -182,7 +200,7 @@ abstract final class BossHealthBarArt {
         fury: fury,
         defeated: defeated,
         wave: wave,
-        flash: math.max(fresh * .6, onset),
+        flash: flash,
         siren: siren,
         sirenGlow: sirenGlow,
         time: boss.age,
@@ -197,8 +215,21 @@ abstract final class BossHealthBarArt {
         fury: fury,
         defeated: defeated,
         wave: wave,
-        flash: math.max(fresh * .6, onset),
+        flash: flash,
         lamp: boss.lampOpenness,
+        time: boss.age,
+        reduced: reducedMotion,
+      );
+    } else if (neferhoo) {
+      NeferhooHudArt.frame(
+        c,
+        l.strip,
+        l.bar,
+        u,
+        fury: fury,
+        defeated: defeated,
+        wave: wave,
+        flash: flash,
         time: boss.age,
         reduced: reducedMotion,
       );
@@ -210,7 +241,7 @@ abstract final class BossHealthBarArt {
         fury: fury,
         defeated: defeated,
         wave: wave,
-        flash: math.max(fresh * .6, onset),
+        flash: flash,
       );
     } else {
       c.drawRRect(
@@ -218,17 +249,19 @@ abstract final class BossHealthBarArt {
         Paint()
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1 * u
-          ..color = Color.lerp(border, _cream, math.max(fresh * .6, onset))!,
+          ..color = Color.lerp(border, _cream, flash)!,
       );
     }
-    if (onset > 0) {
-      // A short flare the moment the boss crosses into fury.
+    for (final (amount, color) in [(onset, _ember), (rise, _gold)]) {
+      if (amount <= 0) continue;
+      // A short flare the moment the boss crosses into fury, or grows
+      // stronger.
       c.drawRRect(
-        strip.inflate(2.5 * u * (1 - onset)),
+        strip.inflate(2.5 * u * (1 - amount)),
         Paint()
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2 * u
-          ..color = _ember.withValues(alpha: .5 * onset),
+          ..color = color.withValues(alpha: .5 * amount),
       );
     }
 
@@ -239,7 +272,7 @@ abstract final class BossHealthBarArt {
       fury: fury,
       shielded: shielded,
       defeated: defeated,
-      flash: math.max(fresh * .6, onset),
+      flash: flash,
       siren: siren,
       sirenGlow: sirenGlow,
       wave: wave,
@@ -253,6 +286,8 @@ abstract final class BossHealthBarArt {
       // Carved lettering on the pirate's plank.
       shadows: pirate || dragon || king || gargoyle
           ? [Shadow(color: PirateHudArt.ink, offset: Offset(0, .9 * u))]
+          : neferhoo
+          ? [Shadow(color: NeferhooHudArt.nameShadow, offset: Offset(0, .9 * u))]
           : null,
     );
     name.paint(c, Offset(l.nameLeft, l.strip.center.dy - name.height / 2));
@@ -266,10 +301,16 @@ abstract final class BossHealthBarArt {
             : critical
             ? Color.lerp(_ember, _cream, 1 - wave)!
             : fury
-            ? _emberText
+            ? (neferhoo ? NeferhooHudArt.numbers.fury : _emberText)
+            : neferhoo
+            ? NeferhooHudArt.numbers.gold
             : _gold,
       );
-      final max = _painter('/${boss.maxHp}', 7.5 * u, _dim);
+      final max = _painter(
+        '/${boss.maxHp}',
+        7.5 * u,
+        neferhoo ? NeferhooHudArt.numbers.max : _dim,
+      );
       final baseline =
           l.strip.center.dy +
           hp.computeDistanceToActualBaseline(TextBaseline.alphabetic) -
@@ -304,6 +345,45 @@ abstract final class BossHealthBarArt {
       blink: blink,
       wave: wave,
     );
+    if (boss.staged) {
+      // The STRONGER! card drops from the stage gem that just snapped, with
+      // what the full fight brings under it, and keeps inside the plate's
+      // span, short of the flight's clock. The boss's own tags take the
+      // place the moment they come: the Gargoyle's (his card hangs where
+      // they do, at the plate's left end, clear of his head), King Coo's
+      // PUFFED x2 and the dragon's HEART x2. King Coo's hangs below the
+      // crumbs his loaf sheds.
+      final others = gargoyle
+          ? (boss.lampOpen ||
+                    boss.age - boss.lastSpotAt < GargoyleHudArt.spottedSeconds
+                ? 1.0
+                : 0.0)
+          : king
+          ? KingCooHudArt.tagState(boss, reduced: reducedMotion).show
+          : dragon
+          ? DragonHudArt.heartBannerShow(boss, reduced: reducedMotion).show
+          : 0.0;
+      BossStageHudArt.strongerTag(
+        c,
+        l.strip,
+        l.bar.left + l.bar.width * boss.stageMarks.first,
+        u,
+        boss,
+        reduced: reducedMotion,
+        room: (
+          left: l.strip.left + 6 * u,
+          right: gargoyle
+              ? l.bar.center.dx - 12 * u
+              : math.min(
+                  l.strip.right - 4 * u,
+                  BossStageHudArt.hudRight(size) - 4 * u,
+                ),
+        ),
+        left: gargoyle,
+        hang: king ? 6 * u : 0,
+        alpha: 1 - math.min(1.0, others * 4),
+      );
+    }
     if (dragon) {
       DragonHudArt.heartBanner(
         c,
@@ -384,6 +464,20 @@ abstract final class BossHealthBarArt {
       );
       return;
     }
+    if (boss.isNeferhoo) {
+      // His golden mask on lapis (NeferhooHudArt), never the crown below.
+      NeferhooHudArt.crest(
+        c,
+        center,
+        r,
+        u,
+        fury: fury,
+        defeated: defeated,
+        time: boss.age,
+        reduced: reducedMotion,
+      );
+      return;
+    }
     if (boss.isMiniBoss) {
       // A plain medallion: never the royal crown below (stub until the
       // mini-boss's own HUD art lands).
@@ -395,10 +489,62 @@ abstract final class BossHealthBarArt {
       return;
     }
     if (boss.isPirate) {
-      PirateHudArt.crest(c, center, r, u, glass: fury ? _fury : _pirate, fury: fury);
+      PirateHudArt.crest(
+        c,
+        center,
+        r,
+        u,
+        glass: fury ? _fury : _pirate,
+        fury: fury,
+      );
       return;
     }
-    final ramp = shielded ? _shield : _ramp(boss.kind);
+    _medallion(c, center, r, u, boss.kind, fury: fury, shielded: shielded);
+  }
+
+  /// The crest of a [kind] whose boss has not arrived (its vanguard's plate,
+  /// rules version 44): the medallion the strip would show, calm. Baron
+  /// Bat, the Spitter King, the Dusk Empress and King Coo have one.
+  static void emblem(
+    Canvas c,
+    Offset center,
+    double r,
+    double u,
+    BossKind kind, {
+    double time = 0,
+    bool reduced = false,
+  }) {
+    if (kind == BossKind.kingCoo) {
+      KingCooHudArt.crest(
+        c,
+        center,
+        r,
+        u,
+        fury: false,
+        time: time,
+        reduced: reduced,
+      );
+      return;
+    }
+    if (kind == BossKind.neferhoo) {
+      NeferhooHudArt.crest(c, center, r, u, fury: false, reduced: reduced);
+      return;
+    }
+    _medallion(c, center, r, u, kind, fury: false, shielded: false);
+  }
+
+  /// A royal medallion in [kind]'s ramp under its crown (the Spitter King's
+  /// is a band of flasks), ember-rimmed in [fury].
+  static void _medallion(
+    Canvas c,
+    Offset center,
+    double r,
+    double u,
+    BossKind kind, {
+    required bool fury,
+    required bool shielded,
+  }) {
+    final ramp = shielded ? _shield : _ramp(kind);
     final disc = Rect.fromCircle(center: center, radius: r);
     c.drawCircle(
       center,
@@ -421,7 +567,7 @@ abstract final class BossHealthBarArt {
           ..color = _ember,
       );
     }
-    if (boss.isSpitter) {
+    if (kind == BossKind.spitterBeetle) {
       _flaskCrown(c, center, r);
       return;
     }
@@ -493,6 +639,10 @@ abstract final class BossHealthBarArt {
     final pirate = boss.isPirate, dragon = boss.isDragon;
     final king = boss.isKingCoo;
     final gargoyle = boss.isGargoyle;
+    // A staged boss's marks cut its bar in thirds: the fury mark is the
+    // last of them (half, for a boss that fights in one stage).
+    final staged = boss.staged, marks = boss.stageMarks;
+    final furyMark = bar.left + bar.width * marks.last;
     if (king) {
       KingCooHudArt.track(
         c,
@@ -502,6 +652,7 @@ abstract final class BossHealthBarArt {
         reduced: reducedMotion,
         time: boss.age,
         furyAge: boss.age - boss.enragedAt,
+        staged: staged,
       );
     } else if (gargoyle) {
       GargoyleHudArt.track(c, bar, u, fury: fury, defeated: defeated);
@@ -514,10 +665,21 @@ abstract final class BossHealthBarArt {
         reduced: reducedMotion,
         time: boss.age,
         furyAge: boss.age - boss.enragedAt,
+        staged: staged,
       );
     } else if (pirate) {
       PirateHudArt.track(c, bar, u);
-    } else {
+    } else if (!boss.isNeferhoo ||
+        !NeferhooHudArt.track(
+          c,
+          bar,
+          u,
+          fury: fury,
+          defeated: defeated,
+          time: boss.age,
+          reduced: reducedMotion,
+        )) {
+      // The shared track (Neferhoo's too, until his own draws).
       c.drawRRect(track.inflate(1.2 * u), Paint()..color = _nightDeep);
       c.drawRRect(track, Paint()..color = _trackShade);
       c.drawRRect(
@@ -664,6 +826,17 @@ abstract final class BossHealthBarArt {
         hotTip: right < bar.right - .5,
         fury: fury,
         surge: DragonHudArt.surge(boss, reduced: reducedMotion),
+        staged: staged,
+      );
+    } else if (right > bar.left && boss.isNeferhoo) {
+      NeferhooHudArt.fill(
+        c,
+        bar,
+        right,
+        u,
+        fury: fury,
+        glow: critical && !reducedMotion ? .3 * wave : 0.0,
+        edge: right < bar.right - .5,
       );
     } else if (right > bar.left && pirate) {
       PirateHudArt.fill(
@@ -707,6 +880,11 @@ abstract final class BossHealthBarArt {
       }
     }
 
+    // The health left takes a sweep of light as the boss grows stronger.
+    if (staged) {
+      BossStageHudArt.sweep(c, bar, right, u, boss, reduced: reducedMotion);
+    }
+
     if (warning > 0) {
       // The veil creeps over the bar while the shield forms.
       final front = bar.left + bar.width * warning;
@@ -721,16 +899,21 @@ abstract final class BossHealthBarArt {
       );
     }
 
-    // Light quarter ticks (King Coo's gauge and the Gargoyle's brass segments
-    // are their own).
+    // Light quarter ticks, or sixths on a staged bar (King Coo's gauge and
+    // the Gargoyle's brass segments are their own).
     if (gargoyle) {
-      GargoyleHudArt.seams(c, bar, u, defeated: defeated);
+      GargoyleHudArt.seams(c, bar, u, defeated: defeated, staged: staged);
     } else {
       final tick = Paint()
         ..strokeWidth = 1 * u
         ..color = _nightDeep.withValues(alpha: .35);
-      for (final i in king ? const <int>[] : const [1, 3]) {
-        final x = bar.left + bar.width * i / 4;
+      for (final share
+          in king
+              ? const <double>[]
+              : staged
+              ? const [1 / 6, 1 / 2, 5 / 6]
+              : const [.25, .75]) {
+        final x = bar.left + bar.width * share;
         c.drawLine(
           Offset(x, bar.top + 2 * u),
           Offset(x, bar.bottom - 2 * u),
@@ -748,7 +931,7 @@ abstract final class BossHealthBarArt {
         : fury && furyAge >= 0 && furyAge < furyTagSeconds
         ? (
             'FURY',
-            _emberText,
+            boss.isNeferhoo ? NeferhooHudArt.numbers.fury : _emberText,
             ((furyTagSeconds - furyAge) / _tagFade).clamp(0.0, 1.0),
           )
         // The Ember Dragon's heart lies open while it breathes.
@@ -783,9 +966,26 @@ abstract final class BossHealthBarArt {
     }
     c.restore();
 
+    // A staged boss's stage gems: whole until the boss has lost that much,
+    // then snapped. (Beaten, the plate's "DEFEATED" sits there.)
+    for (var i = 0; i < marks.length - 1 && !defeated; i++) {
+      BossStageHudArt.gem(
+        c,
+        bar,
+        bar.left + bar.width * marks[i],
+        u,
+        boss.kind,
+        passed: !arriving && boss.stage > i,
+        since: BossStageHudArt.strongerAge(boss),
+        time: boss.age,
+        reduced: reducedMotion,
+      );
+    }
+
     // The half mark is where the fury begins: an ember notch that pokes
-    // past the track until the boss crosses it.
-    final half = bar.left + bar.width / 2;
+    // past the track until the boss crosses it (a third of the way along a
+    // staged bar).
+    final half = furyMark;
     final above = !fury && !defeated && !arriving;
     if (gargoyle) {
       // His fury mark is a brass spool; the second beam lights it.
@@ -800,6 +1000,7 @@ abstract final class BossHealthBarArt {
         furyAge: boss.age - boss.enragedAt,
         defeated: defeated,
         reduced: reducedMotion,
+        share: marks.last,
       );
     } else if (king) {
       KingCooHudArt.crumbs(
@@ -821,6 +1022,7 @@ abstract final class BossHealthBarArt {
         wave: wave,
         furyAge: boss.age - boss.enragedAt,
         reduced: reducedMotion,
+        share: marks.last,
       );
     } else if (dragon) {
       DragonHudArt.motes(
@@ -842,10 +1044,34 @@ abstract final class BossHealthBarArt {
         wave: wave,
         furyAge: boss.age - boss.enragedAt,
         reduced: reducedMotion,
+        share: marks.last,
+        staged: staged,
+      );
+    } else if (boss.isNeferhoo) {
+      // His mark is a carnelian wax seal that cracks, turquoise light
+      // leaking, when he turns furious.
+      NeferhooHudArt.seal(
+        c,
+        bar,
+        u,
+        above: above,
+        fury: fury,
+        furyAge: boss.age - boss.enragedAt,
+        defeated: defeated,
+        reduced: reducedMotion,
+        share: marks.last,
       );
     } else if (pirate) {
       // The pirate's mark is a gold doubloon set in the plate's rim.
-      PirateHudArt.halfMark(c, bar, u, above: above, fury: fury, wave: wave);
+      PirateHudArt.halfMark(
+        c,
+        bar,
+        u,
+        above: above,
+        fury: fury,
+        wave: wave,
+        share: marks.last,
+      );
     } else {
       c.drawRRect(
         RRect.fromRectAndRadius(
@@ -995,10 +1221,11 @@ abstract final class BossHealthBarArt {
 }
 
 /// Fixed geometry: the strip never resizes with the boss or its state, so
-/// the bar does not jump when the name or numbers change.
+/// the bar does not jump when the name or numbers change. Only a boss with
+/// four-digit health (the campaign's Ember Dragon, rules version 44) keeps
+/// its gauge a little shorter, for the longer numbers.
 class _Layout {
-  _Layout(Size size)
-    : u = math.min(size.height / 360, size.width / 640).clamp(.8, 1.3) {
+  _Layout(Size size, SkyBoss boss) : u = BossHealthBarArt.unit(size) {
     // Width stays inside the band the flight HUD leaves free between the
     // hearts readout (left) and the clock and pause buttons (right).
     final hud = math.min(size.width / 1000, size.height / 450);
@@ -1012,7 +1239,7 @@ class _Layout {
     bar = Rect.fromLTRB(
       nameLeft + nameWidth + 6 * u,
       strip.center.dy - 5 * u,
-      hpRight - 42 * u,
+      hpRight - (boss.maxHp >= 1000 ? 51 : 42) * u,
       strip.center.dy + 5 * u,
     );
   }

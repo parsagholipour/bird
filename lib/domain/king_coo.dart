@@ -176,6 +176,10 @@ abstract final class KingCoo {
   static const puffAt = 7.6, whistleAt = 9.2, windowEnd = 10.0;
   static const puffRelease = .4;
 
+  /// After a pop he is dizzy, then recovers, for this long (the art's
+  /// `KingCooTimeline.popDizzy` and `popRecover`).
+  static const popRecovery = 2.6;
+
   /// Rocks do half damage (at least 1) on the fluffed chest and double on the
   /// taut, puffed one; [popDamage] of puffed hits in one window pops him.
   static const fluffDivisor = 2, puffMultiplier = 2, popDamage = 60;

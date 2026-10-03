@@ -364,7 +364,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Reset everything'));
     await tester.pumpAndSettle();
-    expect(find.text('A fresh start. Pip is ready for you.'), findsOneWidget);
+    expect(find.text('A fresh start. Minty is ready for you.'), findsOneWidget);
     expect((await repo.load()).settings.music, true);
     expect(tester.takeException(), isNull);
   });

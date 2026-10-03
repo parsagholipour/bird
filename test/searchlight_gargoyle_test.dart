@@ -1321,6 +1321,9 @@ void main() {
         reducedMotion: false,
         originMs: 0,
         course: FlightCourse.starTrail,
+        // New York's short fight; rules 44's staged one is in
+        // boss_stages_test.dart.
+        recordedVersion: FlightSimulation.newYorkRulesVersion,
         weaponDamage: weaponDamage,
         plan: gargoylePlan(),
       );

@@ -238,7 +238,7 @@ List<Danger> dangersOf(
     }
   }
   final cycle = boss.cooCycleNumber;
-  final cycleStart = boss.arrivalDuration + cycle * KingCoo.period;
+  final cycleStart = boss.cooCycleStart(cycle);
   for (final plan in boss.squad) {
     final releaseAt = cycleStart + KingCoo.whistleAt + plan.delay;
     for (final slot in plan.slots) {
@@ -308,9 +308,41 @@ class CooBot {
 
   static const hoverUp = .08, hoverDown = .05;
 
+  /// From rules 45 the vanguard's stragglers come back in his fight
+  /// (free-flying squadron pigeons, off any track). A player hunts them: the
+  /// nearest one still well ahead is the line to fly and shoot at.
+  static Iterable<SkyEnemy> stragglers(FlightSimulation sim) =>
+      sim.enemies.where((e) => e.squad && e.track == null);
+
+  static SkyEnemy? hunted(FlightSimulation sim) {
+    SkyEnemy? best;
+    for (final e in stragglers(sim)) {
+      if (e.x < birdX + .8) continue;
+      if (best == null || e.x < best.x) best = e;
+    }
+    return best;
+  }
+
+  /// The stragglers close to the bird and the crusts about to reach its
+  /// column, as dangers to keep clear of.
+  static List<Danger> _pigeonDangers(FlightSimulation sim) => [
+    for (final e in stragglers(sim))
+      if (e.x > birdX - .08 && e.x < birdX + .8)
+        (y: e.y, reach: SkyEnemy.radius + birdRadius, from: 0, to: 1e9),
+    for (final ammo in sim.enemyAmmo)
+      if (ammo.vx < 0 && ammo.x > birdX - .05)
+        if ((ammo.x - birdX) / -ammo.vx case final t when t < .9)
+          (
+            y: ammo.y + ammo.vy * t,
+            reach: EnemyAmmo.radius + birdRadius,
+            from: 0,
+            to: 1e9,
+          ),
+  ];
+
   double target(FlightSimulation sim) {
     final boss = sim.boss!;
-    final line = this.line?.call(sim) ?? boss.y;
+    final line = this.line?.call(sim) ?? hunted(sim)?.y ?? boss.y;
     double? nextGap;
     final List<Danger> active;
     if (sequential) {
@@ -326,20 +358,33 @@ class CooBot {
           if (boss.age >= d.from && boss.age <= d.to) d,
       ];
     }
+    // (Nothing of the kind flies in a rules 43 or 44 fight.)
+    final all = [...active, ..._pigeonDangers(sim)];
     // A tapping bird hovers: it climbs [hoverUp] above its goal and sinks
     // [hoverDown] below it, and that whole band must be clear of danger.
     bool free(double y) {
       final top = y - hoverUp, bottom = y + hoverDown;
       if (top < .07 || bottom > .93) return false;
-      return active.every(
+      return all.every(
         (d) => bottom < d.y - d.reach - margin || top > d.y + d.reach + margin,
       );
     }
 
-    if (free(line)) return line;
+    // Nor does it fly through a straggler on its way: a player goes round
+    // one that is about to reach the bird.
+    final close = [
+      for (final e in stragglers(sim))
+        if (e.x > birdX - .08 && e.x < birdX + .5) e.y,
+    ];
+    bool through(double y) => close.any(
+      (p) =>
+          math.min(sim.birdY, y) < p + SkyEnemy.radius + birdRadius &&
+          math.max(sim.birdY, y) > p - SkyEnemy.radius - birdRadius,
+    );
+    if (free(line) && !through(line)) return line;
     var best = line, cost = double.infinity;
     for (var y = .1; y <= .9001; y += .01) {
-      if (!free(y)) continue;
+      if (!free(y) || through(y)) continue;
       final c =
           (y - line).abs() +
           .3 * (y - sim.birdY).abs() +
@@ -366,8 +411,7 @@ class CooBot {
       ))
         if (boss.age >= d.from && boss.age <= d.to) d,
     ];
-    final cycleStart =
-        boss.arrivalDuration + boss.cooCycleNumber * KingCoo.period;
+    final cycleStart = boss.cooCycleStart(boss.cooCycleNumber);
     var current = true;
     double? next;
     for (final plan in boss.squad) {
@@ -409,11 +453,18 @@ class CooBot {
     return sim.birdY > goal + hoverDown && sim.velocity > -.25;
   }
 
-  /// Fire when the bird is level with his chest.
-  bool shoot(FlightSimulation sim) =>
-      sim.canShoot &&
-      sim.elapsed - sim.lastShotAt >= gap &&
-      (sim.birdY - sim.boss!.y).abs() <= aim;
+  /// Fire when the bird is level with his chest, or with a straggler it
+  /// hunts.
+  /// While stragglers fly it saves its shots for them, firing at him only
+  /// in his puff window (x2).
+  bool shoot(FlightSimulation sim) {
+    if (!sim.canShoot || sim.elapsed - sim.lastShotAt < gap) return false;
+    final boss = sim.boss!;
+    final prey = hunted(sim);
+    if (prey != null && (sim.birdY - prey.y).abs() <= aim) return true;
+    final saving = stragglers(sim).isNotEmpty && !boss.puffWindow;
+    return !saving && (sim.birdY - boss.y).abs() <= aim;
+  }
 }
 
 /// Flies King Coo's whole fight with [bot]: until he is beaten, the flight

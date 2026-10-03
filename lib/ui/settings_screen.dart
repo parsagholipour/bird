@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../app_brand.dart';
 import '../data/providers.dart';
 import '../data/progress_repository.dart';
 import 'components.dart';
@@ -53,7 +54,7 @@ class SettingsScreen extends ConsumerWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'A fresh start. Pip is ready for you.',
+                    'A fresh start. ${birdNames[firstBird]} is ready for you.',
                     style: bodyText(
                       15,
                       color: SkyColors.cream,
@@ -209,11 +210,21 @@ class SettingsScreen extends ConsumerWidget {
                                         'About & licenses, version $_version',
                                     onTap: () => showLicensePage(
                                       context: context,
-                                      applicationName: 'Push-Up Bird',
+                                      applicationName: AppBrand.name,
                                       applicationVersion: _version,
-                                      applicationIcon: const Padding(
-                                        padding: EdgeInsets.only(top: 8),
-                                        child: BirdArt(size: 72, bob: false),
+                                      applicationIcon: Padding(
+                                        padding: const EdgeInsets.only(top: 8),
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                          child: Image.asset(
+                                            AppBrand.logo,
+                                            width: 80,
+                                            height: 80,
+                                            excludeFromSemantics: true,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),

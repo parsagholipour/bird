@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600"><rect width="600" height="600" fill="#181A38"/><g transform="translate(-300 0)"><g id="orbit-emblem">
+    <ellipse cx="600" cy="307" rx="261" ry="100" transform="rotate(-20 600 307)" fill="none" stroke="#F6D793" stroke-width="4" opacity=".8"/>
+    <path id="crescent-bird" d="M611 150 C532 112 428 181 426 295 C424 435 585 499 737 389 C650 430 592 408 569 356 C650 357 691 300 663 228 C651 193 634 170 611 150Z" fill="#B9AAF2" stroke="#181A38" stroke-width="9" stroke-linejoin="round"/>
+    <path d="M457 225 Q446 161 462 128 Q486 136 511 157 L523 112 Q555 127 562 155" fill="#B9AAF2" stroke="#181A38" stroke-width="9" stroke-linejoin="round"/>
+    <path d="M624 175 Q654 145 682 145 L667 190 Q669 218 672 235" fill="#B9AAF2" stroke="#181A38" stroke-width="9" stroke-linejoin="round"/>
+    <path id="moon-belly" d="M441 290 C447 398 574 464 701 410 C592 495 422 416 441 290Z" fill="#8579C9"/>
+    <path d="M458 208 Q474 182 495 176" fill="none" stroke="#DDD5FF" stroke-width="9" stroke-linecap="round"/>
+    <ellipse cx="551" cy="239" rx="49" ry="58" fill="#DFD8FF"/>
+    <ellipse cx="613" cy="243" rx="38" ry="49" fill="#DFD8FF"/>
+    <ellipse cx="551" cy="240" rx="28" ry="36" fill="#FFF9ED" stroke="#181A38" stroke-width="6"/>
+    <ellipse cx="613" cy="244" rx="23" ry="31" fill="#FFF9ED" stroke="#181A38" stroke-width="6"/>
+    <ellipse cx="559" cy="241" rx="14" ry="22" fill="#F6D793"/>
+    <ellipse cx="619" cy="244" rx="11" ry="19" fill="#F6D793"/>
+    <ellipse cx="561" cy="241" rx="8" ry="16" fill="#181A38"/>
+    <ellipse cx="620" cy="244" rx="7" ry="14" fill="#181A38"/>
+    <circle cx="556" cy="232" r="4" fill="white"/><circle cx="616" cy="237" r="3.5" fill="white"/>
+    <path d="M596 284 Q618 272 635 282 L614 305Z" fill="#F6D793" stroke="#181A38" stroke-width="5" stroke-linejoin="round"/>
+    <ellipse cx="546" cy="288" rx="14" ry="7" fill="#E7A9CF"/>
+    <path id="folded-wing" d="M490 284 C452 309 459 366 506 391 C543 411 584 412 616 403 C557 389 529 352 522 309 Q516 288 490 284Z" fill="#6C64AF" stroke="#181A38" stroke-width="6"/>
+    <path d="M495 316 Q497 329 510 331 Q497 333 495 346 Q493 333 480 331 Q493 329 495 316Z" fill="#F6D793"/>
+    <circle cx="522" cy="369" r="3" fill="#F6D793"/>
+    <circle cx="478" cy="287" r="3" fill="#F6D793"/>
+    <path id="orbit-front" d="M354 335 C303 435 563 444 783 306" fill="none" stroke="#181A38" stroke-width="15" stroke-linecap="round"/>
+    <path d="M354 335 C303 435 563 444 783 306" fill="none" stroke="#F6D793" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="783" cy="306" r="8" fill="#F6D793"/>
+    <path d="M774 158 Q776 178 796 180 Q776 182 774 202 Q772 182 752 180 Q772 178 774 158Z" fill="#F6D793"/><path d="M376 212 Q378 222 388 224 Q378 226 376 236 Q374 226 364 224 Q374 222 376 212Z" fill="#FFF9ED"/>
+    <circle cx="750" cy="134" r="3" fill="#FFF9ED"/>
+    <circle cx="403" cy="156" r="3" fill="#F6D793"/>
+    </g></g></svg>

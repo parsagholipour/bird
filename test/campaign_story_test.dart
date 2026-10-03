@@ -3,20 +3,26 @@ import 'package:push_up_bird/domain/campaign.dart';
 import 'package:push_up_bird/domain/campaign_progress.dart';
 import 'package:push_up_bird/domain/campaign_story.dart';
 import 'package:push_up_bird/domain/game_rules.dart';
+import 'package:push_up_bird/game/neferhoo_encounter_art.dart';
 
 import 'campaign_progress_test.dart' show finished, ids, level;
 
 /// Typewriter quotes and three dots have no place in text the game prints.
 final _plain = RegExp('[\'"]|\\.\\.\\.');
 
-/// New York's guardians: the mini-bosses of 3-2 and 3-4, who meet the
-/// courier at their lair and have a last word, but are no chapter's boss
-/// (no flame seal, no postcard). The level data names them once the rules
-/// and the levels land; the story is written for them either way.
+/// The guardians: Egypt's Neferhoo on 2-6 (rules 50) and New York's
+/// mini-bosses of 3-2 and 3-4, who meet the courier at their lair and have a
+/// last word, but are no chapter's boss (no flame seal, no postcard).
 const _guardians = {
+  '2-6': BossKind.neferhoo,
   '3-2': BossKind.kingCoo,
   '3-4': BossKind.searchlightGargoyle,
 };
+
+/// New York's two. Their last words keep the pattern every chapter boss's
+/// `after-…` scene has: the beaten guardian opens, sad, and Bill has the last
+/// spoken word, offering it a place at the club.
+const _newYork = {'3-2', '3-4'};
 
 void main() {
   test('every level carries a delivery that fits its card and result', () {
@@ -51,10 +57,10 @@ void main() {
         }
       }
     }
-    expect(Campaign.levels.map((l) => l.delivery.cargo).toSet(), hasLength(40));
+    expect(Campaign.levels.map((l) => l.delivery.cargo).toSet(), hasLength(41));
     expect(
       Campaign.levels.map((l) => l.delivery.thanks).toSet(),
-      hasLength(40),
+      hasLength(41),
     );
   });
 
@@ -75,7 +81,7 @@ void main() {
       // …and each guardian, whose lair is not the chapter's.
       ..._guardians.keys,
     });
-    expect(before, hasLength(20));
+    expect(before, hasLength(21));
     expect(CampaignStory.prologue, same(CampaignStory.before(level('1-1'))));
     expect(CampaignStory.prologue.region, isNull);
 
@@ -101,9 +107,9 @@ void main() {
       expect(scene.boss, chapter.boss);
       expect(scene.bossBeaten, isTrue, reason: scene.id);
     }
-    expect(CampaignStory.scenes, hasLength(27));
-    expect(CampaignStory.scenes.map((s) => s.id).toSet(), hasLength(27));
-    expect(CampaignStory.scene('after-3'), same(CampaignStory.scenes[17]));
+    expect(CampaignStory.scenes, hasLength(29));
+    expect(CampaignStory.scenes.map((s) => s.id).toSet(), hasLength(29));
+    expect(CampaignStory.scene('after-3'), same(CampaignStory.scenes[19]));
     expect(CampaignStory.scene('nope'), isNull);
     // In the order the story tells them.
     expect(CampaignStory.scenes.take(6).map((s) => s.id), [
@@ -114,9 +120,20 @@ void main() {
       'after-1',
       'before-2-1',
     ]);
+    // Egypt and Arabia since Egypt's guardian took 2-6: his last word
+    // follows his lair, before Arabia's arrival.
+    expect(CampaignStory.scenes.skip(5).take(7).map((s) => s.id), [
+      'before-2-1',
+      'before-2-4',
+      'before-2-6',
+      'last-2-6',
+      'before-2-7',
+      'before-2-9',
+      'after-2',
+    ]);
     // New York: a guardian's last word follows its lair, before the next
     // level's scene.
-    expect(CampaignStory.scenes.skip(10).map((s) => s.id), [
+    expect(CampaignStory.scenes.skip(12).map((s) => s.id), [
       'before-3-1',
       'before-3-2',
       'last-3-2',
@@ -152,14 +169,33 @@ void main() {
         expect(scene.boss, boss);
         expect(scene.bossBeaten, isTrue);
         expect(scene, isNot(same(CampaignStory.before(level(id)))));
-        // Beaten, it speaks first and is sad about it, as a chapter boss is.
+        // Beaten, it speaks first.
         expect(scene.lines.first.speaker, StorySpeaker.boss, reason: id);
-        expect(scene.lines.first.mood, StoryMood.sad, reason: id);
-        // Bill has the last spoken word, offering it a place at the club.
-        final spoken = scene.lines.where(
-          (l) => l.speaker != StorySpeaker.caption,
+        final spoken = scene.lines
+            .where((l) => l.speaker != StorySpeaker.caption)
+            .toList();
+        // Bill offers it a place at the club, near the end.
+        final offer = spoken.lastIndexWhere(
+          (l) => l.speaker == StorySpeaker.postmaster,
         );
-        expect(spoken.last.speaker, StorySpeaker.postmaster, reason: id);
+        expect(offer, greaterThanOrEqualTo(spoken.length - 2), reason: id);
+        if (_newYork.contains(id)) {
+          // New York's two are sad about it, as a chapter boss is, and Bill
+          // has the last spoken word.
+          expect(scene.lines.first.mood, StoryMood.sad, reason: id);
+          expect(spoken.last.speaker, StorySpeaker.postmaster, reason: id);
+        } else {
+          // Neferhoo (2-6) is the exception the owner-approved script makes,
+          // on purpose: his fall is the story's reveal (the mask that hid
+          // the door comes off), so he opens surprised, not sad; and his
+          // answer to Bill's offer closes the talk ("…Then I start with this
+          // one"), before the Sphinx's note is read aloud.
+          expect(scene.lines.first.mood, StoryMood.surprised, reason: id);
+          expect(scene.lines.first.text, contains('I can see'), reason: id);
+          expect(spoken.last.speaker, StorySpeaker.boss, reason: id);
+          expect(spoken.last.mood, StoryMood.happy, reason: id);
+          expect(spoken[offer].text, contains('Care to apply?'), reason: id);
+        }
         // No flame seal comes up: a guardian was sent no letter.
         final text = scene.lines.map((l) => l.text).join(' ');
         expect(text, isNot(contains('seal')), reason: id);
@@ -169,8 +205,13 @@ void main() {
         expect(CampaignStory.lastWord(chapter.bossLevel), isNull);
       }
       // Bill tells the courier up front that it is not a seal fight.
-      final coo = CampaignStory.before(level('3-2'))!;
-      expect(coo.lines.map((l) => l.text).join(' '), contains('No flame seal'));
+      for (final id in ['2-6', '3-2']) {
+        expect(
+          CampaignStory.before(level(id))!.lines.map((l) => l.text).join(' '),
+          contains('No flame seal'),
+          reason: id,
+        );
+      }
       // The chapter's own trail still counts three seals after its boss.
       expect(
         CampaignStory.after(Campaign.chapters[2]).lines.map((l) => l.text),
@@ -219,7 +260,14 @@ void main() {
     expect(text('before-3-4', 5), contains('Don’t mention pigeons'));
     expect(text('last-3-4', 5), contains('the pigeons may stay'));
     expect(text('last-3-4', 3), contains('night mail'));
-    for (final id in ['before-3-2', 'last-3-2', 'before-3-4', 'last-3-4']) {
+    for (final id in [
+      'before-2-6',
+      'last-2-6',
+      'before-3-2',
+      'last-3-2',
+      'before-3-4',
+      'last-3-4',
+    ]) {
       for (final line in CampaignStory.scene(id)!.lines) {
         final lowered = line.text.toLowerCase();
         expect(lowered, isNot(contains('pipes')), reason: line.text);
@@ -230,6 +278,62 @@ void main() {
         expect(line.text.length, lessThanOrEqualTo(85), reason: line.text);
       }
     }
+  });
+
+  test('Neferhoo\'s scenes pay off the letter Egypt lost', () {
+    StoryLine line(String scene, int i) => CampaignStory.scene(scene)!.lines[i];
+    String text(String scene, int i) => line(scene, i).text;
+    final lair = CampaignStory.before(level('2-6'))!;
+    final last = CampaignStory.lastWord(level('2-6'))!;
+    expect(lair.lines, hasLength(9));
+    expect(last.lines, hasLength(9));
+    // Set up on arrival in Egypt (recorded): one letter lost, and the Sphinx
+    // won't say which.
+    expect(text('before-2-4', 0), contains('lost one letter'));
+    expect(text('before-2-4', 2), startsWith('The Sphinx won’t say.'));
+    // Why now: the caretaker's feather duster, the level's own delivery.
+    final delivery = level('2-6').delivery;
+    expect(text('before-2-6', 0), contains('feather duster for the pyramid'));
+    expect(delivery.cargo, contains('feather duster'));
+    expect(delivery.from, 'The pyramid caretaker');
+    expect(delivery.thanks, 'Four thousand years of dust, gone by lunch!');
+    // Who he is, why he fights (his pride: the card line, line 7, which the
+    // flight's `neferhoo-card` pool plays as clip `before-2-6-7`).
+    expect(line('before-2-6', 3).speaker, StorySpeaker.boss);
+    expect(
+      text('before-2-6', 3),
+      startsWith('${Neferhoo.name}, Royal Courier.'),
+    );
+    expect(text('before-2-6', 7), CampaignStory.guardianLines['2-6']);
+    expect(Campaign.bossLine(level('2-6')), text('before-2-6', 7));
+    // Why the letter was lost: he could not find its door (through his
+    // mask), paid off when the mask comes off.
+    expect(text('before-2-6', 4), contains('cannot find its door'));
+    expect(text('before-2-6', 5), contains('the letter we lost'));
+    expect(
+      text('last-2-6', 0),
+      allOf(startsWith('My mask!'), endsWith('I can see!')),
+    );
+    // Who knew: the addressee, too polite to complain.
+    expect(text('last-2-6', 2), startsWith('“To the Sphinx, Giza.”'));
+    expect(text('last-2-6', 3), contains('too polite to complain'));
+    // The club rule, and a job that matches his title.
+    expect(text('last-2-6', 5), contains('Every letter lands'));
+    expect(Neferhoo.title, 'KEEPER OF THE LOST LETTER');
+    expect(text('last-2-6', 6), contains('Keeper of Lost Letters'));
+    expect(text('last-2-6', 7), contains('Off to the Sphinx'));
+    // The Sphinx's note closes it: a letter read aloud (a caption on
+    // airmail paper, in the Sphinx's voice), signed as the Dragon's is.
+    final note = last.lines.last;
+    expect(note.speaker, StorySpeaker.caption);
+    expect(note.endOfStop, isFalse);
+    expect(
+      note.text,
+      '“Delivered at last. Worth the wait. Signed: the Sphinx.”',
+    );
+    expect(last.endsStop, isFalse);
+    // The arrival banner says the same dust is stirring.
+    expect(NeferhooEncounterArt.omenLine, 'The pyramid’s dust is stirring…');
   });
 
   test('the stop ends on a To be continued caption, until Paris opens', () {
@@ -314,6 +418,7 @@ void main() {
   test('each guardian says its card line at the lair, as it does in the '
       'flight', () {
     expect(CampaignStory.guardianLines.keys.toSet(), _guardians.keys.toSet());
+    expect(_newYork, everyElement(isIn(_guardians.keys)));
     for (final MapEntry(key: id, value: card)
         in CampaignStory.guardianLines.entries) {
       // What the entrance name card prints: short, in the level's data.

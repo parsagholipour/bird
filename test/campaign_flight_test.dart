@@ -62,7 +62,9 @@ void main() {
         isTrue,
         reason: level.id,
       );
-      expect(seen.hearts, isFalse, reason: '${level.id}: no heart pickups');
+      // A boss level's only hearts are the two its boss knocks loose as it
+      // grows stronger (rules 44).
+      expect(seen.hearts, level.isBoss, reason: '${level.id}: heart pickups');
       if (!level.isBoss) {
         // The finish sits a fixed route distance away: a flight that never
         // sprints crosses it at the level's length.
@@ -137,7 +139,7 @@ void main() {
   });
 
   test('the same seed and inputs fly the same level exactly', () {
-    for (final id in ['1-5', '2-3', '2-8']) {
+    for (final id in ['1-5', '2-3', '2-9']) {
       final states = [
         for (var i = 0; i < 2; i++)
           () {
@@ -291,8 +293,8 @@ void main() {
 
   test('a boss level ends with the boss, then a short glide to the line', () {
     for (final (id, kind, hp) in [
-      ('1-8', BossKind.baronBat, 120),
-      ('2-8', BossKind.spitterBeetle, 210),
+      ('1-8', BossKind.baronBat, 600),
+      ('2-9', BossKind.spitterBeetle, 600),
     ]) {
       final sim = levelFlight(level(id), weaponDamage: 30);
       SkyBoss? met;
@@ -302,14 +304,15 @@ void main() {
       flyLevel(
         sim,
         watch: (sim) {
-          if (sim.boss case final boss? when met == null) {
-            met = boss;
+          // The fight begins with the boss's vanguard (rules 44).
+          if (sim.bossFight && arrivedAt == null) {
             arrivedAt = sim.routeSeconds;
             // No passage was left half-flown.
             expect(passed, isTrue, reason: id);
             expect(sim.starsLaid, sim.route!.stars, reason: id);
           }
-          if (met == null) passed = sim.obstacles.every((o) => o.scored);
+          if (sim.boss case final boss? when met == null) met = boss;
+          if (arrivedAt == null) passed = sim.obstacles.every((o) => o.scored);
           if (sim.boss != null) helpers.addAll(sim.enemies.map((e) => e.kind));
           if (sim.finishLine != null) lineAt ??= sim.elapsed;
           if (sim.boss != null) expect(sim.finishLine, isNull, reason: id);
@@ -337,7 +340,7 @@ void main() {
   });
 
   test('a beaten boss cannot fail the level: the bird coasts to the line', () {
-    for (final id in ['1-8', '2-8']) {
+    for (final id in ['1-8', '2-9']) {
       // The player either lets go, or taps, shoots and sprints on every
       // frame; neither changes the glide.
       final glides = <String>[];
@@ -375,7 +378,9 @@ void main() {
         expect(bossLeft, isTrue, reason: id);
         expect(sim.endReason, EndReason.completed, reason: '$id $tapping');
         expect(sim.finishLine!.crossed, isTrue, reason: id);
-        expect(sim.hearts, 1, reason: id);
+        // Nothing hurts it; a heart the boss knocked loose may still float
+        // into its beak.
+        expect(sim.hearts, greaterThanOrEqualTo(1), reason: id);
         expect(sim.levelStars, greaterThanOrEqualTo(1), reason: id);
         expect((sim.flaps, sim.shots, sim.sprints), (flaps, shots, sprints));
         // It only eases toward the middle, far from either edge.
@@ -389,7 +394,7 @@ void main() {
 
   test("a boss level's route marks the boss; the victory glide fills the "
       'rest', () {
-    for (final id in ['1-8', '2-8']) {
+    for (final id in ['1-8', '2-9']) {
       final sim = levelFlight(level(id), weaponDamage: 30);
       double? atBoss, laid;
       var last = 0.0, rising = true;
@@ -440,7 +445,8 @@ void main() {
     flyLevel(
       sim,
       watch: (sim) {
-        if (sim.boss != null) arrivedAt ??= sim.routeSeconds;
+        // The fight begins with Baron Bat's vanguard (rules 44).
+        if (sim.bossFight) arrivedAt ??= sim.routeSeconds;
       },
     );
     expect(sim.galesWeathered, 1);

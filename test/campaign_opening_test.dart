@@ -53,7 +53,7 @@ void main() {
       // No define (`make build`, `make install`, `flutter run`): open.
       expect(Campaign.openingEnabled, defined ? value : isTrue);
       expect(Campaign.stopsOpen, Campaign.openingEnabled);
-      expect(campaignStarsInBuild, Campaign.openingEnabled ? 60 : 48);
+      expect(campaignStarsInBuild, Campaign.openingEnabled ? 63 : 51);
     });
 
     test('the test hooks override the build, and false hands it back', () {
@@ -77,8 +77,9 @@ void main() {
       for (final level in Campaign.levels) {
         expect(Campaign.playable(level), level.chapter <= 2, reason: level.id);
       }
-      expect(Campaign.playableLevels, hasLength(16));
-      expect(campaignStarsInBuild, 48);
+      // Chapter 2 has nine levels since Egypt's guardian (2-6, rules 50).
+      expect(Campaign.playableLevels, hasLength(17));
+      expect(campaignStarsInBuild, 51);
       // Every region of chapters 3 to 5 says Coming soon.
       for (final region in Campaign.journey) {
         final soon = Campaign.comingSoon(region);
@@ -89,9 +90,9 @@ void main() {
       }
     });
 
-    test('2-8 does not open 3-1', () {
+    test('2-9 does not open 3-1', () {
       final progress = CampaignProgress(twoChapters());
-      expect(progress.unlocked(level('2-8')), isTrue);
+      expect(progress.unlocked(level('2-9')), isTrue);
       expect(progress.unlocked(level('3-1')), isFalse);
       expect(progress.chapterUnlocked(Campaign.chapters[2]), isFalse);
       expect(lockedNudge(level('3-1')), 'Coming soon');
@@ -118,13 +119,13 @@ void main() {
             (level.chapter == 3 && level.region == WorldRegion.newYork);
         expect(Campaign.playable(level), expected, reason: level.id);
       }
-      expect([for (final l in Campaign.playableLevels) l.id].skip(16), [
+      expect([for (final l in Campaign.playableLevels) l.id].skip(17), [
         '3-1',
         '3-2',
         '3-3',
         '3-4',
       ]);
-      expect(campaignStarsInBuild, 60);
+      expect(campaignStarsInBuild, 63);
     });
 
     test('the map keeps Coming soon on Paris, not on New York', () {
@@ -206,8 +207,9 @@ void main() {
             level.id == chapter.bossLevel.id,
             reason: level.id,
           );
-          // `isBoss` is any boss: a chapter's, or New York's two guardians.
-          final guardian = level.id == '3-2' || level.id == '3-4';
+          // `isBoss` is any boss: a chapter's, or a guardian (Egypt's
+          // Neferhoo, New York's two).
+          final guardian = const {'2-6', '3-2', '3-4'}.contains(level.id);
           expect(
             level.isBoss,
             level.id == chapter.bossLevel.id || guardian,
@@ -286,7 +288,11 @@ void main() {
           );
         }
       }
-      // The two guardians speak on their own cards, in the story's words.
+      // The guardians speak on their own cards, in the story's words.
+      expect(
+        Campaign.bossLine(level('2-6')),
+        'Return to sender! This route has a courier.',
+      );
       expect(
         Campaign.bossLine(level('3-2')),
         'Nobody flies till the bread cart is found!',

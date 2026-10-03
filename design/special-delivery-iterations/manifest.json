@@ -1,0 +1,15 @@
+{
+  "method": "Built-in image_gen",
+  "approved_reference": "01-original/master.png",
+  "new_iterations": [
+    "02-express-swoop/master.png",
+    "03-happy-arrival/master.png"
+  ],
+  "export_sizes": [
+    512,
+    64,
+    48,
+    32
+  ],
+  "name": "Beakbound remains the working app name; titles here describe visual iterations."
+}

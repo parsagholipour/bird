@@ -4,6 +4,7 @@ import 'package:flutter/painting.dart';
 
 import '../domain/game_rules.dart';
 import '../ui/theme.dart';
+import 'crust_art.dart';
 import 'dragon_fireball_art.dart';
 import 'gargoyle_feather_art.dart';
 import 'ny_placeholder_art.dart';
@@ -74,6 +75,9 @@ abstract final class BossAmmoArt {
     BossKind.dragon => BossAmmoStyle.fireball,
     BossKind.kingCoo => BossAmmoStyle.placeholder,
     BossKind.searchlightGargoyle => BossAmmoStyle.stoneFeather,
+    // Neferhoo fires no boss ammo: his letters and ankhs are his own
+    // (NeferhooFightArt).
+    BossKind.neferhoo => BossAmmoStyle.placeholder,
   };
 
   /// One in-flight boss shot at its simulated position, for [boss].
@@ -149,6 +153,9 @@ abstract final class BossAmmoArt {
             EnemyAttack.aimed => BossAmmoStyle.acid,
             EnemyAttack.fan => BossAmmoStyle.pollen,
             EnemyAttack.none => BossAmmoStyle.ember,
+            // King Coo's pigeons' stale crust (rules 45) is no boss shot: it
+            // keeps its own look wherever it is drawn (below).
+            EnemyAttack.crumb => null,
           };
     // Direction gives each member of a fan its own rhythm without storing
     // particle state or changing projectile movement/collision geometry.
@@ -162,6 +169,17 @@ abstract final class BossAmmoArt {
     // Keep the sky light on top whichever way the shot is heading.
     if (math.cos(direction) < 0) c.scale(1, -1);
     c.scale(radius);
+    if (style == null) {
+      CrustArt.pellet(
+        c,
+        time: time,
+        reach: showTrail ? reach : 0,
+        edge: math.max(.15, 1.6 / radius),
+        fine: radius >= 14,
+      );
+      c.restore();
+      return;
+    }
     // Fine detail only where it can be seen; at gameplay size the shapes
     // stay bold and the ink rim holds ~1.8 px, ending on the hit circle.
     final fine = radius >= 14;

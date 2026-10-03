@@ -18,13 +18,16 @@ LevelRoute routeOf(CampaignLevel level) {
 }
 
 void main() {
-  test('five chapters of eight levels, one boss each, in boss order', () {
+  test('five chapters of eight levels (chapter 2 nine), one boss each, in '
+      'boss order', () {
     expect(Campaign.chapters, hasLength(5));
-    expect(Campaign.levels, hasLength(40));
+    // Egypt's guardian (2-6, rules 50) gave chapter 2 a ninth level.
+    expect(Campaign.levels, hasLength(41));
     for (final (i, chapter) in Campaign.chapters.indexed) {
       expect(chapter.number, i + 1);
       expect(chapter.boss, BossKind.values[i]);
-      expect(chapter.levels, hasLength(8));
+      expect(chapter.levels, hasLength(chapter.number == 2 ? 9 : 8));
+      final last = chapter.levels.length - 1;
       expect(chapter.playable, chapter.number <= 2);
       expect(chapter.bossLine, isNotEmpty);
       expect(chapter.postcard, startsWith('Dear courier, '));
@@ -35,16 +38,16 @@ void main() {
         expect(level.number, j + 1);
         expect(Campaign.chapterOf(level), same(chapter));
         expect(Campaign.level(level.id), same(level));
-        // Only the last level is the chapter's boss; New York's two
-        // guardians (3-2 King Coo, 3-4 the Searchlight Gargoyle) also end in
+        // Only the last level is the chapter's boss; the guardians (2-6
+        // Neferhoo, 3-2 King Coo, 3-4 the Searchlight Gargoyle) also end in
         // a boss, a campaign-only mini-boss. `isBoss` means any boss.
-        expect(level.isChapterBoss, j == 7, reason: level.id);
+        expect(level.isChapterBoss, j == last, reason: level.id);
         expect(
           level.isBoss,
-          j == 7 || level.id == '3-2' || level.id == '3-4',
+          j == last || const {'2-6', '3-2', '3-4'}.contains(level.id),
           reason: level.id,
         );
-        expect(level.isGuardian, level.isBoss && j != 7, reason: level.id);
+        expect(level.isGuardian, level.isBoss && j != last, reason: level.id);
       }
       expect(chapter.bossLevel.boss, chapter.boss);
       expect(
@@ -52,8 +55,8 @@ void main() {
         SkyBoss(number: 1, x: 0, kind: chapter.boss).name,
       );
     }
-    expect(Campaign.levels.map((l) => l.id).toSet(), hasLength(40));
-    expect(Campaign.levels.map((l) => l.plan.seed).toSet(), hasLength(40));
+    expect(Campaign.levels.map((l) => l.id).toSet(), hasLength(41));
+    expect(Campaign.levels.map((l) => l.plan.seed).toSet(), hasLength(41));
     expect(Campaign.level('6-1'), isNull);
     expect(Campaign.after(Campaign.level('1-8')!)!.id, '2-1');
     expect(Campaign.before(Campaign.level('2-1')!)!.id, '1-8');
@@ -67,7 +70,7 @@ void main() {
       (WorldRegion.brazil, 2),
       (WorldRegion.aztec, 3),
       (WorldRegion.rome, 3),
-      (WorldRegion.egypt, 2),
+      (WorldRegion.egypt, 3),
       (WorldRegion.arabia, 3),
       (WorldRegion.newYork, 4),
       (WorldRegion.paris, 4),
@@ -170,10 +173,19 @@ void main() {
       expect(pigeons, id == '3-2' || id == '3-3' || id == '3-4', reason: id);
       expect(plan.flocks.isNotEmpty, pigeons, reason: id);
       expect(plan.steam.isEmpty, id != '3-3' && id != '3-4', reason: id);
-      expect(plan.usesNewYork, newYork && level.number > 1, reason: id);
+      // Neferhoo (2-6, rules 50) is a campaign-only mini-boss too.
+      expect(
+        plan.usesNewYork,
+        newYork && level.number > 1 || id == '2-6',
+        reason: id,
+      );
       expect(
         plan.minRulesVersion,
-        newYork && level.number > 1 ? 43 : 41,
+        id == '2-6'
+            ? FlightSimulation.neferhooRulesVersion
+            : newYork && level.number > 1
+            ? 43
+            : 41,
         reason: id,
       );
     }
@@ -191,8 +203,10 @@ void main() {
     expect(at('2-3').plan.pieces.single.at, 25);
     expect(at('2-4').plan.families, contains(ObstacleKind.switchback));
     expect(at('2-5').plan.pieces.single.kind, SetPieceKind.skyfall);
-    expect(at('2-6').plan.families, contains(ObstacleKind.lanternDrift));
-    expect(at('2-7').plan.pieces.map((p) => (p.kind, p.at)), [
+    expect(at('2-6').boss, BossKind.neferhoo);
+    expect(at('2-6').plan.pieces, isEmpty);
+    expect(at('2-7').plan.families, contains(ObstacleKind.lanternDrift));
+    expect(at('2-8').plan.pieces.map((p) => (p.kind, p.at)), [
       (SetPieceKind.wildfire, 25),
       (SetPieceKind.skyfall, 60),
     ]);
@@ -214,7 +228,7 @@ void main() {
     expect(at('4-2').plan.pieces.single.kind, SetPieceKind.eruption);
     expect(at('5-1').plan.pieces.single.kind, SetPieceKind.shuffled);
     for (final id in [
-      '1-1', '1-2', '1-3', '1-5', '2-1', '2-2', '2-3', '2-5',
+      '1-1', '1-2', '1-3', '1-5', '2-1', '2-2', '2-3', '2-5', '2-6',
       // New York: moths, the Alley Pigeon, steam and the Gargoyle's lamp;
       // Paris introduces the Gale and the Swarm rush the stop gave up.
       '3-1', '3-2', '3-3', '3-4', '3-6', '3-7',
@@ -222,6 +236,7 @@ void main() {
       expect(at(id).hint, isNotNull, reason: id);
       expect(at(id).hintIsNew, isTrue, reason: id);
     }
+    expect(at('2-6').hint, contains('letters'));
     expect(at('3-2').hint, contains('pigeons'));
     expect(at('3-3').hint, contains('Hop the hot ones'));
     expect(at('3-3').hint, contains('ride the soft ones'));
@@ -261,7 +276,8 @@ void main() {
     int stars(String id) => routeOf(Campaign.level(id)!).stars;
     expect(stars('1-1'), 81);
     expect(stars('1-8'), 36);
-    expect(stars('2-7'), 111);
+    expect(stars('2-6'), 36);
+    expect(stars('2-8'), 111);
     // New York (real routes): 3-1 81 (27 passages; 96 at 70 s before the fix
     // round); the two run-ups 12 passages, 36; Steam Alley 30 passages, 90
     // (114 at 80 s), the same as without its vents (a vent keeps its slot's

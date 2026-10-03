@@ -146,12 +146,12 @@ void main() {
         expectNovel(
           'enemies, reduced $reduced',
           live,
-          novel: {EnemyKind.alleyPigeon.name},
+          novel: {EnemyKind.alleyPigeon.name, EnemyKind.mummyBat.name},
         );
         expectNovel(
           'enemy defeats, reduced $reduced',
           dead,
-          novel: {EnemyKind.alleyPigeon.name},
+          novel: {EnemyKind.alleyPigeon.name, EnemyKind.mummyBat.name},
         );
       }
       // The stub pigeon is the placeholder, not a bat: it is in the shared
@@ -298,7 +298,9 @@ void main() {
       styles.entries
           .where((e) => e.value == BossAmmoStyle.placeholder)
           .map((e) => e.key),
-      [BossKind.kingCoo],
+      // Neferhoo (rules 50) fires no boss ammo at all: his letters and ankhs
+      // are his own art, so the style is never drawn for him.
+      [BossKind.kingCoo, BossKind.neferhoo],
     );
   });
 
@@ -366,7 +368,8 @@ void main() {
   test(
     'the placeholder palettes and stubs are defined for both mini-bosses',
     () {
-      for (final kind in BossKind.values.where((kind) => kind.campaignOnly)) {
+      // New York's two; Neferhoo has his own (neferhoo_placeholder_art.dart).
+      for (final kind in [BossKind.kingCoo, BossKind.searchlightGargoyle]) {
         expect(NyPlaceholderArt.ramp(kind), hasLength(3), reason: kind.name);
         expect(
           NyPlaceholderArt.tint(kind),

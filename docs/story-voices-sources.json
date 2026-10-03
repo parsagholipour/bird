@@ -721,6 +721,382 @@
   },
   {
    "name": "before-2-6-0",
+   "text": "One feather duster for the pyramid caretaker. She says the dust talks back.",
+   "prompt": "[cheerfully] One feather duster for the pyramid caretaker. [whispers] She says the dust talks back.",
+   "voice_id": null,
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "plays": "Scene before-2-6, line 0. Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it."
+  },
+  {
+   "name": "before-2-6-1",
+   "text": "HALT! No courier flies the Pharaoh’s post but me!",
+   "prompt": "[shouting] HALT! [haughtily] No courier flies the Pharaoh’s post but me!",
+   "voice_id": null,
+   "voice": "Neferhoo (audition)",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": null,
+   "fallback_voice_id": "MKlLqCItoCkvdhrxgtLv",
+   "fallback_voice": "Grampa Werthers - Old & Cranky",
+   "plays": "Scene before-2-6, line 1. Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it."
+  },
+  {
+   "name": "before-2-6-2-pip",
+   "text": "A mummy? With a mailbag?",
+   "prompt": "[surprised] A mummy? [curious] With a mailbag?",
+   "voice_id": null,
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": "EaX6rnyDKjJx35tchi80",
+   "plays": "Scene before-2-6, line 2 (Pip). Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it."
+  },
+  {
+   "name": "before-2-6-2-peaches",
+   "text": "A mummy? With a mailbag?",
+   "prompt": "[surprised] A mummy? [curious] With a mailbag?",
+   "voice_id": null,
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "plays": "Scene before-2-6, line 2 (Peaches). Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it."
+  },
+  {
+   "name": "before-2-6-2-minty",
+   "text": "A mummy? With a mailbag?",
+   "prompt": "[surprised] A mummy? [curious] With a mailbag?",
+   "voice_id": null,
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": "XjGYkUkzth8BPs29fmcV",
+   "plays": "Scene before-2-6, line 2 (Minty). Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it."
+  },
+  {
+   "name": "before-2-6-2-orbit",
+   "text": "A mummy? With a mailbag?",
+   "prompt": "[surprised] A mummy? [curious] With a mailbag?",
+   "voice_id": null,
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "plays": "Scene before-2-6, line 2 (Orbit). Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it."
+  },
+  {
+   "name": "before-2-6-3",
+   "text": "Neferhoo, Royal Courier. Four thousand years on this route.",
+   "prompt": "[proudly] Neferhoo, Royal Courier. [clears throat] Four thousand years on this route.",
+   "voice_id": null,
+   "voice": "Neferhoo (audition)",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": null,
+   "fallback_voice_id": "MKlLqCItoCkvdhrxgtLv",
+   "fallback_voice": "Grampa Werthers - Old & Cranky",
+   "plays": "Scene before-2-6, line 3. Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it."
+  },
+  {
+   "name": "before-2-6-4",
+   "text": "One letter left in my bag… and I cannot find its door.",
+   "prompt": "[sadly] One letter left in my bag… [sighs] and I cannot find its door.",
+   "voice_id": null,
+   "voice": "Neferhoo (audition)",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": null,
+   "fallback_voice_id": "MKlLqCItoCkvdhrxgtLv",
+   "fallback_voice": "Grampa Werthers - Old & Cranky",
+   "plays": "Scene before-2-6, line 4. Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it."
+  },
+  {
+   "name": "before-2-6-5-pip",
+   "text": "Bill… is that the letter we lost?",
+   "prompt": "[whispers] Bill… [curious] is that the letter we lost?",
+   "voice_id": null,
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": "EaX6rnyDKjJx35tchi80",
+   "plays": "Scene before-2-6, line 5 (Pip). Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it."
+  },
+  {
+   "name": "before-2-6-5-peaches",
+   "text": "Bill… is that the letter we lost?",
+   "prompt": "[whispers] Bill… [curious] is that the letter we lost?",
+   "voice_id": null,
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "plays": "Scene before-2-6, line 5 (Peaches). Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it."
+  },
+  {
+   "name": "before-2-6-5-minty",
+   "text": "Bill… is that the letter we lost?",
+   "prompt": "[whispers] Bill… [curious] is that the letter we lost?",
+   "voice_id": null,
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": "XjGYkUkzth8BPs29fmcV",
+   "plays": "Scene before-2-6, line 5 (Minty). Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it."
+  },
+  {
+   "name": "before-2-6-5-orbit",
+   "text": "Bill… is that the letter we lost?",
+   "prompt": "[whispers] Bill… [curious] is that the letter we lost?",
+   "voice_id": null,
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "plays": "Scene before-2-6, line 5 (Orbit). Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it."
+  },
+  {
+   "name": "before-2-6-6",
+   "text": "No flame seal on this guardian. Just a very old, very stubborn postman.",
+   "prompt": "[chuckles] No flame seal on this guardian. [dryly] Just a very old, very stubborn postman.",
+   "voice_id": null,
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "plays": "Scene before-2-6, line 6. Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it."
+  },
+  {
+   "name": "before-2-6-7",
+   "text": "Return to sender! This route has a courier.",
+   "prompt": "[shouting] Return to sender! [haughtily] This route has a courier.",
+   "voice_id": null,
+   "voice": "Neferhoo (audition)",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": null,
+   "fallback_voice_id": "MKlLqCItoCkvdhrxgtLv",
+   "fallback_voice": "Grampa Werthers - Old & Cranky",
+   "plays": "Scene before-2-6, line 7. Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it. The same words are on the boss’s name card in the flight (CampaignLevel.bossLine)."
+  },
+  {
+   "name": "before-2-6-8",
+   "text": "Shoot his letters back, rookie. And mind the ankh: it comes back!",
+   "prompt": "[urgently] Shoot his letters back, rookie. [firmly] And mind the ankh: it comes back!",
+   "voice_id": null,
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "plays": "Scene before-2-6, line 8. Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it."
+  },
+  {
+   "name": "last-2-6-0",
+   "text": "My mask! …Oh. Oh my. I can see!",
+   "prompt": "[gasps] My mask! [pause] …Oh. Oh my. [delighted] I can see!",
+   "voice_id": null,
+   "voice": "Neferhoo (audition)",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": null,
+   "fallback_voice_id": "MKlLqCItoCkvdhrxgtLv",
+   "fallback_voice": "Grampa Werthers - Old & Cranky",
+   "plays": "Scene last-2-6, line 0. Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it."
+  },
+  {
+   "name": "last-2-6-1-pip",
+   "text": "Sir, who is your last letter for?",
+   "prompt": "[gently] Sir, who is your last letter for?",
+   "voice_id": null,
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": "EaX6rnyDKjJx35tchi80",
+   "plays": "Scene last-2-6, line 1 (Pip). Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it."
+  },
+  {
+   "name": "last-2-6-1-peaches",
+   "text": "Sir, who is your last letter for?",
+   "prompt": "[gently] Sir, who is your last letter for?",
+   "voice_id": null,
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "plays": "Scene last-2-6, line 1 (Peaches). Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it."
+  },
+  {
+   "name": "last-2-6-1-minty",
+   "text": "Sir, who is your last letter for?",
+   "prompt": "[gently] Sir, who is your last letter for?",
+   "voice_id": null,
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": "XjGYkUkzth8BPs29fmcV",
+   "plays": "Scene last-2-6, line 1 (Minty). Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it."
+  },
+  {
+   "name": "last-2-6-1-orbit",
+   "text": "Sir, who is your last letter for?",
+   "prompt": "[gently] Sir, who is your last letter for?",
+   "voice_id": null,
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "plays": "Scene last-2-6, line 1 (Orbit). Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it."
+  },
+  {
+   "name": "last-2-6-2",
+   "text": "“To the Sphinx, Giza.” …It was right outside the whole time.",
+   "prompt": "[slowly] “To the Sphinx, Giza.” [pause] [sheepishly] …It was right outside the whole time.",
+   "voice_id": null,
+   "voice": "Neferhoo (audition)",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": null,
+   "fallback_voice_id": "MKlLqCItoCkvdhrxgtLv",
+   "fallback_voice": "Grampa Werthers - Old & Cranky",
+   "plays": "Scene last-2-6, line 2. Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it."
+  },
+  {
+   "name": "last-2-6-3",
+   "text": "So that’s the letter we lost! The Sphinx was too polite to complain.",
+   "prompt": "[laughs] So that’s the letter we lost! [warmly] The Sphinx was too polite to complain.",
+   "voice_id": null,
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "plays": "Scene last-2-6, line 3. Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it."
+  },
+  {
+   "name": "last-2-6-4",
+   "text": "Four thousand years late. Not my finest delivery.",
+   "prompt": "[sighs] Four thousand years late. [sadly] Not my finest delivery.",
+   "voice_id": null,
+   "voice": "Neferhoo (audition)",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": null,
+   "fallback_voice_id": "MKlLqCItoCkvdhrxgtLv",
+   "fallback_voice": "Grampa Werthers - Old & Cranky",
+   "plays": "Scene last-2-6, line 4. Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it."
+  },
+  {
+   "name": "last-2-6-5-pip",
+   "text": "It still counts. Every letter lands!",
+   "prompt": "[cheerfully] It still counts. [excited] Every letter lands!",
+   "voice_id": null,
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": "EaX6rnyDKjJx35tchi80",
+   "plays": "Scene last-2-6, line 5 (Pip). Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it."
+  },
+  {
+   "name": "last-2-6-5-peaches",
+   "text": "It still counts. Every letter lands!",
+   "prompt": "[cheerfully] It still counts. [excited] Every letter lands!",
+   "voice_id": null,
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": "XJ2fW4ybq7HouelYYGcL",
+   "plays": "Scene last-2-6, line 5 (Peaches). Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it."
+  },
+  {
+   "name": "last-2-6-5-minty",
+   "text": "It still counts. Every letter lands!",
+   "prompt": "[cheerfully] It still counts. [excited] Every letter lands!",
+   "voice_id": null,
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": "XjGYkUkzth8BPs29fmcV",
+   "plays": "Scene last-2-6, line 5 (Minty). Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it."
+  },
+  {
+   "name": "last-2-6-5-orbit",
+   "text": "It still counts. Every letter lands!",
+   "prompt": "[cheerfully] It still counts. [excited] Every letter lands!",
+   "voice_id": null,
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": "f9imtLc2jfOLXtqe3Ihb",
+   "plays": "Scene last-2-6, line 5 (Orbit). Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it."
+  },
+  {
+   "name": "last-2-6-6",
+   "text": "Neferhoo, the club needs a Keeper of Lost Letters. Care to apply?",
+   "prompt": "[warmly] Neferhoo, the club needs a Keeper of Lost Letters. [chuckles] Care to apply?",
+   "voice_id": null,
+   "voice": "GERALD - Exciting Older Voice (NEW)",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+   "plays": "Scene last-2-6, line 6. Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it."
+  },
+  {
+   "name": "last-2-6-7",
+   "text": "Lost letters? …Then I start with this one. Off to the Sphinx!",
+   "prompt": "[thoughtfully] Lost letters? [pause] …Then I start with this one. [excited] Off to the Sphinx!",
+   "voice_id": null,
+   "voice": "Neferhoo (audition)",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": null,
+   "fallback_voice_id": "MKlLqCItoCkvdhrxgtLv",
+   "fallback_voice": "Grampa Werthers - Old & Cranky",
+   "plays": "Scene last-2-6, line 7. Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it."
+  },
+  {
+   "name": "last-2-6-8",
+   "text": "“Delivered at last. Worth the wait. Signed: the Sphinx.”",
+   "prompt": "[dryly] [slowly] “Delivered at last. [pause] Worth the wait. Signed: the Sphinx.”",
+   "voice_id": null,
+   "voice": "Matthew Schmitz - Ancient Sage Dragon Wizard",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": "HAvvFKatz0uu0Fv55Riy",
+   "plays": "Scene last-2-6, line 8. Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it. A letter read aloud (a caption on airmail paper) in its writer’s voice, as the Dragon’s letter is read in Bill’s: the Sphinx (the voice of thanks-2-4). The design’s “— The Sphinx” is written “Signed: the Sphinx.” inside the quote, as the Dragon’s letter is signed (after-5-4), so the printed line ends on a sentence mark."
+  },
+  {
+   "name": "before-2-7-0",
    "text": "The bazaar at dawn. You can smell the King’s brew from here.",
    "prompt": "[warmly] The bazaar at dawn. [disgusted] You can smell the King’s brew from here.",
    "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
@@ -729,7 +1105,7 @@
    "source_sha256": "dd2b616bfb691ae1c0dda369b42b07f4623d6ed50a34b34db57a590d616f32ac"
   },
   {
-   "name": "before-2-6-1-pip",
+   "name": "before-2-7-1-pip",
    "text": "What does he want with letters?",
    "prompt": "[curious] What does he want with letters?",
    "voice_id": "EaX6rnyDKjJx35tchi80",
@@ -738,7 +1114,7 @@
    "source_sha256": "9b77a7daede1aca0519c1a942bff63e559b30af794a230bf611421274c2bab9f"
   },
   {
-   "name": "before-2-6-1-peaches",
+   "name": "before-2-7-1-peaches",
    "text": "What does he want with letters?",
    "prompt": "[curious] What does he want with letters?",
    "voice_id": "XJ2fW4ybq7HouelYYGcL",
@@ -747,7 +1123,7 @@
    "source_sha256": "21f2c603a5c27c152b1388bba18f1181f9e844564c8f1b796b270bf5b63f3869"
   },
   {
-   "name": "before-2-6-1-minty",
+   "name": "before-2-7-1-minty",
    "text": "What does he want with letters?",
    "prompt": "[curious] What does he want with letters?",
    "voice_id": "XjGYkUkzth8BPs29fmcV",
@@ -756,7 +1132,7 @@
    "source_sha256": "aa1f284c77ff52258da40de427f6a5cfc963c9979d5a1654d270929d3b941f76"
   },
   {
-   "name": "before-2-6-1-orbit",
+   "name": "before-2-7-1-orbit",
    "text": "What does he want with letters?",
    "prompt": "[curious] What does he want with letters?",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
@@ -765,7 +1141,7 @@
    "source_sha256": "d685764dbb393b4b8cf97fa26306df3f6eb14411d441bd3491f76839a4da5378"
   },
   {
-   "name": "before-2-6-2",
+   "name": "before-2-7-2",
    "text": "Ink, they say. He boils the words right off the page.",
    "prompt": "[sadly] Ink, they say. He boils the words right off the page.",
    "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
@@ -774,7 +1150,7 @@
    "source_sha256": "f9a68d89234cd3fa218c2efb699896590b068e70b96310afca9ccd087c702425"
   },
   {
-   "name": "before-2-6-3-pip",
+   "name": "before-2-7-3-pip",
    "text": "Not on my route.",
    "prompt": "[determined] Not on my route.",
    "voice_id": "EaX6rnyDKjJx35tchi80",
@@ -783,7 +1159,7 @@
    "source_sha256": "9819b2d786a4fd378fe73695a3762ce8499c7cb845fecf3b5ea85cbb29e2ed65"
   },
   {
-   "name": "before-2-6-3-peaches",
+   "name": "before-2-7-3-peaches",
    "text": "Not on my route.",
    "prompt": "[determined] Not on my route.",
    "voice_id": "XJ2fW4ybq7HouelYYGcL",
@@ -792,7 +1168,7 @@
    "source_sha256": "360e8e39e69579bbc9e843cd22110d5f20d451c9de50bd074f4b85d038a5d8dc"
   },
   {
-   "name": "before-2-6-3-minty",
+   "name": "before-2-7-3-minty",
    "text": "Not on my route.",
    "prompt": "[determined] Not on my route.",
    "voice_id": "XjGYkUkzth8BPs29fmcV",
@@ -801,7 +1177,7 @@
    "source_sha256": "11227516cf02e60cd7269f9244ec732609996a5cea73f259ff6b86c4aff7958a"
   },
   {
-   "name": "before-2-6-3-orbit",
+   "name": "before-2-7-3-orbit",
    "text": "Not on my route.",
    "prompt": "[determined] Not on my route.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
@@ -810,7 +1186,7 @@
    "source_sha256": "f4fbb0cdacbf861bf5acc37427d81474ecbf6483d20acbe40946fd3a5c9e4e1f"
   },
   {
-   "name": "before-2-8-0",
+   "name": "before-2-9-0",
    "text": "A courier! Splendid. Is that fresh mail I smell?",
    "prompt": "[excited] A courier! Splendid. [curious] Is that fresh mail I smell?",
    "voice_id": "yjJ45q8TVCrtMhEKurxY",
@@ -819,7 +1195,7 @@
    "source_sha256": "0f40bcd90089c3ba27d5d19009cd6b6f1e7632bfdc5e6bf2b28ce1689a8413e4"
   },
   {
-   "name": "before-2-8-1-pip",
+   "name": "before-2-9-1-pip",
    "text": "One letter, and it’s for you. It says: stop boiling the post.",
    "prompt": "[firmly] One letter, and it’s for you. It says: stop boiling the post.",
    "voice_id": "EaX6rnyDKjJx35tchi80",
@@ -828,7 +1204,7 @@
    "source_sha256": "a200ae9e08d7afff8505b6d10157ec7fc83dbbd2bfd6ffdfc76deccbcc0e9c54"
   },
   {
-   "name": "before-2-8-1-peaches",
+   "name": "before-2-9-1-peaches",
    "text": "One letter, and it’s for you. It says: stop boiling the post.",
    "prompt": "[firmly] One letter, and it’s for you. It says: stop boiling the post.",
    "voice_id": "XJ2fW4ybq7HouelYYGcL",
@@ -837,7 +1213,7 @@
    "source_sha256": "588f4fdf4229f4f4d8e2d50480ef95650dfc57449d0744dd83a29724449c694a"
   },
   {
-   "name": "before-2-8-1-minty",
+   "name": "before-2-9-1-minty",
    "text": "One letter, and it’s for you. It says: stop boiling the post.",
    "prompt": "[firmly] One letter, and it’s for you. It says: stop boiling the post.",
    "voice_id": "XjGYkUkzth8BPs29fmcV",
@@ -846,7 +1222,7 @@
    "source_sha256": "6faf56c117c1f3cf103d4b92f893af2eebf65149e4fba72c3033891a7ed5add2"
   },
   {
-   "name": "before-2-8-1-orbit",
+   "name": "before-2-9-1-orbit",
    "text": "One letter, and it’s for you. It says: stop boiling the post.",
    "prompt": "[firmly] One letter, and it’s for you. It says: stop boiling the post.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
@@ -855,7 +1231,7 @@
    "source_sha256": "55e013c7d1ff426b8c6af618a6268b254665c5dea5917e56494da35776727a5e"
   },
   {
-   "name": "before-2-8-2",
+   "name": "before-2-9-2",
    "text": "But the recipe! One “Dear Grandma”, two “Wish you were here”, stir…",
    "prompt": "[dramatically] But the recipe! One Dear Grandma, two Wish you were here, [mischievously] stir…",
    "voice_id": "yjJ45q8TVCrtMhEKurxY",
@@ -864,7 +1240,7 @@
    "source_sha256": "e6236285195093d1547277f0808fe6bbec77ca85c9174ade004d33be5a26432e"
   },
   {
-   "name": "before-2-8-3-pip",
+   "name": "before-2-9-3-pip",
    "text": "You’re cooking people’s words?",
    "prompt": "[surprised] You’re cooking people’s words?",
    "voice_id": "EaX6rnyDKjJx35tchi80",
@@ -873,7 +1249,7 @@
    "source_sha256": "c93bd545d0da3657e7aa4c179876d149a191668ec3b968d8bb6cccebdd24ac0b"
   },
   {
-   "name": "before-2-8-3-peaches",
+   "name": "before-2-9-3-peaches",
    "text": "You’re cooking people’s words?",
    "prompt": "[surprised] You’re cooking people’s words?",
    "voice_id": "XJ2fW4ybq7HouelYYGcL",
@@ -882,7 +1258,7 @@
    "source_sha256": "652ca29901d8f40401c10d177cf8616813e804ef6f863d993152db03418f088c"
   },
   {
-   "name": "before-2-8-3-minty",
+   "name": "before-2-9-3-minty",
    "text": "You’re cooking people’s words?",
    "prompt": "[surprised] You’re cooking people’s words?",
    "voice_id": "XjGYkUkzth8BPs29fmcV",
@@ -891,7 +1267,7 @@
    "source_sha256": "40f7dd91cb59c8dcb808d1d804f64686b5a18cfc9ca7e3d22f177443375654bb"
   },
   {
-   "name": "before-2-8-3-orbit",
+   "name": "before-2-9-3-orbit",
    "text": "You’re cooking people’s words?",
    "prompt": "[surprised] You’re cooking people’s words?",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
@@ -900,7 +1276,7 @@
    "source_sha256": "44ed0bc1e7b5f9fb3b9b3565468268344260e3e93efd1b5442cab8bcb326d3a2"
   },
   {
-   "name": "before-2-8-4",
+   "name": "before-2-9-4",
    "text": "Every letter on my road goes in the brew!",
    "prompt": "[shouting] Every letter on my road goes in the brew! [laughs]",
    "voice_id": "yjJ45q8TVCrtMhEKurxY",
@@ -909,7 +1285,7 @@
    "source_sha256": "e1f99a68579f306a7a8bd0fed102fbe00e1bfe74e6aa9a152cb93a843bef94f8"
   },
   {
-   "name": "before-2-8-5",
+   "name": "before-2-9-5",
    "text": "Shoot the seeds down, rookie. And don’t drink anything!",
    "prompt": "[urgently] Shoot the seeds down, rookie. [chuckles] And don’t drink anything!",
    "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
@@ -2987,6 +3363,18 @@
   },
   {
    "name": "thanks-2-6",
+   "text": "Four thousand years of dust, gone by lunch!",
+   "prompt": "[delighted] Four thousand years of dust, [laughs] gone by lunch!",
+   "voice_id": null,
+   "voice": "Jessie - Vintage Narrator",
+   "generation_id": null,
+   "source_sha256": null,
+   "status": "pending recording",
+   "planned_voice_id": "KgUSWQPFmuiZ5ycRbnty",
+   "plays": "The result of 2-6 (Return to Sender), as its thank-you note lands. Signed: The pyramid caretaker."
+  },
+  {
+   "name": "thanks-2-7",
    "text": "The bazaar glows again. A thousand thanks!",
    "prompt": "[happy] The bazaar glows again. A thousand thanks!",
    "voice_id": "d8WcCpplp8meHt10UhL8",
@@ -2995,7 +3383,7 @@
    "source_sha256": "e57fb7d60fe4ca3e9037693e676b8db1231fcbe0be0963232e91575f889b9fbb"
   },
   {
-   "name": "thanks-2-7",
+   "name": "thanks-2-8",
    "text": "Forty camels. Forty thank-yous.",
    "prompt": "[dryly] Forty camels. [pause] Forty thank-yous.",
    "voice_id": "dWi43pgmQOjZTMYtl9lg",
@@ -3004,7 +3392,7 @@
    "source_sha256": "8a61e6ed3671fe2cca4780675d3a0c3d40877cd6c29596029bafe2f2aebcb826"
   },
   {
-   "name": "thanks-2-8",
+   "name": "thanks-2-9",
    "text": "Bah. It was very nearly ink.",
    "prompt": "[grumbling] Bah. [sighs] It was very nearly ink.",
    "voice_id": "yjJ45q8TVCrtMhEKurxY",

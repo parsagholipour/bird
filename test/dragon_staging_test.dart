@@ -470,6 +470,54 @@ Future<void> _strike(_Stage s, String tag) async {
   }
 }
 
+/// [rect] of [image] blown up [scale] times, pixel for pixel.
+Future<ui.Image> _zoom(ui.Image image, Rect rect, double scale) async {
+  final recorder = ui.PictureRecorder();
+  Canvas(recorder).drawImageRect(
+    image,
+    rect,
+    Offset.zero & rect.size * scale,
+    Paint()..filterQuality = FilterQuality.none,
+  );
+  final picture = recorder.endRecording();
+  final zoomed = await picture.toImage(
+    (rect.width * scale).round(),
+    (rect.height * scale).round(),
+  );
+  picture.dispose();
+  return zoomed;
+}
+
+/// The roar as a flipbook, every 0.04 s from 2.60 to 3.48: whole frames and
+/// close-ups of the head (x2, on a crop that holds still), so the fire is
+/// judged in motion and not only on the arrival's three fixed beats.
+Future<void> _roar(_Stage s, String tag) async {
+  final frames = <(String, ui.Image)>[], heads = <(String, ui.Image)>[];
+  s.hoverTo(2.6);
+  final heart = BossEncounterArt.dragonFrame(_motion(s.boss), 360).heart;
+  final crop = Rect.fromLTWH(
+    heart.dx - 250,
+    math.max(0, heart.dy - 190),
+    300,
+    180,
+  );
+  for (var i = 0; i < 23; i++) {
+    final age = 2.6 + i * .04;
+    s.hoverTo(age);
+    final image = await s.frame();
+    final head = await _zoom(image, crop, 2);
+    final label = age.toStringAsFixed(2);
+    await _write('f-$tag-roar-$label', image);
+    await _write('h-$tag-roar-$label', head);
+    frames.add((label, image));
+    heads.add((label, head));
+  }
+  await _sheet('roar-$tag', frames, cols: 4, scale: .5);
+  await _sheet('roar-head-$tag', heads, cols: 4, scale: .5);
+  await _disposeAll(frames);
+  await _disposeAll(heads);
+}
+
 /// The swarm call and the fireball it meets at the jaws: 7.5 to 8.4 s.
 Future<void> _call(_Stage s, String tag) async {
   final frames = <(String, ui.Image)>[];
@@ -1837,6 +1885,27 @@ void main() {
       });
       await tester.pumpWidget(const SizedBox());
     });
+    for (final (width, region, reduced) in const [
+      (800.0, WorldRegion.cyberpunk, false),
+      (640.0, WorldRegion.paris, false),
+      (800.0, WorldRegion.egypt, false),
+      (800.0, WorldRegion.newYork, false),
+      (640.0, WorldRegion.paris, true),
+    ]) {
+      final tag = '${width.toInt()}-${region.name}${reduced ? '-reduced' : ''}';
+      testWidgets('roar $tag', (tester) async {
+        tester.view.physicalSize = ui.Size(width, 360);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        await tester.runAsync(() async {
+          await _fonts();
+          final s = await _stage(tester, width, region, reduced: reduced);
+          await _roar(s, tag);
+        });
+        await tester.pumpWidget(const SizedBox());
+      });
+    }
     for (final width in [640.0, 800.0]) {
       testWidgets('call ${width.toInt()} cyberpunk', (tester) async {
         tester.view.physicalSize = ui.Size(width, 360);

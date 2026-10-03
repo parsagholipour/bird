@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><rect width="512" height="512" fill="#FFF9ED"/><g transform="translate(16 24)"><defs><mask id="lift-cutout"><rect width="480" height="440" fill="white"/><path d="M226 343 V239 H190 Q181 239 187 232 L242 175 Q247 170 252 175 L307 232 Q313 239 304 239 H268 V343 Z" fill="black"/></mask></defs>
+<g id="interlocking-wings" mask="url(#lift-cutout)">
+<path id="left-wing" d="M247 367 C173 356 97 300 63 224 C44 183 32 122 52 103 C67 88 87 102 105 126 L202 243 C238 286 276 309 292 325 C307 343 280 371 247 367Z" fill="#75BA99"/>
+<path id="right-wing" d="M214 340 C188 311 189 263 214 221 C245 168 266 142 286 112 C310 77 351 73 381 97 C406 119 408 155 393 181 C382 202 364 213 350 223 C338 289 295 355 247 367 C227 372 214 356 214 340Z" fill="#A8D8B4"/>
+</g>
+<path id="beak" d="M399 129 L432 145 Q441 150 431 156 L398 171Z" fill="#F47D64"/>
+<circle id="eye" cx="369" cy="129" r="8" fill="#203B45"/>
+<path id="crest" d="M324 83 C313 64 316 50 325 51 C335 53 337 66 337 78 M339 79 C343 57 355 48 361 57 C367 66 355 77 353 82" fill="#A8D8B4"/>
+</g></svg>

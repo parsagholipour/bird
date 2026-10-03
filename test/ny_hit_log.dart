@@ -11,8 +11,10 @@ import 'package:push_up_bird/domain/game_rules.dart';
 /// counters just after.
 ///
 /// Causes: `steam` (a scald), `crumb-cloud` (King Coo's bomb), `beam` (the
-/// Gargoyle's light), `moth-fan`, `beetle-seed`, `feather` (a boss shot),
-/// `squad-pigeon` (King Coo's squadron), `pigeon-body` (a raider touched),
+/// Gargoyle's light), `moth-fan`, `beetle-seed`, `pigeon-crumb` (a crust
+/// from King Coo's rules 45 vanguard), `feather` (a boss shot),
+/// `squad-pigeon` (King Coo's squadron), `enemy-vanguard` (one of the
+/// squadron pigeons of his rules 44 vanguard), `pigeon-body` (a raider touched),
 /// `enemy-<kind>` (a bat, moth or beetle touched), `door`, `wall`, `edge`,
 /// `other`.
 class NyHit {
@@ -41,8 +43,16 @@ class HitSnap {
       crumbs = sim.boss?.crumbHits ?? 0,
       spots = sim.boss?.spots ?? 0,
       enemies = [
+        // King Coo's vanguard (rules 44) flies his squadron's pigeons ahead
+        // of him, off any track: they are their own cause.
         for (final e in sim.enemies)
-          (e.x, e.y, e.kind.name, e.squad, identityHashCode(e)),
+          (
+            e.x,
+            e.y,
+            e.squad && e.track == null ? 'vanguard' : e.kind.name,
+            e.squad && e.track != null,
+            identityHashCode(e),
+          ),
       ],
       ammo = [
         for (final a in sim.bossAmmo)
@@ -90,7 +100,11 @@ class HitLog {
     if ((boss?.spots ?? 0) > before.spots) return 'beam';
     for (final impact in sim.enemyAmmoImpacts) {
       if (impact.at > before.time - 1e-9 && impact.stop == AmmoStop.struck) {
-        return impact.attack == EnemyAttack.fan ? 'moth-fan' : 'beetle-seed';
+        return switch (impact.attack) {
+          EnemyAttack.fan => 'moth-fan',
+          EnemyAttack.crumb => 'pigeon-crumb',
+          _ => 'beetle-seed',
+        };
       }
     }
     final ammoNow = {for (final a in sim.bossAmmo) identityHashCode(a)};

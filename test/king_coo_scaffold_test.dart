@@ -36,6 +36,8 @@ void main() {
       'dragon',
       'kingCoo',
       'searchlightGargoyle',
+      // Egypt's guardian, rules 50, appended after New York's.
+      'neferhoo',
     ]);
     expect(BossKind.kingCoo.index, 5);
     expect(BossKind.kingCoo.campaignOnly, isTrue);

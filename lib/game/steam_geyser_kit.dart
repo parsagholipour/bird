@@ -12,19 +12,22 @@ abstract final class SteamTones {
   static const ink = Color(0xff1d2233);
 
   // Brick, limestone and iron shared with the New York gates.
-  static const brickLit = Color(0xffc9765a), brick = Color(0xffa5553f);
-  static const brickShade = Color(0xff6f3328);
+  static const brickLit = Color(0xffd0805e), brick = Color(0xffb05a42);
+  static const brickShade = Color(0xff6f3328), mortar = Color(0xff9a6a60);
   static const stone = Color(0xffe6dac3), stoneShade = Color(0xffb9a98c);
   static const iron = Color(0xff262a36), ironLit = Color(0xff4b5068);
+  static const ironDeep = Color(0xff151822);
   static const ironRim = Color(0xff7c86a6);
 
   // Hot steam: cream body, peach shade, amber root, ember heat.
-  static const hotBody = Color(0xfffff2dc), hotHigh = Color(0xfffffaf0);
-  static const hotShade = Color(0xfff0b48a), hotRoot = Color(0xffffd28c);
+  static const hotBody = Color(0xfffffaf0), hotHigh = Color(0xffffffff);
+  static const hotShade = Color(0xfff7d6b8), hotRoot = Color(0xffffd28c);
+  static const hotDeep = Color(0xffe8a272);
   static const amber = Color(0xffff9a3c), ember = Color(0xffe8662d);
 
   // Soft steam: pale blue-white, slate shade, teal.
-  static const coolBody = Color(0xffeaf3ff), coolShade = Color(0xffb3c6ea);
+  static const coolBody = Color(0xffd0e1f8), coolShade = Color(0xffa0b9e4);
+  static const coolDeep = Color(0xff7790c6), coolHigh = Color(0xffe6f0ff);
   static const teal = Color(0xff2fb5a6), tealDeep = Color(0xff1c8a84);
   static const tealGlow = Color(0xff7be6d6);
 
@@ -90,8 +93,8 @@ class SteamBeat {
   };
 
   /// How far the cloud has cooled from the burst's cream to the billow's
-  /// blue-white: a front that climbs the column over the first 0.35 s.
-  double get cooled => billow ? SteamMath.smooth(billowT / .35) : 0;
+  /// blue-white: a front that climbs the column over the first 0.2 s.
+  double get cooled => billow ? SteamMath.smooth(billowT / .20) : 0;
 
   /// The lid's lift in viewport heights: pressed down just before the burst,
   /// kicked up by it and settling in a few bounces. Reduced Motion never

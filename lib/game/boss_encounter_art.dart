@@ -36,6 +36,8 @@ import 'king_coo_crumb_art.dart';
 import 'king_coo_encounter_ui.dart';
 import 'king_coo_squad_art.dart';
 import 'king_coo_staging_art.dart';
+import 'neferhoo_encounter_art.dart';
+import 'neferhoo_encounter_ui.dart';
 import 'ny_placeholder_art.dart';
 import 'sky_scenery.dart';
 
@@ -50,6 +52,7 @@ abstract final class BossEncounterArt {
     BossKind.dragon => DragonPalette.flame,
     BossKind.kingCoo => KingCooStaging.tint,
     BossKind.searchlightGargoyle => NyPlaceholderArt.tint(boss.kind),
+    BossKind.neferhoo => NeferhooEncounterArt.tint,
   };
   static Color _ammoColor(SkyBoss boss) => switch (boss.kind) {
     BossKind.baronBat => BossRig.ember,
@@ -59,6 +62,7 @@ abstract final class BossEncounterArt {
     BossKind.dragon => DragonPalette.flame,
     BossKind.kingCoo => KingCooStaging.light,
     BossKind.searchlightGargoyle => NyPlaceholderArt.light(boss.kind),
+    BossKind.neferhoo => NeferhooEncounterArt.light,
   };
   static Color _light(SkyBoss boss) => switch (boss.kind) {
     BossKind.baronBat => _gold,
@@ -68,6 +72,7 @@ abstract final class BossEncounterArt {
     BossKind.dragon => DragonPalette.flameGold,
     BossKind.kingCoo => KingCooStaging.light,
     BossKind.searchlightGargoyle => NyPlaceholderArt.light(boss.kind),
+    BossKind.neferhoo => NeferhooEncounterArt.light,
   };
   static Paint _fill(Color color, [double opacity = 1]) =>
       Paint()
@@ -79,6 +84,12 @@ abstract final class BossEncounterArt {
         ..strokeCap = StrokeCap.round;
 
   static void backdrop(Canvas c, Size size, SkyBoss boss, BossMotion m) {
+    if (boss.isNeferhoo) {
+      // Neferhoo's own wash, lanes, loops, letters and ankhs: never the
+      // Baron's clouds below.
+      NeferhooEncounterArt.backdrop(c, size, boss, m);
+      return;
+    }
     if (boss.isGargoyle) {
       // The Searchlight Gargoyle's storm, lightning, warning and beams.
       GargoyleEncounterArt.backdrop(c, size, boss, m);
@@ -194,6 +205,11 @@ abstract final class BossEncounterArt {
       // His tower and himself, his feathers and the arrival's, fight's and
       // defeat's effects: never the Baron's fall-through below.
       GargoyleEncounterArt.paint(c, size, sim, m);
+      return;
+    }
+    if (boss.isNeferhoo) {
+      // Explicit dispatch to his own stage (never the Baron's fall-through).
+      NeferhooEncounterArt.paint(c, size, sim, m);
       return;
     }
     final ammoLight = _light(boss);
@@ -875,10 +891,17 @@ abstract final class BossEncounterArt {
     }
     DragonBreathArt.marks(c, size, boss, m, mouth: mouth, seconds: sim.elapsed);
     if (m.roar > 0) {
-      // The plume climbs to the underside of the letterbox: the one this
-      // encounter draws, which opens for it.
+      // The fire pours from between the jaws and stays under the letterbox:
+      // the one this encounter draws, which opens for it.
       final stage = _DragonStageMotion(boss, reducedMotion: m.reducedMotion);
-      DragonEncounterUi.roar(c, center, h, stage, mouth: mouth);
+      DragonEncounterUi.roar(
+        c,
+        center,
+        h,
+        stage,
+        mouth: mouth,
+        chin: screen(DragonBossRig.chinAt(pose)),
+      );
     }
     if (m.hit > 0 && !m.defeated) {
       final t = BossMotion.ramp(boss.age - boss.lastHitAt, 0, .36);
@@ -1161,6 +1184,8 @@ abstract final class BossEncounterArt {
         // The heart-gem is freed, not destroyed: it pops loose, rises through
         // the smoke and ignites into a warm sun as the crown lands.
         DragonEncounterUi.victoryGem(c, at, h, k, reduced: reduced);
+      } else if (boss.isNeferhoo) {
+        // His defeat is his own stage's (NeferhooEncounterArt): nothing here.
       } else if (boss.isPirate) {
         // The captain's hoard bursts: doubloons, silver, rubies and stars.
         PirateEncounterUi.treasure(
@@ -1376,6 +1401,7 @@ abstract final class BossEncounterArt {
     // each, so neither is mistaken for the other or for the Baron.
     BossKind.kingCoo => NyPlaceholderArt.smoke(kind),
     BossKind.searchlightGargoyle => NyPlaceholderArt.smoke(kind),
+    BossKind.neferhoo => NeferhooEncounterArt.smoke,
   };
 
   /// Overlapping puffs share one outline: rims first, then shadowed bodies,
@@ -1483,6 +1509,8 @@ abstract final class BossEncounterArt {
 
   // Each boss drops its own headwear during the defeat.
   static void _headwear(Canvas c, Offset at, double h, BossMotion m) {
+    // Neferhoo's mask pops off on his own stage (NeferhooEncounterArt).
+    if (m.boss.isNeferhoo) return;
     if (m.boss.isMiniBoss) {
       NyPlaceholderArt.headwearTumble(c, at, h, m);
       return;
@@ -1858,6 +1886,8 @@ abstract final class BossEncounterArt {
       // shared cream pop).
       GargoyleBeamArt.spottedNow(c, size, sim, reducedMotion: m.reducedMotion);
       GargoyleEncounterArt.foreground(c, size, sim, m);
+    } else if (boss.isNeferhoo) {
+      NeferhooEncounterArt.foreground(c, size, sim, m);
     } else if (boss.isDragon) {
       if (!boss.age.isFinite || (m.defeated && !m.death.isFinite)) return;
       _burstFlash(c, size, m);
@@ -1875,6 +1905,8 @@ abstract final class BossEncounterArt {
         ? KingCooStaging.focus(m)
         : boss.isGargoyle
         ? GargoyleEncounterArt.focus(m)
+        : boss.isNeferhoo
+        ? NeferhooEncounterArt.focus(m)
         : m.focus;
     final bar = h * .082 * focus;
     if (focus > 0) {
@@ -1945,6 +1977,19 @@ abstract final class BossEncounterArt {
         )) {
           _nameCard(c, size, boss, m, line: bossLine(sim));
         }
+      } else if (boss.isNeferhoo) {
+        // His card (A2) carries the level's line; the shared card stands in
+        // only while his draws nothing.
+        if (!NeferhooEncounterUi.nameCard(
+          c,
+          size,
+          boss,
+          m,
+          birdY: sim.birdY,
+          line: bossLine(sim),
+        )) {
+          _nameCard(c, size, boss, m, line: bossLine(sim));
+        }
       } else {
         _nameCard(c, size, boss, m, line: bossLine(sim));
       }
@@ -1959,6 +2004,8 @@ abstract final class BossEncounterArt {
                 ? 'LEAVE THE RINGS  ·  SHOOT HIS CHEST WHEN IT PUFFS'
                 : boss.isGargoyle
                 ? 'STAY OUT OF THE LIGHT  ·  SHOOT THE LAMP WHEN IT OPENS'
+                : boss.isNeferhoo
+                ? NeferhooEncounterArt.caption
                 : boss.screeches
                 ? 'WHEN HE SCREECHES  ·  FLY TO THE GAP'
                 : 'GET READY  ·  FLAP, DODGE, FIRE'
@@ -2014,6 +2061,8 @@ abstract final class BossEncounterArt {
           ? 'THE CURB IS CLOSED'
           : boss.isGargoyle
           ? 'STORM WARNING'
+          : boss.isNeferhoo
+          ? NeferhooEncounterArt.omenTitle
           : boss.screeches
           ? 'THE BARON RETURNS'
           : 'A SHADOW APPROACHES',
@@ -2056,6 +2105,8 @@ abstract final class BossEncounterArt {
           ? 'Somebody is very cross about the bread cart…'
           : boss.isGargoyle
           ? 'Something on the ledge is watching…'
+          : boss.isNeferhoo
+          ? NeferhooEncounterArt.omenLine
           : boss.screeches
           ? 'He is back, and he is much louder…'
           : 'The sky belongs to someone else…',
@@ -2192,6 +2243,11 @@ abstract final class BossEncounterArt {
     if (m.boss.isPirate) {
       // A shower of doubloons over the reclaimed sky, the score on a ribbon.
       PirateEncounterUi.victory(c, size, sim, m);
+      return;
+    }
+    if (m.boss.isNeferhoo) {
+      // GUARDIAN DOWN! · THE LOST LETTER IS FOUND, on his papyrus plate.
+      NeferhooEncounterArt.victory(c, size, m);
       return;
     }
     final h = size.height, w = size.width, boss = m.boss;

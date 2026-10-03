@@ -482,9 +482,11 @@ abstract final class GargoyleHudArt {
 
   // --------------------------------------------------------------- gauge --
 
-  static List<double> _dividers(Rect bar) => [
-    for (var k = 1; k < segments; k++)
-      if (k * 2 != segments) bar.left + bar.width * k / segments,
+  // A staged gauge is cut in thirds by its marks: nine segments, the marks
+  // standing where the third and the sixth dividers would.
+  static List<double> _dividers(Rect bar, {bool staged = false}) => [
+    for (var k = 1; k < (staged ? 9 : segments); k++)
+      if (staged ? k % 3 != 0 : k * 2 != segments) bar.left + bar.width * k / (staged ? 9 : segments),
   ];
 
   /// The empty gauge: an ink channel inlaid with a brass hairline and cut into
@@ -510,14 +512,17 @@ abstract final class GargoyleHudArt {
 
   /// The brass segments: a groove and a lit ridge at every eighth of the gauge
   /// (but the middle, where the spool stands), over the amber and the empty
-  /// channel alike. Static shapes, two ops; draw it after [fill] and the chip.
-  static void seams(Canvas c, Rect bar, double u, {bool defeated = false}) {
+  /// channel alike; at every ninth of a [staged] gauge (but its thirds, where
+  /// its marks stand). Static shapes, two ops; draw it after [fill] and the
+  /// chip.
+  static void seams(Canvas c, Rect bar, double u, {bool defeated = false, bool staged = false}) {
     if (!bar.isFinite || !u.isFinite) return;
-    if (_segFor != bar || _segU != u) {
+    if (_segFor != bar || _segU != u || _segStaged != staged) {
       _segFor = bar;
       _segU = u;
+      _segStaged = staged;
       final groove = Path(), ridge = Path();
-      for (final x in _dividers(bar)) {
+      for (final x in _dividers(bar, staged: staged)) {
         groove
           ..moveTo(x, bar.top + .5 * u)
           ..lineTo(x, bar.bottom - .5 * u);
@@ -534,6 +539,7 @@ abstract final class GargoyleHudArt {
 
   static Rect? _segFor;
   static double _segU = 0;
+  static bool _segStaged = false;
   static Path _grooves = Path(), _ridges = Path();
 
   /// The amber up to [right]: a glossy body in the gauge's ramp, the brass
@@ -662,7 +668,8 @@ abstract final class GargoyleHudArt {
   /// The fury mark: a brass spool at the gauge's middle that stands past the
   /// gauge until the fury. When it begins, [furyAge] seconds ago, the second
   /// beam lights: the spool ignites arc-white and a crack races out of it
-  /// through the plate, white-hot at first and cooling to a steady ember.
+  /// through the plate, white-hot at first and cooling to a steady ember. A
+  /// staged campaign Gargoyle's fury mark stands at [share] (a third) instead.
   static void notch(
     Canvas c,
     Rect strip,
@@ -674,10 +681,15 @@ abstract final class GargoyleHudArt {
     double furyAge = double.infinity,
     bool defeated = false,
     bool reduced = false,
+    double share = .5,
   }) {
     // (Beaten, he has no fury mark: the plate's "DEFEATED" sits there.)
     if (!strip.isFinite || !bar.isFinite || !u.isFinite || defeated) return;
     _buildStrip(strip, u, bar);
+    // (The spool and the crack are built about the gauge's middle.)
+    final shift = bar.width * (share - .5);
+    c.save();
+    c.translate(shift, 0);
     if (fury && furyAge >= 0) {
       final grow = reduced ? 1.0 : (furyAge / .16).clamp(0.0, 1.0);
       final cool = reduced ? 1.0 : (furyAge / crackHeatSeconds).clamp(0.0, 1.0);
@@ -713,6 +725,7 @@ abstract final class GargoyleHudArt {
       ),
     );
     c.drawPath(_spoolCore, _stroke(lit ? GargoylePalette.arcCore : GargoylePalette.brassLit, .8 * u, lit ? 1 : .9));
+    c.restore();
   }
 
   // ------------------------------------------------------------- the gauge's

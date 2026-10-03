@@ -82,8 +82,9 @@ class StoryScene {
 /// has never been sent one himself. The last delivery is the first letter
 /// addressed to him.
 ///
-/// Two guardians stand in New York's way before the chapter's boss: King Coo
-/// on 3-2 and the Searchlight Gargoyle on 3-4. Each has a scene at the lair
+/// Three guardians stand in the way of a chapter's boss: Neferhoo, the
+/// Mummy Courier, on Egypt's 2-6, and in New York King Coo on 3-2 and the
+/// Searchlight Gargoyle on 3-4. Each has a scene at the lair
 /// ([before]) and a last word after its fall ([lastWord]), but no flame seal
 /// and no postcard: only a chapter's boss brings those. The Gargoyle's last
 /// word closes the stop on a "To be continued…" caption
@@ -110,6 +111,7 @@ abstract final class CampaignStory {
   /// quotes. It is also the guardian's last word in its lair scene, and
   /// `CampaignLevel.bossLine` in the level data says the same.
   static const guardianLines = <String, String>{
+    '2-6': 'Return to sender! This route has a courier.',
     '3-2': 'Nobody flies till the bread cart is found!',
     '3-4': 'Hold still! Nobody ever stays in the light.',
   };
@@ -265,8 +267,48 @@ abstract final class CampaignStory {
         ),
       ],
     ),
+    // Egypt's guardian (rules version 50): Neferhoo, the Mummy Courier,
+    // who pays off "lost one letter… The Sphinx won't say" (before-2-4). The
+    // seventh line is his name-card line (`guardianLines`, the flight's
+    // `neferhoo-card` pool plays clip `before-2-6-7`); Bill closes on the tip.
     '2-6': StoryScene(
       id: 'before-2-6',
+      region: WorldRegion.egypt,
+      boss: BossKind.neferhoo,
+      lines: [
+        StoryLine.bill(
+          'One feather duster for the pyramid caretaker. She says the dust '
+          'talks back.',
+        ),
+        StoryLine.boss(
+          'HALT! No courier flies the Pharaoh’s post but me!',
+          _angry,
+        ),
+        StoryLine.courier('A mummy? With a mailbag?', _surprised),
+        StoryLine.boss(
+          'Neferhoo, Royal Courier. Four thousand years on this route.',
+          _happy,
+        ),
+        StoryLine.boss(
+          'One letter left in my bag… and I cannot find its door.',
+          _sad,
+        ),
+        StoryLine.courier('Bill… is that the letter we lost?', _surprised),
+        StoryLine.bill(
+          'No flame seal on this guardian. Just a very old, very stubborn '
+          'postman.',
+        ),
+        StoryLine.boss('Return to sender! This route has a courier.', _angry),
+        StoryLine.bill(
+          'Shoot his letters back, rookie. And mind the ankh: it comes back!',
+        ),
+      ],
+    ),
+    // Ancient Arabia's arrival and the Spitter King's lair: 2-6 and 2-8
+    // until Egypt's guardian took 2-6 (see CampaignIds; the scene ids, the
+    // saves that watched them and their clips moved with the levels).
+    '2-7': StoryScene(
+      id: 'before-2-7',
       region: WorldRegion.arabia,
       lines: [
         StoryLine.bill(
@@ -280,8 +322,8 @@ abstract final class CampaignStory {
         StoryLine.courier('Not on my route.', _angry),
       ],
     ),
-    '2-8': StoryScene(
-      id: 'before-2-8',
+    '2-9': StoryScene(
+      id: 'before-2-9',
       region: WorldRegion.arabia,
       boss: BossKind.spitterBeetle,
       lines: [
@@ -548,6 +590,44 @@ abstract final class CampaignStory {
   /// with `last-` so that their clips (`last-3-2-0`, …) cannot be taken for
   /// a line of `after-3`.
   static const _last = <String, StoryScene>{
+    // Neferhoo's last word. His fall is the reveal: the mask that hid the
+    // door comes off, so he opens surprised (not sad), and the scene ends on
+    // him taking the job and on the Sphinx's note, read aloud in the voice
+    // of its writer, after Bill's offer (campaign_story_test says why).
+    '2-6': StoryScene(
+      id: 'last-2-6',
+      region: WorldRegion.egypt,
+      boss: BossKind.neferhoo,
+      lines: [
+        StoryLine.boss('My mask! …Oh. Oh my. I can see!', _surprised),
+        StoryLine.courier('Sir, who is your last letter for?'),
+        StoryLine.boss(
+          '“To the Sphinx, Giza.” …It was right outside the whole time.',
+          _surprised,
+        ),
+        StoryLine.bill(
+          'So that’s the letter we lost! The Sphinx was too polite to '
+          'complain.',
+          _happy,
+        ),
+        StoryLine.boss(
+          'Four thousand years late. Not my finest delivery.',
+          _sad,
+        ),
+        StoryLine.courier('It still counts. Every letter lands!', _happy),
+        StoryLine.bill(
+          'Neferhoo, the club needs a Keeper of Lost Letters. Care to apply?',
+          _happy,
+        ),
+        StoryLine.boss(
+          'Lost letters? …Then I start with this one. Off to the Sphinx!',
+          _happy,
+        ),
+        StoryLine.caption(
+          '“Delivered at last. Worth the wait. Signed: the Sphinx.”',
+        ),
+      ],
+    ),
     '3-2': StoryScene(
       id: 'last-3-2',
       region: WorldRegion.newYork,

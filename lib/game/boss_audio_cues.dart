@@ -1,5 +1,6 @@
 import '../domain/sky_boss.dart';
 import 'king_coo_layout.dart';
+import 'neferhoo_audio_cues.dart';
 
 /// Edge-triggered cues shared by live play and replay. Seeking is silent.
 class BossAudioCues {
@@ -10,6 +11,8 @@ class BossAudioCues {
   int _breaths = 0, _breathBlasts = 0;
   int _screechWarnings = 0, _screechBlasts = 0;
   bool _charging = false, _enraged = false, _shielded = false;
+  // A staged campaign boss roars as it grows stronger (fury has its own).
+  int _stageReached = 0;
   // King Coo: rings locked, bombs tossed and burst, chests puffed, whistles
   // blown, chests popped; and the boss ages at which a fury picket's
   // squadron still owes its take-off flutter.
@@ -21,6 +24,8 @@ class BossAudioCues {
   int _sweepWarnings = 0, _sweepIgnitions = 0, _lampOpens = 0;
   int _spots = 0, _feathers = 0;
   double _glance = double.negativeInfinity;
+  // Neferhoo: his own edge tracker (neferhoo_audio_cues.dart).
+  final _neferhoo = NeferhooAudioCues();
 
   /// The mini-bosses replace the generic cues with their own: the Gargoyle's
   /// lightning strike for the reveal, his awakening for the roar, his fury and
@@ -33,11 +38,15 @@ class BossAudioCues {
       ? 'gargoyle_awaken'
       : boss.isKingCoo
       ? 'coo_shout'
+      : boss.isNeferhoo
+      ? NeferhooAudioCues.roarCue
       : 'boss_roar';
   static String _fury(SkyBoss boss) => boss.isGargoyle
       ? 'gargoyle_fury'
       : boss.isKingCoo
       ? 'coo_roar'
+      : boss.isNeferhoo
+      ? NeferhooAudioCues.furyCue
       : 'boss_enrage';
 
   /// Where the reveal cue sounds. The generic encounter shows its reveal from
@@ -61,6 +70,7 @@ class BossAudioCues {
       _death = -1;
       _charging = false;
       _enraged = false;
+      _stageReached = 0;
       _hit = double.negativeInfinity;
       _volleys = 0;
       _summons = 0;
@@ -76,6 +86,7 @@ class BossAudioCues {
       _sweepWarnings = _sweepIgnitions = _lampOpens = 0;
       _spots = _feathers = 0;
       _glance = double.negativeInfinity;
+      _neferhoo.reset();
       _shielded = false;
       _shieldHit = double.negativeInfinity;
       return const [];
@@ -99,7 +110,15 @@ class BossAudioCues {
         cues.add(_roar(boss));
       }
       if (boss.phase == BossPhase.attacking) {
-        if (!_enraged && boss.enraged && !fresh) cues.add(_fury(boss));
+        if (!_enraged && boss.enraged && !fresh) {
+          cues.add(_fury(boss));
+        } else if (boss.stageReached > _stageReached &&
+            !fresh &&
+            !boss.enraged) {
+          // (The rules raise the stage a step after the blow that crossed
+          // it: a fury already cried its own cue, so it never roars twice.)
+          cues.add(_roar(boss));
+        }
         // The Pirate Captain lights a fuse and fires a cannon.
         if (!_charging && boss.charge > 0) {
           cues.add(boss.isPirate ? 'cannon_fuse' : 'boss_charge');
@@ -129,7 +148,11 @@ class BossAudioCues {
             boss.age - boss.lastShieldHitAt < .2) {
           cues.add('boss_block');
         }
-        if (boss.lastHitAt > _hit && boss.age - boss.lastHitAt < .2) {
+        // Neferhoo's hits are his own: a rock on his wraps is only the
+        // small cloth thud, a letter home only the postage-due payoff.
+        if (boss.lastHitAt > _hit &&
+            boss.age - boss.lastHitAt < .2 &&
+            !boss.isNeferhoo) {
           cues.add('boss_hit');
         }
       }
@@ -148,6 +171,8 @@ class BossAudioCues {
               ? 'coo_defeat'
               : boss.isGargoyle
               ? 'gargoyle_shatter'
+              : boss.isNeferhoo
+              ? NeferhooAudioCues.burstCue
               : 'boss_burst',
         );
       }
@@ -181,10 +206,21 @@ class BossAudioCues {
     _glance = boss.lastGlanceAt;
     // A silent step or a rewind forgets take-offs that were still to come.
     if (silent || backwards) _flutters.clear();
+    // Neferhoo's cues sound (or, silent or rewound, only follow his
+    // counters) after the shared ones of this frame.
+    if (boss.isNeferhoo) {
+      _neferhoo.advance(
+        boss,
+        cues,
+        fresh: fresh,
+        silent: silent || backwards,
+      );
+    }
     _shieldHit = boss.lastShieldHitAt;
     _shielded = boss.shielded;
     _charging = boss.charge > 0;
     _enraged = boss.enraged;
+    _stageReached = boss.stageReached;
     return cues;
   }
 

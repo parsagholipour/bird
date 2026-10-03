@@ -115,6 +115,90 @@
           "sha256": "dc99afc618a17e048f80ffa89322d0f21a464bd131988dc465c9ba4419fad222"
         }
       ]
+    },
+    "finish_snap": {
+      "flow": "https://elevenlabs.io/app/flows/Z02b2uMltxrDfG4rTcp6",
+      "date": "2026-10-03",
+      "node_id": "usx7Vn19ChgvMUWzx6kJ",
+      "prompt": "One taut elastic ribbon tape snapping in two, a crisp bright snap with a short springy rubbery twang that wobbles away, close-mic, dry, isolated on silence, no music or voices.",
+      "settings": {
+        "duration_seconds": 1.0,
+        "prompt_influence": 0.5
+      },
+      "takes": [
+        {
+          "source": "finish_snap_tape.mp3",
+          "generation_id": "05FRf8DHTEoymjZ6qi9a",
+          "sha256": "c8915eab5eb385cf00ea21f74d40e5d573ad32e1c099f0d952288d110028de87"
+        }
+      ],
+      "use": "The first 0.9 s (its snap and the ring after it; a second snap at 0.6 s is faded out). finish_foley() in tool/prepare_sound_effects.py adds the twang, the two poppers and the confetti.",
+      "rejected": [
+        {
+          "node_id": "zxilG5CP6n2i2GaKJctc",
+          "prompt": "Two party poppers popping in quick succession, crisp papery pops, then a short shower of confetti paper fluttering and rustling down, close-mic, isolated on silence, no music or voices.",
+          "settings": {
+            "duration_seconds": 1.5,
+            "prompt_influence": 0.5
+          },
+          "takes": [
+            {
+              "generation_id": "ppkxAa2wnC4nD9TvqMAy",
+              "sha256": "29eac016f061210f99adf3156626227e38bd25a4262bc0634762334bd0d6facf"
+            }
+          ],
+          "reason": "Starts mid-decay with a -22 dBFS peak: one dull 200-370 Hz thump, no two distinct pops and no rustle. The poppers and confetti are synthesised instead (popper, crinkle, band_noise)."
+        }
+      ]
+    },
+    "finish_cheer": {
+      "flow": "https://elevenlabs.io/app/flows/Z02b2uMltxrDfG4rTcp6",
+      "date": "2026-10-03",
+      "node_id": "LBfUGIWzf1S5ZDWJNH3Y",
+      "prompt": "A few little birds chirping happily at once, quick separate chirps and tweets, short two-note whistles, bursts of fluttering wings, bright and cheerful, close, isolated on silence.",
+      "settings": {
+        "duration_seconds": 2.5,
+        "prompt_influence": 0.6
+      },
+      "takes": [
+        {
+          "source": "finish_cheer.mp3",
+          "generation_id": "XaDaaZOoEf62ezr5LzEd",
+          "sha256": "b224e8a5acd63a4d608b7ececf64a1cea72ed7a698a56a3c1ab2cf933d3382bb"
+        }
+      ],
+      "use": "The first 2.3 s: chirping bursts at 0, 0.38-0.66, 0.88-1.08, 1.1-1.4 and 1.56-1.84 s with near-silent gaps between, a whistle line at 2.4-4.5 kHz. finish_foley() adds two whistled wheet-whoos in the gaps and fades it from 0.9 s.",
+      "rejected": [
+        {
+          "node_id": "LBfUGIWzf1S5ZDWJNH3Y",
+          "takes": [
+            {
+              "generation_id": "mAXjYnws4TH9AvPSSVtA",
+              "sha256": "c9fad8b89e5c166f36917d26cc5c62d1a1b22bf8fc8b5c594d6e66fb949971df"
+            }
+          ],
+          "reason": "Builds from -45 dB over its first second and is loudest at the end; the cheer must be loudest as the bird crosses."
+        },
+        {
+          "node_id": "kU9MRrim3x94bS6JmYcX",
+          "prompt": "A small flock of happy cartoon songbirds chirping and tweeting excitedly together, bright cheerful two-note whistles, a light flutter of wings, joyful and playful, close, isolated on silence, no music, no people.",
+          "settings": {
+            "duration_seconds": 3.0,
+            "prompt_influence": 0.45
+          },
+          "takes": [
+            {
+              "generation_id": "O6ZikJeT46jcxtaapzf1",
+              "sha256": "9dedade21446d1e3458ba9ea6c6e265f0a00189bac40605c09c99875529baf27"
+            },
+            {
+              "generation_id": "IkPaozcrrk9bdAA494mQ",
+              "sha256": "3e49776811a7278f5ee0f321138994f67d3ad88aed211356b240e5c17344a72f"
+            }
+          ],
+          "reason": "One continuous warbling whistle for all 3 s (a strong tone in 98-99% of 20 ms frames), the first a slow siren-like 1.6-3.7 kHz sweep, with no gaps to leave a spoken line room."
+        }
+      ]
     }
   },
   "superseded_sources": {
@@ -1022,6 +1106,478 @@
           "coo_whistle",
           "steam_hiss"
         ]
+      }
+    },
+    "finish_line": {
+      "date": "2026-10-03",
+      "note": "The campaign finish line. finish_near and finish_swoop are original syntheses; finish_snap and finish_cheer start from the ElevenLabs takes under sources (they need build/sound-effects/source/finish_snap_tape.mp3 and finish_cheer.mp3) and are listed here so --verify-sources checks their mastered files too. All four are master()ed with dc_block; finish_snap also to a soft-knee RMS target of -19 dB. The complete fanfare that plays between them is unchanged.",
+      "command": "python3 tool/prepare_sound_effects.py --only finish_near finish_snap finish_cheer finish_swoop",
+      "seed_range": "501-549",
+      "cues": {
+        "finish_near": {
+          "fires_on": "2.6 s before the crossing, as the gate's marquee lights flick on and chase",
+          "spec": {
+            "volume": 0.3,
+            "priority": 3,
+            "seconds": 1.45,
+            "cooldownMs": 1000,
+            "variants": 1
+          },
+          "helpers": [
+            "pluck",
+            "bell",
+            "shaker"
+          ],
+          "seeds": "521",
+          "files": [
+            {
+              "asset": "finish_near.wav",
+              "seconds": 1.45,
+              "peak_db": -3.1,
+              "rms_db": -18.0,
+              "sha256": "00315ddc23b955691b74c954c75171f4ccdb7bc3d320dde91e7fda4af6d76223"
+            }
+          ]
+        },
+        "finish_snap": {
+          "fires_on": "at the crossing (t = 0): the snap peaks 13 ms in, the poppers at 40 and 90 ms; the picture's tape snaps and cannons fire at 75 ms, after the 75 ms hit-stop",
+          "spec": {
+            "volume": 0.45,
+            "priority": 4,
+            "seconds": 0.9,
+            "cooldownMs": 1000,
+            "variants": 1
+          },
+          "helpers": [
+            "twang",
+            "popper",
+            "crinkle",
+            "band_noise"
+          ],
+          "seeds": "501, 503, 505, 507",
+          "source": "sources.finish_snap",
+          "files": [
+            {
+              "asset": "finish_snap.wav",
+              "seconds": 0.9,
+              "peak_db": -3.1,
+              "rms_db": -18.66,
+              "sha256": "046ce349e1c395fd12f27437d3cd5d573f9fa6a551649159b1c8c9aa59aaa89a"
+            }
+          ]
+        },
+        "finish_cheer": {
+          "fires_on": "at t = 0.12 s; the music ducks to 0.45 of its level for its 2.3 s (SoundSpec.duck)",
+          "spec": {
+            "volume": 0.28,
+            "priority": 4,
+            "seconds": 2.3,
+            "cooldownMs": 1000,
+            "variants": 1,
+            "duck": 0.45
+          },
+          "helpers": [
+            "tweet"
+          ],
+          "seeds": "none (the tweets are noiseless)",
+          "source": "sources.finish_cheer",
+          "files": [
+            {
+              "asset": "finish_cheer.wav",
+              "seconds": 2.3,
+              "peak_db": -3.1,
+              "rms_db": -20.54,
+              "sha256": "a5ca8e7443ff329e27c120245560cdf53375d7632a2389f8c53099da3f8e4983"
+            }
+          ]
+        },
+        "finish_swoop": {
+          "fires_on": "at t = 1.15 s as the bird swoops to the result cloud; the fwump at 0.55 s lands with it at t = 1.70 s",
+          "spec": {
+            "volume": 0.45,
+            "priority": 3,
+            "seconds": 0.75,
+            "cooldownMs": 1000,
+            "variants": 1
+          },
+          "helpers": [
+            "swoop_air",
+            "fwump",
+            "puff"
+          ],
+          "seeds": "531, 533, 535",
+          "files": [
+            {
+              "asset": "finish_swoop.wav",
+              "seconds": 0.75,
+              "peak_db": -3.1,
+              "rms_db": -22.19,
+              "sha256": "c4441a9beae4ded383540b20f41494ec9155d187957c8a7e8288eb01d0aea730"
+            }
+          ]
+        }
+      }
+    },
+    "egypt": {
+      "date": "2026-10-03",
+      "command": "python3 tool/prepare_sound_effects.py --only hoopoe_roar sand_devil mail_call letter_flick letter_return postage_due wrap_scuff ankh_raise ankh_whir ankh_catch mummy_fury mask_pop lost_letter",
+      "seed_ranges": {
+        "neferhoo": "501-619",
+        "new_york": "201-499",
+        "existing_cues": "up to 191",
+        "finish_line": "501-549: landed alongside Egypt; a seed only seeds one call's noise, so a shared number repeats a noise texture and nothing else"
+      },
+      "mastering": {
+        "target_peak": "0.70 (-3.10 dBFS)",
+        "rms_soft_knee_db": {
+          "hoopoe_roar": -15,
+          "postage_due": -15,
+          "mask_pop": -15
+        },
+        "dc_block": "master(dc_block=True) for every Egypt cue"
+      },
+      "design": "egypt-ws/reports/01-egypt-guardian.md section 6; prototype proof/mummy_cues_prototype.py (twelve of the thirteen WAVs are byte-identical to the prototype's; hoopoe_roar is re-timed to the picture's beak pulses and played at volume .65 instead of .55)",
+      "cues": {
+        "hoopoe_roar": {
+          "report": "reports/01-egypt-guardian.md section 6",
+          "fires_on": "the roar edge (boss age 2.65 s), in place of boss_roar, and again at the full fight's stage-up (stageReached 0 to 1, a 1.4 s roar)",
+          "spec": {
+            "volume": 0.65,
+            "priority": 4,
+            "seconds": 1.4,
+            "cooldownMs": 600,
+            "variants": 1
+          },
+          "helpers": [
+            "coo_voice (hoot)",
+            "gong",
+            "impact",
+            "whoosh"
+          ],
+          "seeds": "501-507",
+          "files": [
+            {
+              "asset": "hoopoe_roar.wav",
+              "seconds": 1.4,
+              "peak_db": -3.1,
+              "rms_db": -14.48,
+              "sha256": "f21461d3406eff807d580de3a948e3e2d42169fe0872c3ee3a4c8c79814c0c1b"
+            }
+          ]
+        },
+        "sand_devil": {
+          "report": "reports/01-egypt-guardian.md section 6",
+          "fires_on": "NeferhooAudioCues: boss age 0.1 s of the arrival (a first frame up to 0.6 s counts)",
+          "spec": {
+            "volume": 0.4,
+            "priority": 3,
+            "seconds": 1.6,
+            "cooldownMs": 1000,
+            "variants": 1
+          },
+          "helpers": [
+            "updraft",
+            "crackle",
+            "crinkle"
+          ],
+          "seeds": "511-515",
+          "files": [
+            {
+              "asset": "sand_devil.wav",
+              "seconds": 1.6,
+              "peak_db": -3.1,
+              "rms_db": -18.79,
+              "sha256": "2a12f49cd2a3f3e92ac134db4a8c4a06f94a8798dcfb18ab7439046a0b909e6a"
+            }
+          ]
+        },
+        "mail_call": {
+          "report": "reports/01-egypt-guardian.md section 6",
+          "fires_on": "NeferhooAudioCues: NeferhooFight.mailLockedAt rises (cycle second 0.6)",
+          "spec": {
+            "volume": 0.4,
+            "priority": 3,
+            "seconds": 1.0,
+            "cooldownMs": 500,
+            "variants": 1
+          },
+          "helpers": [
+            "impact",
+            "crinkle",
+            "bell"
+          ],
+          "seeds": "521-523",
+          "files": [
+            {
+              "asset": "mail_call.wav",
+              "seconds": 1.0,
+              "peak_db": -3.1,
+              "rms_db": -21.81,
+              "sha256": "1ee67fea9233bfb7984b950a61592a7f3db2b6ad72815c34e9d67a95ed0ece4f"
+            }
+          ]
+        },
+        "letter_flick": {
+          "report": "reports/01-egypt-guardian.md section 6",
+          "fires_on": "NeferhooAudioCues: each letter whose releaseAt has come while he attacks (1.6 s + .40 s k; fury .32 s)",
+          "spec": {
+            "volume": 0.3,
+            "priority": 2,
+            "seconds": 0.25,
+            "cooldownMs": 120,
+            "variants": 1
+          },
+          "helpers": [
+            "band_noise"
+          ],
+          "seeds": "531-533",
+          "files": [
+            {
+              "asset": "letter_flick.wav",
+              "seconds": 0.25,
+              "peak_db": -3.1,
+              "rms_db": -19.3,
+              "sha256": "be47c945ffcb62c9abc8ffbf2783b781bc18b2e39019a840bfe4be903e2a8eff"
+            }
+          ]
+        },
+        "letter_return": {
+          "report": "reports/01-egypt-guardian.md section 6",
+          "fires_on": "NeferhooAudioCues: NeferhooFight.lettersReturned rises (a rock catches a letter; a bulk return is one cue)",
+          "spec": {
+            "volume": 0.45,
+            "priority": 3,
+            "seconds": 0.4,
+            "cooldownMs": 100,
+            "variants": 1
+          },
+          "helpers": [
+            "impact",
+            "band_noise",
+            "chirp"
+          ],
+          "seeds": "541-543",
+          "files": [
+            {
+              "asset": "letter_return.wav",
+              "seconds": 0.4,
+              "peak_db": -3.1,
+              "rms_db": -20.3,
+              "sha256": "073486e6520598dc98594a9004afb9230b06a705ba241f9e9e8551a13fc5238b"
+            }
+          ]
+        },
+        "postage_due": {
+          "report": "reports/01-egypt-guardian.md section 6",
+          "fires_on": "NeferhooAudioCues: NeferhooFight.returnsLanded rises (a returned letter lands for 25)",
+          "spec": {
+            "volume": 0.7,
+            "priority": 4,
+            "seconds": 0.7,
+            "cooldownMs": 150,
+            "variants": 1
+          },
+          "helpers": [
+            "impact",
+            "band_noise",
+            "crinkle",
+            "bell"
+          ],
+          "seeds": "551-555",
+          "files": [
+            {
+              "asset": "postage_due.wav",
+              "seconds": 0.7,
+              "peak_db": -3.1,
+              "rms_db": -14.53,
+              "sha256": "e33e8215688860a2776f46697ec965a84272cd5e0ca5f33198096ebb232e7db5"
+            }
+          ]
+        },
+        "wrap_scuff": {
+          "report": "reports/01-egypt-guardian.md section 6",
+          "fires_on": "NeferhooAudioCues: NeferhooFight.wrapScuffs rises (a rock on the wraps); as wrap_scuff_duck within 0.25 s of a postage due",
+          "spec": {
+            "volume": 0.22,
+            "priority": 1,
+            "seconds": 0.16,
+            "cooldownMs": 80,
+            "variants": 1
+          },
+          "helpers": [
+            "band_noise"
+          ],
+          "seeds": "561",
+          "files": [
+            {
+              "asset": "wrap_scuff.wav",
+              "seconds": 0.16,
+              "peak_db": -3.1,
+              "rms_db": -17.58,
+              "sha256": "d54a44226fe7f9a79ef06beccbea00ba3d8f7a8f9f65aa6755e574f545003098"
+            }
+          ]
+        },
+        "ankh_raise": {
+          "report": "reports/01-egypt-guardian.md section 6",
+          "fires_on": "NeferhooAudioCues: NeferhooFight.ankhLockedAt rises (cycle second 5.4, only when the signature lock really happens)",
+          "spec": {
+            "volume": 0.4,
+            "priority": 3,
+            "seconds": 1.4,
+            "cooldownMs": 1000,
+            "variants": 1
+          },
+          "helpers": [
+            "whistle",
+            "bell"
+          ],
+          "seeds": "571",
+          "files": [
+            {
+              "asset": "ankh_raise.wav",
+              "seconds": 1.4,
+              "peak_db": -3.1,
+              "rms_db": -17.17,
+              "sha256": "5a83a1aa908405a8deb9e957b58eae5af1f2f79248cca1fcd8a4bb20b04d5835"
+            }
+          ]
+        },
+        "ankh_whir": {
+          "report": "reports/01-egypt-guardian.md section 6",
+          "fires_on": "NeferhooAudioCues: each ankh whose thrownAt has come while he attacks (6.8 s; fury's second 0.5 s later shares the 2 s cooldown)",
+          "spec": {
+            "volume": 0.35,
+            "priority": 2,
+            "seconds": 2.6,
+            "cooldownMs": 2000,
+            "variants": 1
+          },
+          "helpers": [
+            "whir"
+          ],
+          "seeds": "581-583",
+          "files": [
+            {
+              "asset": "ankh_whir.wav",
+              "seconds": 2.6,
+              "peak_db": -3.1,
+              "rms_db": -19.91,
+              "sha256": "c06c9a659501c15687d233b559262d901e4804d7f242fdc3459d003b6791bc61"
+            }
+          ]
+        },
+        "ankh_catch": {
+          "report": "reports/01-egypt-guardian.md section 6",
+          "fires_on": "NeferhooAudioCues: NeferhooFight.ankhCatches rises (an ankh home)",
+          "spec": {
+            "volume": 0.4,
+            "priority": 3,
+            "seconds": 0.35,
+            "cooldownMs": 300,
+            "variants": 1
+          },
+          "helpers": [
+            "impact",
+            "bell"
+          ],
+          "seeds": "591",
+          "files": [
+            {
+              "asset": "ankh_catch.wav",
+              "seconds": 0.35,
+              "peak_db": -3.1,
+              "rms_db": -20.64,
+              "sha256": "829bf49f9e250163668f3480d9d078311821cced6bdd9c95a925f0061c450e22"
+            }
+          ]
+        },
+        "mummy_fury": {
+          "report": "reports/01-egypt-guardian.md section 6",
+          "fires_on": "BossAudioCues: the fury edge (hp*3 <= maxHp), in place of boss_enrage",
+          "spec": {
+            "volume": 0.55,
+            "priority": 4,
+            "seconds": 1.3,
+            "cooldownMs": 1000,
+            "variants": 1
+          },
+          "helpers": [
+            "band_noise",
+            "coo_voice (hoot)",
+            "gong"
+          ],
+          "seeds": "601-604",
+          "files": [
+            {
+              "asset": "mummy_fury.wav",
+              "seconds": 1.3,
+              "peak_db": -3.1,
+              "rms_db": -17.18,
+              "sha256": "7f60e11c64bd2e85e891bbcac1e9573afca06344b5f10affbb08e2688185adcc"
+            }
+          ]
+        },
+        "mask_pop": {
+          "report": "reports/01-egypt-guardian.md section 6",
+          "fires_on": "BossAudioCues: the burst edge (0.85 s after the defeat), in place of boss_burst",
+          "spec": {
+            "volume": 0.6,
+            "priority": 4,
+            "seconds": 1.3,
+            "cooldownMs": 1000,
+            "variants": 1
+          },
+          "helpers": [
+            "clang",
+            "impact",
+            "wing_claps",
+            "crinkle",
+            "coo_voice (hoot)"
+          ],
+          "seeds": "611-619",
+          "files": [
+            {
+              "asset": "mask_pop.wav",
+              "seconds": 1.3,
+              "peak_db": -3.1,
+              "rms_db": -14.79,
+              "sha256": "463555a084db1279bfb834c12887ca54aec68f36b05e81079a589788120a3fd5"
+            }
+          ]
+        },
+        "lost_letter": {
+          "report": "reports/01-egypt-guardian.md section 6",
+          "fires_on": "NeferhooAudioCues: 1.6 s after the defeat (the lost letter glows), 0.05 s behind boss_victory",
+          "spec": {
+            "volume": 0.45,
+            "priority": 3,
+            "seconds": 1.4,
+            "cooldownMs": 1000,
+            "variants": 1
+          },
+          "helpers": [
+            "bell"
+          ],
+          "seeds": "none (no noise)",
+          "files": [
+            {
+              "asset": "lost_letter.wav",
+              "seconds": 1.4,
+              "peak_db": -3.1,
+              "rms_db": -16.25,
+              "sha256": "8db2bf39dd0d2f481e90b6b636032521f6ceef796b8547678ca918950cc3f433"
+            }
+          ]
+        }
+      },
+      "levels": {
+        "note": "The scuff under a postage due is the scuff's WAV 6 dB lower (SoundSpec.file): NeferhooAudioCues plays it when a scuff lands within 0.25 s of a postage due. tool/prepare_sound_effects.py renders nothing for it.",
+        "wrap_scuff_duck": {
+          "file": "wrap_scuff",
+          "volume": 0.11,
+          "relative_db": -6.0
+        }
       }
     }
   }

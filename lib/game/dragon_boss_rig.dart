@@ -46,6 +46,18 @@ abstract final class DragonBossRig {
   static Offset mouthAt(DragonPose pose) =>
       pose.toRig(DragonHeadArt.point(headOf(pose), DragonHeadArt.mouth));
 
+  /// The lower jaw's tip for [pose], in rig units, swung open as the head
+  /// draws it: with [mouthAt], the two lips the roar's fire pours between.
+  static Offset chinAt(DragonPose pose) {
+    final head = headOf(pose);
+    return pose.toRig(
+      DragonHeadArt.point(
+        head,
+        DragonHeadArt.jawFront(head.gape, openBy: DragonHeadArt.openFor(head)),
+      ),
+    );
+  }
+
   /// Where the eye is for [pose], in rig units.
   static Offset eyeAt(DragonPose pose) =>
       pose.toRig(DragonHeadArt.point(headOf(pose), DragonHeadArt.eye));

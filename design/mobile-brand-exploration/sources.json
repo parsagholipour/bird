@@ -1,0 +1,13 @@
+{
+  "identity_basis": [
+    "lib/domain/campaign_story.dart",
+    "docs/campaign.md",
+    "design/pip.svg",
+    "design/minty.svg",
+    "design/peaches.svg",
+    "design/island.svg"
+  ],
+  "play_icon_specification": "https://developer.android.com/distribute/google-play/resources/icon-design-specifications",
+  "status": "Working name and visual identity proposals; not an implemented application rename.",
+  "name_screen": "Exploratory web searches only; no availability conclusion."
+}

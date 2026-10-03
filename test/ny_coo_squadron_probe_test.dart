@@ -55,7 +55,14 @@ class LookBot extends coo.CooBot {
   double width,
   int phase,
 ) {
-  final run = flyNewYork('3-2', width: width, phase: phase, stopAtBoss: true);
+  // New York's fight (rules 43), the one the probe was built to study.
+  final run = flyNewYork(
+    '3-2',
+    width: width,
+    phase: phase,
+    stopAtBoss: true,
+    version: FlightSimulation.newYorkRulesVersion,
+  );
   final sim = run.sim;
   final d = DirectDriver(sim);
   final log = HitLog();
@@ -99,6 +106,7 @@ void main() {
       skill: Skill.casual,
       width: 800 / 360,
       phase: 0,
+      version: FlightSimulation.newYorkRulesVersion,
     );
     final b = run.fightHits;
     expect(a.squad, b.where((h) => h.cause == 'squad-pigeon').length);

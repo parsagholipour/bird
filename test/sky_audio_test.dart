@@ -7,11 +7,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:push_up_bird/data/progress_repository.dart';
 import 'package:push_up_bird/domain/game_rules.dart';
+import 'package:push_up_bird/domain/campaign.dart';
 import 'package:push_up_bird/domain/tracking.dart';
 import 'package:push_up_bird/game/audio.dart';
 import 'package:push_up_bird/game/flight_voices.dart';
 import 'package:push_up_bird/game/play_controller.dart';
+import 'package:push_up_bird/game/regions/world_region.dart' show WorldTour;
 import 'package:push_up_bird/game/sound_bank.dart';
+import 'campaign_flight.dart' show levelFlight;
+import 'heart_pickup_test.dart' show defeat, flight;
 import 'touch_combat_test.dart' show playing;
 
 // Model Android's per-player focus: a GAIN request pauses the previous owner.
@@ -26,6 +30,7 @@ class AndroidAudioHost {
   String? owner;
   final starts = <String>[];
   final volumes = <String, double>{};
+  final volumeLog = <String, List<double>>{};
   final loads = <String>[];
   final modes = <String, String>{};
   Completer<void>? sourceGate;
@@ -77,6 +82,7 @@ class AndroidAudioHost {
           starts.add(id);
         } else if (call.method == 'setVolume') {
           volumes[id] = args['volume'] as double;
+          (volumeLog[id] ??= []).add(volumes[id]!);
         } else if (call.method == 'setPlayerMode') {
           modes[id] = args['playerMode'] as String;
         } else if ([
@@ -324,6 +330,110 @@ void main() {
     await drainAudio();
     expect(host.loads, hasLength(loads));
     expect(host.volumes[music], .70);
+  });
+
+  test('a ducking effect lowers the music, under a line too, until '
+      'stopped', () async {
+    final host = AndroidAudioHost()..install();
+    final audio = SkyAudio(effectClock: () => 0);
+    addTearDown(audio.dispose);
+    await audio.configure(const GameSettings());
+    await waitForTrack(host, 'sky_flight.ogg');
+    final music = host.music;
+    final duck = soundBank['finish_cheer']!.duck!;
+    expect(duck, inExclusiveRange(0, 1));
+    audio.effect('complete');
+    await drainAudio();
+    expect(host.volumes[music], .70, reason: 'an ordinary cue never ducks');
+    audio.effect('finish_cheer');
+    await drainAudio();
+    expect(host.volumes[music], closeTo(.70 * duck, 1e-9));
+    // A line said over the cheer ducks the music further.
+    audio.speak('audio/story/before-1-1-1.ogg', duck: SkyAudio.flightDuck);
+    await drainAudio();
+    expect(
+      host.volumes[music],
+      closeTo(.70 * duck * SkyAudio.flightDuck, 1e-9),
+    );
+    await audio.hush();
+    await drainAudio();
+    expect(host.volumes[music], closeTo(.70 * duck, 1e-9));
+    await audio.stopEffects();
+    await drainAudio();
+    expect(host.volumes[music], .70);
+    // With effects off the cue does not play, so nothing ducks.
+    await audio.configure(const GameSettings(effects: false));
+    audio.effect('finish_cheer');
+    await drainAudio();
+    expect(host.volumes[music], .70);
+  });
+
+  test('the music swells back when the ducking cue ends; a later one '
+      'extends it or cuts the swell short', () async {
+    final host = AndroidAudioHost()..install();
+    var now = 0;
+    final audio = SkyAudio(effectClock: () => now);
+    addTearDown(audio.dispose);
+    await audio.configure(const GameSettings());
+    await waitForTrack(host, 'sky_flight.ogg');
+    final music = host.music;
+    final cheer = soundBank['finish_cheer']!;
+    final ducked = .70 * cheer.duck!;
+    // At double speed the cue, and so the duck, lasts half its length.
+    await audio.setRate(2);
+    final length = (cheer.seconds * 1000 / 2).ceil();
+    final clock = Stopwatch()..start();
+    audio.effect('finish_cheer');
+    await drainAudio();
+    expect(host.volumes[music], closeTo(ducked, 1e-9));
+    await Future<void>.delayed(Duration(milliseconds: length ~/ 2));
+    now += cheer.cooldownMs;
+    audio.effect('finish_cheer');
+    final again = clock.elapsedMilliseconds;
+    // Past the end of the first cue, inside the second.
+    await Future<void>.delayed(
+      Duration(milliseconds: max(0, length + 150 - again)),
+    );
+    await drainAudio();
+    expect(host.volumes[music], closeTo(ducked, 1e-9));
+    // The swell starts as the second cue ends; a third cue cuts it short.
+    while (host.volumes[music]! < ducked + 1e-6 &&
+        clock.elapsedMilliseconds < 6000) {
+      await Future<void>.delayed(const Duration(milliseconds: 5));
+    }
+    expect(
+      clock.elapsedMilliseconds,
+      greaterThanOrEqualTo(again + length - 50),
+    );
+    expect(host.volumes[music], lessThan(.70));
+    now += cheer.cooldownMs;
+    audio.effect('finish_cheer');
+    final last = clock.elapsedMilliseconds;
+    await drainAudio();
+    expect(host.volumes[music], closeTo(ducked, 1e-9));
+    await Future<void>.delayed(const Duration(milliseconds: 400));
+    expect(
+      host.volumes[music],
+      closeTo(ducked, 1e-9),
+      reason: 'the cut swell takes no more steps',
+    );
+    final mark = host.volumeLog[music]!.length;
+    while (host.volumes[music] != .70 && clock.elapsedMilliseconds < 9000) {
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+    }
+    expect(host.volumes[music], .70);
+    expect(
+      clock.elapsedMilliseconds,
+      greaterThanOrEqualTo(last + length + 550),
+      reason: 'the swell takes about 0.6 s',
+    );
+    // Up in a few small steps, each above the last and none past full.
+    final swell = host.volumeLog[music]!.sublist(mark);
+    expect(swell.length, greaterThanOrEqualTo(4));
+    for (var i = 0; i < swell.length; i++) {
+      expect(swell[i], greaterThan(i == 0 ? ducked : swell[i - 1]));
+      expect(swell[i], lessThanOrEqualTo(.70));
+    }
   });
 
   test(
@@ -592,4 +702,111 @@ void main() {
       expect(host.sources[host.playing.single], endsWith('star.wav'));
     },
   );
+
+  test('every campaign region but the jungle flies to its own song', () {
+    expect(SkyMusic.flightOver(null), SkyMusic.flight);
+    expect(SkyMusic.flightOver(WorldRegion.jungle), SkyMusic.flight);
+    final songs = {
+      for (final region in Campaign.journey)
+        region: SkyMusic.flightOver(region),
+    };
+    expect(songs.keys.toSet(), WorldRegion.values.toSet());
+    for (final MapEntry(key: region, value: song) in songs.entries) {
+      expect(song.inFlight, isTrue);
+      if (region == WorldRegion.jungle) continue;
+      expect(song.region, region);
+      final bytes = File('assets/${song.asset}').readAsBytesSync();
+      expect(String.fromCharCodes(bytes.take(4)), 'OggS', reason: '$song');
+      expect(bytes.length, greaterThan(500000), reason: '$song');
+    }
+    expect(
+      SkyMusic.values.map((m) => m.asset).toSet(),
+      hasLength(SkyMusic.values.length),
+      reason: 'every song is its own file',
+    );
+    expect(SkyMusic.menu.inFlight, isFalse);
+    expect(SkyMusic.boss.inFlight, isFalse);
+  });
+
+  test('a region\'s song gives way to boss music and comes back', () async {
+    final host = AndroidAudioHost()..install();
+    final audio = SkyAudio();
+    addTearDown(audio.dispose);
+    await audio.configure(
+      const GameSettings(effects: false),
+      track: SkyMusic.newYork,
+    );
+    await waitForTrack(host, 'sky_new_york.ogg');
+    final boss = SkyBoss(number: 1, x: 1)..age = 6;
+    audio.syncBoss(boss);
+    await waitForTrack(host, 'sky_boss.ogg');
+    audio.syncBoss(null);
+    await waitForTrack(host, 'sky_new_york.ogg');
+    await audio.stop();
+    await audio.resumeMusic();
+    await waitForTrack(host, 'sky_new_york.ogg');
+  });
+
+  test('an endless flight records when its latest boss flew off', () {
+    final sim = flight();
+    expect(sim.bossLeftAt, isNull);
+    expect(SkyAudio.tourSong(sim), isNull);
+    defeat(sim);
+    final left = sim.bossLeftAt!;
+    expect(left, closeTo(sim.elapsed, .05));
+    expect(
+      SkyAudio.tourSong(sim),
+      SkyMusic.flightOver(WorldTour.at(left).dominant),
+    );
+  });
+
+  test(
+    'after an endless boss leaves, the music plays the region showing',
+    () async {
+      final host = AndroidAudioHost()..install();
+      final audio = SkyAudio();
+      addTearDown(audio.dispose);
+      await audio.configure(const GameSettings(effects: false));
+      final sim = flight();
+      audio.syncCombat(sim, silent: true);
+      await waitForTrack(host, 'sky_flight.ogg');
+
+      // The first boss leaves over New York, the tour's ninth region.
+      sim.bossLeftAt = 8 * WorldTour.leg + 5;
+      expect(WorldTour.at(sim.bossLeftAt!).dominant, WorldRegion.newYork);
+      audio.syncCombat(sim, silent: true);
+      await waitForTrack(host, 'sky_new_york.ogg');
+      for (var frame = 0; frame < 50; frame++) {
+        audio.syncCombat(sim, silent: true);
+      }
+      await drainAudio();
+      expect(
+        host.loads.where((s) => s.endsWith('sky_new_york.ogg')),
+        hasLength(1),
+        reason: 'the region song starts once, not every frame',
+      );
+
+      // The next boss brings its own music, and leaves over the jungle on the
+      // tour's second lap, which keeps the flight's song.
+      sim.boss = SkyBoss(number: 2, x: 1)..age = 6;
+      audio.syncCombat(sim, silent: true);
+      await waitForTrack(host, 'sky_boss.ogg');
+      sim.boss = null;
+      sim.bossLeftAt = WorldTour.loop + 5;
+      audio.syncCombat(sim, silent: true);
+      await waitForTrack(host, 'sky_flight.ogg');
+
+      // A new flight starts on the flight's song again.
+      sim.bossLeftAt = 8 * WorldTour.leg + 5;
+      audio.syncCombat(sim, silent: true);
+      await waitForTrack(host, 'sky_new_york.ogg');
+      audio.syncCombat(flight(), silent: true);
+      await waitForTrack(host, 'sky_flight.ogg');
+    },
+  );
+
+  test('a campaign level keeps its region\'s song after its boss', () {
+    final sim = levelFlight(Campaign.level('1-3')!)..bossLeftAt = 100;
+    expect(SkyAudio.tourSong(sim), isNull);
+  });
 }

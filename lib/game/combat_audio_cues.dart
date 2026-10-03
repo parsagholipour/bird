@@ -21,9 +21,13 @@ class CombatAudioCues {
   // sounded, and a steam burst last sounded: they mask each other.
   double _landedAt = double.negativeInfinity,
       _burstAt = double.negativeInfinity;
-  final Set<SkyEnemy> _charging = {};
+  final Set<SkyEnemy> _charging = {}, _winding = {};
   double _elapsed = 0;
   bool _magnet = false;
+
+  /// Whether the flight's boss had sent its vanguard: the boss's warning
+  /// sounds as the vanguard begins, and again as the boss arrives.
+  bool _vanguard = false;
 
   /// Per bird, so either co-op player's charge and recharge chime.
   List<bool> _fullCharge = const [], _sprintReady = const [];
@@ -55,6 +59,9 @@ class CombatAudioCues {
   /// coo that [advance] plays for each warning.
   static bool _chargesUp(SkyEnemy e) =>
       e.charge > 0 && e.kind != EnemyKind.alleyPigeon;
+
+  /// King Coo's vanguard pigeons (rules 45) coo as they wind up a throw.
+  static bool _windsUp(SkyEnemy e) => e.charge > 0 && e.throwsCrumbs;
 
   List<String> advance(FlightSimulation sim, {bool silent = false}) {
     final fresh = !identical(_simulation, sim);
@@ -108,6 +115,7 @@ class CombatAudioCues {
       if (sim.galeWarnings > _galeWarnings) cues.add('rush_alarm');
       if (sim.gusts > _gusts) cues.add('gust_warning');
       if (sim.galesWeathered > _galesWeathered) cues.add('rush_clear');
+      if (sim.vanguard != null && !_vanguard) cues.add('boss_warning');
       // Swarm bats go down like any bat; a pigeon has its own defeat.
       if (sim.enemiesDefeated - sim.pigeonsDefeated + sim.swarmSmashed >
           _deaths) {
@@ -162,6 +170,9 @@ class CombatAudioCues {
       if (sim.enemies.any((e) => _chargesUp(e) && !_charging.contains(e))) {
         cues.add('enemy_charge');
       }
+      if (sim.enemies.any((e) => _windsUp(e) && !_winding.contains(e))) {
+        cues.add('pigeon_coo');
+      }
     }
     _simulation = sim;
     _elapsed = sim.elapsed;
@@ -177,6 +188,7 @@ class CombatAudioCues {
     _eruptions = sim.ventsErupted;
     _gusts = sim.gusts;
     _galeWarnings = sim.galeWarnings;
+    _vanguard = sim.vanguard != null;
     _galesWeathered = sim.galesWeathered;
     _deaths = sim.enemiesDefeated - sim.pigeonsDefeated + sim.swarmSmashed;
     _pigeonWarnings = sim.pigeonWarnings;
@@ -198,6 +210,9 @@ class CombatAudioCues {
     _charging
       ..clear()
       ..addAll(sim.enemies.where(_chargesUp));
+    _winding
+      ..clear()
+      ..addAll(sim.enemies.where(_windsUp));
     return cues;
   }
 }

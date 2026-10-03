@@ -6,6 +6,7 @@ import '../domain/campaign.dart';
 import '../domain/session_replay.dart';
 import '../data/session_repository.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show HapticFeedback;
 import '../domain/tracking.dart';
 import '../domain/jump_tracking.dart';
 import '../domain/squat_tracking.dart';
@@ -13,17 +14,20 @@ import '../domain/game_rules.dart';
 import '../tracking/native_tracking_source.dart';
 import '../tracking/tracking_api.g.dart' show MicrophoneAccess;
 import 'audio.dart';
+import 'finish_celebration_art.dart';
 import 'flight_voices.dart';
 import 'knockout_art.dart';
 
-/// [fallen] plays the knockout after a fatal collision; the run is already
-/// being saved while it does. [results] follows it (or any other ending).
+/// [celebrating] plays a campaign level's finish-line celebration and
+/// [fallen] the knockout after a fatal collision; the run is already being
+/// saved while either plays. [results] follows them (or any other ending).
 enum PlayStage {
   setup,
   starting,
   calibration,
   ready,
   flying,
+  celebrating,
   fallen,
   results,
   error,
@@ -69,8 +73,9 @@ class PlayController extends ChangeNotifier {
         background();
         return;
       }
-      // The run has ended; the camera stopping must not interrupt the fall.
-      if (stage == PlayStage.fallen) return;
+      // The run has ended; the camera stopping must not interrupt the fall
+      // or the celebration.
+      if (stage == PlayStage.fallen || stage == PlayStage.celebrating) return;
       message = issue.message;
       if (simulation?.phase == RunPhase.playing) {
         recorder?.command('end', EndReason.trackingLost);
@@ -399,6 +404,11 @@ class PlayController extends ChangeNotifier {
       _advanceKnockout(dt);
       return;
     }
+    // The celebration plays on under the result until it settles.
+    if (celebration != null) {
+      _advanceCelebration(dt);
+      return;
+    }
     if (isTouch) {
       if (_disposed ||
           stage != PlayStage.flying ||
@@ -681,8 +691,13 @@ class PlayController extends ChangeNotifier {
   void tick() {
     if (simulation?.phase == RunPhase.ended) {
       unawaited(finish());
-      // The knockout and its stage change only on their own transitions.
-      if (stage == PlayStage.fallen || stage == PlayStage.results) return;
+      // The knockout, the celebration and their stage change only on their
+      // own transitions.
+      if (stage == PlayStage.fallen ||
+          stage == PlayStage.celebrating ||
+          stage == PlayStage.results) {
+        return;
+      }
     }
     notify();
   }
@@ -737,6 +752,94 @@ class PlayController extends ChangeNotifier {
     notify();
   }
 
+  /// Seconds since the bird crossed a campaign level's finish line while its
+  /// celebration plays, carrying on under the result until it settles, then
+  /// held. Null for every other ending.
+  double? celebration;
+  Timer? _celebrationTimer;
+
+  /// Whether the celebration reached the result on its own, so the result's
+  /// courier takes over from the bird that has just landed in its seat. A
+  /// skipped or interrupted celebration leaves the courier to rise in.
+  bool handedOff = false;
+  bool _fanfare = false;
+  double get celebrationSeconds =>
+      FinishCelebrationArt.duration(reducedMotion: reducedMotion);
+  double get _celebrationStill =>
+      FinishCelebrationArt.stillAt(reducedMotion: reducedMotion);
+
+  /// Whether the celebration's last frame has been drawn, so the loop may
+  /// stop under the result. True when there is none.
+  bool get celebrationSettled =>
+      celebration == null || celebration! >= _celebrationStill;
+
+  /// A tap may skip the rest of the celebration only after
+  /// [FinishCelebrationArt.skipAfter], so flapping cannot dismiss it.
+  bool get canSkipCelebration =>
+      stage == PlayStage.celebrating &&
+      (celebration ?? 0) >= FinishCelebrationArt.skipAfter;
+
+  void skipCelebration() {
+    if (canSkipCelebration) _showResult();
+  }
+
+  /// Goes straight to the result from the celebration: the back key and
+  /// pause do, whenever they come.
+  void endCelebration() {
+    if (stage == PlayStage.celebrating) _showResult();
+  }
+
+  void _startCelebration() {
+    celebration = 0;
+    handedOff = false;
+    _fanfare = false;
+    _celebrationTimer?.cancel();
+    // The game loop drives the celebration; this only guards against frames
+    // stopping, so the result can never be stranded.
+    _celebrationTimer = Timer(
+      Duration(milliseconds: ((celebrationSeconds + 1) * 1000).round()),
+      _showResult,
+    );
+  }
+
+  void _advanceCelebration(double dt) {
+    final before = celebration;
+    if (_disposed || before == null || !dt.isFinite || dt <= 0) return;
+    if (before >= _celebrationStill) return;
+    final now = min(before + dt, _celebrationStill);
+    celebration = now;
+    // The tape snaps under the player's thumb.
+    const snap = FinishCelebrationArt.hitStop;
+    if (before < snap && now >= snap) unawaited(HapticFeedback.mediumImpact());
+    for (final (at, cue) in FinishCelebrationArt.cues) {
+      if (before < at && now >= at && stage == PlayStage.celebrating) {
+        if (cue == 'complete') _fanfare = true;
+        audio.effect(cue);
+      }
+    }
+    if (stage == PlayStage.celebrating && now >= celebrationSeconds) {
+      handedOff = true;
+      _showResult();
+    } else if (stage == PlayStage.celebrating || now >= _celebrationStill) {
+      // The flight HUD fades with the celebration, and the play screen
+      // stops the loop on the settled frame.
+      notify();
+    }
+  }
+
+  void _showResult() {
+    _celebrationTimer?.cancel();
+    _celebrationTimer = null;
+    if (_disposed || stage != PlayStage.celebrating) return;
+    // A skip still gets its fanfare.
+    if (!_fanfare) {
+      _fanfare = true;
+      audio.effect('complete');
+    }
+    stage = PlayStage.results;
+    notify();
+  }
+
   Future<void> finish() => _finishing ??= _finish();
 
   Future<void> _finish() async {
@@ -777,18 +880,28 @@ class PlayController extends ChangeNotifier {
       levelId: game.levelId,
     );
     _rememberVoices();
-    // A fatal bump plays its knockout first; saving still starts right now.
+    // A level's finish line plays its celebration first, and a fatal bump
+    // its knockout; saving still starts right now.
+    final celebrate =
+        campaign &&
+        game.endReason == EndReason.completed &&
+        game.finishLine?.crossed == true;
     if (game.endReason == EndReason.collision) {
       stage = PlayStage.fallen;
       _startKnockout();
       // Star Trail's last lost heart already sounds its bump.
       if (!game.isTrail) audio.effect('bump');
+    } else if (celebrate) {
+      stage = PlayStage.celebrating;
+      _startCelebration();
     } else {
       stage = PlayStage.results;
     }
     final endCue = switch (game.endReason!) {
       // A knockout ends a duel with a winner.
       EndReason.collision when duel => 'complete',
+      // The tape snaps; the fanfare follows on the celebration's beat.
+      EndReason.completed when celebrate => 'finish_snap',
       EndReason.completed => 'complete',
       EndReason.collision ||
       EndReason.trackingLost ||
@@ -824,6 +937,12 @@ class PlayController extends ChangeNotifier {
   }
 
   void pause() {
+    // Pausing during the celebration lands on the result; the flight has
+    // ended, so nothing reaches its journal.
+    if (stage == PlayStage.celebrating) {
+      endCelebration();
+      return;
+    }
     _touchFlap = _partnerFlap = false;
     recorder?.command('break');
     if (simulation?.phase == RunPhase.ended) {
@@ -870,6 +989,10 @@ class PlayController extends ChangeNotifier {
     } else if (stage == PlayStage.fallen) {
       // Coming back lands on the game-over stage, not a stale fall.
       _showStage();
+    } else if (stage == PlayStage.celebrating) {
+      // And on the level's result over the settled finish.
+      celebration = _celebrationStill;
+      _showResult();
     } else if (stage == PlayStage.calibration ||
         stage == PlayStage.ready ||
         stage == PlayStage.starting) {
@@ -908,6 +1031,10 @@ class PlayController extends ChangeNotifier {
     _knockoutTimer?.cancel();
     _knockoutTimer = null;
     knockout = null;
+    _celebrationTimer?.cancel();
+    _celebrationTimer = null;
+    celebration = null;
+    handedOff = false;
     cameraRecordingError = '';
     simulation = null;
     result = null;
@@ -926,6 +1053,7 @@ class PlayController extends ChangeNotifier {
     ++_operation;
     _refresh?.cancel();
     _knockoutTimer?.cancel();
+    _celebrationTimer?.cancel();
     _samples?.cancel();
     _issues?.cancel();
     unawaited(() async {

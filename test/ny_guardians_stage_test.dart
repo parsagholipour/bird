@@ -307,6 +307,10 @@ Future<List<_Beat>> _gargoyleSequence(
   return beats;
 }
 
+
+/// A squadron pigeon's track, for the pigeons these tests park by hand.
+const _squadTrack = SquadTrack(x0: 0, fromY: .5, lane: .5, bornAt: 0);
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -895,7 +899,10 @@ void main() {
 
   group('King Coo\'s squadron and the Gargoyle\'s feathers and beams', () {
     test('his squadron is held back from the shared pass for him alone', () {
-      final pigeon = SkyEnemy(x: 1.0, y: .5, appearance: 4, squad: true);
+      // One of his squadron: it flies on a track (a squad pigeon without one
+      // is a rules 45 straggler, drawn in front of him).
+      final pigeon = SkyEnemy(x: 1.0, y: .5, appearance: 4, squad: true)
+        ..track = _squadTrack;
       for (final kind in BossKind.values) {
         final boss = SkyBoss(number: 6, x: 1.4, kind: kind, cinematic: true);
         // A pigeon right at his back (inside the reach) is held back for King
@@ -925,7 +932,7 @@ void main() {
             ..addAll([?with_]);
           CombatArt.paint(c, 360, s.sim, reducedMotion: false);
         });
-        SkyEnemy pigeonAt(double x) => SkyEnemy(x: x, y: .5, appearance: 4, squad: true);
+        SkyEnemy pigeonAt(double x) => SkyEnemy(x: x, y: .5, appearance: 4, squad: true)..track = _squadTrack;
         for (final (s, back, open) in [
           (king, king.boss.x - .2, king.boss.x - .6),
           (gar, gar.boss.x - .2, gar.boss.x - .6),

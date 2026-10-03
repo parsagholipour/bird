@@ -40,8 +40,8 @@ abstract final class SteamEmitterArt {
 
   /// The glow tone of a vent's throat: amber when hot, teal when soft.
   static Color mouthTone(SteamKind kind, SteamBeat b) {
-    if (b.billow) return SteamTones.teal;
-    if (b.hiss && kind == SteamKind.ride) return SteamTones.teal;
+    // Soft steam is teal from first to last: a ride vent never turns hot.
+    if (kind == SteamKind.ride || b.billow) return SteamTones.teal;
     return SteamTones.amber;
   }
 
@@ -69,7 +69,7 @@ abstract final class SteamEmitterArt {
     if (tall) {
       _stack(c, h, cx, lipY(v, h), heat, tone, lid + chatter, v.kind);
     } else if (v.kind == SteamKind.ride) {
-      _grate(c, h, cx, heat, tone, lid + chatter, b);
+      _grate(c, h, cx, heat, tone, lid + chatter, b, clock, rm);
     } else {
       _cover(c, h, cx, heat, tone, lid + chatter, seed, b);
     }
@@ -84,6 +84,31 @@ abstract final class SteamEmitterArt {
   // ---------------------------------------------------------------------
   // The roof
 
+  static final _brickCache = <int, (Path, Path)>{};
+
+  /// The block's bricks as two paths (ordinary, darker), centred on x = 0 and
+  /// cached: they never change for a given size and vent.
+  static (Path, Path) _bricks(double h, int seed) {
+    final key = (h * 8).round() * 100003 + seed;
+    final hit = _brickCache[key];
+    if (hit != null) return hit;
+    if (_brickCache.length > 24) _brickCache.clear();
+    final top = h * slab, hw = h * half;
+    final mid = Path(), dark = Path();
+    for (var row = 0; row < 3; row++) {
+      final y0 = top + h * (.0165 + row * .0205);
+      for (var col = -1; col < 8; col++) {
+        final x0 = -hw + (row.isOdd ? h * .026 : 0) + col * h * .0525;
+        final l = math.max(x0 + h * .0015, -hw + h * .0015);
+        final r = math.min(x0 + h * .0525 - h * .0015, hw - h * .0015);
+        if (r - l < h * .01) continue;
+        final t = SteamMath.hash(seed + row * 7 + col, 3);
+        (t < .86 ? mid : dark).addRect(Rect.fromLTRB(l, y0, r, y0 + h * .0185));
+      }
+    }
+    return _brickCache[key] = (mid, dark);
+  }
+
   static void _block(
     Canvas c,
     double h,
@@ -94,45 +119,23 @@ abstract final class SteamEmitterArt {
   ) {
     final top = h * slab, hw = h * half;
     final block = Rect.fromLTRB(cx - hw, top, cx + hw, h + 2);
-    final tint = SteamMath.hash(seed, 3);
-    c.drawRect(
-      block,
-      Paint()
-        ..color = Color.lerp(SteamTones.brick, SteamTones.brickLit, tint * .3)!,
-    );
-    c.drawRect(
-      Rect.fromLTRB(cx - hw, top, cx + hw, top + h * .014),
-      Paint()..color = SteamTones.brickLit,
-    );
-    c.drawRect(
-      Rect.fromLTRB(cx + hw * .55, top + h * .014, cx + hw, h + 2),
-      Paint()..color = SteamTones.brickShade.withValues(alpha: .55),
-    );
-    final courses = Path();
-    for (var y = top + h * .03; y < h; y += h * .022) {
-      courses
-        ..moveTo(cx - hw, y)
-        ..lineTo(cx + hw, y);
-    }
-    // Every other course breaks its joints: short vertical ticks.
-    var row = 0;
-    for (var y = top + h * .014; y < h; y += h * .022, row++) {
-      for (
-        var x = cx - hw + h * (row.isEven ? .04 : .07);
-        x < cx + hw;
-        x += h * .066
-      ) {
-        courses
-          ..moveTo(x, y + h * .004)
-          ..lineTo(x, y + h * .02);
-      }
-    }
+    // Mortar first; the bricks sit on it with a hair of gap between them.
+    c.drawRect(block, Paint()..color = SteamTones.mortar);
+    // The bricks are built once per size and seed, centred on x = 0.
+    final (mid, dark) = _bricks(h, seed);
+    c.save();
+    c.translate(cx, 0);
+    c.drawPath(mid, Paint()..color = SteamTones.brick);
     c.drawPath(
-      courses,
+      dark,
       Paint()
-        ..color = SteamTones.brickShade.withValues(alpha: .5)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = h * .0028,
+        ..color = Color.lerp(SteamTones.brick, SteamTones.brickShade, .55)!,
+    );
+    c.restore();
+    // The right face turns from the moon: a shaded band.
+    c.drawRect(
+      Rect.fromLTRB(cx + hw * .62, top + h * .014, cx + hw, h + 2),
+      Paint()..color = SteamTones.ink.withValues(alpha: .16),
     );
     // Limestone coping with a shadow line under it.
     final coping = Rect.fromLTRB(
@@ -151,17 +154,51 @@ abstract final class SteamEmitterArt {
       ),
       Paint()..color = SteamTones.stoneShade,
     );
-    // The vent's own light washes the coping.
+    // The vent's own light washes the coping and the bricks under it.
     if (heat > 0) {
       c.drawOval(
         Rect.fromCenter(
           center: Offset(cx, top - h * .006),
-          width: h * .30,
-          height: h * .02,
+          width: h * .34,
+          height: h * .022,
         ),
         Paint()..color = tone.withValues(alpha: .34 * heat),
       );
+      for (final (w, a) in const [(.28, .08), (.12, .14)]) {
+        c.drawRect(
+          Rect.fromCenter(
+            center: Offset(cx, top + h * .020),
+            width: h * w,
+            height: h * .040,
+          ).intersect(block),
+          Paint()..color = tone.withValues(alpha: a * heat),
+        );
+      }
     }
+    // A darker contact band where the emitter stands, and a parapet drain
+    // (scupper) with a rust stain on the block's face.
+    c.drawRect(
+      Rect.fromCenter(
+        center: Offset(cx, top - h * .004),
+        width: h * .205,
+        height: h * .009,
+      ),
+      Paint()..color = SteamTones.ink.withValues(alpha: .30),
+    );
+    final scupper = Rect.fromLTWH(
+      cx - hw + h * .020,
+      top + h * .046,
+      h * .030,
+      h * .014,
+    );
+    c.drawRRect(
+      RRect.fromRectAndRadius(scupper, Radius.circular(h * .003)),
+      Paint()..color = SteamTones.ironDeep,
+    );
+    c.drawRRect(
+      RRect.fromRectAndRadius(scupper, Radius.circular(h * .003)),
+      _ink(h, .0035),
+    );
     final ink = _ink(h)..isAntiAlias = true;
     c.drawPath(
       Path()
@@ -242,7 +279,9 @@ abstract final class SteamEmitterArt {
   // ---------------------------------------------------------------------
   // Emitters
 
-  /// The hop vent's iron cover on a stone collar.
+  /// The hop vent's cast-iron cover in its frame: a raised lip with caution
+  /// dashes and bolts, studs and glowing slots in the lid, a slit of light
+  /// under it when it kicks up.
   static void _cover(
     Canvas c,
     double h,
@@ -254,81 +293,141 @@ abstract final class SteamEmitterArt {
     SteamBeat b,
   ) {
     final base = h * slab;
-    final collar = Rect.fromCenter(
-      center: Offset(cx, base - h * .004),
-      width: h * .17,
-      height: h * .044,
-    );
-    c.drawOval(collar, Paint()..color = SteamTones.stoneShade);
+    final cy = base - h * .005;
+    // Contact shadow on the coping.
     c.drawOval(
-      collar.deflate(h * .004).translate(0, -h * .004),
-      Paint()..color = SteamTones.stone,
+      Rect.fromCenter(
+        center: Offset(cx + h * .004, base),
+        width: h * .190,
+        height: h * .024,
+      ),
+      Paint()..color = SteamTones.ink.withValues(alpha: .42),
     );
-    // Caution dashes around the collar.
-    final dashes = Path();
-    for (var i = 0; i < 12; i++) {
-      final a = i * math.pi * 2 / 12;
-      final o = Offset(
-        cx + math.cos(a) * h * .0745,
-        base - h * .004 + math.sin(a) * h * .0175,
-      );
-      dashes
-        ..moveTo(o.dx - h * .004, o.dy)
-        ..lineTo(o.dx + h * .004, o.dy);
+    // A raised concrete curb with hazard stripes down its front: the lid sits
+    // on a recognisable object, not flat on the coping.
+    final riser = h * .021;
+    final cw = h * .164;
+    final topE = Rect.fromCenter(
+      center: Offset(cx, cy - riser),
+      width: cw,
+      height: h * .040,
+    );
+    final topCy = topE.center.dy, halfW = cw / 2, halfH = topE.height / 2;
+    double arcY(double x) =>
+        topCy +
+        halfH * math.sqrt(math.max(0.0, 1 - math.pow((x - cx) / halfW, 2)));
+    final face = Path()..moveTo(cx - halfW, topCy);
+    for (var i = 0; i <= 12; i++) {
+      final x = cx - halfW + cw * i / 12;
+      face.lineTo(x, arcY(x) + riser);
+    }
+    face.lineTo(cx + halfW, topCy);
+    for (var i = 12; i >= 0; i--) {
+      final x = cx - halfW + cw * i / 12;
+      face.lineTo(x, arcY(x));
+    }
+    face.close();
+    c.drawPath(face, Paint()..color = SteamTones.stone);
+    final stripes = Path();
+    for (var x = cx - halfW + h * .004; x < cx + halfW - riser; x += h * .026) {
+      final x2 = x + riser * .8;
+      stripes
+        ..moveTo(x, arcY(x) + h * .001)
+        ..lineTo(x2, arcY(x2) + riser - h * .001);
     }
     c.drawPath(
-      dashes,
+      stripes,
       Paint()
-        ..color = SteamTones.ember.withValues(alpha: .9)
+        ..color = SteamTones.ember
         ..style = PaintingStyle.stroke
-        ..strokeWidth = h * .0042
-        ..strokeCap = StrokeCap.round,
+        ..strokeWidth = h * .0090,
     );
-    c.drawOval(collar, _ink(h));
+    // The right side turns from the light.
+    c.drawPath(
+      Path()
+        ..moveTo(cx + halfW * .55, arcY(cx + halfW * .55))
+        ..lineTo(cx + halfW * .55, arcY(cx + halfW * .55) + riser)
+        ..lineTo(cx + halfW, topCy + riser)
+        ..lineTo(cx + halfW, topCy)
+        ..close(),
+      Paint()..color = SteamTones.ink.withValues(alpha: .22),
+    );
+    c.drawPath(face, _ink(h, .0050));
+    // The iron ring on top of the curb, bolted down.
+    final frame = topE;
+    c.drawOval(frame, Paint()..color = SteamTones.ironLit);
+    final bolts = Path();
+    for (var i = 0; i < 8; i++) {
+      final a = i * math.pi * 2 / 8 + .4;
+      bolts.addOval(
+        Rect.fromCircle(
+          center: Offset(
+            cx + math.cos(a) * h * .0690,
+            topCy + math.sin(a) * h * .0160,
+          ),
+          radius: h * .0021,
+        ),
+      );
+    }
+    c.drawOval(frame, _ink(h, .0045));
+    // The slit of light the lid leaves when it kicks up.
     final disc = Rect.fromCenter(
-      center: Offset(cx, base - h * .009 - lid),
-      width: h * .135,
-      height: h * .032,
+      center: Offset(cx, topCy - h * .002 - lid),
+      width: h * .124,
+      height: h * .031,
     );
-    c.drawOval(disc, Paint()..color = SteamTones.iron);
+    if (heat > .2 && lid > h * .0006) {
+      c.drawOval(
+        Rect.fromCenter(
+          center: Offset(cx, topCy),
+          width: h * .124,
+          height: h * .031,
+        ),
+        Paint()..color = SteamTones.hotRoot.withValues(alpha: .95),
+      );
+    }
     c.drawOval(
-      disc.deflate(h * .009),
-      Paint()
-        ..color = SteamTones.ironLit
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = h * .0035,
+      disc.shift(Offset(0, h * .005)),
+      Paint()..color = SteamTones.ironDeep,
     );
+    c.drawOval(disc, Paint()..color = SteamTones.ironLit);
+    c.drawOval(disc.deflate(h * .0035), Paint()..color = SteamTones.iron);
+    // Cast ring, studs, glowing slots, a boss in the middle.
     final studs = Path();
-    for (var i = 0; i < 9; i++) {
-      final a = i * math.pi * 2 / 9;
+    for (var i = 0; i < 10; i++) {
+      final a = i * math.pi * 2 / 10;
       studs.addOval(
         Rect.fromCircle(
           center:
               disc.center +
-              Offset(math.cos(a) * h * .040, math.sin(a) * h * .0085),
-          radius: h * .0024,
+              Offset(math.cos(a) * h * .047, math.sin(a) * h * .0105),
+          radius: h * .0020,
         ),
       );
     }
-    c.drawPath(studs, Paint()..color = SteamTones.ironLit);
+    studs.addPath(bolts, Offset.zero);
+    c.drawPath(studs, Paint()..color = SteamTones.ironRim);
     final slots = Path();
-    for (var i = -1; i <= 1; i++) {
-      final x = cx + i * h * .022;
+    for (var i = 0; i < 7; i++) {
+      final a = i * math.pi * 2 / 7 + .45;
+      Offset at(double k) =>
+          disc.center +
+          Offset(math.cos(a) * h * .060 * k, math.sin(a) * h * .0132 * k);
       slots
-        ..moveTo(x, disc.center.dy - h * .0055)
-        ..lineTo(x, disc.center.dy + h * .0055);
+        ..moveTo(at(.30).dx, at(.30).dy)
+        ..lineTo(at(.62).dx, at(.62).dy);
     }
     c.drawPath(
       slots,
       Paint()
         ..color = Color.lerp(SteamTones.ironLit, SteamTones.hotRoot, heat)!
         ..style = PaintingStyle.stroke
-        ..strokeWidth = h * .0055
+        ..strokeWidth = h * .0042
         ..strokeCap = StrokeCap.round,
     );
-    // A rim light along the cover's upper-left edge.
+    // A rim light along the lid's upper-left edge and a spot of wet sheen.
     c.drawArc(
-      disc.deflate(h * .0015),
+      disc.deflate(h * .0012),
       math.pi * 1.05,
       math.pi * .5,
       false,
@@ -338,10 +437,11 @@ abstract final class SteamEmitterArt {
         ..strokeWidth = h * .0028
         ..strokeCap = StrokeCap.round,
     );
-    c.drawOval(disc, _ink(h, .0055));
+    c.drawOval(disc, _ink(h, .0052));
   }
 
-  /// The ride vent's subway grate: iron bars over a teal-lit shaft.
+  /// The ride vent's subway grate: a steel frame on a raised lip, bars over a
+  /// teal-lit shaft, a newspaper page that lifts in the draught.
   static void _grate(
     Canvas c,
     double h,
@@ -350,69 +450,184 @@ abstract final class SteamEmitterArt {
     Color tone,
     double lid,
     SteamBeat b,
+    double clock,
+    bool rm,
   ) {
     final base = h * slab;
-    final cy = base - h * .010 - lid;
-    // The frame: a low trapezoid, wider at the front edge.
+    final cy = base - h * .012 - lid;
+    c.drawOval(
+      Rect.fromCenter(
+        center: Offset(cx + h * .004, base),
+        width: h * .200,
+        height: h * .022,
+      ),
+      Paint()..color = SteamTones.ink.withValues(alpha: .42),
+    );
+    // The frame: a low trapezoid, wider at the front edge, with a lip.
     final frame = Path()
-      ..moveTo(cx - h * .066, cy - h * .014)
-      ..lineTo(cx + h * .066, cy - h * .014)
-      ..lineTo(cx + h * .086, cy + h * .014)
-      ..lineTo(cx - h * .086, cy + h * .014)
+      ..moveTo(cx - h * .068, cy - h * .014)
+      ..lineTo(cx + h * .068, cy - h * .014)
+      ..lineTo(cx + h * .088, cy + h * .014)
+      ..lineTo(cx - h * .088, cy + h * .014)
       ..close();
+    final lip = Path()
+      ..moveTo(cx - h * .088, cy + h * .014)
+      ..lineTo(cx + h * .088, cy + h * .014)
+      ..lineTo(cx + h * .088, cy + h * .021)
+      ..lineTo(cx - h * .088, cy + h * .021)
+      ..close();
+    c.drawPath(lip, Paint()..color = SteamTones.ironDeep);
     c.drawPath(
       frame,
-      Paint()..color = Color.lerp(SteamTones.stoneShade, SteamTones.teal, .42)!,
+      Paint()..color = Color.lerp(SteamTones.ironLit, SteamTones.teal, .42)!,
     );
     final well = Path()
-      ..moveTo(cx - h * .054, cy - h * .009)
-      ..lineTo(cx + h * .054, cy - h * .009)
-      ..lineTo(cx + h * .071, cy + h * .008)
-      ..lineTo(cx - h * .071, cy + h * .008)
+      ..moveTo(cx - h * .056, cy - h * .009)
+      ..lineTo(cx + h * .056, cy - h * .009)
+      ..lineTo(cx + h * .073, cy + h * .008)
+      ..lineTo(cx - h * .073, cy + h * .008)
       ..close();
-    // What the shaft shows between the bars: dark when quiet, teal-lit as
-    // the vent breathes.
+    final cool = tone == SteamTones.teal;
     c.drawPath(
       well,
       Paint()
         ..color = Color.lerp(
-          SteamTones.iron,
-          tone == SteamTones.teal ? SteamTones.tealDeep : SteamTones.ember,
+          SteamTones.ironDeep,
+          cool ? SteamTones.tealDeep : SteamTones.ember,
           .15 + .75 * heat,
         )!,
     );
-    final bars = Path();
+    // Bars, each with a lit top edge; two cross ties.
+    final bars = Path(), tops = Path();
     for (var i = -3; i <= 3; i++) {
       bars
         ..moveTo(cx + i * h * .0165, cy - h * .009)
         ..lineTo(cx + i * h * .0215, cy + h * .008);
+      tops
+        ..moveTo(cx + i * h * .0165 - h * .0016, cy - h * .009)
+        ..lineTo(cx + i * h * .0215 - h * .0016, cy + h * .008);
     }
+    // The slot field lights up with the pressure: the grate's own clock.
+    final slits = Path();
+    for (var i = -3; i < 3; i++) {
+      slits
+        ..moveTo(cx + (i + .5) * h * .0165, cy - h * .008)
+        ..lineTo(cx + (i + .5) * h * .0215, cy + h * .007);
+    }
+    c.drawPath(
+      slits,
+      Paint()
+        ..color = SteamTones.tealGlow.withValues(
+          alpha: math.min(1.0, .10 + 1.1 * heat),
+        )
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = h * .0058,
+    );
     c.drawPath(
       bars,
       Paint()
-        ..color = Color.lerp(
-          SteamTones.ironLit,
-          tone == SteamTones.teal ? SteamTones.tealGlow : SteamTones.hotRoot,
-          heat * .8,
-        )!
+        ..color = SteamTones.ironDeep
         ..style = PaintingStyle.stroke
-        ..strokeWidth = h * .0062
+        ..strokeWidth = h * .0068
         ..strokeCap = StrokeCap.butt,
     );
+    c.drawPath(
+      tops,
+      Paint()
+        ..color = Color.lerp(
+          SteamTones.ironRim,
+          cool ? SteamTones.tealGlow : SteamTones.hotRoot,
+          heat * .85,
+        )!
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = h * .0030
+        ..strokeCap = StrokeCap.butt,
+    );
+    c.drawPath(
+      Path()
+        ..moveTo(cx - h * .0645, cy - h * .002)
+        ..lineTo(cx + h * .0645, cy - h * .002),
+      Paint()
+        ..color = SteamTones.ironDeep
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = h * .0034,
+    );
     c.drawPath(frame, _ink(h, .0055));
+    c.drawPath(lip, _ink(h, .0040));
     c.drawPath(well, _ink(h, .003));
     // An up chevron cast into the front lip: this one lifts.
     c.drawPath(
       Path()
-        ..moveTo(cx - h * .012, cy + h * .0115)
+        ..moveTo(cx - h * .012, cy + h * .0120)
         ..lineTo(cx, cy + h * .0095 - h * .0035)
-        ..lineTo(cx + h * .012, cy + h * .0115),
+        ..lineTo(cx + h * .012, cy + h * .0120),
       Paint()
-        ..color = SteamTones.teal
+        ..color = SteamTones.tealGlow
         ..style = PaintingStyle.stroke
-        ..strokeWidth = h * .003
+        ..strokeWidth = h * .0030
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round,
+    );
+    _page(c, h, cx, cy, b, clock, rm);
+  }
+
+  /// A newspaper page on the grate: it lies there asleep, stirs and lifts as
+  /// the hiss builds and rides the billow up (a New York grate must have one).
+  static void _page(
+    Canvas c,
+    double h,
+    double cx,
+    double cy,
+    SteamBeat b,
+    double clock,
+    bool rm,
+  ) {
+    final lift = switch (b.phase) {
+      SteamPhase.sleep => 0.0,
+      SteamPhase.hiss => .02 * SteamMath.smooth((b.p - .35) / .6),
+      SteamPhase.burst => .02 + .02 * b.p,
+      SteamPhase.billow => .04 + .13 * SteamMath.smooth(b.billowT / 1.0),
+    };
+    final out = switch (b.phase) {
+      SteamPhase.sleep => 0.0,
+      SteamPhase.hiss => 0.0,
+      SteamPhase.burst => .01 * b.p,
+      SteamPhase.billow => .01 + .05 * SteamMath.smooth(b.billowT / 1.0),
+    };
+    if (b.phase == SteamPhase.billow && b.billowT > 1.05) return;
+    final flutter = rm ? .3 : math.sin(clock * 11) * (.2 + 3.2 * lift);
+    final o = Offset(cx + h * (.036 + out), cy - h * (.002 + lift));
+    final w = h * .017, d = h * .008;
+    final ca = math.cos(flutter), sa = math.sin(flutter);
+    Offset q(double x, double y) =>
+        o + Offset(x * ca - y * sa, x * sa + y * ca);
+    final page = Path()
+      ..moveTo(q(-w, -d).dx, q(-w, -d).dy)
+      ..lineTo(q(w, -d * .6).dx, q(w, -d * .6).dy)
+      ..lineTo(q(w * .8, d).dx, q(w * .8, d).dy)
+      ..lineTo(q(-w * .9, d * .8).dx, q(-w * .9, d * .8).dy)
+      ..close();
+    final fade = b.phase == SteamPhase.billow
+        ? 1 - SteamMath.smooth((b.billowT - .8) / .25)
+        : 1.0;
+    c.drawPath(
+      page,
+      Paint()..color = SteamTones.stripeWhite.withValues(alpha: fade),
+    );
+    c.drawPath(
+      page,
+      Paint()
+        ..color = SteamTones.ink.withValues(alpha: .85 * fade)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = h * .0028
+        ..strokeJoin = StrokeJoin.round,
+    );
+    c.drawLine(
+      q(-w * .55, -d * .1),
+      q(w * .5, d * .05),
+      Paint()
+        ..color = SteamTones.ink.withValues(alpha: .45 * fade)
+        ..strokeWidth = h * .0022,
     );
   }
 
@@ -489,6 +704,53 @@ abstract final class SteamEmitterArt {
         ..strokeCap = StrokeCap.round,
     );
     c.drawPath(body, _ink(h));
+    // Seams between the enamel bands, and a bolted flange at the foot.
+    final seams = Path();
+    for (var i = 1; i < n; i++) {
+      final y = mouthY + ht * i / n;
+      seams
+        ..moveTo(cx - wAt(y), y)
+        ..quadraticBezierTo(cx, y + h * .007, cx + wAt(y), y);
+    }
+    c.drawPath(
+      seams,
+      Paint()
+        ..color = SteamTones.ink.withValues(alpha: .38)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = h * .0026,
+    );
+    final flange = RRect.fromLTRBR(
+      cx - bw * 1.45,
+      baseY - h * .007,
+      cx + bw * 1.45,
+      baseY + h * .004,
+      Radius.circular(h * .003),
+    );
+    c.drawRRect(flange, Paint()..color = SteamTones.iron);
+    c.drawRRect(flange, _ink(h, .0045));
+    final flangeBolts = Path();
+    for (final k in const [-1.15, -.55, 0.0, .55, 1.15]) {
+      flangeBolts.addOval(
+        Rect.fromCircle(
+          center: Offset(cx + bw * k, baseY - h * .0015),
+          radius: h * .0017,
+        ),
+      );
+    }
+    c.drawPath(flangeBolts, Paint()..color = SteamTones.ironRim);
+    // Rust runs down from the lip.
+    c.drawPath(
+      Path()
+        ..moveTo(cx + tw * .35, mouthY + h * .010)
+        ..lineTo(cx + tw * .35, mouthY + h * .034)
+        ..moveTo(cx - tw * .15, mouthY + h * .010)
+        ..lineTo(cx - tw * .15, mouthY + h * .022),
+      Paint()
+        ..color = SteamTones.stripeDeep.withValues(alpha: .6)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = h * .0030
+        ..strokeCap = StrokeCap.round,
+    );
     // Flared lip and a dark throat that glows when hot.
     final lipRect = Rect.fromCenter(
       center: Offset(cx, mouthY - lid),

@@ -18,7 +18,10 @@ import '../domain/flight_goals.dart';
 import '../domain/tracking.dart';
 import '../game/audio.dart';
 import '../game/bird_game.dart';
+import '../game/finish_celebration_art.dart';
+import '../game/finish_gate_art.dart';
 import '../game/knockout_art.dart';
+import '../game/neferhoo_fight_art.dart';
 import '../game/play_controller.dart';
 import 'calibration_probe.dart' show LandmarkPainter;
 import 'components.dart';
@@ -65,6 +68,10 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       previousWings = 0,
       previousHearts = 3;
   double previousFlightTime = 0;
+
+  /// Seconds to the finish line on the last change, for the "almost there"
+  /// sting.
+  double? previousToGo;
   bool previousShield = true;
   bool awardSoundPlayed = false;
   bool leaving = false;
@@ -79,9 +86,20 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
 
   /// The level's bests before this attempt, for its result's "New best".
   LevelRecord? initialRecord;
+
+  /// Whether the level after this one was open before the flight (a finished
+  /// level stays open, so a returning player may have it already).
+  bool initialNextOpen = false;
   Set<SkyStamp> initialStamps = {};
   String? initialDailyKey;
   bool initialDailyComplete = false;
+
+  /// A campaign level flies to its region's song; endless keeps the flight's.
+  SkyMusic get music => SkyMusic.flightOver(widget.level?.region);
+
+  /// The safe area the result stage's layout keeps, for where its courier
+  /// sits.
+  EdgeInsets _safe = EdgeInsets.zero;
   @override
   void initState() {
     super.initState();
@@ -90,7 +108,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     final settings =
         ref.read(progressProvider).asData?.value.settings ??
         const GameSettings();
-    audio.configure(settings);
+    audio.configure(settings, track: music);
     initialBest =
         ref
             .read(progressProvider)
@@ -170,6 +188,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       previousMagnets = 0;
       previousWings = 0;
       previousFlightTime = 0;
+      previousToGo = null;
       previousHearts = 3;
       previousShield = true;
       previousCount = 4;
@@ -188,6 +207,9 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       initialRecord = level == null
           ? null
           : progress?.campaign.record(level) ?? LevelRecord(levelId: level.id);
+      final next = level == null ? null : Campaign.after(level);
+      initialNextOpen =
+          next != null && (progress?.campaign.unlocked(next) ?? false);
       game = BirdGame(
         simulation: sim,
         nowMs: () => controller.nowMs,
@@ -196,6 +218,11 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         onChanged: controller.tick,
         advance: controller.advance,
         knockout: () => controller.knockout,
+        finish: () => controller.celebration,
+        // The celebrating bird lands where the result's courier sits.
+        seat: widget.level == null
+            ? null
+            : (size) => LevelResultStage.courierSeat(size, _safe),
         speech: () => controller.speech,
       );
     }
@@ -244,6 +271,16 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         audio.effect('final_stretch');
       }
       previousFlightTime = sim.elapsed;
+      // The finish gate's lights flick on with an "almost there" sting.
+      final toGo = FinishGateArt.toGo(sim);
+      const lights = FinishGateArt.lightsAt;
+      if (toGo != null &&
+          sim.phase == RunPhase.playing &&
+          (previousToGo ?? double.infinity) > lights &&
+          toGo <= lights) {
+        audio.effect('finish_near');
+      }
+      previousToGo = toGo;
       final count = sim.countdown.ceil();
       if (sim.phase == RunPhase.countdown &&
           count != previousCount &&
@@ -271,19 +308,23 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     }
     final flight = game;
     // A level's result brings its own courier on a cloud, so the frozen
-    // finish keeps its line and scenery without the flight's bird.
+    // finish keeps its line and scenery without the flight's bird. A bird
+    // that celebrated all the way into the courier's seat leaves on its own
+    // (the calm one fades as the stage fades in) before it is put away.
     if (flight != null &&
         controller.stage == PlayStage.results &&
         widget.level != null &&
-        controller.knockout == null) {
+        controller.knockout == null &&
+        (!controller.handedOff || controller.celebrationSettled)) {
       flight.hideBird = true;
     }
     if (flight != null &&
         controller.stage == PlayStage.results &&
         (controller.knockout != null || widget.level != null) &&
+        controller.celebrationSettled &&
         !flight.paused) {
-      // The knockout's last frame (or a level's finish) holds still under
-      // the stage; stop the loop once that frame has been painted.
+      // The knockout's last frame (or a level's settled finish) holds still
+      // under the stage; stop the loop once that frame has been painted.
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted &&
             identical(game, flight) &&
@@ -328,6 +369,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       audio.configure(
         ref.read(progressProvider).asData?.value.settings ??
             const GameSettings(),
+        track: music,
       );
     }
   }
@@ -343,6 +385,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
 
   @override
   Widget build(BuildContext context) {
+    _safe = MediaQuery.paddingOf(context);
     final p =
         ref.watch(progressProvider).asData?.value ?? const ProgressSnapshot();
     final stage = controller.stage;
@@ -355,7 +398,13 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) unawaited(leave());
+        if (didPop) return;
+        // Back during a level's celebration goes on to its result.
+        if (controller.stage == PlayStage.celebrating) {
+          controller.endCelebration();
+        } else {
+          unawaited(leave());
+        }
       },
       child: Scaffold(
         body: SkyBackdrop(
@@ -398,7 +447,9 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                   ],
                 ),
               ),
-              if (stage == PlayStage.flying && game != null ||
+              if ((stage == PlayStage.flying ||
+                          stage == PlayStage.celebrating) &&
+                      game != null ||
                   knockedOut &&
                       (stage == PlayStage.fallen ||
                           stage == PlayStage.results) ||
@@ -406,6 +457,8 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                 Positioned.fill(child: _flight()),
               if (stage == PlayStage.fallen && knockedOut)
                 Positioned.fill(child: _knockoutSkip()),
+              if (stage == PlayStage.celebrating && game != null)
+                Positioned.fill(child: _celebrationSkip()),
               if (stage == PlayStage.results && knockedOut)
                 Positioned.fill(
                   child: GameOverStage(
@@ -429,10 +482,12 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                     level: level,
                     progress: p,
                     before: initialRecord ?? LevelRecord(levelId: level.id),
+                    nextWasOpen: initialNextOpen,
                     initialStamps: initialStamps,
                     initialDailyKey: initialDailyKey,
                     initialDailyComplete: initialDailyComplete,
                     onLeave: leave,
+                    handoff: controller.handedOff,
                   ),
                 ),
             ],
@@ -1046,8 +1101,13 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         if (controller.isTouch)
           Semantics(
             label: sim.boss == null
-                ? 'Tap to flap'
-                : 'Tap to flap. ${sim.boss!.name}: ${sim.boss!.hp} of ${sim.boss!.maxHp} health${sim.boss!.isMoth
+                ? sim.vanguardFlying
+                      ? 'Tap to flap. ${sim.vanguard!.title.toLowerCase()} '
+                            'fly in ahead of their boss'
+                      : 'Tap to flap'
+                : 'Tap to flap. ${sim.boss!.name}: ${sim.boss!.hp} of ${sim.boss!.maxHp} health${sim.boss!.stageHint != null
+                      ? '. ${sim.boss!.stageHint}'
+                      : sim.boss!.isMoth
                       ? '. ${sim.boss!.shieldHint}'
                       : sim.boss!.isPirate
                       ? '. ${sim.boss!.tideHint}'
@@ -1057,6 +1117,8 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                       ? '. ${sim.boss!.cooHint}'
                       : sim.boss!.isGargoyle
                       ? '. ${sim.boss!.gargoyleHint}'
+                      : sim.boss!.isNeferhoo
+                      ? '. ${sim.boss!.neferhooHint}'
                       : sim.boss!.screeches
                       ? '. ${sim.boss!.screechHint}'
                       : ''}',
@@ -1072,8 +1134,21 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         else
           GameWidget(game: game!),
         // The sky fills the display; only controls use the safe, scaled layout.
-        if (controller.stage == PlayStage.flying)
-          SceneLayout(child: _flightHud()),
+        // The HUD fades out as a level's celebration takes the screen.
+        if (controller.stage == PlayStage.flying ||
+            controller.stage == PlayStage.celebrating)
+          IgnorePointer(
+            ignoring: controller.stage != PlayStage.flying,
+            child: Opacity(
+              opacity: controller.stage == PlayStage.flying
+                  ? 1
+                  : FinishCelebrationArt.hudOpacity(
+                      controller.celebration ?? 0,
+                      reducedMotion: controller.reducedMotion,
+                    ),
+              child: SceneLayout(child: _flightHud()),
+            ),
+          ),
       ],
     );
   }
@@ -1088,6 +1163,20 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       key: const ValueKey('knockout-skip'),
       behavior: HitTestBehavior.opaque,
       onPointerDown: (_) => controller.skipKnockout(),
+    ),
+  );
+
+  /// Taps during a level's celebration skip to its result, but only once
+  /// [FinishCelebrationArt.skipAfter] has passed, so flapping on through the
+  /// line cannot dismiss it.
+  Widget _celebrationSkip() => Semantics(
+    button: true,
+    label: 'Skip to results',
+    onTap: controller.skipCelebration,
+    child: Listener(
+      key: const ValueKey('celebration-skip'),
+      behavior: HitTestBehavior.opaque,
+      onPointerDown: (_) => controller.skipCelebration(),
     ),
   );
 
@@ -1143,19 +1232,30 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
           _flightReadout(
             left: edge,
             top: edge,
-            child: MatchHealth(
-              key: const ValueKey('match-health'),
-              hearts: sim.hearts,
-              shield: sim.shield,
-              charge: sim.shieldCharge,
-              recovering: sim.recoveryRemaining > 0,
-              reducedMotion: controller.reducedMotion,
+            // Egypt's guardian: the plate fades while his ankh's loop
+            // passes under it, so the ankh never pops out from behind it.
+            child: Opacity(
+              opacity: sim.boss?.isNeferhoo == true
+                  ? NeferhooFightArt.hudPlateAlpha(
+                      MediaQuery.sizeOf(context),
+                      sim.boss!,
+                      insets: MediaQuery.paddingOf(context),
+                    )
+                  : 1,
+              child: MatchHealth(
+                key: const ValueKey('match-health'),
+                hearts: sim.hearts,
+                shield: sim.shield,
+                charge: sim.shieldCharge,
+                recovering: sim.recoveryRemaining > 0,
+                reducedMotion: controller.reducedMotion,
+              ),
             ),
           ),
         // The bird flies near x = 200, so the hero score keeps to the middle.
         // A level shows its stars and marks there instead, and its route
         // where a timed flight kept its clock, centred on the pause face.
-        if (sim.boss == null && level != null) ...[
+        if (!sim.bossFight && level != null) ...[
           _flightReadout(
             top: edge - 4,
             left: 300,
@@ -1176,9 +1276,15 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
               progress: sim.routeProgress,
               bird: controller.bird,
               boss: level.boss,
+              approach: sim.finishLine?.crossed == true
+                  ? 1
+                  : FinishGateArt.approach(FinishGateArt.toGo(sim)),
+              seconds: controller.reducedMotion
+                  ? 0
+                  : sim.elapsed + (controller.celebration ?? 0),
             ),
           ),
-        ] else if (sim.boss == null)
+        ] else if (!sim.bossFight)
           _flightReadout(
             top: edge - 4,
             left: 330,

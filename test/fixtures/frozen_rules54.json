@@ -1,0 +1,153 @@
+{
+  "rulesVersion": 54,
+  "catalog": {
+    "plan": "{\"id\":\"2-6\",\"region\":\"egypt\",\"length\":30.0,\"start\":60.0,\"seed\":2116,\"families\":[\"garden\",\"windLift\",\"petalGate\",\"switchback\"],\"lineup\":[\"simpleBat\",\"spitterBeetle\",\"caveBat\"],\"cadence\":2,\"toughness\":1,\"shoot\":true,\"sprint\":true,\"panels\":0.25,\"pieces\":[],\"boss\":\"neferhoo\",\"marks\":[20,30]}",
+    "route": "-37429d1df8c9b875",
+    "passages": 12,
+    "routeStars": 36,
+    "marks": [
+      20,
+      30
+    ],
+    "boss": "neferhoo",
+    "minRulesVersion": 50,
+    "name": "Return to Sender",
+    "cargo": "A feather duster for the caretaker",
+    "from": "The pyramid caretaker",
+    "thanks": "Four thousand years of dust, gone by lunch!",
+    "hint": "Shoot his letters to send them back. Return to sender!",
+    "bossLine": "Return to sender! This route has a courier."
+  },
+  "flights": {
+    "2-6@w2.200": {
+      "summary": "t=89.84 ended completed score=173 gates=12 stars=36 hearts=3 bosses=1 enemies=6 shots=95",
+      "outcome": "end=completed finish=crossed bosses=1 stars=36/36 levelStars=3 score=173 hearts=3 route=98.165",
+      "checkpoints": [
+        "-1b8e630f5377fd9d",
+        "-568293a8883f2bf5",
+        "370b324950ee56c5",
+        "604f1d7e8f50dcd7",
+        "-1a1af3f19617bf79",
+        "1e0fdddb4c1ad2f",
+        "7ed71710c3da06c2",
+        "7100f9da9f06e793",
+        "-17c0bbacd6ff9fdf",
+        "58ae65bd430defc8"
+      ],
+      "runUp": "30 370b324950ee56c5 boss=28.00"
+    },
+    "2-6@w1.778,mortal,sloppy": {
+      "summary": "t=51.33 ended collision score=105 gates=9 stars=31 hearts=0 bosses=0 enemies=2 shots=61 hp=354/600 dealt=6 land=6 hits=0/1",
+      "outcome": "end=collision finish=none bosses=0 stars=31/36 levelStars=0 score=105 hearts=0 route=56.878",
+      "checkpoints": [
+        "-322cea150d565971",
+        "5030abe373800b6a",
+        "-17242b3d4184291c",
+        "278a32e70b8b3221",
+        "78bb69bf694c7d43",
+        "-388b74da993c752e"
+      ],
+      "runUp": "30 -17242b3d4184291c boss=28.00"
+    },
+    "2-6@w2.200,dmg30,mortal,sloppy": {
+      "summary": "t=66.49 ended completed score=135 gates=9 stars=31 hearts=1 bosses=1 enemies=4 shots=69",
+      "outcome": "end=completed finish=crossed bosses=1 stars=31/36 levelStars=3 score=135 hearts=1 route=72.038",
+      "checkpoints": [
+        "-20fe247019665b29",
+        "-4384b1b4d017ff8",
+        "1719f37cb81c1936",
+        "-133140d464f3bb95",
+        "-5e483e6dd96af1ea",
+        "-222c09208bda6ad5",
+        "-1e90c6dffd40296d"
+      ],
+      "runUp": "30 1719f37cb81c1936 boss=28.00"
+    }
+  },
+  "pilots": {
+    "family-2.200-s1": {
+      "summary": "t=144.65 playing null score=136 gates=12 stars=32 hearts=3 bosses=1 enemies=4 shots=128 hp=0/600 dealt=33 land=17 hits=0/0",
+      "outcome": "end=null finish=none bosses=1 stars=32/36 levelStars=0 score=136 hearts=3 route=144.650 fight=110.042 hits=0 returns=17 hp=0 state=5e8a543b953eb8a1",
+      "checkpoints": [
+        "2b525a1039c05d79"
+      ]
+    },
+    "kid-2.200-s3": {
+      "summary": "t=229.93 playing null score=130 gates=12 stars=32 hearts=5 bosses=1 enemies=2 shots=131 hp=0/600 dealt=63 land=16 hits=0/0",
+      "outcome": "end=null finish=none bosses=1 stars=32/36 levelStars=0 score=130 hearts=5 route=229.933 fight=195.333 hits=0 returns=16 hp=0 state=-76811be7b37030f4",
+      "checkpoints": [
+        "-6b3452587a77a6b"
+      ]
+    },
+    "expert-1.778-s5": {
+      "summary": "t=120.55 playing null score=143 gates=12 stars=34 hearts=4 bosses=1 enemies=2 shots=148 hp=0/600 dealt=27 land=14 hits=0/0",
+      "outcome": "end=null finish=none bosses=1 stars=34/36 levelStars=0 score=143 hearts=4 route=120.550 fight=85.942 hits=0 returns=14 hp=0 state=1eb1caf9d7384fdb",
+      "checkpoints": [
+        "66842fdfa2acb7a5"
+      ]
+    },
+    "coarse-2.200-s7-kept": {
+      "summary": "t=154.60 playing null score=100 gates=12 stars=32 hearts=3 bosses=0 enemies=2 shots=38 hp=600/600 dealt=30 land=0 hits=0/0",
+      "outcome": "end=null finish=none bosses=0 stars=32/36 levelStars=0 score=100 hearts=3 route=154.600 fight=null hits=0 returns=0 hp=600 state=515c3d2584bbf802",
+      "checkpoints": [
+        "2c57b4f0a94dfd05"
+      ]
+    }
+  },
+  "tapes": {
+    "bot-2-6-w2.2": {
+      "file": "test/fixtures/frozen_rules54_tapes/bot-2-6-w2.2.json",
+      "sha": "-f2fc37dba00c710",
+      "events": 10678,
+      "summary": "t=101.24 ended completed score=167 gates=12 stars=36 hearts=1 bosses=1 enemies=4 shots=132",
+      "outcome": "end=completed finish=crossed bosses=1 stars=36/36 levelStars=3 score=167 hearts=1 route=110.949",
+      "checkpoints": [
+        "4df5f610d8673a71",
+        "-3e14efa391710661",
+        "-41a405cf3295f0f",
+        "-52e22d44f914d53b",
+        "-72df723bc1e4afe7",
+        "-2a9d6c6fe46c2261",
+        "-2155f0d10d76073a",
+        "52e365b8b83d67c9",
+        "3933a804f21e732e",
+        "-44b619930e08555c",
+        "-2e7e9e91ba1bb290",
+        "769529c959b5cad2"
+      ],
+      "runUp": "30 -41a405cf3295f0f boss=28.00"
+    },
+    "kid-2-6-w2.2": {
+      "file": "test/fixtures/frozen_rules54_tapes/kid-2-6-w2.2.json",
+      "sha": "-469004dbfc912d7d",
+      "events": 23784,
+      "summary": "t=201.23 ended completed score=130 gates=12 stars=32 hearts=3 bosses=1 enemies=2 shots=130",
+      "outcome": "end=completed finish=crossed bosses=1 stars=32/36 levelStars=3 score=130 hearts=3 route=201.227",
+      "checkpoints": [
+        "-4d0168bc4117a4dc",
+        "2caef2ed709deb0d",
+        "-5ff8a823df99d024",
+        "-583bb596ae6b39fb",
+        "-53548b0c2020b471",
+        "4ef218b2b86c2622",
+        "2b4fa1879c0804af",
+        "6a64ee60359e1bb0",
+        "5bd1056a52346a88",
+        "-26aa13be0d6484c4",
+        "a63cc206656191b",
+        "78b8aec5c7c6985c",
+        "-2e6af34fcce55f98",
+        "-5198ae4081ea3e5a",
+        "-6896ab4a9d1424f",
+        "2d6aae42592b47ac",
+        "7b9082ea7db9f5b9",
+        "-1f0048435ffe6c2a",
+        "-79e1978357547d5c",
+        "-5848e55341d67c6e",
+        "7a3ca095d74729b1",
+        "71526c4131359c8b"
+      ],
+      "runUp": "33 -4e1ac64e1d58c77e boss=31.00"
+    }
+  }
+}

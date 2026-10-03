@@ -4,10 +4,12 @@ import 'package:flutter/painting.dart';
 
 import '../domain/game_rules.dart';
 import '../ui/theme.dart';
+import 'crust_art.dart';
 import 'enemy_ammo_art.dart';
 
 /// The last beat of an enemy pellet: spit splats and embers fizzle against a
-/// wall or the bird, and either one bursts when the player's rock meets it.
+/// wall or the bird, a pigeon's stale crust thunks and breaks in a puff of
+/// old flour, and any of them bursts when the player's rock meets it.
 ///
 /// Everything is a pure function of the stored impact and its age, so a
 /// paused frame stays exact and seeking reproduces it. Under Reduced Motion
@@ -63,6 +65,17 @@ abstract final class EnemyAmmoImpactArt {
     c.save();
     c.translate(center.dx, center.dy);
     c.scale(radius);
+    if (attack == EnemyAttack.crumb) {
+      if (reducedMotion) {
+        _stillCrust(c, stop, age, edge, seed);
+      } else if (stop == AmmoStop.deflected) {
+        _burstCrust(c, age, direction, edge, seed);
+      } else {
+        _thunk(c, age, direction, edge, seed, stop == AmmoStop.struck);
+      }
+      c.restore();
+      return;
+    }
     if (reducedMotion) {
       _still(c, spit, stop, age, direction, edge);
     } else if (stop == AmmoStop.deflected) {
@@ -478,6 +491,189 @@ abstract final class EnemyAmmoImpactArt {
           stops: const [.3, .6, 1],
         ).createShader(Rect.fromCircle(center: Offset.zero, radius: 1.8)),
     );
+  }
+
+  // ---------------------------------------------------------------- crust --
+
+  // A stale crust meets a wall or the bird: a hard clack, the slice squashed
+  // on the surface for a moment, then it breaks: chunks and crumbs bounce
+  // back and fall, and a puff of old flour hangs and fades.
+  static void _thunk(
+    Canvas c,
+    double age,
+    double direction,
+    double edge,
+    double seed,
+    bool struck,
+  ) {
+    final back = direction + math.pi;
+    _flour(c, age, back, 1);
+    _crustBits(c, age, back, edge, seed, struck ? 1.25 : 1.0);
+    _clack(c, age, back);
+    // The slice itself hits flat and gives way.
+    if (age < .07) {
+      final flat = _out(math.min(1.0, age / .04));
+      final fade = age < .04 ? 1.0 : 1 - (age - .04) / .03;
+      c.save();
+      _face(c, direction);
+      c.translate(.25 * flat, 0);
+      c.scale(1 - .4 * flat, 1 + .2 * flat);
+      CrustArt.slab(c, spin: .3, edge: edge, alpha: fade);
+      c.restore();
+    }
+  }
+
+  // The player's rock wins over a crust: the pop ring and clack every pellet
+  // gets, in the crust's brown, and the crust in pieces.
+  static void _burstCrust(
+    Canvas c,
+    double age,
+    double direction,
+    double edge,
+    double seed,
+  ) {
+    final back = direction + math.pi;
+    final p = math.min(1.0, age / .22);
+    if (p < 1) {
+      final r = 1.0 + 2.2 * _out(p);
+      final w = .75 * (1 - p) + .08;
+      c.drawCircle(
+        Offset.zero,
+        r,
+        _stroke(CrustArt.crust.withValues(alpha: 1 - p * p), w),
+      );
+      c.drawCircle(
+        Offset.zero,
+        r - w * .45,
+        _stroke(SkyColors.cream.withValues(alpha: 1 - p), w * .5),
+      );
+    }
+    _flour(c, age, back, .8);
+    _clack(c, age, back);
+    _crustBits(c, age, back, edge, seed, 1.15);
+  }
+
+  /// A puff of old flour off the impact: three pale clouds that drift up
+  /// and thin out ([amount] scales them).
+  static void _flour(Canvas c, double age, double back, double amount) {
+    for (var i = 0; i < 3; i++) {
+      final start = .01 + i * .025;
+      final p = ((age - start) / (seconds - start)).clamp(0.0, 1.0);
+      if (p <= 0) continue;
+      final a = back + (i - 1) * .8;
+      final spread = .5 + 1.2 * _out(p);
+      c.drawCircle(
+        Offset(math.cos(a) * spread, math.sin(a) * spread - 1.2 * p),
+        (.7 + 1.0 * _out(p)) * amount,
+        _fill(CrustArt.dust.withValues(alpha: .7 * (1 - p) * (1 - p))),
+      );
+    }
+  }
+
+  /// The hard knock: short cream strokes snap out of the contact.
+  static void _clack(Canvas c, double age, double back) {
+    if (age >= .09) return;
+    final q = age / .09;
+    for (var i = 0; i < 5; i++) {
+      final a = back + (i - 2) * .55;
+      final v = Offset(math.cos(a), math.sin(a));
+      final inner = 1.0 + 1.3 * _out(q);
+      c.drawLine(
+        v * inner,
+        v * (inner + .9 * (1 - q) + .15),
+        _stroke(
+          SkyColors.cream.withValues(alpha: 1 - q * q),
+          .34 * (1 - q) + .1,
+        ),
+      );
+    }
+  }
+
+  /// Three chunks of crust and four crumbs bounce back off the impact,
+  /// tumble and drop away.
+  static void _crustBits(
+    Canvas c,
+    double age,
+    double back,
+    double edge,
+    double seed,
+    double spread,
+  ) {
+    for (final (at, p, fade, i) in _spray(
+      age,
+      back,
+      seed,
+      spreads: [
+        for (final a in const [-.9, .05, .85]) a * spread,
+      ],
+      speeds: const [1.0, 1.35, .9],
+      from: .5,
+      reach: 2.8,
+      gravity: 3.6,
+      delay: .02,
+    )) {
+      final s = (.8 - i * .08) * (1 - p * .25);
+      c.save();
+      c.translate(at.dx, at.dy);
+      c.rotate(p * (i.isEven ? 6.0 : -5.0) + i);
+      c.scale(s);
+      CrustArt.chunk(c, edge: edge * .7 / s, alpha: fade);
+      c.restore();
+    }
+    for (final (at, p, fade, i) in _spray(
+      age,
+      back,
+      seed,
+      spreads: [
+        for (final a in const [-1.3, -.4, .4, 1.3]) a * spread,
+      ],
+      speeds: const [1.3, 1.6, 1.5, 1.2],
+      from: .6,
+      reach: 3.2,
+      gravity: 4.2,
+      delay: .01,
+    )) {
+      final s = .2 * (1 - p * .4);
+      c.drawRect(
+        Rect.fromCenter(center: at, width: s * 1.4, height: s),
+        _fill(
+          (i.isEven ? CrustArt.crumb : CrustArt.crust).withValues(alpha: fade),
+        ),
+      );
+    }
+  }
+
+  // Reduced Motion: the pieces of the crust resting where it broke, in a
+  // still puff of flour (a pop ring too, when a rock broke it), fading.
+  static void _stillCrust(
+    Canvas c,
+    AmmoStop stop,
+    double age,
+    double edge,
+    double seed,
+  ) {
+    final fade = age < .12 ? 1.0 : 1 - (age - .12) / (seconds - .12);
+    c.drawCircle(
+      Offset.zero,
+      1.7,
+      _fill(CrustArt.dust.withValues(alpha: .6 * fade)),
+    );
+    if (stop == AmmoStop.deflected) {
+      c.drawCircle(
+        Offset.zero,
+        1.9,
+        _stroke(CrustArt.crust.withValues(alpha: fade), .45),
+      );
+    }
+    for (var i = 0; i < 3; i++) {
+      final a = i * math.pi * 2 / 3 + seed * 2;
+      c.save();
+      c.translate(math.cos(a) * .8, math.sin(a) * .8);
+      c.rotate(a);
+      c.scale(.7);
+      CrustArt.chunk(c, edge: edge * .7 / .7, alpha: fade);
+      c.restore();
+    }
   }
 
   static Paint _fill(Color color) => Paint()..color = color;

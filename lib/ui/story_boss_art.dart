@@ -21,6 +21,7 @@ import '../game/gargoyle_layout.dart';
 import '../game/gargoyle_story_art.dart';
 import '../game/king_coo_pose.dart' show KingCooMood;
 import '../game/king_coo_story_art.dart';
+import '../game/neferhoo_story_art.dart';
 import '../game/pirate_boss_rig.dart';
 import '../game/pirate_captain_body_art.dart';
 import '../game/pirate_captain_face_art.dart';
@@ -88,10 +89,25 @@ abstract final class StoryBossArt {
       origin: Offset(0, -GargoyleLayout.ledgeY * 30),
       reach: const Rect.fromLTRB(-4.4, -9.0, 4.8, 3.4),
     ),
+    // Neferhoo's own fit (design §5.8), from his story art.
+    BossKind.neferhoo => (
+      unit: NeferhooStoryArt.unit,
+      origin: NeferhooStoryArt.origin,
+      reach: NeferhooStoryArt.reach,
+    ),
   };
 
+  /// Whether [kind] acts [line] (the line it says, or said last) with a
+  /// gesture of its own beyond the line's mood. Only Neferhoo's card line
+  /// does ("Return to sender!": the stamp and a fan of letters); every other
+  /// boss is posed by the mood alone.
+  static bool actsLine(BossKind kind, String? line, {bool beaten = false}) =>
+      kind == BossKind.neferhoo &&
+      NeferhooStoryArt.actsLine(line, beaten: beaten);
+
   /// Paints [kind] in rig units. [talk] (0 to 1) opens its mouth as the
-  /// line is written out and [blink] (0 to 1) shuts its eyes.
+  /// line is written out and [blink] (0 to 1) shuts its eyes. [line] is the
+  /// line it is acting (see [actsLine]).
   static void paint(
     Canvas c,
     BossKind kind,
@@ -99,6 +115,7 @@ abstract final class StoryBossArt {
     bool beaten = false,
     double talk = 0,
     double blink = 0,
+    String? line,
   }) {
     // A beaten boss with nothing to say for itself looks sheepish.
     final m = beaten && mood == StoryMood.plain ? StoryMood.sad : mood;
@@ -124,7 +141,22 @@ abstract final class StoryBossArt {
           blink: blink,
         );
       case BossKind.searchlightGargoyle:
-        GargoyleStoryArt.paint(c, mood, beaten: beaten, talk: talk, blink: blink);
+        GargoyleStoryArt.paint(
+          c,
+          mood,
+          beaten: beaten,
+          talk: talk,
+          blink: blink,
+        );
+      case BossKind.neferhoo:
+        NeferhooStoryArt.paint(
+          c,
+          m,
+          beaten: beaten,
+          talk: talk,
+          blink: blink,
+          line: line,
+        );
     }
   }
 
@@ -197,13 +229,16 @@ abstract final class StoryBossArt {
           stroke: .55,
           fold: .5,
           mouth: talk * .4,
-          blink: math.max(blink, .34),
+          blink: math.max(blink, .12),
           wince: .45,
         ),
         1.0,
       ),
     };
-    BossRig.paint(c, boss, beaten ? pose.bare() : pose, lookY: look);
+    // The Baron's face plays the line's mood too (lids, brows, gaze, the
+    // set of his mouth), as it does when he speaks in flight.
+    final moody = pose.withMood(mood);
+    BossRig.paint(c, boss, beaten ? moody.bare() : moody, lookY: look);
     if (beaten) {
       _plaster(c, const Offset(-.3, -.66), .22, -.5);
       if (mood == StoryMood.sad) _sweat(c, const Offset(.7, -.62), .2);
@@ -694,7 +729,35 @@ class _Pose extends BossMotion {
     this.stroke = 0,
     this.crownLift = 0,
     this.crownless = false,
+    this.storyMood,
   }) : super(reducedMotion: !live);
+
+  /// The scene line's mood, for a rig that reads [mood] (the Baron's).
+  final StoryMood? storyMood;
+
+  @override
+  StoryMood? get mood => storyMood;
+
+  /// A held pose never talks on its own: [mouth] is the scene's.
+  @override
+  double get talk => 0;
+
+  /// The same pose with the line's [mood] on its face.
+  _Pose withMood(StoryMood mood) => _Pose(
+    boss,
+    live: !reducedMotion,
+    mouth: mouth,
+    recoil: recoil,
+    roar: roar,
+    summon: summon,
+    blink: blink,
+    wince: wince,
+    fold: fold,
+    stroke: stroke,
+    crownLift: crownLift,
+    crownless: crownless,
+    storyMood: mood,
+  );
 
   @override
   final double mouth, recoil, roar, summon, blink, wince, crownLift;
@@ -718,6 +781,7 @@ class _Pose extends BossMotion {
     fold: fold,
     stroke: stroke,
     crownless: true,
+    storyMood: storyMood,
   );
 
   @override

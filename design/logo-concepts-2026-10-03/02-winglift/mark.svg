@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><rect width="512" height="512" fill="#FFF9ED"/><g transform="translate(250 248) scale(.9)"><g id="winglift-monogram">
+  <g id="p-wing" transform="rotate(-13 -65 10)">
+    <path fill="#203B45" d="M-177 155 L-177 -102 Q-177 -158 -121 -158 L-77 -158 C-10 -158 24 -122 24 -67 C24 -9 -15 30 -77 30 L-105 30 L-105 124 Q-139 137 -177 155Z"/>
+    <path fill="#FFD45B" d="M-105 -95 L-77 -95 C-57 -95 -46 -83 -46 -64 C-46 -44 -58 -32 -79 -32 L-105 -32Z"/>
+  </g>
+  <path id="beak" fill="#F47D64" d="M150 -98 L232 -48 Q240 -42 231 -37 L155 -12Z"/>
+  <path id="b-body" fill="#203B45" d="M22 -128 H99 C155 -128 184 -102 184 -61 C184 -27 169 -8 146 4 C182 14 207 36 207 72 C207 125 169 151 106 151 H22Z"/>
+  <path id="upper-counter" fill="#FFD45B" d="M90 -76 H104 C123 -76 134 -66 134 -50 C134 -32 122 -22 104 -22 H90Z"/>
+  <circle id="eye" cx="112" cy="-53" r="8" fill="#203B45"/>
+  <path id="lower-counter" fill="#FFF9ED" d="M90 38 H111 C135 38 147 49 147 69 C147 88 134 98 111 98 H90Z"/>
+</g></g></svg>

@@ -3,14 +3,17 @@
 During a flight the characters talk. The equipped bird reacts to what
 happens to it, in its own voice and in its own words, and each boss speaks
 in its own fight. Nothing is shared: Pip, Peaches, Minty and Orbit each
-have 267 lines of their own, and each boss 34 (the Pirate Captain 37).
-Every line was recorded with ElevenLabs **Eleven v4**, one take each, in
+have 271 lines of their own, and each boss 34 (the Pirate Captain 37).
+Every line is recorded with ElevenLabs **Eleven v4**, one take each, in
 the voice the character has in the story ([story-voices.md](story-voices.md)).
 They are bundled in `assets/audio/flight/` and play offline.
 
-All 1,241 lines are recorded (2026-10-01; ElevenLabs' daily generation
-limit spread the last 214 over the next day) and bundled: 85 minutes of
-speech, 29.5 MB.
+1,241 of the 1,291 lines are recorded (2026-10-01; ElevenLabs' daily
+generation limit spread the last 214 over the next day) and bundled: 85
+minutes of speech, 29.5 MB. The other 50 are Egypt's guardian's (rules 50):
+Neferhoo's 34, each bird's 2 greetings and 1 farewell for him, and each
+bird's cargo line for 2-6. They are written and **pending recording**
+([Neferhoo](#neferhoo-written-not-recorded) below).
 
 ## When a character speaks
 
@@ -53,6 +56,42 @@ guardian a voice later, add it to `voicedBosses`, write its lines into the
 script and regenerate the clip tables with `tool/prepare_flight_voices.py`.
 Their faces do not move for speech: their rigs do not read `FlightSpeech`
 (`talking_faces_art_test`, "the guardians stay unaffected").
+
+### Neferhoo: written, not recorded
+
+Egypt's guardian (2-6, rules 50, key `neferhoo`) has his lines written in the
+script, in the five bosses' moments and counts, and each bird answers him.
+`FlightVoices.pendingBosses` names him: the game asks for his pools as for any
+boss's, each is empty until its takes are in, so his fight runs in silence
+(the bird's own lines and the effects aside) and paces exactly as it will with
+voices off. His moments, mapped onto his fight in `FlightVoices`:
+
+| Moment | Lines | When |
+| --- | --- | --- |
+| `arrive` | 3 | His arrival; in the campaign his name-card line (`neferhoo-card` = the story clip `before-2-6-7`, "Return to sender! This route has a courier.") comes first |
+| `taunt` | 8 | Quiet moments of the fight |
+| `attack` | 4 | The **mail call**: as a lane locks (`NeferhooFight.mailLocks` rises) |
+| `summon` | 3 | The **ankh**, thrown (`ankhThrows` rises; he summons nobody) |
+| `hurt` | 5 | One of his own **letters lands home** (`returnsLanded` rises). A rock on his padded wraps says nothing |
+| `gloat` | 5 | He hits the bird |
+| `mad` | 3 | The **fury** stage (a third of his health left: "Enough! EXPRESS POST!") |
+| `defeated` | 3 | His fall ("My mask! Where is my… oh. I can see!") |
+
+The birds: `boss-neferhoo` (2 each), `boss-down-neferhoo` (1 each), and
+`cargo-2-6` (1 each, "A feather duster…", played on 2-6's first try). The
+director's pacing rules are the shared ones for each moment (the mail call is an
+urgent `attack`, at most every 21 s in the campaign; his cycle is 12 s).
+
+His voice is not cast: the script's `voice_id` is `null` and `voice` is
+`Neferhoo (audition)` until the owner picks one of five auditions
+([story-voices-recording.md](story-voices-recording.md), section 2). Then put
+the voice in `VOICES['neferhoo']` in `tool/prepare_flight_voices.py`, run
+`script`, record the lines (section 7 of that document lists all 50 with their
+prompts; every tag is proven by a recorded take) and master them. Once his 34
+and his birds' 12 are in, move him from `pendingBosses` to `voicedBosses`
+(`flight_voice_script_test` insists on exactly that) and decide whether his rig
+moves its face to his lines (`talking_faces_art_test` keeps every boss outside
+`voicedBosses` still).
 
 ## Never the same line
 
@@ -138,13 +177,17 @@ the Spitter King's, two birds') came back the same way: the Captain's
 ## Remaking the clips
 
 `docs/flight-voices-sources.json` is the script: every line's speaker,
-moment, words, v4 prompt, voice and generation. (The writers' first drafts
-were per speaker in `build/flight-voices/script/`, outside the repository;
-with none there, `script` checks the sources file in place.) The downloaded
+moment, words, v4 prompt, voice and generation; a line with no
+`generation_id` is pending (no take yet). (The writers' first drafts were per
+speaker in `build/flight-voices/script/`, outside the repository. They
+predate Egypt's guardian and Arabia's renumbered cargo, so `script` reads them
+only to seed a missing sources file; otherwise it checks and rewrites the
+sources file in place, keeping each recorded line's generation and hash even
+on a clone without the takes.) The downloaded
 takes are kept in `build/flight-voices/source/<name>.mp3`.
 
 ```sh
-python3 tool/prepare_flight_voices.py script   # check the lines, write the sources
+python3 tool/prepare_flight_voices.py script   # check the lines, rewrite the sources
 python3 tool/prepare_flight_voices.py pending  # lines with no take yet
 python3 tool/prepare_flight_voices.py          # master new takes
 python3 tool/prepare_flight_voices.py --all    # master every take again

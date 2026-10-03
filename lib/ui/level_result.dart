@@ -10,6 +10,7 @@ import '../domain/campaign_progress.dart';
 import '../domain/game_rules.dart';
 import '../domain/sky_passport.dart';
 import '../game/campaign_voices.dart';
+import '../game/finish_celebration_art.dart' show CourierSeat;
 import '../game/play_controller.dart';
 import '../game/star_art.dart';
 import 'components.dart';
@@ -52,6 +53,8 @@ class LevelResultStage extends StatefulWidget {
     required this.initialDailyKey,
     required this.initialDailyComplete,
     required this.onLeave,
+    this.handoff = false,
+    this.nextWasOpen = false,
   });
   final PlayController controller;
   final CampaignLevel level;
@@ -59,10 +62,20 @@ class LevelResultStage extends StatefulWidget {
 
   /// The level's bests before this flight, for "New best".
   final LevelRecord before;
+
+  /// The next level was open before this flight (a finished level stays
+  /// open: a returning player may have it already), so its unlock is not
+  /// news.
+  final bool nextWasOpen;
   final Set<SkyStamp> initialStamps;
   final String? initialDailyKey;
   final bool initialDailyComplete;
   final Future<void> Function([String destination]) onLeave;
+
+  /// Whether the finish's celebrating bird has just landed in the courier's
+  /// seat: the courier is already there, beaming, and its cloud puffs in
+  /// under it instead of the two rising in together.
+  final bool handoff;
 
   static const entrance = Duration(milliseconds: 1900);
   static const calmEntrance = Duration(milliseconds: 500);
@@ -105,6 +118,37 @@ class LevelResultStage extends StatefulWidget {
         ? null
         : '${next.region.title} is coming soon!';
   }
+
+  /// Where the courier of a finished level sits on a [screen] whose safe
+  /// area keeps [padding] (as the stage's [SceneLayout] does), in pixels,
+  /// and how it is posed there. The finish's celebrating bird lands in it.
+  static CourierSeat courierSeat(Size screen, EdgeInsets padding) {
+    final area = padding.deflateSize(screen);
+    final scale = math.min(
+      area.width / _scene.width,
+      area.height / _scene.height,
+    );
+    final origin = Offset(
+      padding.left + (area.width - _scene.width * scale) / 2,
+      padding.top + (area.height - _scene.height * scale) / 2,
+    );
+    final seat =
+        const Offset(
+          _courierLeft - _LevelResultStageState._noteRoom,
+          _courierTop,
+        ) +
+        StageBirdPainter.happyCenter;
+    return CourierSeat(
+      center: origin + seat * scale,
+      width: StageBirdPainter.happyWidth * scale,
+      angle: StageBirdPainter.happyTilt,
+      wing: StageBirdPainter.happyWing,
+    );
+  }
+
+  /// The stage's layout, and where the courier's box stands in it.
+  static const _scene = Size(1000, 450);
+  static const _courierLeft = 20.0, _courierTop = 104.0;
 
   @override
   State<LevelResultStage> createState() => _LevelResultStageState();
@@ -259,8 +303,8 @@ class _LevelResultStageState extends State<LevelResultStage>
                       ),
                     ),
                     Positioned(
-                      left: 20 - aside,
-                      top: 104,
+                      left: LevelResultStage._courierLeft - aside,
+                      top: LevelResultStage._courierTop,
                       width: 380,
                       height: 346,
                       child: _courier(),
@@ -323,9 +367,11 @@ class _LevelResultStageState extends State<LevelResultStage>
   }
 
   /// The courier on its cloud, rising in from below and beaming, with a
-  /// hop as its stars land.
+  /// hop as its stars land. After the finish's celebration the bird is
+  /// already in its seat, and only the cloud puffs in under it.
   Widget _courier() {
-    final rise = _span(.02, .4, Curves.easeOutBack);
+    final handoff = widget.handoff;
+    final rise = handoff ? 1.0 : _span(.02, .4, Curves.easeOutBack);
     final land = LevelResultStage.starsAt.last;
     return IgnorePointer(
       child: Transform.translate(
@@ -336,6 +382,8 @@ class _LevelResultStageState extends State<LevelResultStage>
             seconds: null,
             wet: false,
             happy: true,
+            puff: handoff ? _span(0, .15, Curves.easeOutBack) : 1,
+            beaming: handoff,
             hop: widget.controller.levelComplete
                 ? _span(land, land + .16, Curves.easeOut)
                 : 0,
@@ -1099,7 +1147,7 @@ class _LevelResultStageState extends State<LevelResultStage>
             SkyColors.lavender,
             'A postcard is waiting on the map!',
           )
-        else if (next != null && !widget.before.cleared)
+        else if (next != null && !widget.before.cleared && !widget.nextWasOpen)
           strip(
             Icons.lock_open_rounded,
             SkyColors.mint,

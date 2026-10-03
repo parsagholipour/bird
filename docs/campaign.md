@@ -53,7 +53,7 @@ regions. A chapter ends at its boss's lair, the last level of its last region.
 | # | Route | Boss | Regions (levels) | New in this chapter |
 | --- | --- | --- | --- | --- |
 | 1 | The Canopy Route | Baron Bat | Jungle (3), Brazil (2), Aztec (3) | Flying, stars and streaks, Shoot, bats, Sprint; wind lifts, petal shutters |
-| 2 | The Ancient Road | Spitter King | Ancient Rome (3), Egypt (2), Ancient Arabia (3) | Spitter beetles, stone panels (charged shots), rush paths (Wildfire, Skyfall); switchbacks, lantern drift |
+| 2 | The Ancient Road | Spitter King | Ancient Rome (3), Egypt (3), Ancient Arabia (3) | Spitter beetles, stone panels (charged shots), rush paths (Wildfire, Skyfall), a guardian (Neferhoo); switchbacks, lantern drift |
 | 3 | The Lamplight Line | Dusk Empress | New York (4), Paris (4) | Dusk moths, Alley Pigeons, steam geysers, two guardians (King Coo, the Searchlight Gargoyle); sun wheels; gales, Swarm rush, crystal steps (Paris) |
 | 4 | The Tide Route | Pirate Captain | Mexico (3), Open Sea (5) | Eruption rush, the sea, the tide |
 | 5 | The Edge of the Map | Ember Dragon | Antarctica (2), Cyberpunk City (3), China (3) | Nothing new: shuffled rush paths, gales before rushes, the fastest starts |
@@ -77,13 +77,13 @@ The map follows the same trip, one region at a time:
 - **Moving on.** The route leaves the right edge of a region's last level and
   enters the next region. The map moves one stop at a time, by swipe or by the
   arrow keys at its edges, and opens on the region of the current level. A
-  back key and the campaign's star total ("12 / 60" in this build, which
-  opens New York; "12 / 48" when `NEW_YORK_OPEN=false` closes it) sit in the
+  back key and the campaign's star total ("12 / 63" in this build, which
+  opens New York; "12 / 51" when `NEW_YORK_OPEN=false` closes it) sit in the
   top corners.
 - **Chapters and bosses.** A small banner over each region names its chapter
   route. The last node of a chapter is the boss's lair: a larger node with the
   boss's name. Beaten chapters show their postcard on the route. A guardian's
-  level (New York's 3-2 and 3-4) is no lair: its node is a shield in the
+  level (Egypt's 2-6, New York's 3-2 and 3-4) is no lair: its node is a shield in the
   guardian's colour with the headwear pinned on it, under a GUARDIAN plaque
   with its name, a little bigger than a level coin and well under a lair.
 - **The current level** is the first unlocked level not yet finished, or the
@@ -96,8 +96,8 @@ The map follows the same trip, one region at a time:
   stop; with `NEW_YORK_OPEN=false` New York carries the ribbon too.
 - **Tapping a level.** An open level opens its card over the map. A locked
   one wiggles, and a note says what opens it: "Finish 1-2 to unlock", "Beat
-  Baron Bat to unlock" (and "Beat King Coo to unlock" on 3-3) or "Coming
-  soon".
+  Baron Bat to unlock" (and "Beat Neferhoo to unlock" on 2-7, "Beat King Coo
+  to unlock" on 3-3) or "Coming soon".
 
 ## Levels
 
@@ -107,7 +107,9 @@ The map follows the same trip, one region at a time:
   it allows, its starting difficulty, where its set pieces go, its star marks,
   and whether it ends in a boss. There are no hand-placed obstacles.
 - It starts like a Star Trail: three hearts, a shield, stars, streak
-  multipliers and the star magnet. There are no heart pickups.
+  multipliers and the star magnet. There are no heart pickups on the route;
+  the only hearts are the two a boss knocks loose as it grows stronger (see
+  [Boss fights](#boss-fights)).
 - **Length** is the number of seconds to the finish line for a bird that never
   sprints. The finish line is a fixed point on the route, so Sprint and ring
   sprints get you there sooner. Set pieces also sit at fixed points on the
@@ -116,27 +118,48 @@ The map follows the same trip, one region at a time:
   cruising bird escapes a rush path, or where a gale's wind drops. A gale's
   tailwind carries the bird about 20.4 route seconds in its 13 seconds, so
   "Wildfire 8 s after it" starts about 28 route seconds after the gale does.
-- **The finish line** reuses the gold pennants and checker ribbon from
-  `lib/game/arrival_art.dart`, with a FINISH label. Ordinary passages stop so
-  the line is laid at least 0.45 past the last one, the same way a gale is
-  laid. Crossing it completes the level.
-- **Boss levels** fly a 30-second run-up with the chapter's hazards. Then the
-  boss arrives with its normal cinematic. Once the defeated boss has flown
+- **The finish line** is a gate (`lib/game/finish_gate_art.dart`): two
+  candy-striped posts, a checkered beam and crest star, a FINISH sign ringed
+  with marquee bulbs, bunting, and the checkered tape that is the line.
+  Ordinary passages stop so the line is laid at least 0.45 past the last one,
+  the same way a gale is laid. Crossing it completes the level.
+- **Reaching it is celebrated** (`lib/game/finish_celebration_art.dart`,
+  presentation only). Over the last 3 s the bulbs flick on and chase, the
+  flags quicken and the HUD's route flag glows, with an "almost there" sting.
+  At the line the bird bursts the tape at its own height: a hit-stop, a snap
+  and a haptic, confetti cannons on the post tops, a spinning crest star in a
+  sunburst, a swinging sign, a camera punch, the birds' cheer and the
+  fanfare. The bird flies a loop-de-loop, the world warms, and it swoops
+  towards the camera into the result's courier seat as the result takes
+  over at 1.7 s, the confetti still falling. A tap after 0.5 s skips;
+  Reduced Motion gets a calm 0.8 s version.
+- **Boss levels** fly a 30-second run-up with the chapter's hazards. Then
+  Baron Bat, the Spitter King and the Dusk Empress send their vanguard of
+  small enemies first, and the boss arrives with its normal cinematic once
+  the vanguard is gone (the others arrive straight away). The fight is long
+  and comes in three stages (see [Boss fights](#boss-fights)). Once the
+  defeated boss has flown
   off, the finish line is laid just past the right edge, for a short victory
   glide. From the boss's defeat to the line the bird coasts, as it does in
   the cinematic: taps, Shoot and Sprint rest (their buttons hide) and
   nothing can hurt it, so beating the boss always delivers.
-- **Guardian levels** (3-2 and 3-4) are built the same way, with a mini-boss
-  in place of the chapter's boss: a 30-second run-up, the guardian's arrival,
-  the victory glide. A guardian is not the chapter's boss and the level is not
-  the chapter's last: it unlocks only the next level and brings no flame
-  seal, no postcard and no chapter unlock. A boss level holds no set pieces,
-  so the two guardian levels teach their new mechanic in the run-up and leave
-  the gale and the Swarm rush to Paris. 3-4 offers no Sprint (its plan turns
+- **Guardian levels** (2-6, 3-2 and 3-4) are built the same way, with a
+  mini-boss in place of the chapter's boss: a 30-second run-up, King Coo's
+  vanguard of squadron pigeons on 3-2 (Neferhoo and the Gargoyle send none),
+  the guardian's arrival, a staged fight and the victory glide. A guardian is
+  not the chapter's boss and the level is not the chapter's last: it unlocks
+  only the next level and brings no flame seal, no postcard and no chapter
+  unlock. A boss level holds no set pieces, so New York's two guardian levels
+  teach their new mechanic in the run-up and leave the gale and the Swarm rush
+  to Paris; Neferhoo teaches his own (return to sender) in the fight's calm
+  first stage, with the card's hint and Bill's tip. 3-4 offers no Sprint (its plan turns
   it off): a sprint makes the Gargoyle's feathers close faster than the lane
   they were aimed for, which his fairness proof assumes away. King Coo's level
   keeps Sprint: his clouds are fixed to the screen and his squadron flies a
   track of its own, so a sprint cannot change what reaches the bird.
+- **Music:** a level flies to its region's own song (the jungle keeps the
+  flight theme), and its boss or guardian brings in the boss track as usual.
+  The songs are listed in [music.md](music.md#campaign-region-music).
 - **Failing:** losing the last heart fails the level with the existing knockout
   and Bonk! stage (Splash! at sea). Retry goes straight back to the countdown.
 - **Pausing** offers Map, Retry and Keep flying. Map and Retry save the
@@ -214,14 +237,86 @@ minutes.
 
 Enemy toughness follows the chapter, not bosses beaten in the flight. Small
 enemies gain +5 HP per earlier chapter: bats have 10, 15, 20, 25 and 30 HP in
-chapters 1–5. Each chapter boss has the HP of its first endless encounter
-(120, 210, 240, 300 and 360) and fights its debut version:
+chapters 1–5. Each chapter boss fights its debut version:
 
 - the Dusk Empress without her veil and with slow helpers;
 - the Ember Dragon burning only half the sky, with no splitting fireballs.
 
-The two guardians exist only in the campaign and have HP of their own: King Coo
-140 and the Searchlight Gargoyle 160.
+### Boss fights
+
+From rules version 44 a campaign boss fight is long, starts easy and gets
+harder twice. The owner's brief: "it should be easy first but long, the
+player should take some time. Then after a certain health bar, they get
+stronger, after another point they get a bit more stronger. Some of them
+include smaller enemies also so before we deal with them they send some small
+enemies and then themselves show up."
+
+**Health.** Campaign bosses have far more health than their endless
+encounters (which keep theirs): Baron Bat 600, the Spitter King 600, the Dusk
+Empress 620, the Pirate Captain 780, the Ember Dragon 1,080, King Coo 840
+(420 at rules 44; the owner found him "too easy to kill still" and asked for
+double) and
+the Searchlight Gargoyle 640 (200 at rules 44 and 45; the owner asked for
+him "the same hard and same length" as King Coo; `SkyBoss.campaignHealthFor`). A test bot that
+fires about as fast as the weapon allows takes 40–75 s to win; one that only
+taps every 0.6 s takes 50–90 s. (Before rules 44: 9–36 s with the same bot.)
+New York's guardian pilots (sharp, average, casual) take about 107 / 140 /
+340 s against the Gargoyle from rules 46 (27 / 68 / 130 s before; his lamp
+is open 29% of the time, so the slowest shooter takes longest), and a pilot
+that reads every telegraph is never touched; pilots that react as King
+Coo's bots do are caught more often than before, and the slowest of them
+rarely wins (docs/validation.md). King Coo (rules 45, as hard as the owner chose) takes them about
+100 / 155 / 210 s, and they finish 3-2 in about 44% / 31% / 9% of flights
+(100% at rules 44): his crust-throwing vanguard, the stragglers that come
+back throwing until they are shot, and a fury of a minute or more. The bots
+hunt pigeons less well than a player, so a person should do better; a
+playtest decides.
+
+**Three stages,** one per third of the health bar (`SkyBoss.stage`):
+
+| Stage | Health | What the boss does |
+| --- | --- | --- |
+| 1, warm-up | above 2/3 | One shot at a time, or the smaller fan, slower and less often; no helpers; no signature attack |
+| 2, stronger | 2/3 to 1/3 | The full fight: its helpers and its signature attack join |
+| 3, fury | below 1/3 | Its fury, as before (fury used to start at half health) |
+
+| Boss | Warm-up | Stronger adds |
+| --- | --- | --- |
+| Baron Bat | single fireballs every 2.6 s | triple shots, his bats |
+| Spitter King | three-shot fans every 2.3 s | full fans with a gap, his beetles |
+| Dusk Empress | five-shot fans every 2.1 s | seven-shot fans, her moths |
+| Pirate Captain | single cannonballs, calm sea | pairs, the tide |
+| Ember Dragon | single fireballs | pairs, the breath (its heart opens) and the swarm flocks |
+| King Coo | crumb bombs and the puff (x2 window) | the whistle and his squadron (a V; in fury three crumb rings, but no picket behind the V) |
+| Searchlight Gargoyle | the beam sweep and the lamp; from rules 46 the calm cycle's stone feathers too | stone feathers (rules 44 and 45); from 46 faster sweeps and feathers (fury's pace) and a feather over his open lamp, two in fury; from 49 his feathers are level, so a low bird dodges them as easily as a high one |
+
+Each time the boss grows stronger it roars and holds its fire for 1.4 s, a
+"STRONGER" tag (then the fury tag) lights on its bar, and a heart floats in
+from the right at mid-height: the fight is about four times longer, and the
+two hearts keep it from costing more than a short one did. From rules 47 the
+bird catches a heart it touches as drawn (0.11 from its centre, not 0.085),
+and a missed heart drifts on, faded, off the screen. A signature attack
+never starts mid-cycle: its first warning comes at least 1.6 s after the boss
+grew stronger, at the next cycle that allows it (`SkyBoss.armSignature`).
+From rules 54 King Coo does not wait out the cycle he grows furious in: as
+soon as its squadron has passed the bird and he is over his roar and any pop
+(2.6 s of dizzy spell and recovery), his first fury cycle begins, its first
+crumb ring 0.6 s later (`SkyBoss.quickRestart`). He used to idle for up to
+six seconds there.
+
+**Vanguards.** Baron Bat, the Spitter King, the Dusk Empress and King Coo send
+their small enemies first (`BossVanguard`): when the run-up ends, three waves
+fly in from the right (a banner names them and a plate counts them down), and
+the boss shows up 0.8 s after the last of them has been shot down, rammed or
+has flown past. About 13 s in all. The Pirate Captain, the Ember Dragon and
+the Searchlight Gargoyle arrive straight away.
+
+| Boss | Waves |
+| --- | --- |
+| Baron Bat | 2 bats; 3 bats; 4 bats (bats and cave bats) |
+| Spitter King | a beetle; a bat and a beetle; two beetles and a cave bat |
+| Dusk Empress | a moth; two bats; two moths |
+| King Coo | his squadron's pigeons (they never snatch): a V of 3; two Vs of 3; a V of 5. From rules 45 each one coos, winds up and throws a stale crust at the bird (one aimed shot every 2.2 s, a V's members one after another), and they fly a little slower, so most throw twice. Any that get away (fly past, or into the bird) come back in his fight: two together from rules 56 (one at a time before), twice a cycle (0.3 s and 4.3 s into it, never while his squadron crosses), one above and one below him (only one if that is all that remains), winded (one shot downs one) and still throwing, until every one has been shot down or rammed. A tag under his health bar counts the ones still owed ("×N", then "ALL CAUGHT!"), and a returning straggler wears a plaster and the same gold "comes back" arrow |
 
 ### Hazards
 
@@ -262,7 +357,7 @@ Enemies: simple purple bat and cave bat. Toughness 0.
 | 1-5 | Express Post | Brazil | 70 s | Sprint. *NEW: Sprint smashes bats and surges ahead.* | 0:30 | 96 | 45 / 70 |
 | 1-6 | Temple Steps | Aztec | 75 s | All of chapter 1 | 0:40 | 105 | 45 / 80 |
 | 1-7 | Sunrise Roost | Aztec | 80 s | All of chapter 1 | 0:50 | 114 | 50 / 85 |
-| 1-8 | **Baron Bat** | Aztec | 30 s + boss | All of chapter 1, then Baron Bat (120 HP) | 0:40 | 36 | 15 / 25 |
+| 1-8 | **Baron Bat** | Aztec | 30 s + boss | All of chapter 1, then Baron Bat's bats and Baron Bat (600 HP) | 0:40 | 36 | 15 / 25 |
 
 ### Chapter 2: The Ancient Road (Spitter King)
 
@@ -276,9 +371,17 @@ bat, beetle, cave bat). Toughness 1.
 | 2-3 | Wildfire Run | Ancient Rome | 75 s | Rush path: Wildfire at 25 s. *NEW: Fly through the gold rings to outrun the fire!* | 0:45 | 93 | 45 / 75 |
 | 2-4 | Nile Switchbacks | Egypt | 75 s | + switchbacks; panels, beetles | 1:00 | 105 | 55 / 85 |
 | 2-5 | Skyfall | Egypt | 80 s | Rush path: Skyfall at 30 s. *NEW: Ring sprints smash meteors.* | 1:05 | 102 | 50 / 80 |
-| 2-6 | Lantern Bazaar | Ancient Arabia | 80 s | + lantern drift | 1:15 | 114 | 55 / 90 |
-| 2-7 | The Long Caravan | Ancient Arabia | 90 s | Wildfire at 25 s, Skyfall at 60 s | 1:30 | 111 | 55 / 90 |
-| 2-8 | **Spitter King** | Ancient Arabia | 30 s + boss | All of chapter 2, then the Spitter King (210 HP) | 1:15 | 36 | 20 / 30 |
+| 2-6 | Return to Sender | Egypt | 30 s + guardian | Egypt's run-up, then **Neferhoo, the Mummy Courier** (guardian, rules 50, staged; no vanguard). Tougher from rules 52: 600 HP (300 at 50), letters 1.4× faster, and his **mummy bats** fly in behind each mail call's letters, down its lane, once he grows stronger (a pair; fury's trio, faster). Faster from rules 55: 700 HP, a 10.5 s cycle with a second mail call from the full fight on, his bats from the warm-up on (a pair, a trio, fury's four, and a wave of two in the warm-up), a returned letter deals 18. *NEW: Shoot his letters to send them back. Return to sender!* | 1:00 | 36 | 20 / 30 (provisional) |
+| 2-7 | Lantern Bazaar | Ancient Arabia | 80 s | + lantern drift | 1:15 | 114 | 55 / 90 |
+| 2-8 | The Long Caravan | Ancient Arabia | 90 s | Wildfire at 25 s, Skyfall at 60 s | 1:30 | 111 | 55 / 90 |
+| 2-9 | **Spitter King** | Ancient Arabia | 30 s + boss | All of chapter 2, then the Spitter King's brood and the Spitter King (600 HP) | 1:15 | 36 | 20 / 30 |
+
+Ancient Arabia was 2-6 to 2-8 until Egypt's guardian took 2-6 (rules 50): the
+levels kept their plans and seeds, saves were renamed once (`CampaignIds`,
+`ProgressDatabase.renumberLevels`: level records, flights, watched scenes,
+highest id first, in one transaction) and their clips were renamed, not
+recorded again. A level once finished stays open, so a returning player keeps
+Arabia and New York and finds 2-6 as the current level.
 
 ### Chapter 3: The Lamplight Line (Dusk Empress)
 
@@ -296,13 +399,13 @@ duel flights; a New York level never flies at it.)
 | Level | Name | Region | Length | Hazards | Start | Route ★ | ★★ / ★★★ |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 3-1 | Moth Light | New York | 60 s | Chapter 2 hazards, no rush; a moth on the second enemy passage and one enemy in four after it. *NEW: Moths fire fans of three. Slip between them.* | 1:15 | 81 | 40 / 65 |
-| 3-2 | Wheels in the Rain | New York | 30 s + guardian | + sun wheels; Alley Pigeons; then **King Coo** (140 HP, fury at 70). *NEW: Alley pigeons swoop in to grab stars. Shoot them first!* | 1:25 | 36 | 20 / 30 |
+| 3-2 | Wheels in the Rain | New York | 30 s + guardian | + sun wheels; Alley Pigeons; then King Coo's crust-throwing squadron and **King Coo** (840 HP). *NEW: Alley pigeons swoop in to grab stars. Shoot them first!* | 1:25 | 36 | 20 / 30 |
 | 3-3 | Steam Alley | New York | 65 s | Steam geysers, steady from the 4th passage (seven vents); pigeons. *NEW: Vents hiss, then burst. Hop the hot ones, ride the soft ones.* | 1:40 | 90 | 45 / 70 |
-| 3-4 | Storm Warning | New York | 30 s + guardian | Sparse steam in the run-up, then the **Searchlight Gargoyle** (160 HP, fury at 80). *NEW: Stay out of the light. Shoot the lamp when it opens! No Sprint here.* | 1:30 | 36 | 20 / 27 |
+| 3-4 | Storm Warning | New York | 30 s + guardian | Sparse steam in the run-up, then the **Searchlight Gargoyle** (200 HP). *NEW: Stay out of the light. Shoot the lamp when it opens! No Sprint here.* | 1:30 | 36 | 20 / 27 |
 | 3-5 | Crystal Rooftops | Paris | 80 s | + crystal steps | 1:50 | 114 | 55 / 90 |
 | 3-6 | After the Gale | Paris | 85 s | Gale at 20 s, then Wildfire 8 s after it (the endless order). *NEW: Gale! Watch the ! and take the open side.* | 2:00 | 69 | 35 / 55 |
 | 3-7 | Midnight Express | Paris | 90 s | Swarm at 20 s, gale at 55 s. *NEW: Sprint through the flocks.* | 2:15 | 78 | 40 / 60 |
-| 3-8 | **Dusk Empress** | Paris | 30 s + boss | All of chapter 3, then the Dusk Empress (240 HP, no veil) | 2:00 | 36 | 20 / 30 |
+| 3-8 | **Dusk Empress** | Paris | 30 s + boss | All of chapter 3, then her moths and the Dusk Empress (620 HP, no veil) | 2:00 | 36 | 20 / 30 |
 
 ### Chapter 4: The Tide Route (Pirate Captain)
 
@@ -327,7 +430,7 @@ Until then, the level data of 4-4 to 4-8 lays their routes without the sea.
 | 4-5 | Spring Tide | Open Sea | 80 s | The tide. *NEW: When the bell rings, fly high.* | 2:30 | 114 | 55 / 90 |
 | 4-6 | Broadside Bay | Open Sea | 85 s | Tide; Swarm at 30 s | 2:45 | 114 | 55 / 90 |
 | 4-7 | Stormy Crossing | Open Sea | 90 s | Tide; gale at 20 s, Eruption 8 s after it | 3:00 | 78 | 40 / 60 |
-| 4-8 | **Pirate Captain** | Open Sea | 30 s + boss | Calm sea, then the Pirate Captain (300 HP) | 2:45 | 36 | 20 / 30 |
+| 4-8 | **Pirate Captain** | Open Sea | 30 s + boss | Calm sea, then the Pirate Captain (780 HP) | 2:45 | 36 | 20 / 30 |
 
 ### Chapter 5: The Edge of the Map (Ember Dragon)
 
@@ -343,7 +446,7 @@ endless shuffled bag, so only the banner says which one is coming.
 | 5-5 | Skyline Sprint | Cyberpunk City | 90 s | Shuffled rush at 15 s, gale at 45 s, rush 8 s after it | 4:00 | 78 | 40 / 60 |
 | 5-6 | Lantern Festival | China | 85 s | Two shuffled rushes (20 s, 55 s) | 4:00 | 111 | 55 / 90 |
 | 5-7 | The Last Leg | China | 90 s | Gale at 15 s, rush 8 s after it, rush at 65 s | 4:30 | 78 | 40 / 60 |
-| 5-8 | **Ember Dragon** | China | 30 s + boss | All of chapter 5, then the Ember Dragon (360 HP, half-sky breath, swarm flocks) | 4:00 | 36 | 20 / 30 |
+| 5-8 | **Ember Dragon** | China | 30 s + boss | All of chapter 5, then the Ember Dragon (1,080 HP, half-sky breath, swarm flocks) | 4:00 | 36 | 20 / 30 |
 
 ## Story
 
@@ -358,10 +461,11 @@ endless shuffled bag, so only the banner says which one is coming.
   lands*.
 - **The five bosses** each took a route for a small, silly reason of their
   own, and each ends the story with a job at the club.
-- **The two guardians** of New York stand in the way before the chapter's
-  boss: King Coo, Commissioner of the Curb, and the Searchlight Gargoyle,
-  Watchman of the Tallest Tower. They too have a small, silly reason and end
-  at the club, but they sent no letter and carry no flame seal.
+- **The three guardians** stand in the way before a chapter's boss:
+  Neferhoo, Keeper of the Lost Letter, in Egypt, and in New York King Coo,
+  Commissioner of the Curb, and the Searchlight Gargoyle, Watchman of the
+  Tallest Tower. They too have a small, silly reason and end at the club, but
+  they sent no letter and carry no flame seal.
 
 ### The arc
 
@@ -381,12 +485,14 @@ the beaten bosses included.
 | Pirate Captain | He wants the stamps, not the mail | The club sends him a stamp from every route |
 | Ember Dragon | No route ever reached him, so no mail should reach anyone | Route six: he keeps the beacon at the edge of the map |
 
-New York's guardians are not part of the trail of seals. Bill says so on stage
-before the first fight ("No flame seal on this one, rookie"), and "Three seals
-now" in the Empress's scene stays true.
+The guardians are not part of the trail of seals. Bill says so on stage
+before each fight ("No flame seal on this guardian"), and "Two routes, two
+seals" in the Spitter King's scene and "Three seals now" in the Empress's stay
+true.
 
 | Guardian | Why it is in the way | What it asks for | How it ends |
 | --- | --- | --- | --- |
+| Neferhoo, Keeper of the Lost Letter (2-6, the Mummy Courier: a 4,000-year-old hoopoe in linen travel wraps and a gold courier mask) | The Sky Club's first Egypt courier, sealed in the Great Pyramid with the last letter of his round. He has guarded it ever since, too proud to let another courier fly "his" route, and could not find its door through his mask. It is the one letter the club lost (`before-2-4`: "The Sphinx won't say"): it was for the Sphinx, right outside, who was too polite to complain | His route: "This route has a courier." The courier brings a feather duster for the pyramid caretaker; he takes it for a rival | The mask comes off and he can see. He becomes the club's Keeper of Lost Letters, starting with this one; the Sphinx's note: "Delivered at last. Worth the wait." |
 | King Coo, Commissioner of the Curb (3-2, a huge grumpy pigeon in a police cap) | Someone moved his bread cart (it was sheltering under 3-1's theatre marquee). He is sure the umbrella-carrying courier did it, so he grounds the sky with whistle squadrons and stale crumb bombs | The cart back; every parcel with wheels or wings searched | Commissioner of the club's pigeonholes, which have never had a pigeon, for a hot bagel a day |
 | Searchlight Gargoyle, Watchman of the Tallest Tower (3-4, a theatrical old stage actor in limestone) | Ninety-odd years on his ledge, admired skyline and nobody looking up. A storm woke him (the vane's mount is empty) and he sweeps the sky to catch someone in the light | An audience: "Hold still!" | The landing light for the night mail: every courier looks up to find him (and his pigeons may stay) |
 
@@ -415,23 +521,25 @@ next tap moves on; **Skip** ends the scene.
   a letter read aloud sits on a sheet of airmail paper with a wax seal.
 - **Voices:** every line is spoken by its character, recorded with
   ElevenLabs Eleven v4, and the text writes itself out at the pace of the
-  voice. The four guardian scenes are written but not recorded yet: a line
-  without a recording is printed and paced by its text, as with voices off. The courier speaks in the equipped bird's own voice. The music ducks
+  voice. The six guardian scenes (and the pyramid caretaker's thank-you) are
+  written but not recorded yet (Neferhoo's voice is still to be picked from
+  five auditions): a line without a recording is printed and paced by its
+  text, as with voices off. The courier speaks in the equipped bird's own voice. The music ducks
   under a spoken line. The cast and how the lines were made are in
   [story-voices.md](story-voices.md); Settings → Character voices turns them
   off.
 
-There are 27 scenes, and each plays by itself once:
+There are 29 scenes, and each plays by itself once:
 
 | When | Scene | What happens |
 | --- | --- | --- |
 | The map's first visit | Prologue (before 1-1) | Bill welcomes the rookie: five routes went quiet overnight; start with one birthday card. It plays until it has been watched or 1-1 is finished. |
 | A chapter's first level (2-1, 3-1, 4-1, 5-1) | The route's opening | Bill names the route's boss and the new trouble; the flame seals add up. |
-| The first level of each later region (1-4, 1-6, 2-4, 2-6, 3-5, 4-4, 5-3, 5-6) | An arrival | Three to five lines on the new place and what to watch for. |
+| The first level of each later region (1-4, 1-6, 2-4, 2-7, 3-5, 4-4, 5-3, 5-6) | An arrival | Three to five lines on the new place and what to watch for. |
 | A boss level (x-8) | At the lair | The courier hands over its letter, the boss says why it took the route and ends on its name-card line; Bill gives the fight's tip. |
-| A guardian's level (3-2, 3-4) | At the lair (`before-3-2`, `before-3-4`) | The guardian halts the courier for its small silly reason and ends on its name-card line; Bill says it is no seal fight and gives the tips for the new mechanics (the puff, the crumb bombs and the squadron's open lane; the lamp). |
+| A guardian's level (2-6, 3-2, 3-4) | At the lair (`before-2-6`, `before-3-2`, `before-3-4`) | The guardian halts the courier for its small silly reason and ends on its name-card line; Bill says it is no seal fight and gives the tips for the new mechanics (shoot his letters back and mind the ankh; the puff, the crumb bombs and the squadron's open lane; the lamp). |
 | After a boss first falls | The boss's last word | The boss gives in, the flame seal comes up, and Bill offers it a way to stay. It plays on the map before the chapter's postcard. |
-| After a guardian first falls (3-2, 3-4) | The guardian's last word (`last-3-2`, `last-3-4`) | The guardian gives in and Bill offers it a place at the club; no seal and no postcard. 3-2's ends on Bill pointing to Steam Alley. 3-4's ends on a "To be continued… Next stop: Paris, the City of Light." caption, which goes when Paris opens. |
+| After a guardian first falls (2-6, 3-2, 3-4) | The guardian's last word (`last-2-6`, `last-3-2`, `last-3-4`) | The guardian gives in and Bill offers it a place at the club; no seal and no postcard. 2-6's is the one that opens surprised, not sad (his mask is off and he can see: the reveal), ends on Neferhoo taking the job and setting off to the Sphinx, and closes on the Sphinx's note read aloud ("Delivered at last. Worth the wait. Signed: the Sphinx."). 3-2's ends on Bill pointing to Steam Alley. 3-4's ends on a "To be continued… Next stop: Paris, the City of Light." caption, which goes when Paris opens. |
 
 A level's scene plays before its card the first time the card opens, and
 only before the level's first finish. After that, the card's **story key**
@@ -475,9 +583,10 @@ courier as usual.
 | 2-3 Wildfire Run | Water buckets for the fire brigade | “Just in time. Truly, JUST in time.” — The fire brigade |
 | 2-4 Nile Switchbacks | A book of new riddles for the Sphinx | “Finally, some fresh material.” — The Sphinx |
 | 2-5 Skyfall | A telescope for the pyramid astronomer | “Now I can see the meteors coming!” — The pyramid astronomer |
-| 2-6 Lantern Bazaar | Lamp oil for the lantern sellers | “The bazaar glows again. A thousand thanks!” — The lantern sellers |
-| 2-7 The Long Caravan | Water flasks for the long caravan | “Forty camels. Forty thank-yous.” — The caravan leader |
-| 2-8 Spitter King | A stop-brewing order for the Spitter King | “Bah. It was very nearly ink.” — Spitter King |
+| 2-6 Return to Sender | A feather duster for the caretaker | “Four thousand years of dust, gone by lunch!” — The pyramid caretaker |
+| 2-7 Lantern Bazaar | Lamp oil for the lantern sellers | “The bazaar glows again. A thousand thanks!” — The lantern sellers |
+| 2-8 The Long Caravan | Water flasks for the long caravan | “Forty camels. Forty thank-yous.” — The caravan leader |
+| 2-9 Spitter King | A stop-brewing order for the Spitter King | “Bah. It was very nearly ink.” — Spitter King |
 | 3-1 Moth Light | Light bulbs for the theatre marquee | “The show goes on! Front row for you.” — The stage manager |
 | 3-2 Wheels in the Rain | Umbrellas for the newsstand pigeons | “Dry feathers at last. You’re a hero.” — The newsstand pigeons |
 | 3-3 Steam Alley | Hot pretzels for the night-shift cabbies | “Still warm! How fast do you fly?” — The night cabbies |
@@ -520,7 +629,7 @@ campaign levels only, so endless looks exactly as before.
 | Pirate Captain | “Arr! Every mailbag on these waves be mine!” |
 | Ember Dragon | “The sky is mine. Your letters are kindling.” |
 
-The two guardians have a line of their own, on the same card under the
+The three guardians have a line of their own, on the same card under the
 epithet, and end on it at their lair. Where a chapter boss's card has the small
 gold word ENCOUNTER 03 (and so on) above its name, theirs says **GUARDIAN**:
 the word the level card's ribbon and the result use too. It is the level's own
@@ -528,12 +637,15 @@ the word the level card's ribbon and the result use too. It is the level's own
 `CampaignStory.guardianLines`, and a test keeps them equal. A guardian's fall
 has the same wording on screen as on the result: the victory card says
 **GUARDIAN DOWN!** (a chapter's boss keeps SKY RECLAIMED) and the result
-"Guardian down!". King Coo and the Gargoyle are each drawn in flight by their
-own stage and in the story by their own rig, and the stamp of a beaten guardian
-shows King Coo's police cap or the Gargoyle's brow visor.
+"Guardian down!". Each guardian is drawn in flight by its own stage and in
+the story by its own rig, and the stamp of a beaten guardian shows Neferhoo's
+golden courier mask, King Coo's police cap or the Gargoyle's brow visor.
+Neferhoo's arrival is announced by the banner "The pyramid’s dust is
+stirring…".
 
 | Guardian | Title | Line |
 | --- | --- | --- |
+| Neferhoo | Keeper of the Lost Letter | “Return to sender! This route has a courier.” |
 | King Coo | Commissioner of the Curb | “Nobody flies till the bread cart is found!” |
 | Searchlight Gargoyle | Watchman of the Tallest Tower | “Hold still! Nobody ever stays in the light.” |
 
@@ -575,18 +687,19 @@ it again. The words come from the level data (`lib/domain/campaign.dart`).
 ## Progression and saving
 
 - **Unlocking:** the first level is open from the start. Finishing a level (1
-  star or more) unlocks the next one. Beating a boss unlocks the next chapter.
-  Any unlocked level can be replayed.
-- **In this build**, chapters 1 and 2 (six regions, 16 levels, 48 stars) and
+  star or more) unlocks the next one, and a finished level stays open (so a
+  level added before it later never locks it). Beating a boss unlocks the
+  next chapter. Any unlocked level can be replayed.
+- **In this build**, chapters 1 and 2 (six regions, 17 levels, 51 stars) and
   New York, the first stop of chapter 3 (3-1 to 3-4), are playable: seven
-  regions and 20 levels, 60 stars ("12 / 60"). Paris through the Dusk
+  regions and 21 levels, 63 stars ("12 / 63"). Paris through the Dusk
   Empress stay on the map, locked, as "Coming soon" (Paris's ribbon reads
   "Paris — coming soon"). New York is **open by default**: a plain
   `flutter run`, `make build` and `make install` all ship it. The decision
   is made in one place, `Campaign.openingEnabled`; a build made with
   `--dart-define=NEW_YORK_OPEN=false` (`make build
-  DEFINES=--dart-define=NEW_YORK_OPEN=false`) closes it again: 16 levels,
-  48 stars ("12 / 48", the total counts only levels the build can fly), New
+  DEFINES=--dart-define=NEW_YORK_OPEN=false`) closes it again: 17 levels,
+  51 stars ("12 / 51", the total counts only levels the build can fly), New
   York "Coming soon" and every save, schema and recorded flight untouched.
   Beating 3-2 opens 3-3; beating 3-4 opens nothing: the result says "Paris is
   coming soon!", hides Next and the Gargoyle's last scene ends on "To be
@@ -649,7 +762,9 @@ Wording changes:
 - **Rules version 43 "New York"** adds the Alley Pigeon, steam geysers and
   two mini-boss guardians, all through a level plan's data
   (`LevelPlan.minRulesVersion`); chapters 1 and 2 and endless fly at 43
-  exactly as at 42 and at 41. (Rules version 42 is Fly Together: co-op and
+  exactly as at 42 and at 41. Rules version 50 adds Egypt's guardian the same
+  way (2-6 only: `LevelPlan.usesNeferhoo`); every other level, endless, co-op
+  and duel fly at 50 exactly as at 49. (Rules version 42 is Fly Together: co-op and
   duel flights, endless-only, which a campaign level never uses.) A chapter's
   stops can open one at a time (`CampaignChapter.opened`,
   `Campaign.playable`): New York ahead of Paris, behind
@@ -665,7 +780,7 @@ Wording changes:
   thank-you note.
 - **Screens:**
   - Home: a mint **Campaign** key beside Play, with a map and the level stars
-    earned ("12 / 60", or "12 / 48" with `NEW_YORK_OPEN=false`). Play keeps its place,
+    earned ("12 / 63", or "12 / 51" with `NEW_YORK_OPEN=false`). Play keeps its place,
     filling the row it once shared with the retired Practice key;
   - the map (`/campaign`);
   - the level card, over the map (whose chapter ribbon captions it): region

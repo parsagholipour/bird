@@ -119,7 +119,6 @@ abstract final class SpitterBossRig {
     _thorax(c, p);
     _hose(c, p, brew);
     _legs(c, p, far: false);
-    _armLimb(c, p);
     _head(c, p, brew, aim, fury: fury);
     if (!m.defeated || m.death < .3) {
       c.save();
@@ -130,6 +129,7 @@ abstract final class SpitterBossRig {
       _crownSteam(c, p, brew);
       c.restore();
     }
+    _armLimb(c, p);
     _claw(c, p);
   }
 
@@ -1013,8 +1013,8 @@ abstract final class SpitterBossRig {
     );
   }
 
-  /// The limb goes behind the head, so a raised arm never covers the face
-  /// or the trumpet; the claw is drawn last, over the crown it lifts.
+  /// The limb is drawn over the head and crown, so a raised arm reaches in
+  /// front of the face rather than vanishing behind it; the claw caps it.
   static void _armLimb(Canvas c, SpitterBossMotion p) {
     final (elbow, hand, _) = _armPose(p);
     final arm = Path()

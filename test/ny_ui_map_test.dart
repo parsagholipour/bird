@@ -378,7 +378,7 @@ void main() {
     final empty = CampaignProgress(const []);
     // Chapters 1 and 2 beaten, so the first New York level is open.
     final twoChapters = CampaignProgress([
-      for (final level in Campaign.levels.take(16))
+      for (final level in Campaign.levels.where((l) => l.chapter <= 2))
         LevelRecord(levelId: level.id, bestStars: 1),
     ]);
 
@@ -433,7 +433,7 @@ void main() {
         );
         expect(node.isBoss, isFalse, reason: node.id);
       }
-      expect(campaignStarsInBuild, 60);
+      expect(campaignStarsInBuild, 63);
     });
   });
 }

@@ -1231,7 +1231,7 @@ class _PlayerCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              for (var i = 0; i < birdNames.length; i++)
+              for (final i in birdOrder)
                 _BirdChoice(
                   key: ValueKey('coop-pick-$player-$i'),
                   bird: i,

@@ -1,5 +1,1065 @@
 # Validation ledger
 
+## 2026-10-03 The faster Neferhoo (rules 55)
+
+Owner's ask, after beating the tougher Neferhoo (rules 52) on a phone in
+about 49 s of fight: "It is still stall for too long. It should call the
+bats more and from the beginning. It needs 100 more HP. It needs to shoot
+more." From rules version 55 (`fasterNeferhooRulesVersion`,
+`SkyBoss.fasterNeferhoo`, `NeferhooBeats.faster`), 2-6 only:
+
+- 700 HP (600 at 52 to 54; rules 53's growth is endless only).
+- A 10.5 s cycle (12 before): first mail call at 0.6 with its bats from the
+  warm-up on (pair, trio, fury's four); the ankh at 5.4/6.8 as before; a
+  second call (3 letters, express 5, no bats) on the bird at 9.6, after the
+  ankh's return pass; in a warm-up cycle a wave of two bats at 5.9 instead.
+- A returned letter deals 18 (25 before), so twice the letters a cycle make
+  a practised fight longer, not shorter.
+- Longest open sky at 2.2 (nothing crossing the bird): warm-up 11.2 -> 4.4 s,
+  full 6.1 -> 3.1 s, fury 5.7 -> 2.7 s. Hazards a minute 15/35/60 -> 41/66/108.
+- Fairness (`neferhoo_faster_fairness_test`): every faster scenario (each
+  call with its bats by stage, the warm-up cycle with its wave on any lane,
+  the full/fury cycle with the second call on any lane, the join of the
+  second call and the next call) 100% viable at 5 taps/s at 640 and 792; at
+  1.5 taps/s 100% at 792, the .84 lane at 640 99.4% (fury 98.6%, as at 52).
+  Bats are past the bird >= 2.0 s before an ankh can reach it and >= 0.88 s
+  before the next lock.
+- Pilots (32 seeds, 2.2, median fight / KO, rules 54 -> 55): expert 62 s ->
+  75 s, 0% both (hits .56 -> 1.59); careful family 111 -> 158 s, 0% -> 0%;
+  careful kid 219 -> 347 s, 0% -> 0% (30/32 won inside 8 min); model family
+  111 -> 139 s, 0% -> 41%; model kid 228 s/13% -> 100% KO; slow dodge-only
+  .27 -> .67 hits/min, 0% -> 6%. The model policy's two holes (crossing a
+  band about to be swept, bobbing into an edge) are what the busier sky
+  punishes.
+- Built as 55 in `egypt-int/v3` from main at rules 54; `frozen_rules54`
+  recorded first (2-6 at 54 replays byte for byte). Report:
+  `egypt-int/reports/32-v3-landing.md`.
+
+## 2026-10-03 King Coo's quick fury restart (rules 54)
+
+Owner's ask: "The last time King coo breaks down and waits, it takes to long
+for him to start shooting. He should restart faster." Read as his last
+stage-up, into fury: most damage lands in his puff window (x2), so the fury
+usually comes there, often with a pop (he sags, dizzy: the "break down"),
+and nothing else of his fixed 14 s cycle was left after it. His first fury
+crumb ring locked only at the next cycle's 0.6 s. From rules version 54
+(`cooRestartRulesVersion`, `supportsCooRestart`, `SkyBoss.quickRestart`)
+the campaign King Coo ends that cycle at the first step when nothing of it
+is left (roar over; chest settled at 10.4, or `KingCoo.popRecovery` 2.6 s
+after a pop; crumbs gone; every squadron pigeon a pigeon's reach past the
+bird), and his first fury cycle begins there. Once a fight; later fury
+cycles keep 14 s.
+
+- Built as 54 on a copy of the rules 53 tree (`../growth-ws`, itself the
+  tougher Neferhoo's rehearsed 52 plus growing endless bosses) in
+  `../coo-restart-ws`, because those two were about to land on main.
+- His cycle clock goes through `SkyBoss.cooClockAt` / `cooCycleStart`
+  (rules, stragglers, `KingCooPose`, the test bots' danger maps). The jump
+  lands on a cycle boundary from inside the quiet tail, so no counter
+  (puffs, whistles, rings, straggler returns) moves, and the pose is at rest
+  on both sides (every cycle-driven channel ends by 10.4 s or 2.6 s after a
+  pop).
+- Measured (`flyNewYork('3-2')`, width 2.2, phases 0, 13, 26 and 39, at 53
+  and 54; first fury ring after the stage-up):
+  - fury with a pop at cycle 8.87 (sharp): 5.73 s at 53, 3.19 s at 54;
+  - fury at the puff without a pop, squadron out (cycle 7.67, casual):
+    6.93 s, now 4.56 s (the squadron crosses until about 11.5 s; the ring
+    locks 0.6 s after it has passed);
+  - fury early in a cycle (0.07 to 1.13 s): its first ring was 0.5 to 2 s
+    away anyway; now that cycle's tail is cut instead (restart 10.1 to 11.2
+    s after the fury);
+  - fury at 13.27 s, after the tail: no restart (the next cycle is due).
+  - Fight lengths barely move (sharp 92.6 to 93.6 s; average 168.1 to
+    169.5 s; casual 224.7 to 224.7, 233.0 to 240.1, 246.8 to 245.4 s) and
+    the pilots' fight hits stay in the same range (1 to 4).
+- `test/king_coo_restart_test.dart`: 53 against 54 for a pop that brings his
+  fury (ring 3.2 s after the pop at 54, the next cycle's 0.6 s at 53), the
+  squadron case (restart on the first step after the last pigeon has passed
+  the bird, no ring before it), counters and the pose's cycle across the
+  restart, a fury early in a cycle, once a fight, determinism, and
+  `KingCoo.popRecovery` = the art's `popDizzy + popRecover`.
+- Version pins moved from 53 to 54 in `rules43_version_test`,
+  `rules50_version_test`, `fiercer_gargoyle_test`, `level_feathers_test`,
+  `boss_stages_test`, `all_rings_bonus_test`, `neferhoo_tougher_rules_test`
+  and `boss_growth_test`.
+- Frozen fixtures were not re-recorded. `frozen_rules49_test` now also runs
+  at 53, and from 54 it skips a flight in which King Coo restarted
+  (`FrozenResult.cooRestarts`, from the new `FlightSimulation.cooRestarts`
+  counter), as it skips all-rings flights from 51: the 3-2 bot and pilot
+  flights and the 3-2 tape that reach his fury. Every other frozen flight
+  matches at 54.
+- Open: never phone-played; no new audio or voice line.
+
+## 2026-10-03 Growing endless bosses (rules 53)
+
+Owner's ask: "For the boss's second encounter we increase the HP currently
+but for the 3rd+ encounters it's the same HP, we wanna have a rate of
+increase for the next encounters, that works for nth encounter and increases
+the HP of the boss by that rate." `SkyBoss.healthFor` climbs 30 per encounter
+number, capped after four, so every endless kind peaked at its second
+meeting. From rules version 53 (`bossGrowthRulesVersion`,
+`supportsBossGrowth`) each meeting after the second has
+`SkyBoss.growthPercent` = 25 % more health than the one before, rounded to
+10 with integer math (replays match on every platform). The rate was not
+given; 25 % is a default, one constant to tune. Endless and co-op only;
+campaign bosses are staged and never read `healthFor`, and duels meet no
+boss.
+
+- It took 53 because the tougher Neferhoo, rehearsed as 52 in
+  `egypt-int/rehearsal2`, was about to land; this change was built on a copy
+  of that tree (`../growth-ws`) and applied on top after it landed.
+- `test/boss_growth_test.dart`: the health table for meetings 1 to 6 of
+  every endless kind (pre-53 values held at the second meeting), encounters
+  1 to 20 met through the simulation at 52 and 53, and a scripted endless
+  flight at widths 1.6 and 2.2 that matches 52 state for state every second
+  until encounter 11, whose upgraded Baron has 600 health instead of 480.
+- Version pins moved from 52 to 53 in `rules43_version_test`,
+  `rules50_version_test`, `fiercer_gargoyle_test`, `level_feathers_test`,
+  `boss_stages_test`, `all_rings_bonus_test` and
+  `neferhoo_tougher_rules_test`; `endless_plan_baseline_test`'s 48 test now
+  asks for at least 52. No fixture was re-recorded: the frozen endless flights
+  end at 8 bosses, before any third meeting.
+
+## 2026-10-03 The tougher Neferhoo landed on the main tree (rules 52)
+
+The tougher Neferhoo (next entry) was built as rules 51 against main's 50. The
+all-rings bonus took 51 in the main tree first, so it landed as 52: the
+constant `tougherNeferhooRulesVersion`, the version pins and the docs moved,
+and nothing else (every rule reads the constant).
+
+- **Frozen first**: `test/frozen_rules51_test.dart` (fixture and four tapes)
+  was recorded on an untouched copy of the main tree at 51 before anything
+  was merged. It flies `frozen_rules50`'s flights at 51: 2-6 lays no rush
+  path, so 51 flies it exactly as 50 did, and saved 51 tapes reload, replay
+  and re-record byte for byte under the 52 code. At 52, 2-6's data and every
+  run-up are unchanged. `endless_plan_baseline` flies 52 against 51.
+- **The real app** (`PushUpBirdApp`, a fresh save at 2-6's door, the real
+  `BirdGame` and Flame loop, R1's family pilot on the play controller's keys,
+  nothing topped up): 2-6 at 52 on the 792 × 360 reference phone, seed 1,
+  fight 113.0 s (the same pilot fought the 300-health rules 51 fight in 50.6
+  s), 10 mail calls, 21 mummy bats flown in, 2 shot down, 1 hurt, level
+  completed with all 36 stars; seed 3, fight 121.2 s. A 640 × 360 screen
+  shows the same reference sky, letterboxed by `ScreenFrame` at 0.81 scale,
+  so it flies exactly the same flight; the bats stay legible at that scale.
+  (The 640 px rows of the fairness search and the pilots below are a sky
+  1.78 heights wide, which the app does not show while `ScreenFrame` frames
+  every screen as the reference phone; at 2.2 every lane stays fully viable
+  for a slow tapper too.)
+- **Hazards in the real flights**: at every mail call's lock no mummy bat was
+  left in the sky; while an ankh flew within .5 of the bird's column no bat
+  was within .25 of it (1025 and 1178 such frames); no bat flew among its
+  call's letters (closest .145 screen heights). On the 2.2 sky a fury trio's
+  last bat passes the bird just as the ankh's lanes lock (5.4 s into the
+  cycle); the ankh reaches the bird about 2.3 s after it has gone.
+- **Stall check**: Neferhoo's caches and `MummyBatArt.prewarm` build in the
+  frame that mounts the game, during the countdown (300 to 440 ms on the
+  test host, 300 ms without the bats; a countdown frame cannot end a
+  flight). Over every playing frame of three cold-cache flights (fresh
+  isolates), the worst was 43 to 116 ms, always in the run-up; his arrival,
+  his first mail call, the first bat flying in, the first bat downed, the
+  stage-ups and his defeat each took under 70 ms (mostly under 25). One run
+  had a burst of up to 301 ms at a moment when other work loaded the host;
+  the same frames took 3.5 to 12.6 ms in the other two runs of that flight.
+  Untouched main's worst playing frame on the same flight was 36.5 ms.
+
+## 2026-10-03 A tougher Neferhoo (rules 52): 600 health, faster letters, mummy bats
+
+The owner played 2-6 on a phone: "It's so easy. Double the health. Give it
+some helpers, small flying enemies. The letter particles move faster." He
+picked mummy bats for the helpers. Rules version 52
+(`tougherNeferhooRulesVersion`, see the specification) makes 2-6's guardian
+tougher and leaves everything else alone. (It was built and measured as 51;
+the all-rings bonus took 51 in the main tree first, so it landed as 52. The
+numbers below are the same rules under either number.)
+
+- **Frozen first**: `test/frozen_rules50_test.dart` (+ `frozen_rules50_flights`,
+  fixture and four tapes) was recorded from an untouched copy of the landed
+  tree (`egypt-int/base2`, rules 50) before any change: 2-6's data, the shared
+  bot through the whole level at 640, 800, 864 px and 2.2 (both weapons,
+  mortal and sloppy), R1's pilots (family, first-timer, expert, learner, the
+  slow dodge-only player), and tapes of the bot, a family pilot at 640 and a
+  first-timer at 2.2. After the change all of it flies at 50 exactly as
+  recorded, the 50 tapes replay and re-record byte for byte under the 52
+  code, and at 52 2-6's data, every run-up and the tapes' inputs up to his
+  arrival are unchanged. `test/frozen_rules51_test.dart` (fixture and four
+  tapes) pins the same flights at 51 (the all-rings bonus), recorded from an
+  untouched copy of the main tree at 51 before the merge: they fly at 51
+  exactly as at 50 and as recorded. `frozen_rules49` (endless, co-op, duel
+  and chapters 1 to 3 at 49 and the current version), `frozen_rules45`,
+  `frozen_rules41`, `frozen_ny43` and `frozen_egypt50` stay as they were;
+  `endless_plan_baseline` flies 52 against 51 through the returning Baron.
+- **Gating** (`neferhoo_tougher_rules_test`): only a 2-6 boss at 52 is tougher;
+  no endless or duel plan names a mummy bat for 200 boss numbers at any
+  version from 19 to 52, long endless, roped, free and duel flights at 52 meet
+  none, no level's lineup holds one and a plan naming one is refused; a 2-6
+  fight at 50 (or 51) meets no bat, deals letters at .45 / .52 and has 300
+  health.
+- **Rules** (same file, real simulation): letters .63 / .728 and returns 1.4
+  times sooner (landing once for 25); the warm-up sends no bats, the full
+  fight a pair, fury a trio, latched at the lock with exact launch times, in
+  from the right edge at their pace, level in the lane by the bird; behind
+  every letter of their call and never near the bird's column while an ankh
+  in flight is within .5 of it (640, 792, 864 px, four cycles each); touch
+  hurts, one rock downs one (+3, `enemyHit` of its kind), a sprint rams one;
+  the "MUMMY BATS" hint; his defeat clears them and none flies in after it;
+  a replay with bats in flight seeks backward and forward to the same fight
+  as a fresh replay.
+- **Fairness** (`neferhoo_tougher_fairness_test`, the design's viability
+  search, dodging only; `--dart-define=NEFERHOO_FAIR_ALL=true` for every lane,
+  198 scenarios): at five taps a second every state the edges let live has a
+  way through the faster warm-up stream, the stream with its pair and the
+  express post with its trio at lanes .16 to .84, and the whole cycle (call,
+  bats, then the ankh or two ankhs on .25, .5 or .75), at 640, 792 and 864
+  px. Reaction budgets (the stream alone gives the same: the bats take none
+  of it): 640 px 1.8 s (1.0 at the ceiling lane), express 1.5-1.6 (1.0); 792
+  2.3-2.4 (1.7), 2.1 (1.4); 864 2.8 (1.9), 2.4-2.5 (1.9). Rules 50 gave 2.0
+  (1.3) and 1.9 (1.1) at 640. The last bat leaves the bird's reach at least
+  2.31 s before an ankh can reach it, the first enters it after the call's
+  last letter has left (by at least .03 s), and a bat is seen for at least
+  1.81 s. A slow tapper (1.5 taps a second): the bats change no verdict; the
+  faster letters leave every lane fully viable at 792 and 864 px and in the
+  upper half at 640, where a lane in the lower third (.78) leaves 96.4% of
+  the starts near the lock a way out by flying alone (express post 93.0%;
+  .84: 99.4% / 98.6%; rules 50: 99.8% to 100%). Sending the letters back is
+  open from anywhere they can hurt (catch band = hurt band).
+- **Pilots** (`neferhoo_tougher_pilot_test`, R1's design-model bots, now
+  aware of the bats; 100 mortal fights each, combat seconds median (p10-p90);
+  `--dart-define=NEFERHOO_PILOT_SEEDS=100`):
+
+  | | 640 px, rules 50 | 640 px, rules 52 | 792 (2.2), rules 50 | 792 (2.2), rules 52 |
+  | --- | --- | --- | --- | --- |
+  | expert | 27 (27-38), 0.18 hits | 73 (62-84), 1.02 hits | 27 (27-29), 0.14 | 62 (59-70), 0.56 |
+  | family | 59 (39-75), KO 0%, 0.68 | 134 (113-161), KO 2%, 1.85 | 48 (29-57), 0%, 0.40 | 110 (86-132), 1%, 1.55 |
+  | first-timer | 119 (86-146), KO 0%, 1.03 | 251 (195-307), KO 2%, 1.79 | 103 (75-138), 0%, 1.36 | 219 (181-265), 9%, 2.76 |
+  | slow shooter (1.5 taps) | 110 (85-136), 0%, 0.59 | 231 (199-277), 0%, 1.18 | 96 (63-121), 0%, 0.81 | 206 (170-266), 2%, 2.09 |
+  | slow, dodge-only (hits a min, KO in 2 min of the full fight) | 0.86, 2% | 0.92, 3% | 0.43, 0% | 0.24, 0% |
+
+  Every fight is 2.1 to 2.7 times as long and takes more hits; a first-timer
+  now loses one fight in eleven on main's 2.2 sky (one in fifty at 640). The
+  tuning that got there: bats leaving his hand gave first-timers too little
+  warning at 640 (68% knocked out); bats from the right edge at the scroll
+  speed crossed the bird during the ankh's telegraph on wide screens (28-42%);
+  the shipped train (in from the edge, timed to trail the last letter, at a
+  set pace a little under the letters') keeps the call one hazard and is
+  gone before the ankh.
+- **Art hooks**: every exhaustive `EnemyKind` switch has a `mummyBat` arm;
+  the live and defeat arms call `MummyBatArt.paint`, prewarmed with his art
+  during 2-6's countdown. The mail lane's telegraph now ends at the letters'
+  real speed and stays for the call's bats (`neferhoo_fight_art_test`, rules
+  50 and 52).
+- **The mummy bat's art** (`lib/game/enemy_designs/mummy_bat.dart`,
+  `MummyBatArt`, the simple bat's painter signature): a tiny bat in the simple
+  bat's family (body, ears, wing key poses, flap rhythm, look, Reduced Motion
+  glide) wound in Neferhoo's moon-linen with plum-grey seams, bound ears,
+  wrapped wrist cuffs, glowing turquoise eyes under linen lids, a lapis
+  postage stamp with a red postmark on the belly, dusty-plum wings and one
+  loose bandage end trailing to a glowing turquoise tip. Envelope over 150
+  frames x -1.78..1.78, y -1.15..1.16 r (limits 1.9 / 1.2); 37 draw calls a
+  bat (simple bat 39), no clip, layer or blur; `MummyBatArt.prewarm` records
+  its poses during the countdown (`mummy_bat_art_test`; review sheets
+  `mummy_bat_review_test`).
+
+## 2026-10-03 All-rings bonus (rules 51)
+
+Owner's request: "In the rings part, when we get all the rings, we get +2
+seconds plus boost." Collecting every ring of a rush path now adds
+`Rush.allRingsBonus` (2 s) to the last ring sprint, at full 3× boost
+(`FlightSimulation.allRingsRulesVersion` = 51, `supportsAllRingsBonus`,
+`FlightEventKind.allRings`, `allRingsBonuses` counter). It applies to every
+touch Star Trail flight with rush paths: endless, co-op, duel and campaign.
+
+- `test/all_rings_bonus_test.dart`: the bonus comes with the sixth ring and
+  holds peak boost until the last half second of the longer sprint, a missed
+  ring (first, middle or last) earns nothing, and rules 50 flies a perfect run
+  frame for frame as before until the bonus.
+- Frozen fixtures were not re-recorded. `frozen_rules41` and `frozen_rules49`
+  now also run at 50, where every flight matches. At 51, the flights that earn
+  the bonus are skipped: 7 of 108 (2-3 in both fixtures, endless at all three
+  widths, and co-op roped and free). The other 101 still match.
+- Version pins moved from 50 to 51 in `rules43_version_test`,
+  `rules50_version_test`, `endless_plan_baseline_test`,
+  `fiercer_gargoyle_test`, `level_feathers_test` and `boss_stages_test`.
+- Full suite (machine heavily loaded by other sessions): 3618 passed and 5
+  failed. Three were those pins. The other two were timing tests
+  (`world_regions_test` crossings, `king_coo_head_test` frame cost), and both
+  passed when rerun alone. All six files pass after the pin fix.
+
+## 2026-10-03 Neferhoo landed on the main tree (rules 50, schema 6)
+
+The Egypt program (Neferhoo and level 2-6, built and reviewed as rules 46 in
+its own trees) was rehearsed on a copy of the main tree as it stood (rules 49:
+the fiercer Gargoyle 46, fair hearts 47, the tougher endless Baron 48, level
+feathers 49; the finish-line celebration and ScreenFrame; the Steam Geysers
+art, which landed during the rehearsal, was merged in and its tests rerun)
+and then landed.
+
+- **Numbers**: Neferhoo is **rules version 50** (`neferhooRulesVersion`, now
+  current); the save migration (Arabia 2-6..2-8 to 2-7..2-9) is **database
+  schema 6** (main was still at 5).
+- **Frozen first**: `test/frozen_rules49_test.dart` was recorded from the
+  untouched copy BEFORE the program was applied (the 20 levels of chapters 1
+  to 3 with their staged bosses and guardians, the fierce Gargoyle and fair
+  hearts included, at three widths, both weapons, mortal and sloppy bots, New
+  York's pilots, endless at three widths, co-op roped and free, a duel, six
+  tapes). After the landing every one of them flies at 50 exactly as at 49.
+  `frozen_rules45_test` keeps pinning 45 (at 45 only: the current version
+  moved on by design). `frozen_egypt50` (was `frozen_egypt46`) was re-recorded
+  once at 50: the same flights and summaries, only the digests moved (fair
+  hearts change the hearts he floats in) and the tape's version.
+- **Conflicts resolved by hand** (both sides kept): the rules version block,
+  `campaignHealthFor` (the fiercer Gargoyle's parameter and Neferhoo's 300),
+  `stageHint` (the fierce Gargoyle's line and his), the story stage's switch,
+  the result stage's two new parameters (`handoff`, `nextWasOpen`), the sound
+  bank, `prepare_sound_effects.py` and the sound docs (the finish line's cues
+  and Egypt's side by side; both took seeds from 501, see "Egypt cues"), and
+  the version expectations in `boss_stages`, `rules43_version`,
+  `endless_plan_baseline` (now also flies endless at 50 against 49 through the
+  returning Baron), `fiercer_gargoyle` and `level_feathers`.
+- **Tests**: `flutter analyze` clean; the full suite on the rehearsal: 3603
+  passed, 238 skipped, 2 failed (the two literal `currentRulesVersion, 49`
+  above, then fixed and rerun green). A real 2-6 flight through the app at
+  792 x 360 (`neferhoo_real_flight_test`, `M1_REVIEW`) as a smoke check.
+
+## 2026-10-03 Neferhoo fix round (after the W4 reviews)
+
+- The hint lines are drawn (`neferhoo_fix_round_test`): after eight rocks on
+  his wraps without a return the rules' adaptive line ("Rocks only scuff his
+  wraps. Shoot his LETTERS back!") hangs under his health strip, where the
+  shipped guardians hang their tags, fades in, gives way to the ankh's
+  telegraph and comes back once the ankh is home; a return swaps it for
+  RETURN TO SENDER! −25 for 1.5 s; it yields to the STRONGER! card; it is in
+  the frame `BirdGame` renders, under the letters, and clear of the hearts
+  plate, the pause key and the lane tags at 640/792/800/864 px with and
+  without 44 px notch insets (the HUD's plate and the tags now follow the
+  safe-area insets the game reads from its `MediaQuery`).
+- The ankh never hides under the hearts plate: whenever its loop passes under
+  the plate (a lock at .22 or .6; not at .46), the play screen fades the plate
+  to .25 from the lock until the last ankh is home, and back; checked frame by
+  frame at 640/792/864 px with and without insets, and in the real app (the
+  plate's `Opacity` equals the fight art's value in every captured frame).
+- The result's "2-7 Lantern Bazaar is open!" shows for a fresh player and not
+  for a returning one who had 2-7 open (`neferhoo_real_flight_test`, both
+  saves in the suite).
+- Audio (`neferhoo_audio_test`, `neferhoo_merge_audio_test`): his hits never
+  ring `boss_hit`; a landing in the frame of his roar or fury's cry is
+  `postage_due_duck` (−8 dB); fury never roars a second time a step later (a
+  one-line guard in the shared chain); `lost_letter` rings at 3.2 s, after
+  `boss_victory`; the stage-up beak opens on the cue's syllables.
+- Reduced Motion: he is drawn at his bob's centre (the rules' circle still
+  bobs, within a third of its radius); the landing burst drops its flash,
+  rings and confetti. The catch: the drawn ankh glides into his hand over its
+  last .3 s, at least .5 screen heights right of the bird. The story stage
+  draws him at 40 px a unit, 24 px lower, streamers tucked: the Skip key
+  covers 74 px² of a feather tip at 640 (745 before), 8 at 792, none at
+  800/864.
+- `frozen_egypt50` (new): 2-6's data, the shared bot through the whole level
+  at 640/800/864 px and 2.2, R1's pilots and a recorded tape (replays, seeks
+  and re-records byte for byte), at his rules version.
+
+## 2026-10-03 Neferhoo integrated (rules 50): 2-6 played for real
+
+- The whole level through the real app (`test/neferhoo_real_flight_test.dart`;
+  `PushUpBirdApp` and its router, a real save, the play controller's own
+  keys, 60 frames a second, no heart top-ups): the map opens 2-6's card behind
+  `before-2-6`, Fly flies the 30 s run-up (36 / 36 stars), the arrival, the
+  warm-up, both stage-ups, mail calls, returns, the ankh, fury, the defeat and
+  the coast to the line; the result gives 3 stars and Next; the map plays
+  `last-2-6` once and opens 2-7. At 640 x 360 on an old schema-5 save
+  (migrated at open: Arabia's 2 / 1 / 3 stars on 2-7..2-9, 2-6 open and not
+  cleared), and with `--dart-define=M1_REVIEW=<dir>` also at 800 and 864 on a
+  fresh save (2-7 locked until 2-6 is won) and at 640 under Reduced Motion,
+  with frame strips and an MP4 per width (`M1_VIDEO=<frames>`). The design's
+  family pilot (careful, seed 1) beats him in 65 s at 640 (7 letters landed,
+  42 scuffs, 7 ankhs, untouched in the fight), 39 s at 800, 51 s at 864; every
+  one of his 12 cues plays.
+- The fight art on the real rules (`neferhoo_fight_art_test`,
+  `neferhoo_merge_art_test`; the art tests' rules stand-in is gone): every
+  letter's body is the rules' rectangle within a pixel, also inside the frame
+  `BirdGame` itself renders; returned letters fly on the rules' clock and curve
+  (`homeAt`, `returnAt`), letters sent back together land at least
+  `landingGap` apart; a fight frame records no picture after the arrival
+  (fury's second ankh was missing from the prewarm); the MAIL CALL / THE ANKH
+  tags never sit under the play screen's hearts plate or his health strip at
+  any lane height from 576 to 960 px (a high lane used to put them under the
+  plate).
+- Audio and voices on the real counters (`neferhoo_merge_audio_test`, no
+  longer skipping): in real flights at 1.78 and 2.22 each cue plays on the step
+  of its edge, `mail_call`, `ankh_raise`, `postage_due`, `letter_flick`,
+  `ankh_whir`, `ankh_catch` exactly as often as the rules count them; his
+  flight-voice moments (attack, summon, hurt) each follow a rise of
+  `mailLocks`, `ankhThrows`, `returnsLanded`.
+- The story stage acts his card line: "Return to sender!" (`before-2-6` line
+  7) shows the stamp and a fan of letters, his HALT! (line 1, also angry) the
+  raised wing; only Neferhoo reads the line (`StoryBossArt.actsLine`).
+
+## 2026-10-03 Neferhoo's rules (rules 50)
+
+- His rules on the real simulation (`test/neferhoo_rules_test.dart`, 25
+  tests at 640 px, the shared bot also at 800 and 864): the mail call locks on
+  the bird at .6 s and deals three letters at 1.6/2.0/2.4 s (exact cycle
+  times; the lane clamped to .16-.84); a letter hurts like a course edge and
+  is spent, the next ones meet a recovering bird harmlessly; the catch band
+  equals the hurt band for every tilt, flap stretch and Reduced Motion (the
+  beak's −.0078 to +.0276 is inside the band's .008/.028 allowance); shots
+  from −.065, 0 and +.065 off the lane send the letter back, +.11 does not; a
+  returned letter is unstrikable, harmless where it would have flown, and
+  lands once for 25 (`lastHitAt == lastLandAt`); charged rocks (≥ .35) send
+  back a whole stream and carry on, tapped ones (and .34) are spent on the
+  first; landings at least .1 s apart; a sprint ram returns; the wraps deal
+  10 → 3, 40 → 13, 28 → 9, 1 → 1, and eight scuffs bring the hint until a
+  return; the ankh's lanes, throw, 2.66 s round trip at 640 px, both passes
+  hurt, the room between the lanes is safe, fury's mirror (+.5 s, .95), rocks
+  pass it; the warm-up throws no ankh for three cycles; a stage-up arms the
+  first lock at least 1.6 s away (at 2, 4, 15 and 16 s: cycles 0, 1, 1, 2);
+  fury is latched at each lock (a calm stream stays calm, the next lock is
+  the express post and two ankhs); every hint in order; a landing that beats
+  him clears everything and nothing hurts the bird to the line; recorded
+  flights replay, a backward seek and a fresh player reach the same fight
+  state, and `mailLocks`, `ankhThrows`, `returnsLanded`, `lettersDealt`,
+  `ankhLocks`, `ankhCatches` rise at most once a frame and equal their
+  events.
+- Fairness (`test/neferhoo_fairness_test.dart`,
+  `neferhoo_fairness_coarse_test.dart`; the design's backward viability
+  search over the shipped pure rules, Tap & Fly physics): at five taps a
+  second every scenario of every stage (mail call locked at .16/.3/.5/.7/.84,
+  ankh at .25-.75, express post, two ankhs) is viable from every state the
+  edges alone let live, at 640, 800 and 864 px; reaction budgets at 640 px
+  1.3 s (ceiling lane) / 2.0 s / ankh 1.9 / express 1.1-1.9 / two ankhs 1.8
+  (800: 2.3-3.0; 864: 2.4-3.0), the design's figures exactly. At 1.5 taps a
+  second all letter scenarios are viable; a lock at the bottom clamp (.75)
+  leaves 99.7% (ankh) and 98.3% (two ankhs) viable at 640, 99.98% at 800,
+  100% / 99.99% at 864. The streams never overlap the ankh (≥ 2.5 s apart,
+  1.6 to 2.4 screen heights wide).
+- Pilots (`test/neferhoo_pilot_test.dart`, the design's `ttk.dart` bot ported
+  onto the real simulation; 100 fights per row from varied starts and shot
+  phases; tables in `egypt-int/deliveries/r1/HANDOFF.md`): with 300 HP the
+  family bot wins in a median 59 s at 640 px (41 at 800, 39 at 864, 62 at
+  576), the first-timer in about 2 minutes (119 s at 640), the practised one
+  in 27 s; the family is never knocked out. 270 HP (the plan's estimate) gave
+  the family 51 s. The shared bot (`boss_stages_test`, 2-6 added) wins in
+  about 26 s: it returns every letter and ends the warm-up with the first
+  ones, so its warm-up gate is 2 s for 2-6 (the full fight and fury still
+  last over 8 s each).
+- 2-6's marks (`test/neferhoo_marks_test.dart`): the run-up lays 36 stars on
+  12 passages; 20 / 30 (50% / 80%, to fives) are no longer provisional; every
+  sharp, average and casual pilot collected all 36 at 640, 800 and 864 px and
+  six shot phases.
+
+## 2026-10-03 Egypt's guardian scaffold (rules 50)
+
+- Rules version 50 (`neferhooRulesVersion`) and Neferhoo's interfaces
+  landed before his rules and art (`egypt-int/MASTER-PLAN.md` in the program
+  tree). Everything that flew before is guarded by fixtures recorded from the
+  untouched rules 45 game: `test/frozen_rules45_test.dart` pins the 20 levels
+  of chapters 1 to 3 that 45 could fly (plan JSON with their old ids, routes,
+  vents, marks, card data), 46 bot flights including the staged bosses, King
+  Coo's vanguard and stragglers and the Gargoyle, New York's pilots against
+  both staged guardians at 640 and 800 px, endless at three widths, roped and
+  free co-op and a duel, and six saved rules 45 tapes; every flight runs at 45
+  and at 46 and must match, every tape must reload, re-encode, replay, be
+  recorded again byte for byte at 45 and to the same digests at 46.
+  `frozen_rules41_test` and `frozen_ny43_test` still pass (the rules 41 one
+  looks Ancient Arabia up by its old ids).
+- Level 2-6 "Return to Sender" (Egypt, 30 s run-up, Neferhoo, seed 2116 with
+  one stone door on its fifth passage, 36 route stars, marks 20/30
+  provisional) and Ancient Arabia renumbered 2-7..2-9: `rules50_version_test`
+  (the gate, the tape guard, no new plan key, endless never meets him over 200
+  boss numbers at versions 34 to 46, the run-up flies into a staged, 270 HP,
+  vanguard-free Neferhoo who stays at his anchor), `egypt_migration_test` (a
+  real schema 5 save opened at schema 6: records and flights renamed highest
+  id first, watched scenes and the voices' memory renamed, run once, a fresh
+  save untouched; a returning player keeps Arabia and New York with 2-6 the
+  current level; a finished level stays open; three Egypt stops on the map;
+  63 / 51 stars; legacy replay titles), `neferhoo_scaffold_test` (his own
+  entry point at every shared dispatch, 640/800/864, arrival to defeat,
+  Reduced Motion). His rules are stubs (a punching bag) until the rules step.
+- The 37 Arabian clips were renamed, not recorded again; the clip tables were
+  regenerated with `prepare_story_voices.py` and `prepare_flight_voices.py`
+  (identical but for the names). The design's cargo line did not fit a
+  guardian's tag: "A feather duster for the caretaker" fits it at 640, 800
+  and 1000 px.
+
+## 2026-10-03 Steam Geysers art refinement (art only)
+
+What was asked: "In NY we have a special thing that smoke comes out of it. I
+want to refine and improve the design. Don't integrate, first show me the
+result." Designed in `../steam-ws/` (report
+`reports/01-steam-iteration.md`, two rounds with an independent review in
+between), shown as before/after renders and clips, then "Apply it". The
+designer's defaults for the four open choices landed (tall billow, fully cool
+ride burst, amber hop rims, no rail on the ride warning).
+
+What was built (spec: "Steam Geysers", **Look**). Only
+`lib/game/steam_geyser_{art,kit,emitter_art,plume_art}.dart` changed; rules,
+timings, hit and lift boxes, plume tops, phases, scoring and sound triggers
+did not, so no rules version.
+
+- **Hiss.** Hop: a hazard-taped column (black-and-amber bar on the hit top,
+  solid walls, a warm fill climbing from the lid, heat shimmer, wisps, wedge
+  spurts) with one brightness ramp into the burst (the 7.3 Hz flicker is
+  gone). Ride: no box, a dotted teal dome on the reach top, a teal funnel,
+  growing chevrons and a lit grate.
+- **Burst.** Hop: a slim jet with an amber core, amber rims and a rolling
+  head. Ride: a soft cool upwelling at cloud ink weight; spray, flash and glow
+  now follow `hot`, so a ride vent (which never scalds) shows no amber.
+- **Billow.** Tall (h/w 1.30), leaning, inked on the shade side and base only,
+  teal updraft streaks; cool by billow 0.2; no dip at the burst handover.
+- **Emitters.** A hazard-striped curb round the manhole, a grate slot field
+  that brightens with the hiss, a contact band, a drain on the block.
+
+Tests:
+
+- `test/steam_geyser_art_test.dart`: worst 76 draw calls a vent (limit 80),
+  141 for the heaviest two-vent frame (limit 160). The old frame of three
+  vents 0.8 heights apart, which no route lays, became two route-spaced
+  two-vent checks and a 5.6:1 three-vent regression guard (at most 190,
+  measured 187).
+- New `test/steam_geyser_design_test.dart` (8 tests): hot brighter than cool,
+  a ride vent cool in every pixel of its burst and billow, ride and hop bursts
+  with different silhouettes, a sudden first frame, a warning whole from the
+  first tenth of the hiss, the hazard bar against the dotted dome, the billow's
+  shape and ink.
+- Rehearsed on a fresh copy of the tree: steam tests 114 passed (8 skipped),
+  full suite 3336 passed (223 skipped), nothing failed. Old files:
+  `../steam-ws/backup-main-before-landing/`.
+
+Open: never timed on a phone (a burst or billow records about 2x slower,
+about 0.13 ms a vent on a desktop). The Con Ed stack only appears for tall plumes
+(top under 0.47), which the shipped 3-3 and 3-4 routes never lay.
+
+## 2026-10-03 A celebrated finish line (presentation only)
+
+What was asked: "In campaign, we have a finish line, but we want a perfect,
+super satisfying, rewarding finish line. Refine and improve". Before this,
+the world froze on the frame the bird reached the line, the bird vanished, a
+chime played and the result slid in with a different bird on a cloud.
+
+What was built (spec: "Finish-line celebration"):
+
+- **The approach.** In the last 3 s the gate's 16 marquee bulbs flick on and
+  chase (`finish_near` plays as they start), its flags quicken, its glow
+  swells and the HUD's route flag glows and waves.
+- **The crossing.** `PlayStage.celebrating` and `FinishCelebrationArt`,
+  built like the knockout: a pure function of the seconds since the crossing
+  (`PlayController.celebration`), with a fallback timer, a 0.5 s tap guard
+  and a skip overlay. A 75 ms hit-stop, then the tape snaps at the bird's
+  height and whips back. Confetti cannons fire from the post tops (84 pieces
+  and 8 streamers, by a fixed hash), the crest spins in a sunburst, the sign
+  swings, the camera punches in, one haptic fires, and `finish_snap`,
+  `finish_cheer` (the music ducks under it, `SoundSpec.duck`) and the
+  `complete` fanfare play.
+- **The payoff.** The bird loops, the world warms, and it swoops into the
+  result's courier seat (`LevelResultStage.courierSeat`). The result takes
+  over at 1.7 s with that bird in place and its cloud puffing in
+  (`handoff`), the confetti still falling until 4.2 s. The keys arm at
+  2.75 s.
+- **Reduced Motion** gets a calm 0.8 s version. Replays play the celebration
+  past the end of their tape, ending in a hover.
+- **No rules change.** The flight still ends at the crossing with
+  `EndReason.completed`, the save still starts there, and the rules version
+  stays 47. Endless, co-op, duel and timed-route endings are untouched.
+
+Tests:
+
+- `test/finish_celebration_test.dart` (28 tests):
+  - the seekable timeline: every beat renders, the same moment paints the
+    same, the handover and still times, and crossings high, middle and low
+    land in the seat in its pose;
+  - the stage flow: the cue order, the skip guard, background, pause and
+    back, Reduced Motion and the fallback timer;
+  - that the same flight's result, stars, journal and replay are identical
+    whether the celebration plays, is skipped or is interrupted;
+  - a draw budget of 500 for the busiest frames (measured 394–432, gate
+    included), with no blur and at most two layers;
+  - the cues in the bank, and the play screen's handoff, skip and back key.
+- Updated because the flow changed: `campaign_play_test` (celebrating before
+  results; snap before fanfare), and the `_fly` helpers of
+  `campaign_screens_test`, `polish_s4_result_test` and `ny_ui_flow_test`,
+  which now play the celebration out as the game loop does. `sky_audio_test` covers the duck.
+- Review captures (gated by dart-defines):
+  `finish_celebration_capture_test` (staged, every bird, six regions,
+  three heights, calm, replay) and `finish_celebration_sequence_test` (real
+  flights of 1-1, 3-3, 1-8, a staged 3-2, and 1-4 calm, frame by frame for
+  MP4s).
+- `flutter analyze` is clean. The full `flutter test` run: 3296 passed, 223
+  skipped by design, 9 failed, all in `ny_ui_flow_test`'s result flow (the
+  same helper pattern). With its helper updated, that file passes, 16 of 16.
+
+What is not covered:
+
+- The cues are judged by measurement, not yet by ear on the phone.
+- The haptic is untested on a device.
+- The guardian review sequence lays its line ahead of the bird instead of
+  flying the King Coo fight.
+
+## 2026-10-03 The Gargoyle's level feathers (rules 49)
+
+What was asked: "The gargoyl boss shots cover more when they shoot at the
+bottom half of the screen and it is unfair. If the bird is on top, it's
+easier to dodge. we should reduce the covering point in the bottom half".
+Asked which attack, the owner chose the falling stone feathers (not the
+beam).
+
+What was found. His beam's rules are mirror images (the same band above and
+below). His feathers are not. Each leaves the top edge .62 ahead of the
+bird and crosses its column where the bird was, so one aimed low falls much
+steeper. A still bird is touched over a band (bird and feather radii times
+√(1 + slope²)) that nearly doubles toward the bottom. Low down the bird
+can only climb into the feather, so it has to start its dodge sooner.
+"Lead" below is the latest a bird hovering at that height can start its
+dodge, with any tap plan of at most five taps a second (a search over Tap &
+Fly's physics, `_lead` in the test):
+
+| aimed at | slope 48 | band 48 | lead 48 | slope 49 | band 49 | lead 49 |
+| --- | --- | --- | --- | --- | --- | --- |
+| .1 (calm) | .98 | .18 | .36 s | .98 | .18 | .36 s |
+| .3 | 1.30 | .22 | .36 s | 1.30 | .22 | .36 s |
+| .5 | 1.62 | .25 | .37 s | 1.30 | .22 | .36 s |
+| .7 | 1.94 | .29 | .39 s | 1.30 | .22 | .37 s |
+| .9 | 2.27 | .33 | .57 s | 1.30 | .22 | .36 s |
+| .9 (fury) | 2.03 | .30 | .49 s | 1.30 | .22 | .34 s |
+
+What was built (spec: "Rules version 49" under the staged campaign bosses):
+
+- `FlightSimulation.levelFeathersRulesVersion` (49, now current),
+  `supportsLevelFeathers`, `SkyBoss.levelFeathers` (campaign Gargoyle).
+- `SearchlightGargoyle.maxFeatherSlope` (1.3) and `featherShot(…, level:)`.
+  It returns `ahead`, where the feather leaves. A feather that would cross
+  steeper leaves further ahead and flies faster, in the same flight time,
+  aimed at the same height. Schedules and crossing times are unchanged. At
+  most it leaves 1.13 ahead (still in front of his perch) and flies .66 a
+  second (fury .72, like the Dusk Empress's fury shot). A feather that isn't
+  levelled is bit for bit as before.
+- Art: the rules give each feather a render-only `BossAmmo.launchX`.
+  `GargoyleFeatherArt.age` counts from it, so the tumble and wake stay exact.
+  The dust telegraph uses `entryX(…, fury: furyPace, level:)` (it read
+  `enraged`, a little off in the fiercer full fight).
+
+Tests:
+
+- `test/level_feathers_test.dart`: the gate (48 / 49 / endless); every
+  height and pace crosses at the aimed height in the same time, never above
+  1.3, and high shots are unchanged; the bottom half's band is no taller
+  than .3's; launches stay in front of him; in the real 3-4 fight every
+  feather obeys this at 49 and leaves .62 ahead at 48; the dodge lead at
+  .6–.9 is now within a frame and a half of .1–.4 (it was .08 s or more
+  later); the fairness proof through all four of his cycles with level
+  feathers (every start, .3 / .45 s idle, a .012 margin, the whole cycle from
+  the perch feather); the art's age and dust follow `launchX` and `ahead`.
+- `test/gargoyle_viability.dart` (`Search(level:)`) and
+  `test/gargoyle_pilot.dart` (reads `launchX`) learned level feathers.
+- `test/endless_plan_baseline_test.dart`: endless at 49 equals 48 second by
+  second, through the returning Baron; version pins moved to 49.
+
+Measured with the reacting pilots of `fiercer_gargoyle_test` (3-4, 2.2 wide,
+8 phases, hearts topped up; feathers that touched the bird, by where they
+were aimed):
+
+| pilot | rules | fight (s) | beam hits | <.4 | .4–.6 | ≥.6 |
+| --- | --- | --- | --- | --- | --- | --- |
+| average | 48 | 135–152 | 0 | 0/93 | 2/255 | 0/37 |
+| average | 49 | 134–144 | 0 | 0/88 | 0/247 | 0/35 |
+| casual | 48 | 306–341 | 39 | 9/184 | 74/637 | 2/46 |
+| casual | 49 | 297–341 | 46 | 15/164 | 65/667 | 0/33 |
+
+These pilots plan a perfect dodge and rarely fly low (they line up on the
+lamp), so they show the fight is no shorter or easier overall, not the
+bottom's gain. That gain is the lead table above. Scripts and logs are in
+`../gargoyle-ws/level-feathers/`.
+
+Not covered: nobody has played it on a phone. The beam's look is
+unchanged: his lenses sit high, so a beam aimed low still cuts across the
+sky ahead of the bird.
+
+## 2026-10-03 The returning Baron's health doubled (rules 48)
+
+What was asked: "Double HP for the second occurence of Baron bat in the
+infinite run". The endless cycle is Baron, Spitter, Empress, Pirate, Dragon,
+so his second visit is encounter 6, where he already returns upgraded (rules
+40: the screech and bat pairs) with 240 HP.
+
+What was built (spec: "Rules version 48" under the staged campaign bosses,
+and "Baron Bat returns upgraded"):
+
+- `FlightSimulation.tougherBaronRulesVersion` (48, now current) and
+  `supportsTougherBaron`. The upgraded Baron spawns with
+  `SkyBoss.healthFor(…, tougherBaron: true)`: 480 HP instead of 240.
+- Every return is doubled (encounters 6, 11, 16…), not only the second, so a
+  later Baron is never weaker than the one before. Solo and co-op endless
+  both get it. His debut, the other bosses, campaign bosses (always a debut)
+  and duels (no bosses) are unchanged. Rules 47 tapes keep 240.
+
+Tests:
+
+- `test/baron_bat_upgrade_test.dart`: 120 / 240 / 240 at 47 and 120 / 480 /
+  480 at 48 for Barons 1, 2 and 3, solo, roped and free; the other endless
+  bosses keep `healthFor`.
+- `test/endless_plan_baseline_test.dart`: a rules 48 endless flight equals a
+  47 one second by second, at 1.6, 2.2 and 2.4, until the returning Baron
+  arrives on the same frame with 480 against 240. 44–47 still equal 43.
+- Version pins moved to 48 (`rules43_version_test`, `boss_stages_test`,
+  `fiercer_gargoyle_test`), and `dusk_moth_boss_test`'s cycle expects 480.
+
+Measured with the sharp pilot of the beatability test (fight seconds from
+the boss timer, hearts left):
+
+| width | rules 47 | rules 48 |
+| --- | --- | --- |
+| 2.2 (play) | 33.7 s, 3 | 68.6 s, 2 |
+| 2.22 | 37.9 s, 2 | 60.9 s, 3 |
+| 1.78 | 28.6 s, 2 | lost with 80 HP left |
+
+Play is always 2.2 wide now (`ScreenFrame`), so the beatability test flies
+2.2 and 2.22 instead of 1.78 and 2.22.
+
+Full suite: 3262 passed, 224 skipped, 1 failed: `dusk_moth_boss_test`'s
+endless cycle still expected 240 for Barons 6 and 11. That pin is now 480 and
+the file passes. Analysis is clean.
+
+Not covered: nobody has played the longer fight on a phone.
+
+## 2026-10-03 One picture on every screen (presentation only)
+
+What was asked: "Check the game in different screens. Does it differ? I think
+it shouldn't right? I like how it is in the connected phone." The connected
+phone is a OnePlus CPH2585: landscape, 792 × 360 dp, 2.2:1.
+
+What was found. Before this change no device was pinned to a design size,
+and each layer adapted on its own.
+
+- **Play.** The rules measure in screen heights, and the screen's aspect went
+  straight into `viewportWidth`, unclamped. A 16:9 phone saw 1.31 heights
+  ahead of the bird instead of 1.73, about a second less to react at tap
+  speed.
+  - The Baron and the Spitter parked at x 1.06 instead of 1.48.
+  - Enemies' fire window was .79 heights instead of 1.21.
+  - At 4:3 that window was .34, pigeons never snatched, and the Gargoyle,
+    Dragon and King Coo were cut at the right edge.
+- **Menus and HUD.** The 1000 × 450 canvas letterboxed inside a full-bleed
+  sky, so on a tablet the HUD floated about 150 dp in from the edges.
+- **Map and story** recomposed: `k` clamped to 1 to 1.25, scenery fitted to
+  height, chrome unscaled.
+
+This closes "the 1.6 to 2.4 letterbox" left open in the New York fix round
+(R5), and goes further: nothing changes with the screen any more. The owner
+chose to lock the whole app, not just play, with navy bars.
+
+What was built (spec: "One picture on every screen" under "Technology and
+architecture"):
+
+- **`ScreenFrame`** (`lib/ui/screen_frame.dart`), wrapped around the router in
+  `lib/main.dart`.
+  - The app is laid out at 792 × 360 and scaled uniformly to fit, centred,
+    with `SkyColors.night` bars around it.
+  - Inside it, `MediaQuery` reports 792 × 360, a scaled pixel ratio, and only
+    the insets that reach past a bar.
+  - A tap on a bar lands on the nearest edge of the picture.
+  - The reference phone itself is passed through with no transform.
+- **Landscape on every device.**
+  - Android: `android:appCategory="game"`, so Android 16 tablets keep the
+    landscape lock.
+  - iOS: landscape only, and `UIRequiresFullScreen` on iPad.
+- **No rules change.** The simulation is untouched; it is now always fed 2.2,
+  the rules' default. Replays keep their recorded width.
+
+Tests:
+
+- `test/screen_frame_test.dart`.
+  - At 792 × 360 the frame passes through.
+  - At 640 × 360, 864 × 360, 1000 × 450, 1024 × 768, 1280 × 800 and a portrait
+    800 × 1280, the picture is 792 × 360 inside, scaled and centred, with the
+    pixel ratio scaled.
+  - A notch only pokes in past a bar, and the bars swallow gesture strips.
+  - Taps on the bars reach the picture.
+  - Home, map and a touch flight on 792 × 360, 640 × 360, 864 × 360 and
+    1024 × 768 run without exceptions and fly a `GameWidget` of exactly
+    792 × 360 (sim width 2.2), and a tap on the sky flaps. With
+    `--dart-define=CAPTURE_VISUALS=true` it writes the side-by-side to
+    `build/visual-review/screens`.
+- Updated to measure inside the frame:
+  - `touch_mode_ui_test` (the canvas fills the picture; taps at the display's
+    very edges still flap, now through the bars).
+  - `campaign_screens_test` (Play's place, 70, 218, 420 × 76 on the canvas,
+    seen through the frame).
+- `game_over_stage_test` passes unchanged once bar taps are forwarded: it
+  dismisses a dialog by tapping the display's corner.
+- `flutter analyze` is clean. The full `flutter test` run passed: 3258 tests,
+  224 skipped by design, 0 failures.
+
+What is not covered:
+
+- On a 16:9 phone everything is 0.81× the reference phone's size. That
+  includes the map's keys, 48 → 39 dp. The menus there are the same size as
+  before (the canvas already showed at .64).
+- The camera preview, a platform view, now sits under a scale transform on
+  any display that is not 792 × 360. This is untested on such a device; the
+  reference phone has no transform.
+
+## 2026-10-03 A fiercer Searchlight Gargoyle (rules 46)
+
+What was asked, after a playtest of rules 45: "I like how hard King Coo is.
+I want Gargoyle to be the same hard and same length, now you can kill fast".
+Offered three ways (King Coo's recipe: a vanguard whose escapees come back;
+his own attacks fiercer, no minions; more health only), the owner chose his
+own attacks fiercer, no minions.
+
+What was built (spec: the rules 46 bullet under "Campaign boss stages and
+vanguards"). 640 health (200 at 44 and 45). His warm-up drops the calm
+cycle's two feathers (none before). Once he grows stronger his beam glides
+and his feathers fly at fury's pace (`SkyBoss.furyPace`: a 1.5 s glide, the
+.095 band, feathers at .44), and a feather falls in the vent at 7.0 s, aimed
+at the bird lining up on the open lamp; in fury two, at 6.5 and 7.4 s, in
+zone and slit cycles alike. No new art: his feather flick, the feather and
+the beam are the rules 43 parts (a review sheet of real frames is in
+`../gargoyle-ws/review/`).
+
+Measured with New York's pilots over 4 widths x 2 shoot phases (3-4). The
+fight, with hearts topped up, flown by the pilot that knows his cycle by
+heart (the one the level tests fly):
+
+| Pilot | Fight at 45 | Fight at 46 | King Coo's (45) |
+| --- | --- | --- | --- |
+| sharp | 26–27 s | 107–108 s | about 100 s |
+| average | 62–63 s | 134–144 s | about 155 s |
+| casual | about 130 s | 323–350 s | about 210 s |
+
+That pilot is never touched at 46, at any width or phase: the new feathers
+are as fair in the real flight as in the proof. The casual fight is long
+because his lamp is open 29% of the time and that pilot shoots every 0.8 s,
+a second late. Pilots that react as King Coo's bots do (they see a feather
+.3, .55 or .8 s after it leaves and a sweep's side as late into its warning,
+plan only for what they have seen, and tap at most 5, 3.5 or 2.5 times a
+second), mortal, the whole level:
+
+| Pilot | 3-4 at 45 | 3-4 at 46 |
+| --- | --- | --- |
+| sharp | 4 of 4, never hit | 8 of 8, never hit |
+| average | 4 of 4, never hit | 8 of 8, .5 hits a flight (feathers) |
+| casual | 3 of 4, 3 hits a flight | 0 of 8, 5 hits a flight (beam and feathers, most in fury) |
+
+3-2 for comparison: 44 / 31 / 9% finished, about 2.5 hits a fight. The
+reacting pilot searches every tap sequence over what it has seen, which no
+player does, so its sharp and average are untouched by either Gargoyle and
+only the slowest tells them apart; hit counts of different bots against
+different bosses do not compare. A playtest decides "as hard".
+
+What the evidence changed.
+- A fury vent feather at 7.6 s crossed the bird's column after the cycle
+  ended, past the pilot's plan, and caught even the pilot that knows the
+  cycle (1 to 6 hits a fight). The pair is 6.5 and 7.4 s; every vent
+  feather now crosses before 8.85 s (`fiercer_gargoyle_test`).
+- Tried first: fury's two sweep feathers in the full fight. The sharp and
+  average reacting pilots stayed untouched; only the casual pilot's fight
+  grew (414 s). Fury's pace for the full fight (faster sweeps and feathers,
+  as the option offered said) replaced it.
+- 720 health: sharp 117–125 s, average 151–161 s; 640 matches King Coo's
+  sharp fight best and keeps the average inside his band.
+- The test search (`gargoyle_viability.dart`) packed every feather lane of
+  its memo key into one 64-bit int: with four lanes or more (a fury cycle
+  with its vent feathers) it overflowed, unrelated states collided and the
+  search lost paths. The key is now a record, and a tap gap over 15 frames (a
+  casual pace) has its own count in it. Neither changes a rules 43 to 45
+  proof (at most three lanes, a gap of 12).
+
+Tests: `fiercer_gargoyle_test.dart` (new: the rules, the schedules, his
+fight, rules 45's fight unchanged, the fairness proof through the vent for
+the three new cycles, the reacting pilots); `ny_levels_flight_test` (his
+fight bands 85–135 / 110–185 / 270–420 s); `boss_stages_test` (the warm-up
+without feathers is rules 44 and 45's); version pins in
+`rules43_version_test` and `endless_plan_baseline_test` (46 flies endless as
+43). `flyNewYork` flies for up to 600 s; `gargoyle.Pilot` plans through a
+fiercer Gargoyle's vent and takes `react` and `tapGap`.
+
+Open. Never phone-played. Knobs: `SkyBoss.fiercerGargoyleHp` (640),
+`SearchlightGargoyle.ventFeathers` and `furyVentFeathers`, fury's pace in the
+full fight (`SkyBoss.furyPace`), the warm-up's feathers
+(`SearchlightGargoyle.fierceFeathers`). As at 44, his STRONGER card hides
+while his lamp is open and his stage-ups land in the vent, so "Feathers fall
+on the open lamp!" shows only once the lamp shuts, for the last second or so
+of its 3 s.
+
+## 2026-10-03 Baron Bat detail redesign (art only)
+
+- Art only: rules, timings, the hit oval (x ±.91, y -.81..89), the eye,
+  mouth and fireball positions and every pose channel are unchanged. The
+  shared `BossRig` colours and `fill/line/gradient` keep their values and
+  signatures (the other rigs use them).
+- The Baron is now drawn as a bat:
+  - wings with a forearm, a thumb claw, four tapered fingers with knuckles,
+    and a scalloped membrane that lightens toward the hem;
+  - big ears with a pink inner ear and fur tufts that flick when idle, prick
+    up on a charge, pin back in fury and droop in defeat;
+  - cheek fur, a pug nose with a nose-leaf, gold-ringed pupils, a cocked
+    brow and a smug mouth crease;
+  - clawed feet, a bat-wing collar, a lined cape with folds and gold clasps,
+    and a gilt breastplate with a winged crest around the gem;
+  - an heirloom crown with the same outline, so the keepsake and the
+    falling crown still fit.
+- The storm Baron is rebuilt on the new body. In story scenes the Baron's
+  face now follows the line's mood (`_Pose.storyMood`, Baron only), so his
+  sad face is no longer only heavy lids and a sweat bead.
+- A one-frame blink of the mouth and gem at each fireball release is fixed
+  with a 0.2 s art-only release hold.
+- Files: new `lib/game/baron_bat_art.dart` (every Baron part);
+  `lib/game/boss_rig.dart`, `lib/game/baron_storm_art.dart` and
+  `lib/ui/story_boss_art.dart` changed.
+- Cost: debut 78/84 → 127/129 draw ops (calm/busiest), storm 106 → 142. No
+  new layers, clips or blurs, and paths that don't move are built once.
+  `test/baron_budget_test.dart` (new, 15 states) caps the debut at 160 ops,
+  the storm Baron at 180, clips at 3 and layers at 1, and allows no blur.
+- `test/fixtures/debut_baron_baseline.json` was re-recorded with
+  `--dart-define=RECORD_BARON_BASELINE=true`.
+- Values at real size: eye whites are still the brightest read, then the
+  crown, then the lilac hit body. On mid-tone dusk and night fight skies the
+  lighter outer wing sits close to the sky, and its ink outline carries the
+  edge.
+- Results: `flutter analyze` on the changed files is clean. A rehearsal on a
+  fresh copy of this tree passed the full suite (3204 passed, 223 skipped,
+  0 failed); after landing, the Baron, story, encounter, HUD and budget tests
+  pass here (162 passed).
+- Renders, the design report and the before/after review are in
+  `../baron-ws/reports/01-baron-iteration/`. Nothing was run on a phone.
+
+## 2026-10-02 A tougher King Coo (rules 45)
+
+What was asked, after a playtest of rules 44: "The pigeon boss small enemies
+is so bad and easy. They should throw something or threat. Otherwise it's
+too easy. Also the boss itself is too easy to kill still. We need double
+health".
+
+What was built (spec: the rules 45 bullet under "Campaign boss stages and
+vanguards"). King Coo's vanguard pigeons coo, wind up and throw stale crusts
+(`EnemyAttack.crumb`, aimed, 0.40 a second, every 2.2 s, a V's members 0.5 s
+apart, flying at 0.8 of the scroll); King Coo has 840 health (420 at 44).
+Rules 44 tapes replay the 44 fight. Art: the crust, its impact and shatter,
+the pigeon's wind-up and throw (designer agent).
+
+Measured with New York's pilots over 4 widths and 8 shoot phases (3-2):
+
+| Pilot | Finished at 44 | At 45, before the stragglers | King Coo's fight then |
+| --- | --- | --- | --- |
+| sharp | 100% | 91% | about 80 s |
+| average | 100% | 84% | about 123 s |
+| casual | 100% | 66% (1 in 8 at 2.4 wide) | about 197 s |
+
+Where it costs: the vanguard (0.4–0.8 crust hits a flight, and as many
+pigeon bodies: rocks spent cancelling crusts leave more pigeons alive), and
+a fury of a minute or more, which catches the pilots about once a minute
+(crumb clouds, now and then the squadron). At 2.4 wide every pilot already
+hits two walls in 3-2's run-up and reaches the vanguard with two hearts. The
+crusts are about as many as the Spitter King's beetles spit in his vanguard
+(the same bots take more seed hits there). A slower crust (0.36) made it
+worse (crusts linger), so it stays 0.40.
+
+Tests changed to say so: 3-2's completion gates in `ny_levels_spread_test`
+(pooled 85% / 80% / 60%), King Coo's fight bands and hit allowances in
+`ny_levels_flight_test` (his pilots fly with hearts topped up there), the
+star marks judged on 3-2's run-up harvest. New: `boss_stages_test` checks the throws, the stagger and 840 against
+420 at 44.
+
+Then the stragglers. Asked next: "Those small enemies before the boss, for
+this specific level, those who you didn't kill will come back during the
+boss time until you kill them all". Built for King Coo only: one owed pigeon
+back at 0.3 s and 4.3 s of each 14 s cycle, above or below him, winded (one
+shot), throwing, until all are downed.
+
+How it was tuned, with New York's pilots (16 flights each, sharp / average /
+casual):
+- A V of three once a cycle, full health: 1 / 0 / 0 wins. The pilots'
+  fight bot only ever shot at him, and the run-up bot let 8 to 11 of the 14
+  pigeons go. The bots were taught what a player does: hunt the vanguard,
+  save shots for a straggler unless his chest is puffed, keep off close
+  pigeons and crusts, and not fly through one (`king_coo_helpers.dart`,
+  `ny_pilots.dart`).
+- Singles twice a cycle: some returned level with his body, which takes
+  the rocks meant for them; the heights now avoid it.
+- His crumb rings, which lock on the bird, kept chasing the bot off a
+  straggler's line before its two hits: stragglers come back winded (one
+  hit).
+- Then: throwing stragglers 7 / 4 / 1 of 16; stragglers that do not throw
+  9 / 8 / 6. The owner chose the throwing ones.
+
+Final (32 flights each over four widths): 3-2 finished 44% / 31% / 9%.
+Every hit in his fight is a crumb cloud, the squadron, a straggler or its
+crust (about 2.5 a fight). Tests record these as 3-2's floors
+(`ny_levels_spread_test`), King Coo's fight bands with hearts topped up
+(about 100 / 155 / 210 s), and the rule itself (`boss_stages_test`).
+
+Open. The bots hunt pigeons less well than a person; a playtest decides.
+If 3-2 is too punishing, the knobs are `BossVanguard.returnTimes`,
+`returnSize`, `stragglerHp` and whether stragglers throw;
+`SkyEnemy.crumbSpeed` / `crumbInterval`; `BossVanguard.throwerDrift` and
+`wavesOf`; King Coo's 840 in `SkyBoss.campaignHealthFor`.
+
+## 2026-10-02 Long, staged campaign boss fights and vanguards (rules 44)
+
+What was asked. "In the campaign the bosses are too fast to kill. It's not
+about how hard it is, it should be easy first but long, the player should
+take some time. Then after a certain health bar, they get stronger, after
+another point they get a bit more stronger. Some of them include smaller
+enemies also so before we deal with them they send some small enemies and
+then themselves show up."
+
+What was built (spec: "Campaign boss stages and vanguards (rules version
+44)"; player's guide: docs/campaign.md, "Boss fights"). Rules version 44,
+campaign levels only: more health (`SkyBoss.campaignHealthFor`), three
+stages on the thirds of the bar (an easier warm-up with no helpers and no
+signature attack; the full fight; fury), a roar, a heart and a STRONGER! tag
+each time the boss steps up, and a vanguard of small enemies before Baron
+Bat, the Spitter King, the Dusk Empress and King Coo. Art by a designer
+agent (`BossStageHudArt`, `BossPowerUpArt`, `BossVanguardArt`; review sheets
+in `../stages-ws/art/build/visual-review/boss-stages/`).
+
+Measured (the shared bot, which fires about as fast as the weapon allows,
+hearts topped up; and the same bot tapping only every 0.6 s):
+
+| Boss | Health 43 → 44 | Fight at 43 | Fight at 44 (busy / lazy) |
+| --- | --- | --- | --- |
+| Baron Bat | 120 → 600 | 9–11 s | 41–47 / 56–63 s |
+| Spitter King | 210 → 600 | 15 s | 40–52 / 66–81 s |
+| King Coo | 140 → 420 | 11–17 s | 46–51 / 51–59 s |
+| Searchlight Gargoyle | 160 → 200 | 35 s | 44–45 / 54 s |
+| Dusk Empress | 240 → 620 | 20–22 s | 65–74 / 82–90 s |
+| Pirate Captain | 300 → 780 | 21–27 s | 56–67 / 85 s |
+| Ember Dragon | 360 → 1,080 | 17–20 s | 58–59 / 77–82 s |
+
+Every fight reaches each stage at least 8 s apart (`boss_stages_test`). New
+York's mortal pilots (sharp, average, casual; 2 widths x 4 shoot phases) win
+both guardians in every flight at 44 and end with the same hearts as at 43;
+King Coo takes them about 40 / 62 / 95 s, the Gargoyle 27 / 68 / 130 s.
+
+What the evidence changed.
+- The Gargoyle pilot stopped dodging in the warm-up: it began each plan when
+  the cycle's first feather left, and a warm-up drops none. It now plans
+  from the feather's time either way and plans for no feathers when the
+  cycle drops none (`test/gargoyle_pilot.dart`, `gargoyle_viability.dart`).
+  At 240 health the casual pilot took about 2 min 45 s; he is 200.
+- In a long fury, King Coo's fury squadron (a V and a picket behind it)
+  hit the sharp and average pilots about once a cycle, at rules 43 as at 44
+  (fury at 43 ended within about one cycle, which hid it). A staged King
+  Coo's fury keeps three crumb rings but plans the single V: the pilots'
+  fight hits went from 16, 41 and 28 in 32 fights to 0, 4 and 0.
+- Two test hazards: the Gargoyle tests' "fly until boss age" loops never end
+  if the flight cannot reach that age, which hung a full suite; and a
+  campaign plan at the current version is now a staged fight. The New York
+  mechanic tests' helpers (`nyFlight`, `flyNy`, `arenaOf`, the Gargoyle
+  `arena`) default to rules 43, the fight they prove; rules 44 is covered
+  by `boss_stages_test.dart` and the pilot files at the current version.
+
+Unchanged. Endless, co-op and duel flights at 44 match 43 checkpoint for
+checkpoint (`endless_plan_baseline_test`); chapter 1 and 2 frozen flights
+match at 41, 42 and 43 and, except the two boss levels, at 44
+(`frozen_rules41_test`); New York's frozen pilot flights replay at 43
+(`frozen_ny43_test`); unstaged health bars render byte-identical (the
+designer's one-off check of 1,008 plates). Staged fights and vanguards
+replay and seek exactly (`boss_stages_test`).
+
+Open. Never played on a phone: the numbers are bots'. Knobs:
+`SkyBoss.campaignHealthFor`, the warm-up volleys in `sky_boss.dart`,
+`BossVanguard.wavesOf`. The boss figures do not open their mouths for the
+stage-up roar (the effect plays around them); no new voice lines or sounds
+(the stage-up reuses each boss's roar cue, the vanguard the boss warning).
+
 ## 2026-10-02 Camera zoom without the pop (optional shared patch, `zoom-pop.patch`)
 
 What was fixed. `BirdGame.render` scaled the whole world by a constant 1.018
@@ -872,8 +1932,9 @@ thunder (there is no cue for it).
   her part painters in the rig's order, so a change to her rig's eye or draw
   order needs the same change there. The Ember Dragon goes through
   `DragonStoryArt` (`lib/game/dragon_story_art.dart`), which keeps the rig's
-  draw order in one place beside it. Baron Bat's
-  rig has no worried brow, so his sad face is heavy-lidded with a sweat bead.
+  draw order in one place beside it. Baron Bat's story face follows the
+  line's mood (`_Pose.storyMood`, since 2026-10-03); his sad face adds a
+  sweat bead.
 
 ## 2026-09-30 Campaign
 

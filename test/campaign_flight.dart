@@ -10,10 +10,12 @@ FlightSimulation levelFlight(
   CampaignLevel level, {
   int weaponDamage = BirdRock.baseDamage,
   bool practice = false,
+  int version = FlightSimulation.currentRulesVersion,
 }) => FlightSimulation(
-  rules: TapFlyMode(),
+  rules: TapFlyMode(rulesVersion: version),
   practice: practice,
   course: FlightCourse.starTrail,
+  rulesVersion: version,
   weaponDamage: weaponDamage,
   plan: level.plan,
 );
@@ -78,6 +80,7 @@ void flyLevel(
   int weaponDamage = 30,
   double viewportWidth = 2.2,
   double seconds = 400,
+  int version = FlightSimulation.currentRulesVersion,
   bool Function(FlightSimulation sim)? tapWhen,
 }) {
   var now = 0.0;
@@ -90,6 +93,7 @@ void flyLevel(
     reducedMotion: false,
     originMs: 0,
     course: FlightCourse.starTrail,
+    recordedVersion: version,
     weaponDamage: weaponDamage,
     plan: plan ?? level.plan,
   );

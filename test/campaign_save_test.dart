@@ -145,7 +145,7 @@ void main() {
         (await db.customSelect('PRAGMA user_version').getSingle()).read<int>(
           'user_version',
         ),
-        5,
+        6, // schema 6: Egypt's guardian renumbered Arabia (2-6..2-8)
       );
       expect(p.trailTouch.best, 90);
       expect(p.trailTouch.stars, 40);

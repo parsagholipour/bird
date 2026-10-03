@@ -1,0 +1,18 @@
+{
+  "name": "Beakbound",
+  "analyzer": "No issues found",
+  "focused_ui_tests": 49,
+  "focused_ui_tests_result": "All passed",
+  "android_release": "build/app/outputs/flutter-apk/app-release.apk",
+  "apk_display_name_verified": true,
+  "apk_launcher_densities_verified": [
+    "mdpi",
+    "hdpi",
+    "xhdpi",
+    "xxhdpi",
+    "xxxhdpi"
+  ],
+  "apk_menu_artwork_verified": true,
+  "ios": "Display name and 15 icon exports updated; native build not run on Linux",
+  "menu_preview": "menu.png"
+}

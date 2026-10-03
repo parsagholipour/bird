@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><rect width="512" height="512" fill="#EC7766" /><path d="M0 94 Q231 -19 512 94V0H0Z" fill="#FF9981" /><g fill="none" transform="translate(-76 115) scale(1.6953125)">
+<defs>
+<clipPath id="company-minty-body"><path d="M200 102C201 144 184 184 144 191C106 198 64 184 56 150C49 118 58 74 88 56C116 40 158 42 178 60C193 73 200 86 200 102Z" /></clipPath>
+<clipPath id="company-minty-leaf"><path d="M121 48C111 30 91 26 73 34C57 41 43 50 25 46C17 44 11 38 9 30C5 48 17 64 37 66C59 68 79 58 95 54C105 52 113 56 119 62Z" /></clipPath>
+</defs>
+<g id="company-minty-Minty---Editable-artwork">
+<g id="company-minty-Streamer-leaf">
+<path d="M121 48C111 30 91 26 73 34C57 41 43 50 25 46C17 44 11 38 9 30C5 48 17 64 37 66C59 68 79 58 95 54C105 52 113 56 119 62Z" fill="#4DBF8E" id="company-minty-Leaf" />
+<path id="company-minty-Leaf-underside" d="M125 60C105 40 87 44 69 48C51 53 31 58 19 48C14 44 11 38 9 30L3 90L125 90Z" fill="#2FA36B" clip-path="url(#company-minty-leaf)" />
+<path id="company-minty-Leaf-outline" d="M121 48C111 30 91 26 73 34C57 41 43 50 25 46C17 44 11 38 9 30C5 48 17 64 37 66C59 68 79 58 95 54C105 52 113 56 119 62Z" stroke="#203B45" stroke-width="4" stroke-linejoin="round" />
+<path id="company-minty-Leaf-gloss" d="M103 43C91 42 75 45 59 51" stroke="#A8EBC8" stroke-width="3" stroke-linecap="round" />
+</g>
+<g id="company-minty-Tail">
+<path id="company-minty-Tail-leaf" d="M68 166C58 165 48 168 40 174C35 178 30 179 25 176C27 186 36 192 48 190C58 189 66 184 74 180Z" fill="#2FA36B" stroke="#203B45" stroke-width="4" stroke-linejoin="round" />
+</g>
+<path id="company-minty-Legs" d="M114 188L108 201M132 190L130 203" stroke="#D75E4F" stroke-width="8" stroke-linecap="round" />
+<path id="company-minty-Body" d="M200 102C201 144 184 184 144 191C106 198 64 184 56 150C49 118 58 74 88 56C116 40 158 42 178 60C193 73 200 86 200 102Z" fill="#8BE0B6" />
+<path id="company-minty-Shade" d="M48 136C56 176 92 190 128 190C164 190 186 168 196 142C180 170 150 177 124 176C86 175 64 160 48 136Z" fill="#4DBF8E" clip-path="url(#company-minty-body)" />
+<path id="company-minty-Belly" d="M146 106C118 108 102 128 103 152C104 176 122 186 148 184C174 182 194 160 192 138C190 118 172 104 146 106Z" fill="#F4FFF4" clip-path="url(#company-minty-body)" />
+<path id="company-minty-Outline" d="M200 102C201 144 184 184 144 191C106 198 64 184 56 150C49 118 58 74 88 56C116 40 158 42 178 60C193 73 200 86 200 102Z" stroke="#203B45" stroke-width="4" />
+<g id="company-minty-Wing">
+<path id="company-minty-Wing-shape" d="M112 118C120 128 116 146 100 152C86 157 66 154 50 146C56 130 70 118 86 114C96 112 106 113 112 118Z" fill="#4DBF8E" stroke="#203B45" stroke-width="4" stroke-linejoin="round" />
+<path id="company-minty-Wing-gloss" d="M66 145C78 149 92 148 102 141" stroke="#8BE0B6" stroke-width="4" stroke-linecap="round" />
+</g>
+<g id="company-minty-Eyes" transform="rotate(6 160 95)">
+<ellipse id="company-minty-Face---Far-eye" cx="176" cy="94" rx="14.5" ry="21" fill="white" stroke="#203B45" stroke-width="4" />
+<ellipse id="company-minty-Face---Near-eye" cx="143" cy="93" rx="24" ry="29" fill="white" stroke="#203B45" stroke-width="4" />
+<ellipse id="company-minty-Face---Near-pupil" cx="152" cy="96" rx="12" ry="16" fill="#203B45" />
+<ellipse id="company-minty-Face---Far-pupil" cx="182" cy="96" rx="7.5" ry="11.5" fill="#203B45" />
+<circle id="company-minty-Face---Near-catchlight" cx="147" cy="88" r="4.5" fill="white" />
+<circle id="company-minty-Face---Far-catchlight" cx="179" cy="89" r="2.8" fill="white" />
+<circle id="company-minty-Face---Near-small-catchlight" cx="158" cy="104" r="2.2" fill="white" />
+</g>
+<path id="company-minty-Face---Smile" d="M165 124Q159 128 155 123" stroke="#203B45" stroke-width="3.5" stroke-linecap="round" />
+<path id="company-minty-Face---Lower-beak" d="M168 121C180 125 196 127 210 126C203 134 189 137 178 133C172 131 169 127 168 121Z" fill="#D75E4F" stroke="#203B45" stroke-width="4" stroke-linejoin="round" />
+<path id="company-minty-Face---Upper-beak" d="M166 111C170 102 183 100 194 103C207 107 218 115 224 126C208 128 185 127 168 121C164 119 163 114 166 111Z" fill="#F47D64" stroke="#203B45" stroke-width="4" stroke-linejoin="round" />
+<ellipse id="company-minty-Face---Cheek" cx="148" cy="130" rx="9" ry="5" fill="#F47D64" />
+<path id="company-minty-Highlight" d="M74 92C78 78 88 67 102 61" stroke="#F4FFF4" stroke-width="7" stroke-linecap="round" />
+</g>
+</g><g fill="none" transform="translate(239 97) scale(1.48828125)">
+<defs>
+<clipPath id="company-peaches-body"><path d="M122 44C133 44 146 45 155 49C164 53 171.5 60 177 68C182.5 76 184 86.5 187 96C190 105.5 192.5 116 195 126C197.5 136 202.5 146.5 202 156C201.5 165.5 198.5 177 191 184C183.5 191 170 195.5 158 198C146 200.5 131 200.5 118 200C105 199.5 91.5 198 80 194C68.5 190 56.5 183.5 50 176C43.5 168.5 42 159.5 42 148C42 136.5 45.5 118.5 49 106C52.5 93.5 55.5 81.5 62 72C68.5 62.5 78 53.5 88 49C98 44.5 111 44 122 44Z" /></clipPath>
+</defs>
+<g id="company-peaches-Peaches---Editable-artwork">
+<g id="company-peaches-Tail" transform="translate(50 126) rotate(-24) scale(.68) translate(-58 -130)">
+<path d="M60 118C50 104 36 96 26 100C18 104 18 114 25 118C14 118 10 130 18 135C10 140 14 152 26 150C36 150 46 152 56 152" fill="#FF8198" />
+<path d="M60 118C50 104 36 96 26 100C18 104 18 114 25 118C14 118 10 130 18 135C10 140 14 152 26 150C36 150 46 152 56 152" stroke="#203B45" stroke-width="5.9" stroke-linejoin="round" />
+</g>
+<path id="company-peaches-Legs" d="M104 196L100 207M134 196L137 207" stroke="#D75E4F" stroke-width="9" stroke-linecap="round" />
+<g id="company-peaches-Crest">
+<path d="M98 56C84 42 86 30 98 34C104 36 108 46 110 52" fill="#FF8198" stroke="#203B45" stroke-width="4" stroke-linejoin="round" />
+<path d="M106 52C96 34 104 16 124 14C142 12 152 26 146 36C142 44 130 42 132 34C134 28 126 26 120 32C116 38 118 46 124 52" fill="#FF8198" stroke="#203B45" stroke-width="4" stroke-linejoin="round" />
+</g>
+<path id="company-peaches-Body" d="M122 44C133 44 146 45 155 49C164 53 171.5 60 177 68C182.5 76 184 86.5 187 96C190 105.5 192.5 116 195 126C197.5 136 202.5 146.5 202 156C201.5 165.5 198.5 177 191 184C183.5 191 170 195.5 158 198C146 200.5 131 200.5 118 200C105 199.5 91.5 198 80 194C68.5 190 56.5 183.5 50 176C43.5 168.5 42 159.5 42 148C42 136.5 45.5 118.5 49 106C52.5 93.5 55.5 81.5 62 72C68.5 62.5 78 53.5 88 49C98 44.5 111 44 122 44Z" fill="#FFAFAC" />
+<path id="company-peaches-Belly-shade" d="M24 150C30.5 155.5 45.5 175 62 182C78.5 189 104 192.5 124 192C144 191.5 166.5 187.5 182 180C197.5 172.5 212 151.5 218 146L218 240L24 240Z" fill="#EF8891" clip-path="url(#company-peaches-body)" />
+<path id="company-peaches-Belly" d="M138 114C151 114.5 168 117 178 124C188 131 197.5 145 198 156C198.5 167 193.5 183 182 190C170.5 197 145.5 198 130 198C114.5 198 98.5 197.5 90 190C81.5 182.5 78.5 165.5 80 154C81.5 142.5 90.5 128.5 100 122C109.5 115.5 125 113.5 138 114Z" fill="#FFF9ED" clip-path="url(#company-peaches-body)" />
+<path id="company-peaches-Outline" d="M122 44C133 44 146 45 155 49C164 53 171.5 60 177 68C182.5 76 184 86.5 187 96C190 105.5 192.5 116 195 126C197.5 136 202.5 146.5 202 156C201.5 165.5 198.5 177 191 184C183.5 191 170 195.5 158 198C146 200.5 131 200.5 118 200C105 199.5 91.5 198 80 194C68.5 190 56.5 183.5 50 176C43.5 168.5 42 159.5 42 148C42 136.5 45.5 118.5 49 106C52.5 93.5 55.5 81.5 62 72C68.5 62.5 78 53.5 88 49C98 44.5 111 44 122 44Z" stroke="#203B45" stroke-width="4" />
+<g id="company-peaches-Wing">
+<path d="M104 128C88 118 66 122 62 140C60 152 66 160 74 160C78 166 88 166 92 158C102 154 110 142 104 128Z" fill="#FF8198" stroke="#203B45" stroke-width="4" stroke-linejoin="round" />
+<path d="M70 144C75 149 82 150 89 147" stroke="#FFCBC6" stroke-width="4.5" stroke-linecap="round" />
+</g>
+<g id="company-peaches-Eyes">
+<ellipse id="company-peaches-Face---Far-eye" cx="174" cy="94" rx="16" ry="22" fill="white" stroke="#203B45" stroke-width="4" />
+<ellipse id="company-peaches-Face---Near-eye" cx="138.5" cy="93" rx="23.5" ry="28" fill="white" stroke="#203B45" stroke-width="4" />
+<path id="company-peaches-Face---Lashes" d="M125 70Q122 63 116 60M119.5 77Q114 73 108 72M186.5 80Q191 75 197 74" stroke="#203B45" stroke-width="3.5" stroke-linecap="round" />
+<ellipse id="company-peaches-Face---Near-pupil" cx="146.5" cy="96.5" rx="10.5" ry="14.5" fill="#203B45" />
+<ellipse id="company-peaches-Face---Far-pupil" cx="179" cy="96" rx="7" ry="11" fill="#203B45" />
+<ellipse id="company-peaches-Face---Near-catchlight" cx="142.5" cy="89.5" rx="3.5" ry="3.5" fill="white" />
+<ellipse id="company-peaches-Face---Far-catchlight" cx="176.5" cy="90.5" rx="2.5" ry="2.5" fill="white" />
+</g>
+<path id="company-peaches-Face---Lower-beak" d="M168 124C176 130 186 130 191 131C190 139 184 144 177 142C171 140 167 133 168 124Z" fill="#E8A73C" stroke="#203B45" stroke-width="4" stroke-linejoin="round" />
+<path id="company-peaches-Face---Upper-beak" d="M168 110C180 102 198 106 204 118C208 128 204 140 195 143C196 134 192 128 184 127C176 126 170 128 166 124C162 120 163 113 168 110Z" fill="#FFD45B" stroke="#203B45" stroke-width="4" stroke-linejoin="round" />
+<path id="company-peaches-Face---Heart-cheek" d="M0 0.9C-0.35 0.6 -1 0.15 -1 -0.35C-1 -0.75 -0.65 -0.95 -0.4 -0.95C-0.18 -0.95 -0.05 -0.8 0 -0.6C0.05 -0.8 0.18 -0.95 0.4 -0.95C0.65 -0.95 1 -0.75 1 -0.35C1 0.15 0.35 0.6 0 0.9Z" transform="translate(146 131) scale(7)" fill="#FF5F7E" />
+<path id="company-peaches-Highlight" d="M60 104C62 88 70 74 82 66" stroke="#FFF9ED" stroke-width="7" stroke-linecap="round" />
+</g>
+</g><g fill="none" transform="translate(35 16) scale(2.0)">
+<g id="company-pip-Pip---Editable-artwork">
+<g id="company-pip-Vector">
+<path d="M56 116C35 95 24 100 27 119C15 113 11 122 22 137L52 153" fill="#E8A73C" />
+<path d="M56 116C35 95 24 100 27 119C15 113 11 122 22 137L52 153" stroke="#203B45" stroke-width="4" stroke-linejoin="round" />
+</g>
+<path id="company-pip-Vector_2" d="M91 185L84 199M106 188L108 202" stroke="#D75E4F" stroke-width="9" stroke-linecap="round" />
+<g id="company-pip-Vector_3">
+<path d="M100 50C82 30 90 23 105 33C101 16 114 12 123 32C135 17 147 26 133 48" fill="#FFD45B" />
+<path d="M100 50C82 30 90 23 105 33C101 16 114 12 123 32C135 17 147 26 133 48" stroke="#203B45" stroke-width="4" stroke-linejoin="round" />
+</g>
+<path id="company-pip-Vector_4" d="M198 99C198 139 185 182 145 192C108 202 56 186 48 151C39 115 48 67 79 51C109 35 152 39 173 56C190 70 198 80 198 99Z" fill="#FFD45B" stroke="#203B45" stroke-width="4" />
+<path id="company-pip-Vector_5" d="M54 141C62 176 91 188 126 190C158 192 180 168 186 148C174 172 145 180 123 178C82 177 66 164 54 141Z" fill="#E8A73C" />
+<path id="company-pip-Vector_6" d="M136 104C109 106 94 125 95 149C96 174 113 185 140 183C167 181 186 156 184 135C183 115 162 102 136 104Z" fill="#FFF9ED" />
+<g id="company-pip-Wing">
+<path id="company-pip-Vector_7" d="M83 112C61 107 47 119 49 136C51 151 74 161 91 147C107 134 101 117 83 112Z" fill="#E8A73C" stroke="#203B45" stroke-width="4" />
+<path id="company-pip-Vector_8" d="M58 133C65 140 74 141 83 136" stroke="#FFD45B" stroke-width="5" stroke-linecap="round" />
+</g>
+<g id="company-pip-Eyes">
+<path id="company-pip-Face---Far-eye" d="M174 116C182.837 116 190 106.15 190 94C190 81.8497 182.837 72 174 72C165.163 72 158 81.8497 158 94C158 106.15 165.163 116 174 116Z" fill="white" stroke="#203B45" stroke-width="4" />
+<path id="company-pip-Face---Near-eye" d="M138.5 121C151.479 121 162 108.464 162 93C162 77.536 151.479 65 138.5 65C125.521 65 115 77.536 115 93C115 108.464 125.521 121 138.5 121Z" fill="white" stroke="#203B45" stroke-width="4" />
+<path id="company-pip-Face---Near-pupil" d="M146.5 111C152.299 111 157 104.508 157 96.5C157 88.4919 152.299 82 146.5 82C140.701 82 136 88.4919 136 96.5C136 104.508 140.701 111 146.5 111Z" fill="#203B45" />
+<path id="company-pip-Face---Far-pupil" d="M179 107C182.866 107 186 102.075 186 96C186 89.9249 182.866 85 179 85C175.134 85 172 89.9249 172 96C172 102.075 175.134 107 179 107Z" fill="#203B45" />
+<path id="company-pip-Face---Near-catchlight" d="M142.5 93C144.433 93 146 91.433 146 89.5C146 87.567 144.433 86 142.5 86C140.567 86 139 87.567 139 89.5C139 91.433 140.567 93 142.5 93Z" fill="white" />
+<path id="company-pip-Face---Far-catchlight" d="M176.5 93C177.881 93 179 91.8807 179 90.5C179 89.1193 177.881 88 176.5 88C175.119 88 174 89.1193 174 90.5C174 91.8807 175.119 93 176.5 93Z" fill="white" />
+</g>
+<path id="company-pip-Face---Lower-beak" d="M166 121C176 127 193 128 202 125C196 136 183 139 174 134C169 131 167 126 166 121Z" fill="#D75E4F" stroke="#203B45" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+<path id="company-pip-Face---Upper-beak" d="M165.5 112.846C169.5 104.846 179.5 104.846 187.5 107.846C197.5 110.846 205.5 115.846 211.5 120.846C198.5 127.846 176.5 127.846 165.5 119.846C163.5 117.846 163.5 114.846 165.5 112.846Z" fill="#F47D64" stroke="#203B45" stroke-width="4" stroke-linejoin="round" />
+<path id="company-pip-Face---Cheek" d="M146 135C150.971 135 155 132.761 155 130C155 127.239 150.971 125 146 125C141.029 125 137 127.239 137 130C137 132.761 141.029 135 146 135Z" fill="#F47D64" />
+<path id="company-pip-Vector_9" d="M70 84C73 72 82 65 94 62" stroke="#FFF9ED" stroke-width="7" stroke-linecap="round" />
+</g>
+</g><path d="M-24 494 Q260 422 550 487V532H-24Z" fill="#D75E4F" /></svg>

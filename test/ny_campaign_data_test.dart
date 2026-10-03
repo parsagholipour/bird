@@ -391,10 +391,11 @@ void main() {
         if (l.isBoss) l,
     ];
 
-    test('the seven boss levels: a 30 s run-up, no piece, an enemy lineup', () {
+    test('the eight boss levels: a 30 s run-up, no piece, an enemy lineup', () {
+      // Egypt's guardian (2-6, rules 50) joined; Arabia's lair is 2-9.
       expect(
         [for (final l in bossLevels) l.id],
-        ['1-8', '2-8', '3-2', '3-4', '3-8', '4-8', '5-8'],
+        ['1-8', '2-6', '2-9', '3-2', '3-4', '3-8', '4-8', '5-8'],
       );
       for (final l in bossLevels) {
         expect(l.plan.length, 30, reason: l.id);
@@ -529,14 +530,14 @@ void main() {
       expect(progress.sceneLast(level('3-4'))!.id, 'last-3-4');
       // A chapter boss has no last word; its scene is the chapter's.
       expect(progress.sceneLast(level('3-8')), isNull);
-      expect(progress.sceneLast(level('2-8')), isNull);
+      expect(progress.sceneLast(level('2-9')), isNull);
     });
   });
 
   group('the open stop: progression and the star total', () {
     setUp(() => Campaign.openedForTest = true);
 
-    test('2-8 to 3-1 to 3-4, level by level', () {
+    test('2-9 to 3-1 to 3-4, level by level', () {
       var progress = CampaignProgress(chaptersOneAndTwo());
       expect(progress.current.id, '3-1');
       const path = ['3-1', '3-2', '3-3', '3-4'];
@@ -558,9 +559,10 @@ void main() {
       expect(lockedNudge(level('3-5')), 'Coming soon');
     });
 
-    test('the star total is 60: 20 levels', () {
-      expect(Campaign.playableLevels, hasLength(20));
-      expect(campaignStarsInBuild, 60);
+    // 21 levels and 63 stars since Egypt's guardian (2-6, rules 50).
+    test('the star total is 63: 21 levels', () {
+      expect(Campaign.playableLevels, hasLength(21));
+      expect(campaignStarsInBuild, 63);
       final full = CampaignProgress([
         for (final chapter in Campaign.chapters.take(2))
           for (final l in chapter.levels) cleared(l.id, stars: 3),
@@ -568,7 +570,7 @@ void main() {
       ]);
       expect(full.starsInRegion(WorldRegion.newYork), 12);
       expect(full.starsInChapter(Campaign.chapters[2]), 12);
-      expect(full.totalStars, 60);
+      expect(full.totalStars, 63);
     });
 
     test('the map draws New York as two plain levels and two shields', () {
@@ -592,7 +594,7 @@ void main() {
   });
 
   group('the opening flag: both states', () {
-    test('the build ships open: no hook, New York is playable, 60 stars', () {
+    test('the build ships open: no hook, New York is playable, 63 stars', () {
       // `NEW_YORK_OPEN` defaults to true; only `--dart-define=
       // NEW_YORK_OPEN=false` (the rollback) closes the stop. Under that
       // define this same test asserts the closed numbers.
@@ -601,27 +603,27 @@ void main() {
       final open = !defined || value;
       expect(Campaign.openingEnabled, open);
       expect(Campaign.stopsOpen, open);
-      expect(Campaign.playableLevels, hasLength(open ? 20 : 16));
-      expect(campaignStarsInBuild, open ? 60 : 48);
+      expect(Campaign.playableLevels, hasLength(open ? 21 : 17));
+      expect(campaignStarsInBuild, open ? 63 : 51);
       final progress = CampaignProgress(chaptersOneAndTwo());
       expect(progress.unlocked(level('3-1')), open);
-      expect(progress.current.id, open ? '3-1' : '2-8');
+      expect(progress.current.id, open ? '3-1' : '2-9');
       expect(Campaign.comingSoon(WorldRegion.newYork), !open);
       expect(Campaign.comingSoon(WorldRegion.paris), isTrue);
     });
 
-    test('closed (NEW_YORK_OPEN=false): four locked coins, 48 stars', () {
+    test('closed (NEW_YORK_OPEN=false): four locked coins, 51 stars', () {
       // The rollback state: the same code with the stop shut.
       Campaign.closedForTest = true;
       expect(Campaign.stopsOpen, isFalse);
       for (final l in Campaign.levels) {
         expect(Campaign.playable(l), l.chapter <= 2, reason: l.id);
       }
-      expect(Campaign.playableLevels, hasLength(16));
-      expect(campaignStarsInBuild, 48);
+      expect(Campaign.playableLevels, hasLength(17));
+      expect(campaignStarsInBuild, 51);
       final progress = CampaignProgress(chaptersOneAndTwo());
       expect(progress.unlocked(level('3-1')), isFalse);
-      expect(progress.current.id, '2-8');
+      expect(progress.current.id, '2-9');
       expect(lockedNudge(level('3-1')), 'Coming soon');
       expect(Campaign.comingSoon(WorldRegion.newYork), isTrue);
       final stops = campaignStops(progress);
@@ -640,19 +642,19 @@ void main() {
       ];
       final progress = CampaignProgress(records);
       Campaign.openedForTest = true;
-      expect(progress.totalStars, 16 * 2 + 12);
+      expect(progress.totalStars, 17 * 2 + 12);
       Campaign.openedForTest = false;
       Campaign.closedForTest = true;
-      // Never "N / 48" with N above 48: the closed build counts only what it
+      // Never "N / 51" with N above 51: the closed build counts only what it
       // can fly.
-      expect(progress.totalStars, 16 * 2);
+      expect(progress.totalStars, 17 * 2);
       expect(progress.totalStars, lessThanOrEqualTo(campaignStarsInBuild));
     });
 
-    test('open: the same data opens, 60 stars, Paris still soon', () {
+    test('open: the same data opens, 63 stars, Paris still soon', () {
       Campaign.openedForTest = true;
-      expect(Campaign.playableLevels, hasLength(20));
-      expect(campaignStarsInBuild, 60);
+      expect(Campaign.playableLevels, hasLength(21));
+      expect(campaignStarsInBuild, 63);
       final progress = CampaignProgress(chaptersOneAndTwo());
       expect(progress.unlocked(level('3-1')), isTrue);
       expect(progress.current.id, '3-1');
@@ -661,7 +663,7 @@ void main() {
       // Closing it again leaves no trace.
       Campaign.openedForTest = false;
       Campaign.closedForTest = true;
-      expect(Campaign.playableLevels, hasLength(16));
+      expect(Campaign.playableLevels, hasLength(17));
       expect(progress.unlocked(level('3-1')), isFalse);
     });
 

@@ -542,7 +542,7 @@ void main() {
   test('rules version 43 flies solo endless exactly like 42 and like 41', () {
     // 43 is New York (data only); 42 is Fly Together. A solo endless flight
     // meets neither, so all three versions fly the same flight.
-    expect(FlightSimulation.currentRulesVersion, 43);
+    expect(FlightSimulation.currentRulesVersion, greaterThanOrEqualTo(43));
     for (final width in [1.6, 2.4]) {
       final (v41, _) = Flight(
         'v41',
@@ -595,7 +595,7 @@ void main() {
   test('rules version 43 flies endless exactly like 41 (New York is data)', () {
     // Rules 43 adds the Alley Pigeon, steam geysers and two mini-bosses, all
     // reachable only through a campaign level plan: endless never meets them.
-    expect(FlightSimulation.currentRulesVersion, 43);
+    expect(FlightSimulation.currentRulesVersion, greaterThanOrEqualTo(43));
     for (final width in [1.6, 2.2, 2.4]) {
       final (v41, _) = Flight(
         'v41',
@@ -616,10 +616,161 @@ void main() {
     }
   });
 
+  test('rules versions 44 to 47 fly endless exactly like 43 (stages, King '
+      'Coo, the Gargoyle and the heart reach are campaign only)', () {
+    // Rules 44 makes campaign boss fights long and staged and sends their
+    // vanguards, 45 toughens King Coo, 46 makes the Gargoyle fiercer and 47
+    // widens a campaign heart's reach: an endless boss is none of that.
+    expect(FlightSimulation.currentRulesVersion, greaterThanOrEqualTo(47));
+    for (final width in [1.6, 2.2, 2.4]) {
+      final (v43, _) = Flight(
+        'v43',
+        rules: _tap,
+        version: 43,
+        seconds: 560,
+        width: width,
+      ).fly();
+      final (v44, summary) = Flight(
+        'v44',
+        rules: _tap,
+        version: 44,
+        seconds: 560,
+        width: width,
+      ).fly();
+      expect(v44.checkpoints, v43.checkpoints, reason: 'width $width');
+      final (v45, _) = Flight(
+        'v45',
+        rules: _tap,
+        version: 45,
+        seconds: 560,
+        width: width,
+      ).fly();
+      expect(v45.checkpoints, v43.checkpoints, reason: 'width $width at 45');
+      final (v46, _) = Flight(
+        'v46',
+        rules: _tap,
+        version: 46,
+        seconds: 560,
+        width: width,
+      ).fly();
+      expect(v46.checkpoints, v43.checkpoints, reason: 'width $width at 46');
+      final (v47, _) = Flight(
+        'v47',
+        rules: _tap,
+        version: 47,
+        seconds: 560,
+        width: width,
+      ).fly();
+      expect(v47.checkpoints, v43.checkpoints, reason: 'width $width at 47');
+      expect(summary, contains('bosses='));
+    }
+  });
+
+  test('rules version 48 flies endless exactly like 47 until the returning '
+      'Baron, who has twice the health; 49 and 50 exactly like 48, and 52 '
+      'exactly like 51', () {
+    expect(FlightSimulation.currentRulesVersion, greaterThanOrEqualTo(52));
+    expect(FlightSimulation.tougherBaronRulesVersion, 48);
+    expect(FlightSimulation.levelFeathersRulesVersion, 49);
+    expect(FlightSimulation.neferhooRulesVersion, 50);
+    expect(FlightSimulation.allRingsRulesVersion, 51);
+    expect(FlightSimulation.tougherNeferhooRulesVersion, 52);
+    for (final width in [1.6, 2.2, 2.4]) {
+      final randoms = [for (var i = 0; i < 6; i++) CountingRandom(7)];
+      final sims = [
+        for (final (i, version) in [47, 48, 49, 50, 51, 52].indexed)
+          FlightSimulation(
+            rules: _tap(version),
+            practice: false,
+            course: FlightCourse.starTrail,
+            rulesVersion: version,
+            weaponDamage: 60,
+            random: randoms[i],
+          ),
+      ];
+      final [v47, v48, v49, v50, v51, v52] = sims;
+      expect(
+        (v47.supportsTougherBaron, v48.supportsTougherBaron),
+        (false, true),
+      );
+      // 49 only levels the campaign Gargoyle's feathers, 50 only brings
+      // Neferhoo, whom only a campaign plan can name, and 52 only makes him
+      // tougher. (51's all-rings bonus is `all_rings_bonus_test.dart`'s: 52
+      // is compared with 51.)
+      expect(v49.supportsLevelFeathers, isFalse);
+      expect(v50.supportsNeferhoo, isFalse);
+      expect(v52.supportsTougherNeferhoo, isFalse);
+      var now = 0.0;
+      for (var frame = 1; ; frame++) {
+        expect(frame, lessThan(560 * 50), reason: 'no returning Baron');
+        now += 20;
+        for (final sim in sims) {
+          touchPilot(sim, frame, now, keepAlive: true);
+          sim.tick(.02, now, viewportWidth: width);
+        }
+        if (v48.boss?.upgraded ?? false) break;
+        if (frame % 50 == 0) {
+          expect(
+            stateOf(v48, draws: randoms[1].draws),
+            stateOf(v47, draws: randoms[0].draws),
+            reason: 'width $width at ${frame ~/ 50} s',
+          );
+          expect(
+            stateOf(v49, draws: randoms[2].draws),
+            stateOf(v48, draws: randoms[1].draws),
+            reason: 'width $width at ${frame ~/ 50} s, 49',
+          );
+          expect(
+            stateOf(v50, draws: randoms[3].draws),
+            stateOf(v49, draws: randoms[2].draws),
+            reason: 'width $width at ${frame ~/ 50} s, 50',
+          );
+          expect(
+            stateOf(v52, draws: randoms[5].draws),
+            stateOf(v51, draws: randoms[4].draws),
+            reason: 'width $width at ${frame ~/ 50} s, 52',
+          );
+        }
+      }
+      // He arrives on the same frame, the second Baron of the flight.
+      expect(v47.boss?.upgraded, isTrue, reason: 'width $width');
+      expect(v48.bossesDefeated, BossKind.endlessCycle);
+      expect((v47.boss!.maxHp, v48.boss!.maxHp), (240, 480));
+      expect(v48.boss!.hp, 480);
+      // Through his fight and on, 49 and 50 still fly as 48, and 52 as 51.
+      for (var frame = 1; frame <= 60 * 50; frame++) {
+        now += 20;
+        for (final sim in [v48, v49, v50, v51, v52]) {
+          touchPilot(sim, frame, now, keepAlive: true);
+          sim.tick(.02, now, viewportWidth: width);
+        }
+      }
+      expect(
+        stateOf(v49, draws: randoms[2].draws),
+        stateOf(v48, draws: randoms[1].draws),
+        reason: 'width $width at 49',
+      );
+      expect(
+        stateOf(v50, draws: randoms[3].draws),
+        stateOf(v49, draws: randoms[2].draws),
+        reason: 'width $width at 50',
+      );
+      expect(
+        stateOf(v52, draws: randoms[5].draws),
+        stateOf(v51, draws: randoms[4].draws),
+        reason: 'width $width at 52',
+      );
+    }
+  });
+
   test('no endless flight, at any version, meets a campaign-only kind', () {
     final bosses = <BossKind>{};
     final enemies = <EnemyKind>{};
-    for (final version in [34, 38, 40, 41, 42, 43]) {
+    const older = [34, 38, 40, 41, 42, 43];
+    for (final version in [
+      ...older,
+      for (var v = 44; v <= FlightSimulation.currentRulesVersion; v++) v,
+    ]) {
       final random = CountingRandom(7);
       final sim = FlightSimulation(
         rules: TapFlyMode(rulesVersion: version),
@@ -641,7 +792,12 @@ void main() {
     expect(bosses.where((kind) => kind.campaignOnly), isEmpty);
     expect(enemies.where((kind) => kind.campaignOnly), isEmpty);
     // The endless cycle never indexes past the first five kinds.
-    for (final version in [38, 40, 42, 43]) {
+    for (final version in [
+      38,
+      40,
+      42,
+      for (var v = 43; v <= FlightSimulation.currentRulesVersion; v++) v,
+    ]) {
       for (var defeated = 0; defeated < 200; defeated++) {
         final encounter = FlightPlan.endless.bossEncounter(defeated, version);
         expect(encounter.kind.campaignOnly, isFalse);

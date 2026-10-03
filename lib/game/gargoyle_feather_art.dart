@@ -141,30 +141,32 @@ abstract final class GargoyleFeatherArt {
   // ---------------------------------------------------------- the clock --
 
   /// The seconds a feather has been in flight, worked out from where it is: it
-  /// leaves the cornice at (the bird's column + [SearchlightGargoyle.featherOffsetX])
-  /// and crosses at its constant horizontal speed. The rules keep no age for a
-  /// shot that never splits; this is exact for a feather the rules launched
-  /// and still a pure function of the shot for any other (a sprint's rush
-  /// only makes it a little older than it is).
+  /// leaves the cornice at its [BossAmmo.launchX] (when the rules gave none,
+  /// the bird's column + [SearchlightGargoyle.featherOffsetX]) and crosses at
+  /// its constant horizontal speed. The rules keep no age for a shot that
+  /// never splits; this is exact for a feather the rules launched and still a
+  /// pure function of the shot for any other (a sprint's rush only makes it a
+  /// little older than it is).
   static double age(BossAmmo a) {
     if (!a.x.isFinite || !a.vx.isFinite || a.vx > -1e-6) return 0;
-    final spawn = GargoyleLayout.birdColumn + SearchlightGargoyle.featherOffsetX;
+    final from = a.launchX;
+    final spawn = from != null && from.isFinite ? from : GargoyleLayout.birdColumn + SearchlightGargoyle.featherOffsetX;
     return ((spawn - a.x) / -a.vx).clamp(0.0, 6.0);
   }
 
   /// Where a feather launched at a bird [birdY] high (screen heights) first
   /// shows below the top edge, as a screen height x: the lob rises above the
-  /// screen for a high bird, so the entry is left of the cornice column. The
+  /// screen for a high bird, so the entry is left of the cornice column; a
+  /// [level] feather (rules version 49) aimed low leaves further ahead. The
   /// telegraph's dust can drop here instead of at `GargoyleBossRig.featherSpawn`.
-  static double entryX(double birdY, {bool fury = false}) {
-    const spawn = GargoyleLayout.birdColumn + SearchlightGargoyle.featherOffsetX;
-    if (!birdY.isFinite) return spawn;
-    final shot = SearchlightGargoyle.featherShot(birdY.clamp(0.0, 1.0), enraged: fury);
+  static double entryX(double birdY, {bool fury = false, bool level = false}) {
+    if (!birdY.isFinite) return GargoyleLayout.birdColumn + SearchlightGargoyle.featherOffsetX;
+    final shot = SearchlightGargoyle.featherShot(birdY.clamp(0.0, 1.0), enraged: fury, level: level);
     const g = SearchlightGargoyle.featherGravity;
     // y(t) = featherY + vy t + g/2 t^2 reaches -radius (the body's lower edge on the top edge).
     final drop = -(SearchlightGargoyle.featherY + SearchlightGargoyle.featherRadius);
     final t = (-shot.vy + math.sqrt(shot.vy * shot.vy + 2 * g * drop)) / g;
-    return spawn + shot.vx * t;
+    return GargoyleLayout.birdColumn + shot.ahead + shot.vx * t;
   }
 
   // -------------------------------------------------------------- paint --

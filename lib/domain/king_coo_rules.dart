@@ -9,17 +9,20 @@ part of 'game_rules.dart';
 ///  * the puff plans a squadron from where the bird is, the whistle calls it
 ///    (unless a pop got there first), and its pigeons fly their tracks;
 ///  * the chest's half and double damage and the pop live in
-///    `SkyBoss.strike`, so a rock and a shatter blast both use them.
+///    `SkyBoss.strike`, so a rock and a shatter blast both use them;
+///  * from rules version 54 the cycle he grows furious in ends early, once
+///    its quiet tail begins ([SkyBoss.quickRestart]).
 ///
 /// Nothing here draws a random, and every time is an exact cycle time of the
 /// boss's clock, so a replay (or a seek that re-simulates) is exact at any
 /// frame rate. Called once per step from `_advanceBoss`, only while he fights.
 extension _KingCooRules on FlightSimulation {
   void _advanceCoo(SkyBoss coo) {
+    if (coo.quickRestart) _restartCoo(coo);
     final cycle = coo.cooCycleNumber;
     if (cycle < 0) return;
     final at = coo.cooCycle;
-    final cycleStart = coo.arrivalDuration + cycle * KingCoo.period;
+    final cycleStart = coo.cooCycleStart(cycle);
 
     // Crumb bombs: each ring locks on the bird's height as it is now, and the
     // cloud it will drop 2.2 s later stays where it locked. Fury is latched at
@@ -57,11 +60,16 @@ extension _KingCooRules on FlightSimulation {
       coo.squadReleased = 0;
       coo.squadCalled = false;
       coo.cancelledSquad = const [];
-      coo.squad = KingCoo.squad(
-        cycle: cycle,
-        birdY: _target(coo.puffsLatched - 1).y,
-        fury: coo.enraged,
-      );
+      // A staged King Coo's warm-up puffs but plans no squadron, and his fury
+      // (a long one, rules 44) brings three crumb rings but keeps the single
+      // V: fury's picket behind it is the 43 fight's short finale.
+      coo.squad = coo.signatureArmed(cycle)
+          ? KingCoo.squad(
+              cycle: cycle,
+              birdY: _target(coo.puffsLatched - 1).y,
+              fury: coo.enraged && !coo.staged,
+            )
+          : const [];
     }
     // A pop before the whistle cancels the call: no lanes, no whistle (the
     // art keeps the cancelled plan to dissolve it).
@@ -71,7 +79,7 @@ extension _KingCooRules on FlightSimulation {
     }
     if (coo.whistlesDue > coo.whistlesLatched) {
       coo.whistlesLatched = coo.whistlesDue;
-      if (!coo.popped) {
+      if (!coo.popped && coo.signatureArmed(cycle)) {
         coo.whistles++;
         coo.squadCalled = true;
       }
@@ -115,6 +123,39 @@ extension _KingCooRules on FlightSimulation {
         }
       }
     }
+  }
+
+  /// The cycle King Coo grows furious in (the last of his stages) ends as
+  /// soon as nothing of it is left: his roar is over, the puff window has
+  /// closed (or he has got over its pop), every crumb has settled and every
+  /// squadron pigeon has passed the birds. His first fury cycle begins
+  /// then, so its first ring locks .6 s later, not after the rest of the
+  /// 14 s. Once a fight, and only in that quiet tail, which holds no beat
+  /// of the cycle: the clock skips none.
+  void _restartCoo(SkyBoss coo) {
+    if (coo.stageReached < 2 || coo.cooRestartAt.isFinite) return;
+    final cycle = coo.cooCycleNumber;
+    if (cycle < 0 ||
+        cycle != KingCoo.cycleNumber(coo.cooClockAt(coo.stageUpAt))) {
+      return;
+    }
+    final age = coo.age;
+    if (age < coo.stageUpAt + SkyBoss.stageRoar) return;
+    final settled = coo.popped
+        ? age >= coo.poppedAt! + KingCoo.popRecovery
+        : coo.cooCycle >= KingCoo.windowEnd + KingCoo.puffRelease;
+    if (!settled) return;
+    if (coo.lobs.isNotEmpty && coo.lobs.last.crumbsEndAt > age) return;
+    final column = _rearX;
+    for (final enemy in enemies) {
+      if (enemy.track case final track?) {
+        final clear =
+            track.crossesAt(column) + KingCoo.pigeonReach / KingCoo.squadSpeed;
+        if (age < clear) return;
+      }
+    }
+    coo.restartCoo();
+    cooRestarts++;
   }
 
   /// One plan's pigeons leave the boss at boss-age [at], at the chest's x

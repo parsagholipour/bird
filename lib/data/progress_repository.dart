@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
@@ -77,7 +78,7 @@ class ProgressDatabase extends _$ProgressDatabase {
     }),
   );
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) => m.createAll(),
@@ -101,6 +102,10 @@ class ProgressDatabase extends _$ProgressDatabase {
         await m.addColumn(runs, runs.level);
         await m.createTable(levelProgress);
       }
+      if (from < 6) {
+        // Egypt's guardian took level 2-6: Ancient Arabia moved up by one.
+        await renumberLevels();
+      }
     },
     beforeOpen: (_) async {
       await customStatement('PRAGMA foreign_keys = ON');
@@ -108,7 +113,87 @@ class ProgressDatabase extends _$ProgressDatabase {
   );
 }
 
+extension LevelRenumbering on ProgressDatabase {
+  /// The preference that says the save uses [CampaignIds.scheme]'s ids.
+  static const schemeKey = 'levelIds';
+
+  /// Renames a save made before Egypt's guardian took level 2-6 (schema 5)
+  /// to the ids it has now ([CampaignIds]): the level records and the
+  /// flights (`runs.level`), highest id first so no new id exists before its
+  /// old owner has left it; the watched story scenes named by those levels;
+  /// and the flight voices' memory of the cargo lines said. One transaction,
+  /// so a save is renamed whole or not at all. It runs once, as the database
+  /// is opened by the first build at schema 6 and before anything is read or
+  /// saved, and it marks the save ([schemeKey]), so running it again changes
+  /// nothing.
+  Future<void> renumberLevels() => transaction(() async {
+    final marked = await (select(
+      preferences,
+    )..where((p) => p.key.equals(schemeKey))).getSingleOrNull();
+    if (marked != null) return;
+    for (final MapEntry(key: from, value: to)
+        in CampaignIds.renumbered.entries) {
+      await customUpdate(
+        'UPDATE level_progress SET level = ? WHERE level = ?',
+        variables: [Variable.withString(to), Variable.withString(from)],
+        updates: {levelProgress},
+      );
+      await customUpdate(
+        'UPDATE runs SET level = ? WHERE level = ?',
+        variables: [Variable.withString(to), Variable.withString(from)],
+        updates: {runs},
+      );
+    }
+    Future<String?> pref(String key) async => (await (select(
+      preferences,
+    )..where((p) => p.key.equals(key))).getSingleOrNull())?.value;
+    Future<void> put(String key, String value) =>
+        into(preferences).insertOnConflictUpdate(
+          PreferencesCompanion.insert(key: key, value: value),
+        );
+    final watched = await pref('storyWatched');
+    if (watched != null) {
+      await put(
+        'storyWatched',
+        [
+          for (final id in watched.split(','))
+            if (id.isNotEmpty) CampaignIds.scene(id),
+        ].join(','),
+      );
+    }
+    final voices = await pref('flightVoices');
+    if (voices != null) {
+      try {
+        final json = jsonDecode(voices) as Map<String, dynamic>;
+        for (final key in ['last', 'lastFlight']) {
+          final map = json[key];
+          if (map is Map) {
+            json[key] = {
+              for (final MapEntry(:key, :value) in map.entries)
+                CampaignIds.clip(key as String): value,
+            };
+          }
+        }
+        await put('flightVoices', jsonEncode(json));
+      } on FormatException {
+        // An unreadable memory starts afresh anyway (FlightVoiceMemory).
+      } on TypeError {
+        // Likewise.
+      }
+    }
+    await put(schemeKey, '${CampaignIds.scheme}');
+  });
+}
+
 const birdNames = ['Pip', 'Peaches', 'Minty', 'Orbit'];
+
+/// Minty is the first main character: the bird a new player flies with and
+/// the first one the pickers show. The indices above stay as they are, since
+/// saved choices, runs and voice clips are keyed by them.
+const firstBird = 2;
+
+/// The order the bird pickers show the cast in, [firstBird] first.
+const birdOrder = [firstBird, 0, 1, 3];
 const birdDescriptions = [
   'Small bird. Big sky.',
   'Rosy cheeks, curly crest, all heart.',
@@ -125,7 +210,7 @@ class GameSettings {
     this.reducedMotion = false,
     this.recordAudio = false,
     this.voices = true,
-    this.bird = 0,
+    this.bird = firstBird,
   });
   final bool music, effects, reducedMotion, recordAudio;
 
@@ -163,7 +248,7 @@ class CoopRecord {
 class CoopProgress {
   const CoopProgress({
     this.records = const {},
-    this.birds = (0, 1),
+    this.birds = (firstBird, 0),
     this.mode = CoopMode.roped,
   });
   final Map<CoopMode, CoopRecord> records;
@@ -358,7 +443,7 @@ class SqliteProgressRepository implements ProgressRepository {
       [Variable.withInt(mode.index), Variable.withString(course.name)],
     );
 
-    final selected = int.tryParse(prefs['bird'] ?? '0') ?? 0;
+    final selected = int.tryParse(prefs['bird'] ?? '$firstBird') ?? firstBird;
     final now = clock().toLocal();
     final today = DateTime(now.year, now.month, now.day);
     final firstDay = DateTime(now.year, now.month, now.day - 6);
@@ -386,7 +471,9 @@ class SqliteProgressRepository implements ProgressRepository {
         reducedMotion: prefs['reducedMotion'] == 'true',
         recordAudio: prefs['recordAudio'] == 'true',
         voices: prefs['voices'] != 'false',
-        bird: selected >= 0 && selected < birdNames.length ? selected : 0,
+        bird: selected >= 0 && selected < birdNames.length
+            ? selected
+            : firstBird,
       ),
       pushUp: await record(PlayMode.pushUp, FlightCourse.classic),
       jump: await record(PlayMode.jump, FlightCourse.classic),

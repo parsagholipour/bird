@@ -5,8 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:push_up_bird/data/progress_repository.dart';
 import 'package:push_up_bird/data/providers.dart';
+import 'package:push_up_bird/domain/campaign.dart';
+import 'package:push_up_bird/domain/campaign_story.dart';
+import 'package:push_up_bird/domain/world_region.dart';
 import 'package:push_up_bird/main.dart';
 import 'package:push_up_bird/game/audio.dart';
+import 'campaign_save_test.dart' show levelRun;
 import 'play_session_test.dart' show SilentAudio, SessionSource;
 
 class MenuAudioSpy extends SilentAudio {
@@ -86,19 +90,15 @@ void main() {
         .setting(SettingKey.music, true);
     await tester.pumpAndSettle();
     expect(menu.playing, isTrue);
-    appRouter.go('/school');
-    // Flight School hosts a live game loop, which never settles.
+    appRouter.go('/play/touch');
+    // Flight hosts a live game loop, which never settles.
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pump(const Duration(milliseconds: 100));
     expect(
       menu.playing,
       isFalse,
       reason: 'Do not layer the menu track over gameplay',
     );
-    appRouter.go('/play/touch');
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
-    expect(menu.playing, isFalse);
     expect(players.last.playing, isTrue);
     expect(players.last.track, SkyMusic.flight);
     appRouter.go('/');
@@ -110,5 +110,64 @@ void main() {
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
     await tester.pump();
     expect(menu.playing, isTrue);
+  });
+
+  testWidgets('a campaign level flies to its region\'s song', (tester) async {
+    tester.view.physicalSize = const Size(800, 360);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final repo = SqliteProgressRepository(
+      ProgressDatabase(NativeDatabase.memory()),
+    );
+    // The jungle's three levels are cleared, so Brazil's first one opens.
+    await tester.runAsync(() async {
+      await repo.setSetting(SettingKey.reducedMotion, true);
+      for (final scene in CampaignStory.scenes) {
+        await repo.markStoryWatched(scene);
+      }
+      for (final id in ['1-1', '1-2', '1-3']) {
+        await repo.saveRun(
+          levelRun('seed-$id', id, stars: Campaign.level(id)!.marks.two),
+        );
+      }
+    });
+    final players = <MenuAudioSpy>[];
+    final container = ProviderContainer(
+      overrides: [
+        progressRepositoryProvider.overrideWithValue(repo),
+        audioFactoryProvider.overrideWithValue(() {
+          final audio = MenuAudioSpy();
+          players.add(audio);
+          return audio;
+        }),
+        trackingSourceFactoryProvider.overrideWithValue(SessionSource.new),
+      ],
+    );
+    addTearDown(() async {
+      await tester.pumpWidget(const SizedBox());
+      container.dispose();
+      await tester.runAsync(repo.close);
+    });
+    await tester.runAsync(() => container.read(progressProvider.future));
+    final brazil = Campaign.level('1-4')!;
+    expect(brazil.region, WorldRegion.brazil);
+    appRouter.go('/play/touch?level=${brazil.id}');
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const PushUpBirdApp(),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(players.last.playing, isTrue);
+    expect(players.last.track, SkyMusic.brazil);
+
+    // The jungle keeps the original flight song.
+    appRouter.go('/play/touch?level=1-1');
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(players.last.track, SkyMusic.flight);
   });
 }

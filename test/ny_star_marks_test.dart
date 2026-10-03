@@ -166,11 +166,16 @@ void main() {
           var n = 0, three = 0, two = 0;
           for (final width in _screens.values) {
             for (final phase in spreadPhases(6)) {
+              // From rules 45 King Coo's throwing vanguard and long fight
+              // fell some mortal pilots (`ny_levels_spread_test` holds 3-2's
+              // completion rates). His level's stars are its run-up's, so it
+              // is flown here with the hearts topped up.
               final run = flyNewYork(
                 id,
                 skill: skill,
                 width: width,
                 phase: phase,
+                keepAlive: id == '3-2',
               );
               n++;
               expect(run.finished, isTrue, reason: '$id ${skill.name}');

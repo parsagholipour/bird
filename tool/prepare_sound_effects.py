@@ -605,6 +605,239 @@ def crinkle(data, seed, start, seconds, count, gain, lo=1100, hi=3200):
             band += f * (noise - low - .25 * band)
             data[first + j] += size * min(1, t / .0006) * math.exp(-t / .0045) * band
 
+# ---------------------------------------------------------------------------
+# The campaign finish line: the gate's "almost there" sting, the tape snap and
+# confetti cannons, the birds' cheer and the swoop onto the result cloud.
+# finish_snap and finish_cheer start from ElevenLabs takes (see main()); the
+# other two are syntheses. Seeds 501-549.
+FINISH_CUES = ['finish_near', 'finish_snap', 'finish_cheer', 'finish_swoop']
+
+
+def pluck(data, at, hz, gain, decay=.32):
+    """A harp string: six harmonics, the higher ones softer and quicker to die,
+    over a 2 ms finger attack."""
+    start = int(at * RATE)
+    for j in range(min(int(decay * 5 * RATE), len(data) - start)):
+        t = j / RATE
+        value = sum(math.sin(2 * math.pi * hz * k * t) * math.exp(-t * k / decay) / k ** 1.3
+                    for k in range(1, 7))
+        data[start + j] += gain * min(1, t / .002) * value
+
+
+def shaker(data, seed, start, seconds, gain, rate_from, rate_to, release=.12):
+    """A shaker or soft snare roll: high-passed noise grains [rate_from] rising
+    to [rate_to] a second, swelling from silence to full at the end of the span
+    and then let go over [release] seconds, so it builds and never lands."""
+    rng = random.Random(seed)
+    first = int(start * RATE)
+    count = min(len(data) - first, int((seconds + release) * RATE))
+    low = high = 0.0
+    phase = 0.0
+    for j in range(count):
+        t = j / RATE
+        u = min(1.0, t / seconds)
+        phase += (rate_from + (rate_to - rate_from) * u) / RATE
+        grain = math.exp(-(phase % 1) / .22)
+        noise = rng.uniform(-1, 1)
+        # Beads in a gourd: about 2.5 to 9 kHz.
+        low += .30 * (noise - low)
+        high += .70 * ((noise - low) - high)
+        env = u ** 1.8 * (1 if t < seconds else math.exp(-(t - seconds) / (release / 3)))
+        data[first + j] += gain * env * (.35 + .65 * grain) * high
+
+
+def popper(data, at, gain, hz, seed):
+    """A party popper: a sharp cap crack, the paper tube's hollow pop near [hz]
+    and a small chest thump."""
+    rng = random.Random(seed)
+    start = int(at * RATE)
+    f = 2 * math.sin(math.pi * hz / RATE)
+    low = band = 0.0
+    for j in range(min(int(.09 * RATE), len(data) - start)):
+        t = j / RATE
+        noise = rng.uniform(-1, 1)
+        low += f * band
+        band += f * (noise - low - .30 * band)
+        crack = noise * math.exp(-t / .0011)
+        body = band * math.exp(-t / .011)
+        thump = math.sin(2 * math.pi * (150 + 250 * math.exp(-t / .004)) * t) * math.exp(-t / .016)
+        data[start + j] += gain * min(1, t / .0002) * (.9 * crack + 1.6 * body + .45 * thump)
+
+
+def twang(data, at, hz, length, gain, wobble=13.0):
+    """A taut ribbon let go: a tone that springs down to [hz] from a little
+    above it and wobbles at [wobble] Hz while it dies away."""
+    start = int(at * RATE)
+    phase = 0.0
+    for j in range(min(int(length * RATE), len(data) - start)):
+        t = j / RATE
+        bend = 1 + .12 * math.exp(-t / .025)
+        vibrato = 1 + .025 * math.sin(2 * math.pi * wobble * t) * math.exp(-t / (length * .6))
+        phase += 2 * math.pi * hz * bend * vibrato / RATE
+        env = min(1, t / .003) * math.exp(-t / (length * .28))
+        data[start + j] += gain * env * (math.sin(phase) + .30 * math.sin(2 * phase))
+
+
+def tweet(data, at, length, hz_from, hz_to, gain, vibrato=24.0):
+    """One bird's whistled note: an exponential glide, a quick bird vibrato and
+    a soft swell and fall; two of them make a 'wheet-whoo'."""
+    first = int(at * RATE)
+    count = min(len(data) - first, int(length * RATE))
+    phase = 0.0
+    for j in range(count):
+        t = j / RATE
+        u = t / length
+        hz = hz_from * (hz_to / hz_from) ** u
+        phase += 2 * math.pi * hz * (1 + .012 * math.sin(2 * math.pi * vibrato * t)) / RATE
+        env = math.sin(math.pi * min(1.0, u ** .7)) ** 1.5
+        data[first + j] += gain * env * (math.sin(phase) + .12 * math.sin(2 * phase))
+
+
+def swoop_air(data, seed, peak, seconds, gain, f_from, f_to):
+    """Air rushing past something flying closer: noise through a resonant
+    band-pass whose centre climbs from [f_from] to [f_to] Hz, swelling to
+    [peak] seconds and falling away quickly after it."""
+    rng = random.Random(seed)
+    low = band = body = 0.0
+    for i in range(min(len(data), int(seconds * RATE))):
+        t = i / RATE
+        u = min(1.0, t / peak)
+        f = f_from * (f_to / f_from) ** u
+        k = 2 * math.sin(math.pi * f / RATE)
+        noise = rng.uniform(-1, 1)
+        low += k * band
+        band += k * (noise - low - .45 * band)
+        body += .05 * (noise - body)
+        env = u ** 2.2 if t < peak else math.exp(-(t - peak) / .045)
+        data[i] += gain * env * (1.4 * band + .5 * body)
+
+
+def fwump(data, at, gain, seed):
+    """Landing on a cloud: a cushioned low thump with a 6 ms rounded attack
+    and a soft 'poof' of air around 500 Hz, which a phone can play."""
+    rng = random.Random(seed)
+    start = int(at * RATE)
+    f = 2 * math.sin(math.pi * 500 / RATE)
+    low = band = smooth = 0.0
+    phase = 0.0
+    for j in range(min(int(.30 * RATE), len(data) - start)):
+        t = j / RATE
+        attack = .5 - .5 * math.cos(math.pi * min(1.0, t / .006))
+        phase += 2 * math.pi * (85 + 70 * math.exp(-t / .03)) / RATE
+        noise = rng.uniform(-1, 1)
+        low += f * band
+        band += f * (noise - low - 1.0 * band)
+        smooth += .06 * (noise - smooth)
+        value = (.5 * math.sin(phase) * math.exp(-t / .08) + 1.0 * smooth * math.exp(-t / .07)
+                 + 5.0 * band * math.exp(-t / .09))
+        data[start + j] += gain * attack * value
+
+
+def finish_foley(name, data):
+    """Finishes a generated finish-line take (already excerpted to the cue's
+    length) with the layers the take lacked."""
+    count = len(data)
+    if name == 'finish_snap':
+        # The take's snap peaks at 13 ms; its long ribbon ring is let go from
+        # .20 to .50 s, under a springier twang, two poppers 50 ms apart (the
+        # gate's post-top cannons, the first 27 ms after the snap) and the
+        # confetti showering down and thinning out. A high-pass at 180 Hz
+        # first takes out the take's rumble, which the soft knee would raise.
+        low = 0.0
+        alpha = 1 - math.exp(-2 * math.pi * 180 / RATE)
+        for i in range(count):
+            low += alpha * (data[i] - low)
+            data[i] -= low
+            t = i / RATE
+            if t > .20:
+                data[i] *= .5 + .5 * math.cos(math.pi * min(1.0, (t - .20) / .30))
+        twang(data, .006, 398, .32, .10)
+        popper(data, .040, .55, 1500, 501)
+        popper(data, .090, .46, 1250, 503)
+        confetti = [0.0] * count
+        crinkle(confetti, 505, .09, .70, 90, .20, lo=1800, hi=6000)
+        band_noise(confetti, 507, .08, .72, .10, 3500, q=1.0, attack=.03, release=.5)
+        for i in range(count):
+            data[i] += confetti[i] * math.exp(-max(0.0, i / RATE - .10) / .30)
+    if name == 'finish_cheer':
+        # The take's flock chirps in waves with gaps at .10-.38 and .68-.86 s:
+        # one bird whistles a 'wheet-whoo' into each, a different pitch each
+        # time. The cheer is full for its first .90 s, then dies away over
+        # the rest (6 dB down at 1.60 s, where the bird lands on its cloud),
+        # so it is gone before the result card's star chimes.
+        tweet(data, .11, .12, 1900, 2800, .30)
+        tweet(data, .26, .15, 2600, 1700, .28)
+        tweet(data, .70, .11, 2300, 3300, .25)
+        tweet(data, .85, .14, 3100, 2100, .22)
+        for i in range(count):
+            t = i / RATE
+            if t > .90:
+                data[i] *= .5 + .5 * math.cos(math.pi * min(1.0, (t - .90) / (count / RATE - .90)))
+
+
+# ---------------------------------------------------------------------------
+# Egypt (rules version 50): Neferhoo, the Mummy Courier. 13 cues, seeds
+# 501-619 (New York used up to 499; the cue's hundreds digit is its order in
+# EGYPT_CUES: roar 501-507, devil 511-515, mail call 521-523, flick 531-533,
+# return 541-543, postage due 551-555, scuff 561, raise 571, whir 581-583,
+# catch 591, fury 601-605, mask pop 611-619). Designed by
+# egypt-ws/reports/01-egypt-guardian.md section 6 and prototyped offline by
+# proof/mummy_cues_prototype.py; the cues are that prototype's, except that
+# hoopoe_roar's three notes follow the picture's beak pulses (see ROAR_NOTES).
+EGYPT_CUES = [
+    'hoopoe_roar', 'sand_devil', 'mail_call', 'letter_flick', 'letter_return',
+    'postage_due', 'wrap_scuff', 'ankh_raise', 'ankh_whir', 'ankh_catch',
+    'mummy_fury', 'mask_pop', 'lost_letter',
+]
+
+# The arrival roar's HOO-POO-POO: the picture pulses his beak at 2.65, 2.80
+# and 2.95 s of the arrival for .15 s each (the roar cue starts at 2.65 s), so
+# the three hoots start .02 s after each pulse opens: (start, length, hz_from,
+# hz_to) in seconds from the cue's start. The prototype's notes were .34 s
+# apart (.05, .39, .73), twice as slow as the beak.
+ROAR_NOTES = [(.02, .17, 330, 300), (.17, .17, 300, 270), (.32, .32, 300, 240)]
+
+
+def hoot(data, at, length, hz_from, hz_to, gain, seed):
+    """One giant hoopoe 'hoo': the pigeon voice with a rounder, lower roll."""
+    coo_voice(data, at, length, hz_from, hz_to, gain, vibrato=4.5, roll=11.0,
+              seed=seed, bright=1.1)
+
+
+def gong(data, at, hz, length, gain):
+    """A small temple gong: five inharmonic partials with their own decays and
+    a slow bloom (about 20 ms) to the strike."""
+    start = int(at * RATE)
+    parts = [(1.0, 1.0), (1.47, .55), (2.09, .38), (2.56, .22), (3.42, .15)]
+    for j in range(min(int(length * RATE), len(data) - start)):
+        t = j / RATE
+        env = (1 - math.exp(-t / .02)) * math.exp(-t / (length * .32))
+        v = sum(a * math.sin(2 * math.pi * hz * r * t + r) * math.exp(-t * r * 1.3)
+                for r, a in parts)
+        data[start + j] += gain * env * v / 2.3
+
+
+def whir(data, seed, start, seconds, rate_from, rate_to, hz, gain):
+    """A thrown boomerang: noise band-passed around [hz], chopped at a spin
+    rate (turns a second) gliding from [rate_from] to [rate_to]."""
+    first = int(start * RATE)
+    rng = random.Random(seed)
+    lo = hi = 0.0
+    a_lo = 1 - math.exp(-2 * math.pi * hz * 1.6 / RATE)
+    a_hi = 1 - math.exp(-2 * math.pi * hz * .6 / RATE)
+    phase = 0.0
+    for j in range(min(int(seconds * RATE), len(data) - first)):
+        t = j / RATE
+        u = t / seconds
+        n = rng.uniform(-1, 1)
+        lo += a_lo * (n - lo)
+        hi += a_hi * (lo - hi)
+        band = lo - hi
+        phase += 2 * math.pi * (rate_from + (rate_to - rate_from) * u) / RATE
+        chop = .25 + .75 * max(0.0, math.sin(phase)) ** 2
+        env = min(1, t / .08) * min(1, (seconds - t) / .2)
+        data[first + j] += gain * env * chop * band * 3
+
 
 def synth(name, seconds, variant):
     if name in MENU_NOTES:
@@ -1057,6 +1290,119 @@ def synth(name, seconds, variant):
         for k, at in enumerate([.42, .54, .62, .68]):
             tick(data, at, 1800 + 150 * k, .16)
         return data
+    if name == 'finish_near':
+        # A harp glissando up the G major pentatonic (the dominant of the C
+        # major `complete` fanfare) to a high D, glockenspiel on its last
+        # notes and a shimmering D6, over a shaker roll that swells and stops
+        # short: open, expectant, resolved by the crossing.
+        gliss = [392.0, 440.0, 493.88, 587.33, 659.25, 783.99, 880.0, 987.77, 1174.66]
+        at = 0.0
+        for i, hz in enumerate(gliss):
+            pluck(data, at, hz, .10 + .008 * i)
+            at += .075 - .0025 * i
+        for at, hz, gain in [(.38, 783.99, .07), (.45, 987.77, .08), (.52, 1174.66, .10),
+                             (.70, 1174.66, .06), (.86, 1174.66, .04)]:
+            bell(data, hz, at, seconds - at, gain)
+        shaker(data, 521, .10, 1.10, .16, 14, 22)
+        return data
+    if name == 'finish_swoop':
+        # Air rushing closer for half a second, then the bird lands in the
+        # cloud with a cushioned fwump at .55 s and a puff of cloud settling.
+        swoop_air(data, 531, .52, seconds, .30, 380, 2200)
+        fwump(data, .55, .55, 533)
+        puff(data, 535, .57, .16, .06)
+        return data
+    # ---- Egypt: Neferhoo, the Mummy Courier (rules version 50) -------------
+    if name == 'hoopoe_roar':
+        # The arrival roar, HOO-POO-POO: a giant hoopoe's three-note call,
+        # bright enough for a phone, a thump and a small temple gong under it
+        # and a puff of sand after. The notes ride the picture's beak pulses.
+        impact(data, .2, .35, seed=501, heavy=True)
+        for k, (at, length, hz_from, hz_to) in enumerate(ROAR_NOTES):
+            hoot(data, at, length, hz_from, hz_to, .34, 503 + k)
+        gong(data, .0, 196, 1.3, .16)
+        whoosh(data, 1.2, .07, descending=True, seed=507)
+        return data
+    if name == 'sand_devil':
+        # The arrival: a sand devil spins up out of the dunes, letters
+        # rattling in it (the picture's devil swells from .4 to 1.6 s).
+        updraft(data, 511, 1.5, .5, 300, 1400)
+        crackle(data, 513, .1, 1.4, 40, .12)
+        crinkle(data, 515, .3, 1.2, 16, .22, lo=1200, hi=3400)
+        return data
+    if name == 'mail_call':
+        # The mail lock: the satchel flap thumps open, papyrus rustles up and
+        # three rising chimes (it rings out as the first letter leaves).
+        impact(data, .1, .3, seed=521)
+        crinkle(data, 523, .08, .7, 22, .3, lo=1300, hi=3600)
+        for k, hz in enumerate((659.25, 830.61, 987.77)):
+            bell(data, hz, .25 + k * .14, .5, .1, warm=True)
+        return data
+    if name == 'letter_flick':
+        # One letter flicked off his wingtip: a paper snap and a short swish.
+        band_noise(data, 531, 0, .12, 1.0, 2600, q=1.4, attack=.003, release=.08)
+        band_noise(data, 533, .03, .2, .45, 1500, q=.8, attack=.04, release=.12)
+        return data
+    if name == 'letter_return':
+        # A rock meets a letter: a rubber-stamp thunk, a paper tick and a
+        # rising boing as it turns for home.
+        impact(data, .12, .45, seed=541)
+        band_noise(data, 543, 0, .1, .6, 2200, q=1.2, attack=.002, release=.07)
+        chirp(data, .08, .28, 420, 980, .22)
+        return data
+    if name == 'postage_due':
+        # The returned letter lands: KA-CHUNK, a burst of paper and the post
+        # office counter bell. The payoff, the loudest hit of his fight.
+        impact(data, .16, .45, seed=551, heavy=True)
+        impact(data, .08, .4, seed=553)
+        band_noise(data, 554, 0, .09, .7, 1100, q=1.1, attack=.002, release=.06)
+        crinkle(data, 555, .04, .45, 24, .4, lo=1200, hi=3800)
+        bell(data, 1567.98, .12, .55, .34)
+        bell(data, 2093.0, .2, .45, .16)
+        return data
+    if name == 'wrap_scuff':
+        # A rock on his wrappings: a soft, dull cloth thud. Deliberately small.
+        band_noise(data, 561, 0, .14, .8, 700, q=.9, attack=.003, release=.1)
+        return data
+    if name == 'ankh_raise':
+        # The ankh rises on his magic: a swelling hum and four climbing chimes
+        # (1.4 s, as long as the lock-to-throw wait).
+        whistle(data, 571, 0, 1.35, 220, 330, .14, tremor=6, swell=.8)
+        for k, hz in enumerate((523.25, 659.25, 783.99, 1046.5)):
+            bell(data, hz, .3 + k * .22, .5, .1, warm=True)
+        return data
+    if name == 'ankh_whir':
+        # In flight: whup-whup-whup, slowing at the turn, quickening home.
+        whir(data, 581, 0, 1.2, 9, 6, 900, .5)
+        whir(data, 583, 1.1, 1.5, 6, 10, 980, .5)
+        return data
+    if name == 'ankh_catch':
+        # Back in his wing: a bright gold clink.
+        impact(data, .06, .25, seed=591)
+        bell(data, 1318.51, 0, .32, .26)
+        bell(data, 1975.53, .01, .25, .1)
+        return data
+    if name == 'mummy_fury':
+        # Fury: linen tears, a higher, angrier two-note call, the gong again.
+        band_noise(data, 601, 0, .5, .9, 1800, q=.7, attack=.01, release=.3)
+        for k, (hz_from, hz_to) in enumerate([(380, 360), (380, 330)]):
+            hoot(data, .3 + k * .3, .28, hz_from, hz_to, .3, 603 + k)
+        gong(data, .25, 233, 1.0, .14)
+        return data
+    if name == 'mask_pop':
+        # The defeat burst: a gold clang-pop, bandages unravelling, a blizzard
+        # of paper and a relieved little hoot.
+        clang(data, 0, 880, .32, seed=611)
+        impact(data, .14, .45, seed=613)
+        wing_claps(data, .1, .7, 30, 12, .16, seed=615)
+        crinkle(data, 617, .1, 1.0, 34, .26, lo=1100, hi=3600)
+        hoot(data, .9, .32, 300, 250, .22, 619)
+        return data
+    if name == 'lost_letter':
+        # Victory: the lost letter glows. A warm four-note "found it".
+        for k, hz in enumerate((523.25, 659.25, 783.99, 1046.5)):
+            bell(data, hz, k * .16, .9, .16, warm=True)
+        return data
     if name == 'rush_clear':
         run = [523.25, 659.25, 783.99, 1046.5, 1318.51, 1567.98]
         for i, hz in enumerate(run):
@@ -1212,6 +1558,8 @@ def main():
                 source = args.sources / 'shoot_punch.mp3'
             if name == 'boss_enrage':
                 source = args.sources / 'boss_roar.mp3'
+            if name == 'finish_snap':
+                source = args.sources / 'finish_snap_tape.mp3'
             if source.exists():
                 # A charged rock reuses the shot take a fourth slower and lower.
                 ratio = .75 if name == 'power_shot' else 1
@@ -1226,9 +1574,11 @@ def main():
                     power_launch(data)
                 if name in ['enemy_death', 'boss_volley', 'boss_burst']:
                     impact(data, min(.20, seconds), .10, heavy=name == 'boss_burst')
+                if name in FINISH_CUES:
+                    finish_foley(name, data)
                 origin = source.name
             else:
-                if name in ['shoot', 'power_shot', 'enemy_death', 'flap', 'boss_warning', 'boss_roar', 'boss_enrage', 'boss_burst', 'boss_charge', 'boss_volley']:
+                if name in ['shoot', 'power_shot', 'enemy_death', 'flap', 'boss_warning', 'boss_roar', 'boss_enrage', 'boss_burst', 'boss_charge', 'boss_volley', 'finish_snap', 'finish_cheer']:
                     raise FileNotFoundError(f'Missing generated source: {source}')
                 data = synth(name, seconds, variant)
                 origin = 'original synthesis'
@@ -1237,11 +1587,18 @@ def main():
                        'coo_roar': -14, 'gargoyle_awaken': -14, 'gargoyle_strike': -16,
                        # The fix round's: the shout like the roar, the mids-heavy crumbs and fury raised.
                        'coo_shout': -14, 'gargoyle_fury': -14, 'gargoyle_shatter': -15,
-                       'crumb_throw': -17, 'crumb_splat': -17}
+                       'crumb_throw': -17, 'crumb_splat': -17,
+                       # The tape's one sharp crack would set the level of the
+                       # whole snap; a soft knee lets the poppers and confetti
+                       # through.
+                       'finish_snap': -19,
+                       # Egypt's three loud payoffs (the roar, the jackpot, the mask).
+                       'hoopoe_roar': -15, 'postage_due': -15, 'mask_pop': -15}
             if name in ['boss_warning', 'boss_reveal', 'boss_roar']:
                 data = phone_presence(data)
             data = master(data, target_peak=.45 if name in MENU_NOTES else .70,
-                          rms_db=targets.get(name), dc_block=name in NEW_YORK_CUES)
+                          rms_db=targets.get(name),
+                          dc_block=name in NEW_YORK_CUES or name in FINISH_CUES or name in EGYPT_CUES)
             pcm = array.array('h', (round(v * 32767) for v in data))
             if sys.byteorder != 'little':
                 pcm.byteswap()

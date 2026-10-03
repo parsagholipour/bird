@@ -69,11 +69,32 @@ abstract final class SearchlightGargoyle {
   static const featherRadius = .028, featherGravity = .30;
   static const featherSpeed = .36, furyFeatherSpeed = .44;
 
+  /// Level feathers (rules version 49): the steepest a feather crosses the
+  /// bird's column, drop over run, the slope a calm one aimed at height .3
+  /// has. Aimed from [featherOffsetX] ahead, a feather at a low bird came in
+  /// nearly twice as steep as one at a high bird (2.27 at .9, .98 at .1): it
+  /// lit a band .33 tall at the column, against .18, and a bird pinned
+  /// against the bottom edge had to climb into it, starting about 0.55 s
+  /// before it crossed rather than 0.36. A level feather that would be
+  /// steeper leaves further ahead and flies faster, in the same flight time,
+  /// so it crosses at this slope: from .3 down (fury: from .45 down) every
+  /// height lights the same .22 and leaves about the same 0.36 s.
+  static const maxFeatherSlope = 1.3;
+
   /// Cycle times of feather launches: a calm cycle, a fury zone-sweep cycle
   /// and a slit cycle.
   static const calmFeathers = [.2, 4.6];
   static const furyFeathers = [.2, 4.5, 5.2];
   static const slitFeathers = [.2];
+
+  /// The fiercer Gargoyle (rules version 46, a staged campaign fight) guards
+  /// his open lamp: once he has grown stronger, feathers fall in the vent
+  /// too, aimed at the bird lining up its shots. One a cycle in the full
+  /// fight, two in fury; each has crossed the bird's column before the cycle
+  /// ends. (His beams glide and his feathers fly at fury's pace from the full
+  /// fight on: `SkyBoss.furyPace`.)
+  static const ventFeathers = [7.0];
+  static const furyVentFeathers = [6.5, 7.4];
 
   /// The chest lamp's hit circle is the usual boss circle; the boss anchors
   /// to [anchorY] and stands back of the bird by at least [anchorAhead], or
@@ -210,6 +231,31 @@ abstract final class SearchlightGargoyle {
       ? slitFeathers
       : furyFeathers;
 
+  /// A fiercer Gargoyle's feather launch times (rules version 46): his
+  /// warm-up drops the calm cycle's ([armed] false: he has not grown
+  /// stronger yet); then the sweep's own ([feathers]) and the vent's. [fury]
+  /// and [slit] are the cycle's as its sweep was aimed, so the schedule holds
+  /// still through the vent, where his health changes.
+  static List<double> fierceFeathers({
+    required bool armed,
+    required bool fury,
+    required bool slit,
+  }) => !armed
+      ? calmFeathers
+      : [
+          ...feathers(enraged: fury, slit: slit),
+          ...(fury ? furyVentFeathers : ventFeathers),
+        ];
+
+  /// How many launches of [schedule] are due by cycle time [x].
+  static int due(List<double> schedule, double x) {
+    var count = 0;
+    for (final at in schedule) {
+      if (at <= x) count++;
+    }
+    return count;
+  }
+
   /// How many of this cycle's feathers have left by cycle time [x]. None
   /// leave in the vent ([ventAt] on): his attacks are over, and a fury that
   /// begins while the lamp is open cannot add a late one. The perch feather
@@ -228,19 +274,31 @@ abstract final class SearchlightGargoyle {
     return due;
   }
 
-  /// A stone feather's launch from the top edge, aimed to cross the bird's
-  /// column at height [birdY]: its velocity and the time it takes. The drop
-  /// is `y(F) = featherY + vy * F + gravity / 2 * F^2`, solved for `vy`.
-  static ({double vx, double vy, double flight}) featherShot(
+  /// A stone feather's launch from the top edge, `ahead` of the bird's column,
+  /// aimed to cross the column at height [birdY]: its velocity and the time
+  /// it takes. The drop is `y(F) = featherY + vy * F + gravity / 2 * F^2`,
+  /// solved for `vy`. A [level] feather (rules version 49) never crosses
+  /// steeper than [maxFeatherSlope]: it leaves further ahead, faster, in the
+  /// same time. Otherwise it leaves [featherOffsetX] ahead.
+  static ({double vx, double vy, double flight, double ahead}) featherShot(
     double birdY, {
     required bool enraged,
+    bool level = false,
   }) {
     final speed = enraged ? furyFeatherSpeed : featherSpeed;
     final flight = featherOffsetX / speed;
+    // Its speed down as it crosses, times the flight: over a run of `ahead`,
+    // the slope at the column is drop / ahead.
+    final drop = birdY - featherY + featherGravity / 2 * flight * flight;
+    final ahead = level
+        ? math.max(featherOffsetX, drop / maxFeatherSlope)
+        : featherOffsetX;
     return (
-      vx: -speed,
+      // Bit for bit as before rules 49 when it leaves [featherOffsetX] ahead.
+      vx: ahead == featherOffsetX ? -speed : -ahead / flight,
       vy: (birdY - featherY) / flight - featherGravity / 2 * flight,
       flight: flight,
+      ahead: ahead,
     );
   }
 

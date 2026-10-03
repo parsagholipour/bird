@@ -73,6 +73,7 @@ abstract final class DragonHudArt {
   // What only depends on the layout is built once per layout.
   static Rect? _stripFor, _barFor;
   static double _uFor = 0;
+  static bool _stagedFor = false;
   static Path _scaleRow = Path(), _scaleLit = Path(), _rivets = Path();
   static Path _horns = Path(), _hornLight = Path();
   static Path _seams = Path(), _openSeams = Path(), _tagSeams = Path();
@@ -150,9 +151,10 @@ abstract final class DragonHudArt {
     _hornLight = light;
   }
 
-  static void _buildBar(Rect bar, double u) {
-    if (_barFor == bar) return;
+  static void _buildBar(Rect bar, double u, {bool staged = false}) {
+    if (_barFor == bar && _stagedFor == staged) return;
     _barFor = bar;
+    _stagedFor = staged;
     final w = bar.width, h = bar.height;
     // The fury crack: a jagged fissure through the plate at the fury mark,
     // with two short branches, drawn top to bottom about the gauge's centre.
@@ -178,13 +180,15 @@ abstract final class DragonHudArt {
     // The crust's fissures: a bold crack on each quarter mark, where the
     // bar's own ticks are, and a short spur off each. Few and large, so the
     // gauge reads as four plates of crust at phone size, not as a pattern.
+    // A [staged] gauge is cut in thirds by its marks: its cracks halve each
+    // third instead, at the sixths where its ticks are.
     // Over the lava they are dark seams; over the empty channel they are the
     // ember-lit cracks in the crust.
     final seams = Path(), open = Path(), tag = Path();
     // Where the fury tag sits in the emptied track no seam crosses it.
     final tagFree = w > 100 * u ? bar.right - 36 * u : double.infinity;
     for (var k = 1; k <= 3; k++) {
-      final x = bar.left + w * k / 4;
+      final x = bar.left + w * (staged ? (2 * k - 1) / 6 : k / 4);
       final lean =
           (k.isEven ? -1 : 1) * (1.4 + DragonHudFx.hash(k, 63) * 1.2) * u;
       final pts = [
@@ -542,9 +546,10 @@ abstract final class DragonHudArt {
     bool reduced = false,
     double time = 0,
     double furyAge = double.infinity,
+    bool staged = false,
   }) {
     if (!bar.isFinite || !u.isFinite) return;
-    _buildBar(bar, u);
+    _buildBar(bar, u, staged: staged);
     final radius = Radius.circular(bar.height / 2);
     final track = RRect.fromRectAndRadius(bar, radius);
     c.drawRRect(track.inflate(1.3 * u), DragonHudFx.solid(ink));
@@ -591,9 +596,10 @@ abstract final class DragonHudArt {
     required bool hotTip,
     bool fury = false,
     double surge = 0,
+    bool staged = false,
   }) {
     if (!bar.isFinite || !right.isFinite || !u.isFinite) return;
-    _buildBar(bar, u);
+    _buildBar(bar, u, staged: staged);
     final g = (glow * 6).round() / 6;
     final body = DragonHudFx.shader(('lava', bar.top, bar.bottom, fury, g), () {
       if (fury) {
@@ -751,7 +757,8 @@ abstract final class DragonHudArt {
   /// The half mark: a gold fang that pokes past the gauge until the fury.
   /// When the fury begins, [furyAge] seconds ago, the fang ignites and a
   /// crack races out of it through the plate: white-hot at first, cooling to
-  /// a steady ember.
+  /// a steady ember. A [staged] campaign dragon's fury mark stands at [share]
+  /// (a third) instead of the middle.
   static void halfMark(
     Canvas c,
     Rect bar,
@@ -761,10 +768,12 @@ abstract final class DragonHudArt {
     required double wave,
     double furyAge = double.infinity,
     bool reduced = false,
+    double share = .5,
+    bool staged = false,
   }) {
     if (!bar.isFinite || !u.isFinite) return;
-    _buildBar(bar, u);
-    final x = bar.left + bar.width / 2;
+    _buildBar(bar, u, staged: staged);
+    final x = bar.left + bar.width * share;
     final top = bar.top - (above ? 3.2 : 1) * u;
     final fang = Path()
       ..moveTo(x - 2.2 * u, top)
@@ -795,6 +804,8 @@ abstract final class DragonHudArt {
           bar.center.dy + half,
         ),
       );
+      // (The crack is built about the gauge's middle.)
+      c.translate(x - bar.center.dx, 0);
       c.drawPath(
         _split,
         DragonHudFx.stroke(
@@ -865,6 +876,32 @@ abstract final class DragonHudArt {
   /// flame, for as long as the breath lays the heart open. It pops in with
   /// the inhale, burns faster as the blast nears, and drops away a moment
   /// after the flame gutters. Still (steady flames) under Reduced Motion.
+  /// How much of the HEART x2 banner shows ([show], 0 to 1) and how far it
+  /// has popped in ([into]): from the inhale to a quarter second after the
+  /// flame. A staged dragon's warm-up does not breathe (its breath cycles
+  /// before it grows stronger do not run), so its heart never lies open.
+  static ({double show, double into}) heartBannerShow(
+    SkyBoss boss, {
+    required bool reduced,
+  }) {
+    const none = (show: 0.0, into: 0.0);
+    if (boss.phase != BossPhase.attacking || !boss.age.isFinite) return none;
+    final combat = boss.age - boss.arrivalDuration;
+    if (!boss.signatureArmed((combat / DragonBreath.period).floor())) {
+      return none;
+    }
+    final cycle = combat % DragonBreath.period;
+    final open = cycle - DragonBreath.warnAt;
+    final closed = cycle - DragonBreath.endAt;
+    final into = open < 0
+        ? 0.0
+        : reduced
+        ? 1.0
+        : BossMotion.ease((open / .18).clamp(0.0, 1.0));
+    final out = closed > 0 && closed < .25 ? 1 - closed / .25 : 1.0;
+    return (show: open >= 0 && closed < .25 ? into * out : 0.0, into: into);
+  }
+
   static void heartBanner(
     Canvas c,
     Rect strip,
@@ -874,19 +911,9 @@ abstract final class DragonHudArt {
     required bool reduced,
   }) {
     if (!strip.isFinite || !bar.isFinite || !u.isFinite) return;
-    if (boss.phase != BossPhase.attacking || !boss.age.isFinite) return;
-    _buildBar(bar, u);
-    final cycle = (boss.age - boss.arrivalDuration) % DragonBreath.period;
-    final open = cycle - DragonBreath.warnAt;
-    final closed = cycle - DragonBreath.endAt;
-    final into = open < 0
-        ? 0.0
-        : reduced
-        ? 1.0
-        : BossMotion.ease((open / .18).clamp(0.0, 1.0));
-    final out = closed > 0 && closed < .25 ? 1 - closed / .25 : 1.0;
-    final show = open >= 0 && closed < .25 ? into * out : 0.0;
+    final (:show, :into) = heartBannerShow(boss, reduced: reduced);
     if (show <= 0) return;
+    _buildBar(bar, u, staged: boss.staged);
     final warn = boss.breathWarning;
     final rate = boss.breathing ? 6.0 : 2.0 + 4 * warn;
     final beat = reduced

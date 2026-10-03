@@ -469,9 +469,11 @@ final class KingCooPose {
     time = motion ? t : 0;
     combat = t - arrival;
     final inFight = isCoo && combat >= 0;
-    cycle = inFight ? KingCoo.cycleTime(combat) : -1;
-    cycleNumber = inFight ? KingCoo.cycleNumber(combat) : -1;
-    final c = inFight ? KingCoo.cycleTime(combat) : 0.0;
+    // His cycle clock, which a quick fury restart moves on (rules 54).
+    final clock = boss.cooClockAt(t);
+    cycle = inFight ? KingCoo.cycleTime(clock) : -1;
+    cycleNumber = inFight ? KingCoo.cycleNumber(clock) : -1;
+    final c = inFight ? KingCoo.cycleTime(clock) : 0.0;
 
     // ---- fury ----------------------------------------------------------
     final enragedNow = isCoo && boss.enraged;
@@ -515,7 +517,7 @@ final class KingCooPose {
     // ---- the pop ---------------------------------------------------------
     final pAt = boss.poppedAt;
     final windowStart = inFight
-        ? arrival + cycleNumber * KingCoo.period + KingCoo.puffAt
+        ? boss.cooCycleStart(cycleNumber) + KingCoo.puffAt
         : double.infinity;
     final popped =
         inFight &&
@@ -524,7 +526,7 @@ final class KingCooPose {
         pAt >= windowStart &&
         pAt <= t + 1e-9;
     final popAge = popped ? t - pAt : -1.0;
-    final cycleAtPop = popped ? KingCoo.cycleTime(pAt - arrival) : 0.0;
+    final cycleAtPop = popped ? KingCoo.cycleTime(boss.cooClockAt(pAt)) : 0.0;
     final popSquash = popped
         ? _ease(_ramp(popAge, 0, KingCooTimeline.popSquash))
         : 0.0;

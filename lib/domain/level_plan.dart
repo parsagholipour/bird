@@ -143,12 +143,19 @@ class LevelPlan extends FlightPlan {
       !steam.isEmpty ||
       hasMiniBoss;
 
-  /// The lowest rules version that can fly this plan: 43 when it uses New
-  /// York's additions, else 41. The [FlightSimulation] constructor and
-  /// [ReplayTape.fromJson] refuse anything below it, so old rules never
-  /// meet an enemy, hazard or boss they do not know.
+  /// Whether the plan's boss is Egypt's guardian, Neferhoo (rules version
+  /// 50).
+  bool get usesNeferhoo => boss == BossKind.neferhoo;
+
+  /// The lowest rules version that can fly this plan: 50 when its boss is
+  /// Neferhoo, 43 when it uses New York's additions, else 41. The
+  /// [FlightSimulation] constructor and [ReplayTape.fromJson] refuse
+  /// anything below it, so old rules never meet an enemy, hazard or boss
+  /// they do not know.
   @override
-  int get minRulesVersion => usesNewYork
+  int get minRulesVersion => usesNeferhoo
+      ? FlightSimulation.neferhooRulesVersion
+      : usesNewYork
       ? FlightSimulation.newYorkRulesVersion
       : FlightSimulation.campaignRulesVersion;
 
@@ -349,6 +356,9 @@ class LevelPlan extends FlightPlan {
       if (!(piece.at >= 0 && piece.at <= length)) return 'pieces';
     }
     if (boss != null && (pieces.isNotEmpty || lineup.isEmpty)) return 'boss';
+    // Mummy bats (rules 52) are Neferhoo's helpers, sent by his fight: no
+    // lineup lays one.
+    if (lineup.contains(EnemyKind.mummyBat)) return 'lineup';
     if (marks.two < 1 || marks.three < marks.two) return 'marks';
     for (final size in flocks) {
       if (size < AlleyPigeon.minFlock || size > AlleyPigeon.maxFlock) {

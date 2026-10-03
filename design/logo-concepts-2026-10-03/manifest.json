@@ -1,0 +1,375 @@
+[
+  {
+    "id": 1,
+    "name": "Hero Mascot",
+    "rationale": "Pip takes centre stage above bold dimensional arcade lettering, with coral wing bursts and stars making the push-up-powered adventure feel joyful and instantly familiar.",
+    "theme": "Character-led arcade crest",
+    "palette": [
+      "#203B45",
+      "#FFF9ED",
+      "#BDE9F6",
+      "#F47D64",
+      "#FFD45B"
+    ],
+    "dir": "01-hero-mascot",
+    "set": "A",
+    "agent": "/root/logo01",
+    "agent_model": "inherited current model",
+    "format": "editable SVG with outlined lettering"
+  },
+  {
+    "id": 2,
+    "name": "Winglift Monogram",
+    "rationale": "A rising P becomes the wing while a rounded B becomes Pip\u2019s profile, joining playful initials with a bright beak and a warm, compact wordmark.",
+    "theme": "Minimal bird monogram",
+    "palette": [
+      "#203B45",
+      "#FFF9ED",
+      "#FFD45B",
+      "#F47D64"
+    ],
+    "dir": "02-winglift",
+    "set": "A",
+    "agent": "/root/logo02",
+    "agent_model": "inherited current model",
+    "format": "editable SVG with outlined lettering"
+  },
+  {
+    "id": 3,
+    "name": "Sky Passport",
+    "rationale": "A scalloped passport seal turns Pip\u2019s flights around the world into a collectible travel badge, with warm ink lettering and a coral globe.",
+    "theme": "Vintage travel stamp",
+    "palette": [
+      "#203B45",
+      "#FFF9ED",
+      "#F47D64"
+    ],
+    "dir": "03-sky-passport",
+    "set": "A",
+    "agent": "/root/logo03",
+    "agent_model": "inherited current model",
+    "format": "editable SVG with outlined lettering"
+  },
+  {
+    "id": 4,
+    "name": "Island Adventure",
+    "rationale": "A warm storybook wordmark rests on a floating grassy island, with Pip perched above and a faceted rock point giving the game an unmistakable adventure silhouette.",
+    "theme": "Floating island storybook adventure",
+    "palette": [
+      "#203B45",
+      "#FFF9ED",
+      "#FFD45B",
+      "#A8D8B4",
+      "#62AF99",
+      "#C79976",
+      "#DCEFF0"
+    ],
+    "dir": "04-island-adventure",
+    "set": "A",
+    "agent": "/root/logo04",
+    "agent_model": "inherited current model",
+    "format": "editable SVG with outlined lettering"
+  },
+  {
+    "id": 5,
+    "name": "Star Slingshot",
+    "rationale": "A sweeping comet trajectory launches Pip past tilted arcade lettering, turning the game\u2019s star trails into a bold symbol of lift and momentum.",
+    "theme": "Arcade motion / comet slingshot",
+    "palette": [
+      "#142D42",
+      "#FFD45B",
+      "#F47D64",
+      "#FFF9ED"
+    ],
+    "dir": "05-star-slingshot",
+    "set": "A",
+    "agent": "/root/logo05",
+    "agent_model": "inherited current model",
+    "format": "editable SVG with outlined lettering"
+  },
+  {
+    "id": 6,
+    "name": "Cloud Letterplay",
+    "rationale": "Bespoke cloud-shaped BIRD lettering becomes the emblem itself, with Peaches peeking through the B and a coral Push-Up capsule floating in the sky.",
+    "theme": "Soft toy lettering, cloud cruise, Peaches",
+    "palette": [
+      "#BDE9F6",
+      "#FFF9ED",
+      "#203B45",
+      "#F47D64",
+      "#FFAFAC",
+      "#FF8198",
+      "#78BFD6",
+      "#FFD45B"
+    ],
+    "dir": "06-cloud-letterplay",
+    "set": "A",
+    "agent": "/root/logo06",
+    "agent_model": "inherited current model",
+    "format": "editable SVG with outlined lettering"
+  },
+  {
+    "id": 7,
+    "name": "Pixel Power",
+    "rationale": "A true grid-built arcade wordmark and cheerful pixel Pip turn the movement game into a collectible 8-bit adventure.",
+    "theme": "8-bit arcade / pixel mascot",
+    "palette": [
+      "#182D43",
+      "#FFF9ED",
+      "#FFD45B",
+      "#F47D64",
+      "#BDE9F6"
+    ],
+    "typography": "Hand-drawn 5\u00d77 pixel glyphs, fully editable vector geometry",
+    "dir": "07-pixel-power",
+    "set": "A",
+    "agent": "/root/logo07",
+    "agent_model": "inherited current model",
+    "format": "editable SVG with outlined lettering"
+  },
+  {
+    "id": 8,
+    "name": "Flock Friends",
+    "rationale": "Pip, Minty, Peaches and Orbit huddle above a bold rising wordmark, turning the playable roster into a warm four-color sticker emblem.",
+    "theme": "Character camaraderie / collectible squad sticker",
+    "palette": [
+      "#F16C60",
+      "#203B45",
+      "#FFF9ED",
+      "#FFD45B",
+      "#A8D8B4",
+      "#FF9BAD",
+      "#B9AAF2"
+    ],
+    "dir": "08-flock-friends",
+    "set": "A",
+    "agent": "/root/logo08",
+    "agent_model": "inherited current model",
+    "format": "editable SVG with outlined lettering"
+  },
+  {
+    "id": 9,
+    "name": "Wing Medal",
+    "rationale": "Pip becomes a smiling gold achievement coin between stepped flight wings, with a coral prize ribbon giving the game a collectible arcade identity.",
+    "theme": "Vintage arcade achievement badge",
+    "palette": [
+      "#203B45",
+      "#FFF9ED",
+      "#FFD45B",
+      "#D9A033",
+      "#F47D64",
+      "#D95E50"
+    ],
+    "files": [
+      "logo.svg",
+      "mark.svg",
+      "build.py"
+    ],
+    "dir": "09-wing-medal",
+    "set": "A",
+    "agent": "/root/logo09",
+    "agent_model": "inherited current model",
+    "format": "editable SVG with outlined lettering"
+  },
+  {
+    "id": 10,
+    "name": "Orbit After Dark",
+    "rationale": "Orbit becomes a crescent bird encircled by a fine gold planetary ring, giving the arcade title a dreamy, collectible night-sky identity.",
+    "theme": "Celestial arcade / crescent Orbit bird",
+    "palette": [
+      "#181A38",
+      "#B9AAF2",
+      "#8579C9",
+      "#6C64AF",
+      "#F6D793",
+      "#FFF9ED"
+    ],
+    "dir": "10-orbit-after-dark",
+    "set": "A",
+    "agent": "/root/logo10",
+    "agent_model": "inherited current model",
+    "format": "editable SVG with outlined lettering"
+  },
+  {
+    "id": 11,
+    "name": "Motion Ribbon",
+    "rationale": "A continuous coral ribbon curls through an exercise loop into an ascending bird, paired with a slanted, buoyant game wordmark.",
+    "theme": "Sporty playful motion, repetition and upward flight",
+    "palette": [
+      "#203B45",
+      "#FFF9ED",
+      "#BDE9F6",
+      "#F47D64",
+      "#FFD45B",
+      "#A8D8B4"
+    ],
+    "dir": "11-motion-ribbon",
+    "set": "B",
+    "agent": "/root/logo11",
+    "agent_model": "gpt-6.1-sol",
+    "format": "editable SVG with outlined lettering"
+  },
+  {
+    "id": 12,
+    "name": "Feather Script",
+    "rationale": "Flowing brushlike script and a feather hyphen turn the title into an airy signature, with a rising coral swash carrying the arcade energy toward a star.",
+    "theme": "Playful retro script / flight",
+    "palette": [
+      "#203B45",
+      "#FFF9ED",
+      "#F47D64",
+      "#FFD45B",
+      "#FFEED8"
+    ],
+    "dir": "12-feather-script",
+    "set": "B",
+    "agent": "/root/logo12",
+    "agent_model": "gpt-6.1-sol",
+    "format": "editable SVG with outlined lettering"
+  },
+  {
+    "id": 13,
+    "name": "Minty Lift",
+    "rationale": "Two interlocking mint wings form an uplifting little bird, with an upward arrow cut through their meeting point and a warm rounded lowercase wordmark.",
+    "theme": "Scandinavian toy brand / geometric arcade bird",
+    "palette": [
+      "#FFF9ED",
+      "#203B45",
+      "#A8D8B4",
+      "#75BA99",
+      "#F47D64"
+    ],
+    "dir": "13-minty-lift",
+    "set": "B",
+    "agent": "/root/logo13",
+    "agent_model": "gpt-6.1-sol",
+    "format": "editable SVG with outlined lettering"
+  },
+  {
+    "id": 14,
+    "name": "Gate Dash",
+    "rationale": "A park gate becomes the emblem: Pip shoots between mint pillars while the title forms its sturdy teal crossbar and a coral pennant signals arcade adventure.",
+    "theme": "1950s garden park adventure signage",
+    "palette": [
+      "#203B45",
+      "#FFF9ED",
+      "#A8D8B4",
+      "#4B948C",
+      "#F47D64",
+      "#FFD45B"
+    ],
+    "dir": "14-gate-dash",
+    "set": "B",
+    "agent": "/root/logo14",
+    "agent_model": "gpt-6.1-sol",
+    "format": "editable SVG with outlined lettering"
+  },
+  {
+    "id": 15,
+    "name": "Paper Flight",
+    "rationale": "Folded crown, layered wing and offset lettering give the joyful yellow bird the tactile character of a premium cut-paper arcade title.",
+    "theme": "Warm layered paper-cut flight emblem",
+    "palette": [
+      "#203B45",
+      "#FFF9ED",
+      "#BDE9F6",
+      "#F47D64",
+      "#FFD45B",
+      "#E6AF38",
+      "#91D0E0"
+    ],
+    "dir": "15-paper-flight",
+    "set": "B",
+    "agent": "/root/logo15",
+    "agent_model": "gpt-6.1-sol",
+    "format": "editable SVG with outlined lettering"
+  },
+  {
+    "id": 16,
+    "name": "Comic Pop",
+    "rationale": "A staggered, oversized comic wordmark erupts from a yellow halftone blast, with Pip\u2019s eye and beak hidden in the B.",
+    "theme": "Comic-book arcade explosion",
+    "palette": [
+      "#203B45",
+      "#FFF9ED",
+      "#F47D64",
+      "#FFD45B"
+    ],
+    "dir": "16-comic-pop",
+    "set": "B",
+    "agent": "/root/logo16",
+    "agent_model": "gpt-6.1-sol",
+    "format": "editable SVG with outlined lettering"
+  },
+  {
+    "id": 17,
+    "name": "Negative-Space Feather",
+    "rationale": "A soft ink feather reveals a cheerful little bird raising one wing in its cream cutout, pairing a memorable stamp silhouette with a quietly playful coral accent.",
+    "theme": "Friendly negative-space emblem",
+    "palette": [
+      "#203B45",
+      "#FFF9ED",
+      "#F47D64"
+    ],
+    "dir": "17-negative-feather",
+    "set": "B",
+    "agent": "/root/logo17",
+    "agent_model": "gpt-6.1-sol",
+    "format": "editable SVG with outlined lettering"
+  },
+  {
+    "id": 18,
+    "name": "Bounce Spring",
+    "rationale": "A wide-eyed yellow bird rebounds above a bold coral U-shaped toy spring, turning physical movement into a cheerful arcade identity.",
+    "theme": "Squats, jumps and playful rebound",
+    "palette": [
+      "#203B45",
+      "#FFF9ED",
+      "#F47D64",
+      "#FFD45B",
+      "#FFE599"
+    ],
+    "dir": "18-bounce-spring",
+    "set": "B",
+    "agent": "/root/logo18",
+    "agent_model": "gpt-6.1-sol",
+    "format": "editable SVG with outlined lettering"
+  },
+  {
+    "id": 19,
+    "name": "Sunburst Flight Club",
+    "rationale": "A smooth retro sun and swift bird silhouette rise above a broad winged ribbon, giving the arcade name the optimism of a mid-century adventure poster.",
+    "theme": "Mid-century travel poster / sunny flight",
+    "palette": [
+      "#203B45",
+      "#FFF9ED",
+      "#F47D64",
+      "#FFD45B",
+      "#D9914B"
+    ],
+    "dir": "19-sunburst-club",
+    "set": "B",
+    "agent": "/root/logo19",
+    "agent_model": "gpt-6.1-sol",
+    "format": "editable SVG with outlined lettering"
+  },
+  {
+    "id": 20,
+    "name": "Updraft",
+    "rationale": "One airy flight line embraces the name, loops into a heart, and climbs into an ascending yellow bird, making movement feel joyful and effortless.",
+    "theme": "Continuous flight path and upward motion",
+    "palette": [
+      "#203B45",
+      "#FFF9ED",
+      "#BDE9F6",
+      "#F47D64",
+      "#FFD45B",
+      "#FFE38B"
+    ],
+    "dir": "20-updraft",
+    "set": "B",
+    "agent": "/root/logo20",
+    "agent_model": "gpt-6.1-sol",
+    "format": "editable SVG with outlined lettering"
+  }
+]

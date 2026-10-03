@@ -431,7 +431,8 @@ abstract final class PirateHudArt {
   }
 
   /// The fury mark: a gold doubloon set in the plate's rim until the boss
-  /// crosses half health, then a hollow, ember-rimmed slot.
+  /// crosses into fury (half health, or [share] of it: a third for a staged
+  /// campaign boss), then a hollow, ember-rimmed slot.
   static void halfMark(
     Canvas c,
     Rect bar,
@@ -439,8 +440,9 @@ abstract final class PirateHudArt {
     required bool above,
     required bool fury,
     required double wave,
+    double share = .5,
   }) {
-    final x = bar.left + bar.width / 2;
+    final x = bar.left + bar.width * share;
     final slot = RRect.fromRectAndRadius(
       Rect.fromCenter(
         center: Offset(x, bar.center.dy),

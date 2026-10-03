@@ -8,6 +8,7 @@ class SoundSpec {
     this.cooldownMs = 100,
     this.variants = 1,
     this.file,
+    this.duck,
   });
   final double volume, seconds;
   final int priority, cooldownMs, variants;
@@ -16,6 +17,11 @@ class SoundSpec {
   /// level of it (the cue layer ducks and lifts cues this way): the files are
   /// [file]'s, and `tool/prepare_sound_effects.py` renders nothing for it.
   final String? file;
+
+  /// The music's level while this cue plays, as a multiplier of its usual
+  /// level, or null to leave the music alone. The music comes back up when
+  /// the cue's [seconds] have passed; a later ducking cue extends that.
+  final double? duck;
 }
 
 const soundBank = <String, SoundSpec>{
@@ -459,6 +465,142 @@ const soundBank = <String, SoundSpec>{
     seconds: .42,
     cooldownMs: 120,
     file: 'pigeon_snatch',
+  ),
+  // ---- Campaign finish line ----------------------------------------------
+  // The gate's "almost there" sting as its lights chase in (2.6 s before the
+  // crossing), the tape snapping with the two confetti cannons, the birds'
+  // cheer (the music ducks under it) and the swoop onto the result cloud.
+  'finish_near': SoundSpec(
+    volume: .30,
+    priority: 3,
+    seconds: 1.45,
+    cooldownMs: 1000,
+  ),
+  'finish_snap': SoundSpec(
+    volume: .45,
+    priority: 4,
+    seconds: .90,
+    cooldownMs: 1000,
+  ),
+  'finish_cheer': SoundSpec(
+    volume: .28,
+    priority: 4,
+    seconds: 2.30,
+    cooldownMs: 1000,
+    duck: .45,
+  ),
+  'finish_swoop': SoundSpec(
+    volume: .45,
+    priority: 3,
+    seconds: .75,
+    cooldownMs: 1000,
+  ),
+  // ---- Egypt (rules version 50) --------------------------------------------
+  // Neferhoo, the Mummy Courier (design 01 section 6; tool/prepare_sound_effects.py
+  // seeds 501-619). He roars HOO-POO-POO on arrival (and at the full fight's
+  // stage-up) in place of boss_roar, with a sand devil under the arrival; the
+  // mail call locks, a letter is flicked, a rock sends one back, it lands for
+  // the payoff (the loudest hit), a rock only scuffs his wraps; the ankh
+  // rises, whirs and is caught; fury has his own cry, the defeat's golden
+  // mask pops, and the lost letter glows.
+  // The design's .55 played about 4 dB under the other guardians' roars
+  // (measured against the boss roar and reveal): .65.
+  'hoopoe_roar': SoundSpec(
+    volume: .65,
+    priority: 4,
+    seconds: 1.40,
+    cooldownMs: 600,
+  ),
+  'sand_devil': SoundSpec(
+    volume: .40,
+    priority: 3,
+    seconds: 1.60,
+    cooldownMs: 1000,
+  ),
+  'mail_call': SoundSpec(
+    volume: .40,
+    priority: 3,
+    seconds: 1.00,
+    cooldownMs: 500,
+  ),
+  'letter_flick': SoundSpec(
+    volume: .30,
+    priority: 2,
+    seconds: .25,
+    cooldownMs: 120,
+  ),
+  'letter_return': SoundSpec(
+    volume: .45,
+    priority: 3,
+    seconds: .40,
+    cooldownMs: 100,
+  ),
+  'postage_due': SoundSpec(
+    volume: .70,
+    priority: 4,
+    seconds: .70,
+    cooldownMs: 150,
+  ),
+  'wrap_scuff': SoundSpec(
+    volume: .22,
+    priority: 1,
+    seconds: .16,
+    cooldownMs: 80,
+  ),
+  'ankh_raise': SoundSpec(
+    volume: .40,
+    priority: 3,
+    seconds: 1.40,
+    cooldownMs: 1000,
+  ),
+  // One whir covers fury's two ankhs: the second is thrown 0.5 s later.
+  'ankh_whir': SoundSpec(
+    volume: .35,
+    priority: 2,
+    seconds: 2.60,
+    cooldownMs: 2000,
+  ),
+  'ankh_catch': SoundSpec(
+    volume: .40,
+    priority: 3,
+    seconds: .35,
+    cooldownMs: 300,
+  ),
+  'mummy_fury': SoundSpec(
+    volume: .55,
+    priority: 4,
+    seconds: 1.30,
+    cooldownMs: 1000,
+  ),
+  'mask_pop': SoundSpec(
+    volume: .60,
+    priority: 4,
+    seconds: 1.30,
+    cooldownMs: 1000,
+  ),
+  'lost_letter': SoundSpec(
+    volume: .45,
+    priority: 3,
+    seconds: 1.40,
+    cooldownMs: 1000,
+  ),
+  // A letter landing in the frame of Neferhoo's roar or fury cry is played
+  // 8 dB lower, so the cry reads (the same WAV).
+  'postage_due_duck': SoundSpec(
+    volume: .28,
+    priority: 4,
+    seconds: .70,
+    cooldownMs: 150,
+    file: 'postage_due',
+  ),
+  // A scuff within 0.25 s of a returned letter landing is played 6 dB lower
+  // under postage_due (the same WAV, as the steam burst ducks under a snatch).
+  'wrap_scuff_duck': SoundSpec(
+    volume: .11,
+    priority: 1,
+    seconds: .16,
+    cooldownMs: 80,
+    file: 'wrap_scuff',
   ),
 };
 

@@ -5,10 +5,17 @@ import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/painting.dart';
 
 import '../../domain/sky_enemy.dart';
+import '../crust_art.dart';
 import '../star_art.dart';
 import 'alley_pigeon_pose.dart';
 
 export 'alley_pigeon_pose.dart';
+
+/// A crust-throwing squadron pigeon's arm (King Coo's vanguard, rules
+/// version 45): [windup] 0 to 1 through the wind-up (the enemy's charge),
+/// [follow] 0 to 1 through the follow-through after the release (negative
+/// when it has not just thrown).
+typedef PigeonThrow = ({double windup, double follow});
 
 /// The Alley Pigeon: New York's star thief, in side profile among the frontal
 /// bats and moths. Drawn looking left in hit-radius units (r is the enemy's
@@ -310,6 +317,22 @@ abstract final class AlleyPigeonArt {
     ..quadraticBezierTo(-.08, -.08, 0, -1)
     ..close();
   static final Path _star = StarArt.path(Offset.zero, 1);
+
+  // A straggler's scuffs: a rumpled tuft off the back of the head (three
+  // ragged feathers), and a plaster.
+  static final Path _tuft = Path()
+    ..moveTo(-.86, -.84)
+    ..lineTo(-.92, -1.16)
+    ..lineTo(-.74, -.94)
+    ..lineTo(-.64, -1.22)
+    ..lineTo(-.56, -.92)
+    ..lineTo(-.36, -1.06)
+    ..lineTo(-.44, -.78)
+    ..close();
+  static final RRect _plaster = RRect.fromRectAndRadius(
+    const Rect.fromLTRB(-.17, -.08, .17, .08),
+    const Radius.circular(.05),
+  );
   static final Path _starLit = Path.combine(
     PathOperation.intersect,
     _star,
@@ -359,6 +382,7 @@ abstract final class AlleyPigeonArt {
   static final _browLine = _line(ink, .07);
   static final _xLine = _line(ink, .085);
   static final _sweatLine = _line(ink, .04);
+  static final _plasterLine = _line(const Color(0xffc9906a), .035);
   static final _starLine = _line(ink, .11 / .58);
 
   // Added light, as the collectible's own glow: it warms a dark sky without
@@ -475,6 +499,20 @@ abstract final class AlleyPigeonArt {
   /// raid state ([PigeonPose.of]). [glider] is King Coo's squadron variant:
   /// the same bird with the detail nobody can see at 16 px left out (under 30
   /// draw calls), and no star to snatch. [dazed] is the defeat ghost's face.
+  ///
+  /// [throwing] is a vanguard glider's throw (rules version 45), the
+  /// player's warning: through the wind-up it pulls a stale crust out of
+  /// its breast feathers and cocks its near wing back over its shoulder
+  /// like an arm, the crust gripped in the wingtip and glowing warning
+  /// orange, the body coiled back and the collar puffed (with a coo as it
+  /// starts); at the release the wing whips down through a swoosh and the
+  /// body lunges after the throw, then it settles back into its glide.
+  /// Under Reduced Motion the cocked pose holds still for the wind-up and
+  /// there is no follow-through.
+  ///
+  /// [ragged] is a vanguard pigeon come back for more (King Coo's
+  /// stragglers): a rumpled tuft sticks up off its head and a sticking
+  /// plaster sits behind its eye.
   static void paint(
     Canvas c,
     double radius, {
@@ -486,6 +524,8 @@ abstract final class AlleyPigeonArt {
     PigeonPose pose = const PigeonPose(),
     bool glider = false,
     bool dazed = false,
+    PigeonThrow? throwing,
+    bool ragged = false,
   }) {
     if (!radius.isFinite || radius <= 0) return;
     // Every number of the pose is made safe to paint first.
@@ -500,12 +540,14 @@ abstract final class AlleyPigeonArt {
     final coat = _coats[p.coat.abs() % coatCount];
 
     // The telegraph: a fast wind-up into a held crouch that quivers. (Called
-    // through the shared painter signature, [charge] is the same tell.)
+    // through the shared painter signature, [charge] is the same tell.) A
+    // thrower's tell is its throw, below.
     final tell = stage == PigeonStage.warn
         ? p.warn
-        : stage == PigeonStage.glide && charge.isFinite
+        : stage == PigeonStage.glide && charge.isFinite && throwing == null
         ? charge.clamp(0.0, 1.0)
         : 0.0;
+    final arm = _arm(throwing, reducedMotion);
     final warn = _smooth(tell / .22);
     final quiver = math.sin(time * 54) * motion * warn;
     // The wings tuck for the stoop and flare open to brake at the snatch;
@@ -551,25 +593,42 @@ abstract final class AlleyPigeonArt {
         -.04 * stroke * motion * (1 - warn - tuck) +
         .12 * warn +
         .012 * chuckle;
-    final pitch = p.tilt + .08 * quiver;
+    // A throw coils the body back and lunges it after the crust.
+    final pitch = p.tilt + .08 * quiver + .17 * arm.cock - .16 * arm.lunge;
     // The stoop stretches along its path and eases back at the snatch.
     final stretch = stage == PigeonStage.dive
         ? .10 * math.sin(math.pi * p.dive.clamp(0.0, 1.0)) * motion
         : 0.0;
     final squashX =
-        1 + .05 * warn - .07 * kick * motion + .02 * chuckle + stretch;
+        1 +
+        .05 * warn -
+        .07 * kick * motion +
+        .02 * chuckle +
+        stretch -
+        .05 * arm.cock +
+        .06 * arm.lunge;
     final squashY =
-        1 - .10 * warn + .06 * kick * motion - .02 * chuckle - stretch * .5;
+        1 -
+        .10 * warn +
+        .06 * kick * motion -
+        .02 * chuckle -
+        stretch * .5 +
+        .04 * arm.cock -
+        .04 * arm.lunge;
     // A pigeon's head stays put while the body bobs; it lags the flap. The
     // neck stretches toward the star as the dive closes in.
-    final headBob = motion * (1 - warn - tuck) * .05 * stroke - .16 * p.reach;
+    final headBob =
+        motion * (1 - warn - tuck) * .05 * stroke -
+        .16 * p.reach +
+        .10 * arm.cock -
+        .14 * arm.lunge;
     final headDip = .14 * warn + .10 * tuck + .05 * p.startle + .03 * p.reach;
 
     c.save();
     c.scale(radius * p.scale);
     // The wings rise above the hit circle; centre the whole bird on it. The
     // drift is the dive's momentum carried through the snatch.
-    c.translate(-.02 - p.drift / p.scale, .12 + bob);
+    c.translate(-.02 - p.drift / p.scale - .10 * arm.lunge, .12 + bob);
     c.rotate(pitch);
     c.scale(squashX, squashY);
 
@@ -580,8 +639,12 @@ abstract final class AlleyPigeonArt {
       // The feet come out of the belly feathers as the snatch settles.
       _feetPart(c, warn, hurried ? _smooth((p.settle - .2) / .6) : 1.0);
     }
-    _collar(c, coat, warn, glider);
-    _wing(c, coat, stroke, tuck, far: false, glider: glider);
+    _collar(c, coat, math.max(warn, .7 * arm.cock), glider);
+    if (throwing == null) {
+      _wing(c, coat, stroke, tuck, far: false, glider: glider);
+    } else {
+      _throwingWing(c, coat, stroke, arm, glider: glider, time: time);
+    }
     _headPart(
       c,
       pose: pose,
@@ -589,11 +652,13 @@ abstract final class AlleyPigeonArt {
       headBob: headBob,
       headDip: headDip,
       warn: warn,
-      kick: kick,
+      kick: math.max(kick, .8 * arm.lunge),
       time: time,
       motion: motion,
       glider: glider,
       dazed: dazed,
+      coo: arm.coo,
+      ragged: ragged,
     );
     if (stage == PigeonStage.dive && motion > 0) _streaks(c, p.dive);
     // Only for a thief that has its star: a hit pigeon already has the
@@ -601,6 +666,116 @@ abstract final class AlleyPigeonArt {
     if (p.loot && p.kick > 0 && motion > 0) _featherPuff(c, p.kick);
     c.restore();
   }
+
+  /// How far a thrower's arm is through its throw: [cock] (0 to 1, the
+  /// wind-up's wing raised back), [grip] (0 to 1, the crust out of the
+  /// feathers and in the wingtip), [whip] (0 to 1, the wing coming down
+  /// through the release), [lunge] (the body after the crust) and [coo] (the
+  /// wind-up's progress while the coo shows, else 0). All zero when it is
+  /// not throwing.
+  static ({double cock, double grip, double whip, double lunge, double coo})
+  _arm(PigeonThrow? t, bool reduced) {
+    const rest = (cock: 0.0, grip: 0.0, whip: 0.0, lunge: 0.0, coo: 0.0);
+    if (t == null) return rest;
+    final w = t.windup.isFinite ? t.windup.clamp(0.0, 1.0) : 0.0;
+    final f = t.follow.isFinite ? t.follow : -1.0;
+    if (reduced) {
+      // A still state: cocked with the crust for the whole wind-up.
+      return w > 0
+          ? (cock: 1.0, grip: 1.0, whip: 0.0, lunge: 0.0, coo: 0.0)
+          : rest;
+    }
+    if (f >= 0 && f < 1) {
+      // The release: down fast, then back into the glide.
+      final out = 1 - _smooth((f - .35) / .65);
+      final down = 1 - math.pow(1 - (f / .3).clamp(0.0, 1.0), 3).toDouble();
+      return (
+        cock: (1 - down) * out,
+        grip: 0.0,
+        whip: down * out,
+        lunge: math.sin(math.pi * (f / .55).clamp(0.0, 1.0)),
+        coo: 0.0,
+      );
+    }
+    if (w <= 0) return rest;
+    return (
+      cock: _smooth((w - .12) / .6),
+      grip: _smooth(w / .3),
+      whip: 0.0,
+      lunge: 0.0,
+      coo: w < .55 ? w : 0.0,
+    );
+  }
+
+  /// How far the cocked wing turns back about its shoulder, past its raised
+  /// key (radians): up behind the head, the crust held high.
+  static const _armTurn = .12;
+
+  /// The near wing of a thrower: raised and turned back over its shoulder
+  /// as it cocks ([arm]'s `cock`), the crust in its tip glowing warning
+  /// orange as the wind-up builds; swept down as it whips through the
+  /// release, a swoosh arc over its head showing the throw.
+  static void _throwingWing(
+    Canvas c,
+    _Coat coat,
+    double stroke,
+    ({double cock, double grip, double whip, double lunge, double coo}) arm, {
+    required bool glider,
+    required double time,
+  }) {
+    var s = stroke + (1 - stroke) * arm.cock;
+    s += (-1 - s) * arm.whip;
+    final turn = _armTurn * arm.cock - .35 * arm.whip;
+    c.save();
+    c.translate(_wingShoulder.dx, _wingShoulder.dy);
+    c.rotate(turn);
+    c.translate(-_wingShoulder.dx, -_wingShoulder.dy);
+    _wing(c, coat, s, 0, far: false, glider: glider);
+    if (arm.grip > 0) {
+      // The crust: out of the breast feathers into the wingtip.
+      final tip = _wingPoints(s, 0)[1];
+      final at = Offset.lerp(const Offset(-.30, .05), tip, arm.cock)!;
+      final size = .6 * arm.grip;
+      c.save();
+      c.translate(at.dx, at.dy);
+      c.scale(size);
+      if (arm.cock > .1) {
+        c.drawCircle(
+          Offset.zero,
+          2.1,
+          Paint()
+            ..shader = _heldGlow
+            ..color = Color.fromRGBO(255, 255, 255, arm.cock),
+        );
+      }
+      c.rotate(-turn + .5);
+      CrustArt.slab(c, edge: _outline / size, fine: false);
+      c.restore();
+    }
+    c.restore();
+    if (arm.whip > 0 && arm.whip < 1) {
+      // The swoosh: from over the shoulder, over the head, to the front.
+      final fade = 1 - arm.whip;
+      final sweep = Path()
+        ..addArc(
+          Rect.fromCircle(center: const Offset(-.30, -.30), radius: 1.35),
+          -math.pi * .15,
+          -math.pi * (.35 + .55 * arm.whip),
+        );
+      c.drawPath(sweep, _fadeLine(_rim, .9 * fade, .16 * fade + .04));
+    }
+  }
+
+  static final Shader _heldGlow = ui.Gradient.radial(
+    Offset.zero,
+    2.1,
+    [
+      CrustArt.threat.withValues(alpha: .72),
+      CrustArt.threat.withValues(alpha: .3),
+      CrustArt.threat.withValues(alpha: 0),
+    ],
+    const [.35, .62, 1],
+  );
 
   /// A wing for [stroke] (+1 raised .. -1 down), [tuck]ed for a dive. The
   /// far wing is a flat dark silhouette behind the body; the near one has
@@ -717,10 +892,17 @@ abstract final class AlleyPigeonArt {
     required double motion,
     required bool glider,
     required bool dazed,
+    double coo = 0,
+    bool ragged = false,
   }) {
     final stage = pose.stage;
     c.save();
     c.translate(headBob, headDip);
+    if (ragged) {
+      // Behind the head: a rumpled tuft of three feathers.
+      c.drawPath(_tuft, _greyFill);
+      c.drawPath(_tuft, _inkOutline);
+    }
     if (pose.loot) _stolenStar(c, time, motion, pose.kick);
     c.drawCircle(_head, _headR, _greyFill);
     c.drawCircle(_head + const Offset(-.08, -.12), _headR * .62, _headLit);
@@ -753,10 +935,22 @@ abstract final class AlleyPigeonArt {
     }
     // Cere: the pale bump every pigeon wears above the beak.
     c.drawOval(_cere, _creamFill);
+    if (ragged) {
+      // A sticking plaster over the back of its head.
+      c.save();
+      c.translate(-.56, -.70);
+      c.rotate(.62);
+      c.drawRRect(_plaster, _creamFill);
+      c.drawRRect(_plaster, _plasterLine);
+      c.drawLine(const Offset(0, -.07), const Offset(0, .07), _plasterLine);
+      c.restore();
+    }
 
-    // The coo made visible: two sound arcs while the warning begins.
-    if (stage == PigeonStage.warn && motion > 0 && pose.warn < .55) {
-      final fade = 1 - pose.warn / .55;
+    // The coo made visible: two sound arcs while the warning (or a
+    // thrower's wind-up) begins.
+    final cooing = stage == PigeonStage.warn ? pose.warn : coo;
+    if ((stage == PigeonStage.warn || coo > 0) && motion > 0 && cooing < .55) {
+      final fade = 1 - cooing / .55;
       for (final arc in _arcs) {
         c.drawArc(
           arc,
@@ -939,6 +1133,7 @@ abstract final class AlleyPigeonArt {
     required double lookY,
     required double hitAge,
     required bool reducedMotion,
+    bool ragged = false,
   }) {
     final pose = PigeonPose.of(
       enemy,
@@ -951,9 +1146,28 @@ abstract final class AlleyPigeonArt {
       reducedMotion: reducedMotion,
       lookY: lookY,
       charge: enemy.charge,
-      recoil: enemy.recoil,
+      recoil: enemy.throwsCrumbs ? 0 : enemy.recoil,
       pose: pose,
       glider: enemy.squad,
+      throwing: enemy.throwsCrumbs ? throwOf(enemy) : null,
+      ragged: ragged,
+    );
+  }
+
+  /// The follow-through after a throw lasts this long.
+  static const followSeconds = .45;
+
+  /// Where a crust-throwing pigeon ([SkyEnemy.throwsCrumbs]) is in its
+  /// throw: the wind-up is its charge while it prepares; the
+  /// follow-through runs [followSeconds] from its last shot, on its own
+  /// clock.
+  static PigeonThrow throwOf(SkyEnemy enemy) {
+    final since = enemy.age - enemy.lastShotAt;
+    return (
+      windup: enemy.preparing ? enemy.charge : 0.0,
+      follow: since.isFinite && since >= 0 && since < followSeconds
+          ? since / followSeconds
+          : -1.0,
     );
   }
 }

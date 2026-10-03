@@ -1,0 +1,12 @@
+{
+  "id": 5,
+  "name": "Star Slingshot",
+  "rationale": "A sweeping comet trajectory launches Pip past tilted arcade lettering, turning the game\u2019s star trails into a bold symbol of lift and momentum.",
+  "theme": "Arcade motion / comet slingshot",
+  "palette": [
+    "#142D42",
+    "#FFD45B",
+    "#F47D64",
+    "#FFF9ED"
+  ]
+}

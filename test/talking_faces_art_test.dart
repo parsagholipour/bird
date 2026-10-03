@@ -105,7 +105,9 @@ Offset faceOf(BossKind kind) => switch (kind) {
   BossKind.pirate => const Offset(-.5, -.4),
   BossKind.dragon => const Offset(-1.3, -1.9),
   // The guardians do not talk in flight (no recorded lines yet).
-  BossKind.kingCoo || BossKind.searchlightGargoyle => Offset.zero,
+  BossKind.kingCoo ||
+  BossKind.searchlightGargoyle ||
+  BossKind.neferhoo => Offset.zero,
 };
 
 /// Paints [boss] as the flight does, with [focus] (rig units from its

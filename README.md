@@ -1,6 +1,21 @@
-# Push-Up Bird
+# Beakbound
 
-An offline Android arcade game built with Flutter, Flame, CameraX and MediaPipe.
+An offline bird courier adventure built with Flutter, Flame, CameraX and MediaPipe.
+Explore floating worlds, deliver letters, and take on cartoon bosses. Movement
+and touch mini-games offer more ways to fly alongside the campaign.
+
+The launcher, opening splash and About screen use the approved Special Delivery
+artwork with its corrected wing and clean outer edges. Store artwork lives in
+`assets/branding/`; `python3 tool/export_brand_icons.py` regenerates the platform
+icons from its master. Package identifiers and local save keys stay stable so
+the Beakbound rename preserves existing installs and progress.
+
+The menu uses the Beakbound name and tagline without the logo image. The opening
+splash places the bird in a gold flight ring over deep teal, with matching native
+Android/iOS and Flutter loading artwork. It adds no timed delay. Regenerate the
+shared launch images with `flutter test tool/render_launch_assets_test.dart`,
+then `python3 tool/export_launch_assets.py`.
+
 Push-Up Flight maps a calibrated push-up range to continuous bird height.
 **Squat & Fly** keeps your feet planted: squat to descend, stand to rise.
 Stand still, hold a comfortable squat briefly, then stand back up to learn your range.
@@ -42,7 +57,7 @@ omit the clock, pace, flap count and persistent instruction/goal cards. The
 so you can earn them and keep flying. Existing replay journals retain their original timing and physics,
 including the four-pattern version-12 flights.
 
-**Classic** and **Star Trail** both run endlessly in Flight School. Sky Courier
+**Classic** and **Star Trail** both run endlessly. Sky Courier
 and Cloud Cruise are retired; a saved journal that names either one opens as
 Star Trail. Every course supports push-ups, squats, jumps and touch. Three changing
 sky regions with leafy stone, festival flags and lantern-lit gates,
@@ -250,15 +265,24 @@ one per boss, in boss order:
   Ember Dragon.
 
 Each region is a stop on the map, painted with its own scenery, and each
-level flies that one region from start to finish. Chapters 1 and 2 (16
-levels) and New York (3-1 to 3-4, rules version 43: the Alley Pigeon, steam
-geysers, King Coo and the Searchlight Gargoyle) are playable, 20 levels and
-60 stars. Paris and chapters 4 and 5 sit on the map, locked, as "Coming
+level flies that one region from start to finish. Chapters 1 and 2 (17
+levels; Egypt's guardian Neferhoo on 2-6 is rules version 50, tougher with
+his mummy bats from 52, faster and busier from 55, and Ancient Arabia is
+2-7 to 2-9 since) and New York (3-1 to 3-4, rules version 43: the
+Alley Pigeon, steam geysers, King Coo and the Searchlight Gargoyle) are
+playable, 21 levels and 63 stars. Paris and chapters 4 and 5 sit on the map, locked, as "Coming
 soon". New York is open by default (`Campaign.openingEnabled`); a build made
 with `--dart-define=NEW_YORK_OPEN=false` (`make build
-DEFINES=--dart-define=NEW_YORK_OPEN=false`) closes it again. Endless Star
-Trail stays the high-score mode, unchanged. See the
-[campaign design](docs/campaign.md).
+DEFINES=--dart-define=NEW_YORK_OPEN=false`) closes it again. From rules
+version 44 a campaign boss fight is long and comes in three stages (an easy
+warm-up, stronger at two thirds of its health, fury at one third), and Baron
+Bat, the Spitter King, the Dusk Empress and King Coo send a vanguard of small
+enemies before they show up. From rules version 45 King Coo's pigeons throw
+stale crusts and he has twice the health; from 46 the Searchlight Gargoyle
+fights as long, with faster sweeps and feathers that fall on his open lamp; from 47 the bird catches a boss's heart when it touches it; from 49 the Gargoyle's feathers come in as level at the bottom of the sky as at the top. Endless Star Trail stays the high-score mode;
+from rules version 48 its returning Baron Bat (the second of a flight, and every later one) has twice the
+health, and from 53 every endless boss has 25% more health at each meeting after its second than at the
+one before. See the [campaign design](docs/campaign.md).
 
 Levels are generated from data, not built by hand. Each has a fixed seed,
 its region, 60–90 seconds of flight to a gold FINISH line, the hazards it
@@ -430,12 +454,6 @@ For the Spitter boss movie, use `CAPTURE_SPITTER_BOSS_MOVIE=true` in the same
 test command, then `python3 tool/render_boss_preview.py --boss spitter`.
 This writes `build/visual-review/spitter-boss-cinematic-preview.mp4`.
 
-**Flight school** on Home lets you explore every course with touch controls:
-drag to steer or tap to flap. Learn the actual stars, gates, letters and cloud
-friends without a camera. Lessons can pause or restart freely and never change
-records, the passport, daily adventures or saved sessions. When ready, jump directly
-into a push-up, jump or squat flight on the selected course.
-
 Perfect gates now charge a **Star Magnet** in the star courses: three perfect
 passes grant eight seconds of extra pickup reach. Push-up aiming marks and stars
 follow the full calibrated top and bottom positions. Older saved replays retain
@@ -554,6 +572,8 @@ checks do not replace runtime testing on a device with a 16KB page size.
 - `lib/game`: Flame rendering, audio and play-session coordination.
 - `lib/data`: Riverpod state and Drift/SQLite repository with migrations.
 - `lib/ui`: landscape home, setup, calibration, play, results, birds and settings.
+  Every screen is laid out on the 792 × 360 reference phone and scaled to fit
+  the display, with navy bars around it (`ScreenFrame`).
 - `ios`: shared Flutter project and generated Swift Pigeon contract. Native
   AVFoundation/MediaPipe camera implementation is a later macOS/Xcode milestone.
 
@@ -566,10 +586,14 @@ floating-island artwork and the home composition. Bird and island PNGs in
 `design`. Fredoka and Nunito are bundled under their included OFL licenses.
 Menus play a cheeky violin-led ElevenLabs instrumental; flights switch to a
 punchy orchestral variation of its insistent 3+3+2 hook, and bosses bring in a
-separate, darker version. Music returns
-to the flight theme after the boss departs. All tracks play offline and follow
-the music setting. Effects mix with the soundtrack, and boss cinematics lower
-the music volume.
+separate, darker version. Campaign levels outside the jungle fly to their
+region's own song (samba over Brazil, big-band swing over New York, synthwave
+over Cyberpunk City and so on), and the jungle keeps the flight theme.
+Endless and two-player flights start on the flight theme; after a boss is
+beaten and flies off, the music comes back as the song of whichever region is
+in the background then. Campaign music returns to the region's song after the
+boss departs. All tracks play offline and follow the music setting. Effects
+mix with the soundtrack, and boss cinematics lower the music volume.
 See [music source and preparation](docs/music.md).
 The game also bundles 56 mastered sound effects and variations for flight,
 combat, boss cinematics, pickups and menus. See

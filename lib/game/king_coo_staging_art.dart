@@ -402,12 +402,15 @@ abstract final class KingCooStaging {
 
   /// Whether [enemy] is one of his squadron still at his back: the rules'
   /// pigeons are painted over everything by `CombatArt`, which skips the ones
-  /// this returns true for ([paint] draws them under the rig instead).
+  /// this returns true for ([paint] draws them under the rig instead). Only
+  /// his squadron flies on tracks from his chest; his vanguard's stragglers
+  /// (rules version 45) fly in from the screen's edge, over him.
   static bool squadBehind(SkyBoss? boss, SkyEnemy enemy, double h) =>
       boss != null &&
       boss.isKingCoo &&
       boss.phase != BossPhase.defeated &&
       enemy.squad &&
+      enemy.track != null &&
       boss.x.isFinite &&
       enemy.x.isFinite &&
       enemy.x * h > boss.x * h - squadBehindReach * h * SkyBoss.radius;

@@ -51,8 +51,9 @@ class CollectionScreen extends ConsumerWidget {
                       Expanded(
                         child: Row(
                           children: [
-                            for (var i = 0; i < birdNames.length; i++) ...[
-                              if (i > 0) const SizedBox(width: 16),
+                            for (final i in birdOrder) ...[
+                              if (i != birdOrder.first)
+                                const SizedBox(width: 16),
                               Expanded(
                                 child: _BirdCard(index: i, progress: p),
                               ),

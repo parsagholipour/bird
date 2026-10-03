@@ -540,10 +540,18 @@ void main() {
       double age, {
       bool reduced = false,
       Offset mouth = const Offset(-97, -58),
+      Offset? chin,
     }) {
       final boss = _dragon(age);
       final m = BossMotion(boss, reducedMotion: reduced);
-      DragonEncounterUi.roar(c, heart, h, m, mouth: heart + mouth);
+      DragonEncounterUi.roar(
+        c,
+        heart,
+        h,
+        m,
+        mouth: heart + mouth,
+        chin: chin == null ? null : heart + chin,
+      );
     }
 
     testWidgets('the roar stays under the letterbox and does not blur', (
@@ -551,30 +559,43 @@ void main() {
     ) async {
       await tester.runAsync(() async {
         final bar = (h * .082).ceil();
-        for (final (age, mouth) in [
+        for (final (age, mouth, chin) in [
           for (final age in [2.72, 2.8, 2.9, 3.0, 3.15, 3.3, 3.45])
-            for (final mouth in const [
-              Offset(-97, -58),
-              Offset(-97, -112),
-              Offset(-60, -122),
+            for (final (mouth, chin) in const [
+              (Offset(-97, -58), null),
+              (Offset(-97, -112), null),
+              (Offset(-60, -122), null),
+              // The jaws as the arrival's roar opens them.
+              (Offset(-94, -101), Offset(-111, -51)),
             ])
-              (age, mouth),
+              (age, mouth, chin),
         ]) {
-          final bytes = await _pixels((c) => roarFrame(c, age, mouth: mouth));
-          // The plume's outer layer is the only flameDark at .96 alpha.
+          final bytes = await _pixels(
+            (c) => roarFrame(c, age, mouth: mouth, chin: chin),
+          );
+          // The gout's rim (crimson at the jaws, cooling to wine at the
+          // crown) edges all of its fire, the flicked-off flames too, and
+          // nothing else the roar draws is that colour.
+          bool rim(int i) =>
+              bytes[i] > 110 &&
+              bytes[i + 1] < 60 &&
+              bytes[i + 2] > 35 &&
+              bytes[i + 2] < 90 &&
+              bytes[i + 3] > 230;
+          var fire = 0;
+          for (var i = 0; i < bytes.length; i += 4) {
+            if (rim(i)) fire++;
+          }
+          // (It is all gone to smoke by 3.45.)
+          if (age < 3.4) {
+            expect(fire, greaterThan(0), reason: 'no fire at $age $mouth');
+          }
           for (var y = 0; y < bar; y++) {
             for (var x = 0; x < 800; x++) {
-              final i = (y * 800 + x) * 4;
-              final dark =
-                  bytes[i] > 150 &&
-                  bytes[i + 1] < 70 &&
-                  bytes[i + 2] > 40 &&
-                  bytes[i + 2] < 90 &&
-                  bytes[i + 3] > 230;
               expect(
-                dark,
+                rim((y * 800 + x) * 4),
                 isFalse,
-                reason: 'plume above the bar at $age $mouth ($x,$y)',
+                reason: 'fire above the bar at $age $mouth ($x,$y)',
               );
             }
           }

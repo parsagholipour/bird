@@ -1,0 +1,48 @@
+<svg width="256" height="224" viewBox="0 0 256 224" fill="none" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<clipPath id="body"><path d="M130 41C142.5 42 159.5 43 170 50C180.5 57 188.5 71.5 193 82C197.5 92.5 197.5 103.5 196 114C194.5 124.5 190.5 136.5 184 146C177.5 155.5 167 164.5 156 170C145 175.5 130.5 179.5 118 180C105.5 180.5 92.5 176.5 82 172C71.5 167.5 64 160.5 56 154C48 147.5 36 137 35 132C34 127 41 111 46 100C51 89 56 75 64 66C72 57 83 49 94 45C105 41 117.5 40 130 41Z"/></clipPath>
+</defs>
+<g id="Minty / Editable artwork">
+<g id="Tail">
+<path d="M58 124C44 110 24 100 6 100C16 114 34 128 54 136Z" fill="#45B88A" stroke="#203B45" stroke-width="4" stroke-linejoin="round"/>
+<path d="M54 134C38 130 20 132 4 138C20 146 38 150 54 148Z" fill="#45B88A" stroke="#203B45" stroke-width="4" stroke-linejoin="round"/>
+<path d="M54 146C40 150 26 158 16 168C34 168 48 162 60 154Z" fill="#45B88A" stroke="#203B45" stroke-width="4" stroke-linejoin="round"/>
+<path d="M40 118C32 111 24 106 16 104M38 139C30 138 22 138 14 139M40 155C34 158 28 161 24 164" stroke="#8FDDA3" stroke-width="3" stroke-linecap="round"/>
+</g>
+<path id="Legs" d="M110 176L102 187M126 178L120 189" stroke="#D75E4F" stroke-width="7.5" stroke-linecap="round"/>
+<g id="Sprig" transform="translate(0 2)">
+<path d="M130 44L130 24" stroke="#203B45" stroke-width="4" stroke-linecap="round"/>
+<path d="M128 30C120 16 108 10 98 12C100 24 112 32 128 30Z" fill="#6CCF8E" stroke="#203B45" stroke-width="4" stroke-linejoin="round"/>
+<path d="M132 26C138 10 152 2 164 4C162 18 148 28 132 26Z" fill="#6CCF8E" stroke="#203B45" stroke-width="4" stroke-linejoin="round"/>
+<path d="M125 27C118 21 111 17 104 16M135 23C142 15 150 10 158 8" stroke="#B9EBC5" stroke-width="2.5" stroke-linecap="round"/>
+</g>
+<path id="Body" d="M130 41C142.5 42 159.5 43 170 50C180.5 57 188.5 71.5 193 82C197.5 92.5 197.5 103.5 196 114C194.5 124.5 190.5 136.5 184 146C177.5 155.5 167 164.5 156 170C145 175.5 130.5 179.5 118 180C105.5 180.5 92.5 176.5 82 172C71.5 167.5 64 160.5 56 154C48 147.5 36 137 35 132C34 127 41 111 46 100C51 89 56 75 64 66C72 57 83 49 94 45C105 41 117.5 40 130 41Z" fill="#8FDDA3"/>
+<path id="Belly shade" d="M20 130C26.5 135 44 153 60 160C76 167 97.5 172.5 116 172C134.5 171.5 154.5 166 170 158C185.5 150 203.5 129.5 210 124L210 240L20 240Z" fill="#52B98C" clip-path="url(#body)"/>
+<path id="Belly" d="M186 118C189 123.5 184.5 141 178 150C171.5 159 159.5 167.5 148 172C136.5 176.5 120.5 177.5 108 176C95.5 174.5 82 168.5 74 164C66 159.5 58.5 151.5 60 150C61.5 148.5 80.5 149 92 146C103.5 143 116.5 137 128 132C139.5 127 150.5 118.5 160 116C169.5 113.5 183 112.5 186 118Z" fill="#F6FCEC" clip-path="url(#body)"/>
+<path id="Outline" d="M130 41C142.5 42 159.5 43 170 50C180.5 57 188.5 71.5 193 82C197.5 92.5 197.5 103.5 196 114C194.5 124.5 190.5 136.5 184 146C177.5 155.5 167 164.5 156 170C145 175.5 130.5 179.5 118 180C105.5 180.5 92.5 176.5 82 172C71.5 167.5 64 160.5 56 154C48 147.5 36 137 35 132C34 127 41 111 46 100C51 89 56 75 64 66C72 57 83 49 94 45C105 41 117.5 40 130 41Z" stroke="#203B45" stroke-width="4"/>
+<g id="Wing">
+<path d="M108 116C90 103 60 96 28 99C42 115 66 132 98 134C110 132 114 124 108 116Z" fill="#52B98C" stroke="#203B45" stroke-width="4" stroke-linejoin="round"/>
+<path d="M100 126C80 116 58 108 38 102" stroke="#8FDDA3" stroke-width="4" stroke-linecap="round"/>
+</g>
+<g id="Eyes">
+<ellipse id="Face / Far eye" cx="174" cy="94" rx="16" ry="22" fill="white" stroke="#203B45" stroke-width="4"/>
+<ellipse id="Face / Near eye" cx="138.5" cy="93" rx="23.5" ry="28" fill="white" stroke="#203B45" stroke-width="4"/>
+<ellipse id="Face / Near pupil" cx="146.5" cy="96.5" rx="10.5" ry="14.5" fill="#203B45"/>
+<ellipse id="Face / Far pupil" cx="179" cy="96" rx="7" ry="11" fill="#203B45"/>
+<ellipse id="Face / Near catchlight" cx="142.5" cy="89.5" rx="3.5" ry="3.5" fill="white"/>
+<ellipse id="Face / Far catchlight" cx="176.5" cy="90.5" rx="2.5" ry="2.5" fill="white"/>
+</g>
+<path id="Face / Bill" d="M166 109C182 106 206 110 234 118C206 121 182 124 166 122C162 119 162 112 166 109Z" fill="#F47D64" stroke="#203B45" stroke-width="4" stroke-linejoin="round"/>
+<ellipse id="Face / Cheek" cx="146" cy="130" rx="9" ry="5" fill="#F47D64"/>
+<path id="Highlight" d="M66 84C71 71 81 62 94 58" stroke="#FFF9ED" stroke-width="7" stroke-linecap="round"/>
+</g>
+<g id="Rig" display="none">
+<circle id="Wing pivot" cx="102" cy="120" r="3" fill="#203B45"/>
+<circle id="Beak hinge" cx="164" cy="116" r="3" fill="#203B45"/>
+<path id="Upper beak" d="M166 109C182 106 206 110 234 118C208 117.8 184 116.5 164 115.5C163 113 164 110.5 166 109Z" fill="#F47D64" stroke="#203B45" stroke-width="4" stroke-linejoin="round"/>
+<path id="Lower beak" d="M164 115.5C184 116.5 208 117.8 234 118C206 121 182 124 166 122C164 120.5 163.5 118 164 115.5Z" fill="#D75E4F" stroke="#203B45" stroke-width="4" stroke-linejoin="round"/>
+<path id="Blink" d="M121 98Q138 109 155 98M164 96Q174 103 184 96" stroke="#203B45" stroke-width="4.5" stroke-linecap="round"/>
+<path id="Pleased" d="M121 98Q138 78 155 98M164 96Q174 83 184 96" stroke="#203B45" stroke-width="4.5" stroke-linecap="round"/>
+<path id="Startled" d="M122 62Q132 55 144 58M166 65Q175 60 183 66" stroke="#203B45" stroke-width="3.5" stroke-linecap="round"/>
+</g>
+</svg>

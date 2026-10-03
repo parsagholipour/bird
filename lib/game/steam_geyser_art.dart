@@ -63,37 +63,32 @@ abstract final class SteamGeyserArt {
     final hot = v.kind == SteamKind.hop;
     final tone = SteamEmitterArt.mouthTone(v.kind, b);
     final roofY = h * (SteamEmitterArt.slab - .004);
-    // How far the billow has taken over from the burst (0 before +0.38 s,
-    // whole by +0.54 s).
-    final cross = SteamMath.smooth((b.t - .38) / .16);
+    // How far the cloud has taken over from the burst: it starts to rise
+    // round the jet at +0.30 s, so by the time the jet falls (from +0.42 s)
+    // the silhouette is already whole and never dips.
+    final cross = SteamMath.smooth((b.t - .30) / .14);
+    final body = hot ? SteamTones.hotBody : SteamTones.coolBody;
+    // The cloud's foot spreads to full width only once the jet is gone.
+    final settle = SteamMath.smooth((b.t - .44) / .12);
+    final foot = .88 + .12 * settle;
 
     if (b.heat > 0) {
+      // A ride vent's light is teal from first to last: nothing warm on it.
       SteamPlumeArt.glow(
         c,
         h,
         Offset(cx, mouthY),
         b.heat,
-        b.billow
+        !hot
+            ? SteamTones.tealGlow
+            : b.billow
             ? Color.lerp(SteamTones.amber, SteamTones.coolBody, b.cooled)!
             : tone,
       );
     }
     switch (b.phase) {
       case SteamPhase.hiss:
-        SteamPlumeArt.ghost(
-          c,
-          h,
-          cx,
-          mouthY,
-          topY,
-          b.p,
-          clock,
-          rm,
-          tone,
-          hot ? SteamTones.hotBody : SteamTones.coolBody,
-          flash: b.t > -.2,
-        );
-        SteamPlumeArt.rings(c, h, cx, roofY, b.p, clock, rm, tone);
+        SteamPlumeArt.ghost(c, h, cx, mouthY, topY, b.p, clock, rm, hot: hot);
         SteamPlumeArt.wisps(
           c,
           h,
@@ -103,15 +98,41 @@ abstract final class SteamGeyserArt {
           clock,
           seed,
           rm,
-          hot ? SteamTones.hotBody : SteamTones.coolBody,
-          n: 4 + (b.p * 4).floor(),
+          body,
+          n: 2 + (b.p * 1.6).floor(),
         );
       case SteamPhase.burst:
         final top = v.plumeTop(route) * h;
-        if (!rm) SteamPlumeArt.flash(c, h, cx, mouthY, b.p);
-        // The cloud takes over before the jet is gone (from +0.38 s, the
-        // jet falling away over its last 0.08 s): no empty lid between them.
-        if (cross > 0) {
+        if (!rm) SteamPlumeArt.flash(c, h, cx, mouthY, b.p, hot: hot);
+        if (hot) {
+          SteamPlumeArt.mist(c, h, cx, mouthY, b.p, rm);
+          SteamPlumeArt.burst(c, h, cx, mouthY, top, b.p, clock, seed, rm);
+          // The cloud rises round the jet, in front of it, so the jet sinks
+          // into the cloud: no empty lid, no hole, no ghost of the jet's rim.
+          if (cross > 0) {
+            SteamPlumeArt.billow(
+              c,
+              h,
+              cx,
+              mouthY,
+              topY,
+              clock,
+              seed,
+              cross,
+              0,
+              rm,
+              crossing: true,
+              updraft: 0,
+              foot: foot,
+            );
+          }
+        } else {
+          // A ride vent never scalds: its burst is this same soft cool
+          // cloud swelling up, so the shape says "helps" before the colour.
+          final frac = ((mouthY - top) / (mouthY - topY)).clamp(0.0, 1.0);
+          final own = cross > 0
+              ? .30 + .70 * SteamMath.smooth(cross / .9)
+              : 0.0;
           SteamPlumeArt.billow(
             c,
             h,
@@ -120,13 +141,34 @@ abstract final class SteamGeyserArt {
             topY,
             clock,
             seed,
-            cross,
-            0,
+            1,
+            1,
             rm,
+            height: math.max(frac, own),
+            updraft: SteamMath.smooth((b.t - .10) / .2),
+            foot: foot,
           );
         }
-        SteamPlumeArt.burst(c, h, cx, mouthY, top, b.p, clock, seed, rm);
-        if (!rm) SteamPlumeArt.spray(c, h, cx, top, roofY, b.p, seed, rm);
+        // The warning outline lingers a moment over the first beats of the
+        // bang (it is what the steam is filling), so nothing pops.
+        if (b.t < .10) {
+          SteamPlumeArt.ghost(
+            c,
+            h,
+            cx,
+            mouthY,
+            topY,
+            1,
+            clock,
+            rm,
+            hot: hot,
+            fade: 1 - b.t / .10,
+            lite: true,
+          );
+        }
+        if (!rm) {
+          SteamPlumeArt.spray(c, h, cx, top, roofY, b.p, seed, rm, hot: hot);
+        }
       case SteamPhase.billow:
         final e = v.geyser.liftAt(route);
         SteamPlumeArt.billow(
@@ -140,38 +182,21 @@ abstract final class SteamGeyserArt {
           // (the cloud's first beats follow the burst's cross-dissolve; once the
           // lift is up only the lift's own envelope shapes it)
           b.billowT < .3 ? math.max(e, cross) : e,
-          b.cooled,
+          hot ? b.cooled : 1,
           rm,
+          updraft: settle,
+          foot: foot,
         );
-        SteamPlumeArt.chevrons(c, h, cx, mouthY, topY, e, clock, rm);
       case SteamPhase.sleep:
-        SteamPlumeArt.wisps(
-          c,
-          h,
-          cx,
-          mouthY,
-          .15,
-          clock,
-          seed,
-          rm,
-          hot ? SteamTones.hotBody : SteamTones.coolBody,
-          n: 2,
-        );
+        SteamPlumeArt.wisps(c, h, cx, mouthY, .15, clock, seed, rm, body, n: 2);
+    }
+    // The spurts come out from under the lid, so they go in before it.
+    if (b.hiss) {
+      SteamPlumeArt.spurts(c, h, cx, mouthY, b.p, clock, rm, hot: hot);
     }
     SteamEmitterArt.paint(c, h, cx, v, b, clock, rm, seed);
-    if (b.hiss) {
-      SteamPlumeArt.jets(
-        c,
-        h,
-        cx,
-        mouthY,
-        b.p,
-        clock,
-        rm,
-        hot ? SteamTones.hotBody : SteamTones.coolBody,
-        tone,
-      );
-    }
+    // The glare over the lid: white-hot as the steam leaves it.
+    if (b.burst) SteamPlumeArt.nozzle(c, h, cx, mouthY, b.p, clock, rm, hot);
   }
 
   /// The bird's side of the steam, drawn over the world after the bird: a

@@ -13,11 +13,11 @@ import 'flight_goals.dart';
 import 'home_campaign_key.dart';
 import 'home_parts.dart';
 import 'home_world.dart';
+import 'launch_screen.dart';
 import 'menu_collectible_art.dart';
 import 'mode_picker.dart';
 import 'play_button.dart';
 import 'theme.dart';
-import 'ui_sounds.dart';
 
 const _course = FlightCourse.starTrail;
 
@@ -44,7 +44,7 @@ class HomeScreen extends ConsumerWidget {
       child: ref
           .watch(progressProvider)
           .when(
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => const BeakboundLaunchScreen(),
             error: (e, _) => Center(
               child: Panel(
                 child: Column(
@@ -131,11 +131,7 @@ class _HomeScene extends StatelessWidget {
                 ),
               ),
             ),
-            Positioned(
-              right: 24,
-              top: 10,
-              child: _HomeTools(newPlayer: progress.flightsFlown == 0),
-            ),
+            const Positioned(right: 24, top: 10, child: _HomeTools()),
             const Positioned(left: 60, top: 60, width: 440, child: HomeTitle()),
             Positioned(
               left: 70,
@@ -245,10 +241,7 @@ class _BirdGreeting extends StatelessWidget {
 }
 
 class _HomeTools extends StatelessWidget {
-  const _HomeTools({required this.newPlayer});
-
-  /// A first-time player is nudged toward the lessons.
-  final bool newPlayer;
+  const _HomeTools();
 
   @override
   Widget build(BuildContext context) => HomeEntrance(
@@ -256,85 +249,16 @@ class _HomeTools extends StatelessWidget {
     end: .35,
     slide: const Offset(20, 0),
     curve: Curves.easeOutCubic,
-    // A little larger than the layout box so both targets stay a full 48 dp
+    // A little larger than the layout box so the target stays a full 48 dp
     // on the phones that scale this canvas down.
     child: Transform.scale(
       scale: 1.1,
       alignment: Alignment.topRight,
-      child: Row(
-        children: [
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Material(
-                color: SkyColors.cream,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(color: SkyColors.ink.withValues(alpha: .12)),
-                ),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(16),
-                  onTap: () {
-                    UiSounds.effect(context);
-                    context.go('/school');
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    child: SizedBox(
-                      height: 48,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.school_rounded,
-                            size: 21,
-                            color: SkyColors.ink,
-                          ),
-                          const SizedBox(width: 7),
-                          Text(
-                            'Flight school',
-                            style: bodyText(13.5, weight: FontWeight.w900),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              if (newPlayer)
-                const Positioned(
-                  top: -4,
-                  right: -4,
-                  child: ExcludeSemantics(child: _NewDot()),
-                ),
-            ],
-          ),
-          const SizedBox(width: 10),
-          RoundButton(
-            icon: Icons.settings_rounded,
-            label: 'Settings',
-            onPressed: () => context.go('/settings'),
-          ),
-        ],
+      child: RoundButton(
+        icon: Icons.settings_rounded,
+        label: 'Settings',
+        onPressed: () => context.go('/settings'),
       ),
-    ),
-  );
-}
-
-class _NewDot extends StatelessWidget {
-  const _NewDot();
-
-  @override
-  Widget build(BuildContext context) => Container(
-    width: 15,
-    height: 15,
-    decoration: BoxDecoration(
-      color: SkyColors.coral,
-      shape: BoxShape.circle,
-      border: Border.all(color: SkyColors.cream, width: 2.5),
-      boxShadow: [
-        BoxShadow(color: SkyColors.ink.withValues(alpha: .25), blurRadius: 3),
-      ],
     ),
   );
 }

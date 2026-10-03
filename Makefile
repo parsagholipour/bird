@@ -1,4 +1,4 @@
-.PHONY: help deps analyze test devices run build install lab diag logs check generate
+.PHONY: help deps analyze test test-fast devices run build install lab diag logs check generate
 
 FLUTTER ?= flutter
 ADB ?= $(firstword $(wildcard $(ANDROID_HOME)/platform-tools/adb $(ANDROID_SDK_ROOT)/platform-tools/adb) adb)
@@ -18,7 +18,8 @@ help:
 		'make lab      Build and sideload the camera-lab APK' \
 		'make diag     Build and sideload a profile APK that records tracking logs' \
 		'make logs     Pull the last two tracking logs from the phone into /tmp' \
-		'make test     Run Flutter analyzer and tests' \
+		'make test     Run Flutter analyzer and the full test suite (queued)' \
+		'make test-fast Run Flutter analyzer and the suite minus slow tests (queued)' \
 		'make check    Verify packaged models and 16KB ELF alignment' \
 		'make generate Regenerate Pigeon and Drift bindings'
 
@@ -29,7 +30,10 @@ analyze:
 	$(FLUTTER) analyze
 
 test: analyze
-	$(FLUTTER) test
+	FLUTTER=$(FLUTTER) tool/test_full.sh
+
+test-fast: analyze
+	FLUTTER=$(FLUTTER) tool/test_fast.sh
 
 devices:
 	$(ADB) devices -l

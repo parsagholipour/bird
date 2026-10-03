@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'tracking.dart';
 import 'flight_course.dart';
 import 'bird_motion.dart';
+import 'boss_vanguard.dart';
 import 'duel.dart';
 import 'finish_line.dart';
 import 'flight_path.dart';
@@ -18,6 +19,7 @@ import 'sprint.dart';
 import 'steam_geyser.dart';
 import 'tether.dart';
 import 'world_region.dart';
+export 'boss_vanguard.dart';
 export 'duel.dart';
 export 'finish_line.dart';
 export 'flight_course.dart';
@@ -41,6 +43,7 @@ export 'world_region.dart';
 // to a few lines.
 part 'alley_pigeon_rules.dart';
 part 'king_coo_rules.dart';
+part 'neferhoo_rules.dart';
 part 'steam_rules.dart';
 
 enum RunPhase { countdown, playing, paused, ended }
@@ -80,6 +83,11 @@ enum FlightEventKind {
   swarmSmashed,
   galeWarning,
   galeWeathered,
+
+  /// Every ring of a rush path collected: the last ring sprint runs
+  /// [Rush.allRingsBonus] seconds longer
+  /// ([FlightSimulation.allRingsRulesVersion]).
+  allRings,
 }
 
 class FlightEvent {
@@ -221,6 +229,15 @@ class SkyHeart {
   final Obstacle? passage;
   double get y => passage?.target ?? _y;
   static const radius = .035, pickupRadius = .085;
+
+  /// From rules 47 a campaign bird catches a heart when it touches it as
+  /// drawn: the bird's half height (0.064) and the heart's cream disc
+  /// (0.047) apart ([FlightSimulation.fairHeartsRulesVersion]).
+  static const touchRadius = .11;
+
+  /// Past the halo's edge as drawn: a missed heart drifts until it is off
+  /// the screen's left edge.
+  static const haloRadius = .07;
 }
 
 /// Extension point for exercise games. Distances are in units of viewport height.
@@ -419,9 +436,26 @@ class FlightSimulation {
 
   /// Replay journals keep the rules they were recorded with. 42 added co-op
   /// and duel flights ([coopRulesVersion]); 43 added New York's pigeons,
-  /// steam and guardians ([newYorkRulesVersion]). Solo endless flights and
-  /// chapters 1 and 2 fly at 43 exactly as at 42 and at 41.
-  static const currentRulesVersion = 43;
+  /// steam and guardians ([newYorkRulesVersion]); 44 made campaign boss
+  /// fights long, staged and led by a vanguard ([bossStagesRulesVersion]);
+  /// 45 made King Coo tougher ([tougherCooRulesVersion]); 46 made the
+  /// Searchlight Gargoyle fiercer ([fiercerGargoyleRulesVersion]); 47 lets a
+  /// campaign bird catch a heart it touches ([fairHeartsRulesVersion]); 48
+  /// gives an endless flight's returning Baron Bat twice the health
+  /// ([tougherBaronRulesVersion]); 49 levels the Gargoyle's stone feathers
+  /// ([levelFeathersRulesVersion]); 50 added Egypt's guardian, Neferhoo
+  /// ([neferhooRulesVersion]); 51 rewards a rush path's every ring with a
+  /// longer ring sprint ([allRingsRulesVersion]); 52 made Neferhoo tougher,
+  /// with his mummy bats ([tougherNeferhooRulesVersion]); 53 keeps an
+  /// endless boss growing at every meeting after its second
+  /// ([bossGrowthRulesVersion]); 54 has King Coo start his fury without
+  /// waiting out his cycle ([cooRestartRulesVersion]); 55 makes Neferhoo
+  /// faster and busier, with a hundred more health
+  /// ([fasterNeferhooRulesVersion]); 56 brings King Coo's escaped pigeons
+  /// back in pairs ([cooPairsRulesVersion]). Endless and co-op
+  /// flights fly at 50 exactly as at 43 until that Baron arrives; duels
+  /// exactly as at 43.
+  static const currentRulesVersion = 56;
   final int rulesVersion;
 
   /// Two birds, roped together or each on its own ([CoopMode]), fly endless
@@ -538,6 +572,92 @@ class FlightSimulation {
   /// exactly as at 41.
   static const newYorkRulesVersion = 43;
 
+  /// Rules version 44: a campaign level's boss (a guardian too) has more
+  /// health and fights in three stages ([SkyBoss.staged]), and Baron Bat,
+  /// the Spitter King, the Dusk Empress and King Coo send a vanguard of
+  /// small enemies before they show up ([BossVanguard]). Endless flights
+  /// fly exactly as at 43.
+  static const bossStagesRulesVersion = 44;
+
+  /// Rules version 45: King Coo's vanguard pigeons throw crusts at the bird
+  /// ([SkyEnemy.throwsCrumbs]) and fly a little slower, and the campaign
+  /// King Coo has twice the health (`SkyBoss.campaignHealthFor`). Everything
+  /// else flies exactly as at 44.
+  static const tougherCooRulesVersion = 45;
+
+  /// Rules version 46: the campaign Searchlight Gargoyle fights as long and
+  /// as hard as King Coo: more health (`SkyBoss.campaignHealthFor`), stone
+  /// feathers in his warm-up, and feathers over his open lamp once he grows
+  /// stronger ([SkyBoss.fierce]). Everything else flies exactly as at 45.
+  static const fiercerGargoyleRulesVersion = 46;
+
+  /// Rules version 47: a campaign bird catches a boss's stage heart when it
+  /// touches the heart as drawn ([SkyHeart.touchRadius]), not only within
+  /// 0.085 of its centre. Everything else flies exactly as at 46.
+  static const fairHeartsRulesVersion = 47;
+
+  /// Rules version 48: on an endless flight, solo or co-op, Baron Bat
+  /// returning upgraded (encounters 6, 11, 16…, see [SkyBoss.upgraded]) has
+  /// twice the health. Everything else flies exactly as at 47.
+  static const tougherBaronRulesVersion = 48;
+
+  /// Rules version 49: the campaign Searchlight Gargoyle's stone feathers
+  /// are level ([SkyBoss.levelFeathers]): one aimed at a low bird no longer
+  /// falls steeper than one aimed high, so the bottom of the sky is as fair
+  /// as the top. Everything else flies exactly as at 48.
+  static const levelFeathersRulesVersion = 49;
+
+  /// Rules version 50, "Egypt": Neferhoo, the Mummy Courier, the guardian of
+  /// level 2-6 (see `neferhoo.dart`), reachable only through a level plan
+  /// that names him ([LevelPlan.minRulesVersion]). Endless, co-op and duel
+  /// flights and every other level fly exactly as at 49.
+  static const neferhooRulesVersion = 50;
+
+  /// Rules version 51: collecting every ring of a rush path adds
+  /// [Rush.allRingsBonus] seconds to the last ring sprint, at full boost.
+  /// Every flight that misses a ring flies exactly as at 50.
+  static const allRingsRulesVersion = 51;
+
+  /// Rules version 52, "tougher Neferhoo": in level 2-6 (the only plan that
+  /// names him) Neferhoo has twice the health, his letters fly faster there
+  /// and back, and his mummy bats ([EnemyKind.mummyBat]) join each mail call
+  /// once he grows stronger ([SkyBoss.tougherNeferhoo], [Neferhoo.batsFor]).
+  /// 2-6 flown at 50 or 51 (a saved tape) flies exactly as before; endless,
+  /// co-op and duel flights and every other level fly exactly as at 51.
+  static const tougherNeferhooRulesVersion = 52;
+
+  /// Rules version 53: on an endless flight, solo or co-op, every boss meets
+  /// the bird stronger each time after its second meeting, by
+  /// [SkyBoss.growthPercent] more health than the meeting before
+  /// (`SkyBoss.healthFor`'s `growing`). Before 53 the third meeting of a kind
+  /// (encounters 11 to 15) and every later one had the second's health.
+  /// Every flight flies exactly as at 52 until encounter 11.
+  static const bossGrowthRulesVersion = 53;
+
+  /// Rules version 54: the campaign King Coo starts his fury quickly. The
+  /// cycle he grows furious in ends as soon as its squadron has passed and
+  /// he has got over his roar and any pop, and his first fury cycle begins
+  /// then ([SkyBoss.quickRestart]), instead of after up to six idle seconds.
+  /// Everything else flies exactly as at 53.
+  static const cooRestartRulesVersion = 54;
+
+  /// Rules version 55, "faster Neferhoo": in level 2-6 (the only plan that
+  /// names him) Neferhoo has a hundred more health ([Neferhoo.fasterHp]) and
+  /// a tighter clock ([NeferhooBeats.faster]): a 10.5 s cycle instead of 12,
+  /// a second mail call from the full fight on, his mummy bats from the
+  /// warm-up on (a pair, a trio, fury's four, and a wave of two in the
+  /// warm-up's open sky), and a returned letter deals
+  /// [Neferhoo.fasterReturnDamage] instead of 25 ([SkyBoss.fasterNeferhoo]).
+  /// 2-6 flown at 50 to 54 (a saved tape) flies
+  /// exactly as before; endless, co-op and duel flights and every other
+  /// level fly exactly as at 54.
+  static const fasterNeferhooRulesVersion = 55;
+
+  /// Rules version 56: King Coo's escaped vanguard pigeons return two at a
+  /// time, together above and below him. Earlier replays keep single
+  /// returns; the return times and the number of pigeons owed stay the same.
+  static const cooPairsRulesVersion = 56;
+
   /// Every schedule knob of this flight. See [FlightPlan].
   final FlightPlan plan;
 
@@ -624,11 +744,28 @@ class FlightSimulation {
   /// Render-only splashes where pellets stopped. The rules never read them.
   final List<EnemyAmmoImpact> enemyAmmoImpacts = [];
 
+  /// Render-only hearts the birds missed, drifting off the screen's left
+  /// edge. The rules never read them.
+  final List<SkyHeart> missedHearts = [];
+
   /// Render-only blasts where charged rocks shattered pellets. The rules
   /// never read them.
   final List<AmmoShatter> ammoShatters = [];
   final List<BirdRock> rocks = [];
   SkyBoss? boss;
+
+  /// A campaign boss's vanguard: from the end of the run-up until the boss
+  /// arrives, then kept (cleared) for the art to fade. Null on a flight
+  /// whose boss sends none.
+  BossVanguard? vanguard;
+
+  /// Whether the vanguard is flying: its waves are coming or some of its
+  /// enemies are still on screen. The boss has not arrived yet.
+  bool get vanguardFlying =>
+      vanguard != null && !vanguard!.cleared && boss == null;
+
+  /// The fight is on: a vanguard or a boss, until the boss has flown off.
+  bool get bossFight => boss != null || vanguardFlying;
   int doorsDestroyed = 0;
   bool _lastPassageHadDoor = false;
   final List<BossAmmo> bossAmmo = [];
@@ -661,6 +798,16 @@ class FlightSimulation {
   int steamHisses = 0, steamBursts = 0, steamRides = 0;
   int steamScalds = 0, steamClears = 0;
   int bossesDefeated = 0;
+
+  /// Times King Coo cut short the cycle he grew furious in (rules 54, see
+  /// [SkyBoss.quickRestart]): at most once a fight. Read by tests, like the
+  /// other counters.
+  int cooRestarts = 0;
+
+  /// The flight clock second the latest defeated boss flew off, or null
+  /// before the first. A world-tour flight then plays the song of the region
+  /// showing at that moment.
+  double? bossLeftAt;
   static const bossInterval = EndlessPlan.secondsBetweenBosses;
   static const bossBonus = 30;
   double _nextBossAt;
@@ -683,6 +830,15 @@ class FlightSimulation {
   /// Baron Bat returns upgraded after his debut. See [SkyBoss.upgraded].
   bool get supportsUpgradedBaron => supportsGentleDebut && rulesVersion >= 40;
 
+  /// The returning Baron's doubled health ([tougherBaronRulesVersion]).
+  bool get supportsTougherBaron =>
+      supportsUpgradedBaron && rulesVersion >= tougherBaronRulesVersion;
+
+  /// An endless boss grows at every meeting after its second
+  /// ([bossGrowthRulesVersion]).
+  bool get supportsBossGrowth =>
+      supportsDragon && rulesVersion >= bossGrowthRulesVersion;
+
   /// Rules version 43, "New York". Each is reachable only through a level
   /// plan's data, which no plan below 43 can hold.
   ///
@@ -698,6 +854,54 @@ class FlightSimulation {
   /// ([BossKind.campaignOnly]).
   bool get supportsMiniBosses =>
       supportsBosses && rulesVersion >= newYorkRulesVersion;
+
+  /// Staged campaign bosses and their vanguards ([bossStagesRulesVersion]).
+  bool get supportsBossStages =>
+      supportsBosses &&
+      levelId != null &&
+      rulesVersion >= bossStagesRulesVersion;
+
+  /// King Coo's crust-throwing vanguard and double health
+  /// ([tougherCooRulesVersion]).
+  bool get supportsTougherCoo =>
+      supportsBossStages && rulesVersion >= tougherCooRulesVersion;
+
+  /// King Coo's stragglers return in pairs ([cooPairsRulesVersion]).
+  bool get supportsCooPairs =>
+      supportsTougherCoo && rulesVersion >= cooPairsRulesVersion;
+
+  /// The fiercer Searchlight Gargoyle ([fiercerGargoyleRulesVersion]).
+  bool get supportsFiercerGargoyle =>
+      supportsBossStages && rulesVersion >= fiercerGargoyleRulesVersion;
+
+  /// The Searchlight Gargoyle's level feathers ([levelFeathersRulesVersion]).
+  bool get supportsLevelFeathers =>
+      supportsBossStages && rulesVersion >= levelFeathersRulesVersion;
+
+  /// King Coo's quick fury restart ([cooRestartRulesVersion]).
+  bool get supportsCooRestart =>
+      supportsBossStages && rulesVersion >= cooRestartRulesVersion;
+
+  /// How near a bird must come to a heart to catch it
+  /// ([fairHeartsRulesVersion]).
+  double get heartReach =>
+      supportsBossStages && rulesVersion >= fairHeartsRulesVersion
+      ? SkyHeart.touchRadius
+      : SkyHeart.pickupRadius;
+
+  /// Neferhoo's letters, ankhs and wraps ([neferhooRulesVersion]). Only a
+  /// campaign plan can name him, and such a plan refuses older rules.
+  bool get supportsNeferhoo =>
+      supportsBossStages && rulesVersion >= neferhooRulesVersion;
+
+  /// The tougher Neferhoo and his mummy bats
+  /// ([tougherNeferhooRulesVersion]).
+  bool get supportsTougherNeferhoo =>
+      supportsNeferhoo && rulesVersion >= tougherNeferhooRulesVersion;
+
+  /// The faster, busier Neferhoo ([fasterNeferhooRulesVersion]).
+  bool get supportsFasterNeferhoo =>
+      supportsTougherNeferhoo && rulesVersion >= fasterNeferhooRulesVersion;
   bool get supportsHeartPickups =>
       supportsBosses && isTrail && rulesVersion >= 24 && plan.heartPickups;
   bool get supportsEnemyAttacks => supportsCombat && rulesVersion >= 18;
@@ -871,6 +1075,10 @@ class FlightSimulation {
   }
 
   bool get supportsRushPaths => supportsSprint && isTrail && rulesVersion >= 32;
+
+  /// The all-rings bonus ([allRingsRulesVersion]).
+  bool get supportsAllRingsBonus =>
+      supportsRushPaths && rulesVersion >= allRingsRulesVersion;
   RushPath? rushPath;
   double _nextRushAt;
   final List<SprintRing> sprintRings = [];
@@ -890,7 +1098,7 @@ class FlightSimulation {
   late math.Random _rushRandom = random, _galeRandom = random;
   late final math.Random _bossRandom = plan.setPieceRandom(0, random);
   int rushPathsRun = 0, rushWarnings = 0, rushPathsEscaped = 0;
-  int ringSprints = 0, ringChain = 0;
+  int ringSprints = 0, ringChain = 0, allRingsBonuses = 0;
   int smashes = 0, smashChain = 0, meteorsSmashed = 0;
   int ventsErupted = 0, swarmSmashed = 0;
   double ringSprintFrom = double.negativeInfinity;
@@ -1362,6 +1570,12 @@ class FlightSimulation {
           if (phase == RunPhase.ended) break;
         }
       }
+      // Neferhoo's letters and ankhs against the bird (neferhoo_rules.dart).
+      if (boss case final courier?
+          when courier.isNeferhoo && supportsNeferhoo) {
+        _neferhooHazards(courier);
+        if (phase == RunPhase.ended) break;
+      }
       for (final bird in flock) {
         // The partner's line keeps its own place in the formation.
         bird.flightPath.record(distance + (bird.x - birdX), bird.y);
@@ -1422,7 +1636,8 @@ class FlightSimulation {
       if (collectsStars && phase == RunPhase.playing) {
         _advanceStars(scroll * step);
       }
-      if (supportsHeartPickups && phase == RunPhase.playing) {
+      if ((supportsHeartPickups || supportsBossStages) &&
+          phase == RunPhase.playing) {
         _advanceHearts(scroll * step);
       }
       if (supportsSteamGeysers && phase == RunPhase.playing) {
@@ -1805,6 +2020,12 @@ class FlightSimulation {
         break;
       }
       if (spent.contains(rock) || rock.rebounding) continue;
+      // A rock that meets one of Neferhoo's letters sends it back (see
+      // neferhoo_rules.dart); it is spent unless it carries on (true).
+      if (_neferhooCatches(rock, previousX)) {
+        spent.add(rock);
+        continue;
+      }
       for (final enemy in enemies) {
         if (enemy.sender != null && enemy.sender == rock.owner) continue;
         final dx = rock.x - enemy.x, dy = rock.y - enemy.y;
@@ -1962,6 +2183,7 @@ class FlightSimulation {
       }
       enemy.fireIn -= dt;
       final fan = enemy.attack == EnemyAttack.fan;
+      final crumb = enemy.attack == EnemyAttack.crumb;
       if (enemy.fireIn > 0 || enemyAmmo.length + (fan ? 3 : 1) > 12) continue;
       // A sent enemy spits only at its sender's rival.
       final target = switch (enemy.sender) {
@@ -1969,7 +2191,11 @@ class FlightSimulation {
         null => _target(enemy.volleys),
       };
       final aim = math.atan2(target.y - enemy.y, target.x - enemy.muzzleX);
-      final speed = fan ? .34 : .44;
+      final speed = fan
+          ? .34
+          : crumb
+          ? SkyEnemy.crumbSpeed
+          : .44;
       for (final offset in fan ? [-.30, 0.0, .30] : [0.0]) {
         enemyAmmo.add(
           EnemyAmmo(
@@ -1986,7 +2212,11 @@ class FlightSimulation {
       enemy.volleys++;
       enemyShots++;
       enemy.lastShotAt = enemy.age;
-      enemy.fireIn += fan ? 3.2 : 2.4;
+      enemy.fireIn += fan
+          ? 3.2
+          : crumb
+          ? SkyEnemy.crumbInterval
+          : 2.4;
     }
     enemyAmmoImpacts.removeWhere((impact) => elapsed - impact.at > 1);
     ammoShatters.removeWhere((shatter) => elapsed - shatter.at > 1);
@@ -2129,6 +2359,115 @@ class FlightSimulation {
     return y >= edge && y <= 1 - edge;
   }
 
+  /// The boss's interlude (or its vanguard) begins on a clear sky.
+  void _clearForBoss() {
+    // Remove pickups with their gates so the interlude cannot break a combo
+    // or award a passage that was never flown. Existing cargo is retained.
+    obstacles.clear();
+    stars.clear();
+    starTrios.clear();
+    heartPickups.clear();
+    missedHearts.clear();
+    _heartPassagesRemaining = null;
+    enemies.clear();
+    rocks.clear();
+    bossAmmo.clear();
+    seaSplashes.clear();
+    enemyAmmo.clear();
+    enemyAmmoImpacts.clear();
+    ammoShatters.clear();
+    sprintRings.clear();
+    meteors.clear();
+    lavaVents.clear();
+    steamVents.clear();
+    swarm.clear();
+    rushPath = null;
+    galeDebris.clear();
+    events.clear();
+  }
+
+  /// Flies a campaign boss's vanguard ([BossVanguard]) ahead of it: its
+  /// waves enter on their times, and the boss may come once the last of them
+  /// has been gone for [BossVanguard.bossDelay]. True when there is nothing
+  /// (more) to wait for.
+  bool _advanceVanguard(BossKind kind, double viewportWidth) {
+    if (BossVanguard.wavesOf(kind).isEmpty) return true;
+    var guard = vanguard;
+    if (guard == null) {
+      guard = vanguard = BossVanguard(boss: kind, startedAt: elapsed);
+      _clearForBoss();
+    }
+    if (guard.clearedAt case final cleared?) {
+      return elapsed - cleared >= BossVanguard.bossDelay;
+    }
+    final t = elapsed - guard.startedAt;
+    while (!guard.allSent && t >= guard.waves[guard.wavesSent].at) {
+      _sendVanguardWave(guard, guard.waves[guard.wavesSent], viewportWidth);
+      guard.wavesSent++;
+    }
+    for (final member in guard.members) {
+      if (!guard.goneAt.containsKey(member) && !enemies.contains(member)) {
+        guard.goneAt[member] = elapsed;
+      }
+    }
+    if (guard.allSent && guard.goneAt.length == guard.members.length) {
+      guard.clearedAt = elapsed;
+    }
+    return false;
+  }
+
+  /// A wave enters from the right like ordinary enemies, each member at its
+  /// height and its place behind the leader. King Coo's pigeons are his
+  /// squadron's: they never snatch. From rules 45 they throw crusts and fly
+  /// a little slower, the members of a wave winding up one after another.
+  void _sendVanguardWave(
+    BossVanguard guard,
+    VanguardWave wave,
+    double viewportWidth,
+  ) {
+    for (final (i, member) in wave.members.indexed) {
+      final appearance = member.kind.index;
+      final pigeon = member.kind == EnemyKind.alleyPigeon;
+      final throws = pigeon && supportsTougherCoo;
+      final enemy = SkyEnemy(
+        x: viewportWidth + _enemyEntryMargin + member.behind,
+        y: member.y,
+        appearance: appearance,
+        maxHp: _enemyHealth(appearance),
+        flightPhase: (guard.members.length * 3 + 1) * 2.399963,
+        squad: pigeon,
+        throwsCrumbs: throws,
+        drift: throws ? BossVanguard.throwerDrift : 1,
+      );
+      if (throws) enemy.fireIn += i * BossVanguard.throwStagger;
+      enemies.add(enemy);
+      guard.members.add(enemy);
+    }
+  }
+
+  /// A staged boss grows stronger a step after the hit that took it below a
+  /// third ([SkyBoss.stage]): leaving its warm-up arms its signature attack
+  /// and brings its helpers, and every step up it roars, holds its fire for
+  /// [SkyBoss.stageRoar] and knocks a heart loose, which floats in from the
+  /// right at mid-height (a long fight costs no more hearts than a short
+  /// one did).
+  void _advanceStages(SkyBoss current, double viewportWidth) {
+    final stage = current.stage;
+    if (stage <= current.stageReached) return;
+    if (current.stageReached == 0) {
+      current.armSignature();
+      if (current.summonInterval.isFinite) {
+        current.summonIn = SkyBoss.stageHelperDelay;
+      }
+    }
+    current.stageReached = stage;
+    current.stageUpAt = current.age;
+    current.fireIn = math.max(current.fireIn, SkyBoss.stageRoar);
+    if (isTrail) {
+      heartPickups.add(SkyHeart(x: viewportWidth + .1, y: SkyBoss.heartY));
+    }
+  }
+
   void _advanceBoss(double dt, double viewportWidth) {
     if (boss == null) {
       // Passages resume before a run ends; the boss waits for the escape.
@@ -2139,6 +2478,13 @@ class FlightSimulation {
         bossesDefeated,
         rulesVersion,
       );
+      // A campaign boss may send its vanguard first.
+      if (supportsBossStages && !_advanceVanguard(kind, viewportWidth)) {
+        return;
+      }
+      final staged = supportsBossStages;
+      final upgraded =
+          supportsUpgradedBaron && kind == BossKind.baronBat && !debut;
       boss = SkyBoss(
         number: number,
         x: viewportWidth + .3,
@@ -2147,43 +2493,39 @@ class FlightSimulation {
         kind: kind,
         debut: debut,
         callsSwarm: supportsDragonSwarm,
-        upgraded: supportsUpgradedBaron && kind == BossKind.baronBat && !debut,
-        maxHp:
-            SkyBoss.healthFor(
-              kind,
-              number,
-              tougherSpitter: rulesVersion >= 37,
-            ) ~/
-            (supportsWeaponDamage ? 1 : 10),
+        upgraded: upgraded,
+        staged: staged,
+        fierce: supportsFiercerGargoyle && kind == BossKind.searchlightGargoyle,
+        levelFeathers:
+            supportsLevelFeathers && kind == BossKind.searchlightGargoyle,
+        tougherNeferhoo: supportsTougherNeferhoo && kind == BossKind.neferhoo,
+        fasterNeferhoo: supportsFasterNeferhoo && kind == BossKind.neferhoo,
+        quickRestart: supportsCooRestart && kind == BossKind.kingCoo,
+        maxHp: staged
+            ? SkyBoss.campaignHealthFor(
+                kind,
+                tougherCoo: supportsTougherCoo,
+                fiercerGargoyle: supportsFiercerGargoyle,
+                tougherNeferhoo: supportsTougherNeferhoo,
+                fasterNeferhoo: supportsFasterNeferhoo,
+              )
+            : SkyBoss.healthFor(
+                    kind,
+                    number,
+                    tougherSpitter: rulesVersion >= 37,
+                    tougherBaron: upgraded && supportsTougherBaron,
+                    growing: supportsBossGrowth,
+                  ) ~/
+                  (supportsWeaponDamage ? 1 : 10),
       );
-      // Remove pickups with their gates so the interlude cannot break a combo
-      // or award a passage that was never flown. Existing cargo is retained.
-      obstacles.clear();
-      stars.clear();
-      starTrios.clear();
-      heartPickups.clear();
-      _heartPassagesRemaining = null;
-      enemies.clear();
-      rocks.clear();
-      bossAmmo.clear();
-      seaSplashes.clear();
-      enemyAmmo.clear();
-      enemyAmmoImpacts.clear();
-      ammoShatters.clear();
-      sprintRings.clear();
-      meteors.clear();
-      lavaVents.clear();
-      steamVents.clear();
-      swarm.clear();
-      rushPath = null;
-      galeDebris.clear();
-      events.clear();
+      _clearForBoss();
     }
     final current = boss!;
     current.age += dt;
     if (current.phase == BossPhase.defeated) {
       if (current.age - current.defeatedAt! >= current.departureDuration) {
         boss = null;
+        bossLeftAt = elapsed;
         // A full normal-flight interval follows the victory celebration.
         final clock = _scheduleClock;
         _nextBossAt = clock + plan.bossInterval;
@@ -2222,6 +2564,9 @@ class FlightSimulation {
         : current.isGargoyle
         // Perched on the tower ledge: he does not fly.
         ? SearchlightGargoyle.anchorX(birdX, viewportWidth)
+        : current.isNeferhoo
+        // His letters need the room between his hand and the bird.
+        ? Neferhoo.anchorX(birdX, viewportWidth)
         : math.max(birdX + .55, viewportWidth - .72);
     final entrance =
         (current.cinematic
@@ -2260,7 +2605,10 @@ class FlightSimulation {
         ? .5 + math.sin(fightingFor * .9) * .06
         : current.isGargoyle
         ? SearchlightGargoyle.anchorY
+        : current.isNeferhoo
+        ? Neferhoo.hoverY(fightingFor)
         : .5 + math.sin(fightingFor * .85) * .10;
+    if (current.staged) _advanceStages(current, viewportWidth);
     if (current.isDragon) {
       // Each breath is aimed once, where the bird is as the inhale begins.
       if (current.breaths > current.breathsAimed) {
@@ -2404,6 +2752,59 @@ class FlightSimulation {
     if (current.isKingCoo && supportsMiniBosses) {
       _advanceCoo(current);
     }
+    // Neferhoo's mail calls and ankhs (see neferhoo_rules.dart).
+    if (current.isNeferhoo && supportsNeferhoo) {
+      _advanceNeferhoo(current, viewportWidth);
+    }
+    if (supportsTougherCoo && BossVanguard.returnsOf(current.kind)) {
+      if (vanguard case final guard?) {
+        _advanceStragglers(current, guard, viewportWidth);
+      }
+    }
+  }
+
+  /// King Coo's stragglers (rules 45): at each of [BossVanguard.returnTimes]
+  /// in his cycle, the vanguard pigeons that got away and are not on screen
+  /// come back (one before rules 56, then at most [BossVanguard.returnSize]
+  /// together), throwing crusts as they did, until every one has been shot
+  /// down or rammed.
+  void _advanceStragglers(
+    SkyBoss coo,
+    BossVanguard guard,
+    double viewportWidth,
+  ) {
+    for (final enemy in guard.stragglers) {
+      if (!guard.stragglerGoneAt.containsKey(enemy) &&
+          !enemies.contains(enemy)) {
+        guard.stragglerGoneAt[enemy] = elapsed;
+      }
+    }
+    var due = 0;
+    for (final at in BossVanguard.returnTimes) {
+      due += KingCoo.count(coo.cooClock, at);
+    }
+    if (due <= guard.returnSlots) return;
+    final slot = guard.returnSlots;
+    guard.returnSlots = due;
+    final returnSize = supportsCooPairs ? BossVanguard.returnSize : 1;
+    final count = math.min(guard.waiting, returnSize);
+    if (count <= 0) return;
+    const heights = BossVanguard.returnHeights;
+    final appearance = EnemyKind.alleyPigeon.index;
+    for (var i = 0; i < count; i++) {
+      final enemy = SkyEnemy(
+        x: viewportWidth + _enemyEntryMargin,
+        y: heights[(slot * returnSize + i) % heights.length],
+        appearance: appearance,
+        maxHp: BossVanguard.stragglerHp,
+        flightPhase: (guard.stragglers.length * 3 + 2) * 2.399963,
+        squad: true,
+        throwsCrumbs: true,
+        drift: BossVanguard.throwerDrift,
+      )..fireIn += i * BossVanguard.throwStagger;
+      enemies.add(enemy);
+      guard.stragglers.add(enemy);
+    }
   }
 
   /// The Ember Dragon's flock streams in from behind it in the swarm rush
@@ -2446,6 +2847,12 @@ class FlightSimulation {
 
   /// A ram ignores the enemy's remaining health; the reward is the same.
   void _defeatEnemy(SkyEnemy enemy, {bool rammed = false}) {
+    if (vanguard case final guard?) {
+      if (guard.members.contains(enemy)) guard.downedAt[enemy] = elapsed;
+      if (guard.stragglers.contains(enemy)) {
+        guard.stragglerDownedAt[enemy] = elapsed;
+      }
+    }
     if (supportsAlleyPigeon) _pigeonDefeated(enemy, rammed: rammed);
     enemiesDefeated++;
     if (rammed) smashChain++;
@@ -2663,14 +3070,22 @@ class FlightSimulation {
     );
   }
 
+  /// The run's last ring, when every ring before it was collected too,
+  /// keeps the boost [Rush.allRingsBonus] seconds longer.
   void _ringSprint() {
     final chained = ringSprinting;
     ringSprintFrom = elapsed - RingSprint.surgeAgeFor(_ringEnvelope);
     ringSprintUntil = elapsed + RingSprint.seconds;
     ringSprints++;
     ringChain = chained ? ringChain + 1 : 1;
-    rushPath?.rings++;
+    final path = rushPath;
+    if (path != null) path.rings++;
     _event(FlightEventKind.sprintRing, ringChain);
+    if (supportsAllRingsBonus && path != null && path.rings == Rush.beats) {
+      ringSprintUntil += Rush.allRingsBonus;
+      allRingsBonuses++;
+      _event(FlightEventKind.allRings, Rush.allRingsBonus.round());
+    }
   }
 
   /// A caught bird is hurt and knocks the fire back, so one catch cannot
@@ -3164,19 +3579,25 @@ class FlightSimulation {
   }
 
   void _advanceHearts(double travel) {
-    final rear = _rearX;
+    final rear = _rearX, reach = heartReach;
+    for (final heart in missedHearts) {
+      heart.x -= travel;
+    }
+    missedHearts.removeWhere((heart) => heart.x < -SkyHeart.haloRadius);
     heartPickups.removeWhere((heart) {
       heart.x -= travel;
-      if (flock.any(
-        (bird) => _near(bird, heart.x, heart.y, SkyHeart.pickupRadius),
-      )) {
+      if (flock.any((bird) => _near(bird, heart.x, heart.y, reach))) {
         if (hearts < maxHearts) {
           hearts++;
           _event(FlightEventKind.heart, 1);
         }
         return true;
       }
-      return heart.x < rear - SkyHeart.pickupRadius;
+      if (heart.x >= rear - reach) return false;
+      // Out of reach behind the birds, it drifts on off the screen rather
+      // than vanishing at the bird's tail.
+      missedHearts.add(heart);
+      return true;
     });
   }
 
@@ -3362,6 +3783,7 @@ class FlightSimulation {
         enraged: warden.enraged,
         furySweeps: warden.furySweeps,
       );
+      warden.aimFury = warden.enraged;
       if (warden.enraged) warden.furySweeps++;
       if (warden.slitSweep) {
         warden.sweepSlit++;
@@ -3373,25 +3795,35 @@ class FlightSimulation {
       warden.featherCycle = warden.gargoyleCycleNumber;
       warden.featherSlot = 0;
     }
-    final due = SearchlightGargoyle.launchesDue(
-      warden.gargoyleCycle,
-      enraged: warden.enraged,
-      slit: warden.slitSweep,
-    );
+    // A staged Gargoyle's warm-up sweeps but drops no feathers; a fiercer
+    // one's (rules 46) drops the calm cycle's, and once he grows stronger
+    // feathers fall in his vent too.
+    final due = warden.fierce
+        ? SearchlightGargoyle.due(warden.featherSchedule, warden.gargoyleCycle)
+        : warden.signatureArmed(warden.gargoyleCycleNumber)
+        ? SearchlightGargoyle.launchesDue(
+            warden.gargoyleCycle,
+            enraged: warden.enraged,
+            slit: warden.slitSweep,
+          )
+        : 0;
     while (warden.featherSlot < due) {
       warden.featherSlot++;
       warden.feathersLaunched++;
       // A stone feather falls from the cornice above and ahead of a bird (the
       // flock's take turns), aimed to cross its column at the height it has
-      // as the feather leaves.
+      // as the feather leaves; a level one aimed low leaves further ahead.
       final target = _target(warden.feathersLaunched - 1);
       final shot = SearchlightGargoyle.featherShot(
         target.y,
-        enraged: warden.enraged,
+        enraged: warden.furyPace,
+        level: warden.levelFeathers,
       );
+      final from = target.x + shot.ahead;
       bossAmmo.add(
         BossAmmo(
-          x: target.x + SearchlightGargoyle.featherOffsetX,
+          x: from,
+          launchX: from,
           y: SearchlightGargoyle.featherY,
           vx: shot.vx,
           vy: shot.vy,

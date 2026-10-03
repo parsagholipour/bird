@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'jump_glide_hud.dart';
 import 'dart:io';
 import 'package:flame/game.dart';
@@ -18,6 +19,7 @@ import '../domain/session_replay.dart';
 import '../domain/replay_highlights.dart';
 import '../game/audio.dart';
 import '../game/bird_game.dart';
+import '../game/finish_celebration_art.dart';
 import 'theme.dart';
 import 'campaign_map_art.dart' show MapStarsPainter;
 import 'components.dart';
@@ -208,6 +210,11 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
       _loadingMedia = false,
       _closed = false;
   double _speed = 1, _position = 0, _lastFrame = 0, _lastSync = -1000;
+
+  /// Seconds since the replay reached a level's finish line, while its
+  /// celebration plays on past the end of the tape; null otherwise. A seek
+  /// to the end shows its settled frame.
+  double? _celebration;
   int _corner = 0;
   String? _error;
   String _videoMessage = '';
@@ -240,6 +247,8 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
           reducedMotion: session.tape.reducedMotion,
           playback: true,
           onChanged: () {},
+          // With no result to hand over to, the bird ends hovering.
+          finish: () => _celebration,
         );
       });
       unawaited(_indexHighlights(session.tape));
@@ -274,10 +283,29 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
     if (state != AppLifecycleState.resumed) _setPlaying(false);
   }
 
+  /// Whether [sim] has crossed a level's finish line, to celebrate.
+  static bool _celebrates(FlightSimulation sim) =>
+      sim.phase == RunPhase.ended &&
+      sim.endReason == EndReason.completed &&
+      sim.finishLine?.crossed == true;
+
+  double get _celebrationStill => FinishCelebrationArt.stillAt(
+    reducedMotion: _session?.tape.reducedMotion ?? false,
+  );
+
   void _frame(Duration elapsed) {
     final now = elapsed.inMicroseconds / 1000;
     final dt = now - _lastFrame;
     _lastFrame = now;
+    final party = _celebration;
+    if (party != null && party < _celebrationStill && !_scrubbing) {
+      setState(() {
+        _celebration = math.min(
+          _celebrationStill,
+          party + dt.clamp(0, 100) / 1000 * _speed,
+        );
+      });
+    }
     if (_player == null || !_playing || _scrubbing || _loadingMedia) return;
     if (_video?.value.isBuffering == true &&
         _video?.value.hasError == false &&
@@ -305,6 +333,9 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
     );
     _player!.seek(_position);
     _game!.simulation = _player!.simulation;
+    if (oldPhase != RunPhase.ended && _celebrates(_player!.simulation)) {
+      _celebration = 0;
+    }
     _audio.syncCombat(_player!.simulation, silent: !_sound);
     if (_sound) {
       final sim = _player!.simulation;
@@ -453,6 +484,10 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
       _audio.configure(
         GameSettings(music: _sound, effects: _sound),
         active: _playing && !_scrubbing,
+        // A campaign flight replays to its region's song.
+        track: SkyMusic.flightOver(
+          Campaign.level(_session?.result.levelId ?? '')?.region,
+        ),
       ),
     );
     unawaited(_audio.setRate(_speed));
@@ -477,6 +512,11 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
       _player!.seek(_position);
       _audio.syncCombat(_player!.simulation, silent: true);
       _game!.simulation = _player!.simulation;
+      _celebration =
+          _position >= _session!.tape.durationMs &&
+              _celebrates(_player!.simulation)
+          ? _celebrationStill
+          : null;
     });
     unawaited(_audio.stopEffects());
     unawaited(_syncVideo(force: true));
@@ -504,7 +544,7 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
         _videoMessage.isNotEmpty ||
         _activeClip() != _clip) {
       return ColoredBox(
-        color: const Color(0xff18313b),
+        color: SkyColors.night,
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(10),
@@ -540,7 +580,7 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
       data: theme.copyWith(
         colorScheme: const ColorScheme.dark(
           primary: SkyColors.coral,
-          surface: Color(0xff18313b),
+          surface: SkyColors.night,
         ),
         textTheme: theme.textTheme.apply(
           bodyColor: Colors.white,

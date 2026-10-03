@@ -364,12 +364,44 @@ void main() {
           clip['name'] as String,
     };
     expect(guardianClips, hasLength(47));
+    // Egypt's guardian (rules 50): Neferhoo's two scenes and the pyramid
+    // caretaker's thank-you on 2-6 are written and pending until the owner
+    // has picked his voice (the renamed Arabian clips stay recorded): 31
+    // clips (18 lines, the courier's 4 in each bird's voice, and the note).
+    final egyptClips = {
+      for (final clip in _clips(_sources()))
+        if (RegExp(
+          r'^((before|last)-2-6-|thanks-2-6$)',
+        ).hasMatch(clip['name'] as String))
+          clip['name'] as String,
+    };
+    expect(egyptClips, hasLength(31));
+    expect(egyptClips.difference(pending), isEmpty);
+    // His 8 wait for the audition (the placeholder voice, no id yet); the
+    // rest are in voices the cast already has.
+    final egyptVoices = {
+      for (final clip in _clips(_sources()))
+        if (egyptClips.contains(clip['name']))
+          clip['name'] as String: clip['voice'] as String,
+    };
+    expect(
+      egyptVoices.values.where((v) => v == 'Neferhoo (audition)'),
+      hasLength(8),
+    );
+    for (final clip in _clips(_sources())) {
+      if (!egyptClips.contains(clip['name'])) continue;
+      expect(
+        clip['planned_voice_id'] == null,
+        clip['voice'] == 'Neferhoo (audition)',
+        reason: '${clip['name']}',
+      );
+    }
     // The tolerance is for these clips only: a pending mark on any other
     // clip (a recorded chapter 1 to 3 line, `before-3-5`, `before-3-8`,
     // `after-3`, a thank-you or a sprint call) is a fault, so a missing clip
     // anywhere else still fails the suite.
     expect(
-      pending.difference(guardianClips),
+      pending.difference(guardianClips).difference(egyptClips),
       isEmpty,
       reason: 'only the guardians\' clips may be pending recording',
     );
@@ -483,6 +515,17 @@ void main() {
       ]) {
         expect(doc, contains(byName[name]!['prompt'] as String), reason: name);
       }
+      // Neferhoo's five auditions are made: the document says where, with
+      // the line they say and how to put the chosen voice on his clips.
+      expect(
+        doc,
+        contains(
+          '[haughtily] Neferhoo, Royal Courier. [clears throat] Four thousand '
+          'years on this route. [shouting] Return to sender!',
+        ),
+      );
+      expect(doc, contains('egypt-int/auditions/'));
+      expect(doc, contains("'neferhoo': (None, 'Neferhoo (audition)')"));
       final tagged = RegExp(r'\[([^\]]+)\]');
       final proven = {
         for (final clip in byName.values)
@@ -763,9 +806,16 @@ void main() {
       }
     });
 
-    testWidgets('the New York guardians\' scenes play in full, each line '
-        'with only the voice that has been recorded', (tester) async {
-      for (final id in ['before-3-2', 'last-3-2', 'before-3-4', 'last-3-4']) {
+    testWidgets('the guardians\' scenes play in full, each line with only '
+        'the voice that has been recorded', (tester) async {
+      for (final id in [
+        'before-2-6',
+        'last-2-6',
+        'before-3-2',
+        'last-3-2',
+        'before-3-4',
+        'last-3-4',
+      ]) {
         final scene = CampaignStory.scene(id)!;
         final (said, _) = await play(tester, scene, voices: true, bird: 1);
         for (var i = 1; i < scene.lines.length; i++) {
@@ -783,6 +833,30 @@ void main() {
           for (var i = 0; i < scene.lines.length; i++)
             ?CampaignVoices.line(scene, i, bird: 1),
         ], reason: id);
+      }
+    });
+
+    testWidgets('Neferhoo\'s scenes, unrecorded, are written out at the '
+        'pace of voices off with voices on', (tester) async {
+      final cue = find.byKey(const ValueKey('story-cue'));
+      for (final id in ['before-2-6', 'last-2-6']) {
+        final scene = CampaignStory.scene(id)!;
+        final text = scene.lines.first.text;
+        expect(CampaignVoices.line(scene, 0, bird: 0), isNull, reason: id);
+        final paced = (text.length * 26).clamp(260, 1700);
+        final (said, _) = await play(
+          tester,
+          scene,
+          voices: true,
+          reduced: false,
+        );
+        await tester.pump(Duration(milliseconds: (paced * .9).round()));
+        expect(cue, findsNothing, reason: id);
+        await tester.pump(Duration(milliseconds: (paced * .2).round()));
+        expect(cue, findsOneWidget, reason: id);
+        expect(said, isEmpty, reason: id);
+        await tester.tap(find.byKey(const ValueKey('story-skip')));
+        await tester.pump(const Duration(seconds: 1));
       }
     });
 

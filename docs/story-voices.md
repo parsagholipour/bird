@@ -5,11 +5,14 @@ thank-you on every level's result and each bird's sprint calls were
 recorded with ElevenLabs **Eleven v4**, one take per line, and are bundled in
 `assets/audio/story/`. The game plays them offline.
 
-Four more scenes, the New York guardians', are written and in the game but
-**not recorded yet**: 47 clips and two voices still to audition (King Coo and
-the Searchlight Gargoyle). Until a clip is recorded the game prints its line
-and plays nothing, paced as with Character voices off. They are in
-[New York: the guardians](#new-york-the-guardians-pending-recording);
+Six more scenes, the guardians', are written and in the game but **not
+recorded yet**: New York's four (47 clips, two voices still to audition: King
+Coo and the Searchlight Gargoyle) and Egypt's two with the pyramid caretaker's
+thank-you (31 clips; Neferhoo's voice is to be picked from five auditions
+already made). Until a clip is recorded the game prints its line and plays
+nothing, paced as with Character voices off. They are in
+[New York: the guardians](#new-york-the-guardians-pending-recording) and
+[Egypt: Neferhoo](#egypt-neferhoo-pending-recording);
 [Adding a new character or voice](#adding-a-new-character-or-voice) is the
 recipe for recording them, or for any voice after them. The working document
 for recording, from nothing to a clip playing in the game, is
@@ -31,16 +34,19 @@ for recording, from nothing to a clip playing in the game, is
 | Ember Dragon | Smoke – The Dragon | `xsiB5fGhEtknnqzudCO6` | Old, grand and weary, for a dragon who only wanted a letter |
 | King Coo (3-2 guardian) | *to audition*, fallback Rusty Malone – Deep & Raspy | `507tTFX0IPtqFzGd1CAL` (the fallback's) | A plump, pompous pigeon police commissioner with a New York accent: comic, never scary. [Brief](#king-coo) |
 | Searchlight Gargoyle (3-4 guardian) | *to audition*, fallback Eldrin – Wise Epic Fantasy Narration Storyteller | `LvmvHEBEmMJBJw9UuhwO` (the fallback's) | A theatrical old stage actor, warm gravel and vibrato: a ham of a statue. [Brief](#searchlight-gargoyle) |
+| Neferhoo (2-6 guardian) | *to pick from five auditions*, fallback Grampa Werthers – Old & Cranky | `MKlLqCItoCkvdhrxgtLv` (the fallback's) | A fussy, reedy, precise old royal courier, proper and quick to take offence, warm and silly underneath. [Brief](#neferhoo) |
 | The place lines (the prologue, “To be continued…”) | Twinkle – Narration & Acting | `Qz7YNvloEr5RXwYE3NCH` | A gentle storybook narrator |
 
 `python3 tool/prepare_story_voices.py --voices` prints every voice in the sources
-file with its id and how many clips it speaks (GERALD 57, each bird 52).
+file with its id and how many clips it speaks (GERALD 62, each bird 56).
 
 The courier's lines are recorded four times, once in each bird's voice, and
 the scene plays the equipped bird's take. The letter the Ember Dragon
-receives is read aloud in Bill's voice, since Bill wrote it.
+receives is read aloud in Bill's voice, since Bill wrote it; the Sphinx's note
+that closes Neferhoo's last word (`last-2-6-8`) is read in the Sphinx's.
 
-The 40 thank-you notes are voiced by the people who sign them, from a wider
+The 41 thank-you notes are voiced by the people who sign them (40 recorded;
+the pyramid caretaker's on 2-6 is pending, in Jessie – Vintage Narrator), from a wider
 cast: the toucan twins (Minnie), the sloth stargazer (Kavian R, slow and
 sleepy), the drum captain (Freddy Quicksilver), the Sphinx (Matthew
 Schmitz – Ancient Sage), the Paris painters and accordion player (Jamie and
@@ -373,6 +379,62 @@ star-grabbing gang, the puff and the crumb bombs, the open lane of the squadron,
 the lamp, the steam vents): if the rules change, change the line, its sources entry
 and its take together.
 
+## Egypt: Neferhoo (pending recording)
+
+Egypt's guardian (rules 50), **Neferhoo, the Mummy Courier**, Keeper of the
+Lost Letter, has two scenes on 2-6, Return to Sender: the words at the lair
+(`before-2-6`, 9 lines) and his last word (`last-2-6`, 9 lines). They pay off
+`before-2-4`'s "lost one letter… The Sphinx won't say": the lost letter was his,
+addressed to the Sphinx, and he could not find its door through his mask. The
+lines are the owner-approved design script
+(`egypt-ws/reports/01-egypt-guardian.md` §7) with one change: the Sphinx's note
+reads “Delivered at last. Worth the wait. Signed: the Sphinx.”, signed inside the
+quote as the Dragon's letter is (`after-5-4`), because a printed line ends on a
+sentence mark. Line 7 of `before-2-6` is his name-card line, so
+`before-2-6-7` also plays as he arrives in the fight (the `neferhoo-card` pool).
+
+Two things his last word does differently from New York's guardians, on purpose
+(`campaign_story_test` names them): it opens **surprised**, not sad (the mask is
+off and he can see: the story's reveal), and its last spoken line is his
+acceptance ("…Then I start with this one. Off to the Sphinx!"), after Bill's
+offer, before the Sphinx's note.
+
+All 31 clips are in `docs/story-voices-sources.json`, pending recording:
+
+| Who | Voice | Clips |
+| --- | --- | --- |
+| Neferhoo | `Neferhoo (audition)`: to pick from five takes (fallback Grampa Werthers) | 8 |
+| Postmaster Bill | GERALD (`fGIZlgPQ75MMlvQ6WxgY`) | 5 |
+| The courier, 4 lines in every bird's voice | Nelson, Cherry Twinkle, Teddy Twinkle, Lola | 16 |
+| The Sphinx's note (`last-2-6-8`) | Matthew Schmitz – Ancient Sage Dragon Wizard (`HAvvFKatz0uu0Fv55Riy`, the Sphinx of `thanks-2-4`) | 1 |
+| The pyramid caretaker's thank-you (`thanks-2-6`) | Jessie – Vintage Narrator (`KgUSWQPFmuiZ5ycRbnty`) | 1 |
+
+Every tag in these prompts is proven by a recorded take, so none needs a
+transcription check first. He also has 34 in-flight lines and his birds 16
+(`docs/flight-voices-sources.json`, pending; [flight-voices.md](flight-voices.md)).
+
+### Neferhoo
+
+Who he is: the Sky Club's first Egypt courier, a hoopoe sealed in the Great
+Pyramid 4,000 years ago with the last letter of his round, wrapped in linen to
+wait, in the golden courier mask of the Pharaoh's Post. Too proud to let another
+courier fly "his" route. **The voice**: an elderly royal courier, fussy, precise,
+reedy, a little creaky, very proper, quick to take offence, warm and silly
+underneath; comic, never scary. Distinct from Bill (raspy eccentric British),
+the Sphinx (ancient sage), the Dragon (grand, weary), the Gargoyle (theatrical
+ham) and King Coo (Brooklyn). Say the name NEF-er-hoo (`/ˈnɛfərhuː/`).
+
+**The auditions are made** (2026-10-03, Eleven v4, one take each, the line
+"[haughtily] Neferhoo, Royal Courier. [clears throat] Four thousand years on this
+route. [shouting] Return to sender!"): Beezle Wheezelby (`BBfN7Spa3cqLPH1xAS22`,
+the design's first choice), AK – British Posh Well-Spoken Old Man
+(`y0SYydk17lMbUIUvSf3N`), Grampa Werthers – Old & Cranky (`MKlLqCItoCkvdhrxgtLv`,
+the fallback; he is also the 3-4 tower keeper), Daniel – The Gruff Old British
+Wizard (`htZQqY7WtacRNV7s62Iy`) and Cornelius – Wise Sage (`6sFKzaJr574YWVu4UuJF`).
+Where the takes are and how to put the winner on his 8 story clips and 34 flight
+lines: [story-voices-recording.md](story-voices-recording.md), section 2,
+"Neferhoo".
+
 ## Adding a new character or voice
 
 The recipe, in the order things go wrong if you skip a step. "Clip name" is the
@@ -461,8 +523,9 @@ To find out what is left at any moment: `python3 tool/prepare_story_voices.py --
 
 ### Putting an audition's winner on every clip of a part
 
-The sources file names the part's voice as `King Coo (audition)` or
-`Searchlight Gargoyle (audition)` until the audition is decided. This sets the
+The sources file names the part's voice as `King Coo (audition)`,
+`Searchlight Gargoyle (audition)` or `Neferhoo (audition)` until the audition is
+decided. This sets the
 winner on all of that part's clips at once and keeps the file's formatting (run
 it from the repository root, with the voice's real name and id):
 
@@ -481,4 +544,7 @@ EOF
 
 The fallback is the same edit with the fallback's name and id (the entry already
 has them in `fallback_voice` and `fallback_voice_id`). Then `--checklist` shows the
-chosen voice on every clip.
+chosen voice on every clip. Neferhoo also speaks in flight: put the same voice in
+`VOICES['neferhoo']` in `tool/prepare_flight_voices.py` (it is
+`(None, 'Neferhoo (audition)')` until then) and run
+`python3 tool/prepare_flight_voices.py script`.

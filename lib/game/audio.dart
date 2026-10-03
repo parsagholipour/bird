@@ -9,20 +9,46 @@ import 'combat_audio_cues.dart';
 import 'sound_bank.dart';
 import 'campaign_voices.dart';
 import 'flight_voices.dart';
+import 'regions/world_region.dart';
 
 enum SkyMusic {
   menu('audio/sky_menu.ogg'),
   flight('audio/sky_flight.ogg'),
-  boss('audio/sky_boss.ogg');
+  boss('audio/sky_boss.ogg'),
+  brazil('audio/sky_brazil.ogg', WorldRegion.brazil),
+  aztec('audio/sky_aztec.ogg', WorldRegion.aztec),
+  rome('audio/sky_rome.ogg', WorldRegion.rome),
+  egypt('audio/sky_egypt.ogg', WorldRegion.egypt),
+  arabia('audio/sky_arabia.ogg', WorldRegion.arabia),
+  newYork('audio/sky_new_york.ogg', WorldRegion.newYork),
+  paris('audio/sky_paris.ogg', WorldRegion.paris),
+  mexico('audio/sky_mexico.ogg', WorldRegion.mexico),
+  sea('audio/sky_sea.ogg', WorldRegion.sea),
+  antarctica('audio/sky_antarctica.ogg', WorldRegion.antarctica),
+  cyberpunk('audio/sky_cyberpunk.ogg', WorldRegion.cyberpunk),
+  china('audio/sky_china.ogg', WorldRegion.china);
 
-  const SkyMusic(this.asset);
+  const SkyMusic(this.asset, [this.region]);
   final String asset;
+
+  /// The campaign region this song is the flight music of.
+  final WorldRegion? region;
+
+  /// The flight music over a campaign level in [region]. The jungle and
+  /// every flight that is not a campaign level (null) keep [flight].
+  static SkyMusic flightOver(WorldRegion? region) => region == null
+      ? flight
+      : values.firstWhere((m) => m.region == region, orElse: () => flight);
+
+  /// Whether this plays during a flight, and so gives way to [boss].
+  bool get inFlight => this == flight || region != null;
 }
 
 class SkyAudio {
   SkyAudio({this._effectClock, Random? random}) : _random = random ?? Random();
   final int Function()? _effectClock;
   final Random _random;
+
   /// The sprint calls of a bird with none of its own recorded.
   static const _sharedSprintVoices = [
     'audio/sprint_voice_examples/sprint_03.mp3',
@@ -59,6 +85,13 @@ class SkyAudio {
             : null,
       );
     }
+    // A campaign boss's vanguard already plays the boss's music.
+    _vanguardFlying = simulation.vanguardFlying;
+    final afterBoss = tourSong(simulation);
+    if (afterBoss != _afterBoss) {
+      _afterBoss = afterBoss;
+      unawaited(_syncMusic());
+    }
     syncBoss(simulation.boss, silent: silent);
     final line = voices?.update(
       simulation,
@@ -80,18 +113,30 @@ class SkyAudio {
   int _flightLine = 0;
 
   /// The live flight's voice-over, set by the flight's controller. Replays
-  /// and Flight School leave it null and stay quiet; the sprint calls then
-  /// come from [_playSprintVoice] as before.
+  /// leave it null and stay quiet; the sprint calls then come from
+  /// [_playSprintVoice] as before.
   FlightVoices? voices;
 
   /// How far the music ducks under an in-flight line: less than under a
   /// story line, so short calls never pump the flight's music.
   static const flightDuck = .6;
 
-  bool _bossPresent = false, _bossQuiet = false;
+  bool _bossPresent = false, _bossQuiet = false, _vanguardFlying = false;
+
+  /// A world-tour flight's song once its latest boss has flown off: the song
+  /// of the region showing as it left (the jungle's is [SkyMusic.flight]).
+  /// Null before the first boss leaves, and for a campaign level, which keeps
+  /// its region's song.
+  static SkyMusic? tourSong(FlightSimulation simulation) {
+    final left = simulation.bossLeftAt;
+    if (simulation.region != null || left == null) return null;
+    return SkyMusic.flightOver(WorldTour.at(left).dominant);
+  }
+
+  SkyMusic? _afterBoss;
   void syncBoss(SkyBoss? boss, {bool silent = false}) {
     if (_disposed) return;
-    final present = boss != null;
+    final present = boss != null || _vanguardFlying;
     final quiet = boss?.inCutscene == true;
     if (_bossPresent != present || _bossQuiet != quiet) {
       _bossPresent = present;
@@ -119,6 +164,15 @@ class SkyAudio {
 
   /// The music's level under the line being said.
   double _duckTo = .35;
+
+  /// The music's level under the effects that duck it ([SoundSpec.duck]),
+  /// 1 when none is playing. It starts to lift at [_effectDuckUntil] on
+  /// [_clock], in [_duckReleaseSteps] steps [_duckReleaseStep] apart.
+  double _effectDuck = 1;
+  int _effectDuckUntil = 0;
+  Timer? _effectDuckEnds;
+  static const _duckReleaseSteps = 5;
+  static const _duckReleaseStep = Duration(milliseconds: 150);
   final _clock = Stopwatch()..start();
   final _lastEffect = <String, int>{};
   final _variations = <String, int>{};
@@ -170,14 +224,17 @@ class SkyAudio {
       if (_disposed || revision != _revision) return;
       try {
         if (_settings.music && _active) {
-          final track = _scene == SkyMusic.flight && _bossPresent
+          final track = !_scene.inFlight
+              ? _scene
+              : _bossPresent
               ? SkyMusic.boss
-              : _scene;
+              : _afterBoss ?? _scene;
           // Dominant bed; cinematic duck leaves roar and reveal cues in front.
-          // A character speaking ducks it further.
+          // A character speaking or a ducking effect lowers it further.
           final volume =
               (_scene != SkyMusic.menu && _bossQuiet ? .14 : .70) *
-              (_speaking == null ? 1 : _duckTo);
+              (_speaking == null ? 1 : _duckTo) *
+              _effectDuck;
           if (!_playing || _loadedTrack != track) {
             if (_loadedTrack != null && _loadedTrack != track) {
               await _music.stop();
@@ -242,6 +299,7 @@ class SkyAudio {
       _active = false;
       unawaited(_syncMusic());
     }
+    if (spec.duck != null) _duckUnder(spec);
     _lastEffect[name] = now;
     final take = (variant ?? _variations[name] ?? 0) % spec.variants;
     _variations[name] = take + 1;
@@ -274,6 +332,57 @@ class SkyAudio {
         debugPrint('SkyAudio effect $name: $error');
       }
     });
+  }
+
+  /// Ducks the music to [SoundSpec.duck] for [spec]'s length. Under another
+  /// ducking cue the deeper level holds until the later of the two ends.
+  void _duckUnder(SoundSpec spec) {
+    final now = _clock.elapsedMilliseconds;
+    final level = now < _effectDuckUntil
+        ? min(_effectDuck, spec.duck!)
+        : spec.duck!;
+    final until = now + (spec.seconds * 1000 / _rate).ceil();
+    if (until > _effectDuckUntil) {
+      _effectDuckUntil = until;
+      _effectDuckEnds?.cancel();
+      _effectDuckEnds = Timer(
+        Duration(milliseconds: until - now),
+        _releaseEffectDuck,
+      );
+    }
+    if (_effectDuck != level) {
+      _effectDuck = level;
+      unawaited(_syncMusic());
+    }
+  }
+
+  /// Lets the music swell back from under the ducking effects: equal steps in
+  /// decibels, the first at once and the last, at full level, 0.6 s later.
+  /// A new ducking cue cancels the swell.
+  void _releaseEffectDuck() {
+    final from = _effectDuck;
+    var step = 0;
+    void rise() {
+      if (++step >= _duckReleaseSteps) {
+        _liftEffectDuck();
+        return;
+      }
+      _effectDuck = pow(from, 1 - step / _duckReleaseSteps).toDouble();
+      if (!_disposed) unawaited(_syncMusic());
+    }
+
+    _effectDuckEnds = Timer.periodic(_duckReleaseStep, (_) => rise());
+    rise();
+  }
+
+  /// Brings the music straight back up from under the ducking effects.
+  void _liftEffectDuck() {
+    _effectDuckEnds?.cancel();
+    _effectDuckEnds = null;
+    _effectDuckUntil = 0;
+    if (_effectDuck == 1) return;
+    _effectDuck = 1;
+    if (!_disposed) unawaited(_syncMusic());
   }
 
   void _playSprintVoice() {
@@ -386,6 +495,7 @@ class SkyAudio {
   Future<void> stopEffects() async {
     if (_disposed) return;
     _lastEffect.clear();
+    _liftEffectDuck();
     final stops = <Future<void>>[hush()];
     for (final voice in _allEffects) {
       ++voice.revision;
@@ -412,6 +522,7 @@ class SkyAudio {
 
   Future<void> dispose() async {
     _disposed = true;
+    _effectDuckEnds?.cancel();
     ++_revision;
     await _configuration;
     await _music.dispose();

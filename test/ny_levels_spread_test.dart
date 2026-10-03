@@ -34,6 +34,19 @@ const _phases = 8;
 /// The gate on the completion rate: sharp and average 90%, casual 75%.
 double _gate(Skill skill) => skill == Skill.casual ? .75 : .90;
 
+/// King Coo's level from rules 45, as hard as the owner chose: his vanguard
+/// throws crusts, he has twice the health, and every vanguard pigeon that
+/// got away comes back in his fight, throwing, until it is shot. The pilots
+/// finish it in about 44%, 31% and 9% of the flights over all four widths
+/// (100% at rules 44; 91 / 84 / 66% before the stragglers). These are
+/// floors under that, pooled only. With paired returns at rules 56, the
+/// sharp pilot finishes 9 of 32 flights (28%); keep a 25% floor for it.
+double _cooGate(Skill skill) => switch (skill) {
+  Skill.sharp => .25,
+  Skill.average => .2,
+  Skill.casual => .03,
+};
+
 class Cell {
   final runs = <NyRun>[];
 
@@ -141,9 +154,13 @@ void main() {
               'run-up ${cell.causes(inFight: false)} fight ${cell.causes(inFight: true)}',
             );
           }
-          // The gate, pooled and at every width.
-          expect(cell.done, greaterThanOrEqualTo(_gate(skill)), reason: id);
-          for (final width in _widths) {
+          // The gate, pooled and at every width (King Coo's, pooled).
+          if (id == '3-2') {
+            expect(cell.done, greaterThanOrEqualTo(_cooGate(skill)));
+          } else {
+            expect(cell.done, greaterThanOrEqualTo(_gate(skill)), reason: id);
+          }
+          for (final width in id == '3-2' ? const <double>[] : _widths) {
             expect(
               cell.doneAt(width),
               greaterThanOrEqualTo(_gate(skill)),
@@ -185,29 +202,55 @@ void main() {
       }
     });
 
-    test('King Coo: no pilot is hit more than once in ten fights (the novice '
-        'plans one formation at a time, as a player reads the squadron)', () {
+    test('King Coo: no pilot is hit more than once in five minutes of his '
+        'fight (the novice plans one formation at a time, as a player reads '
+        'the squadron)', () {
       for (final skill in Skill.values) {
         final cell = shipped('3-2', skill);
         final fight = cell.causes(inFight: true);
         final hits = fight.values.fold(0, (a, b) => a + b);
+        final minutes =
+            cell.runs.fold(0.0, (sum, run) => sum + (run.fight ?? 0)) / 60;
         if (_print) {
           // ignore: avoid_print
           print(
             '3-2 ${skill.name} fight hits per fight ${(hits / cell.n).toStringAsFixed(2)} $fight',
           );
         }
-        // Whatever hits him, it is the squadron or a cloud and nothing else.
-        expect(fight.keys, everyElement(anyOf('squad-pigeon', 'crumb-cloud')));
+        // Whatever hits him, it is the squadron, a cloud, or (rules 45) a
+        // straggler or its crust, and nothing else.
+        expect(
+          fight.keys,
+          everyElement(
+            anyOf(
+              'squad-pigeon',
+              'crumb-cloud',
+              'pigeon-crumb',
+              'enemy-vanguard',
+            ),
+          ),
+        );
         // The casual bot of the first fix round was hit by the squadron in 31
         // of 32 fights; that was the shared bot's policy (it lists every lane
         // of fury's V and picket at once and finds no height), not the rules
         // (R2's fix round; `king_coo_casual_test.dart`). With the policy of a
         // player's eye (`sequential`) it is hit in 0 of 32, like the others.
-        expect(hits / cell.n, lessThanOrEqualTo(.1), reason: skill.name);
-        // Whatever it costs, he falls: the fight is won in every run.
+        // At 43 the bound was a hit in ten fights of about 12 to 36 s, and
+        // at 44 one in five minutes of his fight. At 45 (his health doubled,
+        // his stragglers back and throwing, as the owner chose) every pilot
+        // is caught about 2.5 times a fight, won or lost (a lost fight has
+        // no length here, so the bound is per fight).
+        expect(minutes, greaterThan(0));
+        expect(hits / cell.n, lessThanOrEqualTo(3.5), reason: skill.name);
+        // Every flight ends: he falls, or (from rules 45, his vanguard
+        // throwing and his health doubled) the pilot is knocked out. None
+        // stalls.
         for (final run in cell.runs) {
-          expect(run.boss!.phase, BossPhase.defeated);
+          expect(
+            run.boss?.phase == BossPhase.defeated ||
+                run.sim.endReason == EndReason.collision,
+            isTrue,
+          );
         }
       }
     });
@@ -218,6 +261,24 @@ void main() {
       for (final id in _ids) {
         for (final skill in Skill.values) {
           final cell = shipped(id, skill);
+          // King Coo's level (rules 45) fells some pilots after its run-up:
+          // its marks are judged on the run-up's harvest, over the flights
+          // that reached him (`ny_star_marks_test` flies it unharmed).
+          if (id == '3-2') {
+            final marks = Campaign.level(id)!.marks;
+            final reached = [
+              for (final run in cell.runs)
+                ?run.starsAtBoss,
+            ];
+            expect(reached.length / cell.n, greaterThanOrEqualTo(.6));
+            expect(
+              reached.where((stars) => stars >= marks.three).length /
+                  reached.length,
+              greaterThanOrEqualTo(.9),
+              reason: '$id ${skill.name}',
+            );
+            continue;
+          }
           expect(cell.twoStars, greaterThanOrEqualTo(.95), reason: id);
           final floor = id == '3-3' && skill != Skill.casual ? .6 : .9;
           expect(

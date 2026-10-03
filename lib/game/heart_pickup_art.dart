@@ -4,14 +4,24 @@ import '../domain/game_rules.dart';
 import '../ui/theme.dart';
 
 abstract final class HeartPickupArt {
+  /// A heart the birds missed drifts away this faint.
+  static const missedOpacity = .5;
+
   static void paint(
     Canvas canvas,
     double height,
     SkyHeart heart, {
     required double seconds,
     required bool reducedMotion,
+    double opacity = 1,
   }) {
     final center = Offset(heart.x * height, heart.y * height);
+    if (opacity < 1) {
+      canvas.saveLayer(
+        Rect.fromCircle(center: center, radius: height * SkyHeart.haloRadius),
+        Paint()..color = SkyColors.white.withValues(alpha: opacity),
+      );
+    }
     final pulse = reducedMotion ? 1.0 : 1 + math.sin(seconds * 4) * .07;
     canvas.drawCircle(
       center,
@@ -46,5 +56,6 @@ abstract final class HeartPickupArt {
       Paint()..color = SkyColors.white.withValues(alpha: .85),
     );
     canvas.restore();
+    if (opacity < 1) canvas.restore();
   }
 }

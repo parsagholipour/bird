@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 import 'package:flame/game.dart';
+import 'package:flutter/widgets.dart' show MediaQuery;
 import '../domain/game_rules.dart';
 import '../domain/bird_motion.dart';
 import '../ui/theme.dart';
@@ -10,6 +11,8 @@ import 'bird_trail.dart';
 import 'bird_puppet.dart';
 import 'star_trio_art.dart';
 import 'star_group_aura.dart';
+import 'neferhoo_encounter_art.dart' show NeferhooEncounterArt;
+import 'neferhoo_props_art.dart' show NeferhooScreen;
 import 'star_pickup_art.dart';
 import 'star_art.dart';
 import 'alley_pigeon_overlay_art.dart';
@@ -19,14 +22,18 @@ import 'gate_art.dart';
 import 'obstacle_art.dart';
 import 'combat_art.dart';
 import 'boss_art.dart';
+import 'boss_power_up_art.dart';
+import 'boss_vanguard_art.dart';
 import 'heart_pickup_art.dart';
 import 'door_art.dart';
 import 'duel_art.dart';
+import 'finish_celebration_art.dart';
 import 'gale_art.dart';
 import 'rush_art.dart';
 import 'sprint_art.dart';
 import 'knockout_art.dart';
 import 'steam_geyser_art.dart';
+import 'straggler_art.dart';
 import 'tether_art.dart';
 import 'flight_voices.dart' show FlightSpeech;
 
@@ -41,6 +48,8 @@ class BirdGame extends FlameGame {
     this.playback = false,
     this.transparent = false,
     this.knockout,
+    this.finish,
+    this.seat,
     this.speech,
     this.partnerBird,
   });
@@ -60,6 +69,15 @@ class BirdGame extends FlameGame {
   /// Seconds since a fatal bump while its knockout plays, held at the end
   /// under the game-over stage. Null keeps the plain ended frame (replays).
   final double? Function()? knockout;
+
+  /// Seconds since the bird crossed a campaign level's finish line while
+  /// its celebration plays ([FinishCelebrationArt]), held once it settles.
+  /// Null for every other frame.
+  final double? Function()? finish;
+
+  /// Where the level result's courier sits on a [size] screen, for the
+  /// celebrating bird to land in; null leaves it hovering past the gate.
+  final CourierSeat? Function(Size size)? seat;
 
   /// Who is talking this frame (the bird or the boss), with the mood and
   /// mouth to draw; null in silence, and always in replays.
@@ -92,6 +110,15 @@ class BirdGame extends FlameGame {
     if (simulation.phase == RunPhase.playing && dt > 0) {
       _frameDurations.add(dt);
       if (_frameDurations.length > 600) _frameDurations.removeAt(0);
+    }
+    // Egypt's guardian builds his art's caches before the run-up starts:
+    // on the arrival's first frame the build can outlast the half second
+    // after which a playing flight ends as stalled (see
+    // [NeferhooEncounterArt.prewarmAhead]).
+    if (simulation.plan case LevelPlan(boss: BossKind.neferhoo)
+        when simulation.phase == RunPhase.countdown &&
+            !NeferhooEncounterArt.warm) {
+      NeferhooEncounterArt.prewarmAhead();
     }
     if (playback) return;
     if (advance != null) {
@@ -133,10 +160,19 @@ class BirdGame extends FlameGame {
     super.render(canvas);
     final w = size.x, h = size.y;
     if (h <= 0) return;
+    // Egypt's guardian keeps his tags clear of the HUD in the safe area.
+    NeferhooScreen.insets =
+        buildContext
+            ?.getInheritedWidgetOfExactType<MediaQuery>()
+            ?.data
+            .padding ??
+        EdgeInsets.zero;
     final ko = knockout?.call();
+    final fin = ko == null ? finish?.call() : null;
     // Who is talking: the boss's face and the bird's follow the line.
     final said = speech?.call();
     if (ko != null) _knockoutWorld(canvas, ko, w, h);
+    if (fin != null) _finishWorld(canvas, fin, w, h);
     canvas.save();
     canvas.clipRect(Rect.fromLTWH(0, 0, w, h));
     final shake =
@@ -145,7 +181,13 @@ class BirdGame extends FlameGame {
             GaleArt.cameraOffset(simulation, reducedMotion) +
             (ko == null
                 ? Offset.zero
-                : KnockoutArt.cameraOffset(ko, reducedMotion: reducedMotion))) *
+                : KnockoutArt.cameraOffset(ko, reducedMotion: reducedMotion)) +
+            (fin == null
+                ? Offset.zero
+                : FinishCelebrationArt.cameraOffset(
+                    fin,
+                    reducedMotion: reducedMotion,
+                  ))) *
         h;
     if (shake != Offset.zero) {
       canvas.translate(w / 2, h / 2);
@@ -175,7 +217,13 @@ class BirdGame extends FlameGame {
       simulation,
       reducedMotion: reducedMotion,
     );
-    ArrivalArt.gate(canvas, h, simulation, reducedMotion: reducedMotion);
+    ArrivalArt.gate(
+      canvas,
+      h,
+      simulation,
+      reducedMotion: reducedMotion,
+      celebration: fin,
+    );
     SprintArt.streaks(
       canvas,
       Size(w, h),
@@ -364,6 +412,16 @@ class BirdGame extends FlameGame {
         );
       }
     }
+    for (final heart in simulation.missedHearts) {
+      HeartPickupArt.paint(
+        canvas,
+        h,
+        heart,
+        seconds: _time,
+        reducedMotion: reducedMotion,
+        opacity: HeartPickupArt.missedOpacity,
+      );
+    }
     for (final heart in simulation.heartPickups) {
       if (heart.x * h > w + h * .07) continue;
       HeartPickupArt.paint(
@@ -384,12 +442,26 @@ class BirdGame extends FlameGame {
     }
     RushArt.vents(canvas, Size(w, h), simulation, reducedMotion: reducedMotion);
     RushArt.rings(canvas, Size(w, h), simulation, reducedMotion: reducedMotion);
+    // A staged boss growing stronger glows behind its figure, and its rings
+    // and chevrons break over it.
+    BossPowerUpArt.under(
+      canvas,
+      Size(w, h),
+      simulation,
+      reducedMotion: reducedMotion,
+    );
     BossArt.paint(
       canvas,
       Size(w, h),
       simulation,
       reducedMotion: reducedMotion,
       speech: said,
+    );
+    BossPowerUpArt.over(
+      canvas,
+      Size(w, h),
+      simulation,
+      reducedMotion: reducedMotion,
     );
     if (simulation.duel) {
       DuelArt.marks(
@@ -413,8 +485,9 @@ class BirdGame extends FlameGame {
       simulation,
       reducedMotion: reducedMotion,
     );
-    // A knockout draws its own tumbling bird over the dimmed world.
-    if (ko == null && !hideBird) {
+    // A knockout draws its own tumbling bird over the dimmed world, and the
+    // finish its celebrating one over the warmed world.
+    if (ko == null && fin == null && !hideBird) {
       TetherArt.rope(canvas, h, simulation, reducedMotion: reducedMotion);
       // Player 1's bird flies behind and is drawn over its partner. Only
       // player 1's bird talks.
@@ -474,6 +547,21 @@ class BirdGame extends FlameGame {
       );
     }
     if (ko == null) {
+      // A campaign boss's vanguard: its card, and its plate in the boss
+      // plate's place until the boss arrives.
+      BossVanguardArt.paint(
+        canvas,
+        Size(w, h),
+        simulation,
+        reducedMotion: reducedMotion,
+      );
+      // King Coo's vanguard pigeons that got away and are still owed.
+      StragglerArt.owedTag(
+        canvas,
+        Size(w, h),
+        simulation,
+        reducedMotion: reducedMotion,
+      );
       RushArt.banner(
         canvas,
         Size(w, h),
@@ -516,6 +604,21 @@ class BirdGame extends FlameGame {
           ),
         );
       }
+    }
+    if (fin != null) {
+      canvas.restore();
+      FinishCelebrationArt.paint(
+        canvas,
+        Size(w, h),
+        simulation,
+        bird: bird,
+        seconds: fin,
+        reducedMotion: reducedMotion,
+        seat: seat?.call(Size(w, h)),
+        hideBird: hideBird,
+        shake: shake,
+        beak: !reducedMotion && said != null && said.bird ? said.mouth : 0,
+      );
     }
   }
 
@@ -730,6 +833,28 @@ class BirdGame extends FlameGame {
     }
   }
 
+  /// Opens the layer the frozen world is drawn into while the finish is
+  /// celebrated: it warms and brightens and the camera punches in on the
+  /// crossing.
+  void _finishWorld(Canvas canvas, double t, double w, double h) {
+    final layer = FinishCelebrationArt.worldLayer(
+      t,
+      reducedMotion: reducedMotion,
+    );
+    if (layer == null) {
+      canvas.save();
+    } else {
+      canvas.saveLayer(Rect.fromLTWH(0, 0, w, h), layer);
+    }
+    final zoom = FinishCelebrationArt.zoom(t, reducedMotion: reducedMotion);
+    if (zoom != 1) {
+      final focus = FinishCelebrationArt.focus(simulation, h);
+      canvas.translate(focus.dx, focus.dy);
+      canvas.scale(zoom);
+      canvas.translate(-focus.dx, -focus.dy);
+    }
+  }
+
   void _magnet(Canvas canvas, double h) {
     final center = Offset(simulation.birdScreenX * h, simulation.birdY * h);
     final radius = simulation.pickupRadius * h;
@@ -818,8 +943,13 @@ class BirdGame extends FlameGame {
     final messages = active
         .where((e) => e.kind != FlightEventKind.star)
         .toList();
+    // A heart or the all-rings bonus outranks the smashes that follow it.
     final callouts = messages
-        .where((e) => e.kind == FlightEventKind.heart)
+        .where(
+          (e) =>
+              e.kind == FlightEventKind.heart ||
+              e.kind == FlightEventKind.allRings,
+        )
         .toList();
     final major = callouts.isNotEmpty
         ? callouts.last
@@ -835,7 +965,8 @@ class BirdGame extends FlameGame {
         FlightEventKind.hit ||
         FlightEventKind.heart ||
         FlightEventKind.scorched => SkyColors.coral,
-        FlightEventKind.sprintRing => SkyColors.yellow,
+        FlightEventKind.sprintRing ||
+        FlightEventKind.allRings => SkyColors.yellow,
         FlightEventKind.shieldReady ||
         FlightEventKind.shieldUsed => SkyColors.teal,
         FlightEventKind.magnet => SkyColors.purple,
@@ -907,6 +1038,7 @@ class BirdGame extends FlameGame {
               ? 'SMASH ×${event.value}!'
               : 'BAT +${Rush.batPoints}!',
         FlightEventKind.scorched => 'SCORCHED!',
+        FlightEventKind.allRings => 'ALL RINGS! +${event.value}s BOOST',
         FlightEventKind.rushWarning ||
         FlightEventKind.rushEscaped ||
         FlightEventKind.galeWarning ||

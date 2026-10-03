@@ -63,7 +63,8 @@ FlightSimulation arena({
   double width = 2.2,
   int weaponDamage = BirdRock.baseDamage,
   LevelPlan? plan,
-  int version = FlightSimulation.currentRulesVersion,
+  // New York's short fight; rules 44's staged one is in boss_stages_test.
+  int version = FlightSimulation.newYorkRulesVersion,
 }) {
   final sim = nyFlight(
     plan ?? gargoylePlan(),
@@ -108,8 +109,21 @@ class Pilot {
     this.offTarget = 0,
     this.careful = true,
     this.lagFrames = 0,
+    this.react,
+    this.tapGap = tapGapSteps,
     int seed = 1,
   }) : _random = math.Random(seed);
+
+  /// A player's reaction (seconds), or null for the pilot that knows the
+  /// cycle by heart. A reacting pilot sees a feather only [react] after it
+  /// leaves and a sweep's side only [react] into its warning, and it never
+  /// plans for a feather that has not left: what it does not see yet can
+  /// still corner it, as it corners a player (rules 46's measure of how hard
+  /// the fiercer Gargoyle is).
+  final double? react;
+
+  /// The fewest frames between its taps: 12 is five a second.
+  final int tapGap;
 
   /// Seconds between shots; when to start firing, in seconds from the lamp's
   /// opening (the lamp is judged as a rock leaves, so firing before it opens
@@ -139,6 +153,10 @@ class Pilot {
   /// tail long enough for the last feather to have crossed.
   static const tail = .45;
 
+  /// A fiercer Gargoyle's (rules 46) plan runs on through the vent, whose
+  /// feathers have all crossed by then, to just before the next cycle.
+  static const fierceEnd = 8.95;
+
   /// Hover target when nothing burns: at the lamp's height, wandering.
   double target(FlightSimulation sim) {
     final boss = sim.boss!;
@@ -160,7 +178,8 @@ class Pilot {
     // Where the bird will be, and when, as the tap decided now lands: after
     // the taps already decided have landed one by one.
     var y = sim.birdY, v = sim.velocity;
-    var since = ((sim.elapsed - sim.lastFlapAt) / dt).round().clamp(0, 15);
+    final most = math.max(15, tapGap);
+    var since = ((sim.elapsed - sim.lastFlapAt) / dt).round().clamp(0, most);
     var aimedSide = boss.sweepsAimed > boss.gargoyleCycleNumber
         ? boss.beamSide
         : null;
@@ -170,7 +189,7 @@ class Pilot {
       }
       final tap = _decisions[_frame + j - lagFrames] ?? false;
       if (tap) v = flapImpulse;
-      since = tap ? 1 : math.min(since + 1, 15);
+      since = tap ? 1 : math.min(since + 1, most);
       v += gravity * dt / 2;
       y += v * dt / 2;
       v += gravity * dt / 2;
@@ -184,30 +203,67 @@ class Pilot {
             enraged: boss.enraged,
             furySweeps: boss.furySweeps,
           );
+    final fury = aimed ? boss.aimFury : boss.enraged;
+    // A fiercer Gargoyle's full fight (rules 46) sweeps and drops feathers at
+    // fury's pace: the fury zone sweep's beam with the full fight's feathers.
     final sweep = slit
         ? Sweep.furySlit
-        : boss.enraged
+        : fury || boss.furyPace
         ? Sweep.furyZone
         : Sweep.calm;
+    // A reacting pilot has seen the sweep's side only [react] into its
+    // warning; until then it plans for the feathers alone.
+    final react = this.react;
+    final seen =
+        react == null ||
+        (aimed && boss.gargoyleCycle >= SearchlightGargoyle.warnAt + react);
     final flying = <(int, double)>[];
     final flyingFury = <bool>[];
     for (final f in sim.bossAmmo.where((a) => a.feather && a.x > birdX - .15)) {
       final speed = -f.vx;
-      final age = (SearchlightGargoyle.featherOffsetX - (f.x - birdX)) / speed;
-      final flight = SearchlightGargoyle.featherOffsetX / speed;
+      // A level feather (rules 49) aimed low left further ahead, faster, in
+      // its pace's flight time.
+      final from = f.launchX ?? birdX + SearchlightGargoyle.featherOffsetX;
+      final age = (from - f.x) / speed;
+      if (react != null && age < react) continue;
+      final flight = (from - birdX) / speed;
       final vy0 = f.vy - f.gravity * age;
       final lane =
           SearchlightGargoyle.featherY +
           vy0 * flight +
           .5 * f.gravity * flight * flight;
       flying.add((now - (age / dt).round(), lane));
-      flyingFury.add(speed > SearchlightGargoyle.featherSpeed + .01);
+      flyingFury.add(
+        flight <
+            SearchlightGargoyle.featherOffsetX /
+                    SearchlightGargoyle.featherSpeed -
+                .01,
+      );
     }
     // A comfortable margin first; a tighter one if the pilot has put itself
     // in a corner.
     SearchResult? result;
     for (final margin in const [.012, .002]) {
-      final search = Search(sweep, margin: margin, tail: tail, substeps: 2);
+      final search = Search(
+        sweep,
+        margin: margin,
+        tail: tail,
+        substeps: 2,
+        tapGap: tapGap,
+        dropsFeathers:
+            react == null &&
+            (!boss.staged || boss.featherSchedule.isNotEmpty),
+        schedule: boss.fierce
+            ? SearchlightGargoyle.fierceFeathers(
+                armed: boss.signatureArmed(boss.gargoyleCycleNumber),
+                fury: fury,
+                slit: slit,
+              )
+            : null,
+        endAt: boss.fierce ? fierceEnd : null,
+        beamBlind: !seen,
+        level: boss.levelFeathers,
+      );
       result = search.fromState(
         step,
         y,
@@ -228,12 +284,17 @@ class Pilot {
   /// Whether to tap this frame.
   bool flap(FlightSimulation sim) {
     final boss = sim.boss!;
-    if (careful &&
-        boss.phase == BossPhase.attacking &&
-        boss.featherCycle == boss.gargoyleCycleNumber &&
-        boss.featherSlot >= 1) {
+    // The plan starts as the perch feather leaves, or at its time in a
+    // cycle that drops none (a staged Gargoyle's warm-up, rules 44).
+    final perched = boss.featherSchedule.isEmpty
+        ? boss.gargoyleCycle >= SearchlightGargoyle.calmFeathers.first
+        : boss.featherCycle == boss.gargoyleCycleNumber &&
+              boss.featherSlot >= 1;
+    if (careful && boss.phase == BossPhase.attacking && perched) {
       final step = (boss.gargoyleCycle / dt).round();
-      final end = ((SearchlightGargoyle.ventAt + tail) / dt).round();
+      final end =
+          ((boss.fierce ? fierceEnd : SearchlightGargoyle.ventAt + tail) / dt)
+              .round();
       if (step < end) {
         if (_plannedCycle != boss.gargoyleCycleNumber ||
             step - _plannedAt >= 8) {

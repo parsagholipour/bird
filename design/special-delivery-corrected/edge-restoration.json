@@ -1,0 +1,19 @@
+{
+  "method": "Direct pixel compositing, as requested; no regeneration.",
+  "base": "../mobile-brand-premium/02-special-delivery/master.png",
+  "wing_patch": "master.png",
+  "output": "master-edge-restored.png",
+  "width": 1254,
+  "height": 1254,
+  "roi": {
+    "left": 0,
+    "top": 196,
+    "right": 490,
+    "bottom": 690,
+    "feather": 24
+  },
+  "original_pixels_preserved": 1331439,
+  "patch_pixels": 241077,
+  "alpha": "Original alpha preserved at every pixel.",
+  "store": "play-store-512-edge-restored.png"
+}

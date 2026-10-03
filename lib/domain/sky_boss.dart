@@ -3,11 +3,13 @@ import 'dart:math' as math;
 import 'baron_screech.dart';
 import 'dragon_breath.dart';
 import 'king_coo.dart';
+import 'neferhoo.dart';
 import 'searchlight_gargoyle.dart';
 
 export 'baron_screech.dart';
 export 'dragon_breath.dart';
 export 'king_coo.dart';
+export 'neferhoo.dart';
 export 'searchlight_gargoyle.dart';
 
 enum BossPhase { arriving, attacking, defeated }
@@ -16,8 +18,9 @@ enum BossPhase { arriving, attacking, defeated }
 /// cycle in rules version 34 and [BossKind.dragon] in rules version 38.
 ///
 /// [kingCoo] and [searchlightGargoyle] (rules version 43) are mini-boss
-/// guardians of New York: [campaignOnly], they sit after the endless cycle
-/// and only a campaign level plan can name them. Append, never reorder.
+/// guardians of New York, and [neferhoo] (rules version 50) is Egypt's:
+/// [campaignOnly], they sit after the endless cycle and only a campaign level
+/// plan can name them. Append, never reorder.
 enum BossKind {
   baronBat,
   spitterBeetle,
@@ -25,14 +28,15 @@ enum BossKind {
   pirate,
   dragon,
   kingCoo,
-  searchlightGargoyle;
+  searchlightGargoyle,
+  neferhoo;
 
   /// The endless boss cycle is the first [endlessCycle] kinds, in order.
   static const endlessCycle = 5;
 
   /// Kinds no endless flight meets, at any rules version.
   bool get campaignOnly => switch (this) {
-    kingCoo || searchlightGargoyle => true,
+    kingCoo || searchlightGargoyle || neferhoo => true,
     baronBat || spitterBeetle || duskMoth || pirate || dragon => false,
   };
 }
@@ -48,15 +52,21 @@ class SkyBoss {
     this.debut = false,
     this.callsSwarm = true,
     this.upgraded = false,
+    this.staged = false,
+    this.fierce = false,
+    this.levelFeathers = false,
+    this.tougherNeferhoo = false,
+    this.fasterNeferhoo = false,
+    this.quickRestart = false,
     int? maxHp,
   }) : maxHp = maxHp ?? healthFor(kind, number) {
     if (this.maxHp <= 0) throw ArgumentError.value(this.maxHp, 'maxHp');
     // The mini-bosses arrive and fall in the cinematic staging only.
     assert(!kind.campaignOnly || cinematic, 'mini-bosses are cinematic');
     hp = this.maxHp;
-    if (isKingCoo || isGargoyle) {
-      // Neither shoots volleys or calls lineup helpers: each fights on a
-      // fixed combat-time cycle (see [KingCoo], [SearchlightGargoyle]).
+    if (isKingCoo || isGargoyle || isNeferhoo) {
+      // None shoots volleys or calls lineup helpers: each fights on a fixed
+      // combat-time cycle (see [KingCoo], [SearchlightGargoyle], [Neferhoo]).
       fireIn = summonIn = double.infinity;
     } else if (screeches) {
       // The upgraded Baron sends his bats in pairs on the screech's clock.
@@ -77,25 +87,91 @@ class SkyBoss {
       fireIn = 1.3;
       summonIn = double.infinity;
     }
+    if (staged) {
+      // The warm-up calls no helpers and holds the signature attack back
+      // until the boss grows stronger (see [stage]).
+      summonIn = double.infinity;
+      signatureCycle = null;
+    }
   }
 
   /// Older rules keep the Spitter King's original 180 HP start
-  /// ([tougherSpitter] false); from rules version 37 it starts at 210.
+  /// ([tougherSpitter] false); from rules version 37 it starts at 210. From
+  /// rules version 48 an endless Baron Bat that returns [upgraded] has twice
+  /// the health ([tougherBaron]). An endless boss's second [meeting] is its
+  /// toughest until rules version 53, which keeps it growing ([growing]):
+  /// every meeting after the second has [growthPercent] more health than
+  /// the one before, rounded to 10.
   static int healthFor(
     BossKind kind,
     int number, {
     bool tougherSpitter = true,
+    bool tougherBaron = false,
+    bool growing = false,
+  }) {
+    var hp = switch (kind) {
+      BossKind.baronBat =>
+        (120 + (number - 1).clamp(0, 4) * 30) * (tougherBaron ? 2 : 1),
+      BossKind.spitterBeetle =>
+        (tougherSpitter ? 210 : 180) + (number - 2).clamp(0, 4) * 30,
+      BossKind.duskMoth => 240 + (number - 3).clamp(0, 4) * 30,
+      BossKind.pirate => 300 + (number - 4).clamp(0, 4) * 30,
+      BossKind.dragon => 360 + (number - 5).clamp(0, 4) * 30,
+      // The mini-bosses have one health at every encounter number.
+      BossKind.kingCoo => KingCoo.maxHp,
+      BossKind.searchlightGargoyle => SearchlightGargoyle.maxHp,
+      BossKind.neferhoo => Neferhoo.maxHp,
+    };
+    if (!growing || kind.campaignOnly) return hp;
+    // Integer steps, so every platform replays the same health.
+    for (var n = 3; n <= meeting(kind, number); n++) {
+      hp = (hp * (100 + growthPercent) + 500) ~/ 1000 * 10;
+    }
+    return hp;
+  }
+
+  /// How much more health, in percent, a growing endless boss (`healthFor`'s
+  /// `growing`, rules version 53) has at each meeting after its second than
+  /// at the one before.
+  static const growthPercent = 25;
+
+  /// Which meeting of its [kind] endless encounter [number] is, from 1: the
+  /// endless cycle meets every kind once per [BossKind.endlessCycle] bosses.
+  static int meeting(BossKind kind, int number) =>
+      (number - 1 - kind.index) ~/ BossKind.endlessCycle + 1;
+
+  /// A campaign boss's health from rules version 44, when it fights in
+  /// [stage]s: long fights that start easy. Endless keeps [healthFor]. From
+  /// rules version 45 King Coo has twice his 44 health ([tougherCoo]); from
+  /// 46 the fiercer Searchlight Gargoyle ([fiercerGargoyle], see [fierce])
+  /// fights as long as King Coo; from 52 Neferhoo has twice his rules 50
+  /// health ([tougherNeferhoo], see [SkyBoss.tougherNeferhoo]), and from 55
+  /// a hundred more ([fasterNeferhoo], see [SkyBoss.fasterNeferhoo]).
+  static int campaignHealthFor(
+    BossKind kind, {
+    bool tougherCoo = true,
+    bool fiercerGargoyle = true,
+    bool tougherNeferhoo = true,
+    bool fasterNeferhoo = true,
   }) => switch (kind) {
-    BossKind.baronBat => 120 + (number - 1).clamp(0, 4) * 30,
-    BossKind.spitterBeetle =>
-      (tougherSpitter ? 210 : 180) + (number - 2).clamp(0, 4) * 30,
-    BossKind.duskMoth => 240 + (number - 3).clamp(0, 4) * 30,
-    BossKind.pirate => 300 + (number - 4).clamp(0, 4) * 30,
-    BossKind.dragon => 360 + (number - 5).clamp(0, 4) * 30,
-    // The mini-bosses have one health at every encounter number.
-    BossKind.kingCoo => KingCoo.maxHp,
-    BossKind.searchlightGargoyle => SearchlightGargoyle.maxHp,
+    BossKind.baronBat => 600,
+    BossKind.spitterBeetle => 600,
+    BossKind.duskMoth => 620,
+    BossKind.pirate => 780,
+    BossKind.dragon => 1080,
+    BossKind.kingCoo => tougherCoo ? 840 : 420,
+    BossKind.searchlightGargoyle => fiercerGargoyle ? fiercerGargoyleHp : 200,
+    // Rules version 50: only ever staged. 52 doubles it, 55 adds 100.
+    BossKind.neferhoo =>
+      !tougherNeferhoo
+          ? Neferhoo.campaignHp
+          : fasterNeferhoo
+          ? Neferhoo.fasterHp
+          : Neferhoo.tougherHp,
   };
+
+  /// The fiercer Gargoyle's health (rules version 46).
+  static const fiercerGargoyleHp = 640;
 
   /// Damage may skip over half health or zero after a weapon upgrade.
   int takeDamage(int damage) {
@@ -124,17 +200,182 @@ class SkyBoss {
 
   /// Baron Bat returns upgraded, from rules version 40 on every encounter
   /// after his [debut]: he screeches (see [BaronScreech]) and sends his small
-  /// bats in pairs. Only a Baron Bat is ever upgraded.
+  /// bats in pairs, and from rules version 48 he has twice the health
+  /// (`healthFor`'s `tougherBaron`). Only a Baron Bat is ever upgraded, and
+  /// only on an endless flight: a campaign boss always debuts.
   final bool upgraded;
   bool get screeches => kind == BossKind.baronBat && upgraded;
+
+  /// A campaign boss from rules version 44 fights in three [stage]s, one per
+  /// third of its health bar: an easy warm-up, then stronger when it loses a
+  /// third (its helpers and its signature attack join), then a bit stronger
+  /// again in fury at the last third. Endless bosses keep one fury at half
+  /// health.
+  final bool staged;
+
+  /// The fiercer Searchlight Gargoyle (rules version 46, a [staged] campaign
+  /// fight): his warm-up drops stone feathers, and once he grows stronger he
+  /// drops more in the vent, over his open lamp
+  /// ([SearchlightGargoyle.fierceFeathers]). Only a staged Gargoyle is
+  /// fierce.
+  final bool fierce;
+
+  /// The Searchlight Gargoyle's feathers are level (rules version 49): none
+  /// crosses the bird's column steeper than
+  /// [SearchlightGargoyle.maxFeatherSlope], so one aimed at a low bird
+  /// leaves further ahead and flies faster ([SearchlightGargoyle.featherShot]).
+  final bool levelFeathers;
+
+  /// The tougher Neferhoo (rules version 52, his staged campaign fight):
+  /// twice the health ([Neferhoo.tougherHp]), letters [Neferhoo.tougherPace]
+  /// times faster there and back, and his mummy bats (`EnemyKind.mummyBat`)
+  /// with each mail call once he grows stronger (see [Neferhoo.batsFor]).
+  /// Only a Neferhoo is ever tougher.
+  final bool tougherNeferhoo;
+
+  /// The faster Neferhoo (rules version 55, his staged campaign fight, on
+  /// top of [tougherNeferhoo]): [Neferhoo.fasterHp] health and the faster
+  /// clock ([NeferhooBeats.faster]: a 10.5 s cycle, a second mail call from
+  /// the full fight on, mummy bats from the warm-up on) and returned letters
+  /// that deal [Neferhoo.fasterReturnDamage]. Only a tougher Neferhoo is
+  /// ever faster.
+  final bool fasterNeferhoo;
+
+  /// King Coo does not idle after his fury begins (rules version 54, his
+  /// staged campaign fight): the cycle he grows furious in ends as soon as
+  /// its last hazard has passed and he has got over his roar and any pop,
+  /// and his first fury cycle begins there ([restartCoo]). Only a King Coo
+  /// restarts.
+  final bool quickRestart;
+
+  /// 0, the warm-up, above two thirds of its health (only a staged boss has
+  /// one); 1, the full fight; 2, fury ([enraged]).
+  int get stage => enraged
+      ? 2
+      : staged && hp * 3 > maxHp * 2
+      ? 0
+      : 1;
+
+  /// The warm-up: fewer, slower shots, no helpers, no signature attack.
+  bool get calm => stage == 0;
+
+  /// The highest [stage] the rules have seen, and when (boss age) the boss
+  /// last grew stronger. The rules raise them a step after the hit that
+  /// crossed a third (`_advanceStages`); render and cue only read them.
+  int stageReached = 0;
+  double stageUpAt = double.negativeInfinity;
+
+  /// The health shares where a staged boss grows stronger, for the bar's
+  /// notches: two thirds and one third, or half for fury alone.
+  List<double> get stageMarks => staged ? const [2 / 3, 1 / 3] : const [.5];
+
+  /// After growing stronger the boss roars and holds its fire this long.
+  static const stageRoar = 1.4;
+
+  /// The height of the heart a staged boss knocks loose as it grows
+  /// stronger.
+  static const heartY = .5;
+
+  /// Its first helper follows the roar this long after the full fight
+  /// begins.
+  static const stageHelperDelay = 2.4;
+
+  /// The first signature attack's earliest moment (its warning, or the
+  /// quiet before it) comes at least this long after the boss grows
+  /// stronger, so the roar is over before anything new begins.
+  static const signatureLead = 1.6;
+
+  /// How long [stageHint] names what the full fight brings.
+  static const stageHintSeconds = 3.0;
+
+  /// The first cycle of the boss's signature clock that runs: the tide, the
+  /// dragon's breath and flocks, King Coo's squadron, the Gargoyle's
+  /// feathers. Null until a staged boss leaves its warm-up; 0 (every cycle)
+  /// for a boss that fights in one stage. See [armSignature].
+  int? signatureCycle = 0;
+
+  /// The signature clock of this kind, as (period, onset): its cycle in
+  /// combat seconds and the earliest moment of a cycle that shows any of the
+  /// signature, or null when the kind has none.
+  (double, double)? get _signatureClock => switch (kind) {
+    BossKind.pirate => (tidePeriod, tideWarnAt),
+    BossKind.dragon => (
+      DragonBreath.period,
+      DragonBreath.warnAt - DragonBreath.quietBefore,
+    ),
+    BossKind.kingCoo => (KingCoo.period, KingCoo.puffAt),
+    BossKind.searchlightGargoyle => (SearchlightGargoyle.period, 0.0),
+    // Neferhoo's ankh: its loop is drawn from the lock. His mail call runs
+    // from the warm-up on.
+    BossKind.neferhoo => (neferhooBeats.period, neferhooBeats.ankhLockAt),
+    BossKind.baronBat || BossKind.spitterBeetle || BossKind.duskMoth => null,
+  };
+
+  /// Leaves the warm-up: the first signature cycle whose onset is at least
+  /// [signatureLead] away runs, and every one after it.
+  void armSignature() {
+    if (signatureCycle != null) return;
+    final clock = _signatureClock;
+    if (clock == null) {
+      signatureCycle = 0;
+      return;
+    }
+    final (period, onset) = clock;
+    final from = combatTime + signatureLead - onset;
+    signatureCycle = math.max(0, (from / period - 1e-9).ceil());
+  }
+
+  /// Whether cycle [cycle] of the signature clock runs.
+  bool signatureArmed(int cycle) {
+    final from = signatureCycle;
+    return from != null && cycle >= from;
+  }
+
+  /// [count] events of the signature clock so far, less those of cycles
+  /// that did not run: edge-triggered cues and the rules' latches only ever
+  /// see the cycles that run.
+  int _armedCount(int count) {
+    final from = signatureCycle;
+    return from == null ? 0 : math.max(0, count - from);
+  }
+
+  /// Whether the signature cycle that combat time [t] falls in runs.
+  bool _armedAt(double t, double period) =>
+      t >= 0 && signatureArmed((t / period).floor());
+
+  /// For a few seconds after the full fight begins: what it brings.
+  String? get stageHint {
+    if (!staged || stageReached != 1) return null;
+    if (age - stageUpAt >= stageHintSeconds) return null;
+    return switch (kind) {
+      BossKind.baronBat => 'STRONGER · Triple shots, and his bats join in!',
+      BossKind.spitterBeetle =>
+        'STRONGER · Full fans, and his beetles join in!',
+      BossKind.duskMoth => 'STRONGER · Seven-shot fans, and her moths join in!',
+      BossKind.pirate => 'STRONGER · The tide is turning!',
+      BossKind.dragon => 'STRONGER · Watch for the breath and the flocks!',
+      BossKind.kingCoo => 'STRONGER · He whistles for his squadron!',
+      BossKind.searchlightGargoyle =>
+        fierce
+            ? 'STRONGER · Feathers fall on the open lamp!'
+            : 'STRONGER · Stone feathers fall!',
+      BossKind.neferhoo =>
+        tougherNeferhoo
+            ? Neferhoo.tougherStageHint
+            : 'STRONGER · The golden ankh comes back!',
+    };
+  }
+
   bool get isSpitter => kind == BossKind.spitterBeetle;
   bool get isMoth => kind == BossKind.duskMoth;
   bool get isPirate => kind == BossKind.pirate;
   bool get isDragon => kind == BossKind.dragon;
   bool get isKingCoo => kind == BossKind.kingCoo;
   bool get isGargoyle => kind == BossKind.searchlightGargoyle;
+  bool get isNeferhoo => kind == BossKind.neferhoo;
 
-  /// A campaign-only guardian: King Coo or the Searchlight Gargoyle.
+  /// A campaign-only guardian: King Coo, the Searchlight Gargoyle or
+  /// Neferhoo.
   bool get isMiniBoss => kind.campaignOnly;
   String get name => switch (kind) {
     BossKind.baronBat => 'Baron Bat',
@@ -144,6 +385,7 @@ class SkyBoss {
     BossKind.dragon => 'Ember Dragon',
     BossKind.kingCoo => 'King Coo',
     BossKind.searchlightGargoyle => 'Searchlight Gargoyle',
+    BossKind.neferhoo => Neferhoo.name,
   };
   String get title => switch (kind) {
     BossKind.baronBat => upgraded ? 'THE STORM RETURNS' : 'LORD OF THE STORM',
@@ -153,32 +395,38 @@ class SkyBoss {
     BossKind.dragon => 'SOVEREIGN OF THE BURNING SKY',
     BossKind.kingCoo => 'COMMISSIONER OF THE CURB',
     BossKind.searchlightGargoyle => 'WATCHMAN OF THE TALLEST TOWER',
+    BossKind.neferhoo => Neferhoo.title,
   };
   double get muzzleOffset => radius * (isSpitter || isMoth ? 1.05 : 1);
   double get muzzleX => x - muzzleOffset;
   double get projectileSpeed => switch (kind) {
-    BossKind.baronBat => enraged ? .57 : .48,
-    BossKind.spitterBeetle => enraged ? .66 : .56,
-    BossKind.duskMoth => enraged ? .72 : .62,
+    BossKind.baronBat => enraged ? .57 : (calm ? .44 : .48),
+    BossKind.spitterBeetle => enraged ? .66 : (calm ? .5 : .56),
+    BossKind.duskMoth => enraged ? .72 : (calm ? .56 : .62),
     // Horizontal speed only: cannonballs fly on a ballistic arc.
-    BossKind.pirate => enraged ? .6 : .5,
-    BossKind.dragon => enraged ? .62 : .52,
+    BossKind.pirate => enraged ? .6 : (calm ? .46 : .5),
+    BossKind.dragon => enraged ? .62 : (calm ? .48 : .52),
     // King Coo fires no shots. The Gargoyle's stone feathers fly at this
-    // horizontal speed (see [SearchlightGargoyle.featherShot]).
+    // horizontal speed, level ones aimed low faster (see
+    // [SearchlightGargoyle.featherShot]).
     BossKind.kingCoo => 0,
     BossKind.searchlightGargoyle =>
-      enraged
+      furyPace
           ? SearchlightGargoyle.furyFeatherSpeed
           : SearchlightGargoyle.featherSpeed,
+    // Neferhoo fires no shots: his letters fly at [Neferhoo.letterSpeed].
+    BossKind.neferhoo => 0,
   };
   double get volleyInterval => switch (kind) {
-    BossKind.baronBat => enraged ? 1.55 : 2.15,
-    BossKind.spitterBeetle => enraged ? 1.3 : 1.8,
-    BossKind.duskMoth => enraged ? 1.2 : 1.65,
-    BossKind.pirate => enraged ? 1.5 : 2.1,
-    BossKind.dragon => enraged ? 1.55 : 2.0,
+    BossKind.baronBat => enraged ? 1.55 : (calm ? 2.6 : 2.15),
+    BossKind.spitterBeetle => enraged ? 1.3 : (calm ? 2.3 : 1.8),
+    BossKind.duskMoth => enraged ? 1.2 : (calm ? 2.1 : 1.65),
+    BossKind.pirate => enraged ? 1.5 : (calm ? 2.6 : 2.1),
+    BossKind.dragon => enraged ? 1.55 : (calm ? 2.5 : 2.0),
     // The mini-bosses never fire volleys: their attacks run on fixed cycles.
-    BossKind.kingCoo || BossKind.searchlightGargoyle => double.infinity,
+    BossKind.kingCoo ||
+    BossKind.searchlightGargoyle ||
+    BossKind.neferhoo => double.infinity,
   };
   double get summonInterval => switch (kind) {
     BossKind.baronBat => enraged ? 4.5 : 6,
@@ -187,9 +435,22 @@ class SkyBoss {
     BossKind.pirate ||
     BossKind.dragon ||
     BossKind.kingCoo ||
-    BossKind.searchlightGargoyle => double.infinity,
+    BossKind.searchlightGargoyle ||
+    BossKind.neferhoo => double.infinity,
   };
-  List<double> get volleyOffsets => switch (kind) {
+  List<double> get volleyOffsets => calm ? _warmUpOffsets : _fullOffsets;
+
+  /// The warm-up's volleys: one shot, or the smaller fan, every time.
+  List<double> get _warmUpOffsets => switch (kind) {
+    BossKind.baronBat || BossKind.pirate || BossKind.dragon => const [0],
+    BossKind.spitterBeetle => const [-.30, 0, .30],
+    BossKind.duskMoth => const [-.48, -.24, 0, .24, .48],
+    BossKind.kingCoo ||
+    BossKind.searchlightGargoyle ||
+    BossKind.neferhoo => const [],
+  };
+
+  List<double> get _fullOffsets => switch (kind) {
     BossKind.baronBat =>
       enraged || volleys.isOdd ? const [-.24, 0, .24] : const [0],
     BossKind.spitterBeetle =>
@@ -220,7 +481,9 @@ class SkyBoss {
     // A fireball at the bird, then a pair that brackets it. In fury the
     // lone fireball splits into embers ([splitsVolley]).
     BossKind.dragon => volleys.isEven ? const [0] : const [-.22, .22],
-    BossKind.kingCoo || BossKind.searchlightGargoyle => const [],
+    BossKind.kingCoo ||
+    BossKind.searchlightGargoyle ||
+    BossKind.neferhoo => const [],
   };
   static const radius = .115;
 
@@ -309,13 +572,18 @@ class SkyBoss {
     return 0;
   }
 
+  /// [_surge] in a tide cycle that runs (see [signatureCycle]): a staged
+  /// captain's warm-up keeps the sea calm.
+  double _armedSurge(double t) => _armedAt(t, tidePeriod) ? _surge(t) : 0;
+
   /// 0 to 1 as the surge rises; the rules only read [waterLevel].
   double get tide =>
-      isPirate && phase == BossPhase.attacking ? _surge(_combatTime) : 0;
+      isPirate && phase == BossPhase.attacking ? _armedSurge(_combatTime) : 0;
 
   /// 0 to 1 through the warning before each surge, 0 otherwise.
   double get tideWarning {
     if (!isPirate || phase != BossPhase.attacking) return 0;
+    if (!_armedAt(_combatTime, tidePeriod)) return 0;
     final cycle = _tideCycle;
     if (cycle < tideWarnAt || cycle >= tideRiseAt) return 0;
     return (cycle - tideWarnAt) / (tideRiseAt - tideWarnAt);
@@ -324,12 +592,12 @@ class SkyBoss {
   /// Surges whose warning has begun, for edge-triggered cues.
   int get tideSurges => !isPirate || phase != BossPhase.attacking
       ? 0
-      : ((_combatTime - tideWarnAt) / tidePeriod).floor() + 1;
+      : _armedCount(((_combatTime - tideWarnAt) / tidePeriod).floor() + 1);
 
   /// Surges that have started rising.
   int get tideRises => !isPirate || phase != BossPhase.attacking
       ? 0
-      : ((_combatTime - tideRiseAt) / tidePeriod).floor() + 1;
+      : _armedCount(((_combatTime - tideRiseAt) / tidePeriod).floor() + 1);
 
   /// Water surface in screen y, or null when this boss brings no sea. The
   /// sea rolls in during the arrival and drains away after the defeat.
@@ -338,7 +606,8 @@ class SkyBoss {
     final defeated = defeatedAt;
     if (defeated != null) {
       final from =
-          seaLevel + (tidePeak - seaLevel) * _surge(defeated - arrivalDuration);
+          seaLevel +
+          (tidePeak - seaLevel) * _armedSurge(defeated - arrivalDuration);
       final t = _smooth((age - defeated) / (departureDuration * .8));
       return from + (seaHidden - from) * t;
     }
@@ -410,6 +679,11 @@ class SkyBoss {
   double get _breathCycle => _combatTime % DragonBreath.period;
   bool get _dragonFighting => isDragon && phase == BossPhase.attacking;
 
+  /// Fighting, in a breath cycle that runs (see [signatureCycle]): a staged
+  /// dragon's warm-up neither breathes nor calls a flock.
+  bool get _breathArmed =>
+      _dragonFighting && _armedAt(_combatTime, DragonBreath.period);
+
   /// The band the current (or last) breath scorches. The rules aim it once,
   /// as each warning begins ([breathsAimed] catches up with [breaths]).
   BreathLane breathLane = BreathLane.middle;
@@ -417,25 +691,25 @@ class SkyBoss {
 
   /// 0 to 1 through the inhale before each blast, 0 otherwise.
   double get breathWarning =>
-      _dragonFighting ? DragonBreath.warning(_breathCycle) : 0;
+      _breathArmed ? DragonBreath.warning(_breathCycle) : 0;
 
   /// Whether the flame burns now: touching its band hurts.
-  bool get breathing => _dragonFighting && DragonBreath.blasting(_breathCycle);
+  bool get breathing => _breathArmed && DragonBreath.blasting(_breathCycle);
 
   /// From the inhale to the end of the flame the heart lies open.
-  bool get breathBusy => _dragonFighting && DragonBreath.busy(_breathCycle);
+  bool get breathBusy => _breathArmed && DragonBreath.busy(_breathCycle);
   bool get coreExposed => breathBusy;
 
   /// No fireballs from a second before the inhale to the end of the flame.
-  bool get breathQuiet => _dragonFighting && DragonBreath.quiet(_breathCycle);
+  bool get breathQuiet => _breathArmed && DragonBreath.quiet(_breathCycle);
 
   /// Breaths whose warning has begun, and blasts that have been loosed,
   /// for edge-triggered cues and for aiming.
   int get breaths => _dragonFighting
-      ? DragonBreath.count(_combatTime, DragonBreath.warnAt)
+      ? _armedCount(DragonBreath.count(_combatTime, DragonBreath.warnAt))
       : 0;
   int get breathBlasts => _dragonFighting
-      ? DragonBreath.count(_combatTime, DragonBreath.blastAt)
+      ? _armedCount(DragonBreath.count(_combatTime, DragonBreath.blastAt))
       : 0;
 
   /// Whether a circle at [py] with [pr] reaches into the burning band.
@@ -457,10 +731,12 @@ class SkyBoss {
   /// Calls and follow-ups whose time has come. The rules release a flock as
   /// [swarmCalls] and [swarmFollows] catch up with them.
   int get swarmCallsDue => _dragonFighting && callsSwarm
-      ? DragonBreath.count(_combatTime, swarmCallAt)
+      ? _armedCount(DragonBreath.count(_combatTime, swarmCallAt))
       : 0;
   int get swarmFollowsDue => _dragonFighting && callsSwarm
-      ? DragonBreath.count(_combatTime, swarmCallAt + swarmFollowAfter)
+      ? _armedCount(
+          DragonBreath.count(_combatTime, swarmCallAt + swarmFollowAfter),
+        )
       : 0;
   int swarmCalls = 0, swarmFollows = 0;
 
@@ -473,6 +749,7 @@ class SkyBoss {
   int strike(int damage, {double? releasedAt}) {
     if (isKingCoo) return _strikeCoo(damage);
     if (isGargoyle) return _lampStrike(damage, releasedAt);
+    if (isNeferhoo) return _strikeWraps(damage);
     if (!coreExposed) return takeDamage(damage);
     lastCoreHitAt = age;
     return takeDamage(damage * coreMultiplier);
@@ -601,11 +878,37 @@ class SkyBoss {
 
   bool get _cooFighting => isKingCoo && phase == BossPhase.attacking;
 
+  /// When (boss age) a [quickRestart] King Coo cut short the cycle he grew
+  /// furious in, and the cycle that began then; never until he does.
+  double cooRestartAt = double.infinity;
+  int cooRestartCycle = 1 << 30;
+
+  /// Ends the current cycle now: the next one begins this instant
+  /// ([quickRestart]). The rules call it only in his cycle's quiet tail,
+  /// after its whistle and every hazard, so the clock skips no event.
+  void restartCoo() {
+    cooRestartCycle = cooCycleNumber + 1;
+    cooRestartAt = age;
+  }
+
+  /// His cycle clock at boss [age]: combat seconds, whose cycle time and
+  /// number every beat of his fight reads. After a [restartCoo] it counts
+  /// from the start of the cycle that began then.
+  double cooClockAt(double age) => age >= cooRestartAt
+      ? cooRestartCycle * KingCoo.period + (age - cooRestartAt)
+      : age - arrivalDuration;
+  double get cooClock => cooClockAt(age);
+
+  /// Boss age at which his cycle [n] begins.
+  double cooCycleStart(int n) => n >= cooRestartCycle
+      ? cooRestartAt + (n - cooRestartCycle) * KingCoo.period
+      : arrivalDuration + n * KingCoo.period;
+
   /// The position in his 14 s cycle, or 0 when he is not fighting.
-  double get cooCycle => _cooFighting ? KingCoo.cycleTime(combatTime) : 0;
+  double get cooCycle => _cooFighting ? KingCoo.cycleTime(cooClock) : 0;
 
   /// The cycle number from 0, or -1 when he is not fighting.
-  int get cooCycleNumber => _cooFighting ? KingCoo.cycleNumber(combatTime) : -1;
+  int get cooCycleNumber => _cooFighting ? KingCoo.cycleNumber(cooClock) : -1;
 
   /// The crumb bombs latched so far, oldest first: where each ring locked
   /// and when. The rules append one at each lock; every phase and radius is
@@ -674,8 +977,7 @@ class SkyBoss {
   /// clock for the lanes and the queue behind him. Whether it is released at
   /// all is [squadCalled].
   double squadReleaseAt(SquadPlan plan) =>
-      arrivalDuration +
-      math.max(0, puffsLatched - 1) * KingCoo.period +
+      cooCycleStart(math.max(0, puffsLatched - 1)) +
       KingCoo.whistleAt +
       plan.delay;
 
@@ -689,16 +991,14 @@ class SkyBoss {
   bool get popped {
     final at = poppedAt;
     if (!_cooFighting || at == null) return false;
-    final windowStart =
-        arrivalDuration + cooCycleNumber * KingCoo.period + KingCoo.puffAt;
-    return at >= windowStart;
+    return at >= cooCycleStart(cooCycleNumber) + KingCoo.puffAt;
   }
 
   /// Puff windows begun and whistles that have come due, from the clock, for
   /// edge-triggered cues (the rules count blown whistles in [whistles]).
-  int get puffs => _cooFighting ? KingCoo.count(combatTime, KingCoo.puffAt) : 0;
+  int get puffs => _cooFighting ? KingCoo.count(cooClock, KingCoo.puffAt) : 0;
   int get whistlesDue =>
-      _cooFighting ? KingCoo.count(combatTime, KingCoo.whistleAt) : 0;
+      _cooFighting ? KingCoo.count(cooClock, KingCoo.whistleAt) : 0;
 
   /// Whether the chest is taut and rocks count double: the window is open
   /// and he has not popped.
@@ -733,15 +1033,15 @@ class SkyBoss {
     if (popped) {
       // A pop after the whistle keeps the squadron that is already out.
       final early =
-          poppedAt! <
-          arrivalDuration + cooCycleNumber * KingCoo.period + KingCoo.whistleAt;
+          poppedAt! < cooCycleStart(cooCycleNumber) + KingCoo.whistleAt;
       if (early) return 'POP! · No squadron';
       if (cycle < KingCoo.squadCrossesBy) {
         return 'SQUADRON · Follow the open lane!';
       }
     }
     if (puffWindow) {
-      return cycle >= KingCoo.whistleAt
+      // A staged King Coo's warm-up blows no whistle.
+      return cycle >= KingCoo.whistleAt && (!staged || squadCalled)
           ? 'SQUADRON · Follow the open lane!'
           : 'PUFFED · Shoot his chest (x2)!';
     }
@@ -809,6 +1109,18 @@ class SkyBoss {
   /// ([SearchlightGargoyle.slitAt]), the first a zone sweep.
   int furySweeps = 0;
 
+  /// Whether his beams glide and his feathers fly at fury's pace: in fury,
+  /// and from rules version 46 a [fierce] Gargoyle's from the cycle his
+  /// signature joins (the full fight), though his beam keeps one band and
+  /// the slits wait for fury.
+  bool get furyPace =>
+      enraged || (fierce && signatureArmed(gargoyleCycleNumber));
+
+  /// Whether he was enraged as the current (or last) sweep was aimed: a
+  /// [fierce] Gargoyle's feathers follow it to the end of the vent, while his
+  /// health (and with it fury) may change.
+  bool aimFury = false;
+
   /// How many of the cycle numbered [featherCycle]'s feathers have left: the
   /// rules' cursor into [featherSchedule], reset as each cycle begins.
   int featherCycle = -1, featherSlot = 0;
@@ -847,7 +1159,7 @@ class SkyBoss {
       : 0;
 
   /// The lit band's half-height at the bird's column.
-  double get beamHalf => SearchlightGargoyle.half(enraged: enraged);
+  double get beamHalf => SearchlightGargoyle.half(enraged: furyPace);
 
   /// The centres of the beams burning at the bird's column (one, or two in a
   /// slit sweep, upper first), or empty while none burns. Fury glides the
@@ -859,7 +1171,7 @@ class SkyBoss {
           gargoyleCycle,
           side: beamSide,
           slit: slitSweep,
-          fury: enraged,
+          fury: furyPace,
         );
 
   /// Whether a circle at [py] with [pr] is caught in a burning beam.
@@ -873,9 +1185,23 @@ class SkyBoss {
   /// When this cycle's feathers fall (cycle seconds), given the latched
   /// sweep. The perch feather (.2 s) is first in every schedule; the rest
   /// follow the sweep the warning latched. The rules launch them as
-  /// [featherSlot] catches up.
-  List<double> get featherSchedule =>
-      SearchlightGargoyle.feathers(enraged: enraged, slit: slitSweep);
+  /// [featherSlot] catches up. A staged Gargoyle's warm-up drops none (see
+  /// [signatureCycle]); a [fierce] one's drops the calm cycle's, and the
+  /// vent's feathers follow once he grows stronger.
+  List<double> get featherSchedule => fierce
+      ? SearchlightGargoyle.fierceFeathers(
+          armed: signatureArmed(gargoyleCycleNumber),
+          fury: aimFury,
+          slit: slitSweep,
+        )
+      : staged && !signatureArmed(gargoyleCycleNumber)
+      ? const []
+      : SearchlightGargoyle.feathers(enraged: enraged, slit: slitSweep);
+
+  /// Whether cycle [cycle] opens with its perch feather: always, but in a
+  /// staged Gargoyle's warm-up from rules version 44 to 45. Art reads it for
+  /// the next cycle's wind-up.
+  bool perchFeatherIn(int cycle) => fierce || !staged || signatureArmed(cycle);
 
   /// Whether a rock that left the bird when this boss was [bossAge] seconds
   /// old counts: the lamp was open then (cycle time 6.4 to 9.0 s). Judged at
@@ -915,6 +1241,29 @@ class SkyBoss {
     }
     if (lampOpen) return 'LAMP OPEN · Shoot the lamp!';
     return 'SHUTTERS CLOSED · Save your shots';
+  }
+
+  // ---------------------------------------------------------------------
+  // Neferhoo, the Mummy Courier (rules version 50, campaign only): letters
+  // to send back, an ankh that comes back, padded wraps (see [Neferhoo]).
+  // What the rules latch lives on [neferhoo]; what the art reads is the
+  // [NeferhooBoss] extension in neferhoo.dart.
+
+  /// Neferhoo's letters, ankhs, latches and counters (empty for any other
+  /// boss).
+  late final NeferhooFight neferhoo = NeferhooFight();
+
+  /// A rock's (or a blast's) hit on his chest, as [strike] sees it: his
+  /// padded wraps take a third of it ([Neferhoo.wrapsDamage], at least 1),
+  /// and the scuff is counted (the adaptive hint, a cue, the cloth puff).
+  /// A returned letter's 25 does not come through here.
+  int _strikeWraps(int damage) {
+    final dealt = takeDamage(Neferhoo.wrapsDamage(damage));
+    neferhoo
+      ..wrapScuffs += 1
+      ..scuffsSinceReturn += 1
+      ..lastScuffAt = age;
+    return dealt;
   }
 
   static const shieldRadius = radius * 1.85;
@@ -989,7 +1338,9 @@ class SkyBoss {
       : age < arrivalDuration
       ? BossPhase.arriving
       : BossPhase.attacking;
-  bool get enraged => hp <= maxHp / 2;
+
+  /// Fury: below half health, or below a third for a [staged] boss.
+  bool get enraged => staged ? hp * 3 <= maxHp : hp <= maxHp / 2;
   double get charge =>
       phase == BossPhase.attacking ? (1 - fireIn / .65).clamp(0.0, 1.0) : 0;
 }
@@ -1005,6 +1356,7 @@ class BossAmmo {
     this.splitAfter,
     this.ember = false,
     this.feather = false,
+    this.launchX,
   });
   double x, y, vy;
   final double vx;
@@ -1024,6 +1376,11 @@ class BossAmmo {
   /// edge ([gravity] pulls it down) and is gone at the bottom, so it may
   /// rise above the screen.
   final bool feather;
+
+  /// Render-only: the screen x a stone feather left the top edge at (a level
+  /// feather leaves further ahead of its bird), or null. The art counts the
+  /// feather's age from it; the rules never read it.
+  final double? launchX;
 
   /// Seconds in flight, counted only for shots that split.
   double age = 0;

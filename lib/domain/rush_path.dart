@@ -229,4 +229,8 @@ abstract final class Rush {
   static const flockLane = .11, swarmSpeed = .50, firstFlockDelay = .3;
   static const smashPoints = 2, meteorPoints = 1, batPoints = 1;
   static const escapeBonus = 10, flawlessBonus = 10;
+
+  /// Collecting all [beats] rings of a run keeps the last ring sprint going
+  /// this many seconds longer (rules version 51).
+  static const allRingsBonus = 2.0;
 }

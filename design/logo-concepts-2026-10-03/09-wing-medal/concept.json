@@ -1,0 +1,19 @@
+{
+  "id": 9,
+  "name": "Wing Medal",
+  "rationale": "Pip becomes a smiling gold achievement coin between stepped flight wings, with a coral prize ribbon giving the game a collectible arcade identity.",
+  "theme": "Vintage arcade achievement badge",
+  "palette": [
+    "#203B45",
+    "#FFF9ED",
+    "#FFD45B",
+    "#D9A033",
+    "#F47D64",
+    "#D95E50"
+  ],
+  "files": [
+    "logo.svg",
+    "mark.svg",
+    "build.py"
+  ]
+}

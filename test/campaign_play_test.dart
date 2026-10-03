@@ -231,6 +231,11 @@ void main() {
         expect(result.levelId, '1-1');
         expect(result.course, FlightCourse.starTrail);
         expect(result.practice, isFalse);
+        // The finish line's celebration plays before the result.
+        expect(controller.stage, PlayStage.celebrating);
+        for (var i = 0; i < 100; i++) {
+          controller.advance(.02, 0, 2.2);
+        }
         expect(controller.stage, PlayStage.results);
         expect(controller.levelComplete, isTrue);
         expect(
@@ -240,8 +245,8 @@ void main() {
         expect(controller.levelStars, inInclusiveRange(1, 3));
         expect(controller.nextLevel, same(level('1-2')));
         expect(runs.single.levelId, '1-1');
-        // Crossing the line plays the victory fanfare.
-        expect(audio.cues, contains('complete'));
+        // Crossing the line snaps the tape, then the victory fanfare plays.
+        expect(audio.cues, containsAllInOrder(['finish_snap', 'complete']));
         expect(audio.cues, isNot(contains('game_over')));
         controller.dispose();
       },

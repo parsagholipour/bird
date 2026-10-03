@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900"><rect width="900" height="900" fill="#FFF9ED"/><circle cx="450" cy="418" r="325" fill="#DCEFF0"/><g transform="translate(-18 40) scale(.78)"><g id="floating-island" stroke="#203B45" stroke-width="7" stroke-linejoin="round">
+<path d="M235 525L290 624L369 644L430 714L493 669L602 756L661 687L731 707L779 640L874 609L947 519Z" fill="#C79976"/>
+<path d="M235 525L290 624L369 644L430 714L456 605L368 552Z" fill="#A97259" stroke="none"/>
+<path d="M602 756L604 626L691 561L661 687Z" fill="#A97259" stroke="none"/>
+<path d="M731 707L752 595L874 609L779 640Z" fill="#A97259" stroke="none"/>
+<path d="M364 610L425 625L451 655M511 667L539 687M671 629L702 612" fill="none" stroke="#EAC3A3" stroke-width="7" stroke-linecap="round"/>
+<path d="M239 503C277 470 352 462 416 473C477 443 544 450 593 467C660 440 739 454 782 474C850 461 910 478 948 507C966 522 949 551 915 563C864 587 806 581 768 576C714 604 648 600 596 585C538 611 468 601 423 580C350 601 282 571 250 555C225 543 218 521 239 503Z" fill="#62AF99"/>
+<path d="M239 503C277 470 352 462 416 473C477 443 544 450 593 467C660 440 739 454 782 474C850 461 910 478 948 507C935 529 896 542 862 538C811 558 755 550 725 543C676 562 628 553 596 545C531 565 474 551 445 541C365 562 294 540 239 503Z" fill="#A8D8B4" stroke="none"/>
+<path d="M287 521L281 505M301 518L308 500M868 517L868 500M885 521L895 507" fill="none" stroke="#498A72" stroke-width="5" stroke-linecap="round"/>
+</g></g><g fill="none" transform="translate(231 161) scale(1.71875)">
+<g id="island-mark-pip-Pip---Editable-artwork">
+<g id="island-mark-pip-Vector">
+<path d="M56 116C35 95 24 100 27 119C15 113 11 122 22 137L52 153" fill="#E8A73C"/>
+<path d="M56 116C35 95 24 100 27 119C15 113 11 122 22 137L52 153" stroke="#203B45" stroke-width="4" stroke-linejoin="round"/>
+</g>
+<path id="island-mark-pip-Vector_2" d="M91 185L84 199M106 188L108 202" stroke="#D75E4F" stroke-width="9" stroke-linecap="round"/>
+<g id="island-mark-pip-Vector_3">
+<path d="M100 50C82 30 90 23 105 33C101 16 114 12 123 32C135 17 147 26 133 48" fill="#FFD45B"/>
+<path d="M100 50C82 30 90 23 105 33C101 16 114 12 123 32C135 17 147 26 133 48" stroke="#203B45" stroke-width="4" stroke-linejoin="round"/>
+</g>
+<path id="island-mark-pip-Vector_4" d="M198 99C198 139 185 182 145 192C108 202 56 186 48 151C39 115 48 67 79 51C109 35 152 39 173 56C190 70 198 80 198 99Z" fill="#FFD45B" stroke="#203B45" stroke-width="4"/>
+<path id="island-mark-pip-Vector_5" d="M54 141C62 176 91 188 126 190C158 192 180 168 186 148C174 172 145 180 123 178C82 177 66 164 54 141Z" fill="#E8A73C"/>
+<path id="island-mark-pip-Vector_6" d="M136 104C109 106 94 125 95 149C96 174 113 185 140 183C167 181 186 156 184 135C183 115 162 102 136 104Z" fill="#FFF9ED"/>
+<g id="island-mark-pip-Wing">
+<path id="island-mark-pip-Vector_7" d="M83 112C61 107 47 119 49 136C51 151 74 161 91 147C107 134 101 117 83 112Z" fill="#E8A73C" stroke="#203B45" stroke-width="4"/>
+<path id="island-mark-pip-Vector_8" d="M58 133C65 140 74 141 83 136" stroke="#FFD45B" stroke-width="5" stroke-linecap="round"/>
+</g>
+<g id="island-mark-pip-Eyes">
+<path id="island-mark-pip-Face---Far-eye" d="M174 116C182.837 116 190 106.15 190 94C190 81.8497 182.837 72 174 72C165.163 72 158 81.8497 158 94C158 106.15 165.163 116 174 116Z" fill="white" stroke="#203B45" stroke-width="4"/>
+<path id="island-mark-pip-Face---Near-eye" d="M138.5 121C151.479 121 162 108.464 162 93C162 77.536 151.479 65 138.5 65C125.521 65 115 77.536 115 93C115 108.464 125.521 121 138.5 121Z" fill="white" stroke="#203B45" stroke-width="4"/>
+<path id="island-mark-pip-Face---Near-pupil" d="M146.5 111C152.299 111 157 104.508 157 96.5C157 88.4919 152.299 82 146.5 82C140.701 82 136 88.4919 136 96.5C136 104.508 140.701 111 146.5 111Z" fill="#203B45"/>
+<path id="island-mark-pip-Face---Far-pupil" d="M179 107C182.866 107 186 102.075 186 96C186 89.9249 182.866 85 179 85C175.134 85 172 89.9249 172 96C172 102.075 175.134 107 179 107Z" fill="#203B45"/>
+<path id="island-mark-pip-Face---Near-catchlight" d="M142.5 93C144.433 93 146 91.433 146 89.5C146 87.567 144.433 86 142.5 86C140.567 86 139 87.567 139 89.5C139 91.433 140.567 93 142.5 93Z" fill="white"/>
+<path id="island-mark-pip-Face---Far-catchlight" d="M176.5 93C177.881 93 179 91.8807 179 90.5C179 89.1193 177.881 88 176.5 88C175.119 88 174 89.1193 174 90.5C174 91.8807 175.119 93 176.5 93Z" fill="white"/>
+</g>
+<path id="island-mark-pip-Face---Lower-beak" d="M166 121C176 127 193 128 202 125C196 136 183 139 174 134C169 131 167 126 166 121Z" fill="#D75E4F" stroke="#203B45" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="island-mark-pip-Face---Upper-beak" d="M165.5 112.846C169.5 104.846 179.5 104.846 187.5 107.846C197.5 110.846 205.5 115.846 211.5 120.846C198.5 127.846 176.5 127.846 165.5 119.846C163.5 117.846 163.5 114.846 165.5 112.846Z" fill="#F47D64" stroke="#203B45" stroke-width="4" stroke-linejoin="round"/>
+<path id="island-mark-pip-Face---Cheek" d="M146 135C150.971 135 155 132.761 155 130C155 127.239 150.971 125 146 125C141.029 125 137 127.239 137 130C137 132.761 141.029 135 146 135Z" fill="#F47D64"/>
+<path id="island-mark-pip-Vector_9" d="M70 84C73 72 82 65 94 62" stroke="#FFF9ED" stroke-width="7" stroke-linecap="round"/>
+</g>
+</g><polygon points="209.00,244.00 215.22,258.44 230.87,259.89 219.06,270.27 222.52,285.61 209.00,277.58 195.48,285.61 198.94,270.27 187.13,259.89 202.78,258.44" fill="#FFD45B" stroke="#203B45" stroke-width="5" stroke-linejoin="round"/><polygon points="698.00,290.00 703.14,301.93 716.07,303.13 706.31,311.70 709.17,324.37 698.00,317.74 686.83,324.37 689.69,311.70 679.93,303.13 692.86,301.93" fill="#FFD45B" stroke="#203B45" stroke-width="5" stroke-linejoin="round"/></svg>

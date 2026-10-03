@@ -1,0 +1,20 @@
+{
+  "name": "Beakbound",
+  "artwork": "Special Delivery \u2014 corrected wing and clean outer scenery",
+  "master": "beakbound-master.png",
+  "play_store": "beakbound-play-store-512.png",
+  "source": "design/special-delivery-clean-edges/master.png",
+  "method": "Approved built-in ImageGen artwork; exports only resize and convert color channels",
+  "export": "python3 tool/export_brand_icons.py",
+  "android_application_id": "com.ravanix.push_up_bird",
+  "ios_bundle_id": "com.ravanix.pushUpBird",
+  "note": "Display name changed; app identifiers and save formats preserved.",
+  "app_logo_asset": "../images/beakbound-logo.png",
+  "placements": [
+    "launcher",
+    "opening splash",
+    "About"
+  ],
+  "menu": "Name and tagline only",
+  "launch_export": "flutter test tool/render_launch_assets_test.dart && python3 tool/export_launch_assets.py"
+}

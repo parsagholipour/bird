@@ -203,6 +203,7 @@ class FrozenNyPilotFlight {
       level,
       skill: skill,
       width: width,
+      version: frozenNyVersion,
       watch: (sim) {
         frame++;
         if (frame % 60 == 0) digest.sample(sim, frame ~/ 60);

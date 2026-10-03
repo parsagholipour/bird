@@ -1,0 +1,118 @@
+{
+  "rulesVersion": 50,
+  "catalog": {
+    "plan": "{\"id\":\"2-6\",\"region\":\"egypt\",\"length\":30.0,\"start\":60.0,\"seed\":2116,\"families\":[\"garden\",\"windLift\",\"petalGate\",\"switchback\"],\"lineup\":[\"simpleBat\",\"spitterBeetle\",\"caveBat\"],\"cadence\":2,\"toughness\":1,\"shoot\":true,\"sprint\":true,\"panels\":0.25,\"pieces\":[],\"boss\":\"neferhoo\",\"marks\":[20,30]}",
+    "route": "-37429d1df8c9b875",
+    "passages": 12,
+    "routeStars": 36,
+    "marks": [
+      20,
+      30
+    ],
+    "boss": "neferhoo",
+    "name": "Return to Sender",
+    "cargo": "A feather duster for the caretaker",
+    "thanks": "Four thousand years of dust, gone by lunch!",
+    "hint": "Shoot his letters to send them back. Return to sender!",
+    "bossLine": "Return to sender! This route has a courier.",
+    "campaignHp": 300
+  },
+  "flights": {
+    "640": {
+      "summary": "t=66.47 ended completed stars=36 hearts=5 bosses=1 route=72.018",
+      "outcome": "end=completed finish=crossed bosses=1 stars=36/36 levelStars=3 score=164 hearts=5 route=72.018",
+      "checkpoints": [
+        "21585f0e281ae790",
+        "-59b17e767b283c34",
+        "2e35c6df41ff10db",
+        "-a6e9e2e4f221079",
+        "2713e4dcca4b2124",
+        "3d022dab298a0c62",
+        "8228b0befd882e4"
+      ]
+    },
+    "800": {
+      "summary": "t=67.70 ended completed stars=36 hearts=5 bosses=1 route=73.250",
+      "outcome": "end=completed finish=crossed bosses=1 stars=36/36 levelStars=3 score=164 hearts=5 route=73.250",
+      "checkpoints": [
+        "368114f676b29249",
+        "39fe8fcd77f726ec",
+        "70181a2d1f767a1a",
+        "-71084924bdf7e565",
+        "-55a3fd3d49ceb05b",
+        "2348361a5c2932d5",
+        "-444abf03407c0da5",
+        "-46eb902b85469b22"
+      ]
+    },
+    "864": {
+      "summary": "t=67.50 ended completed stars=36 hearts=4 bosses=1 route=73.047",
+      "outcome": "end=completed finish=crossed bosses=1 stars=36/36 levelStars=3 score=164 hearts=4 route=73.047",
+      "checkpoints": [
+        "-74dcb339f7ec5bf2",
+        "1fc7293300b34ac5",
+        "5956c76031250e21",
+        "-56e9b3bb220c064a",
+        "6034682e8ecbcf8e",
+        "-6336e258b4f4d442",
+        "-576710c4144e921d",
+        "63c95edf9a590cf"
+      ]
+    },
+    "2.2": {
+      "summary": "t=67.65 ended completed stars=36 hearts=5 bosses=1 route=73.198",
+      "outcome": "end=completed finish=crossed bosses=1 stars=36/36 levelStars=3 score=164 hearts=5 route=73.198",
+      "checkpoints": [
+        "4df5f610d8673a71",
+        "-3e14efa391710661",
+        "-41a405cf3295f0f",
+        "7670c9fe30e47d49",
+        "-244b686289e0dcfb",
+        "-79c19c9fb3eab380",
+        "-740cca20cfc93ecb",
+        "1bd01a722a85e50e"
+      ]
+    }
+  },
+  "pilots": {
+    "family-640": {
+      "summary": "t=73.28 playing null stars=34 hearts=5 bosses=1 fight=38.683 hits=0 returns=9 hp=0 state=-191c9a2242f32c7c",
+      "outcome": "end=null finish=none bosses=1 stars=34/36 levelStars=0 score=143 hearts=5 route=73.283",
+      "checkpoints": [
+        "-5ef272191e06c145"
+      ]
+    },
+    "family-2.2": {
+      "summary": "t=86.03 playing null stars=32 hearts=3 bosses=1 fight=51.425 hits=0 returns=9 hp=0 state=39de012bed1e53fe",
+      "outcome": "end=null finish=none bosses=1 stars=32/36 levelStars=0 score=130 hearts=3 route=86.033",
+      "checkpoints": [
+        "50497e5de8b76735"
+      ]
+    },
+    "kid-800": {
+      "summary": "t=121.17 playing null stars=32 hearts=3 bosses=1 fight=86.558 hits=0 returns=8 hp=0 state=-30a44c4bc1bbcd47",
+      "outcome": "end=null finish=none bosses=1 stars=32/36 levelStars=0 score=130 hearts=3 route=121.167",
+      "checkpoints": [
+        "-2c77d2ae77f2b0d3"
+      ]
+    }
+  },
+  "tape": {
+    "file": "test/fixtures/frozen_egypt50_tapes/bot-2-6-w2.2.json",
+    "sha": "-555b33cf55372953",
+    "events": 7234,
+    "summary": "t=67.65 ended completed stars=36 hearts=5 bosses=1 replay",
+    "outcome": "end=completed finish=crossed bosses=1 stars=36/36 levelStars=3 score=164 hearts=5 route=73.198",
+    "checkpoints": [
+      "4df5f610d8673a71",
+      "-3e14efa391710661",
+      "-41a405cf3295f0f",
+      "7670c9fe30e47d49",
+      "-244b686289e0dcfb",
+      "-79c19c9fb3eab380",
+      "-740cca20cfc93ecb",
+      "-d36cf9ed56be201",
+      "4cdad48bb654a028"
+    ]
+  }
+}

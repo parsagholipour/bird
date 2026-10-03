@@ -877,30 +877,51 @@ abstract final class DragonEncounterUi {
 
   // ---------------------------------------------------------------- roar --
 
-  /// The roar: the head flung back looses a crown of flame from the jaws. It
-  /// climbs until it meets the underside of the letterbox, then rolls along
-  /// it instead of being cut off. A thick shockwave rolls out of the chest,
-  /// speed lines and a shower of embers fly, and a pressure ring leaves the
-  /// jaws. Under Reduced Motion one still frame of it fades in place.
+  /// The roar: the head flung back throws a gout of fire from between its
+  /// jaws. It leaves the way the jaws gape, turned up, and bends on up as it
+  /// climbs: licks stream up its flanks, its crown forks and flicks off
+  /// flames that rise and go out, embers fly off it, and as the jaws close
+  /// it tears free of them and goes up in smoke. It never reaches the
+  /// underside of the letterbox: a frame too short for it gets a smaller
+  /// gout, never a cropped or flattened one. A thick shockwave rolls out of
+  /// the chest, speed lines fly and a pressure ring leaves the jaws. Under
+  /// Reduced Motion one still frame of the fire fades in place.
+  ///
+  /// [mouth] is the upper lip's corner, where the jaws open
+  /// (`DragonBossRig.mouthAt`), and [chin] the lower jaw's tip
+  /// (`DragonBossRig.chinAt`): the fire pours out between them, on the side
+  /// away from [center]. Without a [chin] the jaws are taken as wide open.
   static void roar(
     Canvas c,
     Offset center,
     double h,
     BossMotion m, {
     required Offset mouth,
+    Offset? chin,
   }) {
     final boss = m.boss;
-    if (!center.isFinite || !mouth.isFinite || !h.isFinite) return;
-    if (!boss.age.isFinite) return;
+    if (!center.isFinite || !mouth.isFinite || !h.isFinite || h <= 0) return;
+    if (!boss.age.isFinite || !(chin ?? mouth).isFinite) return;
     final k = boss.age - SkyBoss.roarAt;
     final reduced = m.reducedMotion;
-    // The underside of the letterbox: nothing is drawn above it.
+    // The underside of the letterbox: no fire is drawn above it.
     final ceiling = h * .082 * m.focus + h * .018;
-    final rise = reduced
-        ? m.roar * .7
-        : BossMotion.ease(_ramp(k, 0, .22)) *
-              (1 - BossMotion.ease(_ramp(k, .5, .85)));
     final origin = Offset.lerp(center, mouth, .3)!;
+    final jaw = chin ?? mouth + Offset(-h * .046, h * .14);
+    // The fire pours out between the lips, a little nearer the upper one,
+    // the way the open jaws look: square to the lips, away from the heart.
+    final jaws = Offset.lerp(mouth, jaw, .38)!;
+    var face = Offset(jaw.dy - mouth.dy, mouth.dx - jaw.dx);
+    if (face.distance < h * .004) face = mouth - center;
+    final away =
+        face.dx * (mouth.dx - center.dx) + face.dy * (mouth.dy - center.dy);
+    if (away < 0 || (away == 0 && face.dx > 0)) face = -face;
+    final look = math.atan2(face.dy, face.dx);
+    // How far round straight up is from there, the short way.
+    final climb = math.atan2(
+      math.sin(-math.pi / 2 - look),
+      math.cos(-math.pi / 2 - look),
+    );
 
     // The shockwave: one thick ring whose weight melts away as it grows.
     final u = reduced ? .55 : _ramp(k, 0, .5);
@@ -928,7 +949,7 @@ abstract final class DragonEncounterUi {
       if (v > 0 && v < 1) {
         c.drawOval(
           Rect.fromCenter(
-            center: mouth,
+            center: jaws,
             width: h * .7 * _outCubic(v),
             height: h * .48 * _outCubic(v),
           ),
@@ -959,130 +980,415 @@ abstract final class DragonEncounterUi {
       }
     }
 
-    if (rise > 0) _plume(c, mouth, h, boss.age, rise, ceiling);
-
-    if (!reduced && k > 0 && k < 1.1) {
-      // Forty embers thrown up out of the jaws.
-      final gold = _a..reset(), warm = _b..reset();
-      for (var i = 0; i < 40; i++) {
-        final a = -math.pi / 2 + (DragonHudFx.hash(i, 95) - .5) * 2.5;
-        final speed = h * (.3 + DragonHudFx.hash(i, 97) * .55);
-        final tau = k / 1.1;
-        final at =
-            mouth +
-            Offset(math.cos(a), math.sin(a)) * speed * k +
-            Offset(0, h * .5 * k * k * .5);
-        final s = h * (.0035 + DragonHudFx.hash(i, 99) * .004) * (1 - tau * .6);
-        (i.isEven ? gold : warm).addOval(
-          Rect.fromCircle(center: at, radius: s),
-        );
-      }
-      final fade = 1 - (k / 1.1) * (k / 1.1);
-      c.drawPath(gold, DragonHudFx.solid(DragonPalette.flameYellow, fade));
-      c.drawPath(warm, DragonHudFx.solid(DragonPalette.flame, fade));
+    // The gout: kicked out along its path in 0.2 s, held while the jaws
+    // are wide, torn free of them as they close (0.5 to 0.76 s) and gone
+    // to smoke with the roar (0.8 s). Reduced Motion holds it still.
+    if (reduced ? m.roar > 0 : (k > .02 && k < .8)) {
+      _gout(
+        c,
+        _Spout(
+          jaws: jaws,
+          look: look,
+          climb: climb,
+          gape: (jaw - mouth).distance,
+          h: h,
+          time: reduced ? 0 : boss.age,
+          front: reduced ? 1 : _outCubic(_ramp(k, .02, .2)),
+          tear: reduced ? 0 : _ramp(k, .5, .76),
+        ),
+        ceiling,
+        since: reduced ? -1 : k,
+        // (A quick fade: the nested layers show through each other while
+        // they are see-through.)
+        fade: reduced ? math.min(1.0, m.roar * 2.5) : 1,
+      );
     }
   }
 
-  // The crown of flame: five tongues fanning from the jaws. Each climbs
-  // until it reaches [ceiling], then turns and splashes a short way along
-  // it, so a tall plume in a short frame is folded rather than cropped.
-  static void _plume(
+  /// The gout's layers, outermost first: its share of the gout's half
+  /// width (and of its licks' height), of its length, how many licks ride
+  /// each flank and how many tips its crown forks into. The rim and the
+  /// orange share their licks, so the rim edges every one of them.
+  static const _goutLayers = [
+    (1.0, 1.0, 3, 3),
+    (.85, .93, 3, 3),
+    (.68, .82, 2, 1),
+    (.46, .66, 0, 1),
+  ];
+
+  /// Hot at the jaws and cooling to the crown: rim, orange, gold and core,
+  /// the breath's own ramps (`DragonBreathArt`), so it is the same fire.
+  static const _goutRamps = [
+    [Color(0xffc22c3a), Color(0xffa02240), Color(0xff7a1a3a)],
+    [Color(0xffffb23c), Color(0xffff7a2a), Color(0xfff0482a)],
+    [Color(0xfffff2b8), Color(0xffffd25a), Color(0xffff9d33)],
+    [
+      Color(0xffffffff),
+      Color(0xfffffbe8),
+      Color(0xffffe98a),
+      Color(0xffffd45a),
+    ],
+  ];
+
+  static final _goutPts = [for (var i = 0; i < 4; i++) <Offset>[]];
+  static final _goutTips = [for (var i = 0; i < 4; i++) <int>{}];
+  static final List<(Offset, Offset, double)> _goutFlicks = [];
+
+  // The roar's gout of fire along [g]. Each layer is one outline
+  // (DragonKit.spline, sharp tips) built in screen space, then moved into a
+  // frame where the spine's chord runs 0 to 1 along x, so the heat ramps
+  // are cached unit gradients. The flames flicked off the crown ride in
+  // each layer's path as outlines of their own. [since] is seconds since
+  // the roar (negative under Reduced Motion: no embers and no smoke).
+  static void _gout(
     Canvas c,
-    Offset mouth,
-    double h,
-    double age,
-    double rise,
-    double ceiling,
-  ) {
-    const fan = [
-      (-1.05, .8),
-      (-.62, 1.0),
-      (-.22, .86),
-      (.18, 1.0),
-      (.58, .8),
-      (1.0, .62),
-    ];
-    final tongues = <(List<Offset>, List<double>, double)>[];
-    for (var j = 0; j < fan.length; j++) {
-      final (a, reach) = fan[j];
-      final dir = Offset(math.sin(a), -math.cos(a));
-      final half = h * .041 * reach;
-      final nominal = h * .29 * rise * reach;
-      final yc = ceiling + half * 1.05;
-      final room = dir.dy < -.1 ? (mouth.dy - yc) / -dir.dy : double.infinity;
-      final len = math.max(h * .04, math.min(nominal, room));
-      final wob = Offset(math.sin(age * 17 + j * 3) * h * .007, 0);
-      final contact = mouth + dir * len;
-      final turn = math.min(
-        nominal > room ? (nominal - len) * .85 : 0.0,
-        h * .07,
+    _Spout g,
+    double ceiling, {
+    required double since,
+    required double fade,
+  }) {
+    final h = g.h, time = g.time, tear = g.tear;
+
+    // As it tears free, smoke: three puffs of three lobes each leave the
+    // dwindling crown one after another, rising, spreading and thinning,
+    // lit warm underneath while the fire lasts.
+    final smoke = _ramp(since, .5, .8);
+    if (smoke > 0 && smoke < 1) {
+      final dark = _a..reset(), lit = _b..reset();
+      for (var i = 0; i < 3; i++) {
+        final grow = _outCubic(_ramp(smoke, i * .14, .7 + i * .1));
+        if (grow <= 0) continue;
+        final r = h * (.016 + .004 * i) * (.5 + .7 * grow);
+        final base = g.at(g.crest - .05 - .12 * i);
+        final p = Offset(
+          base.dx - h * (.02 + .015 * i) * grow,
+          math.max(base.dy - h * .07 * grow, ceiling + r * 1.6),
+        );
+        for (var lobe = 0; lobe < 3; lobe++) {
+          final a = lobe * 2.1 + i * 1.3 + smoke * 2;
+          final o = Offset(math.cos(a) * 1.1, math.sin(a) * .8) * (r * .55);
+          final lr = r * (lobe == 0 ? 1 : .72);
+          dark.addOval(Rect.fromCircle(center: p + o, radius: lr));
+          lit.addOval(
+            Rect.fromCircle(
+              center: p + o + Offset(0, lr * .38),
+              radius: lr * .58,
+            ),
+          );
+        }
+      }
+      final thin = math.sin(math.pi * math.min(1.0, smoke * 1.15));
+      c.drawPath(dark, DragonHudFx.solid(_ash, .55 * thin * fade));
+      c.drawPath(
+        lit,
+        DragonHudFx.solid(const Color(0xffd0683a), .35 * thin * (1 - tear)),
       );
-      if (turn <= h * .01) {
-        tongues.add((
-          [
-            mouth,
-            mouth + dir * len * .35 + wob,
-            mouth + dir * len * .7 - wob + Offset(0, -len * .05),
-            contact,
-          ],
-          const [.5, 1, .7, 0],
-          half,
-        ));
-      } else {
-        final s = dir.dx >= 0 ? 1.0 : -1.0;
-        tongues.add((
-          [
-            mouth,
-            mouth + dir * len * .45 + wob,
-            contact,
-            contact + Offset(s * turn * .6, h * .008) - wob,
-            contact + Offset(s * turn, h * .024),
-          ],
-          const [.5, 1, .9, .55, 0],
-          half,
-        ));
+    }
+
+    if (tear >= 1) return;
+    final tail = g.tail, crest = g.crest;
+    if (crest - tail < .03) return;
+    final wide = g.wide;
+
+    var top = double.infinity;
+    void add(List<Offset> pts, Offset p) {
+      pts.add(p);
+      if (p.dy < top) top = p.dy;
+    }
+
+    // One flank of layer [i], walked up the left (side -1) or down the right
+    // (+1) between [from] and [to]. Its licks ride up it, born small at the
+    // root, tallest two thirds of the way and gone into the crown; each
+    // peels off the body, lies along the flow and hooks out to a point. The
+    // inner layers' licks lag the outer ones' a little.
+    void flank(
+      int i,
+      double side,
+      double from,
+      double to,
+      double scale,
+      int licks,
+    ) {
+      final pts = _goutPts[i], tips = _goutTips[i];
+      final salt = (i < 2 ? 0 : i * 2) + (side > 0 ? 1 : 0);
+      final xs = [
+        for (var j = 0; j < licks; j++)
+          (
+            (time * 2.1 -
+                    i * .035 +
+                    (j + DragonHudFx.hash(salt, 131)) / licks) %
+                1,
+            j,
+          ),
+      ]..sort((a, b) => a.$1.compareTo(b.$1));
+      for (final (f, j) in side < 0 ? xs : xs.reversed) {
+        final ta = from + (to - from) * (.02 + .6 * f);
+        final tb = ta + (to - from) * .32;
+        final flick = 1 + .15 * math.sin(time * 19 + salt * 2.3 + j * 2);
+        final grow = math.pow(math.sin(math.pi * math.pow(f, .8)), 1.4);
+        final tall = .6 + .45 * DragonHudFx.hash(j, 133 + salt);
+        // The licks on the outside of the bend stand taller.
+        final size =
+            grow *
+            tall *
+            (side < 0 ? .4 : .62) *
+            wide *
+            scale *
+            flick *
+            math.min(1.0, g.front * 1.25);
+        final notch =
+            g.at(ta) + g.across(ta) * (side * g.half(ta) * scale * .7);
+        // A full belly, then out to a point, hooked up: fire never licks
+        // downward.
+        final tm = ta + (tb - ta) * .5;
+        final belly =
+            g.at(tm) +
+            g.across(tm) * (side * (g.half(tm) * scale + size * .45)) +
+            Offset(0, -size * .2);
+        final tip =
+            g.at(tb) +
+            g.across(tb) * (side * (g.half(tb) * scale + size)) +
+            Offset(0, -size * .7);
+        if (side < 0) {
+          add(pts, notch);
+          add(pts, belly);
+          tips.add(pts.length);
+          add(pts, tip);
+        } else {
+          tips.add(pts.length);
+          add(pts, tip);
+          add(pts, belly);
+          add(pts, notch);
+        }
       }
     }
-    // Firelight on the underside of the letterbox where the flames meet it:
-    // a flat ellipse of warmth, its middle on the ceiling.
-    c.save();
-    c.translate(mouth.dx - h * .02, ceiling);
-    c.scale(h * .36, h * .1);
-    c.drawCircle(
-      Offset.zero,
-      1,
-      DragonHudFx.shaded(
-        DragonHudFx.shader(
-          'plumeGlow',
-          () => DragonKit.radial(
-            Offset.zero,
-            1,
-            [
-              DragonPalette.flameGold.withValues(alpha: .65),
-              DragonPalette.flame.withValues(alpha: .25),
-              DragonPalette.flame.withValues(alpha: 0),
-            ],
-            const [0, .45, 1],
-          ).shader!,
-        ),
-        math.min(1.0, rise * 1.4),
-      ),
+
+    for (var i = 0; i < _goutLayers.length; i++) {
+      final (scale, reach, licks, forks) = _goutLayers[i];
+      final pts = _goutPts[i]..clear();
+      final tips = _goutTips[i]..clear();
+      final end = tail + (crest - tail) * reach;
+      if (end - tail < .02) continue;
+      // The root: inside the jaws, or the torn tail's round end.
+      add(pts, g.at(tail) - g.along(tail) * (g.half(tail) * scale * .8));
+      add(pts, g.at(tail) - g.across(tail) * (g.half(tail) * scale));
+      flank(i, -1, tail, end, scale, licks);
+      // The crown: the tallest tongue in the middle, swaying, and on each
+      // side a shorter one splayed out, all flickering.
+      final e = g.at(end), d = g.along(end), n = g.across(end);
+      final w = g.half(end) * scale;
+      final grow = g.front * g.front;
+      final lag = time - i * .02;
+      final tall =
+          h *
+          .078 *
+          g.thin *
+          scale *
+          grow *
+          (1 + .17 * math.sin(lag * 13 + 2.1));
+      final sway = wide * scale * .35 * math.sin(lag * 7.7);
+      if (forks == 1) {
+        add(pts, e - n * (w * .75));
+        tips.add(pts.length);
+        add(pts, e + d * tall + n * sway);
+        add(pts, e + n * (w * .75));
+      } else {
+        final l = tall * (.78 + .18 * math.sin(lag * 17));
+        final r = tall * (.66 + .18 * math.sin(lag * 15 + 2));
+        add(pts, e - n * (w * .75) - d * (w * .3));
+        tips.add(pts.length);
+        add(pts, e - n * (w * .95) + d * l);
+        add(pts, e - n * (w * .22) + d * (tall * .22));
+        tips.add(pts.length);
+        add(pts, e + d * tall + n * sway);
+        add(pts, e + n * (w * .3) + d * (tall * .18));
+        tips.add(pts.length);
+        add(pts, e + n * (w * .9) + d * r);
+        add(pts, e + n * (w * .75) - d * (w * .3));
+      }
+      flank(i, 1, tail, end, scale, licks);
+      add(pts, g.at(tail) + g.across(tail) * (g.half(tail) * scale));
+    }
+
+    // Flames flicked off the crown: one breaks from a tip every 0.19 s, the
+    // left fork and the middle one taking turns, swells as it leaves and
+    // rises, shrinking, until it goes out, never closer to the letterbox
+    // than its own height.
+    final flicks = _goutFlicks..clear();
+    if (g.front > .8 && tear < .7) {
+      final end = crest, n = g.across(end), e = g.at(end);
+      final d = DragonKit.unit(g.along(end) + const Offset(0, -.6));
+      final most = wide * .3 * math.min(1.0, (g.front - .8) * 5);
+      for (var b = 0; b < 2; b++) {
+        final age = (time * 2.6 + b * .5) % 1;
+        final side = b - 1.0;
+        final from =
+            e +
+            n * (side * g.half(end) * .9) +
+            g.along(end) * (h * .06 * (1 - .35 * side.abs()));
+        final room = from.dy - ceiling - h * .02;
+        final r = math.min(
+          room / 1.7,
+          most * (1 - .3 * b) * math.pow(math.sin(math.pi * age), .7),
+        );
+        if (r < h * .003) continue;
+        final rise = math.min(h * .07, room - r * 1.7);
+        final p = from + d * (rise * age) + n * (side * h * .01 * age);
+        flicks.add((p, d, r));
+        top = math.min(top, p.dy - r * 1.7);
+      }
+    }
+
+    // Too tall for the frame: the whole gout, smaller, about the jaws.
+    final p0 = g.p0;
+    final room = p0.dy - ceiling - h * .012;
+    if (room <= h * .01) return;
+    final fit = top < ceiling + h * .012
+        ? room / math.max(room, p0.dy - top)
+        : 1.0;
+
+    // A warm light round the fire, behind it, on the sky and the head.
+    _disc(
+      c,
+      p0 + (g.at(.45) - p0) * fit,
+      h * .27 * fit,
+      'goutLight',
+      const [Color(0xb3ffa040), Color(0x4dff6a2a), Color(0x00ff5a20)],
+      const [0, .45, 1],
+      (1 - tear) * fade,
     );
-    c.restore();
-    for (final (color, width, depth) in const [
-      (DragonPalette.flameDark, 1.0, 1.0),
-      (DragonPalette.flame, .74, .93),
-      (DragonPalette.flameYellow, .5, .82),
-      (DragonPalette.flameCore, .26, .66),
-    ]) {
-      for (final (spine, widths, half) in tongues) {
-        final pts = [for (final p in spine) mouth + (p - mouth) * depth];
-        final ws = [for (final v in widths) v * half * 2 * width];
-        c.drawPath(
-          DragonKit.tube(pts, ws, into: _a..reset()),
-          DragonKit.fill(color, .96),
+
+    // Into the gradients' frame: the chord, jaws to crown, is 0 to 1.
+    final chord = g.p2 - p0;
+    final angle = math.atan2(chord.dy, chord.dx);
+    final len = chord.distance;
+    final cs = math.cos(-angle) / len, sn = math.sin(-angle) / len;
+    Offset local(Offset p) {
+      final q = p - p0;
+      return Offset(q.dx * cs - q.dy * sn, q.dx * sn + q.dy * cs);
+    }
+
+    c.save();
+    c.translate(p0.dx, p0.dy);
+    c.rotate(angle);
+    c.scale(len * fit);
+    final paths = [_a, _b, _c, _d];
+    for (var i = 0; i < _goutLayers.length; i++) {
+      final pts = _goutPts[i];
+      final path = paths[i]..reset();
+      if (pts.length >= 3) {
+        for (var j = 0; j < pts.length; j++) {
+          pts[j] = local(pts[j]);
+        }
+        DragonKit.spline(pts, sharp: _goutTips[i], tension: .9, into: path);
+      }
+      // The flicked-off flames, a teardrop each, nested like the gout.
+      final shrink = const [1.0, .62, .32, 0.0][i];
+      for (final (p, d, r) in flicks) {
+        final s = r * shrink;
+        if (s < h * .002) continue;
+        final n = Offset(-d.dy, d.dx);
+        DragonKit.spline(
+          [
+            local(p - d * (s * .9)),
+            local(p - n * (s * .8)),
+            local(p + d * (s * 1.7)),
+            local(p + n * (s * .8)),
+          ],
+          sharp: const {2},
+          tension: .9,
+          into: path,
         );
       }
+      c.drawPath(
+        path,
+        DragonHudFx.shaded(
+          DragonHudFx.shader(
+            ('gout', i),
+            () => DragonKit.linear(
+              Offset.zero,
+              const Offset(1.15, 0),
+              _goutRamps[i],
+            ).shader!,
+          ),
+          fade,
+        ),
+      );
+    }
+    // Three bright streaks race up through the gold, so it streams even
+    // where its outline holds still.
+    if (time != 0) {
+      final streaks = _e..reset();
+      for (var i = 0; i < 3; i++) {
+        final f = (time * 2.7 + i / 3) % 1;
+        final from = tail + (crest - tail) * (.06 + .62 * f);
+        final to = from + (crest - tail) * .2;
+        final lane = (i - 1) * .38;
+        Offset on(double t, double v) =>
+            local(g.at(t) + g.across(t) * (g.half(t) * (lane + v)));
+        final thick = .05 * math.sin(math.pi * f);
+        final a = on(from, 0), b = on(to, 0);
+        final m1 = on(from + (to - from) * .35, -thick);
+        final m2 = on(from + (to - from) * .35, thick);
+        streaks
+          ..moveTo(a.dx, a.dy)
+          ..lineTo(m1.dx, m1.dy)
+          ..lineTo(b.dx, b.dy)
+          ..lineTo(m2.dx, m2.dy)
+          ..close();
+      }
+      c.drawPath(streaks, DragonHudFx.solid(DragonPalette.white, .85 * fade));
+    }
+    c.restore();
+
+    // White heat in the jaws: it flares as the fire bursts out, glows on
+    // and lets go as the jaws close.
+    final flare = since < 0 ? 0.0 : 1 - _ramp(since, .03, .18);
+    _disc(
+      c,
+      g.at(.06),
+      h * (.03 + .04 * flare * flare),
+      'goutHeat',
+      const [Color(0xffffffff), Color(0xccfff6d2), Color(0x00ffb23c)],
+      const [0, .4, 1],
+      .8 *
+          fade *
+          (1 - tear * 3).clamp(0.0, 1.0) *
+          math.min(1.0, g.front * 2 + flare),
+    );
+
+    // Embers thrown off its flanks and crown, each on its own beat: they
+    // fly out, slow, rise on the heat and go out.
+    if (since > 0) {
+      final gold = _a..reset(), warm = _b..reset();
+      for (var i = 0; i < 40; i++) {
+        const life = .3;
+        final age = since - .05 - DragonHudFx.hash(i, 95) * .6;
+        if (age <= 0 || age >= life) continue;
+        final t = .45 + .7 * DragonHudFx.hash(i, 96);
+        final side = DragonHudFx.hash(i, 97) < .5 ? -1.0 : 1.0;
+        final from =
+            p0 + (g.at(t) + g.across(t) * (side * g.half(t) * .8) - p0) * fit;
+        final out = DragonKit.unit(
+          g.along(t) * (.4 + .8 * DragonHudFx.hash(i, 98)) +
+              g.across(t) * (side * (.3 + .7 * DragonHudFx.hash(i, 94))),
+        );
+        final speed = h * (.35 + DragonHudFx.hash(i, 93) * .5);
+        final flight = age * (1 - .5 * age / life);
+        final at =
+            from + out * (speed * flight) + Offset(0, -h * .35 * age * age);
+        final s =
+            h *
+            (.0035 + DragonHudFx.hash(i, 99) * .004) *
+            (1 - age / life * .6);
+        if (at.dy - s < ceiling) continue;
+        (age < life * .4 ? gold : warm).addOval(
+          Rect.fromCircle(center: at, radius: s),
+        );
+      }
+      final out = 1 - _ramp(since, .6, .8);
+      c.drawPath(gold, DragonHudFx.solid(DragonPalette.flameYellow, out));
+      c.drawPath(warm, DragonHudFx.solid(DragonPalette.flame, out));
     }
   }
 
@@ -1989,6 +2295,77 @@ abstract final class DragonEncounterUi {
         ),
       );
     }
+  }
+}
+
+/// The roar's gout of fire, as a shape in time: its spine, a quadratic out
+/// of the jaws (`t` 0 there, 1 at the crown) that leaves along the jaws'
+/// [look] turned a third of [climb] up and bends on to nearly straight up,
+/// and its half width along it. [front] is how far it has been thrown (0 to
+/// 1), [tear] how far it has torn free of the jaws (1: gone).
+final class _Spout {
+  _Spout({
+    required Offset jaws,
+    required double look,
+    required double climb,
+    required double gape,
+    required this.h,
+    required this.time,
+    required this.front,
+    required this.tear,
+  }) : p0 = jaws - DragonKit.heading(look) * (h * .015) {
+    // The crown sways as the fire streams, so the whole gout whips.
+    final sway = time == 0 ? 0.0 : .08 * math.sin(time * 5.3);
+    p1 = p0 + DragonKit.heading(look + climb * .42) * (h * .05);
+    p2 = p1 + DragonKit.heading(look + climb * (.97 + sway)) * (h * .1);
+    // Torn free, its root leaves the jaws fast, then slows; what is left
+    // rises a little and dwindles to nothing.
+    lift = Offset(0, -h * .04 * tear);
+    tail = .85 * (1 - (1 - tear) * (1 - tear));
+    crest = front + .1 * tear;
+    thin = 1 - math.pow(tear, 2.5).toDouble();
+    wide = h * .074 * thin;
+    // As wide at the root as most of the open jaws.
+    root = (gape * .42).clamp(h * .02, h * .065) * thin;
+  }
+
+  final double h, time, front, tear;
+
+  /// Where along the spine it starts (0 while it pours from the jaws) and
+  /// where its crown is, and how much of it is left (1 until it tears).
+  late final double tail, crest, thin;
+
+  /// The spine's start (a little way inside the jaws), its bend and its end.
+  final Offset p0;
+  late final Offset p1, p2, lift;
+
+  /// The half width through the middle, and at the root.
+  late final double wide, root;
+
+  Offset at(double t) {
+    final s = 1 - t;
+    return p0 * (s * s) + p1 * (2 * s * t) + p2 * (t * t) + lift;
+  }
+
+  Offset along(double t) => DragonKit.unit((p1 - p0) * (1 - t) + (p2 - p1) * t);
+
+  /// The right-hand side of the way it flows (screen right, going up).
+  Offset across(double t) {
+    final d = along(t);
+    return Offset(-d.dy, d.dx);
+  }
+
+  /// The half width at [t]: a trumpet out of the jaws, full from halfway,
+  /// narrowing a little into the crown.
+  double half(double t) {
+    // Torn free, its root rounds off like a flame's.
+    final torn = tail > 0 ? .55 + .45 * ((t - tail) / .2).clamp(0.0, 1.0) : 1;
+    if (t < .45) {
+      final x = 1 - t / .45;
+      return (root + (wide - root) * (1 - x * x)) * torn;
+    }
+    if (t < .82) return wide * torn;
+    return wide * torn * math.max(.3, 1 - .3 * math.pow((t - .82) / .18, 1.4));
   }
 }
 

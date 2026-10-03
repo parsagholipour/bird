@@ -162,7 +162,9 @@ void main() {
       final sim = levelFlight(level, weaponDamage: BirdRock.baseDamage);
       flyLevel(sim, until: (s) => s.boss?.phase == BossPhase.attacking);
       expect(sim.boss!.kind, BossKind.kingCoo);
-      coo.fightBot(sim, coo.CooBot(react: .2));
+      // Unhurt: rules 45's King Coo fells many pilots, and this is the
+      // level's path, not their survival (`ny_levels_spread_test`).
+      coo.fightBot(sim, coo.CooBot(react: .2), protect: true, seconds: 400);
       expect(sim.boss!.phase, BossPhase.defeated);
       flyLevel(sim);
       expectFinished(level, sim);

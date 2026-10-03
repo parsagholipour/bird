@@ -227,16 +227,17 @@ void main() {
             .height,
         MapKey.size,
       );
-      // Open, as the build ships: 20 playable levels, 60 stars.
-      expect(find.bySemanticsLabel('23 of 60 campaign stars'), findsOneWidget);
+      // Open, as the build ships: 21 playable levels (Egypt's guardian is
+      // 2-6), 63 stars.
+      expect(find.bySemanticsLabel('23 of 63 campaign stars'), findsOneWidget);
     });
 
     testWidgets('with New York closed (NEW_YORK_OPEN=false) the star total is '
-        'of 48', (tester) async {
+        'of 51', (tester) async {
       Campaign.closedForTest = true;
       await _open(tester, phone, stars: _midway);
       await _goTo(tester, 4, phone);
-      expect(find.bySemanticsLabel('23 of 48 campaign stars'), findsOneWidget);
+      expect(find.bySemanticsLabel('23 of 51 campaign stars'), findsOneWidget);
       expect(find.byType(MapKey), findsNWidgets(3));
     });
 

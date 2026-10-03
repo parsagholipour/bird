@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import '../domain/campaign_ids.dart';
 import '../domain/game_rules.dart';
 import '../domain/session_replay.dart';
 import '../domain/tracking.dart';
@@ -192,8 +193,10 @@ Map<String, dynamic> _resultJson(RunResult r) => {
   'reason': r.reason.name,
   'finishedAt': r.finishedAt.toIso8601String(),
   'bird': r.bird,
-  // The library names a campaign session after its level.
+  // The library names a campaign session after its level, in the ids of
+  // [CampaignIds.scheme] (a session saved before has no `ids`).
   if (r.levelId != null) 'level': r.levelId,
+  if (r.levelId != null) 'ids': CampaignIds.scheme,
 };
 RunResult _readResult(Map<String, dynamic> r) => RunResult(
   id: r['id'] as String,
@@ -211,5 +214,15 @@ RunResult _readResult(Map<String, dynamic> r) => RunResult(
   reason: EndReason.values.byName(r['reason'] as String),
   finishedAt: DateTime.parse(r['finishedAt'] as String),
   bird: r['bird'] as int? ?? 0,
-  levelId: r['level'] as String?,
+  levelId: _levelOf(r),
 );
+
+/// A session's level id as the catalog names it now: one saved before Egypt's
+/// guardian took 2-6 (no `ids`) moves with Ancient Arabia ([CampaignIds]).
+/// Its tape keeps the plan it flew, so it replays as it was flown either way.
+String? _levelOf(Map<String, dynamic> r) {
+  final level = r['level'] as String?;
+  if (level == null) return null;
+  final scheme = r['ids'] as int? ?? 1;
+  return scheme < 2 ? CampaignIds.level(level) : level;
+}

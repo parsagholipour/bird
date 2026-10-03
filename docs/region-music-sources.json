@@ -1,0 +1,445 @@
+{
+  "model": "eleven_music_v2_5",
+  "flow": "https://elevenlabs.io/app/flows/EyHPKlieX9y27wJx7rR6",
+  "date": "2026-10-03",
+  "parameters": {
+    "duration_seconds": 90,
+    "lyrics_type": "instrumental",
+    "instrumental": true
+  },
+  "loop_suffix": "No vocals, crowd noise, intro or fade: start immediately in the groove and end on the opening harmony and rhythm for a seamless game loop.",
+  "regions": {
+    "brazil": {
+      "node_id": "5siMu1so3N5gQ80wtSd6",
+      "bpm": 124,
+      "prompt": "Sunny Brazilian samba instrumental at 124 BPM: cavaquinho and nylon guitar play a bouncy, catchy repeated hook over a light batucada groove of surdo, pandeiro, tamborim, shaker and agogô bells (no samba whistle), with short playful flute and trombone answers. Joyful, bright and buoyant, punchy but spacious enough for game sound effects.",
+      "takes": [
+        {
+          "take": 1,
+          "generation_id": "MoNmGflKBDCVYEpjBKjz",
+          "sha256": "195b8aabb78f27a4c545f08a84968f4ad6d07c871922986bde58ca55ff87f57b"
+        },
+        {
+          "take": 2,
+          "generation_id": "QJqFTfjWAGLSiKL60fPO",
+          "sha256": "32d42795274ae5dd997ad0c99c9bed5c21123e2b66b21f868731cd24c211104a"
+        },
+        {
+          "take": 3,
+          "generation_id": "Do9RNzInyDxP5Kzu0ewg",
+          "sha256": "bff5534174d18671876292e52492b93a643c5369aaebb69bdd751c5644d9e73f"
+        },
+        {
+          "take": 4,
+          "generation_id": "GZ9KQD0nsXCgxghm75n6",
+          "sha256": "12f71910c96f6a24e47fb31e6f3c068edee55a897952c7c0464030097ef8a4c0"
+        }
+      ],
+      "selected": {
+        "take": 1,
+        "loop_bars": 45,
+        "loop_seconds": 87.0968,
+        "duration": 89.0322581,
+        "crossfade": 1.9354839,
+        "asset": "assets/audio/sky_brazil.ogg",
+        "asset_sha256": "f79b7d4ecef6665f1f582daea6945a75a15e86e2a24abad18bb119e0e3821250"
+      }
+    },
+    "aztec": {
+      "node_id": "mamfvQHiStSYSVqJQhGo",
+      "bpm": 120,
+      "prompt": "Mysterious, driving ancient-Mesoamerican adventure instrumental at 120 BPM: clay ocarina and wooden flute play a short, catchy pentatonic hook over pounding log drums, deep hand drums, seed rattles and shakers, with a warm marimba bass line and bright marimba answers. Rising, sunlit and heroic, rhythmic and earthy, spacious enough for game sound effects.",
+      "takes": [
+        {
+          "take": 1,
+          "generation_id": "6UY4W7Q1umKlqBZr3QOC",
+          "sha256": "f39aec44231183608628bc7d9aadf711788219b978092ed17d2e47bcb62781b9"
+        },
+        {
+          "take": 2,
+          "generation_id": "h97Z2Xljs9w0lwxwnAqO",
+          "sha256": "80eb2bdd754205d604a747ef57a54bd385e7cf20dc404d17df699dddc41107fb"
+        },
+        {
+          "take": 3,
+          "generation_id": "5PJbcak57LQp7urdGgcE",
+          "sha256": "372bcce1457784a8173377c038b221686c911ac10461a46f2a583823e5ae5fd7"
+        },
+        {
+          "take": 4,
+          "generation_id": "IiqHChyJAJlDBqrxm7GM",
+          "sha256": "e54438a2e8893855f2fcd2a0df1424f83f5c2ceb94fe40248bf57d0d4f89d3b5"
+        }
+      ],
+      "selected": {
+        "take": 3,
+        "loop_bars": 40,
+        "loop_seconds": 80.0,
+        "duration": 82.0,
+        "crossfade": 2.0,
+        "asset": "assets/audio/sky_aztec.ogg",
+        "asset_sha256": "ebb00e38b88cef384e7928a3745738aa65c5b297bdf243fc88f9b02bc03a0df8"
+      }
+    },
+    "rome": {
+      "node_id": "h5czuW5PAvlS2s9Sjz2e",
+      "bpm": 116,
+      "prompt": "Triumphant, golden orchestral march instrumental at 116 BPM: bright trumpets and French horns trade a stately, catchy repeated fanfare hook with lyre-like harp arpeggios, over a crisp snare and field-drum ostinato, timpani accents and pizzicato low strings. Noble and confident but playful, sunlit and punchy, spacious enough for game sound effects.",
+      "takes": [
+        {
+          "take": 1,
+          "generation_id": "w422tMADLOU52SxCrvnl",
+          "sha256": "12698c5b3aab0c205caf8544d2765b0b8a364fd6790221991fbad33cc6a62f12"
+        },
+        {
+          "take": 2,
+          "generation_id": "ypLpT5ZlW8pQN8eC10a4",
+          "sha256": "7aab0dc929fdf68f337f18bd6898cb27ded39fe933a1355fd136ad059e9934cf"
+        },
+        {
+          "take": 3,
+          "generation_id": "u38ha97QgdbnTNMWF7RD",
+          "sha256": "ebb92a26c093633afbed8de4d1198ae41a10a2f0599226c4e9e2554685f9c106"
+        },
+        {
+          "take": 4,
+          "generation_id": "w00FPfdBK9TNtboVJ09D",
+          "sha256": "8a3646c996210b7d91fc4adadaaf2bf45f8214655e116461e8f9c3cb1153dee1"
+        }
+      ],
+      "selected": {
+        "take": 1,
+        "loop_bars": 38,
+        "loop_seconds": 78.6207,
+        "duration": 80.6896552,
+        "crossfade": 2.0689655,
+        "asset": "assets/audio/sky_rome.ogg",
+        "asset_sha256": "532eb9e296ca36ba003c20dbf1c12a1ff1c7c68d094ecad0fd148e6dea0a46c6"
+      }
+    },
+    "egypt": {
+      "node_id": "0iYhynunVXWWFk8FOjDh",
+      "bpm": 118,
+      "prompt": "Sun-baked Egyptian adventure instrumental at 118 BPM in the Hijaz mode: oud and ney flute play a sly, catchy repeated hook over tight darbuka and riq frame-drum grooves, finger cymbals, quick qanun runs and a warm plucked bass. Hot, bright and gently mischievous, brisk and percussive, spacious enough for game sound effects.",
+      "takes": [
+        {
+          "take": 1,
+          "generation_id": "0y2P1UM016vyt7zyG0Pr",
+          "sha256": "3310220eb901ee1a8fa72eff8f5841183d1332256dc0f13476e471a32f9fd34b"
+        },
+        {
+          "take": 2,
+          "generation_id": "OokB2O10hJl5T3x5OGAC",
+          "sha256": "c00c3a7536284508c4f8b57766a4296912a36abe622abdd7435732c089f0bf44"
+        },
+        {
+          "take": 3,
+          "generation_id": "WnPttuBOTHky2ac0KzMu",
+          "sha256": "2e444af7041cf36306dd37d0930245c15b29055075b6ca9c7d86cee3afe905e9"
+        },
+        {
+          "take": 4,
+          "generation_id": "JHS5XmyC1TZc1vhCQfYs",
+          "sha256": "da1df7548e9c9adf5a12c4d63218f753f2305a0eda211144c5845463c6d8392e"
+        }
+      ],
+      "selected": {
+        "take": 3,
+        "loop_bars": 43,
+        "loop_seconds": 87.4576,
+        "duration": 89.4915254,
+        "crossfade": 2.0338983,
+        "asset": "assets/audio/sky_egypt.ogg",
+        "asset_sha256": "ca91779ac4a17f54d342d7a33456556a17065346eb5d40a96bee0693e1df0483"
+      }
+    },
+    "arabia": {
+      "node_id": "Wkqdv3cYmMKNXM896L5S",
+      "bpm": 104,
+      "prompt": "Airy Arabian Nights instrumental at 104 BPM with a swaying 6/8 camel-gait rhythm in the Bayati mode: sweeping legato violin section and a shimmering qanun carry a lyrical, catchy repeated melody over soft daf, tabla-like hand drums, santur sparkle and a low string drone. Dreamy, fresh and dawn-like but steadily moving, spacious enough for game sound effects.",
+      "takes": [
+        {
+          "take": 1,
+          "generation_id": "WsM15jP3yTDAeJvh16Ne",
+          "sha256": "5cd68d09bcf463e3f81f8c7c32fd9691c6163d79dd36efec1d3788511c619d00"
+        },
+        {
+          "take": 2,
+          "generation_id": "fWehETQnwyoo15kpXZz7",
+          "sha256": "2f0d98be7fd1d1de38defcaa5ddf740177124d146bc5602cdacc7fc98e831a5c"
+        },
+        {
+          "take": 3,
+          "generation_id": "50qsGbkdwmyLwul2Odo8",
+          "sha256": "e7f9fd1762c3094edc989178cc01a067ba3d2591a98ef0138a9c4e3e06dfb3d2"
+        },
+        {
+          "take": 4,
+          "generation_id": "2TZc38x60wPH2aMFBupg",
+          "sha256": "7c6da3ed7018017e6e1ee02fd89f33382bd184a3bcced8a9302350035df2c8d1"
+        }
+      ],
+      "selected": {
+        "take": 3,
+        "loop_bars": 35,
+        "loop_seconds": 80.7692,
+        "duration": 83.0769231,
+        "crossfade": 2.3076923,
+        "asset": "assets/audio/sky_arabia.ogg",
+        "asset_sha256": "e307654bd3a4c92a522b34b31e605f5d1607ae1414a170be091c87c8147428fb"
+      }
+    },
+    "newYork": {
+      "node_id": "Nre7GvGSGRNDA4zduprr",
+      "bpm": 138,
+      "prompt": "Swinging big-band jazz instrumental at 138 BPM with a late-night city feel: walking upright bass, crisp swing drums with ride cymbal, punchy saxophone section and muted-trumpet riffs on a catchy repeated hook, stride piano stabs and finger snaps. Cool, sly and bustling, tight and bright, spacious enough for game sound effects.",
+      "takes": [
+        {
+          "take": 1,
+          "generation_id": "CakjJlEwm2aiFtlLAEBI",
+          "sha256": "39787cb9da7a8bf96906cd2a22b11abc7fb48889741ec3540651a754f38d71cf"
+        },
+        {
+          "take": 2,
+          "generation_id": "SkVIukbGvvH9DGA40IUJ",
+          "sha256": "abfca9317734a65b4b26d0783b578aea5ff1934e014d1491db362ba9fdada39e"
+        },
+        {
+          "take": 3,
+          "generation_id": "O3HrFGkgg78jBG1SliIn",
+          "sha256": "f06a6cca2f6060503d458dd8e68ccfbbfc4b474722ff1892535a2a807c3513de"
+        },
+        {
+          "take": 4,
+          "generation_id": "wUFevpCJuwyTZg15SC0U",
+          "sha256": "11517b92581e6ab0d2f49b306eeecfb9e84f63055c20fc571500f1829798aaf9"
+        }
+      ],
+      "selected": {
+        "take": 2,
+        "loop_bars": 50,
+        "loop_seconds": 86.9565,
+        "duration": 88.6956522,
+        "crossfade": 1.7391304,
+        "asset": "assets/audio/sky_new_york.ogg",
+        "asset_sha256": "5da6a4b4182158945629af998e7c0ca41babec8237895bc98f8003b6ed3cbe83"
+      }
+    },
+    "paris": {
+      "node_id": "0sfXy4k0iegedYmHiE5C",
+      "bpm": 132,
+      "prompt": "Charming Parisian jazz-manouche instrumental at 132 BPM: musette accordion plays a twinkling, catchy repeated hook over gypsy-jazz guitar pompe rhythm, upright bass and light brushed snare, with clarinet answers and glockenspiel sparkles. Romantic, playful and moonlit, light on its feet, spacious enough for game sound effects.",
+      "takes": [
+        {
+          "take": 1,
+          "generation_id": "9XgP6r3agpGQR4vKFPNq",
+          "sha256": "69364aea4e2217c95ecf61f650f3ec01c073a1a62c9fbcb89eda13b8316e4f2e"
+        },
+        {
+          "take": 2,
+          "generation_id": "EqrPFLNtNihsJWDxVQOL",
+          "sha256": "c95dc38b1c510ba2974cd399371175a7641cada32d55d93ac78cbc4e6f55610c"
+        },
+        {
+          "take": 3,
+          "generation_id": "iHadyMg4Lu1RQ7AMOvgh",
+          "sha256": "7ad6876aff8c21b2de364284665f2c3e17173f54f891712c4bcc82681221c99c"
+        },
+        {
+          "take": 4,
+          "generation_id": "A3m2Rrxk06IOnapSwhO3",
+          "sha256": "dd026efcab80bd39efe07d5e6af15b82b53eab07308789a4f5984c87aba902ff"
+        }
+      ],
+      "selected": {
+        "take": 3,
+        "loop_bars": 42,
+        "loop_seconds": 76.3636,
+        "duration": 78.1818182,
+        "crossfade": 1.8181818,
+        "asset": "assets/audio/sky_paris.ogg",
+        "asset_sha256": "dfea8a5b0b8ee80876f90b7701de27e60a41db134853ea2425fcc17bdd2bd2a3"
+      }
+    },
+    "mexico": {
+      "node_id": "bUwRfOy10ebb3uE6zikC",
+      "bpm": 128,
+      "prompt": "Festive mariachi instrumental at 128 BPM: bright trumpets and violins trade a lively, catchy repeated hook over strummed vihuela and guitar in a bouncing son rhythm, a deep guitarrón bass line and occasional guitar flourishes. Warm, celebratory and spirited like a dusk fiesta, punchy and clear, spacious enough for game sound effects.",
+      "takes": [
+        {
+          "take": 1,
+          "generation_id": "pN1lXLN1Y8Wlz13tdDRL",
+          "sha256": "3ca8d9ed689603784da6d0b15a1d2082a9ee57ff3786ffd1e99a293f40216d72"
+        },
+        {
+          "take": 2,
+          "generation_id": "GBrrIXMSkWDgBmUOzXW4",
+          "sha256": "2347669d14a443e98d605086dedcff27d6f2cc63cf40779e8d2a658864a0e647"
+        },
+        {
+          "take": 3,
+          "generation_id": "eJZDILPEceu6mAOJu0Tl",
+          "sha256": "c76c0dad9f2e67374613e623d0ed74d28bf28bef28914e96d4c616a0f36c3b92"
+        },
+        {
+          "take": 4,
+          "generation_id": "deaS9eQHGSj6PmpRs3l8",
+          "sha256": "c445bea68e4ea9c0d163dbd25b55dbe057c278a5026f67f6c9d8f0e6acd615c0"
+        }
+      ],
+      "selected": {
+        "take": 1,
+        "loop_bars": 41,
+        "loop_seconds": 76.875,
+        "duration": 78.75,
+        "crossfade": 1.875,
+        "asset": "assets/audio/sky_mexico.ogg",
+        "asset_sha256": "7fea233c5617c321df93e440b4fb7236117a5244358749dda6265c26fab6f857"
+      }
+    },
+    "sea": {
+      "node_id": "nXZ7I2f9hf632aOBUpvv",
+      "bpm": 120,
+      "prompt": "Rollicking sea-shanty adventure instrumental in a rocking 6/8 at 120 BPM: fiddle and tin whistle play a catchy repeated hook over concertina chords, plucked bouzouki, upright bass and a stomping bodhrán, with swelling low strings like rolling waves. Breezy, salty and buoyant, bold and fun, spacious enough for game sound effects.",
+      "takes": [
+        {
+          "take": 1,
+          "generation_id": "9nwYKBgTbWyeufy4tHd0",
+          "sha256": "507e84b525884a6b57d2f918e716702f21772fe6454262e8cea43a8e210277f9"
+        },
+        {
+          "take": 2,
+          "generation_id": "u4F4D4tcmRjFvjkB6orc",
+          "sha256": "53ad9aebef001e97bcc09ed0130e7e7a7204ebe6987ece549df9ace42e77d796"
+        },
+        {
+          "take": 3,
+          "generation_id": "oaxTzEjy2fKykqNRGoWX",
+          "sha256": "450e45214f67ca8d12f48786ff0f355359c645266d6343fbe74f68977979abd2"
+        },
+        {
+          "take": 4,
+          "generation_id": "JgY7alPzAoObB42xLvqy",
+          "sha256": "121537dd6a0aa840fd18b441402e7069b50a6e9cf4b5073450b3572a25fcfd3c"
+        }
+      ],
+      "selected": {
+        "take": 2,
+        "loop_bars": 41,
+        "loop_seconds": 82.0,
+        "duration": 84.0,
+        "crossfade": 2.0,
+        "asset": "assets/audio/sky_sea.ogg",
+        "asset_sha256": "936afd03a11033357a5b8e993b1cc487cb1871ce1306b7dd904ad747ff3c5b93"
+      }
+    },
+    "antarctica": {
+      "node_id": "g0dtyBaBXwaqDhVVzQXP",
+      "bpm": 120,
+      "prompt": "Crisp, icy adventure instrumental at 120 BPM: celesta, glockenspiel and pizzicato strings play a sparkling, catchy repeated hook over a brisk light snare and shaker groove, plucked harp, bowed vibraphone shimmer and a soft, cold string bed. Twinkling, frosty and full of wonder yet steadily driving, no sleigh bells or choir, spacious enough for game sound effects.",
+      "takes": [
+        {
+          "take": 1,
+          "generation_id": "vND4Xio2qSNuOE8ZmfY0",
+          "sha256": "7a7f35cb4838603b0d05d09370f2b1e7433441c0f51f6f41146d4b3ad9511c23"
+        },
+        {
+          "take": 2,
+          "generation_id": "25GgdPQaQDDT2lJuPyyj",
+          "sha256": "b4e0f94ec4f556db9b7cff13311030cccc124f2415498bc660ed80fb750bfc42"
+        },
+        {
+          "take": 3,
+          "generation_id": "U5VijIJBh6yum4cjrzrZ",
+          "sha256": "0a8546dc72c65870fd4700e8c6ef7b132ca5df5234f52f8e9da0126509eb66d2"
+        },
+        {
+          "take": 4,
+          "generation_id": "nX7Y6Ha6e1HrZd6Qx50T",
+          "sha256": "732115f1fb192b66adf50fe7df689e525c40ccd85afcd07a18dd50424091cc80"
+        }
+      ],
+      "selected": {
+        "take": 2,
+        "loop_bars": 41,
+        "loop_seconds": 82.0,
+        "duration": 84.0,
+        "crossfade": 2.0,
+        "asset": "assets/audio/sky_antarctica.ogg",
+        "asset_sha256": "94184644505adca1913756729c217529391dba704b4d06bb29b4e3c72537852a"
+      }
+    },
+    "cyberpunk": {
+      "node_id": "tE91sUuSUzEE7fBHzfg7",
+      "bpm": 128,
+      "prompt": "Driving cyberpunk synthwave instrumental at 128 BPM: a pulsing arpeggiated analog bass, punchy gated drums and a bright neon lead synth playing a catchy repeated hook, with glitchy stabs, gritty plucks and wide pads. Futuristic, urgent and fun, sleek and punchy, spacious enough for game sound effects.",
+      "takes": [
+        {
+          "take": 1,
+          "generation_id": "3ABauGZundGIhtuSHPjr",
+          "sha256": "7e3dfd250792f0d900d5203b885f1dbf5b5e3d3b2838a5362a4d451cc0730886"
+        },
+        {
+          "take": 2,
+          "generation_id": "ls35bZmIH810Sa0m4eOT",
+          "sha256": "18b9f5d18a0923ae993286949e9ed06e76924628634148e4ca206243fa738a76"
+        },
+        {
+          "take": 3,
+          "generation_id": "loznqmQsXqM1LZHGRM14",
+          "sha256": "69b142b0f4c2257b8960e711bb13a20347ca887643c656d5463bd0d7b6324b18"
+        },
+        {
+          "take": 4,
+          "generation_id": "ywMDHBgoHOY8QoemqUQX",
+          "sha256": "df6c713f97e15ee95f84490e46ce52e06b1b835b04050b3b6dc26916ad44bdec"
+        }
+      ],
+      "selected": {
+        "take": 3,
+        "loop_bars": 42,
+        "loop_seconds": 78.75,
+        "duration": 80.625,
+        "crossfade": 1.875,
+        "asset": "assets/audio/sky_cyberpunk.ogg",
+        "asset_sha256": "660f32f8796608bb801cccc6ddd0227715f04e3baa28d66ac9c810d3dbe0882c"
+      }
+    },
+    "china": {
+      "node_id": "s1S0HLLaj2tx4ii2c0YV",
+      "bpm": 112,
+      "prompt": "Graceful yet lively Chinese adventure instrumental at 112 BPM in a pentatonic mode: erhu and dizi bamboo flute trade a catchy repeated hook over rippling guzheng runs, pipa plucks, woodblock, small gongs and tanggu drums. Warm, elegant and playful like a lantern-lit dusk, crisp and rhythmic, spacious enough for game sound effects.",
+      "takes": [
+        {
+          "take": 1,
+          "generation_id": "HEC0f7v2RWLiTDhhY56d",
+          "sha256": "7fbe8d558ccec5b654ea0ceca89652cc3cba2074235e7e010b20d3057aa0d447"
+        },
+        {
+          "take": 2,
+          "generation_id": "PYFcXdTLPJ3IqkczYhpx",
+          "sha256": "799976ecd21292aadcd1419609250e261d83a17b1c69a7b4b5df2c91d203b018"
+        },
+        {
+          "take": 3,
+          "generation_id": "MVfnKMd8kqNtHAp4vtw8",
+          "sha256": "299cfe5a969fb82d3c50f53d131aafd95b6ae86e5da71614fe19556acd90515a"
+        },
+        {
+          "take": 4,
+          "generation_id": "7teuk4L3RwoP7rdgk5RX",
+          "sha256": "22760141226968c7aa963948244871477e707f78c8371f100d2e6324c7f75708"
+        }
+      ],
+      "selected": {
+        "take": 2,
+        "loop_bars": 40,
+        "loop_seconds": 85.7143,
+        "duration": 87.8571429,
+        "crossfade": 2.1428571,
+        "asset": "assets/audio/sky_china.ogg",
+        "asset_sha256": "a8fb803f4713f89175fb89487921baab8a0ed1e3e6844e0a3194d11de24050f5"
+      }
+    }
+  }
+}

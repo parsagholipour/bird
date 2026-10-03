@@ -24,10 +24,28 @@ import 'recorded_flight.dart';
 /// The rules version the fixtures were frozen at.
 const frozenVersion = 41;
 
-/// The 16 levels of chapters 1 and 2: the campaign as it was playable at 41.
+/// The 16 levels of chapters 1 and 2 (the campaign as it was playable at
+/// 41), by the ids they had then: Ancient Arabia's 2-6..2-8 are 2-7..2-9
+/// since Egypt's guardian took 2-6 (rules 50, `CampaignIds`).
+const frozenIds = [
+  '1-1', '1-2', '1-3', '1-4', '1-5', '1-6', '1-7', '1-8', //
+  '2-1', '2-2', '2-3', '2-4', '2-5', '2-6', '2-7', '2-8',
+];
+
+/// The level the fixtures call [frozenId], as the catalog has it now.
+CampaignLevel frozenLevel(String frozenId) =>
+    Campaign.level(CampaignIds.level(frozenId))!;
+
+/// Its plan with the frozen id written back: renumbering changed the id
+/// string and nothing else, so this is the plan as it was saved at 41.
+LevelPlan frozenPlan(String frozenId) => LevelPlan.fromJson({
+  ...frozenLevel(frozenId).plan.toJson(),
+  'id': frozenId,
+});
+
+/// The 16 levels, as the catalog has them now.
 List<CampaignLevel> get frozenLevels => [
-  for (final level in Campaign.levels)
-    if (level.chapter <= 2) level,
+  for (final id in frozenIds) frozenLevel(id),
 ];
 
 String fnvHex(String text) {
@@ -79,7 +97,7 @@ class FrozenFlight {
 
   /// Flies the level as [version] and returns its digest.
   FrozenResult fly({int version = frozenVersion}) {
-    final plan = Campaign.level(level)!.plan;
+    final plan = frozenPlan(level);
     final sim = FlightSimulation(
       rules: TapFlyMode(rulesVersion: version),
       practice: false,
@@ -120,6 +138,8 @@ class FrozenFlight {
       summary: digest.summary(sim),
       outcome: outcomeOf(sim),
       checkpoints: digest.checkpoints,
+      allRings: sim.allRingsBonuses,
+      cooRestarts: sim.cooRestarts,
     );
   }
 }
@@ -129,9 +149,24 @@ class FrozenResult {
     required this.summary,
     required this.outcome,
     required this.checkpoints,
+    this.allRings = 0,
+    this.cooRestarts = 0,
+    this.cooStragglers = 0,
   });
   final String summary, outcome;
   final List<String> checkpoints;
+
+  /// How many all-rings bonuses (rules 51) the flight earned. Not recorded:
+  /// a flight that earned none flies at 51 exactly as at 50.
+  final int allRings;
+
+  /// How many times King Coo restarted his cycle early (rules 54). Not
+  /// recorded: a flight in which he never did flies at 54 exactly as at 53.
+  final int cooRestarts;
+
+  /// Returned pigeons: from rules 56 these flights use pairs and no longer
+  /// match a single-pigeon flight's digest.
+  final int cooStragglers;
 
   Map<String, Object> toJson() => {
     'summary': summary,
@@ -157,13 +192,14 @@ String outcomeOf(FlightSimulation sim) {
 
 /// What a level lays, as data: the plan's saved JSON (so new keys must not
 /// appear for an old plan) and the route's exact positions.
-Map<String, Object> catalogEntry(CampaignLevel level) {
+Map<String, Object> catalogEntry(String frozenId) {
+  final level = frozenLevel(frozenId), plan = frozenPlan(frozenId);
   final sim = FlightSimulation(
     rules: TapFlyMode(rulesVersion: frozenVersion),
     practice: false,
     course: FlightCourse.starTrail,
     rulesVersion: frozenVersion,
-    plan: level.plan,
+    plan: plan,
   );
   final route = sim.route!;
   final positions = StringBuffer()
@@ -178,7 +214,7 @@ Map<String, Object> catalogEntry(CampaignLevel level) {
     positions.write('s ${p.piece.kind.name} ${p.number} ${p.start} ${p.end}\n');
   }
   return {
-    'plan': jsonEncode(level.plan.toJson()),
+    'plan': jsonEncode(plan.toJson()),
     'route': fnvHex(positions.toString()),
     'passages': route.passages.length,
     'routeStars': route.stars,
@@ -194,7 +230,7 @@ Map<String, Object> catalogEntry(CampaignLevel level) {
 /// rules (rush paths, enemies, both bosses): narrow and wide screens, the
 /// base weapon, and a mortal bird that can lose.
 List<FrozenFlight> get frozenFlights => [
-  for (final level in frozenLevels) FrozenFlight(level.id),
+  for (final id in frozenIds) FrozenFlight(id),
   for (final id in ['1-3', '1-5', '2-1', '2-3', '2-5', '2-7']) ...[
     FrozenFlight(id, width: 1.6),
     FrozenFlight(id, width: 2.4),
@@ -234,7 +270,7 @@ class FrozenTape {
   /// Records the flight with the frozen bot at rules 41.
   ReplayTape record() {
     var now = 0.0;
-    final plan = level == null ? null : Campaign.level(level!)!.plan;
+    final plan = level == null ? null : frozenPlan(level!);
     final tape = ReplayTape(
       mode: PlayMode.touch,
       practice: false,
@@ -295,6 +331,8 @@ FrozenResult replayFrozen(ReplayTape tape) {
     summary: digest.summary(player.simulation),
     outcome: outcomeOf(player.simulation),
     checkpoints: digest.checkpoints,
+    allRings: player.simulation.allRingsBonuses,
+    cooRestarts: player.simulation.cooRestarts,
   );
 }
 

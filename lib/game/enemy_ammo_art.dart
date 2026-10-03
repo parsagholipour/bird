@@ -4,6 +4,7 @@ import 'package:flutter/painting.dart';
 
 import '../domain/sky_enemy.dart';
 import '../ui/theme.dart';
+import 'crust_art.dart';
 
 /// Hostile pellets drawn in hit-radius units, travelling along +x.
 ///
@@ -54,6 +55,23 @@ abstract final class EnemyAmmoArt {
     final fine = radius >= 14;
     // The ink rim holds ~1.6 px at gameplay size and ends on the hit circle.
     final edge = math.max(.15, 1.6 / radius);
+    if (ammo.attack == EnemyAttack.crumb) {
+      // King Coo's pigeons' stale crust (rules version 45), tumbling.
+      // Flung out of the wing: it overshoots its size, then settles.
+      final pop = !reducedMotion && !age.isNaN && age < popSeconds
+          ? .55 + .45 * _backOut(math.max(0.0, age) / popSeconds)
+          : 1.0;
+      CrustArt.pellet(
+        canvas,
+        time: time,
+        reach: reach,
+        edge: edge,
+        fine: fine,
+        pop: pop,
+      );
+      canvas.restore();
+      return;
+    }
     final spit = ammo.attack == EnemyAttack.aimed;
     if (spit) {
       _spitWake(canvas, time, reach, fine);

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:push_up_bird/domain/campaign.dart';
 import 'package:push_up_bird/domain/game_rules.dart';
 import 'package:push_up_bird/domain/session_replay.dart';
@@ -181,6 +183,61 @@ class _RunUp {
   bool flap(FlightSimulation sim) =>
       steamTapper(sim, react: react, taps: taps, clearance: .10);
 
+  /// The vanguard: fly level with the next pigeon still well ahead, keep
+  /// clear of the ones and the crusts about to reach the bird, and do not
+  /// cross a close one's path.
+  bool hunt(FlightSimulation sim) {
+    if (sim.elapsed - sim.lastFlapAt < 1 / taps - 1e-9) return false;
+    const x0 = FlightSimulation.birdX, r = FlightSimulation.birdRadius;
+    SkyEnemy? prey;
+    for (final e in sim.enemies) {
+      if (e.x < x0 + .6) continue;
+      if (prey == null || e.x < prey.x) prey = e;
+    }
+    final dangers = <double>[
+      for (final e in sim.enemies)
+        if (e.x > x0 - .08 && e.x < x0 + .6) e.y,
+      for (final a in sim.enemyAmmo)
+        if (a.vx < 0 && a.x > x0 - .05 && (a.x - x0) / -a.vx < .9)
+          a.y + a.vy * (a.x - x0) / -a.vx,
+    ];
+    const reach = SkyEnemy.radius + r + .06;
+    bool free(double y) =>
+        y > .1 &&
+        y < .9 &&
+        dangers.every((p) => (y - .08 > p + reach) || (y + .05 < p - reach)) &&
+        dangers.every(
+          (p) =>
+              math.min(sim.birdY, y) > p + reach ||
+              math.max(sim.birdY, y) < p - reach,
+        );
+    final want = prey?.y ?? .5;
+    var goal = want;
+    if (!free(want)) {
+      var cost = double.infinity;
+      for (var y = .12; y <= .881; y += .02) {
+        if (!free(y)) continue;
+        final c = (y - want).abs() + .5 * (y - sim.birdY).abs();
+        if (c < cost) {
+          cost = c;
+          goal = y;
+        }
+      }
+    }
+    return sim.birdY > goal + .05 && sim.velocity > -.25;
+  }
+
+  /// Fire at the hunted pigeon when level with it, at the skill's pace.
+  bool huntShot(FlightSimulation sim, int frame) {
+    if (!sim.canShoot || frame % (tapEvery ~/ 2).clamp(6, 30) != 0) {
+      return false;
+    }
+    return sim.enemies.any(
+      (e) =>
+          e.x > FlightSimulation.birdX + .2 && (e.y - sim.birdY).abs() < .055,
+    );
+  }
+
   void fire(Driver d, int frame) {
     final sim = d.sim;
     if (!shoots || !sim.offersShoot) return;
@@ -226,18 +283,23 @@ NyRun flyNewYork(
   bool stopAtBoss = false,
   int phase = 0,
   LevelPlan? plan,
-  double seconds = 400,
+  // The fiercer Gargoyle's fight (rules 46) takes a casual pilot about six
+  // minutes.
+  double seconds = 600,
   Driver? driver,
+  int version = FlightSimulation.currentRulesVersion,
   void Function(FlightSimulation sim)? watch,
+  gargoyle.Pilot Function(Skill skill)? wardenOf,
 }) {
   final level = Campaign.level(id)!;
   final d =
       driver ??
       DirectDriver(
         FlightSimulation(
-          rules: TapFlyMode(),
+          rules: TapFlyMode(rulesVersion: version),
           practice: false,
           course: FlightCourse.starTrail,
+          rulesVersion: version,
           weaponDamage: weaponDamage,
           plan: plan ?? level.plan,
         ),
@@ -271,7 +333,7 @@ NyRun flyNewYork(
           flap = cooBot.flap(sim);
           if (shoots && cooBot.shoot(sim)) d.shoot();
         } else {
-          warden ??= _warden(skill);
+          warden ??= (wardenOf ?? _warden)(skill);
           flap = warden.flap(sim);
           if (shoots && warden.shoot(sim)) d.shoot();
         }
@@ -281,6 +343,11 @@ NyRun flyNewYork(
       // The bird coasts to the line; a player lets go.
     } else if (sim.victoryGlide) {
       // The boss has gone: nothing to do but coast.
+    } else if (boss == null && sim.vanguardFlying && shoots) {
+      // King Coo's vanguard (rules 44): a player hunts its pigeons, since
+      // from rules 45 every one that gets away comes back in his fight.
+      flap = runUp.hunt(sim);
+      if (runUp.huntShot(sim, frame + phase)) d.shoot();
     } else if (boss == null) {
       flap = runUp.flap(sim);
       runUp.fire(d, frame + phase);

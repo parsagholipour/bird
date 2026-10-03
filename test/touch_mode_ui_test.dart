@@ -14,6 +14,7 @@ import 'package:push_up_bird/game/bird_game.dart';
 import 'package:push_up_bird/main.dart';
 import 'package:push_up_bird/ui/play_screen.dart';
 import 'package:push_up_bird/ui/replay_screen.dart';
+import 'package:push_up_bird/ui/screen_frame.dart';
 import 'experience_ui_test.dart' show capture;
 import 'play_session_test.dart' show SilentAudio;
 
@@ -259,10 +260,10 @@ void main() {
       expect(tester.takeException(), isNull);
       expect(
         tester.getRect(find.byType(GameWidget<BirdGame>)),
-        Offset.zero & Size(width, 360),
+        rectMoreOrLessEquals(ScreenFrame.shownIn(Size(width, 360))),
         reason:
-            'The flight canvas must reach every screen edge, including '
-            'outside the safe area used by the HUD.',
+            'The flight canvas must reach every edge of the picture, '
+            'including outside the safe area used by the HUD.',
       );
       for (final edge in [
         const Offset(1, 180),

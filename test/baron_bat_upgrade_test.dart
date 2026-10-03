@@ -116,6 +116,47 @@ void main() {
     expect(SkyBoss(number: 6, x: 1).screeches, isFalse);
   });
 
+  test('from rules 48 the returning Baron has twice the health, solo and '
+      'co-op', () {
+    for (final (version, defeated, hp) in [
+      (47, 0, 120),
+      (47, 5, 240),
+      (47, 10, 240),
+      (48, 0, 120),
+      (48, 5, 480),
+      (48, 10, 480),
+    ]) {
+      for (final coop in [null, CoopMode.roped, CoopMode.free]) {
+        final sim =
+            FlightSimulation(
+                rules: TapFlyMode(rulesVersion: version),
+                practice: true,
+                course: FlightCourse.starTrail,
+                rulesVersion: version,
+                coop: coop,
+                random: math.Random(4),
+              )
+              ..phase = RunPhase.playing
+              ..started = true
+              ..elapsed = FlightSimulation.bossInterval - .01
+              ..bossesDefeated = defeated;
+        step(sim);
+        final boss = sim.boss!;
+        final reason = 'rules $version, $defeated, $coop';
+        expect(boss.kind, BossKind.baronBat, reason: reason);
+        expect(sim.supportsTougherBaron, version >= 48, reason: reason);
+        expect((boss.maxHp, boss.hp), (hp, hp), reason: reason);
+      }
+    }
+    // The other endless bosses keep their health.
+    for (final kind in BossKind.values.take(BossKind.endlessCycle).skip(1)) {
+      final sim = arena(version: 48)..bossesDefeated = 5 + kind.index;
+      step(sim);
+      expect(sim.boss!.kind, kind);
+      expect(sim.boss!.maxHp, SkyBoss.healthFor(kind, 6 + kind.index));
+    }
+  });
+
   test('the debut Baron keeps his original fight', () {
     final sim = baronArena(defeated: 0);
     final boss = sim.boss!..fireIn = 99;
@@ -567,7 +608,9 @@ void main() {
     }
   });
 
-  for (final width in [640 / 360, 800 / 360]) {
+  // Play is 2.2 wide on every screen (ScreenFrame). With twice the health
+  // (rules 48) this pilot no longer outlasts him in the narrower 1.78 sky.
+  for (final width in [792 / 360, 800 / 360]) {
     test('the upgraded Baron is beatable with legal flaps and shots at '
         '${width.toStringAsFixed(2)}', () {
       final sim = arena(version: FlightSimulation.currentRulesVersion)

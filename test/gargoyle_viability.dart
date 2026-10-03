@@ -84,20 +84,46 @@ class Search {
     this.substeps = 1,
     this.tapGap = tapGapSteps,
     this.slitGeometry,
+    this.dropsFeathers = true,
+    this.schedule,
+    double? endAt,
+    this.beamBlind = false,
+    this.level = false,
   }) : startStep = ((SearchlightGargoyle.sweepAt - warnSeconds) / dt).round(),
-       endStep = ((SearchlightGargoyle.ventAt + tail) / dt).round(),
+       endStep = ((endAt ?? SearchlightGargoyle.ventAt + tail) / dt).round(),
        feathers = [
          // The perch feather (the first launch, .2 s in) has gone by before
          // the warning begins, so the warning-start search leaves it out;
          // the whole-cycle search ([withPerch]) keeps it.
-         for (final at in SearchlightGargoyle.feathers(
-           enraged: sweep.fury,
-           slit: sweep.slit,
-         ).skip(withPerch ? 0 : 1))
-           (at / dt).round(),
+         if (dropsFeathers)
+           for (final at
+               in (schedule ??
+                       SearchlightGargoyle.feathers(
+                         enraged: sweep.fury,
+                         slit: sweep.slit,
+                       ))
+                   .skip(withPerch ? 0 : 1))
+             (at / dt).round(),
        ];
 
+  /// The cycle's feather launch times (seconds) when not the sweep's own
+  /// ([SearchlightGargoyle.feathers]): a fiercer Gargoyle's (rules 46),
+  /// whose vent drops feathers too ([SearchlightGargoyle.fierceFeathers]).
+  final List<double>? schedule;
+
+  /// Whether the path ignores the beam: a player who has not yet seen the
+  /// warning plans only for the feathers it can see.
+  final bool beamBlind;
+
+  /// Whether the feathers are level (rules 49): none crosses the bird's
+  /// column steeper than [SearchlightGargoyle.maxFeatherSlope].
+  final bool level;
+
   final Sweep sweep;
+
+  /// Whether this cycle drops its feathers: a staged Gargoyle's warm-up
+  /// (rules 44) drops none, and a player who sees none plans for none.
+  final bool dropsFeathers;
 
   /// The warning's length, the dodge margin the path must clear a beam or a
   /// feather by, and how long past the vent's start the search keeps the bird
@@ -144,7 +170,7 @@ class Search {
     for (var i = 0; i < feathers.length; i++) withPerch && i == 0 ? perchFury : null,
   ];
   int nodes = 0;
-  final dead = <int>{};
+  final dead = <(int, int, int)>{};
   final taps = <int>[];
 
   /// The clearance of the bird at [y] from the feather launched at
@@ -160,9 +186,10 @@ class Search {
     final shot = SearchlightGargoyle.featherShot(
       lane,
       enraged: fury ?? sweep.fury,
+      level: level,
     );
     if (tau < 0 || tau > shot.flight + .4) return 9;
-    final px = SearchlightGargoyle.featherOffsetX + shot.vx * tau;
+    final px = shot.ahead + shot.vx * tau;
     final py =
         SearchlightGargoyle.featherY +
         shot.vy * tau +
@@ -173,7 +200,7 @@ class Search {
 
   /// Whether the bird at [y] is caught in a beam of [side] at [step].
   bool spotted(int step, double y, BeamSide? side) {
-    if (side == null) return false;
+    if (side == null || beamBlind) return false;
     final x = step * dt;
     final geometry = slitGeometry;
     final bool custom = sweep.slit && geometry != null;
@@ -219,14 +246,25 @@ class Search {
       }
     }
     if (step >= endStep) return true;
-    var key = step;
-    key = key * 512 + _yi(y);
-    key = key * 256 + _vi(v);
-    key = key * 16 + since.clamp(0, 15);
-    key = key * 4 + (side?.index ?? 2);
-    for (final l in lanes) {
-      key = key * 512 + (l == null ? 0 : _yi(l) + 1);
+    // The state, packed without overflow: a fiercer Gargoyle's cycle (rules
+    // 46) has more feathers than one 64-bit key holds lanes for, and a tap
+    // gap over 15 frames needs its own count.
+    var state = step;
+    state = state * 512 + _yi(y);
+    state = state * 256 + _vi(v);
+    state = state * 32 + since.clamp(0, math.max(15, tapGap));
+    state = state * 4 + (side?.index ?? 2);
+    var near = 0, far = 0;
+    for (var i = 0; i < lanes.length; i++) {
+      final l = lanes[i];
+      final lane = l == null ? 0 : _yi(l) + 1;
+      if (i < 6) {
+        near = near * 512 + lane;
+      } else {
+        far = far * 512 + lane;
+      }
     }
+    final key = (state, near, far);
     if (dead.contains(key)) return false;
     final next = step + 1;
     final nextLanes = [...lanes];
@@ -293,18 +331,21 @@ class Search {
     List<(int, double)> inFlight, {
     List<bool> inFlightFury = const [],
   }) {
-    final schedule = [
-      for (final at in SearchlightGargoyle.feathers(
-        enraged: sweep.fury,
-        slit: sweep.slit,
-      ))
-        (at / dt).round(),
+    final launches = [
+      if (dropsFeathers)
+        for (final at
+            in schedule ??
+                SearchlightGargoyle.feathers(
+                  enraged: sweep.fury,
+                  slit: sweep.slit,
+                ))
+          (at / dt).round(),
     ];
     feathers
       ..clear()
       ..addAll([for (final f in inFlight) f.$1])
       ..addAll([
-        for (final launch in schedule)
+        for (final launch in launches)
           if (launch > step) launch,
       ]);
     furies = [

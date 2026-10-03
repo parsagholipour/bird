@@ -5,22 +5,28 @@ import 'king_coo.dart';
 
 export 'alley_pigeon.dart';
 
-enum EnemyAttack { none, aimed, fan }
+/// [crumb] (rules version 45) is the stale crust King Coo's vanguard
+/// pigeons throw: one aimed shot, slower than a beetle's seed. Append, never
+/// reorder.
+enum EnemyAttack { none, aimed, fan, crumb }
 
 /// Declaration order is the appearance index that saved plans and replays
 /// rely on: append, never reorder. [alleyPigeon] joins in rules version 43
-/// and only campaign level plans lay it ([campaignOnly]).
+/// and only campaign level plans lay it ([campaignOnly]). [mummyBat] joins
+/// in rules version 52: Neferhoo's helpers, which only his tougher fight
+/// sends (no lineup names one).
 enum EnemyKind {
   caveBat,
   spitterBeetle,
   duskMoth,
   simpleBat,
-  alleyPigeon;
+  alleyPigeon,
+  mummyBat;
 
-  /// Kinds that only a campaign level's lineup can name. No endless lineup
-  /// holds one, at any rules version.
+  /// Kinds that only a campaign level's lineup (or a campaign boss) can
+  /// bring. No endless lineup holds one, at any rules version.
   bool get campaignOnly => switch (this) {
-    alleyPigeon => true,
+    alleyPigeon || mummyBat => true,
     caveBat || spitterBeetle || duskMoth || simpleBat => false,
   };
 }
@@ -37,6 +43,7 @@ class SkyEnemy {
     this.sender,
     int? maxHp,
     this.squad = false,
+    this.throwsCrumbs = false,
   }) : maxHp = maxHp ?? healthFor(appearance),
        pigeon = !squad && _kindOf(appearance) == EnemyKind.alleyPigeon
            ? PigeonFlight()
@@ -51,7 +58,10 @@ class SkyEnemy {
   /// Later encounters toughen the lineup without changing enemies in flight.
   static int healthFor(int appearance, {int bossesDefeated = 0}) {
     final base = switch (_kindOf(appearance)) {
-      EnemyKind.caveBat || EnemyKind.simpleBat || EnemyKind.alleyPigeon => 10,
+      EnemyKind.caveBat ||
+      EnemyKind.simpleBat ||
+      EnemyKind.alleyPigeon ||
+      EnemyKind.mummyBat => 10,
       EnemyKind.spitterBeetle => 20,
       EnemyKind.duskMoth => 30,
     };
@@ -104,6 +114,13 @@ class SkyEnemy {
   /// The squadron rules (R2) set its position directly.
   final bool squad;
 
+  /// One of King Coo's vanguard pigeons from rules version 45: it winds up
+  /// and throws a crust at the bird ([EnemyAttack.crumb]) as it crosses.
+  final bool throwsCrumbs;
+
+  /// A thrown crust's speed, and the seconds between a pigeon's throws.
+  static const crumbSpeed = .40, crumbInterval = 2.2;
+
   /// The raid state of an Alley Pigeon that goes for stars, or null for every
   /// other enemy and for squadron pigeons. See [PigeonFlight]; the art, the
   /// audio and the UI read it, the pigeon rules (R1) drive it.
@@ -127,16 +144,20 @@ class SkyEnemy {
   SquadTrack? track;
 
   EnemyAttack get attack => switch (kind) {
-    // A pigeon fires nothing: it takes stars.
+    // A raiding pigeon fires nothing: it takes stars.
+    EnemyKind.alleyPigeon =>
+      throwsCrumbs ? EnemyAttack.crumb : EnemyAttack.none,
+    // A mummy bat only flies at the bird, as a simple bat does.
     EnemyKind.caveBat ||
     EnemyKind.simpleBat ||
-    EnemyKind.alleyPigeon => EnemyAttack.none,
+    EnemyKind.mummyBat => EnemyAttack.none,
     EnemyKind.spitterBeetle => EnemyAttack.aimed,
     EnemyKind.duskMoth => EnemyAttack.fan,
   };
   double get _flightTime => age + (flightPhase ?? 0);
   double get _flightRate => switch (kind) {
-    EnemyKind.simpleBat => 2.8,
+    // A mummy bat flies the simple bat's arc (its bandages are art only).
+    EnemyKind.simpleBat || EnemyKind.mummyBat => 2.8,
     EnemyKind.caveBat => 3.2,
     EnemyKind.spitterBeetle => 3.8,
     EnemyKind.duskMoth => 2.2,
@@ -153,7 +174,7 @@ class SkyEnemy {
   double get y {
     if (flightPhase == null || track != null) return _y;
     final amplitude = switch (kind) {
-      EnemyKind.simpleBat => .011,
+      EnemyKind.simpleBat || EnemyKind.mummyBat => .011,
       EnemyKind.caveBat => .010,
       EnemyKind.spitterBeetle => .007,
       EnemyKind.duskMoth => .014,

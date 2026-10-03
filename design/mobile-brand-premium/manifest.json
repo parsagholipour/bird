@@ -1,0 +1,13 @@
+{
+  "name": "Beakbound",
+  "name_status": "working proposal",
+  "figma": "https://www.figma.com/design/V5T8hRN8kuh2OQ8oISugR8?node-id=20-2",
+  "recommended_direction": "01-skybreak",
+  "created": "2026-10-03",
+  "deliverables": {
+    "icons": "Three 512 \u00d7 512 RGBA PNG store exports, with 64/48/32 previews and original generated masters",
+    "menu": "1942 \u00d7 809 transparent PNG wordmark",
+    "preview": "index.html includes the three concepts and a menu placement study using game assets"
+  },
+  "artwork": "Raster artwork generated with built-in ImageGen; not vector paths."
+}

@@ -73,8 +73,10 @@ class LevelRecord {
 ///
 /// The first level is open from the start. Finishing a level unlocks the
 /// next one, so beating a chapter's boss opens the next chapter; a guardian
-/// ([CampaignLevel.isGuardian]) opens only the next level. Levels that are
-/// not [Campaign.playable] in this build stay locked.
+/// ([CampaignLevel.isGuardian]) opens only the next level. A level once
+/// finished stays open, so a level added before it later (Egypt's 2-6,
+/// rules version 50) never locks what a player has already flown. Levels
+/// that are not [Campaign.playable] in this build stay locked.
 class CampaignProgress {
   CampaignProgress(
     Iterable<LevelRecord> records, {
@@ -96,7 +98,7 @@ class CampaignProgress {
   bool unlocked(CampaignLevel level) {
     if (!Campaign.playable(level)) return false;
     final previous = Campaign.before(level);
-    return previous == null || cleared(previous);
+    return cleared(level) || previous == null || cleared(previous);
   }
 
   bool chapterUnlocked(CampaignChapter chapter) =>

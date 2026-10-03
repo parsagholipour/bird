@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><rect width="512" height="512" fill="#BDE9F6"/><defs><clipPath id="b-window"><path d="M81 70 C93 55 135 55 151 67 C178 63 191 80 187 101 C184 121 162 128 144 122 L82 122 Z" transform="translate(160 338) scale(.88)"/></clipPath></defs><g transform="translate(-149 -425.2) scale(1.4)"><g transform="translate(160 338) scale(.88)"><path d="M42 291 C11 291 -4 269 4 240 L4 62 C-4 29 18 10 45 13 C62 -8 102 -10 127 7 C154 -3 186 5 199 30 C234 39 243 78 224 104 C227 126 213 140 201 147 C233 155 244 179 239 204 C259 237 234 270 205 275 C189 301 151 306 125 290 C100 304 66 305 42 291 Z M81 70 C93 55 135 55 151 67 C178 63 191 80 187 101 C184 121 162 128 144 122 L82 122 Z M81 190 L141 190 C164 181 189 195 188 215 C190 238 167 249 145 240 L81 240 Z" fill="#FFF9ED" stroke="#203B45" stroke-width="8" stroke-linejoin="round" fill-rule="evenodd"/></g><g clip-path="url(#b-window)"><g id="peaches-in-the-B">
+<path d="M236 440 C218 422 224 393 250 385 C250 369 270 365 278 377 C297 362 314 378 311 390 C338 393 348 413 340 442 Z" fill="#FFAFAC" stroke="#203B45" stroke-width="4.5"/>
+<path d="M258 388 C243 374 251 364 260 369 M272 382 C263 363 277 352 287 360 C295 368 284 374 279 368" fill="none" stroke="#FF8198" stroke-width="7" stroke-linecap="round"/>
+<ellipse cx="287" cy="408" rx="17" ry="22" fill="#FFF9ED" stroke="#203B45" stroke-width="3.5"/>
+<ellipse cx="316" cy="409" rx="12" ry="18" fill="#FFF9ED" stroke="#203B45" stroke-width="3.5"/>
+<ellipse cx="292" cy="412" rx="7" ry="11" fill="#203B45"/><ellipse cx="320" cy="412" rx="5" ry="8" fill="#203B45"/>
+<circle cx="290" cy="407" r="2.5" fill="white"/><circle cx="318" cy="408" r="2" fill="white"/>
+<path d="M306 427 C317 418 337 425 338 437 L308 439 Q299 434 306 427" fill="#FFD45B" stroke="#203B45" stroke-width="3.5" stroke-linejoin="round"/>
+<path d="M276 390 L270 384 M324 393 L330 388" stroke="#203B45" stroke-width="3" stroke-linecap="round"/>
+<circle cx="275" cy="432" r="6" fill="#FF8198"/>
+</g></g><path id="peaches-wing-on-rim" d="M229 449 C218 437 200 440 195 451 C187 468 202 482 215 477 C224 480 233 470 229 449 Z" fill="#FF8198" stroke="#203B45" stroke-width="4"/><path d="M201 457 Q207 465 218 461" fill="none" stroke="#FFCBC6" stroke-width="4" stroke-linecap="round"/></g></svg>

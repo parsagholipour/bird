@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 import '../domain/game_rules.dart';
 import '../ui/theme.dart';
+import 'finish_celebration_art.dart';
 import 'finish_gate_art.dart';
 import 'sky_scenery.dart';
 
@@ -50,11 +51,15 @@ class ArrivalPose {
 }
 
 abstract final class ArrivalArt {
+  /// Paints the destination. A campaign level's gate gets excited as the
+  /// bird nears it and, given [celebration] (the seconds since the
+  /// crossing), plays its part of [FinishCelebrationArt].
   static void gate(
     Canvas canvas,
     double h,
     FlightSimulation sim, {
     required bool reducedMotion,
+    double? celebration,
   }) {
     final pose = ArrivalPose.forFlight(sim);
     if (pose == null || pose.reveal == 0) return;
@@ -66,6 +71,9 @@ abstract final class ArrivalArt {
         seconds: sim.elapsed,
         arrived: pose.arrived,
         reducedMotion: reducedMotion,
+        toGo: FinishGateArt.toGo(sim),
+        celebration: celebration,
+        contact: FinishCelebrationArt.contact(sim),
       );
       return;
     }

@@ -4,6 +4,7 @@ import 'package:flutter/painting.dart';
 
 import '../domain/game_rules.dart';
 import '../ui/theme.dart';
+import 'crust_art.dart';
 import 'enemy_ammo_art.dart';
 
 /// A charged rock breaking an enemy pellet: a flash of the rock's amber
@@ -68,7 +69,11 @@ abstract final class AmmoShatterArt {
         !(age >= 0 && age < seconds)) {
       return;
     }
-    final tone = attack == EnemyAttack.aimed ? _spit : _ember;
+    final tone = switch (attack) {
+      EnemyAttack.aimed => _spit,
+      EnemyAttack.crumb => _crust,
+      EnemyAttack.none || EnemyAttack.fan => _ember,
+    };
     final power = charge.isFinite
         ? ((charge - PowerShot.shatterCharge) / (1 - PowerShot.shatterCharge))
               .clamp(0.0, 1.0)
@@ -87,6 +92,10 @@ abstract final class AmmoShatterArt {
       _ring(c, tone, age, span, power, edge);
       _spokes(c, age, span, power, seed);
       if (tone == _ember) _smokePuffs(c, age, back, power);
+      // A crust goes up in a cloud of old flour.
+      if (tone == _crust) {
+        _smokePuffs(c, age, back, power, color: CrustArt.dust, alpha: .55);
+      }
       _flash(c, age, power, seed, edge);
       _shards(c, tone, age, span, power, seed, edge);
       _chips(c, age, back, edge);
@@ -104,6 +113,13 @@ abstract final class AmmoShatterArt {
     light: EnemyAmmoArt.hot,
     body: EnemyAmmoArt.amber,
     band: EnemyAmmoArt.flame,
+  );
+
+  /// A pigeon's stale crust ([CrustArt]): crumb light, crumb, baked crust.
+  static const _crust = (
+    light: CrustArt.crumbHi,
+    body: CrustArt.crumb,
+    band: CrustArt.crust,
   );
 
   static double _out(double t) => 1 - math.pow(1 - t, 3).toDouble();
@@ -291,7 +307,15 @@ abstract final class AmmoShatterArt {
       c.rotate(a);
       c.scale(size * stretch, size / math.sqrt(stretch));
       final line = edge / size;
-      if (spit) {
+      if (tone == _crust) {
+        // Chunks of crust tumble out instead of stretching.
+        c.restore();
+        c.save();
+        c.translate(at.dx, at.dy);
+        c.rotate(a + lt * (i.isEven ? 5 : -5));
+        c.scale(size);
+        CrustArt.chunk(c, edge: line);
+      } else if (spit) {
         c.drawPath(_drop, _fill(tone.body));
         c.drawCircle(const Offset(.12, -.38), .34, _fill(tone.light));
         c.drawPath(_drop, _stroke(SkyColors.ink, line));
@@ -308,8 +332,16 @@ abstract final class AmmoShatterArt {
     }
   }
 
-  // Embers leave a little smoke that drifts up out of the blast.
-  static void _smokePuffs(Canvas c, double age, double back, double power) {
+  // Embers leave a little smoke that drifts up out of the blast (a crust,
+  // a cloud of flour: [color] and [alpha]).
+  static void _smokePuffs(
+    Canvas c,
+    double age,
+    double back,
+    double power, {
+    Color color = _smoke,
+    double alpha = .3,
+  }) {
     const end = .5;
     for (var i = 0; i < 3; i++) {
       final start = .06 + i * .035;
@@ -320,7 +352,7 @@ abstract final class AmmoShatterArt {
       c.drawCircle(
         Offset(math.cos(a) * spread, math.sin(a) * spread - 4 * p),
         (.9 + 1.2 * _out(p)) * (1 + .3 * power),
-        _fill(_smoke.withValues(alpha: .3 * (1 - p) * (1 - p))),
+        _fill(color.withValues(alpha: alpha * (1 - p) * (1 - p))),
       );
     }
   }
@@ -387,6 +419,11 @@ abstract final class AmmoShatterArt {
       c.translate(math.cos(a) * d, math.sin(a) * d);
       c.rotate(a);
       c.scale(size);
+      if (tone == _crust) {
+        CrustArt.chunk(c, edge: edge / size);
+        c.restore();
+        continue;
+      }
       c.drawPath(spit ? _drop : _flame, spit ? _fill(tone.body) : _emberFlame);
       c.drawPath(spit ? _drop : _flame, _stroke(SkyColors.ink, edge / size));
       c.drawCircle(

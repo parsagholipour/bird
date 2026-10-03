@@ -596,7 +596,7 @@ void main() {
       Campaign.openedForTest = true;
       final stops = campaignStops(
         CampaignProgress([
-          for (final level in Campaign.levels.take(16))
+          for (final level in Campaign.levels.where((l) => l.chapter <= 2))
             LevelRecord(levelId: level.id, bestStars: 1),
         ]),
       );
@@ -622,7 +622,7 @@ void main() {
       expect(nodes['4-1']!.lockNote, isNull);
       // Beaten and open levels have none.
       expect(nodes['1-1']!.lockNote, isNull);
-      expect(nodes['2-8']!.lockNote, isNull);
+      expect(nodes['2-9']!.lockNote, isNull);
     });
 
     test('a closed build gives chapter 1 and 2 notes and chapter 3 none', () {

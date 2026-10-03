@@ -1,0 +1,24 @@
+{
+  "menu": "Logo image removed; Beakbound name and tagline retained",
+  "launch": "Gold-ringed courier on deep teal; shared native and Flutter artwork",
+  "delay": "No timed splash delay added",
+  "ui_tests": 51,
+  "ui_result": "All passed",
+  "analyzer": "No issues found",
+  "android_release": "build/app/outputs/flutter-apk/app-release.apk",
+  "packaged_splash_assets_verified": 15,
+  "android_launch_themes_verified": [
+    "default",
+    "night",
+    "v31",
+    "night-v31"
+  ],
+  "ios": "Launch assets and storyboard updated; native iOS build not run on Linux",
+  "previews": [
+    "launch.png",
+    "menu.png",
+    "launch-small.png",
+    "menu-small.png"
+  ],
+  "reference": "https://docs.flutter.dev/platform-integration/android/splash-screen"
+}

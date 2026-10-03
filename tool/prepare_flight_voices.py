@@ -3,7 +3,9 @@
 
 The lines were first written per speaker in
 build/flight-voices/script/<key>.json; docs/flight-voices-sources.json is
-the script after that, edited in place when build/ has no script. They are
+the script after that, edited in place (the drafts only seed a missing
+sources file). A line with no take yet is pending: it has no generation_id
+(`pending` lists them). They are
 recorded with ElevenLabs Eleven v4, one take each, into
 build/flight-voices/source/<name>.mp3 (both ignored). Recording runs log
 each take's generation in build/flight-voices/generations/*.json.
@@ -75,12 +77,19 @@ VOICES = {
     'captain': ('4Vl3K2x290GidNvuaLm7',
                 'Matthew Schmitz - Old Pirate Captain'),
     'dragon': ('xsiB5fGhEtknnqzudCO6', 'Smoke - The Dragon'),
+    # Egypt's guardian (rules 50): NOT CAST YET. The owner picks one of five
+    # auditions (docs/story-voices-recording.md, "Neferhoo's voice"); until
+    # then his id is None, `script` writes "voice_id": null and his lines stay
+    # pending. Once picked, put the voice's id and name here and run `script`.
+    'neferhoo': (None, 'Neferhoo (audition)'),
 }
 BIRDS = ['pip', 'peaches', 'minty', 'orbit']
-BOSSES = ['baron', 'spitter', 'empress', 'captain', 'dragon']
+BOSSES = ['baron', 'spitter', 'empress', 'captain', 'dragon', 'neferhoo']
 REGIONS = ['jungle', 'antarctica', 'aztec', 'paris', 'egypt', 'cyberpunk',
            'china', 'brazil', 'new-york', 'arabia', 'rome', 'mexico', 'sea']
-LEVELS = [f'{c}-{n}' for c in range(1, 6) for n in range(1, 9)]
+# Chapter 2 has nine levels since Egypt's guardian took 2-6 (rules 50).
+LEVELS = [f'{c}-{n}' for c in range(1, 6)
+          for n in range(1, 10 if c == 2 else 9)]
 RUSHES = ['wildfire', 'skyfall', 'swarm', 'eruption']
 
 # Lines per moment, as briefed (build/flight-voices/BRIEF.md). Urgent
@@ -185,8 +194,10 @@ def story_extras():
         path = STORY_DIR / f'{name}.ogg'
         if not path.exists():
             continue
+        # The chapter bosses' name-card lines: the fifth line of each lair
+        # scene (the Spitter King's lair is 2-9 since Egypt's guardian).
         if (name.startswith('sprint-') or name in named
-                or re.fullmatch(r'before-\d-8-4', name)):
+                or re.fullmatch(r'before-(\d-8|2-9)-4', name)):
             extras[name] = (clip['prompt'], path)
     return extras
 
@@ -206,6 +217,7 @@ def write_faces(clips):
             else mouth_curve(path)
         cache[name] = {'sha256': digest, 'mouth': curve}
         faces[name] = (mood(prompt), curve)
+    FACES_CACHE.parent.mkdir(parents=True, exist_ok=True)
     FACES_CACHE.write_text(json.dumps(
         {k: v for k, v in sorted(cache.items()) if k in faces}))
     out = [
@@ -301,12 +313,15 @@ def build_sources():
     if SOURCES.exists():
         old = {c['name']: c for c in json.loads(SOURCES.read_text())['clips']}
     # The writers' files seed the script; after that the sources file is
-    # the script, edited in place.
+    # the script, edited in place. Once it exists the drafts are history:
+    # they predate Egypt's guardian and Arabia's renumbered cargo, so they
+    # are read only to seed a missing sources file.
     lines = []
-    for path in sorted(SCRIPT_DIR.glob('*.json')):
-        data = json.loads(path.read_text())
-        for line in data['lines']:
-            lines.append({**line, 'speaker': data['speaker']})
+    if not old:
+        for path in sorted(SCRIPT_DIR.glob('*.json')):
+            data = json.loads(path.read_text())
+            for line in data['lines']:
+                lines.append({**line, 'speaker': data['speaker']})
     if not lines:
         lines = list(old.values())
     problems = check(lines)
@@ -336,6 +351,13 @@ def build_sources():
         if 'generation_id' in clip and source.exists():
             clip['source_sha256'] = hashlib.sha256(
                 source.read_bytes()).hexdigest()
+        elif ('generation_id' in clip and was and 'source_sha256' in was
+              and was.get('generation_id') == clip['generation_id']):
+            # A clone without the takes keeps the hash of the take it lacks.
+            clip['source_sha256'] = was['source_sha256']
+        if 'generation_id' in clip and voice_id is None:
+            raise SystemExit(f'{name}: has a take, but {line["speaker"]} has no '
+                             'voice yet: put the chosen voice in VOICES first')
         clips.append(clip)
     SOURCES.write_text(json.dumps({
         'model': 'eleven_v4',

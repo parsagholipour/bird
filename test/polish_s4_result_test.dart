@@ -194,6 +194,11 @@ void _fly(
     controller.advance(.02, 0, 2.2);
     controller.tick();
   }
+  // The game loop plays a finished level's celebration out before its
+  // result.
+  while (!controller.celebrationSettled) {
+    controller.advance(.02, 0, 2.2);
+  }
 }
 
 void _crash(PlayController controller) {

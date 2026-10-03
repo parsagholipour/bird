@@ -25,11 +25,19 @@ Set<String> birdMoments() => {
   ],
   for (final region in WorldRegion.values)
     'region-${FlightVoices.regionKey(region)}',
-  for (final boss in FlightVoices.voicedBosses) ...[
+  for (final boss in _scripted) ...[
     'boss-${FlightVoices.bossKey(boss)}',
     'boss-down-${FlightVoices.bossKey(boss)}',
   ],
 };
+
+/// The bosses whose lines the script holds: the recorded ones and those
+/// written but still pending recording (Neferhoo, rules 50).
+final _scripted = {...FlightVoices.voicedBosses, ...FlightVoices.pendingBosses};
+
+/// A line is recorded once it has a take's generation; until then it is
+/// pending (`tool/prepare_flight_voices.py pending` lists it).
+bool _recorded(Map<String, dynamic> clip) => clip['generation_id'] != null;
 
 /// Every pool [FlightVoices] may ask [boss] for, by moment. The campaign's
 /// `card` comes from the story recordings.
@@ -50,7 +58,7 @@ void main() {
     final asked = {
       for (final bird in CampaignVoices.birds)
         for (final moment in birdMoments()) '$bird-$moment',
-      for (final boss in FlightVoices.voicedBosses)
+      for (final boss in _scripted)
         for (final moment in bossMoments(boss))
           '${FlightVoices.bossKey(boss)}-$moment',
     };
@@ -59,15 +67,24 @@ void main() {
   });
 
   test('every line is its speaker\'s own, in its voice', () {
-    final voices = <String, String>{};
+    final voices = <String, String?>{};
     final texts = <String>{};
     for (final clip in clips) {
       final speaker = clip['speaker'] as String;
       expect(
-        voices.putIfAbsent(speaker, () => clip['voice_id'] as String),
+        voices.putIfAbsent(speaker, () => clip['voice_id'] as String?),
         clip['voice_id'],
         reason: clip['name'] as String,
       );
+      // A voice still to audition has no id, and no line in it is recorded.
+      if (clip['voice_id'] == null) {
+        expect(
+          clip['voice'],
+          endsWith('(audition)'),
+          reason: '${clip['name']}',
+        );
+        expect(_recorded(clip), isFalse, reason: '${clip['name']}');
+      }
       final text = (clip['text'] as String).toLowerCase();
       expect(texts.add(text), isTrue, reason: 'repeated: ${clip['name']}');
       final prompt = (clip['prompt'] as String)
@@ -77,8 +94,115 @@ void main() {
           .join(' ');
       expect(prompt, (clip['text'] as String).split(' ').join(' '));
     }
-    expect(voices, hasLength(9));
-    expect(voices.values.toSet(), hasLength(9), reason: 'nine voices');
+    // Four birds and the five endless bosses, and Neferhoo, whose voice the
+    // owner picks from the auditions (docs/story-voices-recording.md).
+    expect(voices, hasLength(10));
+    expect(voices.values.nonNulls.toSet(), hasLength(9), reason: 'nine voices');
+    expect(voices['neferhoo'], isNull);
+  });
+
+  test('only Egypt\'s guardian and his level wait for their takes', () {
+    final pending = {
+      for (final c in clips)
+        if (!_recorded(c)) c['name'] as String,
+    };
+    // His 34 lines (the five endless bosses' moments and counts), each
+    // bird's two greetings and one farewell, and the four 2-6 cargo lines.
+    final egypt = RegExp(
+      r'^(neferhoo-|\w+-boss-(down-)?neferhoo-|\w+-cargo-2-6-)',
+    );
+    expect(pending, everyElement(matches(egypt)));
+    expect(pending, hasLength(50));
+    expect(pending.where((n) => n.startsWith('neferhoo-')), hasLength(34));
+    for (final name in pending) {
+      expect(flightVoiceClips, isNot(contains(name)), reason: name);
+      expect(
+        File('assets/audio/flight/$name.ogg').existsSync(),
+        isFalse,
+        reason: name,
+      );
+      final clip = clips.firstWhere((c) => c['name'] == name);
+      expect(clip['source_sha256'], isNull, reason: name);
+    }
+    // A boss is voiced once every line of it is recorded, and pending
+    // until then: never both, never neither while the script has it.
+    expect(
+      FlightVoices.voicedBosses.intersection(FlightVoices.pendingBosses),
+      isEmpty,
+    );
+    for (final boss in _scripted) {
+      final key = FlightVoices.bossKey(boss);
+      final lines = [
+        for (final c in clips)
+          if (c['speaker'] == key ||
+              RegExp('-boss-(down-)?$key-').hasMatch(c['name'] as String))
+            c,
+      ];
+      expect(lines, isNotEmpty, reason: key);
+      expect(
+        FlightVoices.voicedBosses.contains(boss),
+        lines.every(_recorded),
+        reason: key,
+      );
+      expect(
+        FlightVoices.pendingBosses.contains(boss),
+        lines.every((c) => !_recorded(c)),
+        reason: key,
+      );
+    }
+    // The recording document lists each of them with its exact prompt
+    // (docs/story-voices-recording.md, section 7).
+    final doc = File('docs/story-voices-recording.md').readAsStringSync();
+    final listed = doc.substring(doc.indexOf('## 7. Neferhoo'));
+    for (final name in pending) {
+      final clip = clips.firstWhere((c) => c['name'] == name);
+      expect(listed, contains('| `$name` |'), reason: name);
+      expect(listed, contains('| ${clip['prompt']} |'), reason: name);
+    }
+    expect(RegExp(r'^\| `', multiLine: true).allMatches(listed), hasLength(50));
+    // His pools are empty, so his fight is silent (card included).
+    for (final moment in [...bossMoments(BossKind.neferhoo), 'card']) {
+      expect(
+        FlightVoices.recorded['neferhoo-$moment'],
+        isEmpty,
+        reason: moment,
+      );
+    }
+    for (final bird in CampaignVoices.birds) {
+      for (final moment in [
+        'boss-neferhoo',
+        'boss-down-neferhoo',
+        'cargo-2-6',
+      ]) {
+        expect(FlightVoices.recorded['$bird-$moment'], isEmpty);
+      }
+    }
+  });
+
+  test('the tool checks the script and lists the pending lines', () async {
+    ProcessResult? run;
+    try {
+      run = await Process.run('python3', [
+        '-c',
+        'import sys, json; sys.path.insert(0, "tool"); '
+            'import prepare_flight_voices as f; '
+            'lines = json.load(open("docs/flight-voices-sources.json"))["clips"]; '
+            'problems = f.check(lines); print("\\n".join(problems)); '
+            'sys.exit(1 if problems else 0)',
+      ]);
+    } on ProcessException {
+      return markTestSkipped('python3 is not installed');
+    }
+    expect(run.exitCode, 0, reason: '${run.stdout}${run.stderr}');
+    final pending = await Process.run('python3', [
+      'tool/prepare_flight_voices.py',
+      'pending',
+    ]);
+    expect(pending.exitCode, 0, reason: '${pending.stderr}');
+    expect((pending.stdout as String).trim().split('\n').toSet(), {
+      for (final c in clips)
+        if (!_recorded(c)) c['name'] as String,
+    });
   });
 
   test('every recorded line is in the script, bundled and short', () {

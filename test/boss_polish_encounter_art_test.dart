@@ -328,11 +328,14 @@ void main() {
           return const Offset(-1, -1);
         }
 
-        // The dragon's, King Coo's and the Gargoyle's own cards slam in on
-        // their roars (2.85 s), so they are judged once they are there.
+        // The dragon's, King Coo's, the Gargoyle's and Neferhoo's own cards
+        // slam in on their roars (2.85 s), so they are judged once they are
+        // there.
         final (cardA, cardB) = kind == BossKind.kingCoo
             ? (3.4, 3.9)
-            : kind == BossKind.dragon || kind == BossKind.searchlightGargoyle
+            : kind == BossKind.dragon ||
+                  kind == BossKind.searchlightGargoyle ||
+                  kind == BossKind.neferhoo
             ? (3.0, 3.5)
             : (2.0, 3.0);
         expect(

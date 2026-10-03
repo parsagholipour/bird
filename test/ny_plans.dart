@@ -50,10 +50,12 @@ LevelPlan nyPlan({
   marks: marks,
 );
 
-/// A fresh touch Star Trail flight of [plan] at [version].
+/// A fresh touch Star Trail flight of [plan] at [version]: New York's rules
+/// (43) by default, the guardians' short fights as the New York program
+/// proved them. Rules 44's staged fights are in `boss_stages_test.dart`.
 FlightSimulation nyFlight(
   LevelPlan plan, {
-  int version = FlightSimulation.currentRulesVersion,
+  int version = FlightSimulation.newYorkRulesVersion,
   int weaponDamage = 30,
 }) => FlightSimulation(
   rules: TapFlyMode(rulesVersion: version),
@@ -67,7 +69,7 @@ FlightSimulation nyFlight(
 /// Flies [plan] with the shared bot until it ends, and returns the flight.
 FlightSimulation flyNy(
   LevelPlan plan, {
-  int version = FlightSimulation.currentRulesVersion,
+  int version = FlightSimulation.newYorkRulesVersion,
   double viewportWidth = 2.2,
   void Function(FlightSimulation sim)? watch,
   bool Function(FlightSimulation sim, int frame)? sprintWhen,

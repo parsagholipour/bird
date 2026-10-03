@@ -28,7 +28,7 @@ ReplayTape reload(ReplayTape tape) => ReplayTape.fromJson(
 
 void main() {
   test('a campaign session replays from its saved tape exactly', () {
-    for (final id in ['1-5', '2-3', '2-8']) {
+    for (final id in ['1-5', '2-3', '2-9']) {
       final (:tape, :simulation) = recordLevel(level(id));
       final flown = outcome(simulation);
       expect(flown.reason, EndReason.completed, reason: id);
@@ -51,7 +51,7 @@ void main() {
   });
 
   test('a victory glide replays and seeks exactly, whatever was tapped', () {
-    for (final id in ['1-8', '2-8']) {
+    for (final id in ['1-8', '2-9']) {
       // The player keeps tapping once the boss falls; the glide ignores it.
       final (:tape, :simulation) = recordLevel(
         level(id),

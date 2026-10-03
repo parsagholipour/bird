@@ -247,9 +247,20 @@ final class StoryPostmaster extends StoryActor {
 
 /// A scene's boss; [beaten] in the scene after its fall.
 final class StoryBoss extends StoryActor {
-  const StoryBoss(this.kind, {this.beaten = false});
+  const StoryBoss(this.kind, {this.beaten = false, this.line});
   final BossKind kind;
   final bool beaten;
+
+  /// The line it is acting (the one it says, or said last), for a boss that
+  /// acts a line beyond its mood ([StoryBossArt.actsLine]); otherwise null.
+  final String? line;
+
+  /// This boss acting [said] (its own line, now or last), or itself when
+  /// its art has nothing of its own for that line.
+  StoryBoss acting(String? said) {
+    final cue = StoryBossArt.actsLine(kind, said, beaten: beaten) ? said : null;
+    return cue == line ? this : StoryBoss(kind, beaten: beaten, line: cue);
+  }
 
   @override
   Rect get box {
@@ -277,7 +288,7 @@ final class StoryBoss extends StoryActor {
       kind,
       beaten: beaten,
     );
-    final picture = _StoryPictures.of((kind, beaten, face), (c) {
+    final picture = _StoryPictures.of((kind, beaten, line, face), (c) {
       StoryBossArt.paint(
         c,
         kind,
@@ -285,6 +296,7 @@ final class StoryBoss extends StoryActor {
         beaten: beaten,
         talk: face.mouth / StoryFaces.mouths,
         blink: face.blink ? 1 : 0,
+        line: line,
       );
     });
     canvas.save();
@@ -296,10 +308,13 @@ final class StoryBoss extends StoryActor {
 
   @override
   bool operator ==(Object other) =>
-      other is StoryBoss && other.kind == kind && other.beaten == beaten;
+      other is StoryBoss &&
+      other.kind == kind &&
+      other.beaten == beaten &&
+      other.line == line;
 
   @override
-  int get hashCode => Object.hash(kind, beaten);
+  int get hashCode => Object.hash(kind, beaten, line);
 }
 
 /// Recorded frames of the cast, newest kept: a rig is built into paths once

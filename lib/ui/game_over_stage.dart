@@ -1300,13 +1300,29 @@ class StageBirdPainter extends CustomPainter {
     required this.cheer,
     this.happy = false,
     this.hop = 0,
+    this.puff = 1,
+    this.beaming = false,
   });
   final int bird;
   final double? seconds;
   final bool wet, happy;
   final double cheer, hop;
 
+  /// How far the cloud has puffed in under the bird, from 0 (not yet) to 1,
+  /// overshooting a little on the way: a level's celebrating bird lands in
+  /// its seat just before its cloud arrives.
+  final double puff;
+
+  /// Whether the happy courier beams from the start, having flown in from
+  /// the finish line already celebrating.
+  final bool beaming;
+
   static const design = Size(380, 346);
+
+  /// The happy courier's pose in [design]: its centre, width, tilt and
+  /// wings. A level's celebrating bird lands in exactly this pose.
+  static const happyCenter = Offset(182, 162), happyWidth = 196.0;
+  static const happyTilt = .04, happyWing = -.5;
   static const _shakeAt = 3.7, _recovered = 4.2;
 
   @override
@@ -1315,7 +1331,7 @@ class StageBirdPainter extends CustomPainter {
     canvas.scale(size.width / design.width, size.height / design.height);
     final t = seconds;
     const center = Offset(186, 262);
-    _cloud(canvas, center, front: false);
+    _puffed(canvas, center, front: false);
     if (happy) {
       _happy(canvas, center);
       canvas.restore();
@@ -1371,23 +1387,23 @@ class StageBirdPainter extends CustomPainter {
   }
 
   void _happy(Canvas canvas, Offset center) {
-    const width = 196.0;
-    final birdCenter = center + Offset(-4, -100 - 22 * math.sin(hop * math.pi));
+    const width = happyWidth;
+    final birdCenter = happyCenter + Offset(0, -22 * math.sin(hop * math.pi));
     canvas.save();
     canvas.translate(birdCenter.dx, birdCenter.dy);
-    canvas.rotate(.04);
+    canvas.rotate(happyTilt);
     BirdPuppet.paint(
       canvas,
       const Rect.fromLTWH(-width * .48, -width * .43, width, width * 224 / 256),
       bird: bird,
-      wing: -.5,
+      wing: happyWing,
       // It beams once its cheer begins.
-      expression: cheer > 0 || hop > 0
+      expression: beaming || cheer > 0 || hop > 0
           ? BirdExpression.pleased
           : BirdExpression.neutral,
     );
     canvas.restore();
-    _cloud(canvas, center, front: true);
+    _puffed(canvas, center, front: true);
     if (cheer > 0) _sparkles(canvas, birdCenter, cheer);
   }
 
@@ -1585,6 +1601,19 @@ class StageBirdPainter extends CustomPainter {
     }
   }
 
+  /// The cloud scaled up from its base by [puff].
+  void _puffed(Canvas c, Offset center, {required bool front}) {
+    if (puff == 1) return _cloud(c, center, front: front);
+    if (puff <= 0) return;
+    final base = center + const Offset(0, 40);
+    c.save();
+    c.translate(base.dx, base.dy);
+    c.scale(puff);
+    c.translate(-base.dx, -base.dy);
+    _cloud(c, center, front: front);
+    c.restore();
+  }
+
   void _cloud(Canvas c, Offset center, {required bool front}) {
     final whole = _silhouette(center);
     final ink = Paint()
@@ -1635,5 +1664,7 @@ class StageBirdPainter extends CustomPainter {
       old.wet != wet ||
       old.cheer != cheer ||
       old.happy != happy ||
-      old.hop != hop;
+      old.hop != hop ||
+      old.puff != puff ||
+      old.beaming != beaming;
 }

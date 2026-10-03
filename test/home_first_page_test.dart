@@ -148,7 +148,6 @@ GoRouter stubRouter() => GoRouter(
   routes: [
     GoRoute(path: '/', builder: (context, state) => const HomeScreen()),
     for (final path in [
-      '/school',
       '/settings',
       '/daily',
       '/birds',
@@ -208,7 +207,13 @@ Future<GoRouter> pumpHome(
   );
   await tester.runAsync(() async {
     final context = tester.element(find.byType(Scaffold).first);
-    for (final asset in ['pip', 'peaches', 'minty', 'orbit', 'island']) {
+    for (final asset in [
+      'pip',
+      'peaches',
+      'minty',
+      'orbit',
+      'island',
+    ]) {
       await precacheImage(AssetImage('assets/images/$asset.png'), context);
     }
   });
@@ -263,7 +268,6 @@ void main() {
             find.text('Passport'),
             find.text('Records'),
             find.text('Flight goals'),
-            find.text('Flight school'),
             find.byTooltip('Settings'),
           ]) {
             final rect = tester.getRect(finder);
@@ -292,7 +296,6 @@ void main() {
       ('Passport', pressable('Passport')),
       ('Records', pressable('Records')),
       ('Flight goals', pressable('Flight goals')),
-      ('Flight school', pressable('Flight school')),
       ('Settings', find.byTooltip('Settings')),
     ]) {
       final size = tester.getSize(finder.first);
@@ -314,7 +317,6 @@ void main() {
     expect(find.byKey(const ValueKey('play')), findsOneWidget);
     expect(find.text('Jump & Fly'), findsNothing);
     for (final (finder, path) in [
-      (find.text('Flight school'), '/school'),
       (find.byTooltip('Settings'), '/settings'),
       (find.byKey(const ValueKey('daily-adventure')), '/daily'),
       (find.text('Birds'), '/birds'),
@@ -349,7 +351,7 @@ void main() {
     await pumpHome(tester, screens.first, Profile.fresh, reduced: true);
     await tester.pumpAndSettle();
     expect(find.text('Your first flight awaits'), findsOneWidget);
-    expect(find.text('Hi, I’m Pip! Ready to fly?'), findsOneWidget);
+    expect(find.text('Hi, I’m Minty! Ready to fly?'), findsOneWidget);
     expect(find.text('0/3'), findsOneWidget);
     expect(find.textContaining('0 stars'), findsNothing);
     for (final label in ['Push-ups', 'Squats', 'Jumps', 'Taps']) {

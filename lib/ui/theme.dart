@@ -4,7 +4,8 @@ abstract final class SkyColors {
   static const sky = Color(0xffbde9f6), skyDeep = Color(0xff90d5ee);
   static const cream = Color(0xfffff9ed),
       ink = Color(0xff203b45),
-      muted = Color(0xff385a64);
+      muted = Color(0xff385a64),
+      night = Color(0xff18313b);
   static const coral = Color(0xfff47d64), coralDeep = Color(0xffd75e4f);
   static const yellow = Color(0xffffd45b), gold = Color(0xffe8a73c);
   static const mint = Color(0xffa8d8b4), teal = Color(0xff53aa99);

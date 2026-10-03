@@ -39,6 +39,7 @@ import 'package:push_up_bird/ui/level_result.dart';
 import 'package:push_up_bird/ui/play_screen.dart';
 import 'package:push_up_bird/ui/replay_screen.dart' show sessionTitle;
 import 'package:push_up_bird/ui/story_scene.dart';
+import 'package:push_up_bird/ui/screen_frame.dart';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
 
 import 'campaign_flight.dart' show recordLevel;
@@ -247,6 +248,11 @@ void _fly(
     controller.advance(.02, 0, 2.2);
     controller.tick();
   }
+  // The game loop plays a finished level's celebration out before its
+  // result.
+  while (!controller.celebrationSettled) {
+    controller.advance(.02, 0, 2.2);
+  }
 }
 
 /// Crashes the bird on its last heart: it stops flapping and falls.
@@ -323,30 +329,31 @@ void main() {
     testWidgets('Home opens the map with the campaign\'s star total', (
       tester,
     ) async {
-      // Open, as the build ships: 20 playable levels, 60 stars.
+      // Open, as the build ships: 21 playable levels (Egypt's guardian is
+      // 2-6), 63 stars.
       Campaign.openedForTest = true;
       await _open(tester, phone, stars: const {'1-1': 3, '1-2': 1});
       expect(find.byKey(const ValueKey('play')), findsOneWidget);
       final key = find.byKey(const ValueKey('campaign'));
       expect(key, findsOneWidget);
-      expect(find.text('4 / 60'), findsOneWidget);
+      expect(find.text('4 / 63'), findsOneWidget);
       expect(tester.getSize(key).height, greaterThanOrEqualTo(48));
       await _tap(tester, key);
       expect(_path(), '/campaign');
       expect(find.byType(CampaignMap), findsOneWidget);
-      expect(find.bySemanticsLabel('4 of 60 campaign stars'), findsOneWidget);
+      expect(find.bySemanticsLabel('4 of 63 campaign stars'), findsOneWidget);
       // The back key returns Home.
       await _tap(tester, find.byTooltip('Back home'));
       expect(_path(), '/');
     });
 
     testWidgets('with New York closed (NEW_YORK_OPEN=false) the total is of '
-        '48', (tester) async {
+        '51', (tester) async {
       Campaign.closedForTest = true;
       await _open(tester, phone, stars: const {'1-1': 3, '1-2': 1});
-      expect(find.text('4 / 48'), findsOneWidget);
+      expect(find.text('4 / 51'), findsOneWidget);
       await _tap(tester, find.byKey(const ValueKey('campaign')));
-      expect(find.bySemanticsLabel('4 of 48 campaign stars'), findsOneWidget);
+      expect(find.bySemanticsLabel('4 of 51 campaign stars'), findsOneWidget);
     });
 
     testWidgets('a closed build never shows more stars than its total', (
@@ -366,20 +373,30 @@ void main() {
           '3-4': 3,
         },
       );
-      expect(find.text('48 / 48'), findsOneWidget);
-      expect(find.text('60 / 48'), findsNothing);
+      expect(find.text('51 / 51'), findsOneWidget);
+      expect(find.text('63 / 51'), findsNothing);
     });
 
     // Play fills the row it once shared with Practice (measured from the
-    // pre-campaign Home), so the endless way in stays where it was.
-    for (final (size, play) in const [
-      (Size(640, 360), Rect.fromLTWH(44.8, 175.52, 268.8, 48.64)),
-      (Size(800, 360), Rect.fromLTWH(56, 174.4, 336, 60.8)),
-      (Size(1000, 450), Rect.fromLTWH(70, 218, 420, 76)),
+    // pre-campaign Home), so the endless way in stays where it was: 70, 218,
+    // 420 × 76 on the 1000 × 450 canvas. The reference phone shows that
+    // canvas at .792, 1.8 dp down, and every display shows the phone scaled.
+    for (final size in const [
+      Size(640, 360),
+      Size(800, 360),
+      Size(1000, 450),
     ]) {
       testWidgets('Play keeps its size and place at ${size.width.round()}; '
           'the Campaign key is a full 48 dp beside it', (tester) async {
         await _open(tester, size);
+        final shown = ScreenFrame.shownIn(size);
+        final s = ScreenFrame.scaleFor(size);
+        final play = Rect.fromLTWH(
+          shown.left + 70 * .792 * s,
+          shown.top + (1.8 + 218 * .792) * s,
+          420 * .792 * s,
+          76 * .792 * s,
+        );
         void same(Rect actual, Rect expected, String name) {
           for (final (a, b) in [
             (actual.left, expected.left),
@@ -730,7 +747,7 @@ void main() {
       expect(find.byType(CampaignPostcard), findsNothing);
     });
 
-    /// Beats 2-8 (the last chapter-2 boss) and continues past the postcard.
+    /// Beats 2-9 (the last chapter-2 boss) and continues past the postcard.
     Future<void> beatTheDragon(WidgetTester tester) async {
       final stars = {
         for (final level in [
@@ -738,11 +755,11 @@ void main() {
           ...Campaign.chapters[1].levels,
         ])
           level.id: 2,
-      }..remove('2-8');
+      }..remove('2-9');
       await _open(
         tester,
         phone,
-        at: '/play/touch?level=2-8',
+        at: '/play/touch?level=2-9',
         stars: stars,
         postcards: const {1},
       );

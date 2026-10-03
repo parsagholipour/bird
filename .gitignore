@@ -30,6 +30,12 @@ migrate_working_dir/
 #.vscode/
 #.cursor/
 
+# Local agent state and scratch files
+.claude/settings.local.json
+.claude/worktrees/
+.claude/scheduled_tasks.lock
+/p.patch
+
 # Secrets and local env
 .env
 .env.*
@@ -80,3 +86,9 @@ venv/
 .mypy_cache/
 .coverage
 htmlcov/
+
+# JavaScript dependencies used by design helpers
+node_modules/
+
+# Generated design download bundles; keep the source artwork
+/design/**/*.zip

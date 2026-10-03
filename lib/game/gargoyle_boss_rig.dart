@@ -63,7 +63,8 @@ abstract final class GargoyleBossRig {
 
   /// Where the rules spawn a feather on a screen of [size] (px): the top
   /// edge, [SearchlightGargoyle.featherOffsetX] screen heights right of the
-  /// bird's column. The dust that announces it falls here.
+  /// bird's column (a level feather aimed low leaves further ahead, see
+  /// `GargoyleFeatherArt.entryX`, where the dust that announces it falls).
   static Offset featherSpawn(Size size) => Offset(
     (GargoyleLayout.birdColumn + SearchlightGargoyle.featherOffsetX) * size.height,
     SearchlightGargoyle.featherY * size.height,

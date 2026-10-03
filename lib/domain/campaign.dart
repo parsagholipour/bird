@@ -1,5 +1,7 @@
 import 'game_rules.dart';
 
+export 'campaign_ids.dart';
+
 /// One of the five mail routes, in boss order. Its levels fly its regions
 /// in turn, and the last level is the boss's lair.
 class CampaignChapter {
@@ -542,6 +544,40 @@ abstract final class Campaign {
             marks: StarMarks(50, 80),
           ),
         ),
+        // Egypt's guardian (rules version 50): a 30 s run-up under the
+        // level before it, then Neferhoo, the Mummy Courier. A boss level
+        // holds no set pieces; the marks count the run-up's 36 route stars
+        // (50% and 80%; every pilot collects all 36: neferhoo_marks_test).
+        // Seed 2116 lays a single stone door, on the fifth passage.
+        // Ancient Arabia's levels moved up by one to make room (see
+        // [CampaignIds]): their plans keep their seeds.
+        CampaignLevel(
+          name: 'Return to Sender',
+          // The design's "A feather duster for the pyramid caretaker" (42
+          // characters) runs over a guardian's tag at 640 to 1000 px wide;
+          // the tag keeps the feather duster every voiced line names (the
+          // note is signed by the pyramid caretaker).
+          delivery: Delivery(
+            'A feather duster for the caretaker',
+            from: 'The pyramid caretaker',
+            thanks: 'Four thousand years of dust, gone by lunch!',
+          ),
+          hint: 'Shoot his letters to send them back. Return to sender!',
+          bossLine: 'Return to sender! This route has a courier.',
+          plan: LevelPlan(
+            id: '2-6',
+            region: _egypt,
+            length: 30,
+            start: 60,
+            seed: 2116,
+            families: [..._canopy, _switchback],
+            lineup: _beetles,
+            toughness: 1,
+            panels: .25,
+            boss: BossKind.neferhoo,
+            marks: StarMarks(20, 30),
+          ),
+        ),
         CampaignLevel(
           name: 'Lantern Bazaar',
           delivery: Delivery(
@@ -550,7 +586,7 @@ abstract final class Campaign {
             thanks: 'The bazaar glows again. A thousand thanks!',
           ),
           plan: LevelPlan(
-            id: '2-6',
+            id: '2-7',
             region: _arabia,
             length: 80,
             start: 75,
@@ -570,7 +606,7 @@ abstract final class Campaign {
             thanks: 'Forty camels. Forty thank-yous.',
           ),
           plan: LevelPlan(
-            id: '2-7',
+            id: '2-8',
             region: _arabia,
             length: 90,
             start: 90,
@@ -591,7 +627,7 @@ abstract final class Campaign {
             thanks: 'Bah. It was very nearly ink.',
           ),
           plan: LevelPlan(
-            id: '2-8',
+            id: '2-9',
             region: _arabia,
             length: 30,
             start: 75,

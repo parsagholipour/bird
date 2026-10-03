@@ -1,4 +1,4 @@
-# Menu, flight and boss music
+# Menu, flight, region and boss music
 
 The game bundles three violin-led ElevenLabs Music v2 instrumentals. They were
 prompted around a repeated five-note idea and a 3+3+2 pulse, with a deliberately
@@ -77,6 +77,83 @@ have no long silence and cross the repeat boundary without a large sample jump.
 | Menu | 1,485,508 | `2e4248ce16646b400cebe4dd4fcd08b17abc3534a5786086010f0cc247221c65` |
 | Flight | 1,784,012 | `ecdae5e66476e2b240b468f5ba06a4d7ed58ad921016b278145993e5a1760a39` |
 | Boss | 1,671,004 | `87ae485b0f1eb627e78d82316c605aa5ab6381eb71645b54b82c7449b1cd1103` |
+
+## Campaign region music
+
+Every campaign region except the jungle has its own flight song. A campaign
+level plays `SkyMusic.flightOver(level.region)`; the jungle keeps
+`sky_flight.ogg`. Bosses and their vanguards still switch to `sky_boss.ogg`
+and hand back to the region's song when they leave.
+
+Endless flights (and co-op, whose flights tour the world too) start on
+`sky_flight.ogg`. Once a boss has been beaten and flown off, the music comes
+back as the song of the region showing behind the bird at that moment, and it
+stays until the next boss arrives; over the jungle that is `sky_flight.ogg`
+again. The simulation records the moment as `FlightSimulation.bossLeftAt` and
+`SkyAudio.tourSong` maps it through `WorldTour.at`, so replays and seeks pick
+the same song as the live flight. A replay of a campaign flight plays its
+level's song. The region songs share the menu and
+flight tracks' loudness and loop treatment, and add about 20 MB to the bundle.
+
+| Region | Asset | BPM | Loop | Take | Generation | Arrangement |
+| --- | --- | ---: | ---: | ---: | --- | --- |
+| Brazil | `assets/audio/sky_brazil.ogg` | 124 | 87.10 s (45 bars) | 1 | `MoNmGflKBDCVYEpjBKjz` | Samba: cavaquinho, nylon guitar, batucada, flute and trombone |
+| Aztec | `assets/audio/sky_aztec.ogg` | 120 | 80.00 s (40 bars) | 3 | `5PJbcak57LQp7urdGgcE` | Ocarina and wooden flute over log drums, rattles and marimba |
+| Ancient Rome | `assets/audio/sky_rome.ogg` | 116 | 78.62 s (38 bars) | 1 | `w422tMADLOU52SxCrvnl` | Golden march: trumpets, horns, harp, snare and timpani |
+| Egypt | `assets/audio/sky_egypt.ogg` | 118 | 87.46 s (43 bars) | 3 | `WnPttuBOTHky2ac0KzMu` | Hijaz: oud, ney, darbuka, riq and qanun |
+| Ancient Arabia | `assets/audio/sky_arabia.ogg` | 104 | 80.77 s (35 bars) | 3 | `50qsGbkdwmyLwul2Odo8` | Bayati 6/8: legato violins, qanun, santur, daf and hand drums |
+| New York | `assets/audio/sky_new_york.ogg` | 138 | 86.96 s (50 bars) | 2 | `SkVIukbGvvH9DGA40IUJ` | Big-band swing: walking bass, saxes, muted trumpet, stride piano |
+| Paris | `assets/audio/sky_paris.ogg` | 132 | 76.36 s (42 bars) | 3 | `iHadyMg4Lu1RQ7AMOvgh` | Jazz manouche: musette accordion, pompe guitar, clarinet |
+| Mexico | `assets/audio/sky_mexico.ogg` | 128 | 76.88 s (41 bars) | 1 | `pN1lXLN1Y8Wlz13tdDRL` | Mariachi: trumpets, violins, vihuela, guitarrón |
+| Open Sea | `assets/audio/sky_sea.ogg` | 120 | 82.00 s (41 bars) | 2 | `u4F4D4tcmRjFvjkB6orc` | 6/8 shanty: fiddle, tin whistle, concertina, bodhrán |
+| Antarctica | `assets/audio/sky_antarctica.ogg` | 120 | 82.00 s (41 bars) | 2 | `25GgdPQaQDDT2lJuPyyj` | Celesta, glockenspiel, pizzicato strings, harp, vibraphone |
+| Cyberpunk City | `assets/audio/sky_cyberpunk.ogg` | 128 | 78.75 s (42 bars) | 3 | `loznqmQsXqM1LZHGRM14` | Synthwave: arpeggiated analog bass, gated drums, neon lead |
+| China | `assets/audio/sky_china.ogg` | 112 | 85.71 s (40 bars) | 2 | `PYFcXdTLPJ3IqkczYhpx` | Pentatonic: erhu, dizi, guzheng, pipa, gongs and tanggu |
+
+Generated on 2026-10-03 with ElevenLabs Music v2.5 (`eleven_music_v2_5`), 90
+seconds, `lyrics_type=instrumental`, `instrumental=true`, four takes per
+region. The [region music flow](https://elevenlabs.io/app/flows/EyHPKlieX9y27wJx7rR6)
+keeps every take on a node per region. `docs/region-music-sources.json`
+records each prompt, every take's generation id and SHA-256, and the chosen
+take's loop and asset hash. All 48 source MP3s are kept under the ignored
+`build/music/regions/source/<region>-<take>.mp3`.
+
+Each prompt names the region's genre, instruments and exact tempo, asks for a
+short repeated hook with room for sound effects, and ends with: "No vocals,
+crowd noise, intro or fade: start immediately in the groove and end on the
+opening harmony and rhythm for a seamless game loop."
+
+### How the takes were chosen
+
+Nobody has listened to these yet; takes were picked on measurements alone.
+Every take came back at its prompted tempo, so loops are whole bars with a
+one-bar crossfade. For each take the bar count was chosen where the music
+after the loop point best matches the opening (onset correlation 0.87–0.99,
+chroma similarity 0.85–0.99, level within 2 dB). Takes with a dropout in the
+body, a quiet intro or a weak seam were passed over. Many takes fade out in
+their last few seconds despite the prompt, so each loop ends before the
+fade. Each prepared loop wraps as cleanly as `sky_flight.ogg`: there is no
+onset spike or level step at the seam.
+
+To try another take, re-run its line below with the other take's file and a
+bar count that fits within 90 s (a loop of `n` bars needs `--duration` of
+`(n + 1) × 240 / BPM` and `--crossfade` of `240 / BPM`), then update the
+region's `selected` entry in `docs/region-music-sources.json`.
+
+```sh
+python3 tool/prepare_music.py build/music/regions/source/brazil-1.mp3 --duration 89.0322581 --crossfade 1.9354839 --output assets/audio/sky_brazil.ogg
+python3 tool/prepare_music.py build/music/regions/source/aztec-3.mp3 --duration 82.0 --crossfade 2.0 --output assets/audio/sky_aztec.ogg
+python3 tool/prepare_music.py build/music/regions/source/rome-1.mp3 --duration 80.6896552 --crossfade 2.0689655 --output assets/audio/sky_rome.ogg
+python3 tool/prepare_music.py build/music/regions/source/egypt-3.mp3 --duration 89.4915254 --crossfade 2.0338983 --output assets/audio/sky_egypt.ogg
+python3 tool/prepare_music.py build/music/regions/source/arabia-3.mp3 --duration 83.0769231 --crossfade 2.3076923 --output assets/audio/sky_arabia.ogg
+python3 tool/prepare_music.py build/music/regions/source/newYork-2.mp3 --duration 88.6956522 --crossfade 1.7391304 --output assets/audio/sky_new_york.ogg
+python3 tool/prepare_music.py build/music/regions/source/paris-3.mp3 --duration 78.1818182 --crossfade 1.8181818 --output assets/audio/sky_paris.ogg
+python3 tool/prepare_music.py build/music/regions/source/mexico-1.mp3 --duration 78.75 --crossfade 1.875 --output assets/audio/sky_mexico.ogg
+python3 tool/prepare_music.py build/music/regions/source/sea-2.mp3 --duration 84.0 --crossfade 2.0 --output assets/audio/sky_sea.ogg
+python3 tool/prepare_music.py build/music/regions/source/antarctica-2.mp3 --duration 84.0 --crossfade 2.0 --output assets/audio/sky_antarctica.ogg
+python3 tool/prepare_music.py build/music/regions/source/cyberpunk-3.mp3 --duration 80.625 --crossfade 1.875 --output assets/audio/sky_cyberpunk.ogg
+python3 tool/prepare_music.py build/music/regions/source/china-2.mp3 --duration 87.8571429 --crossfade 2.1428571 --output assets/audio/sky_china.ogg
+```
 
 ## Android audio focus
 

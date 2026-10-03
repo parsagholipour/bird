@@ -20,17 +20,22 @@ void main() {
       'duskMoth',
       'simpleBat',
       'alleyPigeon',
+      // Neferhoo's helpers, appended after it by rules 52.
+      'mummyBat',
     ]);
     expect(EnemyKind.alleyPigeon.index, 4);
     expect(EnemyKind.values.where((k) => k.campaignOnly), [
       EnemyKind.alleyPigeon,
+      EnemyKind.mummyBat,
     ]);
-    // Appearance indexes wrap over five kinds: 0 to 3 are unchanged.
+    // Appending keeps every earlier index: 0 to 3 are unchanged. (No rule
+    // lays an appearance past the kinds it knows, so the wrap never shows.)
     for (var i = 0; i < 4; i++) {
       expect(SkyEnemy(x: 1, y: .5, appearance: i).kind, EnemyKind.values[i]);
     }
     expect(SkyEnemy(x: 1, y: .5, appearance: 4).kind, EnemyKind.alleyPigeon);
-    expect(SkyEnemy(x: 1, y: .5, appearance: 5).kind, EnemyKind.caveBat);
+    expect(SkyEnemy(x: 1, y: .5, appearance: 5).kind, EnemyKind.mummyBat);
+    expect(SkyEnemy(x: 1, y: .5, appearance: 6).kind, EnemyKind.caveBat);
   });
 
   test(

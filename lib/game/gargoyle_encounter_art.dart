@@ -370,7 +370,7 @@ abstract final class GargoyleEncounterArt {
       BossAmmoArt.shot(c, h, ammo, boss, seconds: sim.elapsed, reducedMotion: reduced);
     }
     if (p.dust > 0 && !m.defeated && sim.birdY.isFinite) {
-      GargoyleFeatherArt.dust(c, size, p.dust, GargoyleFeatherArt.entryX(sim.birdY, fury: boss.enraged), reducedMotion: reduced);
+      GargoyleFeatherArt.dust(c, size, p.dust, GargoyleFeatherArt.entryX(sim.birdY, fury: boss.furyPace, level: boss.levelFeathers), reducedMotion: reduced);
     }
     GargoyleBeamArt.overBoss(c, size, boss, m);
 

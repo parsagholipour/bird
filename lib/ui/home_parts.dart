@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
+import '../app_brand.dart';
 import '../game/star_art.dart';
 import 'control_glyphs.dart';
 import 'home_world.dart';
@@ -14,57 +15,51 @@ class HomeTitle extends StatelessWidget {
   const HomeTitle({super.key});
 
   @override
-  Widget build(BuildContext context) => Column(
-    children: [
-      Semantics(
-        label: 'Push-Up Bird',
-        header: true,
-        // The lettering is a logo: it keeps its size when system text grows.
-        child: ExcludeSemantics(
-          child: MediaQuery.withNoTextScaling(
-            child: Transform.rotate(
-              angle: -.035,
-              child: Column(
-                children: [
-                  HomeEntrance(
-                    begin: 0,
-                    end: .3,
-                    slide: const Offset(0, -34),
-                    child: const _TitleWord(
-                      'PUSH-UP',
-                      size: 44,
-                      color: SkyColors.yellow,
+  Widget build(BuildContext context) => Semantics(
+    label: '${AppBrand.name}. Every letter lands.',
+    header: true,
+    child: ExcludeSemantics(
+      child: MediaQuery.withNoTextScaling(
+        child: SizedBox(
+          height: 130,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              HomeEntrance(
+                begin: .07,
+                end: .4,
+                slide: const Offset(0, -20),
+                child: Transform.rotate(
+                  angle: -.025,
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: _TitleWord(
+                        'BEAKBOUND',
+                        size: 64,
+                        color: SkyColors.yellow,
+                      ),
                     ),
                   ),
-                  HomeEntrance(
-                    begin: .07,
-                    end: .4,
-                    pop: .6,
-                    slide: const Offset(0, -12),
-                    child: const _TitleWord(
-                      'BIRD',
-                      size: 84,
-                      color: SkyColors.cream,
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
+              const SizedBox(height: 10),
+              HomeEntrance(
+                begin: .3,
+                end: .52,
+                slide: const Offset(0, 10),
+                curve: Curves.easeOutCubic,
+                child: Text(
+                  'Every letter lands.',
+                  style: bodyText(16, weight: FontWeight.w800),
+                ),
+              ),
+            ],
           ),
         ),
       ),
-      const SizedBox(height: 4),
-      HomeEntrance(
-        begin: .3,
-        end: .52,
-        slide: const Offset(0, 10),
-        curve: Curves.easeOutCubic,
-        child: Text(
-          'A little effort. A lot of airtime.',
-          style: bodyText(16, weight: FontWeight.w800),
-        ),
-      ),
-    ],
+    ),
   );
 }
 
@@ -158,9 +153,9 @@ class _TwinklePainter extends CustomPainter {
     ..strokeJoin = StrokeJoin.round;
 
   static const _spots = [
-    (Offset(398, 88), 15.0, 0.0),
-    (Offset(146, 128), 9.0, 2.1),
-    (Offset(420, 156), 8.0, 4.0),
+    (Offset(488, 79), 12.0, 0.0),
+    (Offset(74, 105), 9.0, 2.1),
+    (Offset(476, 174), 7.0, 4.0),
   ];
 
   @override

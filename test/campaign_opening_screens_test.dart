@@ -125,15 +125,15 @@ void main() {
 
   const phone = Size(800, 360);
 
-  testWidgets('Home and the map count the campaign\'s 60 stars in the build', (
+  testWidgets('Home and the map count the campaign\'s 63 stars in the build', (
     tester,
   ) async {
     await open(tester, phone);
-    expect(find.text('0 / 60'), findsOneWidget);
-    expect(find.text('0 / 48'), findsNothing);
+    expect(find.text('0 / 63'), findsOneWidget);
+    expect(find.text('0 / 51'), findsNothing);
     appRouter.go('/campaign');
     await settle(tester);
-    expect(find.bySemanticsLabel('0 of 60 campaign stars'), findsOneWidget);
+    expect(find.bySemanticsLabel('0 of 63 campaign stars'), findsOneWidget);
   });
 
   // Every stop still to come has its ribbon (they all sit in the map's tree):

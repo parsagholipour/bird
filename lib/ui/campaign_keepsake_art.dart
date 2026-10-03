@@ -10,6 +10,7 @@ import '../game/gargoyle_kit.dart' show GargoyleTone;
 import '../game/gargoyle_story_art.dart';
 import '../game/king_coo_boss_rig.dart';
 import '../game/king_coo_staging_art.dart' show KingCooStaging;
+import '../game/neferhoo_story_art.dart';
 import '../game/pirate_boss_rig.dart';
 import '../game/spitter_boss_rig.dart';
 import '../game/star_art.dart';
@@ -28,6 +29,8 @@ abstract final class CampaignHeadwear {
     BossKind.kingCoo => KingCooStaging.capReach,
     // The Gargoyle's brow visor, about its seat (measured from the render).
     BossKind.searchlightGargoyle => GargoyleStoryArt.visorReach,
+    // Neferhoo's golden mask.
+    BossKind.neferhoo => NeferhooStoryArt.maskReach,
   };
 
   static void paint(Canvas canvas, Rect box, BossKind boss) {
@@ -59,6 +62,13 @@ abstract final class CampaignHeadwear {
           const GargoyleTone(),
           box.shortestSide < GargoyleStoryArt.lensOnlyBelow,
         );
+      case BossKind.neferhoo:
+        // The golden mask he loses: under 40 px (the map shield, the route
+        // mark) the bold emblem, larger the rig's own mask.
+        NeferhooStoryArt.mask(
+          canvas,
+          small: box.shortestSide < NeferhooStoryArt.emblemBelow,
+        );
     }
     canvas.restore();
   }
@@ -72,6 +82,7 @@ abstract final class CampaignHeadwear {
     BossKind.dragon => 'Ember Dragon',
     BossKind.kingCoo => 'King Coo',
     BossKind.searchlightGargoyle => 'Searchlight Gargoyle',
+    BossKind.neferhoo => 'Neferhoo',
   };
 
   /// Each chapter's stamp colour, chosen so the headwear stands out on it.
@@ -86,6 +97,8 @@ abstract final class CampaignHeadwear {
     // Night indigo (L about 24): his brass lens and pale hood read on it, and
     // King Coo keeps the amber.
     BossKind.searchlightGargoyle => const Color(0xff2f3a6b),
+    // Lapis: the gold mask reads on it at 72 and at 24 px (design §5.7).
+    BossKind.neferhoo => NeferhooStoryArt.field,
   };
 }
 

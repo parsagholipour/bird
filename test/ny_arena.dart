@@ -51,9 +51,11 @@ LevelPlan rulesPlan({
 );
 
 /// A live flight of [plan]: playing, with the route laid as it is reached.
+/// New York's rules (43) by default: rules 44's staged guardians are in
+/// `boss_stages_test.dart`.
 FlightSimulation arenaOf(
   LevelPlan plan, {
-  int version = FlightSimulation.currentRulesVersion,
+  int version = FlightSimulation.newYorkRulesVersion,
   int weaponDamage = 10,
 }) =>
     FlightSimulation(

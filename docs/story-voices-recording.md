@@ -1,11 +1,18 @@
-# Recording the New York guardians: from zero to recorded
+# Recording the guardians: from zero to recorded
 
-Four scenes (`before-3-2`, `last-3-2`: King Coo; `before-3-4`, `last-3-4`: the
-Searchlight Gargoyle) are written and in the game with no voice yet. This is the
-working document for recording them: a walkthrough a stranger can follow, the
-settings, the two auditions, the audio-tag risks, the clip list and what to do
-after each batch. The reasons, the cast and the recipe for any other voice are in
-[story-voices.md](story-voices.md).
+Six scenes are written and in the game with no voice yet: New York's four
+(`before-3-2`, `last-3-2`: King Coo; `before-3-4`, `last-3-4`: the Searchlight
+Gargoyle) and Egypt's two (`before-2-6`, `last-2-6`: Neferhoo, the Mummy Courier,
+rules 50), with the pyramid caretaker's thank-you on 2-6 (`thanks-2-6`): 78 story
+clips. Neferhoo also has 50 in-flight lines (section 7). This is the working
+document for recording them: a walkthrough a stranger can follow, the settings, the
+auditions (Neferhoo's five takes are already made: section 2), the audio-tag risks,
+the clip list and what to do after each batch. The reasons, the cast and the recipe
+for any other voice are in [story-voices.md](story-voices.md).
+
+Every one of these clips can be missing: a pending line is written out at the pace
+of voices off and a pending in-flight line is simply not said, so the game looks and
+paces right before a single take is in.
 
 Only section 4 is generated. `python3 tool/prepare_story_voices.py --checklist`
 rewrites the text between the two `checklist` comments from
@@ -29,7 +36,7 @@ clip is the same steps.
    python3 tool/prepare_story_voices.py --status
    ```
 
-   It lists every pending clip (47 at the time of writing) and ends with "No
+   It lists every pending clip (78 at the time of writing) and ends with "No
    problems." If it says `! 308 recorded takes are missing`, you are on a clone
    without the old takes: fine for recording new clips, but restore the backup
    (section 0) before you re-master anything old.
@@ -92,7 +99,7 @@ clip is the same steps.
    python3 tool/prepare_story_voices.py --only before-3-2-5
    ```
 
-   It prints something like `309 clips, ... s, ... MB` and `46 clips pending
+   It prints something like `309 clips, ... s, ... MB` and `77 clips pending
    recording, skipped`. Now `assets/audio/story/before-3-2-5.ogg` exists and
    `lib/game/campaign_voice_clips.dart` (generated: never edit it) has a new line.
 9. **Run the tests.**
@@ -111,7 +118,8 @@ clip is the same steps.
     Home, **Campaign**, swipe to New York, tap 3-2 (it opens once 3-1 is finished).
     The scene plays before the level card the first time; later, the card's **Story**
     key plays it again. Line 5 is Bill's: you hear your clip. Every other line is
-    still silent and written out at the pace of voices off.
+    still silent and written out at the pace of voices off. (Egypt's scenes: swipe to
+    Egypt and tap 2-6, open once 2-5 is finished.)
 11. **Refresh and keep.** `python3 tool/prepare_story_voices.py --checklist` drops the
     clip from section 4. Commit the sources file, the clip table and the new `.ogg`.
     Back up `build/story-voices/` (section 0).
@@ -149,9 +157,10 @@ up the takes".
 - **Take** the first generation unless it is wrong (a tag read aloud, a missing or
   changed word).
 
-## 2. Audition the two new voices
+## 2. Audition the three new voices
 
-Create 3 to 5 candidate voices for each part (ElevenLabs Voice Design from the
+Neferhoo's five auditions are already recorded: skip to "Neferhoo" below. For New
+York's two, create 3 to 5 candidate voices for each part (ElevenLabs Voice Design from the
 description, or the Voice Library with the search words), have every candidate say the
 same three lines with their exact prompts, and compare them next to the voices they
 share scenes with (Bill and the birds). The briefs and the reasons are in
@@ -210,10 +219,60 @@ the stage manager at the marquee where the bread cart hides (`thanks-3-1`), so h
 the second choice; Scruffy Duck and Mister Gruff thank the courier in the same stop
 and stay out. Audition any fallback before relying on it, then regenerate section 4.
 
+### Neferhoo (Egypt's guardian): pick one of five
+
+**The part**: an elderly royal courier, a 4,000-year-old hoopoe in linen wraps and a
+gold mask; fussy, precise, reedy, a little creaky, very proper, quick to take offence,
+warm and silly underneath. Comic, never scary. Distinct from Bill (raspy eccentric
+British), the Sphinx (ancient sage, `thanks-2-4`), the Dragon (grand, weary), the
+Gargoyle (theatrical ham) and King Coo (Brooklyn). He speaks 8 story clips (marked
+`Neferhoo (audition)` in section 4) and 34 in-flight lines (section 7).
+
+**The takes** (Eleven v4, one generation each, 2026-10-03; ids, generations and
+transcripts in `manifest.json` beside them, notes in its `README.md`):
+`/run/media/parsa/projects/ravanix-other/egypt-int/auditions/`. Every candidate says the
+same line:
+
+```
+[haughtily] Neferhoo, Royal Courier. [clears throat] Four thousand years on this route. [shouting] Return to sender!
+```
+
+| # | Take | Voice | Voice id |
+| --- | --- | --- | --- |
+| 1 | `neferhoo-1-beezle.mp3` | Beezle Wheezelby (the design's first choice) | `BBfN7Spa3cqLPH1xAS22` |
+| 2 | `neferhoo-2-ak.mp3` | AK - British Posh Well-Spoken Old Man | `y0SYydk17lMbUIUvSf3N` |
+| 3 | `neferhoo-3-grampa-werthers.mp3` | Grampa Werthers - Old & Cranky (the fallback; already the 3-4 tower keeper) | `MKlLqCItoCkvdhrxgtLv` |
+| 4 | `neferhoo-4-daniel.mp3` | Daniel - The Gruff Old British Wizard | `htZQqY7WtacRNV7s62Iy` |
+| 5 | `neferhoo-5-cornelius.mp3` | Cornelius - Wise Sage | `6sFKzaJr574YWVu4UuJF` |
+
+Listen for the name: it is NEF-er-hoo. If the chosen voice blurs it in the full
+recording, write it `/ˈnɛfərhuː/` in that story clip's prompt (an IPA word between
+slashes counts as the printed word; `campaign_voices_test` checks it). The in-flight
+script takes no IPA (its prompt must say the text word for word): there, regenerate.
+
+**Once the owner has picked**, from the repository root:
+
+1. The story clips: the snippet above with `'Neferhoo (audition)'`, the chosen voice's
+   exact name and its id. It fills `voice` and `planned_voice_id` on his 8 clips (the
+   other voices in his scenes are already cast).
+2. The in-flight lines: in `tool/prepare_flight_voices.py`, replace
+   `'neferhoo': (None, 'Neferhoo (audition)')` in `VOICES` with
+   `'neferhoo': ('THE_VOICE_ID', 'Chosen Voice Name')`, then run
+   `python3 tool/prepare_flight_voices.py script`. It checks the whole script and
+   writes the voice onto his 34 lines in `docs/flight-voices-sources.json` (nothing
+   else changes; it refuses a take logged for him while he has no voice).
+3. `python3 tool/prepare_story_voices.py --checklist` (his clips move from "to
+   audition" to the voice's id in section 4), then
+   `flutter test test/campaign_voices_test.dart test/flight_voice_script_test.dart`.
+
+Record his story clips first: `before-2-6-7` is also his name-card line in the fight
+(the `neferhoo-card` pool fills by itself once it is mastered).
+
 ## 3. Audio tags no recorded take has used
 
-The 308 recorded takes use 64 different audio tags. Fourteen tags in the new prompts
-appear in no recorded take, so none is proven **not to be read aloud**. Record the
+The 308 recorded takes use 64 different audio tags. Fourteen tags in New York's new
+prompts appear in no recorded take, so none is proven **not to be read aloud**.
+(Egypt's 31 story clips and Neferhoo's 50 in-flight lines use only proven tags.) Record the
 clips that use them first, transcribe the takes (ElevenLabs Scribe) and check that no
 tag is spoken. `python3 tool/prepare_story_voices.py --tags` lists them and the
 clips, always up to date; section 4 marks the clips and lists them under "Record these
@@ -254,14 +313,17 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
 
 | Voice | Id | Clips |
 | --- | --- | --- |
+| GERALD - Exciting Older Voice (NEW) | `fGIZlgPQ75MMlvQ6WxgY` | 13 |
+| Neferhoo (audition) | to audition | 8 |
+| Nelson – Awkward Nerd Character | `EaX6rnyDKjJx35tchi80` | 10 |
+| Cherry Twinkle – Adorable Cartoon Girl | `XJ2fW4ybq7HouelYYGcL` | 10 |
+| Teddy Twinkle - Cute Cartoon Boy | `XjGYkUkzth8BPs29fmcV` | 10 |
+| Lola - Soft, Innocent and Calming | `f9imtLc2jfOLXtqe3Ihb` | 10 |
+| Matthew Schmitz - Ancient Sage Dragon Wizard | `HAvvFKatz0uu0Fv55Riy` | 1 |
 | King Coo (audition) | to audition | 8 |
-| Nelson – Awkward Nerd Character | `EaX6rnyDKjJx35tchi80` | 6 |
-| Cherry Twinkle – Adorable Cartoon Girl | `XJ2fW4ybq7HouelYYGcL` | 6 |
-| Teddy Twinkle - Cute Cartoon Boy | `XjGYkUkzth8BPs29fmcV` | 6 |
-| Lola - Soft, Innocent and Calming | `f9imtLc2jfOLXtqe3Ihb` | 6 |
-| GERALD - Exciting Older Voice (NEW) | `fGIZlgPQ75MMlvQ6WxgY` | 8 |
 | Searchlight Gargoyle (audition) | to audition | 6 |
 | Twinkle - Narration & Acting | `Qz7YNvloEr5RXwYE3NCH` | 1 |
+| Jessie - Vintage Narrator | `KgUSWQPFmuiZ5ycRbnty` | 1 |
 
 **Record these first** (they use tags no recorded take has used; transcribe them to check no tag is read aloud, section 3):
 
@@ -281,9 +343,351 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
 - `last-3-4-2`: [softly, voice cracking], [sniffs], [happily]
 - `last-3-4-4`: [ecstatic], [theatrically]
 
+### before-2-6 (15 clips)
+
+- [ ] **1/78 `before-2-6-0`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+  - Prompt, exactly:
+
+    ```
+    [cheerfully] One feather duster for the pyramid caretaker. [whispers] She says the dust talks back.
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/before-2-6-0.mp3`; it becomes `assets/audio/story/before-2-6-0.ogg`.
+  - Scene before-2-6, line 0. Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it.
+
+- [ ] **2/78 `before-2-6-1`**: Neferhoo (audition)
+  - Fallback: Grampa Werthers - Old & Cranky (`MKlLqCItoCkvdhrxgtLv`)
+  - Prompt, exactly:
+
+    ```
+    [shouting] HALT! [haughtily] No courier flies the Pharaoh’s post but me!
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/before-2-6-1.mp3`; it becomes `assets/audio/story/before-2-6-1.ogg`.
+  - Scene before-2-6, line 1. Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it.
+
+- [ ] **3/78 `before-2-6-2-pip`**: Nelson – Awkward Nerd Character (`EaX6rnyDKjJx35tchi80`)
+  - Prompt, exactly:
+
+    ```
+    [surprised] A mummy? [curious] With a mailbag?
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/before-2-6-2-pip.mp3`; it becomes `assets/audio/story/before-2-6-2-pip.ogg`.
+  - Scene before-2-6, line 2 (Pip). Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it.
+
+- [ ] **4/78 `before-2-6-2-peaches`**: Cherry Twinkle – Adorable Cartoon Girl (`XJ2fW4ybq7HouelYYGcL`)
+  - Prompt, exactly:
+
+    ```
+    [surprised] A mummy? [curious] With a mailbag?
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/before-2-6-2-peaches.mp3`; it becomes `assets/audio/story/before-2-6-2-peaches.ogg`.
+  - Scene before-2-6, line 2 (Peaches). Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it.
+
+- [ ] **5/78 `before-2-6-2-minty`**: Teddy Twinkle - Cute Cartoon Boy (`XjGYkUkzth8BPs29fmcV`)
+  - Prompt, exactly:
+
+    ```
+    [surprised] A mummy? [curious] With a mailbag?
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/before-2-6-2-minty.mp3`; it becomes `assets/audio/story/before-2-6-2-minty.ogg`.
+  - Scene before-2-6, line 2 (Minty). Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it.
+
+- [ ] **6/78 `before-2-6-2-orbit`**: Lola - Soft, Innocent and Calming (`f9imtLc2jfOLXtqe3Ihb`)
+  - Prompt, exactly:
+
+    ```
+    [surprised] A mummy? [curious] With a mailbag?
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/before-2-6-2-orbit.mp3`; it becomes `assets/audio/story/before-2-6-2-orbit.ogg`.
+  - Scene before-2-6, line 2 (Orbit). Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it.
+
+- [ ] **7/78 `before-2-6-3`**: Neferhoo (audition)
+  - Fallback: Grampa Werthers - Old & Cranky (`MKlLqCItoCkvdhrxgtLv`)
+  - Prompt, exactly:
+
+    ```
+    [proudly] Neferhoo, Royal Courier. [clears throat] Four thousand years on this route.
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/before-2-6-3.mp3`; it becomes `assets/audio/story/before-2-6-3.ogg`.
+  - Scene before-2-6, line 3. Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it.
+
+- [ ] **8/78 `before-2-6-4`**: Neferhoo (audition)
+  - Fallback: Grampa Werthers - Old & Cranky (`MKlLqCItoCkvdhrxgtLv`)
+  - Prompt, exactly:
+
+    ```
+    [sadly] One letter left in my bag… [sighs] and I cannot find its door.
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/before-2-6-4.mp3`; it becomes `assets/audio/story/before-2-6-4.ogg`.
+  - Scene before-2-6, line 4. Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it.
+
+- [ ] **9/78 `before-2-6-5-pip`**: Nelson – Awkward Nerd Character (`EaX6rnyDKjJx35tchi80`)
+  - Prompt, exactly:
+
+    ```
+    [whispers] Bill… [curious] is that the letter we lost?
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/before-2-6-5-pip.mp3`; it becomes `assets/audio/story/before-2-6-5-pip.ogg`.
+  - Scene before-2-6, line 5 (Pip). Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it.
+
+- [ ] **10/78 `before-2-6-5-peaches`**: Cherry Twinkle – Adorable Cartoon Girl (`XJ2fW4ybq7HouelYYGcL`)
+  - Prompt, exactly:
+
+    ```
+    [whispers] Bill… [curious] is that the letter we lost?
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/before-2-6-5-peaches.mp3`; it becomes `assets/audio/story/before-2-6-5-peaches.ogg`.
+  - Scene before-2-6, line 5 (Peaches). Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it.
+
+- [ ] **11/78 `before-2-6-5-minty`**: Teddy Twinkle - Cute Cartoon Boy (`XjGYkUkzth8BPs29fmcV`)
+  - Prompt, exactly:
+
+    ```
+    [whispers] Bill… [curious] is that the letter we lost?
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/before-2-6-5-minty.mp3`; it becomes `assets/audio/story/before-2-6-5-minty.ogg`.
+  - Scene before-2-6, line 5 (Minty). Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it.
+
+- [ ] **12/78 `before-2-6-5-orbit`**: Lola - Soft, Innocent and Calming (`f9imtLc2jfOLXtqe3Ihb`)
+  - Prompt, exactly:
+
+    ```
+    [whispers] Bill… [curious] is that the letter we lost?
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/before-2-6-5-orbit.mp3`; it becomes `assets/audio/story/before-2-6-5-orbit.ogg`.
+  - Scene before-2-6, line 5 (Orbit). Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it.
+
+- [ ] **13/78 `before-2-6-6`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+  - Prompt, exactly:
+
+    ```
+    [chuckles] No flame seal on this guardian. [dryly] Just a very old, very stubborn postman.
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/before-2-6-6.mp3`; it becomes `assets/audio/story/before-2-6-6.ogg`.
+  - Scene before-2-6, line 6. Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it.
+
+- [ ] **14/78 `before-2-6-7`**: Neferhoo (audition)
+  - Fallback: Grampa Werthers - Old & Cranky (`MKlLqCItoCkvdhrxgtLv`)
+  - Prompt, exactly:
+
+    ```
+    [shouting] Return to sender! [haughtily] This route has a courier.
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/before-2-6-7.mp3`; it becomes `assets/audio/story/before-2-6-7.ogg`.
+  - Scene before-2-6, line 7. Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it. The same words are on the boss’s name card in the flight (CampaignLevel.bossLine).
+
+- [ ] **15/78 `before-2-6-8`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+  - Prompt, exactly:
+
+    ```
+    [urgently] Shoot his letters back, rookie. [firmly] And mind the ankh: it comes back!
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/before-2-6-8.mp3`; it becomes `assets/audio/story/before-2-6-8.ogg`.
+  - Scene before-2-6, line 8. Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it.
+
+### last-2-6 (15 clips)
+
+- [ ] **16/78 `last-2-6-0`**: Neferhoo (audition)
+  - Fallback: Grampa Werthers - Old & Cranky (`MKlLqCItoCkvdhrxgtLv`)
+  - Prompt, exactly:
+
+    ```
+    [gasps] My mask! [pause] …Oh. Oh my. [delighted] I can see!
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/last-2-6-0.mp3`; it becomes `assets/audio/story/last-2-6-0.ogg`.
+  - Scene last-2-6, line 0. Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it.
+
+- [ ] **17/78 `last-2-6-1-pip`**: Nelson – Awkward Nerd Character (`EaX6rnyDKjJx35tchi80`)
+  - Prompt, exactly:
+
+    ```
+    [gently] Sir, who is your last letter for?
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/last-2-6-1-pip.mp3`; it becomes `assets/audio/story/last-2-6-1-pip.ogg`.
+  - Scene last-2-6, line 1 (Pip). Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it.
+
+- [ ] **18/78 `last-2-6-1-peaches`**: Cherry Twinkle – Adorable Cartoon Girl (`XJ2fW4ybq7HouelYYGcL`)
+  - Prompt, exactly:
+
+    ```
+    [gently] Sir, who is your last letter for?
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/last-2-6-1-peaches.mp3`; it becomes `assets/audio/story/last-2-6-1-peaches.ogg`.
+  - Scene last-2-6, line 1 (Peaches). Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it.
+
+- [ ] **19/78 `last-2-6-1-minty`**: Teddy Twinkle - Cute Cartoon Boy (`XjGYkUkzth8BPs29fmcV`)
+  - Prompt, exactly:
+
+    ```
+    [gently] Sir, who is your last letter for?
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/last-2-6-1-minty.mp3`; it becomes `assets/audio/story/last-2-6-1-minty.ogg`.
+  - Scene last-2-6, line 1 (Minty). Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it.
+
+- [ ] **20/78 `last-2-6-1-orbit`**: Lola - Soft, Innocent and Calming (`f9imtLc2jfOLXtqe3Ihb`)
+  - Prompt, exactly:
+
+    ```
+    [gently] Sir, who is your last letter for?
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/last-2-6-1-orbit.mp3`; it becomes `assets/audio/story/last-2-6-1-orbit.ogg`.
+  - Scene last-2-6, line 1 (Orbit). Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it.
+
+- [ ] **21/78 `last-2-6-2`**: Neferhoo (audition)
+  - Fallback: Grampa Werthers - Old & Cranky (`MKlLqCItoCkvdhrxgtLv`)
+  - Prompt, exactly:
+
+    ```
+    [slowly] “To the Sphinx, Giza.” [pause] [sheepishly] …It was right outside the whole time.
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/last-2-6-2.mp3`; it becomes `assets/audio/story/last-2-6-2.ogg`.
+  - Scene last-2-6, line 2. Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it.
+
+- [ ] **22/78 `last-2-6-3`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+  - Prompt, exactly:
+
+    ```
+    [laughs] So that’s the letter we lost! [warmly] The Sphinx was too polite to complain.
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/last-2-6-3.mp3`; it becomes `assets/audio/story/last-2-6-3.ogg`.
+  - Scene last-2-6, line 3. Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it.
+
+- [ ] **23/78 `last-2-6-4`**: Neferhoo (audition)
+  - Fallback: Grampa Werthers - Old & Cranky (`MKlLqCItoCkvdhrxgtLv`)
+  - Prompt, exactly:
+
+    ```
+    [sighs] Four thousand years late. [sadly] Not my finest delivery.
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/last-2-6-4.mp3`; it becomes `assets/audio/story/last-2-6-4.ogg`.
+  - Scene last-2-6, line 4. Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it.
+
+- [ ] **24/78 `last-2-6-5-pip`**: Nelson – Awkward Nerd Character (`EaX6rnyDKjJx35tchi80`)
+  - Prompt, exactly:
+
+    ```
+    [cheerfully] It still counts. [excited] Every letter lands!
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/last-2-6-5-pip.mp3`; it becomes `assets/audio/story/last-2-6-5-pip.ogg`.
+  - Scene last-2-6, line 5 (Pip). Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it.
+
+- [ ] **25/78 `last-2-6-5-peaches`**: Cherry Twinkle – Adorable Cartoon Girl (`XJ2fW4ybq7HouelYYGcL`)
+  - Prompt, exactly:
+
+    ```
+    [cheerfully] It still counts. [excited] Every letter lands!
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/last-2-6-5-peaches.mp3`; it becomes `assets/audio/story/last-2-6-5-peaches.ogg`.
+  - Scene last-2-6, line 5 (Peaches). Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it.
+
+- [ ] **26/78 `last-2-6-5-minty`**: Teddy Twinkle - Cute Cartoon Boy (`XjGYkUkzth8BPs29fmcV`)
+  - Prompt, exactly:
+
+    ```
+    [cheerfully] It still counts. [excited] Every letter lands!
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/last-2-6-5-minty.mp3`; it becomes `assets/audio/story/last-2-6-5-minty.ogg`.
+  - Scene last-2-6, line 5 (Minty). Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it.
+
+- [ ] **27/78 `last-2-6-5-orbit`**: Lola - Soft, Innocent and Calming (`f9imtLc2jfOLXtqe3Ihb`)
+  - Prompt, exactly:
+
+    ```
+    [cheerfully] It still counts. [excited] Every letter lands!
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/last-2-6-5-orbit.mp3`; it becomes `assets/audio/story/last-2-6-5-orbit.ogg`.
+  - Scene last-2-6, line 5 (Orbit). Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it.
+
+- [ ] **28/78 `last-2-6-6`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+  - Prompt, exactly:
+
+    ```
+    [warmly] Neferhoo, the club needs a Keeper of Lost Letters. [chuckles] Care to apply?
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/last-2-6-6.mp3`; it becomes `assets/audio/story/last-2-6-6.ogg`.
+  - Scene last-2-6, line 6. Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it.
+
+- [ ] **29/78 `last-2-6-7`**: Neferhoo (audition)
+  - Fallback: Grampa Werthers - Old & Cranky (`MKlLqCItoCkvdhrxgtLv`)
+  - Prompt, exactly:
+
+    ```
+    [thoughtfully] Lost letters? [pause] …Then I start with this one. [excited] Off to the Sphinx!
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/last-2-6-7.mp3`; it becomes `assets/audio/story/last-2-6-7.ogg`.
+  - Scene last-2-6, line 7. Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it.
+
+- [ ] **30/78 `last-2-6-8`**: Matthew Schmitz - Ancient Sage Dragon Wizard (`HAvvFKatz0uu0Fv55Riy`)
+  - Prompt, exactly:
+
+    ```
+    [dryly] [slowly] “Delivered at last. [pause] Worth the wait. Signed: the Sphinx.”
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/last-2-6-8.mp3`; it becomes `assets/audio/story/last-2-6-8.ogg`.
+  - Scene last-2-6, line 8. Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it. A letter read aloud (a caption on airmail paper) in its writer’s voice, as the Dragon’s letter is read in Bill’s: the Sphinx (the voice of thanks-2-4). The design’s “— The Sphinx” is written “Signed: the Sphinx.” inside the quote, as the Dragon’s letter is signed (after-5-4), so the printed line ends on a sentence mark.
+
 ### before-3-2 (14 clips)
 
-- [ ] **1/47 `before-3-2-0`**: King Coo (audition)
+- [ ] **31/78 `before-3-2-0`**: King Coo (audition)
   - Fallback: Rusty Malone - Deep & Raspy (`507tTFX0IPtqFzGd1CAL`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [pompously] -> [dramatically] or [haughtily]
   - Prompt, exactly:
@@ -296,7 +700,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-2-0.mp3`; it becomes `assets/audio/story/before-3-2-0.ogg`.
   - Scene before-3-2, line 0. Map, at the lair: plays before 3-2's level card opens the first time; the card's story key replays it.
 
-- [ ] **2/47 `before-3-2-1-pip`**: Nelson – Awkward Nerd Character (`EaX6rnyDKjJx35tchi80`)
+- [ ] **32/78 `before-3-2-1-pip`**: Nelson – Awkward Nerd Character (`EaX6rnyDKjJx35tchi80`)
   - Prompt, exactly:
 
     ```
@@ -307,7 +711,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-2-1-pip.mp3`; it becomes `assets/audio/story/before-3-2-1-pip.ogg`.
   - Scene before-3-2, line 1 (Pip). Map, at the lair: plays before 3-2's level card opens the first time; the card's story key replays it.
 
-- [ ] **3/47 `before-3-2-1-peaches`**: Cherry Twinkle – Adorable Cartoon Girl (`XJ2fW4ybq7HouelYYGcL`)
+- [ ] **33/78 `before-3-2-1-peaches`**: Cherry Twinkle – Adorable Cartoon Girl (`XJ2fW4ybq7HouelYYGcL`)
   - Prompt, exactly:
 
     ```
@@ -318,7 +722,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-2-1-peaches.mp3`; it becomes `assets/audio/story/before-3-2-1-peaches.ogg`.
   - Scene before-3-2, line 1 (Peaches). Map, at the lair: plays before 3-2's level card opens the first time; the card's story key replays it.
 
-- [ ] **4/47 `before-3-2-1-minty`**: Teddy Twinkle - Cute Cartoon Boy (`XjGYkUkzth8BPs29fmcV`)
+- [ ] **34/78 `before-3-2-1-minty`**: Teddy Twinkle - Cute Cartoon Boy (`XjGYkUkzth8BPs29fmcV`)
   - Prompt, exactly:
 
     ```
@@ -329,7 +733,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-2-1-minty.mp3`; it becomes `assets/audio/story/before-3-2-1-minty.ogg`.
   - Scene before-3-2, line 1 (Minty). Map, at the lair: plays before 3-2's level card opens the first time; the card's story key replays it.
 
-- [ ] **5/47 `before-3-2-1-orbit`**: Lola - Soft, Innocent and Calming (`f9imtLc2jfOLXtqe3Ihb`)
+- [ ] **35/78 `before-3-2-1-orbit`**: Lola - Soft, Innocent and Calming (`f9imtLc2jfOLXtqe3Ihb`)
   - Prompt, exactly:
 
     ```
@@ -340,7 +744,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-2-1-orbit.mp3`; it becomes `assets/audio/story/before-3-2-1-orbit.ogg`.
   - Scene before-3-2, line 1 (Orbit). Map, at the lair: plays before 3-2's level card opens the first time; the card's story key replays it.
 
-- [ ] **6/47 `before-3-2-2`**: King Coo (audition)
+- [ ] **36/78 `before-3-2-2`**: King Coo (audition)
   - Fallback: Rusty Malone - Deep & Raspy (`507tTFX0IPtqFzGd1CAL`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [suspiciously] -> [knowingly]; [fuming] -> [angry]
   - Prompt, exactly:
@@ -353,7 +757,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-2-2.mp3`; it becomes `assets/audio/story/before-3-2-2.ogg`.
   - Scene before-3-2, line 2. Map, at the lair: plays before 3-2's level card opens the first time; the card's story key replays it.
 
-- [ ] **7/47 `before-3-2-3-pip`**: Nelson – Awkward Nerd Character (`EaX6rnyDKjJx35tchi80`)
+- [ ] **37/78 `before-3-2-3-pip`**: Nelson – Awkward Nerd Character (`EaX6rnyDKjJx35tchi80`)
   - Prompt, exactly:
 
     ```
@@ -364,7 +768,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-2-3-pip.mp3`; it becomes `assets/audio/story/before-3-2-3-pip.ogg`.
   - Scene before-3-2, line 3 (Pip). Map, at the lair: plays before 3-2's level card opens the first time; the card's story key replays it.
 
-- [ ] **8/47 `before-3-2-3-peaches`**: Cherry Twinkle – Adorable Cartoon Girl (`XJ2fW4ybq7HouelYYGcL`)
+- [ ] **38/78 `before-3-2-3-peaches`**: Cherry Twinkle – Adorable Cartoon Girl (`XJ2fW4ybq7HouelYYGcL`)
   - Prompt, exactly:
 
     ```
@@ -375,7 +779,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-2-3-peaches.mp3`; it becomes `assets/audio/story/before-3-2-3-peaches.ogg`.
   - Scene before-3-2, line 3 (Peaches). Map, at the lair: plays before 3-2's level card opens the first time; the card's story key replays it.
 
-- [ ] **9/47 `before-3-2-3-minty`**: Teddy Twinkle - Cute Cartoon Boy (`XjGYkUkzth8BPs29fmcV`)
+- [ ] **39/78 `before-3-2-3-minty`**: Teddy Twinkle - Cute Cartoon Boy (`XjGYkUkzth8BPs29fmcV`)
   - Prompt, exactly:
 
     ```
@@ -386,7 +790,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-2-3-minty.mp3`; it becomes `assets/audio/story/before-3-2-3-minty.ogg`.
   - Scene before-3-2, line 3 (Minty). Map, at the lair: plays before 3-2's level card opens the first time; the card's story key replays it.
 
-- [ ] **10/47 `before-3-2-3-orbit`**: Lola - Soft, Innocent and Calming (`f9imtLc2jfOLXtqe3Ihb`)
+- [ ] **40/78 `before-3-2-3-orbit`**: Lola - Soft, Innocent and Calming (`f9imtLc2jfOLXtqe3Ihb`)
   - Prompt, exactly:
 
     ```
@@ -397,7 +801,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-2-3-orbit.mp3`; it becomes `assets/audio/story/before-3-2-3-orbit.ogg`.
   - Scene before-3-2, line 3 (Orbit). Map, at the lair: plays before 3-2's level card opens the first time; the card's story key replays it.
 
-- [ ] **11/47 `before-3-2-4`**: King Coo (audition)
+- [ ] **41/78 `before-3-2-4`**: King Coo (audition)
   - Fallback: Rusty Malone - Deep & Raspy (`507tTFX0IPtqFzGd1CAL`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [wistfully] -> [sadly]; [sniffs] -> [sighs]
   - Prompt, exactly:
@@ -410,7 +814,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-2-4.mp3`; it becomes `assets/audio/story/before-3-2-4.ogg`.
   - Scene before-3-2, line 4. Map, at the lair: plays before 3-2's level card opens the first time; the card's story key replays it.
 
-- [ ] **12/47 `before-3-2-5`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+- [ ] **42/78 `before-3-2-5`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
   - Prompt, exactly:
 
     ```
@@ -421,7 +825,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-2-5.mp3`; it becomes `assets/audio/story/before-3-2-5.ogg`.
   - Scene before-3-2, line 5. Map, at the lair: plays before 3-2's level card opens the first time; the card's story key replays it.
 
-- [ ] **13/47 `before-3-2-6`**: King Coo (audition)
+- [ ] **43/78 `before-3-2-6`**: King Coo (audition)
   - Fallback: Rusty Malone - Deep & Raspy (`507tTFX0IPtqFzGd1CAL`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [pompously] -> [dramatically] or [haughtily]
   - Prompt, exactly:
@@ -434,7 +838,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-2-6.mp3`; it becomes `assets/audio/story/before-3-2-6.ogg`.
   - Scene before-3-2, line 6. Map, at the lair: plays before 3-2's level card opens the first time; the card's story key replays it. The same words are on the boss's name card in the flight.
 
-- [ ] **14/47 `before-3-2-7`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+- [ ] **44/78 `before-3-2-7`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
   - Prompt, exactly:
 
     ```
@@ -447,7 +851,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
 
 ### last-3-2 (14 clips)
 
-- [ ] **15/47 `last-3-2-0`**: King Coo (audition)
+- [ ] **45/78 `last-3-2-0`**: King Coo (audition)
   - Fallback: Rusty Malone - Deep & Raspy (`507tTFX0IPtqFzGd1CAL`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [quietly] -> [softly]
   - Prompt, exactly:
@@ -460,7 +864,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-2-0.mp3`; it becomes `assets/audio/story/last-3-2-0.ogg`.
   - Scene last-3-2, line 0. Map, at the lair: plays after 3-2 is first beaten; the card's story key replays it.
 
-- [ ] **16/47 `last-3-2-1-pip`**: Nelson – Awkward Nerd Character (`EaX6rnyDKjJx35tchi80`)
+- [ ] **46/78 `last-3-2-1-pip`**: Nelson – Awkward Nerd Character (`EaX6rnyDKjJx35tchi80`)
   - Prompt, exactly:
 
     ```
@@ -471,7 +875,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-2-1-pip.mp3`; it becomes `assets/audio/story/last-3-2-1-pip.ogg`.
   - Scene last-3-2, line 1 (Pip). Map, at the lair: plays after 3-2 is first beaten; the card's story key replays it.
 
-- [ ] **17/47 `last-3-2-1-peaches`**: Cherry Twinkle – Adorable Cartoon Girl (`XJ2fW4ybq7HouelYYGcL`)
+- [ ] **47/78 `last-3-2-1-peaches`**: Cherry Twinkle – Adorable Cartoon Girl (`XJ2fW4ybq7HouelYYGcL`)
   - Prompt, exactly:
 
     ```
@@ -482,7 +886,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-2-1-peaches.mp3`; it becomes `assets/audio/story/last-3-2-1-peaches.ogg`.
   - Scene last-3-2, line 1 (Peaches). Map, at the lair: plays after 3-2 is first beaten; the card's story key replays it.
 
-- [ ] **18/47 `last-3-2-1-minty`**: Teddy Twinkle - Cute Cartoon Boy (`XjGYkUkzth8BPs29fmcV`)
+- [ ] **48/78 `last-3-2-1-minty`**: Teddy Twinkle - Cute Cartoon Boy (`XjGYkUkzth8BPs29fmcV`)
   - Prompt, exactly:
 
     ```
@@ -493,7 +897,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-2-1-minty.mp3`; it becomes `assets/audio/story/last-3-2-1-minty.ogg`.
   - Scene last-3-2, line 1 (Minty). Map, at the lair: plays after 3-2 is first beaten; the card's story key replays it.
 
-- [ ] **19/47 `last-3-2-1-orbit`**: Lola - Soft, Innocent and Calming (`f9imtLc2jfOLXtqe3Ihb`)
+- [ ] **49/78 `last-3-2-1-orbit`**: Lola - Soft, Innocent and Calming (`f9imtLc2jfOLXtqe3Ihb`)
   - Prompt, exactly:
 
     ```
@@ -504,7 +908,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-2-1-orbit.mp3`; it becomes `assets/audio/story/last-3-2-1-orbit.ogg`.
   - Scene last-3-2, line 1 (Orbit). Map, at the lair: plays after 3-2 is first beaten; the card's story key replays it.
 
-- [ ] **20/47 `last-3-2-2`**: King Coo (audition)
+- [ ] **50/78 `last-3-2-2`**: King Coo (audition)
   - Fallback: Rusty Malone - Deep & Raspy (`507tTFX0IPtqFzGd1CAL`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [deadpan] -> [dryly]
   - Prompt, exactly:
@@ -517,7 +921,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-2-2.mp3`; it becomes `assets/audio/story/last-3-2-2.ogg`.
   - Scene last-3-2, line 2. Map, at the lair: plays after 3-2 is first beaten; the card's story key replays it.
 
-- [ ] **21/47 `last-3-2-3-pip`**: Nelson – Awkward Nerd Character (`EaX6rnyDKjJx35tchi80`)
+- [ ] **51/78 `last-3-2-3-pip`**: Nelson – Awkward Nerd Character (`EaX6rnyDKjJx35tchi80`)
   - Prompt, exactly:
 
     ```
@@ -528,7 +932,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-2-3-pip.mp3`; it becomes `assets/audio/story/last-3-2-3-pip.ogg`.
   - Scene last-3-2, line 3 (Pip). Map, at the lair: plays after 3-2 is first beaten; the card's story key replays it.
 
-- [ ] **22/47 `last-3-2-3-peaches`**: Cherry Twinkle – Adorable Cartoon Girl (`XJ2fW4ybq7HouelYYGcL`)
+- [ ] **52/78 `last-3-2-3-peaches`**: Cherry Twinkle – Adorable Cartoon Girl (`XJ2fW4ybq7HouelYYGcL`)
   - Prompt, exactly:
 
     ```
@@ -539,7 +943,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-2-3-peaches.mp3`; it becomes `assets/audio/story/last-3-2-3-peaches.ogg`.
   - Scene last-3-2, line 3 (Peaches). Map, at the lair: plays after 3-2 is first beaten; the card's story key replays it.
 
-- [ ] **23/47 `last-3-2-3-minty`**: Teddy Twinkle - Cute Cartoon Boy (`XjGYkUkzth8BPs29fmcV`)
+- [ ] **53/78 `last-3-2-3-minty`**: Teddy Twinkle - Cute Cartoon Boy (`XjGYkUkzth8BPs29fmcV`)
   - Prompt, exactly:
 
     ```
@@ -550,7 +954,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-2-3-minty.mp3`; it becomes `assets/audio/story/last-3-2-3-minty.ogg`.
   - Scene last-3-2, line 3 (Minty). Map, at the lair: plays after 3-2 is first beaten; the card's story key replays it.
 
-- [ ] **24/47 `last-3-2-3-orbit`**: Lola - Soft, Innocent and Calming (`f9imtLc2jfOLXtqe3Ihb`)
+- [ ] **54/78 `last-3-2-3-orbit`**: Lola - Soft, Innocent and Calming (`f9imtLc2jfOLXtqe3Ihb`)
   - Prompt, exactly:
 
     ```
@@ -561,7 +965,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-2-3-orbit.mp3`; it becomes `assets/audio/story/last-3-2-3-orbit.ogg`.
   - Scene last-3-2, line 3 (Orbit). Map, at the lair: plays after 3-2 is first beaten; the card's story key replays it.
 
-- [ ] **25/47 `last-3-2-4`**: King Coo (audition)
+- [ ] **55/78 `last-3-2-4`**: King Coo (audition)
   - Fallback: Rusty Malone - Deep & Raspy (`507tTFX0IPtqFzGd1CAL`)
   - Prompt, exactly:
 
@@ -573,7 +977,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-2-4.mp3`; it becomes `assets/audio/story/last-3-2-4.ogg`.
   - Scene last-3-2, line 4. Map, at the lair: plays after 3-2 is first beaten; the card's story key replays it.
 
-- [ ] **26/47 `last-3-2-5`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+- [ ] **56/78 `last-3-2-5`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
   - Prompt, exactly:
 
     ```
@@ -584,7 +988,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-2-5.mp3`; it becomes `assets/audio/story/last-3-2-5.ogg`.
   - Scene last-3-2, line 5. Map, at the lair: plays after 3-2 is first beaten; the card's story key replays it.
 
-- [ ] **27/47 `last-3-2-6`**: King Coo (audition)
+- [ ] **57/78 `last-3-2-6`**: King Coo (audition)
   - Fallback: Rusty Malone - Deep & Raspy (`507tTFX0IPtqFzGd1CAL`)
   - Prompt, exactly:
 
@@ -596,7 +1000,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-2-6.mp3`; it becomes `assets/audio/story/last-3-2-6.ogg`.
   - Scene last-3-2, line 6. Map, at the lair: plays after 3-2 is first beaten; the card's story key replays it.
 
-- [ ] **28/47 `last-3-2-7`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+- [ ] **58/78 `last-3-2-7`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
   - Prompt, exactly:
 
     ```
@@ -609,7 +1013,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
 
 ### before-3-4 (9 clips)
 
-- [ ] **29/47 `before-3-4-0`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+- [ ] **59/78 `before-3-4-0`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
   - Prompt, exactly:
 
     ```
@@ -620,7 +1024,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-4-0.mp3`; it becomes `assets/audio/story/before-3-4-0.ogg`.
   - Scene before-3-4, line 0. Map, at the lair: plays before 3-4's level card opens the first time; the card's story key replays it.
 
-- [ ] **30/47 `before-3-4-1`**: Searchlight Gargoyle (audition)
+- [ ] **60/78 `before-3-4-1`**: Searchlight Gargoyle (audition)
   - Fallback: Eldrin - Wise Epic Fantasy Narration Storyteller (`LvmvHEBEmMJBJw9UuhwO`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [delighted gasp] -> [gasps] [delighted]
   - Prompt, exactly:
@@ -633,7 +1037,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-4-1.mp3`; it becomes `assets/audio/story/before-3-4-1.ogg`.
   - Scene before-3-4, line 1. Map, at the lair: plays before 3-4's level card opens the first time; the card's story key replays it.
 
-- [ ] **31/47 `before-3-4-2-pip`**: Nelson – Awkward Nerd Character (`EaX6rnyDKjJx35tchi80`)
+- [ ] **61/78 `before-3-4-2-pip`**: Nelson – Awkward Nerd Character (`EaX6rnyDKjJx35tchi80`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [nervously] -> [nervous]
   - Prompt, exactly:
 
@@ -645,7 +1049,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-4-2-pip.mp3`; it becomes `assets/audio/story/before-3-4-2-pip.ogg`.
   - Scene before-3-4, line 2 (Pip). Map, at the lair: plays before 3-4's level card opens the first time; the card's story key replays it.
 
-- [ ] **32/47 `before-3-4-2-peaches`**: Cherry Twinkle – Adorable Cartoon Girl (`XJ2fW4ybq7HouelYYGcL`)
+- [ ] **62/78 `before-3-4-2-peaches`**: Cherry Twinkle – Adorable Cartoon Girl (`XJ2fW4ybq7HouelYYGcL`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [nervously] -> [nervous]
   - Prompt, exactly:
 
@@ -657,7 +1061,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-4-2-peaches.mp3`; it becomes `assets/audio/story/before-3-4-2-peaches.ogg`.
   - Scene before-3-4, line 2 (Peaches). Map, at the lair: plays before 3-4's level card opens the first time; the card's story key replays it.
 
-- [ ] **33/47 `before-3-4-2-minty`**: Teddy Twinkle - Cute Cartoon Boy (`XjGYkUkzth8BPs29fmcV`)
+- [ ] **63/78 `before-3-4-2-minty`**: Teddy Twinkle - Cute Cartoon Boy (`XjGYkUkzth8BPs29fmcV`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [nervously] -> [nervous]
   - Prompt, exactly:
 
@@ -669,7 +1073,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-4-2-minty.mp3`; it becomes `assets/audio/story/before-3-4-2-minty.ogg`.
   - Scene before-3-4, line 2 (Minty). Map, at the lair: plays before 3-4's level card opens the first time; the card's story key replays it.
 
-- [ ] **34/47 `before-3-4-2-orbit`**: Lola - Soft, Innocent and Calming (`f9imtLc2jfOLXtqe3Ihb`)
+- [ ] **64/78 `before-3-4-2-orbit`**: Lola - Soft, Innocent and Calming (`f9imtLc2jfOLXtqe3Ihb`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [nervously] -> [nervous]
   - Prompt, exactly:
 
@@ -681,7 +1085,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-4-2-orbit.mp3`; it becomes `assets/audio/story/before-3-4-2-orbit.ogg`.
   - Scene before-3-4, line 2 (Orbit). Map, at the lair: plays before 3-4's level card opens the first time; the card's story key replays it.
 
-- [ ] **35/47 `before-3-4-3`**: Searchlight Gargoyle (audition)
+- [ ] **65/78 `before-3-4-3`**: Searchlight Gargoyle (audition)
   - Fallback: Eldrin - Wise Epic Fantasy Narration Storyteller (`LvmvHEBEmMJBJw9UuhwO`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [wistfully] -> [sadly]; [quietly] -> [softly]
   - Prompt, exactly:
@@ -694,7 +1098,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-4-3.mp3`; it becomes `assets/audio/story/before-3-4-3.ogg`.
   - Scene before-3-4, line 3. Map, at the lair: plays before 3-4's level card opens the first time; the card's story key replays it.
 
-- [ ] **36/47 `before-3-4-4`**: Searchlight Gargoyle (audition)
+- [ ] **66/78 `before-3-4-4`**: Searchlight Gargoyle (audition)
   - Fallback: Eldrin - Wise Epic Fantasy Narration Storyteller (`LvmvHEBEmMJBJw9UuhwO`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [theatrically] -> [dramatically]; [pleading] -> [worried]
   - Prompt, exactly:
@@ -707,7 +1111,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-4-4.mp3`; it becomes `assets/audio/story/before-3-4-4.ogg`.
   - Scene before-3-4, line 4. Map, at the lair: plays before 3-4's level card opens the first time; the card's story key replays it. The same words are on the boss's name card in the flight.
 
-- [ ] **37/47 `before-3-4-5`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+- [ ] **67/78 `before-3-4-5`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
   - Prompt, exactly:
 
     ```
@@ -720,7 +1124,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
 
 ### last-3-4 (10 clips)
 
-- [ ] **38/47 `last-3-4-0`**: Searchlight Gargoyle (audition)
+- [ ] **68/78 `last-3-4-0`**: Searchlight Gargoyle (audition)
   - Fallback: Eldrin - Wise Epic Fantasy Narration Storyteller (`LvmvHEBEmMJBJw9UuhwO`)
   - Prompt, exactly:
 
@@ -732,7 +1136,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-4-0.mp3`; it becomes `assets/audio/story/last-3-4-0.ogg`.
   - Scene last-3-4, line 0. Map, at the lair: plays after 3-4 is first beaten; the card's story key replays it.
 
-- [ ] **39/47 `last-3-4-1-pip`**: Nelson – Awkward Nerd Character (`EaX6rnyDKjJx35tchi80`)
+- [ ] **69/78 `last-3-4-1-pip`**: Nelson – Awkward Nerd Character (`EaX6rnyDKjJx35tchi80`)
   - Prompt, exactly:
 
     ```
@@ -743,7 +1147,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-4-1-pip.mp3`; it becomes `assets/audio/story/last-3-4-1-pip.ogg`.
   - Scene last-3-4, line 1 (Pip). Map, at the lair: plays after 3-4 is first beaten; the card's story key replays it.
 
-- [ ] **40/47 `last-3-4-1-peaches`**: Cherry Twinkle – Adorable Cartoon Girl (`XJ2fW4ybq7HouelYYGcL`)
+- [ ] **70/78 `last-3-4-1-peaches`**: Cherry Twinkle – Adorable Cartoon Girl (`XJ2fW4ybq7HouelYYGcL`)
   - Prompt, exactly:
 
     ```
@@ -754,7 +1158,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-4-1-peaches.mp3`; it becomes `assets/audio/story/last-3-4-1-peaches.ogg`.
   - Scene last-3-4, line 1 (Peaches). Map, at the lair: plays after 3-4 is first beaten; the card's story key replays it.
 
-- [ ] **41/47 `last-3-4-1-minty`**: Teddy Twinkle - Cute Cartoon Boy (`XjGYkUkzth8BPs29fmcV`)
+- [ ] **71/78 `last-3-4-1-minty`**: Teddy Twinkle - Cute Cartoon Boy (`XjGYkUkzth8BPs29fmcV`)
   - Prompt, exactly:
 
     ```
@@ -765,7 +1169,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-4-1-minty.mp3`; it becomes `assets/audio/story/last-3-4-1-minty.ogg`.
   - Scene last-3-4, line 1 (Minty). Map, at the lair: plays after 3-4 is first beaten; the card's story key replays it.
 
-- [ ] **42/47 `last-3-4-1-orbit`**: Lola - Soft, Innocent and Calming (`f9imtLc2jfOLXtqe3Ihb`)
+- [ ] **72/78 `last-3-4-1-orbit`**: Lola - Soft, Innocent and Calming (`f9imtLc2jfOLXtqe3Ihb`)
   - Prompt, exactly:
 
     ```
@@ -776,7 +1180,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-4-1-orbit.mp3`; it becomes `assets/audio/story/last-3-4-1-orbit.ogg`.
   - Scene last-3-4, line 1 (Orbit). Map, at the lair: plays after 3-4 is first beaten; the card's story key replays it.
 
-- [ ] **43/47 `last-3-4-2`**: Searchlight Gargoyle (audition)
+- [ ] **73/78 `last-3-4-2`**: Searchlight Gargoyle (audition)
   - Fallback: Eldrin - Wise Epic Fantasy Narration Storyteller (`LvmvHEBEmMJBJw9UuhwO`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [softly, voice cracking] -> [softly] [trembling voice]; [sniffs] -> [sighs]; [happily] -> [happy]
   - Prompt, exactly:
@@ -789,7 +1193,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-4-2.mp3`; it becomes `assets/audio/story/last-3-4-2.ogg`.
   - Scene last-3-4, line 2. Map, at the lair: plays after 3-4 is first beaten; the card's story key replays it.
 
-- [ ] **44/47 `last-3-4-3`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+- [ ] **74/78 `last-3-4-3`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
   - Prompt, exactly:
 
     ```
@@ -800,7 +1204,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-4-3.mp3`; it becomes `assets/audio/story/last-3-4-3.ogg`.
   - Scene last-3-4, line 3. Map, at the lair: plays after 3-4 is first beaten; the card's story key replays it.
 
-- [ ] **45/47 `last-3-4-4`**: Searchlight Gargoyle (audition)
+- [ ] **75/78 `last-3-4-4`**: Searchlight Gargoyle (audition)
   - Fallback: Eldrin - Wise Epic Fantasy Narration Storyteller (`LvmvHEBEmMJBJw9UuhwO`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [ecstatic] -> [overjoyed]; [theatrically] -> [dramatically]
   - Prompt, exactly:
@@ -813,7 +1217,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-4-4.mp3`; it becomes `assets/audio/story/last-3-4-4.ogg`.
   - Scene last-3-4, line 4. Map, at the lair: plays after 3-4 is first beaten; the card's story key replays it.
 
-- [ ] **46/47 `last-3-4-5`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+- [ ] **76/78 `last-3-4-5`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
   - Prompt, exactly:
 
     ```
@@ -824,7 +1228,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-4-5.mp3`; it becomes `assets/audio/story/last-3-4-5.ogg`.
   - Scene last-3-4, line 5. Map, at the lair: plays after 3-4 is first beaten; the card's story key replays it.
 
-- [ ] **47/47 `last-3-4-6`**: Twinkle - Narration & Acting (`Qz7YNvloEr5RXwYE3NCH`)
+- [ ] **77/78 `last-3-4-6`**: Twinkle - Narration & Acting (`Qz7YNvloEr5RXwYE3NCH`)
   - Prompt, exactly:
 
     ```
@@ -835,6 +1239,19 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-4-6.mp3`; it becomes `assets/audio/story/last-3-4-6.ogg`.
   - Scene last-3-4, line 6. Map, at the lair: plays after 3-4 is first beaten; the card's story key replays it.
 
+### thanks-2 (1 clips)
+
+- [ ] **78/78 `thanks-2-6`**: Jessie - Vintage Narrator (`KgUSWQPFmuiZ5ycRbnty`)
+  - Prompt, exactly:
+
+    ```
+    [delighted] Four thousand years of dust, [laughs] gone by lunch!
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/thanks-2-6.mp3`; it becomes `assets/audio/story/thanks-2-6.ogg`.
+  - The result of 2-6 (Return to Sender), as its thank-you note lands. Signed: The pyramid caretaker.
+
 <!-- checklist:end -->
 
 ## 5. After each batch
@@ -843,7 +1260,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
 
    ```sh
    cd build/story-voices/source
-   for f in before-3-2-*.mp3 last-3-2-*.mp3 before-3-4-*.mp3 last-3-4-*.mp3; do echo "${f%.mp3} $(sha256sum "$f" | cut -d' ' -f1)"; done
+   for f in before-3-2-*.mp3 last-3-2-*.mp3 before-3-4-*.mp3 last-3-4-*.mp3 before-2-6-*.mp3 last-2-6-*.mp3 thanks-2-6.mp3; do echo "${f%.mp3} $(sha256sum "$f" | cut -d' ' -f1)"; done
    ```
 2. Master the batch (FFmpeg needed), naming the clips:
 
@@ -867,3 +1284,126 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
 - **The Alley Pigeon** has no voice: pigeons coo and flap (sound effects, not speech).
 - **The "To be continued…" clip** (`last-3-4-6`, the narrator) goes unused when Paris
   opens and the caption is removed.
+- **Neferhoo's in-flight lines** are not story clips: they are in
+  `docs/flight-voices-sources.json`, listed in section 7.
+
+## 7. Neferhoo's in-flight lines (50, pending)
+
+They live in `docs/flight-voices-sources.json` (the flight script's format: a line
+with no `generation_id` has no take yet). `python3 tool/prepare_flight_voices.py
+pending` lists them; this table is for reading and ticking, the sources file is the
+record (`flight_voice_script_test` checks every prompt below is the file's). His 34
+wait for his voice (section 2); the birds' 16 can be recorded now, in the voices
+they already have.
+
+Recording one: Eleven v4, one generation, the speaker's voice, the prompt exactly as
+written. Save the take as `build/flight-voices/source/<name>.mp3`, log it in any
+JSON file under `build/flight-voices/generations/` as
+`{"<name>": {"generation_id": "...", "prompt": "<the prompt>"}}`, then
+`python3 tool/prepare_flight_voices.py script` (it fills `generation_id` and
+`source_sha256`) and `python3 tool/prepare_flight_voices.py --only <names>` (masters
+the takes and regenerates `lib/game/flight_voice_clips.dart` and
+`flight_voice_faces.dart`). When all 46 of his and his birds' answers are in, move
+`BossKind.neferhoo` from `FlightVoices.pendingBosses` to `voicedBosses` in
+`lib/game/flight_voices.dart` (`flight_voice_script_test` insists); the four cargo
+lines play by themselves once mastered.
+
+**Neferhoo: arrival**
+
+| Line | Voice | Prompt |
+| --- | --- | --- |
+| `neferhoo-arrive-01` | Neferhoo (audition) | [haughtily] Who disturbs the Pharaoh's post? |
+| `neferhoo-arrive-02` | Neferhoo (audition) | [surprised] A courier? [angry] On MY route? [shouting] Return to sender! |
+| `neferhoo-arrive-03` | Neferhoo (audition) | [sighs] Four thousand years of quiet, [grumpy] and now YOU. |
+
+**Neferhoo: taunt (quiet moments)**
+
+| Line | Voice | Prompt |
+| --- | --- | --- |
+| `neferhoo-taunt-01` | Neferhoo (audition) | [proudly] I have outflown sandstorms, fledgling. [dryly] You are a breeze. |
+| `neferhoo-taunt-02` | Neferhoo (audition) | [mischievously] My satchel is full of letters nobody wanted. Take one! |
+| `neferhoo-taunt-03` | Neferhoo (audition) | [firmly] No stamp? No address? No entry! |
+| `neferhoo-taunt-04` | Neferhoo (audition) | [disgusted] Is that a feather duster? [angry] Are you calling me dusty? |
+| `neferhoo-taunt-05` | Neferhoo (audition) | [haughtily] Every letter lands, fledgling. [chuckles] Mine land on you. |
+| `neferhoo-taunt-06` | Neferhoo (audition) | [grumbling] In my day, couriers flew uphill. Both ways. Through sand. |
+| `neferhoo-taunt-07` | Neferhoo (audition) | [mischievously] Hold still while I sort you. |
+| `neferhoo-taunt-08` | Neferhoo (audition) | [excited] Postage due, postage due, postage DUE! |
+
+**Neferhoo: attack = the MAIL CALL, as the lane locks**
+
+| Line | Voice | Prompt |
+| --- | --- | --- |
+| `neferhoo-attack-01` | Neferhoo (audition) | [shouting] Mail call! |
+| `neferhoo-attack-02` | Neferhoo (audition) | [excited] Special delivery! |
+| `neferhoo-attack-03` | Neferhoo (audition) | [proudly] First class, coming through! |
+| `neferhoo-attack-04` | Neferhoo (audition) | [mischievously] Sign here, please! |
+
+**Neferhoo: summon = the ankh, thrown**
+
+| Line | Voice | Prompt |
+| --- | --- | --- |
+| `neferhoo-summon-01` | Neferhoo (audition) | [chuckles] Catch, fledgling! It always comes back. |
+| `neferhoo-summon-02` | Neferhoo (audition) | [excited] Round and round it goes! |
+| `neferhoo-summon-03` | Neferhoo (audition) | [mysteriously] My ankh knows the way home. |
+
+**Neferhoo: hurt = one of his own letters lands home (never a rock on his wraps)**
+
+| Line | Voice | Prompt |
+| --- | --- | --- |
+| `neferhoo-hurt-01` | Neferhoo (audition) | [gasps] Oof! [surprised] Return to... me? |
+| `neferhoo-hurt-02` | Neferhoo (audition) | [surprised] My own letter?! [grumpy] How rude. |
+| `neferhoo-hurt-03` | Neferhoo (audition) | [shouting] Ow! [grumbling] That one was first class! |
+| `neferhoo-hurt-04` | Neferhoo (audition) | [angry] Undeliverable! Undeliverable! |
+| `neferhoo-hurt-05` | Neferhoo (audition) | [gasps] Ack! [grumpy] Insufficient postage! |
+
+**Neferhoo: gloat (he hits the bird)**
+
+| Line | Voice | Prompt |
+| --- | --- | --- |
+| `neferhoo-gloat-01` | Neferhoo (audition) | [laughs] Signed, sealed, delivered! |
+| `neferhoo-gloat-02` | Neferhoo (audition) | [proudly] Delivered! No signature needed. |
+| `neferhoo-gloat-03` | Neferhoo (audition) | [chuckles] That is what I call express post. |
+| `neferhoo-gloat-04` | Neferhoo (audition) | [excited] Right on the address! |
+| `neferhoo-gloat-05` | Neferhoo (audition) | [dryly] Your parcel has been... flattened. |
+
+**Neferhoo: mad = the fury stage (a third of his health left)**
+
+| Line | Voice | Prompt |
+| --- | --- | --- |
+| `neferhoo-mad-01` | Neferhoo (audition) | [angry] Enough! [shouting] EXPRESS POST! |
+| `neferhoo-mad-02` | Neferhoo (audition) | [disgusted] You have crumpled my wrappings! |
+| `neferhoo-mad-03` | Neferhoo (audition) | [firmly] Now it is personal mail! |
+
+**Neferhoo: defeated**
+
+| Line | Voice | Prompt |
+| --- | --- | --- |
+| `neferhoo-defeated-01` | Neferhoo (audition) | [gasps] My mask! Where is my... [surprised] oh. [delighted] I can see! |
+| `neferhoo-defeated-02` | Neferhoo (audition) | [sighs] Return... to... sender... |
+| `neferhoo-defeated-03` | Neferhoo (audition) | [disappointed] Outflown by a rookie. [sighs] Four thousand years, and outflown. |
+
+**Each bird meets him (2) and sees him off (1)**
+
+| Line | Voice | Prompt |
+| --- | --- | --- |
+| `pip-boss-neferhoo-01` | Nelson – Awkward Nerd Character (`EaX6rnyDKjJx35tchi80`) | [excited] A mummy with a mailbag! [determined] Shoot the letters back, Pip! |
+| `pip-boss-neferhoo-02` | Nelson – Awkward Nerd Character (`EaX6rnyDKjJx35tchi80`) | [nervous] Royal Courier? [thoughtfully] I'm just Courier. Courier Pip. |
+| `pip-boss-down-neferhoo-01` | Nelson – Awkward Nerd Character (`EaX6rnyDKjJx35tchi80`) | [cheerfully] Delivered! Even four thousand years late. |
+| `peaches-boss-neferhoo-01` | Cherry Twinkle – Adorable Cartoon Girl (`XJ2fW4ybq7HouelYYGcL`) | [excited] Ooh, a pharaoh bird! [curious] His letters smell like old books. |
+| `peaches-boss-neferhoo-02` | Cherry Twinkle – Adorable Cartoon Girl (`XJ2fW4ybq7HouelYYGcL`) | [mischievously] Return to sender, mister! [giggles] With love! |
+| `peaches-boss-down-neferhoo-01` | Cherry Twinkle – Adorable Cartoon Girl (`XJ2fW4ybq7HouelYYGcL`) | [warmly] Go deliver your letter, Mister Neferhoo! |
+| `minty-boss-neferhoo-01` | Teddy Twinkle - Cute Cartoon Boy (`XjGYkUkzth8BPs29fmcV`) | [excited] Letters incoming! Bonk them back, bonk them back! |
+| `minty-boss-neferhoo-02` | Teddy Twinkle - Cute Cartoon Boy (`XjGYkUkzth8BPs29fmcV`) | [laughs] A mummy? He's even slower than the sloth! |
+| `minty-boss-down-neferhoo-01` | Teddy Twinkle - Cute Cartoon Boy (`XjGYkUkzth8BPs29fmcV`) | [excited] Every letter lands! Woo-hoo! |
+| `orbit-boss-neferhoo-01` | Lola - Soft, Innocent and Calming (`f9imtLc2jfOLXtqe3Ihb`) | [softly] Wrapped up like a sleepy bedtime story. |
+| `orbit-boss-neferhoo-02` | Lola - Soft, Innocent and Calming (`f9imtLc2jfOLXtqe3Ihb`) | [whispers] Shh... his letters only want to go home. |
+| `orbit-boss-down-neferhoo-01` | Lola - Soft, Innocent and Calming (`f9imtLc2jfOLXtqe3Ihb`) | [gently] Sleep well, old courier. Your letter landed. |
+
+**Each bird on 2-6's first try (cargo)**
+
+| Line | Voice | Prompt |
+| --- | --- | --- |
+| `pip-cargo-2-6-01` | Nelson – Awkward Nerd Character (`EaX6rnyDKjJx35tchi80`) | [nervous] A feather duster. [thoughtfully] I'm choosing not to ask whose feathers. |
+| `peaches-cargo-2-6-01` | Cherry Twinkle – Adorable Cartoon Girl (`XJ2fW4ybq7HouelYYGcL`) | [cheerfully] A feather duster for the pyramid! [excited] Dust bunnies, beware! |
+| `minty-cargo-2-6-01` | Teddy Twinkle - Cute Cartoon Boy (`XjGYkUkzth8BPs29fmcV`) | [excited] Duster delivery! Zip in, swish swish, zip out! |
+| `orbit-cargo-2-6-01` | Lola - Soft, Innocent and Calming (`f9imtLc2jfOLXtqe3Ihb`) | [softly] A feather duster... for very old, very sleepy dust. |

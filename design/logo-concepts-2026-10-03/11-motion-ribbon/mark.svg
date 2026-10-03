@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600"><rect width="600" height="600" fill="#FFF9ED"/><g transform="translate(-265 0)"><g>
+<path d="M 360,350 C 402,377 445,386 487,371 C 451,346 407,297 393,260 C 454,286 499,298 542,288 C 499,267 463,228 452,194 C 510,218 562,228 607,226 C 576,199 558,175 555,154 C 608,180 650,203 681,227 C 705,207 743,202 769,219 C 790,232 802,255 799,277 L 836,295 L 795,311 C 770,354 729,382 680,407 C 591,453 487,475 438,438 C 408,416 416,390 442,382 C 418,415 457,433 508,422 C 556,412 601,391 641,365 C 607,376 574,378 546,373 C 499,422 418,415 360,350 Z" fill="#F47D64" stroke="#203B45" stroke-width="10" stroke-linejoin="round"/>
+<path d="M 448,273 C 486,303 521,320 562,320 M 500,224 C 537,246 572,255 608,256" fill="none" stroke="#FFD1B0" stroke-width="11" stroke-linecap="round"/>
+<path d="M 682,237 C 651,263 638,298 641,326" fill="none" stroke="#CB584B" stroke-width="16" stroke-linecap="round"/>
+<circle cx="758" cy="253" r="9" fill="#203B45"/>
+<path d="M 800,277 L 836,295 L 796,310" fill="#FFD45B" stroke="#203B45" stroke-width="8" stroke-linejoin="round"/>
+</g></g></svg>

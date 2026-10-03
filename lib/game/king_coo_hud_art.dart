@@ -105,7 +105,7 @@ abstract final class KingCooHudArt {
   static Path _specks = Path(), _flour = Path();
   static Path _cracks = Path(), _crackLit = Path();
   static Path _teeth = Path(), _tipEdge = Path();
-  static Path _ticks = Path();
+  static Path _ticks = Path(), _sixths = Path();
 
   static void _buildStrip(Rect strip, double u) {
     if (_stripFor == strip && _uFor == u) return;
@@ -263,14 +263,21 @@ abstract final class KingCooHudArt {
       ..lineTo(2.9 * u, bar.top + h * .8)
       ..lineTo(1.5 * u, bar.bottom);
     // The empty trough: faint ticks at the quarters and a few stray crumbs.
-    final ticks = Path();
+    // A staged gauge, cut in thirds by its marks, has its ticks at the
+    // sixths instead (halving each third).
+    final ticks = Path(), sixths = Path();
     for (var i = 1; i <= 3; i++) {
-      final x = bar.left + w * i / 4;
-      ticks
-        ..moveTo(x, bar.top + 1.8 * u)
-        ..lineTo(x, bar.bottom - 1.6 * u);
+      for (final (path, x) in [
+        (ticks, bar.left + w * i / 4),
+        (sixths, bar.left + w * (2 * i - 1) / 6),
+      ]) {
+        path
+          ..moveTo(x, bar.top + 1.8 * u)
+          ..lineTo(x, bar.bottom - 1.6 * u);
+      }
     }
     _ticks = ticks;
+    _sixths = sixths;
   }
 
   // The shield badge about the origin, the medallion's radius 1: a gently
@@ -677,6 +684,7 @@ abstract final class KingCooHudArt {
     bool reduced = false,
     double time = 0,
     double furyAge = double.infinity,
+    bool staged = false,
   }) {
     if (!bar.isFinite || !u.isFinite) return;
     _buildBar(bar, u);
@@ -695,7 +703,12 @@ abstract final class KingCooHudArt {
     c.drawPath(_studs, KingCooHudFx.solid(KingCooPalette.brass, .95));
     // The tag's own stretch of the channel stays clear while FURY shows.
     final tagged = fury && furyAge < _furyTagSeconds;
-    if (!tagged) c.drawPath(_ticks, KingCooHudFx.stroke(ink, .9 * u, .6));
+    if (!tagged) {
+      c.drawPath(
+        staged ? _sixths : _ticks,
+        KingCooHudFx.stroke(ink, .9 * u, .6),
+      );
+    }
   }
 
   /// The loaf up to [right]: crust, flour, scoring, cracks that spread through
@@ -881,7 +894,8 @@ abstract final class KingCooHudArt {
   /// gauge's middle, with a brass notch through the track, until the fury.
   /// When the fury begins, [furyAge] seconds ago, the whistle blows: a flash
   /// of red and blue siren rays bursts out of the notch, the whistle burns
-  /// hot and the notch keeps a red light.
+  /// hot and the notch keeps a red light. A staged campaign King Coo's fury
+  /// mark stands at [share] (a third) instead of the middle.
   static void halfMark(
     Canvas c,
     Rect bar,
@@ -891,10 +905,11 @@ abstract final class KingCooHudArt {
     required double wave,
     double furyAge = double.infinity,
     bool reduced = false,
+    double share = .5,
   }) {
     if (!bar.isFinite || !u.isFinite) return;
     _buildBar(bar, u);
-    final x = bar.left + bar.width / 2;
+    final x = bar.left + bar.width * share;
     final hot = fury
         ? Color.lerp(
             KingCooPalette.sirenRed,

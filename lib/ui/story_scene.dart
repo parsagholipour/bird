@@ -223,6 +223,14 @@ class _StoryScenePlayerState extends State<StoryScenePlayer>
     StoryBoss() => StorySpeaker.boss,
   };
 
+  /// The line [role] says now or said last, if any.
+  StoryLine? _lastLineOf(StorySpeaker role) {
+    for (var i = _index; i >= 0; i--) {
+      if (_scene.lines[i].speaker == role) return _scene.lines[i];
+    }
+    return null;
+  }
+
   /// The face [role] wears while it listens: it keeps a frown or a long
   /// face from its last line, and otherwise settles.
   StoryMood _restingMood(StorySpeaker role) {
@@ -273,7 +281,11 @@ class _StoryScenePlayerState extends State<StoryScenePlayer>
               ? 1.0
               : 1 + math.sin(seconds * 2.3 + i * 2) * .011 + bounce * .006;
           return (
-            actor: actor,
+            // A boss acts its own line beyond the mood where its art has a
+            // gesture for it (Neferhoo's "Return to sender!" stamp).
+            actor: actor is StoryBoss
+                ? actor.acting(_lastLineOf(role)?.text)
+                : actor,
             x: layout.placeOf(actor),
             voice: voice.clamp(0.0, 1.0),
             presence: _index < _curtain

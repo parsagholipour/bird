@@ -34,6 +34,8 @@ String _label(BossKind kind) => switch (kind) {
   BossKind.dragon => 'Ember Dragon · fireball',
   BossKind.kingCoo => 'King Coo · placeholder pellet',
   BossKind.searchlightGargoyle => 'Searchlight Gargoyle · placeholder pellet',
+  // Neferhoo fires no boss ammo (his letters are his own art).
+  BossKind.neferhoo => 'Neferhoo · no boss ammo',
 };
 
 double _speed(BossKind kind, bool enraged) =>

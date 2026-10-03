@@ -73,12 +73,15 @@ void main() {
         boss.enragedAt = boss.age;
         // The mini-bosses have their own fury and ending (see
         // new_york_audio_cues_test): King Coo roars and deflates, the
-        // Gargoyle's fury and shattering are in the mids a phone plays.
+        // Gargoyle's fury and shattering are in the mids a phone plays, and
+        // Neferhoo's cry, mask pop and found letter are his own
+        // (neferhoo_audio_test).
         expect(
           cues.advance(boss),
           contains(switch (kind) {
             BossKind.kingCoo => 'coo_roar',
             BossKind.searchlightGargoyle => 'gargoyle_fury',
+            BossKind.neferhoo => 'mummy_fury',
             _ => 'boss_enrage',
           }),
         );
@@ -90,10 +93,16 @@ void main() {
           // He inflates from the end of the hit-stop, then pops.
           BossKind.kingCoo => ['coo_inflate', 'coo_defeat'],
           BossKind.searchlightGargoyle => ['gargoyle_shatter'],
+          BossKind.neferhoo => ['mask_pop'],
           _ => ['boss_burst'],
         });
         boss.age += 1;
         expect(cues.advance(boss), ['boss_victory']);
+        // His found letter chimes once the victory stinger has rung out.
+        if (kind == BossKind.neferhoo) {
+          boss.age = boss.defeatedAt! + 3.25;
+          expect(cues.advance(boss), ['lost_letter']);
+        }
         expect(cues.advance(boss), isEmpty);
       }
     },

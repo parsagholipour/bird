@@ -761,14 +761,14 @@ final class _Env {
 
   /// The zone beam's centre at the bird's column at cycle time [x] (clamped to
   /// the sweep): the rules' glide (`SearchlightGargoyle.centre`), which takes
-  /// [GargoyleTimeline.furyGlideSeconds] when enraged and
-  /// [GargoyleTimeline.glideSeconds] otherwise. Used for the head's aim and for
+  /// [GargoyleTimeline.furyGlideSeconds] at fury's pace (`SkyBoss.furyPace`)
+  /// and [GargoyleTimeline.glideSeconds] otherwise. Used for the head's aim and for
   /// the instants the rules' own getter is silent (the fade after the vent, the
   /// defeat's stutter); the beam burning NOW is always read from
   /// `SkyBoss.beamCentres`, so the drawn band is the rules' in any tree.
   double _centreZone(double x) {
     final s = x.clamp(GargoyleTimeline.sweepAt, GargoyleTimeline.ventAt) - GargoyleTimeline.sweepAt;
-    final seconds = b.enraged ? GargoyleTimeline.furyGlideSeconds : GargoyleTimeline.glideSeconds;
+    final seconds = b.furyPace ? GargoyleTimeline.furyGlideSeconds : GargoyleTimeline.glideSeconds;
     return high
         ? _glide(SearchlightGargoyle.highFrom, SearchlightGargoyle.highTo, s, seconds)
         : _glide(SearchlightGargoyle.lowFrom, SearchlightGargoyle.lowTo, s, seconds);
@@ -813,7 +813,7 @@ final class _Env {
     if (k <= 0) return const [];
     final xs = x >= GargoyleTimeline.ventAt ? GargoyleTimeline.ventAt - 1e-6 : x;
     final fury = b.enraged;
-    final half = SearchlightGargoyle.half(enraged: fury);
+    final half = SearchlightGargoyle.half(enraged: b.furyPace);
     if (!dead && age == b.age && b.beamOn) {
       // The beam burning now is the rules' band, exactly.
       final rules = b.beamCentres;
@@ -842,7 +842,8 @@ final class _Env {
     final k = math.max((t / period).floor(), 0);
     return [
       for (final s in b.featherSchedule) k * period + s,
-      (k + 1) * period + SearchlightGargoyle.calmFeathers.first,
+      if (b.perchFeatherIn(k + 1))
+        (k + 1) * period + SearchlightGargoyle.calmFeathers.first,
     ];
   }
 

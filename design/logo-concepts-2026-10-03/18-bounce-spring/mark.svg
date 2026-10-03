@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="620" height="620" viewBox="0 0 620 620"><rect width="620" height="620" fill="#FFF9ED"/><g transform="translate(-13 -95)"><g stroke="#203B45" stroke-linecap="round" stroke-linejoin="round">
+<!-- compressed toy spring: repeated U coils -->
+<path d="M203 563 C203 676 444 676 444 563" fill="none" stroke-width="45"/>
+<path d="M203 563 C203 676 444 676 444 563" fill="none" stroke="#F47D64" stroke-width="29"/>
+<path d="M217 535 C217 632 430 632 430 535" fill="none" stroke-width="45"/>
+<path d="M217 535 C217 632 430 632 430 535" fill="none" stroke="#F47D64" stroke-width="29"/>
+<path d="M233 510 C233 586 414 586 414 510" fill="none" stroke-width="45"/>
+<path d="M233 510 C233 586 414 586 414 510" fill="none" stroke="#F47D64" stroke-width="29"/>
+<!-- wing and round little jumper -->
+<path d="M225 406 Q155 392 172 460 Q191 483 238 465" fill="#FFD45B" stroke-width="9"/>
+<path d="M416 408 Q478 370 476 432 Q465 467 416 455" fill="#FFD45B" stroke-width="9"/>
+<path d="M289 306 Q265 266 282 250 Q310 239 319 301 Q318 239 343 236 Q373 239 349 305 Q377 268 392 282 Q404 299 367 326" fill="#FFD45B" stroke-width="9"/>
+<path d="M211 402 C211 284 398 290 431 380 C475 500 365 541 279 511 C224 494 203 456 211 402Z" fill="#FFD45B" stroke-width="9"/>
+<path d="M226 439 Q239 481 282 491" fill="none" stroke="#FFE599" stroke-width="12"/>
+<ellipse cx="306" cy="380" rx="36" ry="45" fill="#FFF9ED" stroke-width="7"/>
+<ellipse cx="383" cy="374" rx="34" ry="44" fill="#FFF9ED" stroke-width="7"/>
+<ellipse cx="314" cy="369" rx="12" ry="18" fill="#203B45" stroke="none"/>
+<ellipse cx="391" cy="363" rx="12" ry="18" fill="#203B45" stroke="none"/>
+<circle cx="318" cy="363" r="4" fill="#FFF9ED" stroke="none"/>
+<circle cx="395" cy="357" r="4" fill="#FFF9ED" stroke="none"/>
+<path d="M340 416 Q358 399 377 415 L358 437Z" fill="#F47D64" stroke-width="7"/>
+<path d="M286 506 L277 535 M272 534 L290 535 M382 505 L393 533 M383 535 L405 530" fill="none" stroke-width="9"/>
+<!-- rebound motion -->
+<path d="M168 337 L147 305 M467 317 L487 286 M323 207 L323 181" fill="none" stroke="#F47D64" stroke-width="11"/>
+<path d="M154 519 L133 541 M486 493 L509 512" fill="none" stroke-width="8"/>
+</g></g></svg>

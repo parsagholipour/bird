@@ -117,49 +117,97 @@ void main() {
       },
     );
 
-    test('the heaviest frame of three vents stays under 160', () {
-      // A ride in its billow, a hop in its burst, a stack in its hiss: the
-      // worst the layout can put on an 800 px screen, then the worst of each
-      // phase three times over.
+    test('the heaviest frame the rules can lay stays under 160', () {
+      // Slots are at least three passages apart, about 3.1 screen heights
+      // (the culling range is 3.1 heights too), so an 800 px screen holds two
+      // vents only at the very edges. Every phase of the first against every
+      // phase of the second, and the bird's own feedback on top.
       final sim = _bare();
       var worst = 0;
-      for (final tau in _taus) {
-        sim.steamVents
-          ..clear()
-          ..addAll([
-            for (final (i, (_, v)) in _designs.take(3).indexed)
-              makeVent((
-                x: .4 + i * .8,
-                top: v.top,
-                kind: v.kind,
-                tau: tau + i * .7 - 1,
-                slot: v.slot,
-              ), sim.routeSeconds),
-          ]);
-        final count = CountingCanvas(ui.Canvas(ui.PictureRecorder()));
-        SteamGeyserArt.vents(
-          count,
-          const Size(_w, _h),
-          sim,
-          reducedMotion: false,
-        );
-        SteamGeyserArt.feedback(
-          count,
-          const Size(_w, _h),
-          sim,
-          reducedMotion: false,
-        );
-        expect(
-          count.draws,
-          lessThanOrEqualTo(SteamGeyserArt.maxOpsPerFrame),
-          reason: 'tau $tau',
-        );
-        expect(count.layers + count.blurs + count.shaders, 0);
-        worst = math.max(worst, count.draws);
+      for (final (i, kinds) in [
+        (0, [_designs[0].$2, _designs[1].$2]),
+        (1, [_designs[1].$2, _designs[0].$2]),
+        (2, [_designs[2].$2, _designs[1].$2]),
+      ]) {
+        for (var tau = -1.5; tau < 2.7; tau += .05) {
+          for (var off = 0.0; off < 4.2; off += .35) {
+            sim.steamVents
+              ..clear()
+              ..addAll([
+                for (final (k, v) in kinds.indexed)
+                  makeVent((
+                    x: -.44 + k * 3.1,
+                    top: v.top,
+                    kind: v.kind,
+                    tau: tau + k * off,
+                    slot: v.slot,
+                  ), sim.routeSeconds),
+              ]);
+            final count = CountingCanvas(ui.Canvas(ui.PictureRecorder()));
+            SteamGeyserArt.vents(
+              count,
+              const Size(_w, _h),
+              sim,
+              reducedMotion: false,
+            );
+            SteamGeyserArt.feedback(
+              count,
+              const Size(_w, _h),
+              sim,
+              reducedMotion: false,
+            );
+            expect(
+              count.draws,
+              lessThanOrEqualTo(SteamGeyserArt.maxOpsPerFrame),
+              reason: 'pair $i tau $tau offset $off',
+            );
+            expect(count.layers + count.blurs + count.shaders, 0);
+            worst = math.max(worst, count.draws);
+          }
+        }
       }
       // ignore: avoid_print
-      print('steam frame of three vents: worst $worst draw calls');
+      print('steam frame of two vents: worst $worst draw calls');
     });
+
+    test(
+      'three vents 3.1 heights apart on a wide screen, as the route times them',
+      () {
+        // On a 2000 px wide viewport three vents 3.1 heights apart can show;
+        // a route has them 6.9 s apart, which is 2.7 s apart in the 4.2 s cycle.
+        final sim = _bare();
+        var worst = 0;
+        for (var tau = -1.5; tau < 2.7; tau += .05) {
+          sim.steamVents
+            ..clear()
+            ..addAll([
+              for (final (k, (_, v)) in _designs.take(3).indexed)
+                makeVent((
+                  x: -.44 + k * 3.1,
+                  top: v.top,
+                  kind: v.kind,
+                  tau: tau + k * 2.7,
+                  slot: v.slot,
+                ), sim.routeSeconds),
+            ]);
+          final count = CountingCanvas(ui.Canvas(ui.PictureRecorder()));
+          SteamGeyserArt.vents(
+            count,
+            const Size(2000, _h),
+            sim,
+            reducedMotion: false,
+          );
+          // A 5.6:1 screen: nothing a player holds. Recorded so a regression
+          // shows, not a promise (the frame budget is for 16:9 phones).
+          expect(count.draws, lessThanOrEqualTo(190), reason: 'tau $tau');
+          worst = math.max(worst, count.draws);
+        }
+        // ignore: avoid_print
+        print(
+          'steam frame of three vents, route-timed: worst $worst draw calls',
+        );
+      },
+    );
 
     test('vents off screen cost nothing and an empty list costs nothing', () {
       final sim = _bare();
@@ -789,36 +837,51 @@ void main() {
     });
 
     testWidgets(
-      'the hiss ghost is washed pale, brighter toward its top, over a dark underlay',
+      'the hiss column fills from the lid: the foot is washed first, the top follows',
       (tester) async {
         await tester.runAsync(() async {
           for (final (name, v) in _designs) {
-            final px = await _pixels((c) => _vent(c, v, -.9, reduced: true));
-            final vent = makeVent((
-              x: v.x,
-              top: v.top,
-              kind: v.kind,
-              tau: -.9,
-              slot: v.slot,
-            ), 50);
-            final lip = SteamEmitterArt.lipY(vent, _h);
-            final cx = (v.x * _h).round();
-            // Between the rails (.03 h off centre), a third up and near the top.
-            int alphaAt(double y) =>
-                px[((y).round() * _w.toInt() + cx + (.03 * _h).round()) * 4 +
-                    3];
-            final reach = v.top * _h;
-            final low = alphaAt(lip - (lip - reach) * .55);
-            final high = alphaAt(reach + (lip - reach) * .15);
+            Future<(int, int)> wash(double tau) async {
+              final px = await _pixels((c) => _vent(c, v, tau, reduced: true));
+              final vent = makeVent((
+                x: v.x,
+                top: v.top,
+                kind: v.kind,
+                tau: tau,
+                slot: v.slot,
+              ), 50);
+              final lip = SteamEmitterArt.lipY(vent, _h);
+              final cx = (v.x * _h).round();
+              // Between the walls (.03 h off centre), a third up and near the
+              // top of the reach.
+              int alphaAt(double y) =>
+                  px[((y).round() * _w.toInt() + cx + (.03 * _h).round()) * 4 +
+                      3];
+              final reach = v.top * _h;
+              return (
+                alphaAt(lip - (lip - reach) * .30),
+                alphaAt(reach + (lip - reach) * .20),
+              );
+            }
+
+            final (lowEarly, highEarly) = await wash(-1.0);
+            final (_, highLate) = await wash(-.1);
+            // Hop vents fill with a visible wash; a ride vent's funnel is a
+            // fainter mist, but it climbs the same way.
             expect(
-              low,
-              inInclusiveRange(30, 170),
-              reason: '$name: the wash at the foot',
+              lowEarly,
+              greaterThan(24),
+              reason: '$name: foot washed early',
             );
             expect(
-              high,
-              greaterThan(low),
-              reason: '$name: the gradient climbs',
+              lowEarly,
+              greaterThan(highEarly),
+              reason: '$name: early, the foot is fuller than the top',
+            );
+            expect(
+              highLate,
+              greaterThan(highEarly),
+              reason: '$name: the top fills as the burst nears',
             );
           }
         });
