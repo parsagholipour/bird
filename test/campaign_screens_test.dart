@@ -651,6 +651,9 @@ void main() {
       expect(controller.stage, PlayStage.flying);
       expect(controller.simulation, isNot(same(failed)));
       expect(controller.simulation!.levelId, '1-4');
+      expect(find.text('Ready, steady…'), findsNothing);
+      controller.advance(.02, controller.nowMs, 2.2);
+      expect(controller.simulation!.phase, RunPhase.playing);
       expect(_path(), '/play/touch?level=1-4');
       // The failed attempt counts as a play, with no stars.
       final record = _app(tester).progress.campaign.record(_level('1-4'));
@@ -675,6 +678,9 @@ void main() {
       expect(controller.stage, PlayStage.flying);
       expect(controller.simulation, isNot(same(first)));
       expect(find.byType(LevelResultStage), findsNothing);
+      expect(find.text('Ready, steady…'), findsNothing);
+      controller.advance(.02, controller.nowMs, 2.2);
+      expect(controller.simulation!.phase, RunPhase.playing);
       _fly(controller, until: (sim) => sim.gates >= 1);
       await tester.tap(find.bySemanticsLabel('Pause flight'));
       await _settle(tester, 2);

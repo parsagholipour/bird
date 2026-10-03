@@ -294,7 +294,7 @@ void main() {
     sim.takeBreak();
     step(sim, .5);
     sim.resume();
-    step(sim, 2);
+    step(sim, 1);
     step(sim, 1.1);
     expect(snapshot(sim), before);
     expect(sim.boss!.waterLevel, level);

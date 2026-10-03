@@ -454,11 +454,15 @@ Rules 1–32, camera modes and Classic have no gales.
 
 ### Pause and resume (rules version 35)
 
+From rules version 57, new flights count down 2–1. Retry skips the countdown
+and starts on the first valid game frame, reusing camera calibration when
+available. Saved replays from earlier versions retain their original timing.
+
 Scored flights can pause. The pause button (shown for every flight) opens the
 “Take a breather.” panel with **Finish flight** and **Keep flying**. Taking a
 break or backgrounding the app pauses a scored flight instead of ending it, and
 a flight already paused stays paused through a background. Keep flying starts a
-three-second resume countdown: tracking must be fresh, the
+two-second resume countdown (2–1, from rules version 57): tracking must be fresh, the
 camera restarts if the app left it, and a held charge is cancelled. Pauses freeze
 every clock, so they never change collision, attack or score timing. A collision,
 long tracking or posture loss and a simulation stall still end a scored flight,
@@ -1154,7 +1158,7 @@ The screens:
   hidden. Three stars land at 34%, 46% and 58% of a 1.9 s entrance, each
   earned one with a chime, and the keys arm at 55%. Next shows when the next
   level is playable and opens `/campaign?level=<next>`. Retry flies the same
-  level again straight into the countdown. A finished level shows its
+  level again immediately, skipping the countdown. A finished level shows its
   delivery's thank-you, signed, on a note that drops in beside the courier
   from 50% to 76% of the entrance, and its sender reads it out as it lands;
   a flight that fell short shows none.

@@ -141,7 +141,7 @@ void main() {
   );
 
   test('version 30 restores the same complete-group scoring as version 29', () {
-    final tape = recordRoute(FlightCourse.starTrail);
+    final tape = recordRoute(FlightCourse.starTrail, rulesVersion: 30);
     final old = ReplayTape.fromJson(tape.toJson()..['version'] = 29);
     final current = ReplayPlayer(tape)..seek(tape.durationMs);
     final legacy = ReplayPlayer(old)..seek(old.durationMs);

@@ -283,6 +283,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       previousToGo = toGo;
       final count = sim.countdown.ceil();
       if (sim.phase == RunPhase.countdown &&
+          count > 0 &&
           count != previousCount &&
           sim.hasTracking) {
         audio.effect('ready');
@@ -1453,7 +1454,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
               size: sprint,
             ),
           ),
-        if (sim.phase == RunPhase.countdown)
+        if (sim.phase == RunPhase.countdown && (sim.countdown > 0 || !counting))
           Center(
             child: MatchPlate(
               radius: 28,
@@ -1469,7 +1470,9 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                   // Each number pops in once; while tracking is lost the
                   // badge looks for the player instead.
                   MatchPulse(
-                    value: counting ? sim.countdown.ceil().clamp(1, 3) : 0,
+                    value: counting
+                        ? sim.countdown.ceil().clamp(1, sim.countdownSeconds)
+                        : 0,
                     reducedMotion: controller.reducedMotion,
                     child: SizedBox.square(
                       dimension: 92,
@@ -1479,7 +1482,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                         child: Center(
                           child: counting
                               ? Text(
-                                  '${sim.countdown.ceil().clamp(1, 3)}',
+                                  '${sim.countdown.ceil().clamp(1, sim.countdownSeconds)}',
                                   style: matchDigits(62),
                                 )
                               : const MatchIcon(MatchSymbol.eye, size: 56),

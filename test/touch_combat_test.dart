@@ -127,7 +127,7 @@ void main() {
       tap();
       await controller.fly();
       tap();
-      advance(controller, 150);
+      advance(controller, 100);
       final sim = controller.simulation!;
       expect(sim.shots, 0);
       tap();
@@ -146,7 +146,7 @@ void main() {
       expect(sim.rocks.first.x, rockX);
       await controller.resume();
       tap();
-      advance(controller, 150);
+      advance(controller, 100);
       expect(sim.shots, 2);
       controller.endFlight();
       tap();

@@ -378,6 +378,7 @@ class FlightSimulation {
     required this.practice,
     this.course = FlightCourse.classic,
     this.rulesVersion = currentRulesVersion,
+    this.skipCountdown = false,
     int weaponDamage = BirdRock.baseDamage,
     FlightPlan plan = FlightPlan.endless,
     this.coop,
@@ -452,11 +453,22 @@ class FlightSimulation {
   /// waiting out his cycle ([cooRestartRulesVersion]); 55 makes Neferhoo
   /// faster and busier, with a hundred more health
   /// ([fasterNeferhooRulesVersion]); 56 brings King Coo's escaped pigeons
-  /// back in pairs ([cooPairsRulesVersion]). Endless and co-op
+  /// back in pairs ([cooPairsRulesVersion]); 57 shortens the countdown and
+  /// lets retries skip it ([quickStartRulesVersion]). Endless and co-op
   /// flights fly at 50 exactly as at 43 until that Baron arrives; duels
   /// exactly as at 43.
-  static const currentRulesVersion = 56;
+  static const currentRulesVersion = 57;
   final int rulesVersion;
+
+  /// New flights count 2–1; retries launch on their first valid frame.
+  /// Older journals retain their three-second countdowns.
+  static const quickStartRulesVersion = 57;
+  final bool skipCountdown;
+  int get countdownSeconds => rulesVersion >= quickStartRulesVersion ? 2 : 3;
+  double get _initialCountdown =>
+      rulesVersion >= quickStartRulesVersion && skipCountdown
+      ? 0
+      : countdownSeconds.toDouble();
 
   /// Two birds, roped together or each on its own ([CoopMode]), fly endless
   /// touch flights from rules version 42. Solo flights under 42 behave
@@ -1141,7 +1153,8 @@ class FlightSimulation {
   static const _enemyPassageLead = .55, _enemyEntryMargin = .15;
   RunPhase phase = RunPhase.countdown;
   EndReason? endReason;
-  double countdown = 3, elapsed = 0, distance = 0;
+  late double countdown = _initialCountdown;
+  double elapsed = 0, distance = 0;
   double get birdY => _view.y;
   set birdY(double value) => _view.y = value;
   double get velocity => _view.velocity;
@@ -1410,7 +1423,9 @@ class FlightSimulation {
       if (!trackingFresh(nowMs)) {
         // Pause through brief occlusions instead of restarting on one bad
         // packet. Long gaps still require a complete countdown.
-        if (nowMs - _lastValidReceivedMs > 500) countdown = 3;
+        if (nowMs - _lastValidReceivedMs > 500 && countdown > 0) {
+          countdown = countdownSeconds.toDouble();
+        }
         return;
       }
       countdown -= dt;
@@ -3909,7 +3924,7 @@ class FlightSimulation {
     if (!canPause && started) return;
     phase = RunPhase.countdown;
     _endCharges();
-    countdown = 3;
+    countdown = countdownSeconds.toDouble();
     _inputValid = false;
     _lastValidMs = double.negativeInfinity;
   }

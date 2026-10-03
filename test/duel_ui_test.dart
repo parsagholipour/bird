@@ -228,9 +228,8 @@ void main() {
       game.pauseEngine();
       expect(game.simulation, isNot(same(sim)));
       sim = game.simulation;
-      for (var i = 0; i < 151; i++) {
-        game.update(.02);
-      }
+      expect(find.text('Ready to duel…'), findsNothing);
+      game.update(.02);
       await tester.pump();
       expect(sim.phase, RunPhase.playing);
       expect(find.byKey(const ValueKey('duel-prize-0')), findsNothing);

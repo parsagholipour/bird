@@ -144,6 +144,7 @@ class PlayController extends ChangeNotifier {
 
   /// The next flight tries again after one that was lost.
   bool _retrying = false;
+  bool _skipCountdown = false;
 
   void _rememberVoices() {
     final remember = rememberVoices;
@@ -595,6 +596,11 @@ class PlayController extends ChangeNotifier {
         return;
       }
       cameraActive = true;
+      if (!recalibrate && simulation == null) {
+        stage = PlayStage.ready;
+        await fly();
+        return;
+      }
       stage = recalibrate ? PlayStage.calibration : PlayStage.flying;
       if (!recalibrate) {
         _preparingCapture = _startCapture();
@@ -657,6 +663,7 @@ class PlayController extends ChangeNotifier {
         weaponDamage: weaponDamage,
         reducedMotion: reducedMotion,
         originMs: nowMs,
+        skipCountdown: _skipCountdown,
         // A level ignores the seed and lays its own fixed route.
         plan: level?.plan,
         partner: partner,
@@ -677,6 +684,7 @@ class PlayController extends ChangeNotifier {
             memory: voiceMemory,
           );
     _retrying = false;
+    _skipCountdown = false;
     audio.syncCombat(simulation!, silent: true);
     stage = PlayStage.flying;
     result = null;
@@ -1039,11 +1047,12 @@ class PlayController extends ChangeNotifier {
     simulation = null;
     result = null;
     stage = PlayStage.setup;
+    _skipCountdown = true;
     if (isTouch) {
       await fly();
       await audio.resumeMusic();
     } else {
-      await startCamera();
+      await startCamera(recalibrate: interpreter == null);
     }
   }
 

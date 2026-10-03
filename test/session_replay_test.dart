@@ -38,6 +38,25 @@ FlightRecorder makeRecorder(PlayMode mode, double Function() now) =>
     );
 
 void main() {
+  test('older tapes keep their three-second start and resume countdowns', () {
+    final tape = ReplayTape(
+      mode: PlayMode.touch,
+      practice: false,
+      seed: 1,
+      cycleSeconds: 3,
+      bird: 0,
+      reducedMotion: false,
+      originMs: 0,
+      recordedVersion: FlightSimulation.quickStartRulesVersion - 1,
+    );
+    final restored = ReplayTape.fromJson(tape.toJson());
+    final sim = restored.createSimulation();
+    expect(sim.countdown, 3);
+    sim.takeBreak();
+    sim.resume();
+    expect(sim.countdown, 3);
+    expect(restored.toJson(), tape.toJson());
+  });
   for (final mode in PlayMode.values) {
     test(
       '${mode.name}: serialized inputs reproduce flight and backward seeking exactly',

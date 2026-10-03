@@ -182,7 +182,9 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
       previousHearts = sim.hearts;
       previousShield = sim.shield;
       final count = sim.countdown.ceil();
-      if (sim.phase == RunPhase.countdown && count != previousCount) {
+      if (sim.phase == RunPhase.countdown &&
+          count > 0 &&
+          count != previousCount) {
         audio.effect('ready');
         previousCount = count;
       }
@@ -449,7 +451,8 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
               ),
             ),
           ),
-          if (sim.phase == RunPhase.countdown) const _SideHints(),
+          if (sim.phase == RunPhase.countdown && sim.countdown > 0)
+            const _SideHints(),
           if (flight.stage == PlayStage.flying)
             SceneLayout(child: _hud(flight, sim)),
         ],
@@ -659,7 +662,7 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
           ),
         menu,
         if (!sim.victoryGlide) ...[controls(0), controls(1)],
-        if (sim.phase == RunPhase.countdown)
+        if (sim.phase == RunPhase.countdown && sim.countdown > 0)
           Center(
             child: MatchPlate(
               radius: 28,
@@ -674,7 +677,7 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
                   }, style: heading(28)),
                   const SizedBox(height: 12),
                   MatchPulse(
-                    value: sim.countdown.ceil().clamp(1, 3),
+                    value: sim.countdown.ceil().clamp(1, sim.countdownSeconds),
                     reducedMotion: reducedMotion,
                     child: SizedBox.square(
                       dimension: 92,
@@ -683,7 +686,7 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
                         padding: EdgeInsets.zero,
                         child: Center(
                           child: Text(
-                            '${sim.countdown.ceil().clamp(1, 3)}',
+                            '${sim.countdown.ceil().clamp(1, sim.countdownSeconds)}',
                             style: matchDigits(62),
                           ),
                         ),

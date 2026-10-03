@@ -124,7 +124,7 @@ Future<void> startFlight(
   controller.stage = PlayStage.ready;
   controller.interpreter = TestInterpreter();
   await controller.fly();
-  for (var i = 0; i < 170; i++) {
+  for (var i = 0; i < controller.simulation!.countdownSeconds * 50 + 20; i++) {
     source.time += 20;
     source.sampleStream.add(
       TrackingSample(
@@ -141,6 +141,46 @@ Future<void> startFlight(
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  test(
+    'camera retry reuses calibration and starts on the first valid frame',
+    () async {
+      final source = SessionSource();
+      final controller = PlayController(
+        mode: PlayMode.pushUp,
+        source: source,
+        audio: SilentAudio(),
+        saveRun: (_) async {},
+        saveSession: (_) async {},
+      );
+      addTearDown(controller.dispose);
+      await startFlight(controller, source);
+      final interpreter = controller.interpreter;
+      controller.endFlight();
+      await controller.finish();
+      await controller.retry();
+      expect(controller.stage, PlayStage.flying);
+      expect(controller.interpreter, same(interpreter));
+      expect(controller.simulation!.countdown, 0);
+      source.time += 1000;
+      controller.advance(.02, source.time, 2.2);
+      expect(controller.simulation!.started, isFalse);
+      expect(controller.simulation!.countdown, 0);
+      source.sampleStream.add(
+        TrackingSample(
+          mode: PlayMode.pushUp,
+          timestampMs: source.time,
+          receivedMs: source.time,
+          joints: const [],
+        ),
+      );
+      controller.advance(.02, source.time, 2.2);
+      expect(controller.simulation!.phase, RunPhase.playing);
+      expect(controller.simulation!.started, isTrue);
+      controller.pause();
+      await controller.resume();
+      expect(controller.simulation!.countdown, 2);
+    },
+  );
   test(
     'failed run plays game over while a completed run plays victory',
     () async {

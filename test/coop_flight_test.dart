@@ -16,7 +16,7 @@ FlightSimulation pair({int seed = 4, CoopMode coop = CoopMode.roped}) {
     coop: coop,
     random: Random(seed),
   );
-  step(sim, 3);
+  step(sim, sim.countdownSeconds.toDouble());
   clearSky(sim);
   return sim;
 }

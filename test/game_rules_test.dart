@@ -39,7 +39,7 @@ void main() {
       game.tick(.04, now);
     }
     expect(game.started, isFalse);
-    expect(game.countdown, 3);
+    expect(game.countdown, 2);
     expect(game.birdY, .5);
   });
   test(
@@ -106,14 +106,14 @@ void main() {
       );
       now = 0;
       sim.tick(.1, 100);
-      expect(sim.countdown, 3);
+      expect(sim.countdown, 2);
       input();
       sim.tick(.1, 100);
-      expect(sim.countdown, 2.9);
+      expect(sim.countdown, 1.9);
       sim.tick(.1, 300);
-      expect(sim.countdown, 2.9);
+      expect(sim.countdown, 1.9);
       sim.tick(.1, 600);
-      expect(sim.countdown, 3);
+      expect(sim.countdown, 2);
     },
   );
   test('alternating passages cannot be cleared by holding one height', () {
@@ -222,9 +222,9 @@ void main() {
           expect(sim.score, score);
           sim.resume();
           expect(sim.phase, RunPhase.countdown);
-          expect(sim.countdown, 3);
+          expect(sim.countdown, 2);
           sim.tick(.016, now);
-          expect(sim.countdown, 3);
+          expect(sim.countdown, 2);
           for (var i = 0; i < 190 && sim.phase == RunPhase.countdown; i++) {
             now += 16;
             input();

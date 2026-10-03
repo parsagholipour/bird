@@ -90,7 +90,8 @@ void main() {
     FlightSimulation.coopRulesVersion,
     FlightSimulation.newYorkRulesVersion,
     FlightSimulation.allRingsRulesVersion - 1,
-    FlightSimulation.currentRulesVersion,
+    // Rules 57 deliberately changes countdown timing in these journals.
+    FlightSimulation.quickStartRulesVersion - 1,
   };
 
   test('the fixture covers exactly chapters 1 and 2 (16 levels)', () {

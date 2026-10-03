@@ -97,7 +97,8 @@ void main() {
     return;
   }
 
-  const current = FlightSimulation.currentRulesVersion;
+  // These timed fixtures precede the shorter countdown introduced at 57.
+  const current = FlightSimulation.quickStartRulesVersion - 1;
 
   test('the fixture covers 2-6 as rules 50 played it', () {
     final stored = _stored();

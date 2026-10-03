@@ -173,7 +173,7 @@ void main() {
       sim.resume();
       expect(sim.phase, RunPhase.countdown);
       sim.tick(.1, now + 1000);
-      expect(sim.countdown, 3);
+      expect(sim.countdown, 2);
     },
   );
 

@@ -15,6 +15,7 @@ class ReplayTape {
     required this.originMs,
     this.course = FlightCourse.classic,
     this.recordedVersion = version,
+    this.skipCountdown = false,
     this.weaponDamage = BirdRock.baseDamage,
     this.plan,
     this.partner,
@@ -23,6 +24,7 @@ class ReplayTape {
   }) : events = events ?? [];
   static const version = FlightSimulation.currentRulesVersion;
   final int recordedVersion;
+  final bool skipCountdown;
   final FlightCourse course;
   final PlayMode mode;
   final bool practice, reducedMotion;
@@ -52,6 +54,7 @@ class ReplayTape {
     practice: practice,
     course: course,
     rulesVersion: recordedVersion,
+    skipCountdown: skipCountdown,
     weaponDamage: weaponDamage,
     plan: plan ?? FlightPlan.endless,
     coop: partner == null ? null : coop,
@@ -67,6 +70,9 @@ class ReplayTape {
     'bird': bird,
     'reducedMotion': reducedMotion,
     'originMs': originMs,
+    if (recordedVersion >= FlightSimulation.quickStartRulesVersion &&
+        skipCountdown)
+      'skipCountdown': true,
     if (recordedVersion >= 26) 'weaponDamage': weaponDamage,
     if (recordedVersion >= 41 && plan != null) ...{
       'level': plan!.id,
@@ -84,6 +90,13 @@ class ReplayTape {
         recordedVersion < 1 ||
         recordedVersion > version) {
       throw const FormatException('Unsupported replay version');
+    }
+    final skipCountdown =
+        recordedVersion >= FlightSimulation.quickStartRulesVersion
+        ? json['skipCountdown'] ?? false
+        : false;
+    if (skipCountdown is! bool) {
+      throw const FormatException('Invalid countdown configuration');
     }
     final weaponDamage = recordedVersion >= 26
         ? json['weaponDamage'] ?? BirdRock.baseDamage
@@ -128,6 +141,7 @@ class ReplayTape {
     }
     final tape = ReplayTape(
       recordedVersion: recordedVersion,
+      skipCountdown: skipCountdown,
       course: FlightCourse.named(json['course'] as String? ?? 'classic'),
       mode: PlayMode.fromName(json['mode'] as String),
       practice: json['practice'] as bool,

@@ -45,8 +45,12 @@ void main() {
         expect(controller.simulation!.rules.mode, PlayMode.touch);
         expect(controller.simulation!.course, course);
         expect(controller.simulation!.practice, isFalse);
+        expect(controller.simulation!.countdown, 2);
         controller.flap(); // Countdown taps must not queue a flap at launch.
-        advance(controller, 150);
+        advance(controller, 50);
+        expect(controller.simulation!.phase, RunPhase.countdown);
+        expect(controller.simulation!.countdown.ceil(), 1);
+        advance(controller, 50);
         final sim = controller.simulation!;
         expect(sim.phase, RunPhase.playing);
         expect(sim.flaps, 0);
@@ -88,7 +92,7 @@ void main() {
       final controller = touchController();
       addTearDown(controller.dispose);
       await controller.fly();
-      advance(controller, 150);
+      advance(controller, 100);
       controller.flap();
       controller.pause();
       final pausedTime = controller.nowMs;
@@ -97,24 +101,39 @@ void main() {
       expect(controller.nowMs, pausedTime);
       expect(controller.simulation!.flaps, 0);
       await controller.resume();
-      advance(controller, 150);
+      advance(controller, 100);
       expect(controller.simulation!.phase, RunPhase.playing);
       expect(controller.simulation!.flaps, 0);
       controller.flap();
       controller.background();
       expect(controller.simulation!.phase, RunPhase.paused);
       await controller.resume();
-      advance(controller, 150);
+      advance(controller, 100);
       expect(controller.simulation!.flaps, 0);
       controller.endFlight();
       await controller.finish();
       await controller.retry();
       expect(controller.stage, PlayStage.flying);
-      expect(controller.simulation!.phase, RunPhase.countdown);
-      advance(controller, 150);
+      expect(controller.simulation!.countdown, 0);
+      advance(controller, 1);
+      expect(controller.simulation!.phase, RunPhase.playing);
       expect(controller.simulation!.started, isTrue);
       expect(controller.simulation!.flaps, 0);
       expect(controller.cameraRecordingError, isEmpty);
+      controller.flap();
+      advance(controller, 1);
+      final sim = controller.simulation!;
+      expect(sim.flaps, 1);
+      final tape = ReplayTape.fromJson(controller.recorder!.tape.toJson());
+      expect(tape.skipCountdown, isTrue);
+      final replay = ReplayPlayer(tape)..seek(tape.durationMs);
+      expect(replay.simulation.phase, sim.phase);
+      expect(replay.simulation.elapsed, sim.elapsed);
+      expect(replay.simulation.birdY, sim.birdY);
+      expect(replay.simulation.flaps, sim.flaps);
+      replay.seek(0);
+      replay.seek(tape.durationMs);
+      expect(replay.simulation.birdY, sim.birdY);
     },
   );
 
@@ -124,7 +143,7 @@ void main() {
       final controller = touchController();
       addTearDown(controller.dispose);
       await controller.fly();
-      advance(controller, 150);
+      advance(controller, 100);
       controller.background();
       expect(controller.simulation!.phase, RunPhase.paused);
       expect(controller.result, isNull);
@@ -133,7 +152,7 @@ void main() {
       expect(controller.nowMs, pausedTime);
       await controller.resume();
       expect(controller.simulation!.phase, RunPhase.countdown);
-      advance(controller, 150);
+      advance(controller, 100);
       expect(controller.simulation!.phase, RunPhase.playing);
       controller.advance(1, controller.nowMs, 2.2);
       controller.tick();
@@ -204,7 +223,7 @@ void main() {
         saveSession: sessions.save,
       );
       await controller.fly();
-      advance(controller, 150);
+      advance(controller, 100);
       controller.flap();
       advance(controller, 1);
       await controller.finish();

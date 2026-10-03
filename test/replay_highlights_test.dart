@@ -78,7 +78,7 @@ void main() {
       final a = plain.lastWhere((m) => m.kind == ReplayMomentKind.magnet);
       final b = withBreak.lastWhere((m) => m.kind == ReplayMomentKind.magnet);
       expect(a.title, b.title);
-      expect(b.atMs - a.atMs, closeTo(18000, 40));
+      expect(b.atMs - a.atMs, closeTo(17000, 40));
     },
   );
 

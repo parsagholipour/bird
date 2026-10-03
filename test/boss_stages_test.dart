@@ -106,7 +106,7 @@ void main() {
   group('the vanguard', () {
     test('rules 56 pairs King Coo returns in campaign flights', () {
       expect(FlightSimulation.cooPairsRulesVersion, 56);
-      expect(FlightSimulation.currentRulesVersion, 56);
+      expect(FlightSimulation.currentRulesVersion, greaterThanOrEqualTo(56));
       expect(ReplayTape.version, FlightSimulation.currentRulesVersion);
       for (final version in [55, 56]) {
         final campaign = levelFlight(level('3-2'), version: version);

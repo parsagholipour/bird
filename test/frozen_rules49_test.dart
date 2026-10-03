@@ -113,7 +113,8 @@ void main() {
     FlightSimulation.allRingsRulesVersion - 1,
     FlightSimulation.cooRestartRulesVersion - 1,
     FlightSimulation.cooPairsRulesVersion - 1,
-    FlightSimulation.currentRulesVersion,
+    // Rules 57 deliberately changes countdown timing in these journals.
+    FlightSimulation.quickStartRulesVersion - 1,
   };
   bool changed(FrozenResult result, int version) =>
       (version >= FlightSimulation.allRingsRulesVersion &&

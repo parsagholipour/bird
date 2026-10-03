@@ -161,7 +161,7 @@ The map follows the same trip, one region at a time:
   flight theme), and its boss or guardian brings in the boss track as usual.
   The songs are listed in [music.md](music.md#campaign-region-music).
 - **Failing:** losing the last heart fails the level with the existing knockout
-  and Bonk! stage (Splash! at sea). Retry goes straight back to the countdown.
+  and Bonk! stage (Splash! at sea). Retry restarts the flight immediately, skipping the countdown.
 - **Pausing** offers Map, Retry and Keep flying. Map and Retry save the
   attempt with no stars.
 - **Same route every attempt:** retries lay the same passages, on every phone.

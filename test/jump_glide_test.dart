@@ -211,7 +211,7 @@ void main() {
       expect(flight.sim.birdY, y);
       flight.sim.resume();
       flight.input(jump: true);
-      flight.advance(2.9);
+      flight.advance(1.9);
       expect(flight.sim.glideRemaining, reserve);
       flight.advance(.2);
       expect(flight.sim.glideRemaining, lessThan(reserve));

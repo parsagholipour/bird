@@ -39,7 +39,7 @@ FlightSimulation duel({RiggedRandom? random}) {
     coop: CoopMode.duel,
     random: random ?? RiggedRandom(9),
   );
-  step(sim, 3);
+  step(sim, sim.countdownSeconds.toDouble());
   clearDuel(sim);
   return sim;
 }
