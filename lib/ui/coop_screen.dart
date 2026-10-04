@@ -16,10 +16,12 @@ import '../game/duel_art.dart';
 import '../game/play_controller.dart';
 import '../game/tether_art.dart';
 import 'components.dart';
+import 'coop_results.dart';
 import 'coop_setup.dart';
 import 'flight_score.dart';
 import 'home_keys.dart' show HomeKeyColors;
 import 'match_hud.dart';
+import 'stage_key.dart';
 import 'mini_chrome.dart';
 import 'theme.dart';
 import 'ui_sounds.dart';
@@ -772,43 +774,10 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
             ),
           ),
         if (paused)
-          Container(
-            color: SkyColors.ink.withValues(alpha: .35),
-            child: Center(
-              child: MatchPlate(
-                radius: 28,
-                padding: const EdgeInsets.fromLTRB(36, 30, 36, 26),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('Take a breather.', style: heading(38)),
-                    const SizedBox(height: 10),
-                    Text(
-                      'Ready for more? We’ll count you both in.',
-                      style: bodyText(16, color: SkyColors.muted),
-                    ),
-                    const SizedBox(height: 22),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SkyButton(
-                          label: 'Finish flight',
-                          onPressed: flight.endFlight,
-                          color: SkyColors.cream,
-                          icon: Icons.flag_outlined,
-                        ),
-                        const SizedBox(width: 16),
-                        SkyButton(
-                          label: 'Keep flying',
-                          sound: 'resume',
-                          onPressed: () => flight.resume(),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
+          CoopPauseCard(
+            birds: picks!,
+            onFinish: flight.endFlight,
+            onResume: () => flight.resume(),
           ),
       ],
     );
@@ -880,176 +849,60 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
     if (flight.duel) return _duelResults(flight);
     final result = flight.result!;
     final sim = flight.simulation!;
-    final (first, second) = picks!;
-    final best = result.score > initialBest && result.score > 0;
-    final record = progress.coop.record(flight.coopMode);
-    final seconds = result.durationSeconds.floor();
-    final time =
-        '${seconds ~/ 60}:${(seconds % 60).toString().padLeft(2, '0')}';
-    Widget stat(String label, String value, [Color? color]) => Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: Column(
-        children: [
-          Text(value, style: heading(26, color: color ?? SkyColors.ink)),
-          Text(label, style: bodyText(12, color: SkyColors.muted)),
-        ],
-      ),
-    );
-    return ColoredBox(
-      color: SkyColors.ink.withValues(alpha: .38),
-      child: SceneLayout(
-        child: Center(
-          child: MiniCard(
-            accent: SkyColors.mint,
-            padding: const EdgeInsets.fromLTRB(32, 22, 32, 22),
-            child: SizedBox(
-              width: 700,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    children: [
-                      BirdArt(
-                        bird: first,
-                        size: 84,
-                        reducedMotion: settings.reducedMotion,
-                      ),
-                      SizedBox(
-                        width: 70,
-                        height: 60,
-                        child: flight.coopMode == CoopMode.roped
-                            ? CustomPaint(
-                                painter: _RopePainter(
-                                  reducedMotion: settings.reducedMotion,
-                                ),
-                              )
-                            : null,
-                      ),
-                      BirdArt(
-                        bird: second,
-                        size: 84,
-                        reducedMotion: settings.reducedMotion,
-                      ),
-                      const SizedBox(width: 20),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              best ? 'New team best!' : 'What a team.',
-                              style: heading(34),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '${birdNames[first]} & ${birdNames[second]}'
-                              ' · ${flight.coopMode.title}'
-                              '${record.best > 0 ? ' · Team best ${record.best}' : ''}',
-                              style: bodyText(15, color: SkyColors.muted),
-                            ),
-                          ],
-                        ),
-                      ),
-                      MiniTag(
-                        best ? 'NEW BEST!' : 'FLIGHT COMPLETE',
-                        icon: Icons.emoji_events_rounded,
-                        color: SkyColors.yellow,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      stat('team score', '${result.score}', SkyColors.coral),
-                      stat('time', time),
-                      stat('stars', '${result.stars}'),
-                      stat('gates', '${result.gates}'),
-                      stat(
-                        'P1 flaps',
-                        '${sim.lead.flaps}',
-                        TetherArt.players[0],
-                      ),
-                      stat(
-                        'P2 flaps',
-                        '${sim.partner?.flaps ?? 0}',
-                        TetherArt.players[1],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  ..._actions(flight),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
+    return CoopTeamStage(
+      birds: picks!,
+      mode: flight.coopMode,
+      score: result.score,
+      previousBest: initialBest,
+      best: progress.coop.record(flight.coopMode).best,
+      durationSeconds: result.durationSeconds,
+      stars: result.stars,
+      gates: result.gates,
+      flaps: (sim.lead.flaps, sim.partner?.flaps ?? 0),
+      keys: _actions(flight),
+      reducedMotion: settings.reducedMotion,
+      status: coopStatus(flight),
     );
   }
 
-  /// Home, new birds, the session and another go, then any save error.
+  /// Home, new birds, the session and another go. The smaller keys are
+  /// tall enough to stay 48 dp on the smallest phone.
   List<Widget> _actions(PlayController flight) => [
-    Row(
-      children: [
-        for (final (i, action) in [
-          MiniKey(
-            key: const ValueKey('coop-home'),
-            label: 'Home',
-            icon: Icons.home_rounded,
-            colors: HomeKeyColors.paper,
-            height: 54,
-            size: 17,
-            onPressed: leave,
-          ),
-          MiniKey(
-            key: const ValueKey('coop-change'),
-            label: 'Change birds',
-            icon: Icons.swap_horiz_rounded,
-            colors: HomeKeyColors.paper,
-            height: 54,
-            size: 17,
-            onPressed: changeBirds,
-          ),
-          MiniKey(
-            key: const ValueKey('coop-save'),
-            label: flight.sessionSaved
-                ? 'Saved'
-                : flight.sessionSaving
-                ? 'Saving…'
-                : 'Save session',
-            icon: flight.sessionSaved
-                ? Icons.check_rounded
-                : Icons.video_library_rounded,
-            colors: HomeKeyColors.paper,
-            height: 54,
-            size: 17,
-            busy: flight.sessionSaving,
-            onPressed: flight.canSaveSession && !flight.sessionSaved
-                ? flight.persistSession
-                : null,
-          ),
-          MiniKey(
-            key: const ValueKey('coop-retry'),
-            label: flight.duel ? 'Rematch' : 'Fly again',
-            icon: flight.duel ? Icons.sports_mma_rounded : Icons.replay_rounded,
-            colors: flight.duel ? HomeKeyColors.coral : HomeKeyColors.mint,
-            height: 54,
-            size: 17,
-            onPressed: () => unawaited(flight.retry()),
-          ),
-        ].indexed) ...[
-          if (i > 0) const SizedBox(width: 12),
-          Expanded(child: action),
-        ],
-      ],
+    StageKey(
+      key: const ValueKey('coop-home'),
+      height: 76,
+      label: 'Home',
+      icon: Icons.home_rounded,
+      onPressed: leave,
     ),
-    if (flight.saveError.isNotEmpty || flight.sessionError.isNotEmpty) ...[
-      const SizedBox(height: 8),
-      Text(
-        flight.saveError.isNotEmpty ? flight.saveError : flight.sessionError,
-        style: bodyText(13, color: SkyColors.coralDeep),
-      ),
-    ],
+    StageKey(
+      key: const ValueKey('coop-change'),
+      height: 76,
+      label: 'Change birds',
+      icon: Icons.swap_horiz_rounded,
+      onPressed: changeBirds,
+    ),
+    StageKey(
+      key: const ValueKey('coop-save'),
+      height: 76,
+      label: flight.sessionSaved
+          ? 'Saved'
+          : flight.sessionSaving
+          ? 'Saving…'
+          : 'Save session',
+      icon: flight.sessionSaved ? Icons.check_rounded : Icons.save_alt_rounded,
+      busy: flight.sessionSaving,
+      onPressed: flight.canSaveSession && !flight.sessionSaved
+          ? flight.persistSession
+          : null,
+    ),
+    StageKey(
+      key: const ValueKey('coop-retry'),
+      label: flight.duel ? 'Rematch' : 'Fly again',
+      icon: flight.duel ? Icons.sports_mma_rounded : Icons.replay_rounded,
+      hero: true,
+      onPressed: () => unawaited(flight.retry()),
+    ),
   ];
 
   /// Who won the duel, the series so far, and what each rival did.
@@ -1059,130 +912,29 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
     final (first, second) = picks!;
     final birds = [first, second];
     final winner = sim.duelWinner;
-    final reducedMotion = settings.reducedMotion;
-    final seconds = result.durationSeconds.floor();
-    final time =
-        '${seconds ~/ 60}:${(seconds % 60).toString().padLeft(2, '0')}';
-    final title = switch (winner) {
-      final player? => 'Player ${player + 1} wins!',
-      null when result.reason == EndReason.collision => 'A draw!',
-      null => 'Duel stopped',
-    };
     final [one, two] = duelWins;
-    Widget stat(String label, String value, [Color? color]) => Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: Column(
-        children: [
-          Text(value, style: heading(24, color: color ?? SkyColors.ink)),
-          Text(label, style: bodyText(12, color: SkyColors.muted)),
-        ],
-      ),
-    );
-    Widget rival(int player) {
-      final won = winner == player;
-      return Opacity(
-        opacity: winner == null || won ? 1 : .55,
-        child: BirdArt(
-          key: ValueKey('duel-result-bird-$player'),
-          bird: birds[player],
-          size: won ? 96 : 72,
-          reducedMotion: reducedMotion,
-          bob: won,
-        ),
-      );
-    }
-
-    return ColoredBox(
-      color: SkyColors.ink.withValues(alpha: .38),
-      child: SceneLayout(
-        child: Center(
-          child: MiniCard(
-            accent: SkyColors.coral,
-            padding: const EdgeInsets.fromLTRB(32, 22, 32, 22),
-            child: SizedBox(
-              width: 720,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    children: [
-                      rival(0),
-                      SizedBox(
-                        width: 64,
-                        child: Center(
-                          child: Transform.scale(
-                            scale: .6,
-                            child: const _Versus(),
-                          ),
-                        ),
-                      ),
-                      rival(1),
-                      const SizedBox(width: 20),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              title,
-                              key: const ValueKey('duel-title'),
-                              style: heading(
-                                34,
-                                color: winner == null
-                                    ? SkyColors.ink
-                                    : TetherArt.players[winner],
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              winner == null
-                                  ? '${birdNames[first]} vs ${birdNames[second]}'
-                                  : '${birdNames[birds[winner]]} beat '
-                                        '${birdNames[birds[1 - winner]]}',
-                              style: bodyText(15, color: SkyColors.muted),
-                            ),
-                          ],
-                        ),
-                      ),
-                      MiniTag(
-                        'SERIES $one–$two',
-                        key: const ValueKey('duel-series'),
-                        icon: Icons.emoji_events_rounded,
-                        color: SkyColors.yellow,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      stat('time', time),
-                      for (final (player, bird) in sim.flock.indexed) ...[
-                        stat(
-                          'P${player + 1} hearts',
-                          '${bird.hearts}',
-                          TetherArt.players[player],
-                        ),
-                        stat(
-                          'P${player + 1} boxes',
-                          '${bird.boxesOpened}',
-                          TetherArt.players[player],
-                        ),
-                        stat(
-                          'P${player + 1} hits',
-                          '${bird.hitsLanded}',
-                          TetherArt.players[player],
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  ..._actions(flight),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
+    return CoopDuelStage(
+      birds: picks!,
+      winner: winner,
+      title: switch (winner) {
+        final player? => 'Player ${player + 1} wins!',
+        null when result.reason == EndReason.collision => 'A draw!',
+        null => 'Duel stopped',
+      },
+      caption: winner == null
+          ? '${birdNames[first]} vs ${birdNames[second]}'
+          : '${birdNames[birds[winner]]} beat '
+                '${birdNames[birds[1 - winner]]}',
+      wins: (one, two),
+      stopped: winner == null && result.reason != EndReason.collision,
+      durationSeconds: result.durationSeconds,
+      lines: [
+        for (final bird in sim.flock)
+          (hearts: bird.hearts, boxes: bird.boxesOpened, hits: bird.hitsLanded),
+      ],
+      keys: _actions(flight),
+      reducedMotion: settings.reducedMotion,
+      status: coopStatus(flight),
     );
   }
 }
