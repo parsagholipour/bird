@@ -24,84 +24,111 @@ void main() {
     }
   });
 
+  Future<(SqliteProgressRepository, ProviderContainer)> open(
+    WidgetTester tester,
+    double width, {
+    required int stars,
+    int score = 0,
+  }) async {
+    tester.view.physicalSize = Size(width, 360);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final repo = SqliteProgressRepository(
+      ProgressDatabase(NativeDatabase.memory()),
+    );
+    await repo.setSetting(SettingKey.reducedMotion, true);
+    await repo.saveRun(
+      RunResult(
+        id: 'trail',
+        mode: PlayMode.touch,
+        practice: false,
+        course: FlightCourse.starTrail,
+        score: score,
+        stars: stars,
+        repetitions: 0,
+        flaps: 10,
+        durationSeconds: 30,
+        reason: EndReason.collision,
+        finishedAt: DateTime(2026, 10, 4),
+      ),
+    );
+    final container = ProviderContainer(
+      overrides: [
+        progressRepositoryProvider.overrideWithValue(repo),
+        audioFactoryProvider.overrideWithValue(SilentAudio.new),
+        trackingSourceFactoryProvider.overrideWithValue(SessionSource.new),
+      ],
+    );
+    addTearDown(container.dispose);
+    return (repo, container);
+  }
+
+  Future<void> show(WidgetTester tester, ProviderContainer container) async {
+    await container.read(progressProvider.future);
+    appRouter.go('/');
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const RepaintBoundary(
+          key: ValueKey('visual-capture'),
+          child: PushUpBirdApp(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    await tester.tap(find.byKey(const ValueKey('upgrades')));
+    await tester.pumpAndSettle();
+    expect(appRouter.routeInformationProvider.value.uri.path, '/upgrades');
+    expect(tester.takeException(), isNull);
+  }
+
+  Finder wallet(String stars) => find.descendant(
+    of: find.byKey(const ValueKey('star-wallet')),
+    matching: find.text(stars),
+  );
+
   for (final width in [640.0, 800.0]) {
-    testWidgets('home opens the upgrades, which spend collected stars, '
-        'at $width', (tester) async {
-      tester.view.physicalSize = Size(width, 360);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      final repo = SqliteProgressRepository(
-        ProgressDatabase(NativeDatabase.memory()),
+    testWidgets('the hangar spends picked-up stars at $width', (tester) async {
+      // Points run far ahead of the stars picked up; only stars count.
+      final (repo, container) = await open(
+        tester,
+        width,
+        stars: 80,
+        score: 500,
       );
-      await repo.setSetting(SettingKey.reducedMotion, true);
-      await repo.saveRun(
-        RunResult(
-          id: 'trail',
-          mode: PlayMode.touch,
-          practice: false,
-          course: FlightCourse.starTrail,
-          // Points run far ahead of the stars picked up; only stars count.
-          score: 500,
-          stars: 80,
-          repetitions: 0,
-          flaps: 10,
-          durationSeconds: 30,
-          reason: EndReason.collision,
-          finishedAt: DateTime(2026, 10, 4),
-        ),
-      );
-      final container = ProviderContainer(
-        overrides: [
-          progressRepositoryProvider.overrideWithValue(repo),
-          audioFactoryProvider.overrideWithValue(SilentAudio.new),
-          trackingSourceFactoryProvider.overrideWithValue(SessionSource.new),
-        ],
-      );
-      addTearDown(container.dispose);
-      await container.read(progressProvider.future);
-      appRouter.go('/');
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: const RepaintBoundary(
-            key: ValueKey('visual-capture'),
-            child: PushUpBirdApp(),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-      expect(tester.takeException(), isNull);
-      await tester.tap(find.byKey(const ValueKey('upgrades')));
-      await tester.pumpAndSettle();
-      expect(appRouter.routeInformationProvider.value.uri.path, '/upgrades');
-      expect(tester.takeException(), isNull);
-      expect(find.text('80 STARS'), findsOneWidget);
+      await show(tester, container);
+      expect(wallet('80'), findsOneWidget);
+      final callout = find.byKey(const ValueKey('upgrade-callout'));
+      final screen = Offset.zero & tester.view.physicalSize;
       for (final p in PowerUp.values) {
-        expect(find.byKey(ValueKey('upgrade-card-${p.name}')), findsOneWidget);
-      }
-      // Every card reads whole without scrolling.
-      for (final p in PowerUp.values) {
-        final card = find.byKey(ValueKey('upgrade-card-${p.name}'));
+        final socket = find.byKey(ValueKey('upgrade-card-${p.name}'));
+        expect(screen.contains(tester.getRect(socket).center), isTrue);
+        // Every socket opens its callout, which reads whole without
+        // scrolling.
+        await tester.tap(socket);
+        await tester.pumpAndSettle();
         expect(
-          find.descendant(of: card, matching: find.byType(Scrollable)),
-          findsNothing,
-        );
-        expect(
-          find.descendant(of: card, matching: find.text(p.blurb)),
+          find.descendant(of: callout, matching: find.text(p.blurb)),
           findsOneWidget,
         );
-        final cardRect = tester.getRect(card);
-        for (final (label, _) in p.stats(0)) {
-          final text = find.descendant(of: card, matching: find.text(label));
-          expect(text, findsOneWidget);
-          expect(cardRect.contains(tester.getCenter(text)), isTrue);
+        expect(
+          find.descendant(of: callout, matching: find.byType(Scrollable)),
+          findsNothing,
+        );
+        final box = tester.getRect(callout);
+        for (final (label, value) in p.stats(0)) {
+          final row = find.bySemanticsLabel(
+            '$label $value, next level ${p.stats(1).firstWhere((s) => s.$1 == label).$2}',
+          );
+          expect(row, findsOneWidget, reason: '${p.name} $label');
+          expect(box.contains(tester.getCenter(row)), isTrue);
         }
       }
-      expect(
-        find.bySemanticsLabel('Max charge 40%, next level 55%'),
-        findsOneWidget,
-      );
+      await tester.tap(find.byKey(const ValueKey('upgrade-card-shot')));
+      await tester.pumpAndSettle();
+      expect(find.text('You will have 30 stars left.'), findsOneWidget);
       await capture(tester, 'upgrades-${width.toInt()}');
 
       await tester.tap(find.byKey(const ValueKey('buy-shot')));
@@ -112,7 +139,7 @@ void main() {
       });
       await tester.runAsync(() => container.read(progressProvider.future));
       await tester.pumpAndSettle();
-      expect(find.text('30 STARS'), findsOneWidget);
+      expect(wallet('30'), findsOneWidget);
       expect(
         find.bySemanticsLabel('Max charge 55%, next level 70%'),
         findsOneWidget,
@@ -120,10 +147,42 @@ void main() {
       final p = await tester.runAsync(repo.load);
       expect(p!.upgrades.shot, 1);
       expect(p.starWallet, 30);
-      // 30 stars cannot pay for the next level of anything.
+      // 30 stars cannot pay for the magnet's next level: its key is locked.
+      await tester.tap(find.byKey(const ValueKey('upgrade-card-magnet')));
+      await tester.pumpAndSettle();
+      expect(find.text('20 more to go'), findsOneWidget);
+      await capture(tester, 'upgrades-magnet-locked-${width.toInt()}');
       await tester.tap(find.byKey(const ValueKey('buy-magnet')));
       await tester.pumpAndSettle();
       expect((await tester.runAsync(repo.load))!.upgrades.magnet, 0);
+    });
+
+    testWidgets('a maxed upgrade and a locked one read clearly at $width', (
+      tester,
+    ) async {
+      // Shot 1, shield 2 and a maxed magnet cost 1090; 180 are left.
+      final (repo, container) = await open(tester, width, stars: 1270);
+      for (final p in [
+        PowerUp.shot,
+        PowerUp.shield,
+        PowerUp.shield,
+        for (var i = 0; i < PowerUp.maxLevel; i++) PowerUp.magnet,
+      ]) {
+        await repo.buyUpgrade(p);
+      }
+      await show(tester, container);
+      expect(wallet('180'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('upgrade-card-shield')));
+      await tester.pumpAndSettle();
+      expect(find.text('70 more to go'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await capture(tester, 'upgrades-shield-${width.toInt()}');
+      await tester.tap(find.byKey(const ValueKey('upgrade-card-magnet')));
+      await tester.pumpAndSettle();
+      expect(find.text('Maxed out'), findsOneWidget);
+      expect(find.byKey(const ValueKey('buy-magnet')), findsNothing);
+      expect(tester.takeException(), isNull);
+      await capture(tester, 'upgrades-magnet-${width.toInt()}');
     });
   }
 }

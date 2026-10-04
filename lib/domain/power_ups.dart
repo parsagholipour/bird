@@ -26,12 +26,12 @@ enum PowerUp {
     magnet => 'Magnet',
   };
 
-  /// One short line on what buying a level does.
+  /// What the upgrade does, in a sentence.
   String get blurb => switch (this) {
-    shot => 'Hold Shoot longer for a bigger rock.',
-    sprint => 'Longer bursts that recharge sooner.',
-    shield => 'Refills with fewer stars, covers longer.',
-    magnet => 'Easier to earn, pulls longer and wider.',
+    shot => 'Hold Shoot to charge a bigger, harder rock.',
+    sprint => 'A speed burst that smashes enemies in your way.',
+    shield => 'Blocks one hit for you. Collect stars in flight to refill it.',
+    magnet => 'Fly perfectly through gates to earn it. It pulls stars to you.',
   };
 
   /// What [level] gives, as short label and value pairs.
@@ -42,16 +42,16 @@ enum PowerUp {
     return switch (this) {
       shot => [('Max charge', '${(ShotPower.maxCharge(l) * 100).round()}%')],
       sprint => [
-        ('Burst', s(SprintPower.seconds(l))),
+        ('Burst length', s(SprintPower.seconds(l))),
         ('Cooldown', s(SprintPower.cooldown(l))),
       ],
       shield => [
-        ('Refill', '${ShieldPower.stars(l)} stars'),
-        ('Cover', s(ShieldPower.cover(l))),
+        ('Stars to refill', '${ShieldPower.stars(l)}'),
+        ('Safe time after it breaks', s(ShieldPower.cover(l))),
       ],
       // Reach is measured against a star's plain pickup radius.
       magnet => [
-        ('Perfect gates', '${MagnetPower.gates(l)}'),
+        ('Perfect gates needed', '${MagnetPower.gates(l)}'),
         ('Lasts', s(MagnetPower.seconds(l))),
         ('Reach', '${(MagnetPower.radius(l) / .085).toStringAsFixed(1)}×'),
       ],
