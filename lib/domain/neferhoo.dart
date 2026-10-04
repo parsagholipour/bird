@@ -33,6 +33,15 @@ import 'sky_enemy.dart';
 /// wave of two more; a returned letter deals [fasterReturnDamage]. A rules 52
 /// to 54 fight is exactly as it was ([NeferhooBeats.classic]).
 ///
+/// From rules version 61 his fight is wilder ([SkyBoss.wilderNeferhoo]), on
+/// the faster clock: a mail call's letters no longer all fly down its lane.
+/// Some slant up or down ([slantOf], [letterClimb]) and bounce off the top
+/// and bottom of the sky ([bounce]), so a bird that only dodges out of the
+/// lane meets them; and more mummy bats come ([wilderBatsFor],
+/// [wilderWaveBats]), some diving in from above or below the sky
+/// ([batEntryOf]) rather than down the lane from the right edge. A rules 55
+/// to 60 fight is exactly as it was.
+///
 /// Everything here is a pure function of its arguments: the rules
 /// (`neferhoo_rules.dart`) latch the lanes and the letters' fates on
 /// [NeferhooFight], and the art draws exactly what these functions say. The
@@ -83,9 +92,7 @@ abstract final class Neferhoo {
   /// How long a returned letter takes home from [distance] away
   /// ([returnSeconds]; [tougherPace] times faster in the tougher fight).
   static double returnSecondsOf(double distance, {bool tougher = false}) =>
-      tougher
-      ? returnSeconds(distance) / tougherPace
-      : returnSeconds(distance);
+      tougher ? returnSeconds(distance) / tougherPace : returnSeconds(distance);
 
   /// The mummy bats a mail call sends in the tougher fight, by his stage at
   /// its lock: none in the warm-up (the return rule is learned on a calm
@@ -167,6 +174,87 @@ abstract final class Neferhoo {
 
   /// Where (screen x) a bat flies in on a sky [width] screen heights wide.
   static double batStartX(double width) => width + batEntry;
+
+  // ------------------------------------------------- wilder (rules 61) --
+
+  /// The slant of letter [index] of a call of [count] letters in the wilder
+  /// fight: -1 up, 0 straight down the lane, 1 down. A call of three sends
+  /// one straight and one each way; the express post's five, one straight
+  /// and two each way. Which letter flies which way turns with the call's
+  /// [number] (every other call mirrors), so no two calls in a row look
+  /// alike. A pure function: nothing draws a random.
+  static int slantOf(int number, int index, int count) {
+    const three = [0, -1, 1], five = [0, -1, 1, 1, -1];
+    final pattern = count >= 5 ? five : three;
+    final slant = pattern[(index + number) % pattern.length];
+    return number.isOdd ? -slant : slant;
+  }
+
+  /// How far (screen heights) a slanted letter is from its lane as it
+  /// crosses the bird's column ([birdColumn]): just past the band a straight
+  /// letter covers, so a bird must shoot the letters back, or dodge well
+  /// clear of the lane, not just out of it. Fury's spread wider.
+  static const slantSpread = .14, furySlantSpread = .18;
+
+  /// A slanted letter's vertical speed (screen heights a second, down
+  /// positive) for [slant] ([slantOf]), flying at [speed] from a hand at
+  /// [handX]: it is [slantSpread] (fury's [furySlantSpread]) off its lane
+  /// at the bird's column. 0 for a straight one.
+  static double letterClimb({
+    required int slant,
+    required double speed,
+    required double handX,
+    required bool fury,
+  }) {
+    if (slant == 0) return 0;
+    final run = math.max(.2, handX - birdColumn);
+    return slant * (fury ? furySlantSpread : slantSpread) * speed / run;
+  }
+
+  /// A slanted letter bounces off these heights (screen heights), back into
+  /// the sky.
+  static const bounceTop = .06, bounceBottom = .94;
+
+  /// [y] folded between [bounceTop] and [bounceBottom]: where a letter that
+  /// would have flown to [y] is after its bounces.
+  static double bounce(double y) {
+    const span = bounceBottom - bounceTop;
+    var t = (y - bounceTop) % (2 * span);
+    if (t > span) t = 2 * span - t;
+    return bounceTop + t;
+  }
+
+  /// The mummy bats a first mail call sends in the wilder fight: a trio
+  /// from the warm-up on, four in the full fight, five in fury.
+  static int wilderBatsFor(int stage) => switch (stage) {
+    0 => 3,
+    1 => 4,
+    _ => 5,
+  };
+
+  /// The warm-up wave's mummy bats in the wilder fight.
+  static const wilderWaveBats = 3;
+
+  /// Where bat [index] of call [number] flies in from in the wilder fight:
+  /// 0 down the lane from the right edge, as before; -1 diving from above
+  /// the sky, 1 climbing from below it ([batDive]). Turns with the call.
+  static int batEntryOf(int number, int index) =>
+      const [0, -1, 1][(index + number) % 3];
+
+  /// How far above (below) the sky a diving bat starts.
+  static const diveOutside = .10;
+
+  /// The dive of a bat flying in from [entry] (-1 above, 1 below) to its
+  /// call's [lane] on a sky [width] screen heights wide: from the right edge
+  /// ([batStartX]) above or below the sky, in a straight line that meets the
+  /// lane at the bird's column ([birdColumn]), so it reaches the bird from
+  /// an angle at the same moment a bat down the lane would.
+  static EnemyDive batDive(int entry, double lane, double width) => EnemyDive(
+    fromX: batStartX(width),
+    fromY: entry < 0 ? -diveOutside : 1 + diveOutside,
+    toX: birdColumn,
+    toY: lane,
+  );
 
   // ------------------------------------------------------------- clock --
 
@@ -422,9 +510,6 @@ class NeferhooBeats {
     waveAt: 5.9,
   );
 
-
-
-
   /// One cycle, in combat seconds ([SkyBoss.combatTime]). Fury never retimes
   /// it.
   final double period;
@@ -525,10 +610,15 @@ class NeferhooLetter {
     required this.speed,
     required this.express,
     this.call = -1,
+    this.climb = 0,
   });
 
   /// The mail call's cycle, and its place in the stream (from 0).
   final int cycle, index;
+
+  /// Its vertical speed (screen heights a second, down positive): 0 down its
+  /// [lane], or a wilder fight's slant ([Neferhoo.letterClimb]).
+  final double climb;
 
   /// The faster fight's call it was dealt by ([NeferhooCall.number]), or -1.
   final int call;
@@ -561,6 +651,11 @@ class NeferhooLetter {
   /// Its screen x at boss age [age], flying from a hand at [handX] (before
   /// it is returned).
   double xAt(double age, double handX) => handX - speed * (age - releaseAt);
+
+  /// Its height at boss age [age] (before it is returned): its [lane], or a
+  /// slanted letter's height after its bounces ([Neferhoo.bounce]).
+  double yAt(double age) =>
+      climb == 0 ? lane : Neferhoo.bounce(lane + climb * (age - releaseAt));
 
   /// Whether it has left his hand by boss age [age].
   bool dealtBy(double age) => age >= releaseAt;
@@ -678,10 +773,15 @@ class NeferhooBat {
     required this.pace,
     required this.fury,
     this.call = -1,
+    this.entry = 0,
   });
 
   /// The mail call's cycle and its place among the call's bats (from 0).
   final int cycle, index;
+
+  /// Where it flies in from ([Neferhoo.batEntryOf]): 0 down the lane from
+  /// the right edge, -1 diving from above, 1 climbing from below.
+  final int entry;
 
   /// The faster fight's call that sent it ([NeferhooCall.number]: a first
   /// mail call or the warm-up's wave), or -1.

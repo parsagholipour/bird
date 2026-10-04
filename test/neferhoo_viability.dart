@@ -119,7 +119,13 @@ List<NeferhooAnkh> ankhs(double birdY, {required bool fury}) {
 Hazard letterHazard(NeferhooLetter letter, double handX) =>
     (t, y, r) =>
         letter.dealtBy(t) &&
-        Neferhoo.letterTouches(letter.xAt(t, handX), letter.lane, birdX, y, r);
+        Neferhoo.letterTouches(
+          letter.xAt(t, handX),
+          letter.yAt(t),
+          birdX,
+          y,
+          r,
+        );
 
 Hazard ankhHazard(NeferhooAnkh ankh, double handX) {
   final turnX = Neferhoo.turnX(birdX);

@@ -57,6 +57,7 @@ class SkyBoss {
     this.levelFeathers = false,
     this.tougherNeferhoo = false,
     this.fasterNeferhoo = false,
+    this.wilderNeferhoo = false,
     this.quickRestart = false,
     int? maxHp,
   }) : maxHp = maxHp ?? healthFor(kind, number) {
@@ -240,6 +241,13 @@ class SkyBoss {
   /// that deal [Neferhoo.fasterReturnDamage]. Only a tougher Neferhoo is
   /// ever faster.
   final bool fasterNeferhoo;
+
+  /// The wilder Neferhoo (rules version 61, on top of [fasterNeferhoo]): some
+  /// of a mail call's letters slant up or down and bounce off the sky's
+  /// edges ([Neferhoo.slantOf]), and more mummy bats come, some diving in
+  /// from above or below ([Neferhoo.wilderBatsFor],
+  /// [Neferhoo.batEntryOf]). Only a faster Neferhoo is ever wilder.
+  final bool wilderNeferhoo;
 
   /// King Coo does not idle after his fury begins (rules version 54, his
   /// staged campaign fight): the cycle he grows furious in ends as soon as

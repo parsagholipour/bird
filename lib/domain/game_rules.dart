@@ -464,11 +464,12 @@ class FlightSimulation {
   /// lets retries skip it ([quickStartRulesVersion]); 58 shortens the
   /// all-rings bonus ([shorterRingsBonusRulesVersion]); 59 lets shatter
   /// blasts destroy nearby pellets ([shatterAmmoRulesVersion]); 60 flies
-  /// with the player's star-bought upgrades ([upgradesRulesVersion]).
-  /// Endless and co-op
+  /// with the player's star-bought upgrades ([upgradesRulesVersion]); 61
+  /// makes Neferhoo wilder, with slanted letters and diving mummy bats
+  /// ([wilderNeferhooRulesVersion]). Endless and co-op
   /// flights fly at 50 exactly as at 43 until that Baron arrives; duels
   /// exactly as at 43.
-  static const currentRulesVersion = 60;
+  static const currentRulesVersion = 61;
   final int rulesVersion;
 
   /// Rules version 60: shot power, sprint, shield and magnet follow the
@@ -691,6 +692,14 @@ class FlightSimulation {
   /// exactly as before; endless, co-op and duel flights and every other
   /// level fly exactly as at 54.
   static const fasterNeferhooRulesVersion = 55;
+
+  /// Rules version 61, "wilder Neferhoo": in level 2-6 some of each mail
+  /// call's letters slant up or down and bounce off the sky's edges, and
+  /// more of his mummy bats come (a trio, four, fury's five, and a wave of
+  /// three in the warm-up), some diving in from above or below the sky
+  /// ([SkyBoss.wilderNeferhoo]). 2-6 flown at 55 to 60 (a saved tape) flies
+  /// exactly as before; every other flight flies exactly as at 60.
+  static const wilderNeferhooRulesVersion = 61;
 
   /// Rules version 56: King Coo's escaped vanguard pigeons return two at a
   /// time, together above and below him. Earlier replays keep single
@@ -941,6 +950,10 @@ class FlightSimulation {
   /// The faster, busier Neferhoo ([fasterNeferhooRulesVersion]).
   bool get supportsFasterNeferhoo =>
       supportsTougherNeferhoo && rulesVersion >= fasterNeferhooRulesVersion;
+
+  /// The wilder Neferhoo ([wilderNeferhooRulesVersion]).
+  bool get supportsWilderNeferhoo =>
+      supportsFasterNeferhoo && rulesVersion >= wilderNeferhooRulesVersion;
   bool get supportsHeartPickups =>
       supportsBosses && isTrail && rulesVersion >= 24 && plan.heartPickups;
   bool get supportsEnemyAttacks => supportsCombat && rulesVersion >= 18;
@@ -2593,6 +2606,7 @@ class FlightSimulation {
             supportsLevelFeathers && kind == BossKind.searchlightGargoyle,
         tougherNeferhoo: supportsTougherNeferhoo && kind == BossKind.neferhoo,
         fasterNeferhoo: supportsFasterNeferhoo && kind == BossKind.neferhoo,
+        wilderNeferhoo: supportsWilderNeferhoo && kind == BossKind.neferhoo,
         quickRestart: supportsCooRestart && kind == BossKind.kingCoo,
         maxHp: staged
             ? SkyBoss.campaignHealthFor(

@@ -200,9 +200,12 @@ class NeferhooPilot {
         staying.add(letter);
       } else if (arrive < 2.5) {
         const half = Neferhoo.letterHalfHeight + birdR;
+        // Where it crosses the bird's column (a slanted letter's height
+        // then; its lane otherwise).
+        final cross = letter.yAt(age + arrive);
         final band = (
-          letter.lane - half - skill.margin,
-          letter.lane + half + skill.margin,
+          cross - half - skill.margin,
+          cross + half + skill.margin,
         );
         forbidden.add(band);
         if (arrive < 1.0) urgent.add(band);
@@ -265,7 +268,14 @@ class NeferhooPilot {
     engaged = staying;
     final line = boss.y;
     var goal = staying.isNotEmpty
-        ? staying.first.lane
+        ? staying.first.yAt(
+            age +
+                math.max(
+                  0,
+                  (staying.first.xAt(age, handX) - birdX) /
+                      staying.first.speed,
+                ),
+          )
         : batLanes.isNotEmpty
         ? batLanes.first
         : line;
@@ -367,7 +377,9 @@ class NeferhooPilot {
             2 *
             skill.noise;
     final atLetter =
-        engaged.any((letter) => (sensed - letter.lane).abs() <= skill.aimTol) ||
+        engaged.any(
+          (letter) => (sensed - letter.yAt(boss.age)).abs() <= skill.aimTol,
+        ) ||
         engagedBats.any((lane) => (sensed - lane).abs() <= skill.aimTol);
     final aimed = atLetter || (sensed - boss.y).abs() <= skill.aimTol + .06;
     final rate = atLetter ? skill.fireRate * 2 : skill.fireRate;

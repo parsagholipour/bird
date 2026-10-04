@@ -53,7 +53,7 @@ abstract final class NeferhooFightArt {
   static Rect letterRect(NeferhooLetter letter, SkyBoss boss, double h, {double? age}) {
     final x = letter.xAt(age ?? boss.age, boss.handX);
     return Rect.fromCenter(
-      center: Offset(x * h, letter.lane * h),
+      center: Offset(x * h, letter.yAt(age ?? boss.age) * h),
       width: Neferhoo.letterHalfWidth * 2 * h,
       height: Neferhoo.letterHalfHeight * 2 * h,
     );
@@ -169,7 +169,7 @@ abstract final class NeferhooFightArt {
       final la = age - letter.releaseAt;
       final tilt = reduced ? 0.0 : math.sin(la * 7 + letter.index) * .06;
       final flutter = reduced ? .5 : (math.sin(la * 18 + letter.index) + 1) / 2;
-      NeferhooPropsArt.letter(c, Offset(x * h, letter.lane * h), h, tilt: tilt, fury: letter.express, flutter: math.max(.001, flutter), rock: rockAt(x));
+      NeferhooPropsArt.letter(c, Offset(x * h, letter.yAt(age) * h), h, tilt: tilt, fury: letter.express, flutter: math.max(.001, flutter), rock: rockAt(x));
     }
     // ---- the ankhs in flight (a ribbon trail along the path they flew)
     for (final ankh in boss.liveAnkhs) {
