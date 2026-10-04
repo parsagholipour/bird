@@ -44,7 +44,7 @@ class UpgradesScreen extends ConsumerWidget {
                       Padding(
                         padding: const EdgeInsets.only(left: 64),
                         child: Text(
-                          'Spend the stars you collect in flight. Upgrades work on every new flight.',
+                          'Every star you pick up in flight is one to spend. Upgrades work on every new flight.',
                           style: bodyText(15, weight: FontWeight.w800),
                         ),
                       ),
@@ -120,67 +120,107 @@ class _UpgradeCardState extends ConsumerState<_UpgradeCard> {
     return MiniCard(
       key: ValueKey('upgrade-card-${up.name}'),
       accent: color,
-      padding: EdgeInsets.zero,
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SizedBox(
-            height: 96,
-            child: MiniArtBand(
-              color: color,
-              child: Center(child: MatchIcon(symbolOf(up), size: 56)),
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(up.title, style: heading(24, weight: FontWeight.w700)),
-          const SizedBox(height: 6),
-          _LevelPips(level: level, color: color),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(14, 8, 14, 0),
-              child: SingleChildScrollView(
+          Row(
+            children: [
+              _Badge(symbol: symbolOf(up), color: color),
+              const SizedBox(width: 8),
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      up.blurb,
-                      style: bodyText(
-                        13,
-                        color: SkyColors.muted,
-                        weight: FontWeight.w800,
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        up.title,
+                        style: heading(23, weight: FontWeight.w700),
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    for (final (i, line) in stats.indexed)
-                      _StatLine(line, next: next?[i]),
+                    const SizedBox(height: 3),
+                    _LevelPips(level: level, color: color),
                   ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          // Everything reads at a glance: on a short screen the details
+          // shrink a little rather than hide behind a scroll.
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, box) => FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.topCenter,
+                child: SizedBox(
+                  width: box.maxWidth,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        up.blurb,
+                        style: bodyText(
+                          15,
+                          color: SkyColors.muted,
+                          weight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      for (final (i, (label, value)) in stats.indexed)
+                        _StatLine(label: label, now: value, next: next?[i].$2),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 8, 14, 14),
-            child: SizedBox(
-              height: 56,
-              child: cost == null
-                  ? const _Maxed()
-                  : MiniKey(
-                      key: ValueKey('buy-${up.name}'),
-                      label: '$cost ★',
-                      icon: Icons.arrow_upward_rounded,
-                      colors: p.canBuy(up)
-                          ? HomeKeyColors.sun
-                          : HomeKeyColors.paper,
-                      height: 56,
-                      size: 19,
-                      busy: busy,
-                      onPressed: busy || !p.canBuy(up) ? null : buy,
-                    ),
-            ),
+          const SizedBox(height: 6),
+          SizedBox(
+            height: 50,
+            child: cost == null
+                ? const _Maxed()
+                : MiniKey(
+                    key: ValueKey('buy-${up.name}'),
+                    // The game's fonts have no ★, so the key's icon is the
+                    // star: "50 ★".
+                    label: '$cost',
+                    icon: Icons.star_rounded,
+                    colors: p.canBuy(up)
+                        ? HomeKeyColors.sun
+                        : HomeKeyColors.paper,
+                    height: 50,
+                    size: 18,
+                    busy: busy,
+                    onPressed: busy || !p.canBuy(up) ? null : buy,
+                  ),
           ),
         ],
       ),
     );
   }
+}
+
+/// The upgrade's HUD symbol on a round chip of its color.
+class _Badge extends StatelessWidget {
+  const _Badge({required this.symbol, required this.color});
+  final MatchSymbol symbol;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: 48,
+    height: 48,
+    decoration: BoxDecoration(
+      color: color,
+      shape: BoxShape.circle,
+      border: Border.all(color: SkyColors.ink, width: 2),
+    ),
+    alignment: Alignment.center,
+    child: MatchIcon(symbol, size: 32),
+  );
 }
 
 /// Five pips: the levels bought, out of the top.
@@ -212,33 +252,57 @@ class _LevelPips extends StatelessWidget {
   );
 }
 
-/// One stat at the current level, and what the next level makes of it.
+/// One stat: its label, its value now and, in teal, the next level's.
 class _StatLine extends StatelessWidget {
-  const _StatLine(this.now, {this.next});
-  final String now;
+  const _StatLine({required this.label, required this.now, this.next});
+  final String label, now;
   final String? next;
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: 4),
-    child: Text.rich(
-      TextSpan(
-        children: [
-          TextSpan(text: now),
-          if (next != null && next != now)
-            TextSpan(
-              text: '  →  $next',
-              style: bodyText(
-                13,
-                color: SkyColors.teal,
-                weight: FontWeight.w900,
+  Widget build(BuildContext context) {
+    final upgrade = next != null && next != now;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 5),
+      child: Semantics(
+        label: upgrade ? '$label $now, next level $next' : '$label $now',
+        excludeSemantics: true,
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: bodyText(
+                  15,
+                  color: SkyColors.muted,
+                  weight: FontWeight.w800,
+                ),
               ),
             ),
-        ],
+            Text(now, style: bodyText(16, weight: FontWeight.w900)),
+            // The game's fonts have no arrow glyph; the icon reads the same.
+            if (upgrade) ...[
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 3),
+                child: Icon(
+                  Icons.arrow_forward_rounded,
+                  size: 16,
+                  color: SkyColors.teal,
+                ),
+              ),
+              Text(
+                next!,
+                style: bodyText(
+                  16,
+                  color: SkyColors.teal,
+                  weight: FontWeight.w900,
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
-      style: bodyText(13, weight: FontWeight.w800),
-    ),
-  );
+    );
+  }
 }
 
 /// Where a topped-out card would offer its key.

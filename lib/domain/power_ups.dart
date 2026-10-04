@@ -26,41 +26,44 @@ enum PowerUp {
     magnet => 'Magnet',
   };
 
+  /// One short line on what buying a level does.
   String get blurb => switch (this) {
     shot => 'Hold Shoot longer for a bigger rock.',
-    sprint => 'A longer burst that comes back sooner.',
-    shield => 'Fewer stars to restore it, longer cover after it breaks.',
-    magnet => 'Fewer perfect gates, a longer and wider pull.',
+    sprint => 'Longer bursts that recharge sooner.',
+    shield => 'Refills with fewer stars, covers longer.',
+    magnet => 'Easier to earn, pulls longer and wider.',
   };
 
-  /// What [level] gives, in a few words per line.
-  List<String> stats(int level) {
+  /// What [level] gives, as short label and value pairs.
+  List<(String, String)> stats(int level) {
     final l = level.clamp(0, maxLevel);
     String s(double seconds) =>
         '${seconds == seconds.roundToDouble() ? seconds.toInt() : seconds} s';
     return switch (this) {
-      shot => ['Charge up to ${(ShotPower.maxCharge(l) * 100).round()}%'],
+      shot => [('Max charge', '${(ShotPower.maxCharge(l) * 100).round()}%')],
       sprint => [
-        'Burst ${s(SprintPower.seconds(l))}',
-        'Cooldown ${s(SprintPower.cooldown(l))}',
+        ('Burst', s(SprintPower.seconds(l))),
+        ('Cooldown', s(SprintPower.cooldown(l))),
       ],
       shield => [
-        'Restored every ${ShieldPower.stars(l)} stars',
-        'Cover ${s(ShieldPower.cover(l))} after it breaks',
+        ('Refill', '${ShieldPower.stars(l)} stars'),
+        ('Cover', s(ShieldPower.cover(l))),
       ],
+      // Reach is measured against a star's plain pickup radius.
       magnet => [
-        '${MagnetPower.gates(l)} perfect gates',
-        'Lasts ${s(MagnetPower.seconds(l))}',
-        'Reach ${(MagnetPower.radius(l) / MagnetPower.radius(3) * 100).round()}%',
+        ('Perfect gates', '${MagnetPower.gates(l)}'),
+        ('Lasts', s(MagnetPower.seconds(l))),
+        ('Reach', '${(MagnetPower.radius(l) / .085).toStringAsFixed(1)}×'),
       ],
     };
   }
 }
 
-/// How far a held shot may charge: a sliver at level 0, a full second's
-/// power ([maxCharge] 1) at the top, as before upgrades.
+/// How far a held shot may charge: enough at level 0 to see the rock grow
+/// and shatter a pellet, a full second's power ([maxCharge] 1) at the top,
+/// as before upgrades.
 abstract final class ShotPower {
-  static const _charge = [.25, .45, .65, .85, 1.0];
+  static const _charge = [.40, .55, .70, .85, 1.0];
   static double maxCharge(int level) => _charge[level];
 }
 
