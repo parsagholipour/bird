@@ -132,4 +132,102 @@ abstract final class SprintArt {
         Paint()..color = SkyColors.white.withValues(alpha: .95 * t),
       );
   }
+
+  /// The all-rings boost on the bird: a shockwave the moment it is won, then
+  /// a gold halo whose ring drains as the boosted sprint runs out, so the
+  /// player can see both that they are boosted and for how long. Reduced
+  /// Motion keeps the halo and its ring and drops the shockwave and pulse.
+  static void allRingsBoost(
+    Canvas canvas,
+    double height,
+    FlightSimulation sim, {
+    required bool reducedMotion,
+  }) {
+    final age = sim.elapsed - sim.allRingsAt;
+    if (!(age >= 0)) return;
+    final center = Offset(sim.birdScreenX * height, sim.birdY * height);
+    if (!reducedMotion && age < shockwaveSeconds) {
+      final t = age / shockwaveSeconds;
+      final out = 1 - (1 - t) * (1 - t);
+      canvas.drawCircle(
+        center,
+        height * (.06 + .3 * out),
+        Paint()
+          ..color = SkyColors.yellow.withValues(alpha: .9 * (1 - t))
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = height * (.022 * (1 - t) + .003),
+      );
+    }
+    if (!sim.allRingsBoosting) return;
+    final total = sim.ringSprintUntil - sim.allRingsAt;
+    final left = total > 0
+        ? (sim.ringSprintRemaining / total).clamp(0.0, 1.0)
+        : 0.0;
+    // Fades in over a beat and out over the sprint's last moment.
+    final strength = math.min(
+      math.min(age / .12, 1.0),
+      math.min(sim.ringSprintRemaining / .2, 1.0),
+    );
+    final pulse = reducedMotion ? 0.0 : math.sin(sim.elapsed * 18) * .08;
+    final radius = height * .078 * (1 + pulse);
+    canvas.drawCircle(
+      center,
+      radius * 1.25,
+      Paint()
+        ..color = SkyColors.yellow.withValues(alpha: .28 * strength)
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, height * .03),
+    );
+    final arc = Rect.fromCircle(center: center, radius: radius);
+    final groove = height * .011;
+    canvas
+      ..drawCircle(
+        center,
+        radius,
+        Paint()
+          ..color = SkyColors.ink.withValues(alpha: .35 * strength)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = groove + height * .005,
+      )
+      ..drawArc(
+        arc,
+        -math.pi / 2,
+        2 * math.pi * left,
+        false,
+        Paint()
+          ..color = SkyColors.yellow.withValues(alpha: strength)
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.round
+          ..strokeWidth = groove,
+      );
+  }
+
+  /// How long the all-rings shockwave and screen flash last.
+  static const shockwaveSeconds = .5;
+
+  /// A gold flash from the screen's edges as every ring of a run is won.
+  /// Reduced Motion leaves it out; the title card and halo still say it.
+  static void allRingsFlash(
+    Canvas canvas,
+    Size size,
+    FlightSimulation sim, {
+    required bool reducedMotion,
+  }) {
+    if (reducedMotion) return;
+    final age = sim.elapsed - sim.allRingsAt;
+    if (!(age >= 0 && age < shockwaveSeconds)) return;
+    final t = age / shockwaveSeconds;
+    final rect = Offset.zero & size;
+    canvas.drawRect(
+      rect,
+      Paint()
+        ..shader = RadialGradient(
+          radius: .9,
+          colors: [
+            SkyColors.yellow.withValues(alpha: 0),
+            SkyColors.yellow.withValues(alpha: .5 * (1 - t) * (1 - t)),
+          ],
+          stops: const [.55, 1],
+        ).createShader(rect),
+    );
+  }
 }

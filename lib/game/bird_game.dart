@@ -562,6 +562,12 @@ class BirdGame extends FlameGame {
         simulation,
         reducedMotion: reducedMotion,
       );
+      SprintArt.allRingsFlash(
+        canvas,
+        Size(w, h),
+        simulation,
+        reducedMotion: reducedMotion,
+      );
       RushArt.banner(
         canvas,
         Size(w, h),
@@ -770,6 +776,12 @@ class BirdGame extends FlameGame {
     );
     GaleArt.buffet(canvas, h, simulation, reducedMotion: reducedMotion);
     SprintArt.aura(canvas, h, simulation, reducedMotion: reducedMotion);
+    SprintArt.allRingsBoost(
+      canvas,
+      h,
+      simulation,
+      reducedMotion: reducedMotion,
+    );
     paintBird(Offset(cx, cy));
     SteamGeyserArt.feedback(
       canvas,
@@ -940,16 +952,17 @@ class BirdGame extends FlameGame {
               e.kind != FlightEventKind.galeWeathered,
         )
         .toList();
+    // The all-rings bonus has its own title card, so it only bursts here.
     final messages = active
-        .where((e) => e.kind != FlightEventKind.star)
-        .toList();
-    // A heart or the all-rings bonus outranks the smashes that follow it.
-    final callouts = messages
         .where(
           (e) =>
-              e.kind == FlightEventKind.heart ||
-              e.kind == FlightEventKind.allRings,
+              e.kind != FlightEventKind.star &&
+              e.kind != FlightEventKind.allRings,
         )
+        .toList();
+    // A heart outranks the smashes that follow it.
+    final callouts = messages
+        .where((e) => e.kind == FlightEventKind.heart)
         .toList();
     final major = callouts.isNotEmpty
         ? callouts.last
@@ -987,14 +1000,17 @@ class BirdGame extends FlameGame {
           perfect: event.kind == FlightEventKind.perfect,
         );
       } else if (!reducedMotion) {
-        for (var i = 0; i < 8; i++) {
-          final a = i * math.pi / 4;
-          final radius = h * (.05 + t * .13);
+        // Every ring of a run: twice the sparkles, flung twice as far.
+        final big = event.kind == FlightEventKind.allRings;
+        final count = big ? 16 : 8;
+        for (var i = 0; i < count; i++) {
+          final a = i * 2 * math.pi / count;
+          final radius = h * (.05 + t * (big ? .26 : .13));
           final pos = center + Offset(math.cos(a), math.sin(a)) * radius;
           StarArt.sparkle(
             canvas,
             pos,
-            h * .01 * (1 - t),
+            h * (big ? .018 : .01) * (1 - t),
             color.withValues(alpha: alpha),
             rotation: a + math.pi / 2,
           );
@@ -1038,7 +1054,7 @@ class BirdGame extends FlameGame {
               ? 'SMASH ×${event.value}!'
               : 'BAT +${Rush.batPoints}!',
         FlightEventKind.scorched => 'SCORCHED!',
-        FlightEventKind.allRings => 'ALL RINGS! +${event.value}s BOOST',
+        FlightEventKind.allRings ||
         FlightEventKind.rushWarning ||
         FlightEventKind.rushEscaped ||
         FlightEventKind.galeWarning ||

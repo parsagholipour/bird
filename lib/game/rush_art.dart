@@ -3345,7 +3345,8 @@ abstract final class RushArt {
   static const _bannerLife = 1.9;
   static const _galeBlue = Color(0xff5bc0eb);
 
-  /// Announces a run and celebrates the escape, above everything else.
+  /// Announces a run and celebrates the escape and a run's every ring, above
+  /// everything else.
   static void banner(
     Canvas canvas,
     Size size,
@@ -3403,6 +3404,16 @@ abstract final class RushArt {
           title = '${flawless ? 'FLAWLESS' : 'WEATHERED'}! +${event.value}';
           detail = 'You rode out the gale';
           accent = SkyColors.gold;
+        case FlightEventKind.allRings:
+          // The value is in tenths of a second.
+          final tenths = event.value;
+          final seconds = tenths % 10 == 0
+              ? '${tenths ~/ 10}'
+              : (tenths / 10).toStringAsFixed(1);
+          motif = null;
+          title = 'ALL RINGS!';
+          detail = 'Turbo boost +${seconds}s';
+          accent = SkyColors.yellow;
         default:
           continue;
       }
