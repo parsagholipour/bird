@@ -75,7 +75,10 @@ void main() {
     for (final p in PowerUp.values) {
       expect(find.byKey(ValueKey('upgrade-card-${p.name}')), findsOneWidget);
     }
-    expect(find.text('Charge up to 25%'), findsOneWidget);
+    expect(
+      find.text('Charge up to 25%  →  Charge up to 45%', findRichText: true),
+      findsOneWidget,
+    );
 
     await tester.tap(find.byKey(const ValueKey('buy-shot')));
     await tester.runAsync(() async {
@@ -86,7 +89,10 @@ void main() {
     await tester.runAsync(() => container.read(progressProvider.future));
     await tester.pumpAndSettle();
     expect(find.text('30 STARS'), findsOneWidget);
-    expect(find.text('Charge up to 45%'), findsOneWidget);
+    expect(
+      find.text('Charge up to 45%  →  Charge up to 65%', findRichText: true),
+      findsOneWidget,
+    );
     final p = await tester.runAsync(repo.load);
     expect(p!.upgrades.shot, 1);
     expect(p.starWallet, 30);
