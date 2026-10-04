@@ -455,10 +455,12 @@ class FlightSimulation {
   /// ([fasterNeferhooRulesVersion]); 56 brings King Coo's escaped pigeons
   /// back in pairs ([cooPairsRulesVersion]); 57 shortens the countdown and
   /// lets retries skip it ([quickStartRulesVersion]); 58 shortens the
-  /// all-rings bonus ([shorterRingsBonusRulesVersion]). Endless and co-op
+  /// all-rings bonus ([shorterRingsBonusRulesVersion]); 59 lets shatter
+  /// blasts destroy nearby pellets ([shatterAmmoRulesVersion]). Endless
+  /// and co-op
   /// flights fly at 50 exactly as at 43 until that Baron arrives; duels
   /// exactly as at 43.
-  static const currentRulesVersion = 58;
+  static const currentRulesVersion = 59;
   final int rulesVersion;
 
   /// Rules version 58: the all-rings bonus adds [Rush.allRingsBonus] (1.2)
@@ -959,6 +961,10 @@ class FlightSimulation {
   /// A charged rock shatters the pellet it meets into a damaging blast. See
   /// [PowerShot.shatterCharge].
   bool get supportsShatter => supportsPowerShots && rulesVersion >= 36;
+
+  /// Rules version 59: shatter blasts also destroy small-enemy ammo within
+  /// their reach. Rules 36–58 keep blasts that damage enemies only.
+  static const shatterAmmoRulesVersion = 59;
 
   /// Share of the bird's ammo reserve left, from 0 to 1. See [PowerShot].
   /// Each bird of a co-op flight has its own.
@@ -2312,7 +2318,8 @@ class FlightSimulation {
   }
 
   /// The rock is spent as on any cancel, but its charge breaks the pellet
-  /// into a blast that damages every enemy it touches, the boss included.
+  /// into a blast that damages every enemy it touches, the boss included,
+  /// and, from version 59, destroys nearby small-enemy ammo.
   void _shatter(EnemyAmmo ammo, BirdRock rock) {
     final reach = PowerShot.shatterReach(rock.charge);
     final damage = PowerShot.shatterDamage(rock.damage);
@@ -2334,6 +2341,14 @@ class FlightSimulation {
       return dx * dx + dy * dy <= (reach + radius) * (reach + radius);
     }
 
+    if (rulesVersion >= shatterAmmoRulesVersion) {
+      enemyAmmo.removeWhere((pellet) {
+        if (!touches(pellet.x, pellet.y, EnemyAmmo.radius)) return false;
+        projectilesDeflected++;
+        _ammoImpact(pellet, AmmoStop.deflected);
+        return true;
+      });
+    }
     enemies.removeWhere((enemy) {
       if (!touches(enemy.x, enemy.y, SkyEnemy.radius)) return false;
       enemy.takeDamage(damage);

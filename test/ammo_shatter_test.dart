@@ -35,8 +35,11 @@ void _step(FlightSimulation sim, double dt) {
   sim.tick(dt, now, viewportWidth: 2.2);
 }
 
-EnemyAmmo _pellet(double x, double y) =>
-    EnemyAmmo(x: x, y: y, vx: -.44, vy: 0, attack: EnemyAttack.aimed);
+EnemyAmmo _pellet(
+  double x,
+  double y, {
+  EnemyAttack attack = EnemyAttack.aimed,
+}) => EnemyAmmo(x: x, y: y, vx: -.44, vy: 0, attack: attack);
 
 /// A rock already touching a pellet at (x, y), so the next step meets it.
 BirdRock _rock(double x, double y, double charge) => BirdRock(
@@ -68,11 +71,12 @@ void main() {
     for (final charge in [0.0, PowerShot.shatterCharge - .05]) {
       final sim = _arena();
       final near = _bat(1, .42);
+      final nearbyAmmo = _pellet(1, .65);
       sim.enemies.add(near);
-      sim.enemyAmmo.add(_pellet(1, .5));
+      sim.enemyAmmo.addAll([_pellet(1, .5), nearbyAmmo]);
       sim.rocks.add(_rock(1, .5, charge));
       _step(sim, .02);
-      expect(sim.enemyAmmo, isEmpty);
+      expect(sim.enemyAmmo, [nearbyAmmo]);
       expect(sim.rocks, isEmpty);
       expect(sim.projectilesDeflected, 1);
       expect(sim.ammoShattered, 0);
@@ -115,6 +119,87 @@ void main() {
     expect(moth.hp, moth.maxHp - 20);
     expect(moth.lastHitAt, closeTo(moth.age, .02));
     expect(far.hp, far.maxHp);
+  });
+
+  test('a shatter destroys nearby enemy ammo', () {
+    for (final reverse in [false, true]) {
+      final sim = _arena();
+      final cues = CombatAudioCues()..advance(sim);
+      final nearby = [
+        _pellet(1, .65),
+        _pellet(1, .35, attack: EnemyAttack.fan),
+        _pellet(1.15, .5, attack: EnemyAttack.crumb),
+      ];
+      final pellets = [_pellet(1, .5), ...nearby];
+      sim.enemyAmmo.addAll(reverse ? pellets.reversed : pellets);
+      sim.rocks.add(_rock(1, .5, 1));
+      final score = sim.score;
+      _step(sim, .02);
+      expect(sim.enemyAmmo, isEmpty, reason: 'reverse order: $reverse');
+      expect(sim.rocks, isEmpty);
+      expect(sim.ammoShattered, 1);
+      expect(sim.ammoShatters, hasLength(1));
+      expect(sim.projectilesDeflected, 4);
+      expect(sim.score, score);
+      expect(sim.enemyAmmoImpacts, hasLength(3));
+      expect(
+        sim.enemyAmmoImpacts.map((i) => i.attack),
+        unorderedEquals(nearby.map((p) => p.attack)),
+      );
+      expect(
+        sim.enemyAmmoImpacts.map((i) => i.stop),
+        everyElement(AmmoStop.deflected),
+      );
+      expect(cues.advance(sim), ['deflect', 'lava_burst']);
+      expect(cues.advance(sim), isEmpty);
+    }
+  });
+
+  test('ammo cleanup follows the circular blast edge at each charge', () {
+    for (final charge in [PowerShot.shatterCharge, .7, 1.0]) {
+      final sim = _arena();
+      final reach = PowerShot.shatterReach(charge) + EnemyAmmo.radius;
+      final inside = _pellet(1, .5 + reach - .0001);
+      final outside = _pellet(1, .5 + reach + .0001);
+      final diagonal = _pellet(1 + reach * .8, .5 + reach * .8);
+      sim.enemyAmmo.addAll([_pellet(1, .5), inside, outside, diagonal]);
+      sim.rocks.add(_rock(1, .5, charge));
+      _step(sim, .02);
+      expect(sim.enemyAmmo, [outside, diagonal], reason: 'charge $charge');
+      expect(sim.projectilesDeflected, 2);
+    }
+  });
+
+  test('destroyed pellets do not chain blasts or clear boss ammo', () {
+    final sim = _arena();
+    final outside = _pellet(1, .84);
+    final bossAmmo = BossAmmo(x: 1, y: .65, vx: -.44, vy: 0);
+    sim.enemyAmmo.addAll([_pellet(1, .5), _pellet(1, .65), outside]);
+    sim.bossAmmo.add(bossAmmo);
+    sim.rocks.add(_rock(1, .5, 1));
+    _step(sim, .02);
+    expect(sim.enemyAmmo, [outside]);
+    expect(sim.bossAmmo, [bossAmmo]);
+    expect(sim.ammoShattered, 1);
+    expect(sim.ammoShatters, hasLength(1));
+    expect(sim.projectilesDeflected, 2);
+  });
+
+  test('rules 36 through 58 keep nearby ammo when a pellet shatters', () {
+    for (final version in [36, 58]) {
+      final sim = _arena(version: version);
+      final nearby = _pellet(1, .65);
+      final moth = _moth(1, .4);
+      sim.enemies.add(moth);
+      sim.enemyAmmo.addAll([_pellet(1, .5), nearby]);
+      sim.rocks.add(_rock(1, .5, 1));
+      _step(sim, .02);
+      expect(sim.enemyAmmo, [nearby], reason: 'version $version');
+      expect(moth.hp, moth.maxHp - 20);
+      expect(sim.ammoShattered, 1);
+      expect(sim.projectilesDeflected, 1);
+      expect(sim.enemyAmmoImpacts, isEmpty);
+    }
   });
 
   test('a fuller charge reaches further', () {

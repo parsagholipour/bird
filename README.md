@@ -208,6 +208,10 @@ enough for bats and beetles. The boss takes blast damage too, unless the Dusk
 Empress's veil is up. The rock is spent either way. Earlier replays keep the
 plain cancel.
 
+From version 59, the blast also clears small-enemy pellets within its radius.
+Those pellets pop without starting another explosion; boss ammo is unaffected.
+Saved replays keep the behavior of their recorded version.
+
 **Sprint (version 29):** tap **Sprint**, left of Shoot, to rush forward for
 1.2 seconds. The course surges to 2.5× speed and eases back before the burst
 ends. While sprinting, the bird smashes any bat it touches, whatever its

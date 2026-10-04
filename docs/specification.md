@@ -232,6 +232,12 @@ the same damage, and a raised veil absorbs it instead. Blasts resolve after
 the tick's pellet sweep, so a blast that defeats the boss clears the remaining
 ammo as a normal victory does. Weaker rocks keep the plain cancel.
 
+From rules version 59, the blast also destroys every small-enemy pellet whose
+0.016-unit hit circle touches its radius. Each destroyed pellet counts as a
+deflection and plays the existing deflect splash, without creating another
+blast. Boss ammo is unaffected. Rules 36–58 keep their original blasts that
+damage enemies but leave nearby pellets in flight.
+
 Draw a burst that shows the blast reach, anchored in the world, in place of
 the deflect splash. Play `lava_burst` under the `deflect` cue. The record is
 render-only and pruned after one second. Boss arrival clears it. Reduced
