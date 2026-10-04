@@ -22,6 +22,7 @@ import '../game/knockout_art.dart';
 import '../game/neferhoo_fight_art.dart';
 import '../game/play_controller.dart';
 import 'calibration_probe.dart' show LandmarkPainter;
+import 'mini_calibration.dart';
 import 'components.dart';
 import 'theme.dart';
 import 'mini_setup.dart';
@@ -813,15 +814,265 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     final ready = controller.stage == PlayStage.ready,
         busy = controller.stage == PlayStage.starting,
         error = controller.stage == PlayStage.error;
+    final mode = widget.mode, accent = miniColor(mode);
+    final still = p.settings.reducedMotion;
     final title = ready
         ? 'You found your wings!'
         : busy
         ? 'Waking up your camera…'
         : error
         ? 'Let’s reconnect your camera.'
-        : widget.mode.controlsHeight
+        : mode.controlsHeight
         ? 'Find your movement range.'
         : 'Stand tall and still.';
+    final camera = busy
+        ? CameraState.starting
+        : error
+        ? CameraState.offline
+        : ready
+        ? CameraState.ready
+        : CameraState.live;
+    final body = controller.body, squat = controller.squat;
+    final (step, stepTitle) = ready
+        ? (3, 'Try moving your bird.')
+        : mode == PlayMode.pushUp
+        ? switch (body.step) {
+            BodyCalibrationStep.position => (1, 'Find a comfortable top.'),
+            BodyCalibrationStep.lower => (2, 'Lower yourself slowly.'),
+            _ => (3, 'Push back up.'),
+          }
+        : mode == PlayMode.squat
+        ? switch (squat.step) {
+            SquatCalibrationStep.standing => (1, 'Stand tall and still.'),
+            SquatCalibrationStep.lower => (2, 'Squat comfortably.'),
+            SquatCalibrationStep.rise => (3, 'Stand back up.'),
+            SquatCalibrationStep.complete => (3, 'You found your wings!'),
+          }
+        : (1, 'Stand tall and still.');
+    // Push-ups fill half the meter each, a little more as each one goes down
+    // and comes back up; squats a third per step; jumps over the still hold.
+    final (segments, progress) = switch (mode) {
+      PlayMode.pushUp => (
+        2,
+        (body.cycles +
+                switch (body.step) {
+                  BodyCalibrationStep.lower => .35,
+                  BodyCalibrationStep.raise => .7,
+                  _ => 0.0,
+                }) /
+            2,
+      ),
+      PlayMode.squat => (3, squat.progress),
+      _ => (4, controller.jump.progress),
+    };
+    // The way back when the camera will not start: what usually fixes it,
+    // then Try again and a shortcut to the camera permission.
+    final trouble = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: MiniCard(
+            accent: SkyColors.coral,
+            padding: const EdgeInsets.fromLTRB(18, 16, 18, 14),
+            child: LayoutBuilder(
+              builder: (context, box) => FittedBox(
+                fit: BoxFit.scaleDown,
+                child: SizedBox(
+                  width: box.maxWidth,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 58,
+                        height: 58,
+                        decoration: BoxDecoration(
+                          color: Color.lerp(
+                            SkyColors.coral,
+                            SkyColors.cream,
+                            .55,
+                          ),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: SkyColors.ink, width: 2.5),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: SkyColors.ink,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.videocam_off_rounded,
+                          size: 30,
+                          color: SkyColors.coralDeep,
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      Text(
+                        'A fresh start usually helps.',
+                        style: heading(23, weight: FontWeight.w700),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      const CalibrationTip(
+                        icon: Icons.lock_open_rounded,
+                        text: 'Allow camera access in Settings.',
+                      ),
+                      const SizedBox(height: 10),
+                      const CalibrationTip(
+                        icon: Icons.apps_rounded,
+                        text: 'Close any other camera app, then try again.',
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: MiniKey(
+                label: 'Try again',
+                icon: Icons.refresh_rounded,
+                colors: miniKeyColors(mode),
+                height: 58,
+                size: 20,
+                onPressed: () => controller.startCamera(),
+              ),
+            ),
+            const SizedBox(width: 12),
+            MiniRoundKey(
+              icon: Icons.settings_rounded,
+              label: 'Camera permission settings',
+              onPressed: controller.source!.openSettings,
+            ),
+          ],
+        ),
+      ],
+    );
+    // The step at hand, the bird following the player in its little sky, a
+    // meter for how far calibration has come, and the way on.
+    final guide = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        CalibrationStepTitle(
+          title: stepTitle,
+          step: step,
+          accent: accent,
+          done: ready,
+        ),
+        const SizedBox(height: 6),
+        Text(
+          ready
+              ? (mode == PlayMode.pushUp
+                    ? 'Push up to rise. Lower to glide.'
+                    : mode == PlayMode.squat
+                    ? 'Squat to descend. Stand to rise.'
+                    : 'Jump, then rest while your bird glides.')
+              : (mode == PlayMode.pushUp
+                    ? 'Keep your shoulders, one arm and a hip in view. Move comfortably.'
+                    : 'Keep your shoulders, hips and both feet in view.'),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: bodyText(13.5, color: SkyColors.ink, weight: FontWeight.w700),
+        ),
+        const SizedBox(height: 10),
+        Expanded(
+          child: MiniCard(
+            accent: ready ? SkyColors.mint : accent,
+            padding: EdgeInsets.zero,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: CalibrationPreview(
+                    bird: p.settings.bird,
+                    color: ready ? SkyColors.mint : accent,
+                    still: still,
+                    height: ready
+                        ? controller.movement.height
+                        : mode == PlayMode.pushUp
+                        ? body.previewHeight
+                        : mode == PlayMode.squat
+                        ? squat.previewHeight
+                        : .5,
+                    caption: !ready
+                        ? (mode.controlsHeight
+                              ? 'Learning your range as you move.'
+                              : 'Your bird moves after calibration.')
+                        : mode == PlayMode.jump
+                        ? (controller.movement.flap
+                              ? 'Jump!'
+                              : controller.movement.feedback)
+                        : null,
+                  ),
+                ),
+                DecoratedBox(
+                  decoration: const BoxDecoration(
+                    border: Border(
+                      top: BorderSide(color: SkyColors.ink, width: 2),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 9, 10, 9),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: CalibrationMeter(
+                            value: ready ? 1 : progress,
+                            segments: segments,
+                            color: ready ? const Color(0xff69c893) : accent,
+                            still: still,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: MiniTag(
+                            ready
+                                ? 'CONTROL CHECK'
+                                : mode == PlayMode.pushUp
+                                ? '${body.cycles} / 2 PUSH-UPS'
+                                : '${((mode == PlayMode.squat ? squat.progress : controller.jump.progress) * 100).round()}% CALIBRATED',
+                            color: ready ? SkyColors.mint : SkyColors.yellow,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        if (ready)
+          MiniKey(
+            label: 'Ready for takeoff',
+            icon: Icons.flight_takeoff_rounded,
+            colors: miniKeyColors(mode),
+            height: 58,
+            size: 20,
+            onPressed: controller.fly,
+          )
+        else
+          MiniKey(
+            label: busy ? 'Starting…' : 'Start calibration again',
+            onPressed: busy ? null : () => controller.startCamera(),
+            colors: HomeKeyColors.paper,
+            icon: Icons.restart_alt_rounded,
+            height: 58,
+            size: 19,
+            busy: busy,
+          ),
+        const SizedBox(height: 5),
+        CalibrationMetrics(
+          '${controller.metrics.hz.toStringAsFixed(0)} updates/s · ${controller.metrics.p95.toStringAsFixed(0)} ms p95${controller.metrics.sensorTimestamp ? '' : ' (processing only)'}',
+        ),
+      ],
+    );
     return Stack(
       children: [
         Positioned(
@@ -836,11 +1087,19 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                     ? 'READY'
                     : busy
                     ? 'STARTING'
+                    : error
+                    ? 'CAMERA OFF'
                     : 'CALIBRATING',
                 icon: ready
                     ? Icons.check_circle_rounded
+                    : error
+                    ? Icons.videocam_off_rounded
                     : Icons.center_focus_strong_rounded,
-                color: ready ? SkyColors.mint : SkyColors.cream,
+                color: ready
+                    ? SkyColors.mint
+                    : error
+                    ? Color.lerp(SkyColors.coral, SkyColors.cream, .5)!
+                    : SkyColors.cream,
               ),
               MiniRoundKey(
                 icon: Icons.cameraswitch_rounded,
@@ -850,67 +1109,93 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
             ],
           ),
         ),
+        // The camera window keeps the live preview's exact box; its frame
+        // paints outside it, and only small marks sit over the picture.
         Positioned(
           left: 28,
           top: 92,
           width: 540,
           height: 322,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(24),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                if (busy || error) Container(color: SkyColors.ink),
-                IgnorePointer(
-                  child: CustomPaint(
-                    painter: LandmarkPainter(
-                      controller.latest,
-                      controller.front,
-                      widget.mode,
-                    ),
-                  ),
-                ),
-                if (busy)
-                  const Center(
-                    child: CircularProgressIndicator(color: SkyColors.yellow),
-                  ),
-                // The camera's frame, in the cards' ink outline.
-                IgnorePointer(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: SkyColors.ink, width: 3),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  left: 14,
-                  right: 14,
-                  bottom: 14,
-                  child: Container(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                    decoration: BoxDecoration(
-                      color: SkyColors.ink.withValues(alpha: .92),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: SkyColors.cream.withValues(alpha: .5),
-                        width: 1.5,
+          child: CameraBezel(
+            accent: accent,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  if (busy || error)
+                    const DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: RadialGradient(
+                          radius: 1.1,
+                          colors: [Color(0xff2b4b56), SkyColors.night],
+                        ),
                       ),
                     ),
-                    child: Text(
-                      controller.message.isEmpty
+                  // While the camera wakes, its lens has the window to
+                  // itself; the pose guide returns once it is watching.
+                  if (!busy)
+                    IgnorePointer(
+                      child: CustomPaint(
+                        painter: LandmarkPainter(
+                          controller.latest,
+                          controller.front,
+                          mode,
+                        ),
+                      ),
+                    ),
+                  ViewfinderCorners(
+                    color: switch (camera) {
+                      CameraState.starting => SkyColors.yellow,
+                      CameraState.live => SkyColors.cream,
+                      CameraState.ready => const Color(0xff7fe0a8),
+                      CameraState.offline => SkyColors.coral,
+                    },
+                  ),
+                  if (busy)
+                    Align(
+                      alignment: const Alignment(0, -.3),
+                      child: WakingLens(accent: SkyColors.yellow, still: still),
+                    ),
+                  if (error)
+                    const Align(
+                      alignment: Alignment(0, -.45),
+                      child: SleepyCamera(size: 132),
+                    ),
+                  Positioned(
+                    left: 14,
+                    right: 14,
+                    bottom: 14,
+                    child: CalibrationNote(
+                      text: controller.message.isEmpty
                           ? 'Step into view'
                           : controller.message,
-                      style: bodyText(
-                        18,
-                        color: SkyColors.white,
-                        weight: FontWeight.w800,
-                      ),
+                      icon: busy
+                          ? Icons.hourglass_top_rounded
+                          : error
+                          ? Icons.videocam_off_rounded
+                          : ready
+                          ? Icons.flight_rounded
+                          : Icons.accessibility_new_rounded,
+                      accent: error
+                          ? SkyColors.coral
+                          : ready
+                          ? SkyColors.mint
+                          : accent,
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
+          ),
+        ),
+        // The badge sits on the frame's top edge, like a camera's notch.
+        Positioned(
+          left: 28,
+          width: 540,
+          top: 92 - CameraBezel.width - 6,
+          child: Center(
+            child: CameraBadge(state: camera, still: still),
           ),
         ),
         Positioned(
@@ -918,186 +1203,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
           right: 28,
           top: 92,
           bottom: 36,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (error) ...[
-                Expanded(
-                  child: MiniCard(
-                    accent: SkyColors.coral,
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.videocam_off_rounded,
-                          size: 46,
-                          color: SkyColors.coralDeep,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'A fresh start usually helps.',
-                          style: heading(24),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          'Allow camera access in Settings. Close any other camera app, then try again.',
-                          style: bodyText(15, color: SkyColors.muted),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: MiniKey(
-                        label: 'Try again',
-                        icon: Icons.refresh_rounded,
-                        colors: miniKeyColors(widget.mode),
-                        onPressed: () => controller.startCamera(),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    MiniRoundKey(
-                      icon: Icons.settings_rounded,
-                      label: 'Camera permission settings',
-                      onPressed: controller.source!.openSettings,
-                    ),
-                  ],
-                ),
-              ] else ...[
-                Text(
-                  ready
-                      ? 'Try moving your bird.'
-                      : widget.mode == PlayMode.pushUp
-                      ? controller.body.step == BodyCalibrationStep.position
-                            ? 'Find a comfortable top.'
-                            : controller.body.step == BodyCalibrationStep.lower
-                            ? 'Lower yourself slowly.'
-                            : 'Push back up.'
-                      : widget.mode == PlayMode.squat
-                      ? switch (controller.squat.step) {
-                          SquatCalibrationStep.standing =>
-                            'Stand tall and still.',
-                          SquatCalibrationStep.lower => 'Squat comfortably.',
-                          SquatCalibrationStep.rise => 'Stand back up.',
-                          SquatCalibrationStep.complete =>
-                            'You found your wings!',
-                        }
-                      : 'Stand tall and still.',
-                  style: heading(26, weight: FontWeight.w700),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  ready
-                      ? (widget.mode == PlayMode.pushUp
-                            ? 'Push up to rise. Lower to glide.'
-                            : widget.mode == PlayMode.squat
-                            ? 'Squat to descend. Stand to rise.'
-                            : 'Jump, then rest while your bird glides.')
-                      : (widget.mode == PlayMode.pushUp
-                            ? 'Keep your shoulders, one arm and a hip in view. Move comfortably.'
-                            : 'Keep your shoulders, hips and both feet in view.'),
-                  style: bodyText(14, color: SkyColors.muted),
-                ),
-                const SizedBox(height: 12),
-                Expanded(
-                  child: MiniCard(
-                    accent: miniColor(widget.mode),
-                    padding: const EdgeInsets.all(12),
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          top: 0,
-                          right: 0,
-                          child: MiniTag(
-                            ready
-                                ? 'CONTROL CHECK'
-                                : widget.mode == PlayMode.pushUp
-                                ? '${controller.body.cycles} / 2 PUSH-UPS'
-                                : '${((widget.mode == PlayMode.squat ? controller.squat.progress : controller.jump.progress) * 100).round()}% CALIBRATED',
-                            color: ready ? SkyColors.mint : SkyColors.yellow,
-                          ),
-                        ),
-                        Align(
-                          alignment: Alignment(
-                            -.45,
-                            ready
-                                ? .8 - controller.movement.height * 1.6
-                                : widget.mode == PlayMode.pushUp
-                                ? .8 - controller.body.previewHeight * 1.6
-                                : widget.mode == PlayMode.squat
-                                ? .8 - controller.squat.previewHeight * 1.6
-                                : 0,
-                          ),
-                          child: BirdArt(
-                            bird: p.settings.bird,
-                            size: 100,
-                            bob: false,
-                          ),
-                        ),
-                        if (!ready)
-                          Positioned(
-                            bottom: 4,
-                            left: 0,
-                            right: 0,
-                            child: Text(
-                              widget.mode.controlsHeight
-                                  ? 'Learning your range as you move.'
-                                  : 'Your bird moves after calibration.',
-                              style: bodyText(12, color: SkyColors.muted),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        if (ready && widget.mode == PlayMode.jump)
-                          Positioned(
-                            bottom: 4,
-                            left: 0,
-                            right: 0,
-                            child: Text(
-                              controller.movement.flap
-                                  ? 'Jump!'
-                                  : controller.movement.feedback,
-                              style: bodyText(12, color: SkyColors.muted),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                if (ready)
-                  MiniKey(
-                    label: 'Ready for takeoff',
-                    icon: Icons.flight_takeoff_rounded,
-                    colors: miniKeyColors(widget.mode),
-                    height: 58,
-                    size: 20,
-                    onPressed: controller.fly,
-                  )
-                else
-                  MiniKey(
-                    label: busy ? 'Starting…' : 'Start calibration again',
-                    onPressed: busy ? null : () => controller.startCamera(),
-                    colors: HomeKeyColors.paper,
-                    icon: Icons.restart_alt_rounded,
-                    height: 58,
-                    size: 19,
-                    busy: busy,
-                  ),
-                const SizedBox(height: 6),
-                Text(
-                  '${controller.metrics.hz.toStringAsFixed(0)} updates/s · ${controller.metrics.p95.toStringAsFixed(0)} ms p95${controller.metrics.sensorTimestamp ? '' : ' (processing only)'}',
-                  style: bodyText(11, color: SkyColors.muted),
-                ),
-              ],
-            ],
-          ),
+          child: error ? trouble : guide,
         ),
       ],
     );
