@@ -463,9 +463,15 @@ class MatchPlate extends StatelessWidget {
 
 /// A small tilted sticker for a bonus, such as the score multiplier.
 class MatchTag extends StatelessWidget {
-  const MatchTag(this.text, {super.key, this.color = SkyColors.coral});
+  const MatchTag(
+    this.text, {
+    super.key,
+    this.color = SkyColors.coral,
+    this.size = 24,
+  });
   final String text;
   final Color color;
+  final double size;
 
   @override
   Widget build(BuildContext context) => Transform.rotate(
@@ -477,7 +483,7 @@ class MatchTag extends StatelessWidget {
         child: Text(
           text,
           style: matchDigits(
-            24,
+            size,
             color: SkyColors.white,
           ).copyWith(shadows: matchInkEdge(1.2)),
         ),
@@ -646,10 +652,9 @@ class MatchMeter extends StatelessWidget {
   );
 }
 
-/// Hearts and the shield. A lost heart bursts out of its socket and shakes
-/// the plate; a new heart pops in. Both are single, short reactions, and
-/// reduced motion shows the new state at once.
-const _v = int.fromEnvironment('MERGE_V');
+/// Hearts and the shield, side by side on one plate. A lost heart bursts out
+/// of its socket and shakes the plate; a new heart pops in. Both are single,
+/// short reactions, and reduced motion shows the new state at once.
 
 class MatchHealth extends StatefulWidget {
   const MatchHealth({
@@ -801,13 +806,8 @@ class _MatchHealthState extends State<MatchHealth>
             0,
           ),
           child: MatchPlate(
-            radius: _v == 0
-                ? 32
-                : _v == 1
-                ? 28
-                : 24,
-            padding: const EdgeInsets.fromLTRB(11, 5, 11, 6),
-            child: Column(
+            padding: const EdgeInsets.fromLTRB(14, 5, 8, 6),
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [heartRow, const _Seam(), shieldMeter],
             ),
@@ -824,9 +824,9 @@ class _Seam extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    width: 84,
-    height: 2.5,
-    margin: const EdgeInsets.symmetric(vertical: 4),
+    width: 2.5,
+    height: 30,
+    margin: const EdgeInsets.symmetric(horizontal: 7),
     decoration: BoxDecoration(
       color: SkyColors.ink.withValues(alpha: .12),
       borderRadius: BorderRadius.circular(2),

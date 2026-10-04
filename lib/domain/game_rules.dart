@@ -85,8 +85,8 @@ enum FlightEventKind {
   galeWeathered,
 
   /// Every ring of a rush path collected: the last ring sprint runs
-  /// [Rush.allRingsBonus] seconds longer
-  /// ([FlightSimulation.allRingsRulesVersion]).
+  /// [FlightSimulation.allRingsBonus] seconds longer
+  /// ([FlightSimulation.allRingsRulesVersion]); the value is in tenths.
   allRings,
 }
 
@@ -454,11 +454,17 @@ class FlightSimulation {
   /// faster and busier, with a hundred more health
   /// ([fasterNeferhooRulesVersion]); 56 brings King Coo's escaped pigeons
   /// back in pairs ([cooPairsRulesVersion]); 57 shortens the countdown and
-  /// lets retries skip it ([quickStartRulesVersion]). Endless and co-op
+  /// lets retries skip it ([quickStartRulesVersion]); 58 shortens the
+  /// all-rings bonus ([shorterRingsBonusRulesVersion]). Endless and co-op
   /// flights fly at 50 exactly as at 43 until that Baron arrives; duels
   /// exactly as at 43.
-  static const currentRulesVersion = 57;
+  static const currentRulesVersion = 58;
   final int rulesVersion;
+
+  /// Rules version 58: the all-rings bonus adds [Rush.allRingsBonus] (1.2)
+  /// seconds to the last ring sprint instead of [Rush.firstAllRingsBonus]
+  /// (2). Every flight that misses a ring flies exactly as at 57.
+  static const shorterRingsBonusRulesVersion = 58;
 
   /// New flights count 2–1; retries launch on their first valid frame.
   /// Older journals retain their three-second countdowns.
@@ -626,7 +632,8 @@ class FlightSimulation {
   static const neferhooRulesVersion = 50;
 
   /// Rules version 51: collecting every ring of a rush path adds
-  /// [Rush.allRingsBonus] seconds to the last ring sprint, at full boost.
+  /// [Rush.firstAllRingsBonus] seconds to the last ring sprint, at full
+  /// boost (shortened at [shorterRingsBonusRulesVersion]).
   /// Every flight that misses a ring flies exactly as at 50.
   static const allRingsRulesVersion = 51;
 
@@ -1088,6 +1095,11 @@ class FlightSimulation {
 
   bool get supportsRushPaths => supportsSprint && isTrail && rulesVersion >= 32;
 
+  /// The seconds the all-rings bonus adds to the last ring sprint.
+  double get allRingsBonus => rulesVersion >= shorterRingsBonusRulesVersion
+      ? Rush.allRingsBonus
+      : Rush.firstAllRingsBonus;
+
   /// The all-rings bonus ([allRingsRulesVersion]).
   bool get supportsAllRingsBonus =>
       supportsRushPaths && rulesVersion >= allRingsRulesVersion;
@@ -1113,6 +1125,9 @@ class FlightSimulation {
   int ringSprints = 0, ringChain = 0, allRingsBonuses = 0;
   int smashes = 0, smashChain = 0, meteorsSmashed = 0;
   int ventsErupted = 0, swarmSmashed = 0;
+
+  /// When the last all-rings bonus was won; drawn, not flown.
+  double allRingsAt = double.negativeInfinity;
   double ringSprintFrom = double.negativeInfinity;
   double ringSprintUntil = double.negativeInfinity;
   bool get ringSprinting =>
@@ -1123,6 +1138,10 @@ class FlightSimulation {
   double get ringSprintBoost => 1 + (RingSprint.peakBoost - 1) * _ringEnvelope;
   double get ringSprintRemaining =>
       ringSprinting ? ringSprintUntil - elapsed : 0;
+
+  /// Whether the running ring sprint carries the all-rings bonus. A later
+  /// run's first ring starts its sprint after the bonus was won.
+  bool get allRingsBoosting => ringSprinting && allRingsAt >= ringSprintFrom;
 
   bool get supportsGales => supportsRushPaths && rulesVersion >= 33;
   Gale? gale;
@@ -3086,7 +3105,7 @@ class FlightSimulation {
   }
 
   /// The run's last ring, when every ring before it was collected too,
-  /// keeps the boost [Rush.allRingsBonus] seconds longer.
+  /// keeps the boost [allRingsBonus] seconds longer.
   void _ringSprint() {
     final chained = ringSprinting;
     ringSprintFrom = elapsed - RingSprint.surgeAgeFor(_ringEnvelope);
@@ -3097,9 +3116,11 @@ class FlightSimulation {
     if (path != null) path.rings++;
     _event(FlightEventKind.sprintRing, ringChain);
     if (supportsAllRingsBonus && path != null && path.rings == Rush.beats) {
-      ringSprintUntil += Rush.allRingsBonus;
+      ringSprintUntil += allRingsBonus;
       allRingsBonuses++;
-      _event(FlightEventKind.allRings, Rush.allRingsBonus.round());
+      allRingsAt = elapsed;
+      // In tenths of a second, so 1.2 s reads as 1.2.
+      _event(FlightEventKind.allRings, (allRingsBonus * 10).round());
     }
   }
 

@@ -231,6 +231,10 @@ abstract final class Rush {
   static const escapeBonus = 10, flawlessBonus = 10;
 
   /// Collecting all [beats] rings of a run keeps the last ring sprint going
-  /// this many seconds longer (rules version 51).
-  static const allRingsBonus = 2.0;
+  /// this many seconds longer (rules version 58; see
+  /// `FlightSimulation.allRingsBonus`).
+  static const allRingsBonus = 1.2;
+
+  /// The all-rings bonus from rules version 51 to 57.
+  static const firstAllRingsBonus = 2.0;
 }

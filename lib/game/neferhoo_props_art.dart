@@ -1408,7 +1408,7 @@ Offset _tagAt(double top, double bottom, Size size, Size tag, List<Rect> clear) 
 /// out on a 1000 x 450 scene fitted into the screen's safe area
 /// (`SceneLayout` sits in a `SafeArea`; [insets], by default the insets the
 /// game last saw, [NeferhooScreen.insets]), the plate at
-/// [MatchLayout.edge], 118 x 100 scene units (measured in the real play
+/// [MatchLayout.edge], 178.5 x 55 scene units (measured in the real play
 /// screen at 640, 800 and 864 x 360, and with notch insets:
 /// `neferhoo_real_flight_test`).
 Rect neferhooHudPlate(Size size, [EdgeInsets? insets]) {
@@ -1417,7 +1417,7 @@ Rect neferhooHudPlate(Size size, [EdgeInsets? insets]) {
   final s = math.min(w / 1000, h / 450);
   final ox = pad.left + (w - 1000 * s) / 2, oy = pad.top + (h - 450 * s) / 2;
   const e = MatchLayout.edge;
-  return Rect.fromLTWH(ox + e * s, oy + e * s, 118 * s, 100 * s).inflate(4 * s);
+  return Rect.fromLTWH(ox + e * s, oy + e * s, 178.5 * s, 55 * s).inflate(4 * s);
 }
 
 /// The flight HUD's pause key (`MatchAction`, the top row's right end,

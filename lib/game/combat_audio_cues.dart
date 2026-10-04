@@ -11,6 +11,7 @@ class CombatAudioCues {
   int _shatters = 0;
   int _dryFires = 0, _sprints = 0;
   int _ringSprints = 0, _smashes = 0, _rushWarnings = 0, _rushEscapes = 0;
+  int _allRings = 0;
   int _eruptions = 0, _gusts = 0, _galeWarnings = 0, _galesWeathered = 0;
   int _splashes = 0, _emberSplits = 0;
   // New York: Alley Pigeon raids and Steam Geysers.
@@ -104,6 +105,8 @@ class CombatAudioCues {
         // Only the start of a chain gets the sprint's whoosh and voice.
         if (sim.ringChain == 1) cues.add('sprint');
       }
+      // Every ring of a run: the power-up chime and a fresh turbo whoosh.
+      if (sim.allRingsBonuses > _allRings) cues.addAll(['streak', 'sprint']);
       if (sim.smashes + sim.meteorsSmashed > _smashes) {
         cues.add('rubble_smash');
       }
@@ -182,6 +185,7 @@ class CombatAudioCues {
     _sprints = sim.sprints;
     _sprintReady = sprintReady;
     _ringSprints = sim.ringSprints;
+    _allRings = sim.allRingsBonuses;
     _smashes = sim.smashes + sim.meteorsSmashed;
     _rushWarnings = sim.rushWarnings;
     _rushEscapes = sim.rushPathsEscaped;

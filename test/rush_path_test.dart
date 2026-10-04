@@ -816,6 +816,17 @@ void main() {
     ride(escape, 20, until: () => escape.rushPathsEscaped > 0);
     ride(escape, .35);
     scenes['escape'] = escape;
+    // Every ring of a run: the title card, the shockwave and the flash.
+    final rings = laid()..invulnerableUntil = double.infinity;
+    ride(rings, 20, until: () => rings.allRingsBonuses > 0);
+    ride(rings, .12);
+    scenes['all-rings'] = rings;
+    // Then the gold halo, its ring draining with the boost.
+    final boosted = laid()..invulnerableUntil = double.infinity;
+    ride(boosted, 20, until: () => boosted.allRingsBonuses > 0);
+    ride(boosted, 1.4);
+    expect(boosted.allRingsBoosting, isTrue);
+    scenes['all-rings-boost'] = boosted;
 
     for (final MapEntry(key: name, value: sim) in scenes.entries) {
       final moving = await render(sim, false);

@@ -44,6 +44,17 @@ void main() {
     expect(cues.advance(sim), isEmpty);
   });
 
+  test('every ring of a run chimes once, with a fresh turbo whoosh', () {
+    final sim = playing();
+    final cues = CombatAudioCues()..advance(sim, silent: true);
+    sim.allRingsBonuses++;
+    expect(cues.advance(sim), ['streak', 'sprint']);
+    expect(cues.advance(sim), isEmpty);
+    sim.allRingsBonuses = 5;
+    expect(cues.advance(sim, silent: true), isEmpty);
+    expect(cues.advance(sim), isEmpty);
+  });
+
   test('silent seeks, rewinds and new runs never play historical combat', () {
     final sim = playing();
     final cues = CombatAudioCues()..advance(sim);

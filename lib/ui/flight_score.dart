@@ -110,10 +110,10 @@ class _FlightScoreState extends State<FlightScore>
               children: [
                 RotationTransition(
                   turns: _flick,
-                  child: MatchIcon(widget.symbol, size: 40),
+                  child: MatchIcon(widget.symbol, size: 28),
                 ),
-                const SizedBox(width: 8),
-                Text('${widget.score}', style: matchDigits(56)),
+                const SizedBox(width: 6),
+                Text('${widget.score}', style: matchDigits(38)),
                 if (widget.multiplier > 1) ...[
                   const SizedBox(width: 8),
                   MatchPulse(
@@ -121,6 +121,7 @@ class _FlightScoreState extends State<FlightScore>
                     reducedMotion: widget.reducedMotion,
                     child: MatchTag(
                       '${widget.multiplier}×',
+                      size: 19,
                       color: widget.multiplier > 2
                           ? SkyColors.purple
                           : SkyColors.coral,
