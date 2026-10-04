@@ -68,8 +68,7 @@ class CombatAudioCues {
     final fresh = !identical(_simulation, sim);
     final backwards = !fresh && sim.elapsed < _elapsed;
     final fullCharge = [
-      for (final bird in sim.flock)
-        sim.viewing(bird, () => sim.shotCharge >= 1),
+      for (final bird in sim.flock) sim.viewing(bird, () => sim.shotChargeFull),
     ];
     // Only a recharge after a used sprint chimes, never the flight start.
     final sprintReady = [

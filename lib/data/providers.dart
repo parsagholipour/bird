@@ -102,6 +102,12 @@ class ProgressController extends AsyncNotifier<ProgressSnapshot> {
     await refresh();
   }
 
+  /// Buys [p]'s next level with collected stars.
+  Future<void> buyUpgrade(PowerUp p) async {
+    await _repo.buyUpgrade(p);
+    await refresh();
+  }
+
   Future<void> reset() async {
     await ref.read(sessionRepositoryProvider).reset();
     ref.invalidate(sessionsProvider);

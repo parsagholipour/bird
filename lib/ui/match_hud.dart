@@ -664,8 +664,11 @@ class MatchHealth extends StatefulWidget {
     required this.charge,
     required this.recovering,
     required this.reducedMotion,
+    this.stars = 9,
   });
-  final int hearts, charge;
+
+  /// [charge] of [stars] collected towards the next shield.
+  final int hearts, charge, stars;
   final bool shield, recovering, reducedMotion;
 
   @override
@@ -745,15 +748,15 @@ class _MatchHealthState extends State<MatchHealth>
       child: MatchMeter(
         key: const ValueKey('match-shield'),
         symbol: MatchSymbol.shield,
-        value: shield || recovering ? 1 : widget.charge / 9,
+        value: shield || recovering ? 1 : widget.charge / widget.stars,
         active: shield || recovering,
         color: recovering ? SkyColors.gold : SkyColors.teal,
-        segments: shield || recovering ? 0 : 9,
+        segments: shield || recovering ? 0 : widget.stars,
         label: recovering
             ? 'Recovering'
             : shield
             ? 'Shield ready'
-            : 'Shield charging: ${widget.charge} of 9 stars',
+            : 'Shield charging: ${widget.charge} of ${widget.stars} stars',
       ),
     );
     return AnimatedBuilder(
@@ -1063,9 +1066,15 @@ class MatchShotButton extends StatefulWidget {
     required this.onRelease,
     required this.reducedMotion,
     this.hold = 1,
+    this.limit = 1,
     this.size = 100,
   });
   final String label;
+
+  /// The most the shot can charge at the bird's shot-power upgrade. The
+  /// inner ring beyond it stays dark, and reaching it counts as full.
+  final double limit;
+  bool get full => charge >= limit - 1e-9;
 
   /// Each from 0 to 1: remaining reserve, held charge and the reserve share
   /// the release would spend. [hold] is the share of the full-charge window
@@ -1129,7 +1138,7 @@ class _MatchShotButtonState extends State<MatchShotButton> {
       value: widget.empty
           ? 'Reloading…'
           : showingCharge
-          ? widget.charge >= 1
+          ? widget.full
                 ? 'Full charge, ${(widget.hold * PowerShot.maxFullHoldSeconds * 1000).round()} ms left'
                 : 'Charging ${(widget.charge * 100).round()}%'
           : 'Ammo ${(widget.reserve * 100).round()}%',
@@ -1171,6 +1180,7 @@ class _MatchShotButtonState extends State<MatchShotButton> {
                 spend: widget.spend,
                 charge: widget.charge,
                 hold: widget.hold,
+                limit: widget.limit,
                 charging: showingCharge,
               ),
               child: Center(
@@ -1221,8 +1231,9 @@ class _ShotMeter extends CustomPainter {
     required this.charge,
     required this.hold,
     required this.charging,
+    this.limit = 1,
   });
-  final double reserve, spend, charge, hold;
+  final double reserve, spend, charge, hold, limit;
   final bool charging;
 
   @override
@@ -1252,8 +1263,13 @@ class _ShotMeter extends CustomPainter {
     if (!charging) return;
     final inner = (Offset.zero & size).deflate(18);
     canvas.drawOval(inner, paint..color = SkyColors.ink.withValues(alpha: .2));
-    final level = charge >= 1 ? hold.clamp(0.0, 1.0) : charge;
-    arc(inner, 0, level, charge >= 1 ? SkyColors.white : SkyColors.yellow);
+    final top = limit.clamp(0.0, 1.0);
+    // Charge the shot-power upgrade has not unlocked yet sits in a darker
+    // groove.
+    arc(inner, top, 1, SkyColors.ink.withValues(alpha: .35));
+    final full = charge >= top - 1e-9;
+    final level = full ? hold.clamp(0.0, 1.0) * top : charge;
+    arc(inner, 0, level, full ? SkyColors.white : SkyColors.yellow);
   }
 
   @override
@@ -1262,6 +1278,7 @@ class _ShotMeter extends CustomPainter {
       spend != oldDelegate.spend ||
       charge != oldDelegate.charge ||
       hold != oldDelegate.hold ||
+      limit != oldDelegate.limit ||
       charging != oldDelegate.charging;
 }
 

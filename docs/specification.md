@@ -238,6 +238,28 @@ deflection and plays the existing deflect splash, without creating another
 blast. Boss ammo is unaffected. Rules 36–58 keep their original blasts that
 damage enemies but leave nearby pellets in flight.
 
+### Upgrades (rules version 60)
+
+Stars collected on scored flights (non-practice `runs.stars`, endless and
+campaign) form a wallet; buying an upgrade level adds its cost to the
+`starsSpent` preference, and each level is stored as `upgrade.<name>`.
+Purchases run in one transaction and are refused at the top level or when
+`earned − spent` is below the cost. Reset clears both. Levels run 0–4 and
+cost 50, 120, 250 and 450 stars. A new flight takes the saved levels
+(`PowerUps`) and its replay records them as `upgrades`; journals before 60
+always fly `PowerUps.legacy` (shot 4, sprint 4, shield 4, magnet 3), which is
+exactly the earlier behavior.
+
+- Shot power caps the charge at 0.25, 0.45, 0.65, 0.85, 1. The charge grows at
+  the usual rate; the 500 ms full-hold window starts at the cap, and the
+  inner ring beyond the cap stays dark.
+- Sprint lasts 0.7, 0.8, 0.95, 1.05, 1.2 s with cooldowns of 25, 22, 19, 17,
+  15 s. The surge and ease keep their lengths inside the shorter burst.
+- Shield is restored every 15, 13, 11, 10, 9 stars, and the recovery after it
+  absorbs a hit lasts 0.6, 0.8, 1.0, 1.25, 1.5 s. A lost heart keeps 1.5 s.
+- Magnet needs 5, 4, 4, 3, 3 perfect gates, lasts 5, 6, 7, 8, 10 s and has a
+  pickup radius of 0.16, 0.17, 0.185, 0.20, 0.22.
+
 Draw a burst that shows the blast reach, anchored in the world, in place of
 the deflect splash. Play `lava_burst` under the `deflect` cue. The record is
 render-only and pruned after one second. Boss arrival clears it. Reduced

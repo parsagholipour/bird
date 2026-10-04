@@ -45,6 +45,7 @@ class PlayController extends ChangeNotifier {
     this.partner,
     this.coopMode = CoopMode.roped,
     this.weaponDamage = BirdRock.baseDamage,
+    this.upgrades = PowerUps.legacy,
     this.reducedMotion = false,
     this.recordAudio = false,
     this.rememberRecordAudio,
@@ -114,6 +115,9 @@ class PlayController extends ChangeNotifier {
   /// Two players fighting each other rather than flying as a team.
   bool get duel => coop && coopMode == CoopMode.duel;
   final int weaponDamage;
+
+  /// The star-bought upgrade levels every flight of this controller flies.
+  final PowerUps upgrades;
   final bool reducedMotion;
 
   /// The campaign level flown, or null for endless. Every attempt, retries
@@ -661,6 +665,7 @@ class PlayController extends ChangeNotifier {
             squat.result?.cycleSeconds ?? body.result?.cycleSeconds ?? 3,
         bird: bird,
         weaponDamage: weaponDamage,
+        upgrades: upgrades,
         reducedMotion: reducedMotion,
         originMs: nowMs,
         skipCountdown: _skipCountdown,

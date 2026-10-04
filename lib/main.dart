@@ -12,6 +12,7 @@ import 'ui/home_screen.dart';
 import 'ui/campaign_screen.dart';
 import 'ui/collection_screen.dart';
 import 'ui/records_screen.dart';
+import 'ui/upgrades_screen.dart';
 import 'ui/replay_screen.dart';
 import 'ui/settings_screen.dart';
 import 'ui/play_screen.dart';
@@ -67,6 +68,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/birds',
       builder: (context, state) => const CollectionScreen(),
+    ),
+    GoRoute(
+      path: '/upgrades',
+      builder: (context, state) => const UpgradesScreen(),
     ),
     GoRoute(
       path: '/records',

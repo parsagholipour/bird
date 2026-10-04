@@ -12,12 +12,13 @@ abstract final class Sprint {
   /// before the ram ends rather than snapping back at a wall.
   static const surgeSeconds = .15, easeSeconds = .40;
 
-  /// Scroll-speed multiplier `age` seconds after a sprint started.
-  static double boost(double age) {
-    if (!(age >= 0 && age < seconds)) return 1;
+  /// Scroll-speed multiplier `age` seconds after a sprint started, for a
+  /// burst lasting [length] (shorter below the top sprint upgrade).
+  static double boost(double age, {double length = seconds}) {
+    if (!(age >= 0 && age < length)) return 1;
     final envelope = math.min(
       _smooth(age / surgeSeconds),
-      _smooth((seconds - age) / easeSeconds),
+      _smooth((length - age) / easeSeconds),
     );
     return 1 + (peakBoost - 1) * envelope;
   }

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
@@ -281,9 +282,29 @@ class ProgressSnapshot {
     this.recent = const [],
     this.adventures = const [],
     this.coop = const CoopProgress(),
+    this.upgrades = const PowerUps(),
+    this.starsSpent = 0,
     this._campaign,
   });
   final GameSettings settings;
+
+  /// The upgrade levels bought with stars, flown on every new flight.
+  final PowerUps upgrades;
+
+  /// Stars spent on [upgrades] so far.
+  final int starsSpent;
+
+  /// Every star collected on a scored flight, endless and campaign alike.
+  int get starsEarned => totalStars + campaignFlights.stars;
+
+  /// Stars left to spend on upgrades.
+  int get starWallet => (starsEarned - starsSpent).clamp(0, starsEarned);
+
+  /// Whether [p]'s next level is for sale and the wallet can pay for it.
+  bool canBuy(PowerUp p) {
+    final cost = PowerUp.costFrom(upgrades[p]);
+    return cost != null && starWallet >= cost;
+  }
 
   /// Co-op flights, kept apart from everything below.
   final CoopProgress coop;
@@ -388,6 +409,10 @@ abstract interface class ProgressRepository {
 
   /// Remembers the birds players 1 and 2 chose for co-op, and the mode.
   Future<void> chooseCoop(int first, int second, CoopMode mode);
+
+  /// Buys [p]'s next level with collected stars. Throws a [StateError] when
+  /// it is already at the top or the wallet cannot pay for it.
+  Future<void> buyUpgrade(PowerUp p);
   Future<void> reset();
   Future<void> close();
 }
@@ -503,6 +528,8 @@ class SqliteProgressRepository implements ProgressRepository {
         mode:
             CoopMode.values.asNameMap()[prefs[_coopModeKey]] ?? CoopMode.roped,
       ),
+      upgrades: _upgrades(prefs),
+      starsSpent: _starsSpent(prefs),
       adventures: [
         for (var i = 6; i >= 0; i--)
           DailyAdventure.forDate(
@@ -758,6 +785,44 @@ class SqliteProgressRepository implements ProgressRepository {
     await _remember(_coopBirdsKey, '$first,$second');
     await _remember(_coopModeKey, mode.name);
   }
+
+  /// Each upgrade's level, such as `upgrade.magnet`, and the stars spent.
+  static String _upgradeKey(PowerUp p) => 'upgrade.${p.name}';
+  static const _starsSpentKey = 'starsSpent';
+
+  static PowerUps _upgrades(Map<String, String> prefs) {
+    var upgrades = const PowerUps();
+    for (final p in PowerUp.values) {
+      final level = int.tryParse(prefs[_upgradeKey(p)] ?? '') ?? 0;
+      upgrades = upgrades.withLevel(p, level.clamp(0, PowerUp.maxLevel));
+    }
+    return upgrades;
+  }
+
+  static int _starsSpent(Map<String, String> prefs) =>
+      math.max(0, int.tryParse(prefs[_starsSpentKey] ?? '') ?? 0);
+
+  @override
+  Future<void> buyUpgrade(PowerUp p) => db.transaction(() async {
+    final prefs = {
+      for (final row in await db.select(db.preferences).get())
+        row.key: row.value,
+    };
+    final level = _upgrades(prefs)[p];
+    final cost = PowerUp.costFrom(level);
+    if (cost == null) throw StateError('${p.title} is already at the top');
+    final earned = await db
+        .customSelect(
+          'SELECT COALESCE(SUM(stars),0) AS stars FROM runs WHERE practice = 0',
+        )
+        .getSingle();
+    final spent = _starsSpent(prefs);
+    if (earned.read<int>('stars') - spent < cost) {
+      throw StateError('Not enough stars for ${p.title}');
+    }
+    await _remember(_upgradeKey(p), '${level + 1}');
+    await _remember(_starsSpentKey, '${spent + cost}');
+  });
 
   @override
   Future<void> reset() => db.transaction(() async {

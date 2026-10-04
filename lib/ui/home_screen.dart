@@ -15,6 +15,7 @@ import 'home_keys.dart';
 import 'home_parts.dart';
 import 'home_world.dart';
 import 'launch_screen.dart';
+import 'match_hud.dart' show MatchIcon, MatchSymbol;
 import 'menu_collectible_art.dart';
 import 'mini_games.dart';
 import 'theme.dart';
@@ -272,6 +273,14 @@ class _Dock extends StatelessWidget {
           ),
         ),
         onTap: () => context.go('/birds'),
+      ),
+      HomeDockItem(
+        key: const ValueKey('upgrades'),
+        label: 'Upgrades',
+        semanticLabel: 'Upgrades. ${progress.starWallet} stars to spend.',
+        badge: HomeBadge('${progress.starWallet}★'),
+        art: const FittedBox(child: MatchIcon(MatchSymbol.star, size: 64)),
+        onTap: () => context.go('/upgrades'),
       ),
       HomeDockItem(
         label: 'Passport',

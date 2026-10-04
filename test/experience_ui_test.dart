@@ -150,7 +150,7 @@ void main() {
       await tester.tap(find.text('Push-Up Flight'));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
-      expect(find.textContaining('Every 9 stars'), findsOneWidget);
+      expect(find.textContaining('Stars restore your shield'), findsOneWidget);
       await capture(tester, 'star-trail-setup');
       final dynamic state = tester.state(find.byType(PlayScreen));
       final controller = state.controller as PlayController;
