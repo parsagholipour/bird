@@ -1,17 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../data/progress_repository.dart';
 import '../data/providers.dart';
+import '../domain/game_rules.dart' show RunResult;
 import '../domain/tracking.dart';
 import '../domain/flight_course.dart';
 import '../domain/flight_goals.dart';
 import '../domain/tether.dart';
+import '../game/star_art.dart';
 import 'campaign_screen.dart' show campaignStarsInBuild;
-import 'campaign_chrome.dart' show MapGlyph, MapKey;
 import 'components.dart';
+import 'control_glyphs.dart';
+import 'match_hud.dart' show MatchPlate;
+import 'mini_chrome.dart';
 import 'mini_games.dart' show miniGameModes;
 import 'theme.dart';
 import 'flight_goals.dart';
+
+/// The pictogram a flight with [mode] is steered by.
+FlyControl _control(PlayMode mode) => switch (mode) {
+  PlayMode.touch => FlyControl.tap,
+  PlayMode.pushUp => FlyControl.pushUp,
+  PlayMode.squat => FlyControl.squat,
+  PlayMode.jump => FlyControl.jump,
+};
 
 class RecordsScreen extends ConsumerStatefulWidget {
   const RecordsScreen({super.key});
@@ -28,262 +41,31 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
       body: SkyBackdrop(
         child: SceneLayout(
           child: Padding(
-            padding: const EdgeInsets.all(26),
+            padding: const EdgeInsets.fromLTRB(26, 22, 26, 18),
             child: Column(
               children: [
-                Row(
-                  children: [
-                    MapKey(
-                      glyph: MapGlyph.back,
-                      label: 'Back home',
-                      onPressed: () => context.go('/'),
+                MiniHeader(
+                  title: 'Your little victories.',
+                  size: 34,
+                  onBack: () => context.go('/'),
+                  trailing: [
+                    MiniPillKey(
+                      icon: Icons.video_library_rounded,
+                      label: 'Saved sessions',
+                      onPressed: () => context.go('/sessions'),
                     ),
-                    const SizedBox(width: 18),
-                    Text('Your little victories.', style: heading(36)),
                   ],
                 ),
-                const SizedBox(height: 22),
+                const SizedBox(height: 16),
                 Expanded(
                   child: p == null
                       ? const Center(child: CircularProgressIndicator())
                       : Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Expanded(
-                              child: Panel(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Your star points to beat',
-                                      style: heading(25),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    // The main game leads; the mini games
-                                    // keep their own, smaller bests.
-                                    _section('Main game'),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: _best(
-                                            'Endless · Tap & Fly',
-                                            p
-                                                .record(PlayMode.touch, course)
-                                                .best,
-                                            SkyColors.yellow,
-                                            key: const ValueKey(
-                                              'record-endless',
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: _best(
-                                            'Campaign stars\nof $campaignStarsInBuild',
-                                            p.campaign.totalStars,
-                                            SkyColors.mint,
-                                            key: const ValueKey(
-                                              'record-campaign',
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 10),
-                                    _section('Mini games'),
-                                    Row(
-                                      children: [
-                                        for (final mode in miniGameModes) ...[
-                                          if (mode != miniGameModes.first)
-                                            const SizedBox(width: 8),
-                                          Expanded(
-                                            child: _best(
-                                              mode.title,
-                                              p.record(mode, course).best,
-                                              switch (mode) {
-                                                PlayMode.squat =>
-                                                  SkyColors.coral,
-                                                PlayMode.jump =>
-                                                  SkyColors.lavender,
-                                                _ => SkyColors.sand,
-                                              },
-                                              compact: true,
-                                            ),
-                                          ),
-                                        ],
-                                      ],
-                                    ),
-                                    const SizedBox(height: 8),
-                                    // Fly Together keeps a team best for
-                                    // each team mode, apart from the solo
-                                    // ones. Duels only count.
-                                    Row(
-                                      children: [
-                                        for (final mode
-                                            in CoopMode.values.where(
-                                              (m) => m.team,
-                                            )) ...[
-                                          if (mode != CoopMode.values.first)
-                                            const SizedBox(width: 8),
-                                          Expanded(
-                                            child: _best(
-                                              'Fly Together · ${mode.title}',
-                                              p.coop.record(mode).best,
-                                              mode == CoopMode.roped
-                                                  ? SkyColors.mint
-                                                  : SkyColors.skyDeep,
-                                              compact: true,
-                                              key: ValueKey(
-                                                'coop-record-${mode.name}',
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ],
-                                    ),
-                                    const Spacer(),
-                                    Text(
-                                      '${p.totalRuns} scored flights  ·  ${p.totalObstacles} gates'
-                                      '${p.coop.flights > p.coop.duels ? '  ·  ${p.coop.flights - p.coop.duels} together' : ''}'
-                                      '${p.coop.duels > 0 ? '  ·  ${p.coop.duels} duels' : ''}'
-                                      '\n${p.totalRepetitions} push-ups · ${p.totalSquats} squats',
-                                      style: bodyText(
-                                        16,
-                                        color: SkyColors.muted,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 22),
-                            Expanded(
-                              child: Panel(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Text(
-                                          'Recent flights',
-                                          style: heading(25),
-                                        ),
-                                        const Spacer(),
-                                        TextButton.icon(
-                                          onPressed: () =>
-                                              context.go('/sessions'),
-                                          icon: const Icon(
-                                            Icons.video_library_outlined,
-                                          ),
-                                          label: const Text('Saved sessions'),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 12),
-                                    Expanded(
-                                      child: p.recent.isEmpty
-                                          ? Center(
-                                              child: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  const BirdArt(
-                                                    size: 110,
-                                                    bob: false,
-                                                  ),
-                                                  Text(
-                                                    'A big sky. A clean slate.',
-                                                    style: heading(20),
-                                                  ),
-                                                  const SizedBox(height: 8),
-                                                  Text(
-                                                    'Your first scored flight starts the story.',
-                                                    style: bodyText(
-                                                      13,
-                                                      color: SkyColors.muted,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            )
-                                          : ListView.separated(
-                                              itemCount: p.recent.length,
-                                              separatorBuilder: (_, _) =>
-                                                  const Divider(height: 12),
-                                              itemBuilder: (context, i) {
-                                                final r = p.recent[i];
-                                                return Row(
-                                                  children: [
-                                                    Icon(
-                                                      r.mode == PlayMode.touch
-                                                          ? Icons
-                                                                .touch_app_rounded
-                                                          : r.mode ==
-                                                                PlayMode.pushUp
-                                                          ? Icons
-                                                                .fitness_center_rounded
-                                                          : Icons
-                                                                .accessibility_new_rounded,
-                                                      color: SkyColors.muted,
-                                                    ),
-                                                    const SizedBox(width: 10),
-                                                    Expanded(
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            r.mode.title,
-                                                            style: bodyText(
-                                                              15,
-                                                              weight: FontWeight
-                                                                  .w800,
-                                                            ),
-                                                          ),
-                                                          Text(
-                                                            '${r.course.title} · ${r.finishedAt.day}/${r.finishedAt.month} · ${r.durationSeconds.round()} sec',
-                                                            style: bodyText(
-                                                              12,
-                                                              color: SkyColors
-                                                                  .muted,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      '${r.score}',
-                                                      style: heading(28),
-                                                    ),
-                                                    const SizedBox(width: 6),
-                                                    IconButton(
-                                                      tooltip:
-                                                          'View ${r.course.title} flight goals',
-                                                      onPressed: () =>
-                                                          showFlightGoals(
-                                                            context,
-                                                            r.course,
-                                                            progress:
-                                                                FlightGoals.forRun(
-                                                                  r,
-                                                                ),
-                                                          ),
-                                                      icon: FlightWings(
-                                                        goals:
-                                                            FlightGoals.forRun(
-                                                              r,
-                                                            ),
-                                                        size: 15,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                );
-                                              },
-                                            ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
+                            Expanded(flex: 11, child: _bests(p)),
+                            const SizedBox(width: 20),
+                            Expanded(flex: 10, child: _recent(p)),
                           ],
                         ),
                 ),
@@ -295,45 +77,383 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
     );
   }
 
+  Widget _bests(ProgressSnapshot p) => MiniCard(
+    accent: SkyColors.yellow,
+    padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            const MiniCoin(
+              icon: Icons.emoji_events_rounded,
+              color: SkyColors.yellow,
+              size: 32,
+            ),
+            const SizedBox(width: 10),
+            Text(
+              'Your star points to beat',
+              style: heading(22, weight: FontWeight.w700),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        // The main game leads; the mini games keep their own, smaller
+        // bests.
+        _section('Main game'),
+        Row(
+          children: [
+            Expanded(
+              child: _BestTile(
+                key: const ValueKey('record-endless'),
+                name: 'Endless · Tap & Fly',
+                best: p.record(PlayMode.touch, course).best,
+                color: SkyColors.yellow,
+                badge: const _StarCoin(size: 34),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _BestTile(
+                key: const ValueKey('record-campaign'),
+                name: 'Campaign stars',
+                best: p.campaign.totalStars,
+                of: campaignStarsInBuild,
+                color: SkyColors.mint,
+                badge: const MiniCoin(
+                  icon: Icons.map_rounded,
+                  color: SkyColors.mint,
+                  size: 34,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        _section('Mini games'),
+        Row(
+          children: [
+            for (final mode in miniGameModes) ...[
+              if (mode != miniGameModes.first) const SizedBox(width: 8),
+              Expanded(
+                child: _BestTile(
+                  name: mode.title,
+                  best: p.record(mode, course).best,
+                  color: miniColor(mode),
+                  badge: ControlGlyph(_control(mode), size: 28),
+                  compact: true,
+                ),
+              ),
+            ],
+          ],
+        ),
+        const SizedBox(height: 8),
+        // Fly Together keeps a team best for each team mode, apart from the
+        // solo ones. Duels only count.
+        Row(
+          children: [
+            for (final mode in CoopMode.values.where((m) => m.team)) ...[
+              if (mode != CoopMode.values.first) const SizedBox(width: 8),
+              Expanded(
+                child: _BestTile(
+                  name: 'Fly Together · ${mode.title}',
+                  best: p.coop.record(mode).best,
+                  color: mode == CoopMode.roped
+                      ? SkyColors.mint
+                      : SkyColors.skyDeep,
+                  badge: MiniCoin(
+                    icon: mode == CoopMode.roped
+                        ? Icons.link_rounded
+                        : Icons.people_alt_rounded,
+                    color: mode == CoopMode.roped
+                        ? SkyColors.mint
+                        : SkyColors.skyDeep,
+                    size: 28,
+                  ),
+                  compact: true,
+                  key: ValueKey('coop-record-${mode.name}'),
+                ),
+              ),
+            ],
+          ],
+        ),
+        const Spacer(),
+        // Lifetime totals, as a row of small plates.
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Row(
+            children: [
+              for (final (i, (value, label)) in [
+                (p.totalRuns, 'scored flights'),
+                (p.totalObstacles, 'gates'),
+                if (p.coop.flights > p.coop.duels)
+                  (p.coop.flights - p.coop.duels, 'together'),
+                if (p.coop.duels > 0) (p.coop.duels, 'duels'),
+                (p.totalRepetitions, 'push-ups'),
+                (p.totalSquats, 'squats'),
+              ].indexed) ...[
+                if (i > 0) const SizedBox(width: 8),
+                _Total(value: value, label: label),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(height: 4),
+      ],
+    ),
+  );
+
+  Widget _recent(ProgressSnapshot p) => MiniCard(
+    accent: SkyColors.lavender,
+    padding: const EdgeInsets.fromLTRB(14, 12, 14, 0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            const MiniCoin(
+              icon: Icons.history_rounded,
+              color: SkyColors.lavender,
+              size: 32,
+            ),
+            const SizedBox(width: 10),
+            Text('Recent flights', style: heading(22, weight: FontWeight.w700)),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Expanded(
+          child: p.recent.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const BirdArt(size: 110, bob: false),
+                      Text('A big sky. A clean slate.', style: heading(20)),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Your first scored flight starts the story.',
+                        style: bodyText(13, color: SkyColors.muted),
+                      ),
+                    ],
+                  ),
+                )
+              : ListView.separated(
+                  padding: const EdgeInsets.only(bottom: 14),
+                  itemCount: p.recent.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 8),
+                  itemBuilder: (context, i) => _FlightSlip(run: p.recent[i]),
+                ),
+        ),
+      ],
+    ),
+  );
+
   /// A small heading over a group of bests.
   Widget _section(String title) => Padding(
-    padding: const EdgeInsets.only(bottom: 4),
+    padding: const EdgeInsets.only(left: 2, bottom: 5),
     child: Text(
       title.toUpperCase(),
       style: bodyText(
-        10.5,
-        color: SkyColors.muted,
+        11,
         weight: FontWeight.w900,
       ).copyWith(letterSpacing: 1.2, height: 1.1),
     ),
   );
+}
 
-  /// A best score on a coloured tile; [compact] for the mini games, under
-  /// the main game's.
-  Widget _best(
-    String name,
-    int best,
-    Color color, {
-    Key? key,
-    bool compact = false,
-  }) => Container(
-    key: key,
-    padding: EdgeInsets.symmetric(horizontal: 8, vertical: compact ? 5 : 8),
+/// A best on a colored sticker tile: what it is for, the score under it and
+/// a coin or pictogram beside. [compact] for the mini games, under the main
+/// game's. [of] adds the most there is to earn.
+class _BestTile extends StatelessWidget {
+  const _BestTile({
+    super.key,
+    required this.name,
+    required this.best,
+    required this.color,
+    required this.badge,
+    this.of,
+    this.compact = false,
+  });
+  final String name;
+  final int best;
+  final int? of;
+  final Color color;
+  final Widget badge;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    margin: const EdgeInsets.only(bottom: 3),
+    padding: EdgeInsets.fromLTRB(8, compact ? 5 : 7, 8, compact ? 5 : 7),
     decoration: BoxDecoration(
-      color: compact ? Color.lerp(color, SkyColors.cream, .35) : color,
-      borderRadius: BorderRadius.circular(compact ? 14 : 18),
+      color: Color.lerp(SkyColors.cream, color, compact ? .5 : .75),
+      borderRadius: BorderRadius.circular(compact ? 14 : 16),
+      border: Border.all(color: SkyColors.ink, width: 2),
+      boxShadow: [
+        BoxShadow(
+          color: Color.lerp(color, SkyColors.ink, .4)!,
+          offset: const Offset(0, 3),
+        ),
+      ],
     ),
     child: Row(
       children: [
-        Text('$best', style: heading(compact ? 26 : 38)),
+        badge,
         SizedBox(width: compact ? 6 : 10),
         Expanded(
-          child: Text(
-            name,
-            style: bodyText(compact ? 11.5 : 14, weight: FontWeight.w900),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                name,
+                maxLines: compact ? 2 : 1,
+                overflow: TextOverflow.ellipsis,
+                style: bodyText(
+                  compact ? 11 : 13,
+                  weight: FontWeight.w900,
+                ).copyWith(height: 1.1),
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(
+                    '$best',
+                    style: heading(compact ? 22 : 32, weight: FontWeight.w700),
+                  ),
+                  if (of != null)
+                    Text(
+                      ' / $of',
+                      style: bodyText(
+                        14,
+                        color: SkyColors.muted,
+                        weight: FontWeight.w900,
+                      ),
+                    ),
+                ],
+              ),
+            ],
           ),
         ),
       ],
     ),
   );
+}
+
+/// A lifetime total on a small plate: the number, then what it counts.
+class _Total extends StatelessWidget {
+  const _Total({required this.value, required this.label});
+  final int value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => MatchPlate(
+    padding: const EdgeInsets.fromLTRB(10, 3, 12, 3),
+    child: Text.rich(
+      TextSpan(
+        text: '$value ',
+        style: heading(16, weight: FontWeight.w700),
+        children: [
+          TextSpan(
+            text: label,
+            style: bodyText(
+              12,
+              color: SkyColors.muted,
+              weight: FontWeight.w900,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+/// One recent flight on a paper slip: how it was steered, where and when,
+/// its score and the wings it earned.
+class _FlightSlip extends StatelessWidget {
+  const _FlightSlip({required this.run});
+  final RunResult run;
+
+  @override
+  Widget build(BuildContext context) {
+    final r = run;
+    final goals = FlightGoals.forRun(r);
+    return Container(
+      padding: const EdgeInsets.fromLTRB(8, 6, 2, 6),
+      decoration: BoxDecoration(
+        color: SkyColors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: SkyColors.ink.withValues(alpha: .25),
+          width: 1.5,
+        ),
+      ),
+      child: Row(
+        children: [
+          ControlGlyph(_control(r.mode), size: 32),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  r.mode.title,
+                  style: bodyText(15, weight: FontWeight.w900),
+                ),
+                Text(
+                  '${r.course.title} · ${r.finishedAt.day}/${r.finishedAt.month} · ${r.durationSeconds.round()} sec',
+                  style: bodyText(12, color: SkyColors.muted),
+                ),
+              ],
+            ),
+          ),
+          MatchPlate(
+            color: SkyColors.yellow,
+            padding: const EdgeInsets.fromLTRB(6, 2, 10, 2),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const _StarCoin(size: 16),
+                const SizedBox(width: 4),
+                Text('${r.score}', style: heading(20, weight: FontWeight.w700)),
+              ],
+            ),
+          ),
+          IconButton(
+            tooltip: 'View ${r.course.title} flight goals',
+            onPressed: () =>
+                showFlightGoals(context, r.course, progress: goals),
+            icon: FlightWings(goals: goals, size: 15),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The game's own star, inked, for a score.
+class _StarCoin extends StatelessWidget {
+  const _StarCoin({required this.size});
+  final double size;
+
+  @override
+  Widget build(BuildContext context) =>
+      CustomPaint(size: Size.square(size), painter: const _StarPainter());
+}
+
+class _StarPainter extends CustomPainter {
+  const _StarPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) => StarArt.mini(
+    canvas,
+    size.center(Offset.zero),
+    size.shortestSide * .5,
+    outline: size.shortestSide > 24 ? 2 : 1.2,
+  );
+
+  @override
+  bool shouldRepaint(_StarPainter oldDelegate) => false;
 }

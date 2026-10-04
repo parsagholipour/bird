@@ -239,41 +239,6 @@ class _SkyButtonState extends State<SkyButton> {
   }
 }
 
-class RoundButton extends StatelessWidget {
-  const RoundButton({
-    super.key,
-    required this.icon,
-    required this.label,
-    required this.onPressed,
-    this.color = SkyColors.cream,
-    this.sound = 'ui_tap',
-  });
-  final IconData icon;
-  final String label;
-  final VoidCallback? onPressed;
-  final Color color;
-  final String sound;
-  @override
-  Widget build(BuildContext context) => Material(
-    color: color,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(16),
-      side: BorderSide(color: SkyColors.ink.withValues(alpha: .12)),
-    ),
-    child: IconButton(
-      onPressed: onPressed == null
-          ? null
-          : () {
-              UiSounds.effect(context, sound);
-              onPressed!();
-            },
-      icon: Icon(icon, color: SkyColors.ink),
-      tooltip: label,
-      style: IconButton.styleFrom(minimumSize: const Size(48, 48)),
-    ),
-  );
-}
-
 class Panel extends StatelessWidget {
   const Panel({
     super.key,

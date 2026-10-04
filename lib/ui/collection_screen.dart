@@ -4,9 +4,19 @@ import 'package:go_router/go_router.dart';
 import '../data/providers.dart';
 import '../data/progress_repository.dart';
 import '../game/bird_trail.dart';
-import 'campaign_chrome.dart' show MapGlyph, MapKey;
 import 'components.dart';
+import 'home_keys.dart' show HomeKeyColors;
+import 'match_hud.dart' show MatchPlate;
+import 'mini_chrome.dart';
 import 'theme.dart';
+
+/// Each bird's color, from its feathers: Pip, Peaches, Minty, Orbit.
+const _birdColors = [
+  SkyColors.yellow,
+  SkyColors.coral,
+  SkyColors.mint,
+  SkyColors.lavender,
+];
 
 class CollectionScreen extends ConsumerWidget {
   const CollectionScreen({super.key});
@@ -17,40 +27,36 @@ class CollectionScreen extends ConsumerWidget {
       body: SkyBackdrop(
         child: SceneLayout(
           child: Padding(
-            padding: const EdgeInsets.all(26),
+            padding: const EdgeInsets.fromLTRB(26, 22, 26, 18),
             child: p == null
                 ? const Center(child: CircularProgressIndicator())
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          MapKey(
-                            glyph: MapGlyph.back,
-                            label: 'Back home',
-                            onPressed: () => context.go('/'),
-                          ),
-                          const SizedBox(width: 18),
-                          Text('Meet your flight crew.', style: heading(36)),
-                          const Spacer(),
-                          Pill(
+                      MiniHeader(
+                        title: 'Meet your flight crew.',
+                        size: 34,
+                        onBack: () => context.go('/'),
+                        trailing: [
+                          MiniTag(
                             '${p.birdsFlown.length} OF ${birdNames.length} FLOWN',
                             icon: Icons.flutter_dash_rounded,
                             color: SkyColors.yellow,
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 4),
                       Padding(
-                        padding: const EdgeInsets.only(left: 66),
+                        padding: const EdgeInsets.only(left: 64),
                         child: Text(
                           'Four personalities, four trails. Pick who flies with you next.',
-                          style: bodyText(16, color: SkyColors.muted),
+                          style: bodyText(15, weight: FontWeight.w800),
                         ),
                       ),
-                      const SizedBox(height: 22),
+                      const SizedBox(height: 16),
                       Expanded(
                         child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             for (final i in birdOrder) ...[
                               if (i != birdOrder.first)
@@ -62,7 +68,6 @@ class CollectionScreen extends ConsumerWidget {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 8),
                     ],
                   ),
           ),
@@ -97,64 +102,135 @@ class _BirdCardState extends ConsumerState<_BirdCard> {
   Widget build(BuildContext context) {
     final i = widget.index,
         p = widget.progress,
-        selected = p.settings.bird == i;
-    return Panel(
-      padding: const EdgeInsets.all(16),
-      color: selected ? const Color(0xfffff2c9) : SkyColors.cream,
-      child: Column(
-        children: [
-          Pill(
-            selected ? 'YOUR CO-PILOT' : 'READY TO FLY',
-            icon: selected ? Icons.check_rounded : Icons.favorite_outline,
-            color: selected ? SkyColors.yellow : SkyColors.white,
-          ),
-          Expanded(
-            child: Center(
-              child: FittedBox(
-                fit: BoxFit.contain,
-                child: SizedBox(
-                  width: 188,
-                  height: 120,
-                  child: CustomPaint(
-                    painter: _TrailPreview(bird: i),
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: BirdArt(
-                        bird: i,
-                        size: 132,
-                        reducedMotion: p.settings.reducedMotion,
+        selected = p.settings.bird == i,
+        color = _birdColors[i];
+    return DecoratedBox(
+      key: ValueKey('bird-card-$i'),
+      // The co-pilot's card glows, like the title screen's main keys.
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          if (selected)
+            const BoxShadow(
+              color: Color(0x99ffd45b),
+              blurRadius: 22,
+              spreadRadius: 2,
+            ),
+        ],
+      ),
+      child: MiniCard(
+        accent: selected ? SkyColors.gold : color,
+        color: selected ? const Color(0xfffff4d2) : SkyColors.cream,
+        padding: EdgeInsets.zero,
+        child: Column(
+          children: [
+            Expanded(
+              child: MiniArtBand(
+                color: color,
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      top: 30,
+                      child: Center(
+                        child: FittedBox(
+                          fit: BoxFit.contain,
+                          child: SizedBox(
+                            width: 188,
+                            height: 120,
+                            child: CustomPaint(
+                              painter: _TrailPreview(bird: i),
+                              child: Align(
+                                alignment: Alignment.centerRight,
+                                child: BirdArt(
+                                  bird: i,
+                                  size: 132,
+                                  reducedMotion: p.settings.reducedMotion,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                    Align(
+                      alignment: Alignment.topCenter,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 10),
+                        child: Pill(
+                          selected ? 'YOUR CO-PILOT' : 'READY TO FLY',
+                          icon: selected
+                              ? Icons.check_rounded
+                              : Icons.favorite_outline,
+                          color: selected ? SkyColors.yellow : SkyColors.white,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ),
-          Text(birdNames[i], style: heading(26)),
-          const SizedBox(height: 6),
-          Text(
-            BirdTrail.names[i],
-            style: bodyText(13, color: SkyColors.muted),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: SkyButton(
-              label: selected ? 'Equipped' : 'Fly with me',
-              icon: selected
-                  ? Icons.check_rounded
-                  : Icons.arrow_forward_rounded,
-              onPressed: !selected && !busy ? equip : null,
-              color: SkyColors.yellow,
-              compact: true,
-              busy: busy,
+            Text(birdNames[i], style: heading(26, weight: FontWeight.w700)),
+            const SizedBox(height: 2),
+            Text(
+              BirdTrail.names[i],
+              style: bodyText(
+                13,
+                color: SkyColors.muted,
+                weight: FontWeight.w800,
+              ),
+              textAlign: TextAlign.center,
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+              child: SizedBox(
+                height: 56,
+                child: selected
+                    ? const _Equipped()
+                    : MiniKey(
+                        label: 'Fly with me',
+                        colors: HomeKeyColors.sun,
+                        height: 56,
+                        size: 19,
+                        busy: busy,
+                        onPressed: busy ? null : equip,
+                      ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+}
+
+/// Where the co-pilot's card would offer its key: a plate saying it is
+/// already on board, sunk to the key's lip so the rows line up.
+class _Equipped extends StatelessWidget {
+  const _Equipped();
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: 2, bottom: 8),
+    child: MatchPlate(
+      color: SkyColors.mint,
+      radius: 20,
+      padding: EdgeInsets.zero,
+      child: SizedBox.expand(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.check_circle_rounded,
+              size: 22,
+              color: SkyColors.ink,
+            ),
+            const SizedBox(width: 8),
+            Text('Equipped', style: heading(19, weight: FontWeight.w700)),
+          ],
+        ),
+      ),
+    ),
+  );
 }
 
 class _TrailPreview extends CustomPainter {

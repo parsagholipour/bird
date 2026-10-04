@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../domain/tracking.dart';
 import 'campaign_chrome.dart' show MapGlyph, MapKey;
@@ -11,7 +12,8 @@ import 'ui_sounds.dart';
 /// calibration, and Fly Together) dressed in the title screen's material:
 /// ink-outlined cards on a colored lip, sticker plates for tags and round
 /// keys, and a [HomeKey] for the way on. Each workout keeps the color its
-/// card has in the picker.
+/// card has in the picker. The title screen's shelf (Adventure, Birds,
+/// Passport, Records) and Settings wear the same material.
 
 /// A workout's color, as its card in the Mini games picker shows it.
 Color miniColor(PlayMode mode) => switch (mode) {
@@ -428,4 +430,207 @@ class _MiniRoundKeyState extends State<MiniRoundKey> {
     UiSounds.effect(context);
     widget.onPressed!();
   }
+}
+
+/// A sticker plate that is a key: an icon and a few words on a pill, as tall
+/// as the round keys, for a side trip such as Saved sessions.
+class MiniPillKey extends StatefulWidget {
+  const MiniPillKey({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+    this.color = SkyColors.cream,
+  });
+  final IconData icon;
+  final String label;
+  final VoidCallback onPressed;
+  final Color color;
+
+  @override
+  State<MiniPillKey> createState() => _MiniPillKeyState();
+}
+
+class _MiniPillKeyState extends State<MiniPillKey> {
+  bool pressed = false, focused = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final still = MediaQuery.disableAnimationsOf(context);
+    final ring =
+        focused &&
+        FocusManager.instance.highlightMode == FocusHighlightMode.traditional;
+    return Semantics(
+      button: true,
+      label: widget.label,
+      excludeSemantics: true,
+      onTap: _press,
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          customBorder: const StadiumBorder(),
+          highlightColor: Colors.transparent,
+          hoverColor: Colors.transparent,
+          focusColor: Colors.transparent,
+          onTap: _press,
+          onFocusChange: (value) => setState(() => focused = value),
+          onHighlightChanged: (value) => setState(() => pressed = value),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(MapKey.size),
+              boxShadow: [
+                if (ring)
+                  const BoxShadow(color: SkyColors.gold, spreadRadius: 7),
+              ],
+            ),
+            child: Transform.translate(
+              offset: Offset(0, pressed && !still ? 3 : 0),
+              child: MatchPlate(
+                color: pressed && still
+                    ? Color.lerp(widget.color, SkyColors.ink, .1)!
+                    : widget.color,
+                padding: const EdgeInsets.fromLTRB(14, 0, 18, 0),
+                child: SizedBox(
+                  height: MapKey.size,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(widget.icon, size: 22, color: SkyColors.ink),
+                      const SizedBox(width: 8),
+                      Text(
+                        widget.label,
+                        style: bodyText(15, weight: FontWeight.w900),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _press() {
+    UiSounds.effect(context);
+    widget.onPressed();
+  }
+}
+
+/// A round coin with an ink outline and an icon, the way a row in a list
+/// names what it is about. [muted] greys it for something not yet earned.
+class MiniCoin extends StatelessWidget {
+  const MiniCoin({
+    super.key,
+    required this.icon,
+    required this.color,
+    this.size = 40,
+    this.muted = false,
+  });
+  final IconData icon;
+  final Color color;
+  final double size;
+  final bool muted;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: size,
+    height: size,
+    decoration: BoxDecoration(
+      color: muted ? Color.lerp(SkyColors.cream, SkyColors.sky, .5) : color,
+      shape: BoxShape.circle,
+      border: Border.all(
+        color: muted ? SkyColors.ink.withValues(alpha: .45) : SkyColors.ink,
+        width: 2,
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: muted ? SkyColors.ink.withValues(alpha: .2) : SkyColors.ink,
+          offset: const Offset(0, 2.5),
+        ),
+      ],
+    ),
+    child: Icon(
+      icon,
+      size: size * .55,
+      color: muted ? SkyColors.muted : SkyColors.ink,
+    ),
+  );
+}
+
+/// A chunky progress bar: a cream groove with an ink outline, filled with
+/// [color] up to [value] and lit along its top.
+class MiniMeter extends StatelessWidget {
+  const MiniMeter({
+    super.key,
+    required this.value,
+    required this.color,
+    this.height = 12,
+  });
+
+  /// From 0 to 1.
+  final double value;
+  final Color color;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: double.infinity,
+    height: height,
+    child: CustomPaint(
+      painter: _MeterPainter(value.clamp(0, 1).toDouble(), color),
+    ),
+  );
+}
+
+class _MeterPainter extends CustomPainter {
+  const _MeterPainter(this.value, this.color);
+  final double value;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final radius = Radius.circular(size.height / 2);
+    final groove = RRect.fromRectAndRadius(Offset.zero & size, radius);
+    canvas.drawRRect(
+      groove,
+      Paint()..color = Color.lerp(SkyColors.cream, SkyColors.sky, .55)!,
+    );
+    if (value > 0) {
+      // Never narrower than its own height, so a first step still reads.
+      final width = size.height + (size.width - size.height) * value;
+      final fill = RRect.fromRectAndRadius(
+        Rect.fromLTWH(0, 0, width, size.height),
+        radius,
+      );
+      canvas.save();
+      canvas.clipRRect(groove);
+      canvas.drawRRect(fill, Paint()..color = color);
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(
+            size.height * .45,
+            size.height * .22,
+            math.max(0, width - size.height * .9),
+            size.height * .2,
+          ),
+          Radius.circular(size.height * .1),
+        ),
+        Paint()..color = SkyColors.white.withValues(alpha: .6),
+      );
+      canvas.restore();
+    }
+    canvas.drawRRect(
+      groove.deflate(1),
+      Paint()
+        ..color = SkyColors.ink
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_MeterPainter oldDelegate) =>
+      oldDelegate.value != value || oldDelegate.color != color;
 }

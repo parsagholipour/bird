@@ -1,3 +1,4 @@
+import 'dart:math' show pi;
 import 'package:flutter/material.dart';
 
 import 'campaign_map_art.dart' show MapPadlockPainter, MapRibbonPainter;
@@ -7,7 +8,7 @@ import 'theme.dart';
 import 'ui_sounds.dart';
 
 /// What a [MapKey] shows on its face.
-enum MapGlyph { back, close, previous, next }
+enum MapGlyph { back, close, previous, next, settings }
 
 /// A round key in the flight HUD's sticker material (an ink-outlined face on
 /// a lip, like Pause), for the back key and the stop arrows around the map.
@@ -46,7 +47,7 @@ class _MapKeyState extends State<MapKey> {
   void _press() {
     UiSounds.effect(context, switch (widget.glyph) {
       MapGlyph.back || MapGlyph.close => 'ui_back',
-      MapGlyph.previous || MapGlyph.next => 'ui_tap',
+      MapGlyph.previous || MapGlyph.next || MapGlyph.settings => 'ui_tap',
     });
     widget.onPressed();
   }
@@ -115,8 +116,8 @@ class _MapKeyState extends State<MapKey> {
   }
 }
 
-/// A chunky arrow, cross or chevron: round caps and a stroke as heavy as the
-/// HUD's pause bars, so the face reads at a glance.
+/// A chunky arrow, cross, chevron or cog: round caps and a stroke as heavy as
+/// the HUD's pause bars, so the face reads at a glance.
 class _GlyphPainter extends CustomPainter {
   const _GlyphPainter(this.glyph);
   final MapGlyph glyph;
@@ -150,6 +151,8 @@ class _GlyphPainter extends CustomPainter {
           ..moveTo(9, 3.5)
           ..lineTo(17.5, 12)
           ..lineTo(9, 20.5);
+      case MapGlyph.settings:
+        return _cog(canvas);
     }
     canvas.drawPath(
       path,
@@ -160,6 +163,34 @@ class _GlyphPainter extends CustomPainter {
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round,
     );
+  }
+
+  /// Eight round teeth on a solid wheel with a cream hub.
+  static void _cog(Canvas canvas) {
+    const c = Offset(12, 12);
+    var cog = Path()..addOval(Rect.fromCircle(center: c, radius: 7.6));
+    for (var i = 0; i < 8; i++) {
+      final tooth = Path()
+        ..addRRect(
+          RRect.fromRectAndRadius(
+            Rect.fromCenter(center: const Offset(0, -8.6), width: 5, height: 5),
+            const Radius.circular(1.6),
+          ),
+        );
+      cog = Path.combine(
+        PathOperation.union,
+        cog,
+        tooth.transform(
+          (Matrix4.translationValues(
+            c.dx,
+            c.dy,
+            0,
+          )..rotateZ(i * pi / 4)).storage,
+        ),
+      );
+    }
+    canvas.drawPath(cog, Paint()..color = SkyColors.ink);
+    canvas.drawCircle(c, 3.6, Paint()..color = SkyColors.cream);
   }
 
   @override

@@ -6,8 +6,8 @@ import 'package:go_router/go_router.dart';
 import '../app_brand.dart';
 import '../data/providers.dart';
 import '../data/progress_repository.dart';
-import 'campaign_chrome.dart' show MapGlyph, MapKey;
 import 'components.dart';
+import 'mini_chrome.dart';
 import 'theme.dart';
 import 'ui_sounds.dart';
 
@@ -100,24 +100,15 @@ class SettingsScreen extends ConsumerWidget {
       body: SkyBackdrop(
         child: SceneLayout(
           child: Padding(
-            padding: const EdgeInsets.all(26),
+            padding: const EdgeInsets.fromLTRB(26, 22, 26, 18),
             child: Column(
               children: [
-                Row(
-                  children: [
-                    MapKey(
-                      glyph: MapGlyph.back,
-                      label: 'Back home',
-                      onPressed: () => context.go('/'),
-                    ),
-                    const SizedBox(width: 18),
-                    Semantics(
-                      header: true,
-                      child: Text('Make yourself at home.', style: heading(36)),
-                    ),
-                  ],
+                MiniHeader(
+                  title: 'Make yourself at home.',
+                  size: 34,
+                  onBack: () => context.go('/'),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 18),
                 Expanded(
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -127,8 +118,9 @@ class SettingsScreen extends ConsumerWidget {
                       // still reads in two.
                       Expanded(
                         flex: 6,
-                        child: Panel(
-                          padding: const EdgeInsets.all(12),
+                        child: MiniCard(
+                          accent: SkyColors.skyDeep,
+                          padding: const EdgeInsets.all(8),
                           child: failed
                               ? _PanelBody(
                                   children: [
@@ -143,7 +135,10 @@ class SettingsScreen extends ConsumerWidget {
                                 )
                               : _PanelBody(
                                   children: [
-                                    const _SectionLabel('Sound'),
+                                    const _SectionLabel(
+                                      'Sound',
+                                      icon: Icons.graphic_eq_rounded,
+                                    ),
                                     toggle(
                                       SettingKey.music,
                                       Icons.music_note_rounded,
@@ -152,7 +147,7 @@ class SettingsScreen extends ConsumerWidget {
                                       SkyColors.lavender,
                                       s?.music,
                                     ),
-                                    const SizedBox(height: 8),
+                                    const SizedBox(height: 6),
                                     toggle(
                                       SettingKey.effects,
                                       Icons.volume_up_rounded,
@@ -161,7 +156,7 @@ class SettingsScreen extends ConsumerWidget {
                                       SkyColors.yellow,
                                       s?.effects,
                                     ),
-                                    const SizedBox(height: 8),
+                                    const SizedBox(height: 6),
                                     toggle(
                                       SettingKey.voices,
                                       Icons.record_voice_over_rounded,
@@ -170,8 +165,11 @@ class SettingsScreen extends ConsumerWidget {
                                       SkyColors.mint,
                                       s?.voices,
                                     ),
-                                    const SizedBox(height: 12),
-                                    const _SectionLabel('Comfort'),
+                                    const SizedBox(height: 8),
+                                    const _SectionLabel(
+                                      'Comfort',
+                                      icon: Icons.spa_rounded,
+                                    ),
                                     toggle(
                                       SettingKey.reducedMotion,
                                       Icons.motion_photos_off_rounded,
@@ -191,8 +189,9 @@ class SettingsScreen extends ConsumerWidget {
                           fit: StackFit.expand,
                           clipBehavior: Clip.none,
                           children: [
-                            Panel(
-                              padding: const EdgeInsets.all(12),
+                            MiniCard(
+                              accent: SkyColors.mint,
+                              padding: const EdgeInsets.all(10),
                               child: _PanelBody(
                                 children: [
                                   const _PrivacyCard(),
@@ -244,7 +243,7 @@ class SettingsScreen extends ConsumerWidget {
                             // over the privacy note.
                             Positioned(
                               right: 34,
-                              top: -68,
+                              top: -70,
                               child: Transform.flip(
                                 flipX: true,
                                 child: BirdArt(
@@ -296,48 +295,58 @@ class _PanelBody extends StatelessWidget {
 }
 
 class _SectionLabel extends StatelessWidget {
-  const _SectionLabel(this.label);
+  const _SectionLabel(this.label, {required this.icon});
   final String label;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(6, 0, 0, 6),
+    padding: const EdgeInsets.fromLTRB(4, 0, 0, 6),
     child: Semantics(
       header: true,
       label: label,
       excludeSemantics: true,
-      child: Text(
-        label.toUpperCase(),
-        style: bodyText(
-          12,
-          color: SkyColors.muted,
-          weight: FontWeight.w900,
-          // Capitals need no room for descenders, and the four rows below
-          // need every point of height.
-        ).copyWith(letterSpacing: 1.2, height: 1),
+      child: Row(
+        children: [
+          Icon(icon, size: 15, color: SkyColors.ink),
+          const SizedBox(width: 5),
+          Text(
+            label.toUpperCase(),
+            style: bodyText(
+              12,
+              weight: FontWeight.w900,
+              // Capitals need no room for descenders, and the four rows below
+              // need every point of height.
+            ).copyWith(letterSpacing: 1.2, height: 1),
+          ),
+        ],
       ),
     ),
   );
 }
 
-/// A chunky key: lifts off the panel, sinks when pressed and shows a clear
-/// ring for keyboard focus. Callers supply the fill and the content.
+/// A chunky sticker key: an ink-outlined face on a lip of [lip], that sinks
+/// into it when pressed and shows a clear ring for keyboard focus. Callers
+/// supply the fill and the content.
 class _Keycap extends StatefulWidget {
   const _Keycap({
     required this.onTap,
     required this.color,
-    required this.border,
+    required this.lip,
     required this.child,
     this.padding = const EdgeInsets.fromLTRB(8, 8, 12, 8),
     this.minHeight = 0,
     this.excludeSemantics = false,
   });
   final VoidCallback? onTap;
-  final Color color, border;
+  final Color color, lip;
   final Widget child;
   final EdgeInsets padding;
   final double minHeight;
   final bool excludeSemantics;
+
+  /// How far the face stands above its lip.
+  static const depth = 3.0;
 
   @override
   State<_Keycap> createState() => _KeycapState();
@@ -384,50 +393,57 @@ class _KeycapState extends State<_Keycap> {
   @override
   Widget build(BuildContext context) {
     final disableAnimations = MediaQuery.disableAnimationsOf(context);
-    final radius = BorderRadius.circular(18);
-    return AnimatedContainer(
-      duration: disableAnimations
-          ? Duration.zero
-          : const Duration(milliseconds: 160),
-      curve: Curves.easeOut,
-      transform: Matrix4.translationValues(
-        0,
-        pressed && !disableAnimations ? 2 : 0,
-        0,
-      ),
-      constraints: BoxConstraints(minHeight: widget.minHeight),
-      // The border is painted over the key, not around it, so the whole key
-      // is one touch target.
-      foregroundDecoration: BoxDecoration(
-        borderRadius: radius,
-        border: Border.all(color: widget.border, width: 2),
-      ),
-      decoration: BoxDecoration(
-        color: widget.color,
-        borderRadius: radius,
-        boxShadow: [
-          if (focused) ...const [
-            BoxShadow(color: SkyColors.ink, spreadRadius: 4),
-            BoxShadow(color: SkyColors.cream, spreadRadius: 2),
-          ],
-          if (!pressed)
-            BoxShadow(
-              color: SkyColors.ink.withValues(alpha: .08),
-              offset: const Offset(0, 3),
-            ),
-        ],
-      ),
-      child: Material(
-        type: MaterialType.transparency,
-        child: InkWell(
-          statesController: states,
-          onTap: widget.onTap,
-          excludeFromSemantics: widget.excludeSemantics,
+    final radius = BorderRadius.circular(16);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: _Keycap.depth),
+      child: AnimatedContainer(
+        duration: disableAnimations
+            ? Duration.zero
+            : const Duration(milliseconds: 120),
+        curve: Curves.easeOut,
+        transform: Matrix4.translationValues(
+          0,
+          pressed && !disableAnimations ? _Keycap.depth : 0,
+          0,
+        ),
+        constraints: BoxConstraints(minHeight: widget.minHeight),
+        // The outline is painted over the key, not around it, so the whole
+        // key is one touch target.
+        foregroundDecoration: BoxDecoration(
           borderRadius: radius,
-          hoverColor: SkyColors.ink.withValues(alpha: .05),
-          highlightColor: Colors.transparent,
-          focusColor: Colors.transparent,
-          child: Padding(padding: widget.padding, child: widget.child),
+          border: Border.all(color: SkyColors.ink, width: 2),
+        ),
+        decoration: BoxDecoration(
+          color: pressed && disableAnimations
+              ? Color.lerp(widget.color, SkyColors.ink, .08)
+              : widget.color,
+          borderRadius: radius,
+          boxShadow: [
+            if (focused) ...const [
+              BoxShadow(color: SkyColors.ink, spreadRadius: 4),
+              BoxShadow(color: SkyColors.gold, spreadRadius: 2),
+            ],
+            // The lip, solid like the title screen's keys.
+            if (!pressed)
+              BoxShadow(
+                color: widget.lip,
+                offset: const Offset(0, _Keycap.depth),
+                spreadRadius: 0,
+              ),
+          ],
+        ),
+        child: Material(
+          type: MaterialType.transparency,
+          child: InkWell(
+            statesController: states,
+            onTap: widget.onTap,
+            excludeFromSemantics: widget.excludeSemantics,
+            borderRadius: radius,
+            hoverColor: SkyColors.white.withValues(alpha: .35),
+            highlightColor: Colors.transparent,
+            focusColor: Colors.transparent,
+            child: Padding(padding: widget.padding, child: widget.child),
+          ),
         ),
       ),
     );
@@ -466,25 +482,30 @@ class _SettingRow extends StatelessWidget {
           onTap: onChanged == null ? null : () => onChanged!(!on),
           excludeSemantics: true,
           color: on
-              ? Color.alphaBlend(accent.withValues(alpha: .3), SkyColors.cream)
-              : Color.alphaBlend(
-                  SkyColors.ink.withValues(alpha: .04),
-                  SkyColors.cream,
-                ),
-          border: on ? accent : SkyColors.ink.withValues(alpha: .12),
+              ? Color.lerp(SkyColors.cream, accent, .38)!
+              : const Color(0xfff6efe1),
+          lip: on
+              ? Color.lerp(accent, SkyColors.ink, .4)!
+              : SkyColors.ink.withValues(alpha: .3),
           child: Row(
             children: [
               AnimatedContainer(
                 duration: duration,
-                width: 42,
-                height: 42,
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
-                  color: on ? accent : SkyColors.ink.withValues(alpha: .08),
-                  borderRadius: BorderRadius.circular(12),
+                  color: on ? accent : SkyColors.white,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: on
+                        ? SkyColors.ink
+                        : SkyColors.ink.withValues(alpha: .4),
+                    width: 2,
+                  ),
                 ),
                 child: Icon(
                   icon,
-                  size: 24,
+                  size: 22,
                   color: on ? SkyColors.ink : SkyColors.muted,
                 ),
               ),
@@ -534,20 +555,18 @@ class _SettingRow extends StatelessWidget {
                       (s) => s.contains(WidgetState.disabled)
                           ? SkyColors.ink.withValues(alpha: .25)
                           : s.contains(WidgetState.selected)
-                          ? Colors.white
+                          ? SkyColors.white
                           : SkyColors.muted,
                     ),
                     trackColor: WidgetStateProperty.resolveWith(
                       (s) => s.contains(WidgetState.selected)
                           ? SkyColors.teal
-                          : SkyColors.ink.withValues(alpha: .06),
+                          : SkyColors.white,
                     ),
                     trackOutlineColor: WidgetStateProperty.resolveWith(
                       (s) => s.contains(WidgetState.disabled)
-                          ? SkyColors.ink.withValues(alpha: .2)
-                          : s.contains(WidgetState.selected)
-                          ? _tealInk
-                          : SkyColors.ink.withValues(alpha: .55),
+                          ? SkyColors.ink.withValues(alpha: .3)
+                          : SkyColors.ink,
                     ),
                     trackOutlineWidth: const WidgetStatePropertyAll(2),
                     thumbIcon: WidgetStateProperty.resolveWith(
@@ -595,35 +614,34 @@ class _SettingsUnavailable extends StatelessWidget {
   );
 }
 
+/// The privacy promise, as a mint sticker with a shield coin.
 class _PrivacyCard extends StatelessWidget {
   const _PrivacyCard();
 
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(12),
+    margin: const EdgeInsets.only(bottom: _Keycap.depth),
+    padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
     decoration: BoxDecoration(
-      color: SkyColors.mint.withValues(alpha: .3),
-      borderRadius: BorderRadius.circular(18),
-      border: Border.all(color: SkyColors.mint, width: 2),
+      color: Color.lerp(SkyColors.cream, SkyColors.mint, .45),
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: SkyColors.ink, width: 2),
+      boxShadow: [
+        BoxShadow(
+          color: Color.lerp(SkyColors.mint, SkyColors.ink, .4)!,
+          offset: const Offset(0, _Keycap.depth),
+        ),
+      ],
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: SkyColors.mint,
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
-              ),
-              child: const Icon(
-                Icons.verified_user_rounded,
-                size: 22,
-                color: SkyColors.ink,
-              ),
+            const MiniCoin(
+              icon: Icons.verified_user_rounded,
+              color: SkyColors.mint,
+              size: 40,
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -679,19 +697,13 @@ class _ActionRow extends StatelessWidget {
         label: semanticLabel ?? label,
         child: _Keycap(
           minHeight: 48,
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
           color: danger
-              ? Color.alphaBlend(
-                  SkyColors.coral.withValues(alpha: .14),
-                  SkyColors.cream,
-                )
-              : Color.alphaBlend(
-                  Colors.white.withValues(alpha: .6),
-                  SkyColors.cream,
-                ),
-          border: danger
-              ? SkyColors.coralDeep.withValues(alpha: .7)
-              : SkyColors.ink.withValues(alpha: .12),
+              ? Color.lerp(SkyColors.cream, SkyColors.coral, .22)!
+              : SkyColors.white,
+          lip: danger
+              ? SkyColors.coralDeep
+              : Color.lerp(SkyColors.sand, SkyColors.ink, .2)!,
           onTap: () {
             UiSounds.effect(context);
             onTap();
@@ -699,33 +711,34 @@ class _ActionRow extends StatelessWidget {
           child: ExcludeSemantics(
             child: Row(
               children: [
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: danger
-                        ? SkyColors.coral.withValues(alpha: .24)
-                        : SkyColors.ink.withValues(alpha: .07),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(icon, size: 20, color: ink),
+                MiniCoin(
+                  icon: icon,
+                  size: 32,
+                  color: danger ? SkyColors.coral : SkyColors.sky,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     label,
-                    style: bodyText(15, color: ink, weight: FontWeight.w800),
+                    style: bodyText(15, color: ink, weight: FontWeight.w900),
                   ),
                 ),
                 if (detail != null) ...[
-                  Text(detail!, style: bodyText(12, color: SkyColors.muted)),
+                  Text(
+                    detail!,
+                    style: bodyText(
+                      12,
+                      color: SkyColors.muted,
+                      weight: FontWeight.w800,
+                    ),
+                  ),
                   const SizedBox(width: 2),
                 ],
                 if (!danger)
                   const Icon(
                     Icons.chevron_right_rounded,
-                    size: 24,
-                    color: SkyColors.muted,
+                    size: 26,
+                    color: SkyColors.ink,
                   ),
               ],
             ),
@@ -743,24 +756,20 @@ class _ResetDialog extends StatelessWidget {
   Widget build(BuildContext context) => AlertDialog(
     semanticLabel: 'Start a fresh adventure?',
     scrollable: true,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(24),
+      side: const BorderSide(color: SkyColors.ink, width: 2.5),
+    ),
     insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
     titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
     contentPadding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
     actionsPadding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
     title: Row(
       children: [
-        Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: SkyColors.coral.withValues(alpha: .24),
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: const Icon(
-            Icons.restart_alt_rounded,
-            size: 28,
-            color: _dangerInk,
-          ),
+        const MiniCoin(
+          icon: Icons.restart_alt_rounded,
+          color: SkyColors.coral,
+          size: 48,
         ),
         const SizedBox(width: 14),
         Expanded(child: Text('Start a fresh adventure?', style: heading(26))),
@@ -782,6 +791,11 @@ class _ResetDialog extends StatelessWidget {
         style:
             OutlinedButton.styleFrom(
               foregroundColor: _dangerInk,
+              backgroundColor: Color.lerp(
+                SkyColors.cream,
+                SkyColors.coral,
+                .16,
+              ),
               minimumSize: const Size(0, 52),
               padding: const EdgeInsets.symmetric(horizontal: 18),
               textStyle: bodyText(16, weight: FontWeight.w900),
@@ -792,10 +806,7 @@ class _ResetDialog extends StatelessWidget {
               side: WidgetStateProperty.resolveWith(
                 (s) => s.contains(WidgetState.focused)
                     ? const BorderSide(color: SkyColors.ink, width: 3)
-                    : BorderSide(
-                        color: SkyColors.coralDeep.withValues(alpha: .7),
-                        width: 2,
-                      ),
+                    : const BorderSide(color: _dangerInk, width: 2),
               ),
             ),
         child: const Text('Reset everything'),
