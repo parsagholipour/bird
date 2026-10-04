@@ -120,7 +120,10 @@ void main() {
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       expect(find.text('Peaches'), findsOneWidget);
-      expect(find.text('Fly with me'), findsNWidgets(3));
+      for (final bird in birdOrder) {
+        expect(find.byKey(ValueKey('bird-card-$bird')), findsOneWidget);
+      }
+      expect(find.byKey(const ValueKey('bird-flying')), findsOneWidget);
       appRouter.go('/records');
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);

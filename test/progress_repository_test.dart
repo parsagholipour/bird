@@ -111,7 +111,8 @@ void main() {
       final p = await repo.load();
       expect(p.totalObstacles, 0);
       expect(p.birdsFlown, isEmpty);
-      expect(p.settings.bird, 0);
+      expect(p.settings.bird, firstBird);
+      expect(p.unlockedBirds, {1, 2});
       expect(p.settings.music, true);
       expect(p.settings.recordAudio, false);
       expect(p.recent, isEmpty);

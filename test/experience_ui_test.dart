@@ -353,20 +353,23 @@ void main() {
         }
       });
       await tester.pumpAndSettle();
-      for (final name in BirdTrail.names) {
-        expect(find.text(name), findsOneWidget);
+      // Each tile shows its bird and its trail in the showcase.
+      for (final bird in birdOrder) {
+        await tester.tap(find.byKey(ValueKey('bird-card-$bird')));
+        await tester.pumpAndSettle();
+        expect(find.text(BirdTrail.names[bird]), findsOneWidget);
       }
       if (player == 'choosing') {
-        final card = find.byKey(const ValueKey('bird-card-1'));
-        await tester.tap(
-          find.descendant(of: card, matching: find.text('Fly with me')),
+        await tester.tap(find.byKey(const ValueKey('bird-card-1')));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const ValueKey('fly-with-1')));
+        // Let the save reach the database, then the refresh settle.
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 200)),
         );
         await tester.pumpAndSettle();
         expect(container.read(progressProvider).requireValue.settings.bird, 1);
-        expect(
-          find.descendant(of: card, matching: find.text('Equipped')),
-          findsOneWidget,
-        );
+        expect(find.byKey(const ValueKey('bird-flying')), findsOneWidget);
       }
       expect(tester.takeException(), isNull);
       await capture(tester, 'crew-trails-$player');

@@ -340,9 +340,16 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
             'or star power. Last bird flying wins.',
       ),
     };
+    // Locked birds have to be bought on the crew screen before they fly.
+    final unlocked =
+        ref.read(progressProvider).asData?.value.unlockedBirds ?? const {1, 2};
     Widget card(int player, int bird) => _PlayerCard(
       player: player,
       bird: bird,
+      birds: [
+        for (final b in birdOrder)
+          if (unlocked.contains(b)) b,
+      ],
       mode: chosen,
       reducedMotion: reducedMotion,
       onPick: (bird) => setState(
@@ -992,8 +999,12 @@ class _PlayerCard extends StatelessWidget {
     required this.mode,
     required this.reducedMotion,
     required this.onPick,
+    this.birds = birdOrder,
   });
   final int player, bird;
+
+  /// The birds offered in the tray: the unlocked ones.
+  final List<int> birds;
   final CoopMode mode;
   final bool reducedMotion;
   final ValueChanged<int> onPick;
@@ -1042,7 +1053,7 @@ class _PlayerCard extends StatelessWidget {
       tray: CoopTray(
         color: color,
         children: [
-          for (final i in birdOrder)
+          for (final i in birds)
             _BirdChoice(
               key: ValueKey('coop-pick-$player-$i'),
               bird: i,

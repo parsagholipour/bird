@@ -9,6 +9,7 @@ import 'components.dart';
 import 'home_keys.dart' show HomeKey, HomeKeyColors;
 import 'match_hud.dart' show MatchIcon, MatchSymbol;
 import 'mini_chrome.dart';
+import 'star_wallet.dart';
 import 'theme.dart';
 
 /// The hangar: the equipped bird on its perch with the four upgrades
@@ -63,7 +64,7 @@ class _UpgradesScreenState extends ConsumerState<UpgradesScreen> {
                         title: 'Power up your bird.',
                         size: 34,
                         onBack: () => context.go('/'),
-                        trailing: [_Wallet(stars: p.starWallet)],
+                        trailing: [StarWallet(stars: p.starWallet)],
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 64),
@@ -124,51 +125,6 @@ MatchSymbol _symbolOf(PowerUp p) => switch (p) {
 /// Greyed ink for what the wallet cannot pay for yet.
 const _locked = Color(0xff6d8086), _lockedFace = Color(0xffefe7d6);
 const _lockedLip = Color(0xff9fb0b4);
-
-/// The stars to spend, in the gold pill every screen shows them in.
-class _Wallet extends StatelessWidget {
-  const _Wallet({required this.stars});
-  final int stars;
-
-  @override
-  Widget build(BuildContext context) => Semantics(
-    label: '$stars stars to spend',
-    excludeSemantics: true,
-    child: Container(
-      key: const ValueKey('star-wallet'),
-      height: 58,
-      padding: const EdgeInsets.fromLTRB(10, 0, 20, 0),
-      decoration: BoxDecoration(
-        color: SkyColors.yellow,
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: SkyColors.ink, width: 3),
-        boxShadow: const [
-          BoxShadow(color: SkyColors.gold, offset: Offset(0, 5)),
-        ],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const MatchIcon(MatchSymbol.star, size: 38),
-          const SizedBox(width: 6),
-          Text(
-            '$stars',
-            style: heading(32, weight: FontWeight.w700).copyWith(height: 1),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            'YOUR\nSTARS',
-            style: bodyText(
-              13,
-              color: SkyColors.muted,
-              weight: FontWeight.w900,
-            ).copyWith(height: 1.05, letterSpacing: .5),
-          ),
-        ],
-      ),
-    ),
-  );
-}
 
 /// The bird on its perch between two columns of sockets, each tied to it by
 /// a dotted line.
@@ -973,9 +929,10 @@ class _UpgradeKey extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (busy)
-                const SizedBox.square(
+                SizedBox.square(
                   dimension: 22,
                   child: CircularProgressIndicator(
+                    value: MediaQuery.disableAnimationsOf(context) ? .75 : null,
                     strokeWidth: 2.5,
                     color: SkyColors.ink,
                   ),
