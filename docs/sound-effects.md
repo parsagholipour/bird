@@ -20,7 +20,7 @@ and uses the existing **Sound effects** setting independently of music.
 | Steam Geysers | A 1.4 s hiss that swells and spits faster over ever-quicker iron knocks, a crack and roaring jet that darkens (two takes) with an iron clang (two takes) as the vent bursts, and a rising updraft with an E5-B5 sparkle |
 | Searchlight Gargoyle | Lightning on the rod and the stone waking in place of the reveal and roar, a shutter slam and winding hum with quickening relay ticks for the beam warning, a 2.9 s arc-lamp buzz for the sweep, a pop and G6 bell when the bird is caught, ratcheting louvres and steam when the lamp opens, a steel clink when a rock glances off it (two takes), a rustle and stone tick for each feather (two takes), a grinding, searing fury in the mids a phone plays, and limestone, glass and wings for the burst that ends him |
 | King Coo | A 0.85 s "COO!" cut to his beak's swell for the arrival and the long "COO-ROO-COOOO" for fury, a two-blast pea whistle with a flock taking off, a swish-thwup and a crinkle of crumbs for each bomb, an inflating squeak under the hit-stop, a pop, and a deflating defeat with two sad coos |
-| Neferhoo | A giant hoopoe's three-note "HOO-POO-POO" over a thump and a small temple gong for his arrival and each stage-up (with a sand devil's updraft under the arrival), a satchel thump, rustle and three chimes for each mail call, a paper snap for each letter, a rubber-stamp thunk and rising boing when a rock sends one back, a counter bell over "ka-chunk" and a paper burst when it lands, a dull cloth thud for a rock on his wraps, a hum and four chimes as the ankh rises, a chopped whir in flight, a gold clink when it is caught, an angrier call and the gong for fury, a gold clang-pop and a paper blizzard for the mask, and a warm four-note "found it" for the lost letter |
+| Neferhoo | ElevenLabs takes: a giant hoopoe's three hollow hoots, re-timed to his beak, with a small temple gong ringing out for his arrival and each stage-up (and a gritty sand-devil swirl under the arrival), a satchel thump, rustle and rising chimes for each mail call, a paper snap for each letter, a stamp thunk that bends up into a boing when a rock sends one back, a double rubber-stamp "ka-chunk" with a ringing bell when it lands, a short cloth slap for a rock on his wraps, a hum under rising chimes as the ankh rises, a chopped whir in flight, a gold clink over a thump when it is caught, three rough cries and a short one over the gong for fury, a brass clang and a burst of paper for the mask, and four soft bell notes rising (C-E-G-C) for the lost letter |
 | Boss death | Breaking body, debris burst and victory flourish, timed to the animation |
 | Player damage / recovery | Padded impact, shield break/recharge and dedicated heart pickup |
 | Rewards | Three rotating bell tones for stars, plus bell and wood tones for perfect gates, combos, magnet, letters, deliveries and discoveries |
@@ -57,8 +57,10 @@ Searchlight Gargoyle, 36 files) are synthesised the same way; see
 [New York cues](#new-york-cues-rules-version-43) below for the command per
 family, every parameter, the seeds and the measurements.
 
-Egypt's 13 cues (Neferhoo, the Mummy Courier, rules version 50) are
-synthesised the same way; see [Egypt cues](#egypt-cues-rules-version-50).
+Egypt's 13 cues (Neferhoo, the Mummy Courier, rules version 50) were
+synthesised the same way and are made from ElevenLabs takes since 2026-10-04
+(the syntheses still render with `--egypt-synth`); see
+[Egypt cues](#egypt-cues-rules-version-50).
 
 The source takes are kept in ignored `build/sound-effects/source/`. To reproduce
 the assets after restoring those source files:
@@ -915,24 +917,38 @@ alarm), then the swoop.
 
 ## Egypt cues (rules version 50)
 
-Thirteen original syntheses (13 files, 1.22 MB of mono 44.1 kHz 16-bit PCM)
-for Neferhoo, the Mummy Courier who ends level 2-6 "Return to Sender", and one
-alias level (`wrap_scuff_duck`, no file of its own). No source take and no
-network: new branches of `synth()` in `tool/prepare_sound_effects.py`, built
-from the script's own helpers plus three new ones, reproducible byte for byte.
-The designer's list is `egypt-ws/reports/01-egypt-guardian.md` section 6 and
-its prototype `proof/mummy_cues_prototype.py` (run against the game's own
-helpers); **twelve of the thirteen WAVs are byte-identical to the prototype's**.
-The thirteenth, `hoopoe_roar`, was re-timed to the picture (below). No earlier
-file in `assets/audio/` changed.
+Thirteen cues (13 files, 1.22 MB of mono 44.1 kHz 16-bit PCM) for Neferhoo,
+the Mummy Courier who ends level 2-6 "Return to Sender", and one alias level
+(`wrap_scuff_duck`, no file of its own). **Since 2026-10-04 they are made from
+ElevenLabs takes**: the owner asked for his sounds from ElevenLabs.
+`eleven_text_to_sound_v2` recorded four takes of each cue (flow
+https://elevenlabs.io/app/flows/fxNpEkVOAm49dMvjGLj0, 52 takes), then four
+takes each of four single-sound layers (a mask clang, a paper flurry, a temple
+gong and one bell note, 16 takes) for the cues no take got right. About 825
+credits in all. `egypt_take()` in `tool/prepare_sound_effects.py` cuts each
+picked take to the bank's length and, where the picture needs it, re-times or
+layers it (table below). Prompts, generation ids, hashes, what each pick is
+used for and why each other take lost are under `sources.<cue>` in
+[sound-effects-sources.json](sound-effects-sources.json).
 
-**Nobody has listened to them.** They were checked by measurement (below) and
-by tests; the first four to audition are under "Audition first".
+They replaced thirteen original syntheses (designed in
+`egypt-ws/reports/01-egypt-guardian.md` section 6, prototyped by
+`proof/mummy_cues_prototype.py`). Those still render byte for byte with
+`--egypt-synth`, so any cue can go back to its synthesis. Seeds, helpers and
+parameters are kept below.
+
+**Nobody has listened to them.** The takes were picked by measurement:
+envelope, onsets, f0, spectrogram and phone band (the scripts are in
+`egypt-int/sfx-el/`, outside the repo). The ones to audition first are under
+"Audition first".
 
 ### Rendering
 
 ```sh
 python3 tool/prepare_sound_effects.py --only hoopoe_roar sand_devil mail_call letter_flick letter_return postage_due wrap_scuff ankh_raise ankh_whir ankh_catch mummy_fury mask_pop lost_letter
+
+# the original syntheses instead (all 13, or name just the cues to revert)
+python3 tool/prepare_sound_effects.py --egypt-synth --only hoopoe_roar sand_devil mail_call letter_flick letter_return postage_due wrap_scuff ankh_raise ankh_whir ankh_catch mummy_fury mask_pop lost_letter
 
 # measure: a table, eight-slice envelope and centroid per cue, f0 track for the voices
 python3 tool/check_sound_effects.py --family egypt --pitch
@@ -943,12 +959,41 @@ python3 tool/check_sound_effects.py --update-sources
 python3 tool/check_sound_effects.py --verify-sources
 ```
 
-`--only` reads each cue's length from `sound_bank.dart` (change it there
-first); `EGYPT_CUES` in the script names the 13 (`master(dc_block=True)` for
-each). A misspelt cue would render as the generic whoosh, so
-`test/neferhoo_audio_test.dart` checks that every name has its own branch.
+The picked takes are read from ignored `build/sound-effects/source/egypt/`,
+under the names in `EGYPT_TAKES` and `EGYPT_LAYERS`. A missing take stops the
+render rather than falling back to the synthesis. All 68 takes, both
+manifests, the measurements and the spectrograms are also kept in
+`egypt-int/sfx-el/` (`takes/`, `manifest.json`, `manifest-layers.json`). To
+try another take, copy it into the source folder, change its name in
+`EGYPT_TAKES` and re-render. `--only` reads each cue's length from
+`sound_bank.dart` (change it there first). `EGYPT_CUES` in the script names
+the 13 (`master(dc_block=True)` for each). `test/neferhoo_audio_test.dart`
+checks that every cue names a take and still has its synthesis branch.
 
-### Seeds
+### The takes
+
+| Cue | Take | What it is | What `egypt_take()` does |
+| --- | --- | --- | --- |
+| `hoopoe_roar` | `hoopoe_roar-1` | three hollow hoots near 390 Hz, .28 s apart | cuts each to .15 s and starts them at .02, .17 and .32 s (`ROAR_HOOTS` onto `ROAR_NOTES`: the beak's pulses), the last with its tail; `temple_gong-1` from .32 s at .35 of the call's peak; soft-knee -15 |
+| `sand_devil` | `sand_devil-4` | a gritty swirl swelling to .32 s, fading by 1.5 s | the first 1.6 s |
+| `mail_call` | `mail_call-2` | a satchel thump, a rustle, then a rising ladder of chimes from .3 s | the first 1.0 s, high-pass 150 Hz, soft-knee -19 |
+| `letter_flick` | `letter_flick-3` | a swish into a paper snap | the snap with .03 s before it (`excerpt()`'s transient mode) |
+| `letter_return` | `letter_return-2` | a stamp thunk whose pitch bends up (the boing) | as it is |
+| `postage_due` | `postage_due-3` | a double stamp hit ("ka-chunk") with bell partials ringing to .4 s | soft-knee -15 |
+| `wrap_scuff` | `wrap_scuff-3` | one short cloth slap | the first .16 s, soft-knee -18 |
+| `ankh_raise` | `ankh_raise-1` | a hum under a rising ladder of chimes | high-pass 200 Hz |
+| `ankh_whir` | `ankh_whir-4` | a chopped whir, about four turns a second, level to 2.3 s | high-pass 220 Hz (its sub-bass left 10 % in the phone band) |
+| `ankh_catch` | `ankh_catch-4` | a gold clink over a low thump | soft-knee -18 |
+| `mummy_fury` | `mummy_fury-4` | three rough cries, a gap, a short cry | moves the second phrase from .745 s to .60 s (`FURY_JOIN`), where the beak opens again; `temple_gong-1` from .60 s at .3 of the peak |
+| `mask_pop` | `mask_clang-3` | a bright brass clang | `paper_flurry-4` from .06 s at .5 of the clang's peak; soft-knee -19 |
+| `lost_letter` | `bell_note-1` | one near-pure 831.7 Hz tone (`BELL_HZ`) | plays it at C5, E5, G5 and C6, .16 s apart (`LOST_LETTER_NOTES`), each dying away over about .4 s |
+
+Every one ends in a cosine fade over its last fifth (at most .25 s). The
+`mask_pop` and `lost_letter` nodes' own takes are unused. No take of the
+first had both a clang and paper; the second's were a hiss, a sparkle and one
+pulsing note. So both were re-recorded as layers.
+
+### Seeds (the syntheses)
 
 Seeds 501-619 (New York used up to 499). One `random.Random(seed)` per random
 layer, never shared between Egypt's cues. The finish line's cues (above),
@@ -1025,15 +1070,16 @@ shine would be one more `synth()` branch (`squeak`, `bell`) and one edge on
 
 **The roar against the picture.** The picture pulses his beak at 2.65, 2.80
 and 2.95 s of the arrival, .15 s each (`syllables` in the design's
-`mummy_present_cine.dart`), and the cue starts at 2.65 s. The prototype's
-three hoots were .34 s apart (at .05, .39 and .73 s), twice as slow as the
-beak. `hoopoe_roar` now starts its hoots at .02, .17 and .32 s (`ROAR_NOTES`
-in the script: .17, .17 and .32 s long, 330-300, 300-270 and 300-240 Hz), the
-same thump, gong and sand under them; the proof file is in the design's
-`proof/audio/`. If the art retimes the syllables, `ROAR_NOTES` is the only
-edit. Its volume is .65, not the design's .55: next to the boss roar and the
-other guardians' roars (below) .55 played about 4 dB under King Coo's and the
-Gargoyle's.
+`mummy_present_cine.dart`), and the cue starts at 2.65 s. The ElevenLabs
+take's three hoots are .28 s apart (at 0, .26 and .555 s), nearly twice as
+slow as the beak. `egypt_take()` cuts each to .15 s (`ROAR_HOOTS`) and starts
+them at .02, .17 and .32 s (`ROAR_NOTES`), so each hoot peaks with its pulse
+(.06-.10, .22-.26 and .36-.40 s); the last keeps its tail, and the gong rings
+out from .32 s. If the art retimes the syllables, `ROAR_NOTES` is the only
+edit. (The synthesis, `--egypt-synth`, sings its own hoots at the same
+`ROAR_NOTES` times; the design's prototype had them .34 s apart.) Its volume
+is .65, not the design's .55: next to the boss roar and the other guardians'
+roars (below), .55 played about 4 dB under King Coo's and the Gargoyle's.
 
 **Cue time against picture** (boss age for the arrival and defeat, cycle
 seconds in the fight):
@@ -1049,7 +1095,7 @@ seconds in the fight):
 | Ankh | locks at 5.4 s, rises .5 s, spins up the last .6 s, thrown 6.8 s | `ankh_raise` at 5.4 s (1.4 s), `ankh_whir` at 6.8 s (2.6 s) |
 | Defeat | the mask pops at .85 s; the letter glows from 1.1 s and flares at 3.12-3.62 s; the card at 1.55 s | `mask_pop` at .85 s (its clang is the file's first sample), `boss_victory` 1.55 s, `lost_letter` 3.2 s |
 
-### New helpers
+### Synthesis helpers
 
 All in `tool/prepare_sound_effects.py`, after `crinkle` (the first two are the
 prototype's).
@@ -1063,7 +1109,7 @@ prototype's).
 `main()` gives `hoopoe_roar`, `postage_due` and `mask_pop` a soft-knee RMS
 target of -15 dBFS and `dc_block` to all 13; no earlier cue's path changed.
 
-### Parameters, cue by cue
+### Synthesis parameters, cue by cue
 
 All the listed gains are before `master()`.
 - `hoopoe_roar` (1.4 s): thump .35 (heavy, .2 s); three `hoot` at .34; `gong`
@@ -1103,29 +1149,30 @@ each side, `proof/mummy_cues_prototype.py`'s `band_share`):
 
 | Cue | `hoopoe_roar` | `sand_devil` | `mail_call` | `letter_flick` | `letter_return` | `postage_due` | `wrap_scuff` | `ankh_raise` | `ankh_whir` | `ankh_catch` | `mummy_fury` | `mask_pop` | `lost_letter` |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Share | 49% | 92% | 59% | 93% | 65% | 65% | 96% | 64% | 78% | 72% | 77% | 66% | 96% |
+| Share | 72% | 52% | 43% | 71% | 64% | 43% | 98% | 41% | 71% | 55% | 73% | 92% | 96% |
 
-(`check_sound_effects.py`'s sharper FFT band reads 64-100 %; the roar is the
-lowest because its call sits near 300 Hz over a 196 Hz gong. The prototype
-measured 54 % before the notes were re-timed.) Levels as played, the figures
-`check_sound_effects.py --family egypt` prints, against the references (the
-dragon's `dragon_breath` is -17.9; see the table above):
+The closest to the floor are the ankh raise (its chimes' sparkle runs above
+8 kHz), the mail call and the postage due (a satchel thump and a stamp's thud
+below 250 Hz). That is why the mail call, the ankh raise and the whir are
+high-passed. Levels as played, the figures `check_sound_effects.py --family
+egypt` prints, against the references (the dragon's `dragon_breath` is -17.9;
+see the table above):
 
 | Asset | s | RMS | Loudest 100 ms as played | A-weighted loudest as played | 250 Hz - 8 kHz (FFT) |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| `hoopoe_roar` | 1.40 | -14.5 | -13.0 | -16.0 | 84% |
-| `sand_devil` | 1.60 | -18.8 | -22.1 | -23.0 | 97% |
-| `mail_call` | 1.00 | -21.8 | -22.6 | -27.2 | 64% |
-| `letter_flick` | .25 | -19.3 | -25.9 | -23.1 | 98% |
-| `letter_return` | .40 | -20.3 | -23.6 | -26.0 | 69% |
-| `postage_due` | .70 | -14.5 | -12.9 | -11.7 | 69% |
-| `wrap_scuff` | .16 | -17.6 | -28.8 | -27.5 | 100% |
-| `ankh_raise` | 1.40 | -17.2 | -20.1 | -21.6 | 93% |
-| `ankh_whir` | 2.60 | -19.9 | -26.7 | -24.1 | 85% |
-| `ankh_catch` | .35 | -20.6 | -23.4 | -23.0 | 74% |
-| `mummy_fury` | 1.30 | -17.2 | -18.3 | -20.4 | 97% |
-| `mask_pop` | 1.30 | -14.8 | -11.7 | -13.2 | 84% |
-| `lost_letter` | 1.40 | -16.3 | -19.1 | -18.1 | 100% |
+| `hoopoe_roar` | 1.40 | -14.7 | -12.0 | -15.2 | 99% |
+| `sand_devil` | 1.60 | -21.2 | -24.3 | -23.8 | 65% |
+| `mail_call` | 1.00 | -18.8 | -22.0 | -20.3 | 52% |
+| `letter_flick` | .25 | -22.7 | -29.3 | -26.4 | 80% |
+| `letter_return` | .40 | -21.2 | -22.5 | -23.6 | 84% |
+| `postage_due` | .70 | -14.8 | -9.6 | -11.3 | 53% |
+| `wrap_scuff` | .16 | -18.2 | -29.7 | -26.8 | 99% |
+| `ankh_raise` | 1.40 | -17.9 | -21.7 | -20.5 | 48% |
+| `ankh_whir` | 2.60 | -21.5 | -24.9 | -26.3 | 99% |
+| `ankh_catch` | .35 | -17.3 | -20.1 | -19.2 | 70% |
+| `mummy_fury` | 1.30 | -18.1 | -17.1 | -19.5 | 99% |
+| `mask_pop` | 1.30 | -18.7 | -13.8 | -12.0 | 96% |
+| `lost_letter` | 1.40 | -15.8 | -18.7 | -18.2 | 100% |
 
 Next to the other guardians' (A-weighted as played): `coo_shout` -14.3,
 `coo_roar` -14.4, `gargoyle_awaken` -12.2, `gargoyle_fury` -15.7,
@@ -1134,10 +1181,13 @@ Next to the other guardians' (A-weighted as played): `coo_shout` -14.3,
 window the New York roars are held to: boss roar less 4 dB to the reveal plus
 1 dB), `postage_due` is the loudest hit and stays under the reveal plus
 1.5 dB, `mask_pop` is a little above `gargoyle_shatter`, `wrap_scuff` is as
-quiet as `boss_hit` and its ducked level 6 dB under that. The tests that pin all of
-this are in `test/neferhoo_audio_test.dart`; the edges are driven through
-`BossAudioCues` and a real `SkyAudio` on the Android host fake, with the
-counters and latches set the way the rules set them.
+quiet as `boss_hit` and its ducked level 6 dB under that. Two picks were made
+for these levels. The scuff's take 4, a dull thud, played -34.0 A-weighted:
+too low for a phone to carry. At the synthesis's soft-knee -15, the mask
+played -9.3, 6 dB over the shatter, so it is mastered at -19.
+The tests that pin all of this are in `test/neferhoo_audio_test.dart`; the
+edges are driven through `BossAudioCues` and a real `SkyAudio` on the Android
+host fake, with the counters and latches set the way the rules set them.
 `test/neferhoo_merge_audio_test.dart` then flies level 2-6 on the real rules
 (the shared bot, two widths) and demands, after every step, that each cue plays
 on the step its edge happens and on no other, and that the totals agree with
@@ -1145,32 +1195,41 @@ the rules' counters (it skips itself while the rules are only the scaffold).
 
 ### Audition first
 
-In this order; each line says what it should sound like.
-1. `hoopoe_roar`: "HOO-POO-POO", three quick bright hoots near 300 Hz falling a
-   little, each with his beak, over a thump and a small gong ringing out into a
-   puff of sand; a giant bird, comic, not scary. It rings at his arrival and at
-   the first stage-up. Bad: an owl, a ghost, a goose, or the three notes
-   running into one trill (the notes are .15 s apart).
-2. `postage_due`: a heavy "KA-CHUNK", a burst of paper and a counter bell
-   ringing G6 over C7. It must feel like a jackpot: it is the payoff of the
-   whole rule and plays after every successful return. Bad: a thud with no
-   reward, or a bell that is shrill after twenty repeats.
-3. `ankh_whir`: a chopped, even whup-whup-whup (9 turns a second slowing to 6
-   at the turn and quickening to 10 going home), 2.6 s. Bad: a drone, a
-   helicopter, a fan; the chop depth (.25 + .75 sin^2) and the rates are the
-   knobs.
-4. The defeat together: `mask_pop` (clang and paper), `boss_victory` at 1.55 s
-   and `lost_letter` at 1.6 s overlap. The victory's D-major arpeggio and the
-   found-it C-major run start 0.05 s apart; bad if they clash. If they do, move
-   `lost_letter` later (`NeferhooAudioCues.lostLetterAt`, say 2.2 s, where the
-   victory's own C-major triad comes in) or leave `boss_victory` out for him.
+In this order; each line says what it should sound like. To compare any cue
+with its synthesis, render it with `--egypt-synth --only <cue>` (and back
+without the flag).
+1. `hoopoe_roar`: "HOO-POO-POO", three quick hollow hoots near 390 Hz, one
+   with each pulse of his beak, then a small temple gong ringing out; a giant
+   bird, comic, not scary. It rings at his arrival and at the first stage-up.
+   Bad: a click at a splice (the cuts are at .17 and .32 s), the three running
+   into one, or an owl or a ghost.
+2. `postage_due`: a heavy double "ka-chunk" of a rubber stamp and a bell
+   ringing on. It must feel like a jackpot: it is the payoff of the whole rule
+   and plays after every successful return. Bad: a thud with no reward, or
+   harsh after twenty repeats.
+3. `lost_letter`: four soft bell notes rising, C-E-G-C, from one ElevenLabs
+   bell tone. Bad: a plain electronic beep (the tone is nearly pure). The
+   alternatives are its synthesis or another try at the bell (`BELL_HZ` is
+   the take's pitch).
+4. `ankh_whir`: a chopped whup-whup, about four turns a second, level for
+   2.3 s. Bad: a drone, a helicopter, a fan.
+5. `mummy_fury`: three rough cries, a breath, one short cry at .60 s (his
+   beak's second opening), over the gong. Bad: a seam where the take was
+   joined (`FURY_JOIN`).
+6. The defeat together: `boss_break` at the defeat, `mask_pop` (clang and
+   paper) at .85 s, `boss_victory` at 1.55 s and `lost_letter` at 3.2 s, once
+   the victory has rung out.
 
 ### Open points for the owner
 
+- The ElevenLabs takes were picked by measurement, not by ear. Every other
+  take is kept (`egypt-int/sfx-el/takes/`, why each lost is in
+  `sources.<cue>.rejected`), so a different pick is a copy and a one-word
+  change in `EGYPT_TAKES`.
 - `hoopoe_roar` was re-timed (hoots .15 s apart, the beak's rhythm) and its
-  volume raised to .65. If the art would rather keep the design's .34 s notes,
-  put `ROAR_NOTES` back to (.05, .3), (.39, .3), (.73, .55) and the art's
-  `syllables` to 2.65, 2.99, 3.33.
+  volume raised to .65. If the art would rather keep the take's own .28 s
+  rhythm, set `ROAR_HOOTS` to (0, .26), (.26, .295), (.555, None),
+  `ROAR_NOTES`' starts to 0, .26 and .555, and the art's `syllables` to match.
 - The names `lost_letter` (his glow) and the older `letter_lost` (a letter
   the bird drops) are one transposition apart; the design chose them.
 - A rock on his wraps sounds the shared `boss_hit` and the cloth thud

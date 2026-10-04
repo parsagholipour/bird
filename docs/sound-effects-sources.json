@@ -199,6 +199,939 @@
           "reason": "One continuous warbling whistle for all 3 s (a strong tone in 98-99% of 20 ms frames), the first a slow siren-like 1.6-3.7 kHz sweep, with no gaps to leave a spoken line room."
         }
       ]
+    },
+    "hoopoe_roar": {
+      "flow": "https://elevenlabs.io/app/flows/fxNpEkVOAm49dMvjGLj0",
+      "date": "2026-10-04",
+      "node_id": "6LW62QHLo7Hv1ta7svUf",
+      "prompt": "Giant cartoon hoopoe bird call: three short deep hollow hoots in quick succession, hoo-poo-poo, with a soft low thump under the first hoot and a small brass temple gong ringing out after the third, isolated on silence, no music, no human voice.",
+      "settings": {
+        "duration_seconds": 1.5,
+        "prompt_influence": 0.6
+      },
+      "takes": [
+        {
+          "source": "hoopoe_roar-1.mp3",
+          "generation_id": "wJBXJUv1hBwnVXA0oGe2",
+          "sha256": "c5a7a3d49b520999b1101a312a5fcdf91de80488961cf71b5e0b20b7c189f8db"
+        }
+      ],
+      "use": "Three hollow hoots near 390 Hz at 0, .26 and .555 s. Each is cut to .15 s and starts on its ROAR_NOTES time (.02, .17, .32 s, the beak's pulses), the last keeping its tail; temple_gong under it from .32 s at .35 of the call's peak. Soft-knee RMS -15.",
+      "layers": [
+        {
+          "node_id": "zmrFJY7yGtS5rKVAQQi9",
+          "prompt": "A small brass temple gong struck softly once, a warm shimmering ring that fades out, isolated on silence.",
+          "settings": {
+            "duration_seconds": 2.0,
+            "prompt_influence": 0.6
+          },
+          "takes": [
+            {
+              "source": "temple_gong-1.mp3",
+              "generation_id": "ghmxzAbkukTEagPHcojC",
+              "sha256": "6cc23e65483133947ea0742a1ce117c7b55caee3a38f4b41d40166bfa37b7714"
+            }
+          ]
+        }
+      ],
+      "rejected": [
+        {
+          "node_id": "6LW62QHLo7Hv1ta7svUf",
+          "takes": [
+            {
+              "generation_id": "tSNHxn6hcRPGkCKwhUl1",
+              "sha256": "01c8eebc31874dc992810efb5c70db0676b33b09cc7ed8a418ba3a1a8dff8142"
+            }
+          ],
+          "reason": "Two hoots, not three."
+        },
+        {
+          "node_id": "6LW62QHLo7Hv1ta7svUf",
+          "takes": [
+            {
+              "generation_id": "0svLgv0IMZINzb4gSVRy",
+              "sha256": "0fa8025d14bb68cd140031c513eedf7f3998f46c2e7ca54e333d15dee7625189"
+            }
+          ],
+          "reason": "Six hoots."
+        },
+        {
+          "node_id": "6LW62QHLo7Hv1ta7svUf",
+          "takes": [
+            {
+              "generation_id": "e5ypmRpyNFGaF3n5WIDZ",
+              "sha256": "3d584e5df0011b0381699803b941678e8cb7dcdefca36e719a351084eb0e1be8"
+            }
+          ],
+          "reason": "The first hoot is faint; the other two are .22 s apart."
+        },
+        {
+          "node_id": "zmrFJY7yGtS5rKVAQQi9",
+          "takes": [
+            {
+              "generation_id": "DjxdcMjrEwwA3Bi6369A",
+              "sha256": "fe19a8b5b01a39b0f40921270dda68c3b26351f8b1b681fcdcb307616ce51c56"
+            }
+          ],
+          "reason": "22 % in the phone band.",
+          "layer": "temple_gong"
+        },
+        {
+          "node_id": "zmrFJY7yGtS5rKVAQQi9",
+          "takes": [
+            {
+              "generation_id": "PNh7ThxVereeGndBoyg9",
+              "sha256": "597dfbaaf105147c4bdd8ad1fabd47bd4705d7f52d2373a2604b4b418d55347b"
+            }
+          ],
+          "reason": "35 % in the phone band.",
+          "layer": "temple_gong"
+        },
+        {
+          "node_id": "zmrFJY7yGtS5rKVAQQi9",
+          "takes": [
+            {
+              "generation_id": "IUAYSYAVKWwziXXc47qP",
+              "sha256": "66fc6400b6d94560170b8f1e6bea12fa8ea6ee6dec4e88e530f7ba6044428ea5"
+            }
+          ],
+          "reason": "A pulsing partial at 345-368 Hz, too near the hoots' pitch.",
+          "layer": "temple_gong"
+        }
+      ],
+      "source_folder": "build/sound-effects/source/egypt/"
+    },
+    "sand_devil": {
+      "flow": "https://elevenlabs.io/app/flows/fxNpEkVOAm49dMvjGLj0",
+      "date": "2026-10-04",
+      "node_id": "XWzQIlKxR4xnEJXvcIOw",
+      "prompt": "A small desert sand devil whirlwind swirling up: gritty rushing wind swelling upward with hissing sand grains and a few fluttering paper letters, then fading away, isolated on silence, no music or voices.",
+      "settings": {
+        "duration_seconds": 2.0,
+        "prompt_influence": 0.5
+      },
+      "takes": [
+        {
+          "source": "sand_devil-4.mp3",
+          "generation_id": "YxpUWH17UuLMs43FMsJh",
+          "sha256": "7c50f6833a5e0585746248f097d1a9b01021174e3c34e67e08def7ef9b319706"
+        }
+      ],
+      "use": "The first 1.6 s: a gritty swirl that swells to its loudest at .32 s and fades out by 1.5 s.",
+      "rejected": [
+        {
+          "node_id": "XWzQIlKxR4xnEJXvcIOw",
+          "takes": [
+            {
+              "generation_id": "N4Yl3SfgmsZoslt3DVOF",
+              "sha256": "74d42332d6b4ec21d17ae354873f576521e511ed04b6e35cf6fa4835c02dc0fd"
+            }
+          ],
+          "reason": "Loud from the first sample: no swell."
+        },
+        {
+          "node_id": "XWzQIlKxR4xnEJXvcIOw",
+          "takes": [
+            {
+              "generation_id": "SViKUsRppozqGlgu2rra",
+              "sha256": "e7b8e696dd3fbf4bd2b527984b93f181b6d4c654c57333307dd95c69a012a8f8"
+            }
+          ],
+          "reason": "Over by .9 s, short of the cue."
+        },
+        {
+          "node_id": "XWzQIlKxR4xnEJXvcIOw",
+          "takes": [
+            {
+              "generation_id": "nBPPTdtpZHBT0q3Le3lb",
+              "sha256": "ff3530bfaa15b11022b856e9c781326adf6d4a602cb0944c45358fe60e057af6"
+            }
+          ],
+          "reason": "Over by .9 s, short of the cue."
+        }
+      ],
+      "source_folder": "build/sound-effects/source/egypt/"
+    },
+    "mail_call": {
+      "flow": "https://elevenlabs.io/app/flows/fxNpEkVOAm49dMvjGLj0",
+      "date": "2026-10-04",
+      "node_id": "DhOjwS0Uvbiehzn4k3bg",
+      "prompt": "A leather mail satchel flap thumped open, a quick rustle of paper letters, then three bright little rising chimes, playful cartoon game sound, isolated on silence, no music or voices.",
+      "settings": {
+        "duration_seconds": 1.2,
+        "prompt_influence": 0.6
+      },
+      "takes": [
+        {
+          "source": "mail_call-2.mp3",
+          "generation_id": "S64htlZ1wdpxaIBi2GFc",
+          "sha256": "c4d58b4f69fb13d84f07d6e18b0c89fc7f4b984e6a982260755550cee141ee3f"
+        }
+      ],
+      "use": "The first 1.0 s: a satchel thump at .07 s, a paper rustle, then a rising ladder of chimes from .3 s. High-passed at 150 Hz; soft-knee RMS -19 (a telegraph).",
+      "rejected": [
+        {
+          "node_id": "DhOjwS0Uvbiehzn4k3bg",
+          "takes": [
+            {
+              "generation_id": "LbvfAaNmjAUyp5mL4Aql",
+              "sha256": "6bbb1531bb1cf612fac1f6ed50d0ea192683198793c607081f30b89115de8eb4"
+            }
+          ],
+          "reason": "Over by .7 s with no chimes."
+        },
+        {
+          "node_id": "DhOjwS0Uvbiehzn4k3bg",
+          "takes": [
+            {
+              "generation_id": "CAGxuOaNg2sP6i1m6Q5P",
+              "sha256": "8efeb623cd429be683bc69a496e567fa2385ecb54d0623bdd60dedec4aec4bf6"
+            }
+          ],
+          "reason": "Loudest at .47 s; 30 % in the phone band."
+        },
+        {
+          "node_id": "DhOjwS0Uvbiehzn4k3bg",
+          "takes": [
+            {
+              "generation_id": "POA64m8qwgzWoxTVmgJS",
+              "sha256": "a3749c44b142eafcb60fc4afeb550dcaa70ac2c755307af49ed488a146ef7807"
+            }
+          ],
+          "reason": "No rising chimes."
+        }
+      ],
+      "source_folder": "build/sound-effects/source/egypt/"
+    },
+    "letter_flick": {
+      "flow": "https://elevenlabs.io/app/flows/fxNpEkVOAm49dMvjGLj0",
+      "date": "2026-10-04",
+      "node_id": "IR2lBejJljGubWlMXb6o",
+      "prompt": "A single paper envelope flicked through the air: one crisp paper snap with a tiny swish, very short, close-mic, isolated on silence.",
+      "settings": {
+        "duration_seconds": 0.5,
+        "prompt_influence": 0.6
+      },
+      "takes": [
+        {
+          "source": "letter_flick-3.mp3",
+          "generation_id": "k5p9JxNZLzlktK9nAOb9",
+          "sha256": "23652717de134a182eadcc9ece03f820de3c45d8cf46dbbe6a82a36da0a12a7c"
+        }
+      ],
+      "use": "The paper snap at .26 s with .03 s of the swish before it (excerpt()'s transient mode): the snap lands as the letter leaves his hand.",
+      "rejected": [
+        {
+          "node_id": "IR2lBejJljGubWlMXb6o",
+          "takes": [
+            {
+              "generation_id": "1GyiE2nbHLFpXZClbdiy",
+              "sha256": "82c261f0a2de79d5162a55b3c5acb4b2055a19412919f8a3d7fa4b14b3428908"
+            }
+          ],
+          "reason": "Two snaps (.12 and .21 s)."
+        },
+        {
+          "node_id": "IR2lBejJljGubWlMXb6o",
+          "takes": [
+            {
+              "generation_id": "L2EWOneKxsC26gKt3Pyr",
+              "sha256": "4489305baccdb01810822156cc62f6534a8927e1c83ba0076db6865b35bd5d83"
+            }
+          ],
+          "reason": "Noise before the snap."
+        },
+        {
+          "node_id": "IR2lBejJljGubWlMXb6o",
+          "takes": [
+            {
+              "generation_id": "Y7OSjMh0lbmUPhJXksXy",
+              "sha256": "473ed29d082c84b1ddeae46d27dd8dd2c1365ec628dd772a20adfe376e49b3a9"
+            }
+          ],
+          "reason": "Duller: 64 % in the phone band."
+        }
+      ],
+      "source_folder": "build/sound-effects/source/egypt/"
+    },
+    "letter_return": {
+      "flow": "https://elevenlabs.io/app/flows/fxNpEkVOAm49dMvjGLj0",
+      "date": "2026-10-04",
+      "node_id": "VxvIE1ol1gXhEmykY5nn",
+      "prompt": "A rubber stamp thunk followed by a quick rising cartoon boing, short and bouncy, isolated on silence, no music or voices.",
+      "settings": {
+        "duration_seconds": 0.6,
+        "prompt_influence": 0.6
+      },
+      "takes": [
+        {
+          "source": "letter_return-2.mp3",
+          "generation_id": "X2KwXXq4G8rqaRl9N4nm",
+          "sha256": "14d9837a311c6cf05ebeb592ee53394b08ea74056c0fc80486237c94398cc5e6"
+        }
+      ],
+      "use": "A stamp thunk whose pitch bends up through its first .12 s (the boing), over by .3 s.",
+      "rejected": [
+        {
+          "node_id": "VxvIE1ol1gXhEmykY5nn",
+          "takes": [
+            {
+              "generation_id": "F5Mm30vl6Xh9V8ldIupN",
+              "sha256": "9481dcf98c181a695523a6ab9f9ab0b1cec16b18ddf1a9bdb3a0554e19bedb84"
+            }
+          ],
+          "reason": "A thunk and a ring, no boing."
+        },
+        {
+          "node_id": "VxvIE1ol1gXhEmykY5nn",
+          "takes": [
+            {
+              "generation_id": "cE670jqevpS6pTmjS8bc",
+              "sha256": "e075d64647d712ae2fb6b389fd6a332a389f64f56e2a61a9024288f4576c7024"
+            }
+          ],
+          "reason": "Rings on for .6 s."
+        },
+        {
+          "node_id": "VxvIE1ol1gXhEmykY5nn",
+          "takes": [
+            {
+              "generation_id": "8R0KhC1CD3pFWDFKAwld",
+              "sha256": "599add235704b7ebe09a612f9625529becc8463899188056ab459b38e86617b3"
+            }
+          ],
+          "reason": "A .2 s click, no boing."
+        }
+      ],
+      "source_folder": "build/sound-effects/source/egypt/"
+    },
+    "postage_due": {
+      "flow": "https://elevenlabs.io/app/flows/fxNpEkVOAm49dMvjGLj0",
+      "date": "2026-10-04",
+      "node_id": "rqEnfwKTC09QaKrZ1KUS",
+      "prompt": "A heavy rubber stamp slamming down, ka-chunk, then a bright shop counter bell ding and a burst of paper, satisfying cartoon jackpot hit, isolated on silence, no music or voices.",
+      "settings": {
+        "duration_seconds": 1.0,
+        "prompt_influence": 0.6
+      },
+      "takes": [
+        {
+          "source": "postage_due-3.mp3",
+          "generation_id": "WCaLeWGcTO6JmN1qFjUI",
+          "sha256": "8c52e3823b729be31d783feb7499990153dacfefb414a88284f4f8b2fa96f75d"
+        }
+      ],
+      "use": "A double stamp hit ('ka-chunk' at 0 and .05 s) with bell partials ringing to .4 s. Soft-knee RMS -15.",
+      "rejected": [
+        {
+          "node_id": "rqEnfwKTC09QaKrZ1KUS",
+          "takes": [
+            {
+              "generation_id": "6wYG4SqyoXkN4J58XSg6",
+              "sha256": "c568260d9308953c6a035c0859cca09296413b8694708efd9e3cb712623ffc4c"
+            }
+          ],
+          "reason": "Hissing and bright, 32 % in the phone band."
+        },
+        {
+          "node_id": "rqEnfwKTC09QaKrZ1KUS",
+          "takes": [
+            {
+              "generation_id": "U76Bss1SlYVoC5LZ1Kny",
+              "sha256": "925a326a1dda5b082a2477582adfa3cef1d05500ef1ee3e82bddc7a541079dab"
+            }
+          ],
+          "reason": "One thump and a crash, no bell."
+        },
+        {
+          "node_id": "rqEnfwKTC09QaKrZ1KUS",
+          "takes": [
+            {
+              "generation_id": "UHXDeGxQQGhDQXakLUVi",
+              "sha256": "6712d9883fe6345bb968ea95767e0da6b318fafe362f472ac3413c89ee5d7540"
+            }
+          ],
+          "reason": "8 % in the phone band."
+        }
+      ],
+      "source_folder": "build/sound-effects/source/egypt/"
+    },
+    "wrap_scuff": {
+      "flow": "https://elevenlabs.io/app/flows/fxNpEkVOAm49dMvjGLj0",
+      "date": "2026-10-04",
+      "node_id": "d3oaOsASGplQ3bEBkPi8",
+      "prompt": "A small pebble hitting thick padded linen cloth: one dull soft thud, very short, close-mic, isolated on silence.",
+      "settings": {
+        "duration_seconds": 0.5,
+        "prompt_influence": 0.6
+      },
+      "takes": [
+        {
+          "source": "wrap_scuff-3.mp3",
+          "generation_id": "7JCNaXjcQnbZR4Z4NjGS",
+          "sha256": "ed084904b6164c8f3f551df5344f53940f85ce7e2517f5f70663b0fa9a1517e0"
+        }
+      ],
+      "use": "The first .16 s: one short cloth slap. Soft-knee RMS -18.",
+      "rejected": [
+        {
+          "node_id": "d3oaOsASGplQ3bEBkPi8",
+          "takes": [
+            {
+              "generation_id": "s2PPweDLNxBKEtBMevoP",
+              "sha256": "59824c473e8bc8cafdcb060fdc93ef046223d79acd6d8248283d50d3b577bc09"
+            }
+          ],
+          "reason": "A rustle trails to .47 s."
+        },
+        {
+          "node_id": "d3oaOsASGplQ3bEBkPi8",
+          "takes": [
+            {
+              "generation_id": "nuYl9cTJhHFATKHbpyqO",
+              "sha256": "e41d48012b334dcc0853d118ba786d43658dfb51bb45edc9fc9bfacad9825622"
+            }
+          ],
+          "reason": "Two hits; 25 % in the phone band."
+        },
+        {
+          "node_id": "d3oaOsASGplQ3bEBkPi8",
+          "takes": [
+            {
+              "generation_id": "vdX7F5IXz31raiXiziDq",
+              "sha256": "a5deb2e890f8cd08b329ea99573b849777ecf9712926c9b1af2c9abb21848791"
+            }
+          ],
+          "reason": "A dull thud a phone barely plays (A-weighted loudest as played -34.0 against this take's -26.8)."
+        }
+      ],
+      "source_folder": "build/sound-effects/source/egypt/"
+    },
+    "ankh_raise": {
+      "flow": "https://elevenlabs.io/app/flows/fxNpEkVOAm49dMvjGLj0",
+      "date": "2026-10-04",
+      "node_id": "E275bwdEo7tDv3wNLbBf",
+      "prompt": "A golden ancient Egyptian charm rising with magic: a low mystical hum swelling up under four gentle ascending chimes, isolated on silence, no music or voices.",
+      "settings": {
+        "duration_seconds": 1.5,
+        "prompt_influence": 0.5
+      },
+      "takes": [
+        {
+          "source": "ankh_raise-1.mp3",
+          "generation_id": "aKZrD5nvoh0uBDPLQMo3",
+          "sha256": "16c11b7c46b01cc2c07f8e11cb5759acca28fb0fea0fc73bf855b395c390da8f"
+        }
+      ],
+      "use": "The first 1.4 s: a low hum under a rising ladder of chimes (0-.7 s). High-passed at 200 Hz.",
+      "rejected": [
+        {
+          "node_id": "E275bwdEo7tDv3wNLbBf",
+          "takes": [
+            {
+              "generation_id": "yriwHAB6MrOcrjZRK1cm",
+              "sha256": "f45d5189fe7f0fc5737ebf273daaa9c86fb1cbb258d9a1803a25c4280950cc43"
+            }
+          ],
+          "reason": "Decays from the start, no rise."
+        },
+        {
+          "node_id": "E275bwdEo7tDv3wNLbBf",
+          "takes": [
+            {
+              "generation_id": "gNzUJM4cnCOBDmlyxE7N",
+              "sha256": "4308144aaf1b0d22795aa1e14b095f084b4bc815669dde3e7ceb93f7e8eac036"
+            }
+          ],
+          "reason": "25 % in the phone band."
+        },
+        {
+          "node_id": "E275bwdEo7tDv3wNLbBf",
+          "takes": [
+            {
+              "generation_id": "j8OVo3Ee8NfXRPK4vvA4",
+              "sha256": "ef4fa6b6a3d81733aebcbb3d108b22a9baf03dd14d0839f1a07d68db5af49f2f"
+            }
+          ],
+          "reason": "36 % in the phone band."
+        }
+      ],
+      "source_folder": "build/sound-effects/source/egypt/"
+    },
+    "ankh_whir": {
+      "flow": "https://elevenlabs.io/app/flows/fxNpEkVOAm49dMvjGLj0",
+      "date": "2026-10-04",
+      "node_id": "3qSY33UpxjKrLz5Ofo0j",
+      "prompt": "A golden boomerang spinning through the air out and back: a steady chopped whirring whoosh-whoosh-whoosh with a constant rhythm, isolated on silence, no music or voices.",
+      "settings": {
+        "duration_seconds": 3.0,
+        "prompt_influence": 0.5
+      },
+      "takes": [
+        {
+          "source": "ankh_whir-4.mp3",
+          "generation_id": "WTJh2nxvfq2oA7InpBX6",
+          "sha256": "38dd3e816d4c647c58b65b628fa33c0bf39261e0e1d8c3634f7a685540d3ec24"
+        }
+      ],
+      "use": "The first 2.6 s: a chopped whir, about four turns a second, level to 2.3 s. High-passed at 220 Hz (its sub-bass left 10 % in the phone band).",
+      "rejected": [
+        {
+          "node_id": "3qSY33UpxjKrLz5Ofo0j",
+          "takes": [
+            {
+              "generation_id": "AGyKtPrbpCtXMy7VKb5O",
+              "sha256": "dd8c84b5135ee3ed2d253129548baada3a045c0a49ffa69f1cd2fe8cf909bacb"
+            }
+          ],
+          "reason": "Over by .7 s."
+        },
+        {
+          "node_id": "3qSY33UpxjKrLz5Ofo0j",
+          "takes": [
+            {
+              "generation_id": "QoykkbeyluWxjj183AdH",
+              "sha256": "b4ddac2de70613ba10a4fb0e8739e42863da4017031380de1c6c076aaa65d484"
+            }
+          ],
+          "reason": "Starts silent and only builds."
+        },
+        {
+          "node_id": "3qSY33UpxjKrLz5Ofo0j",
+          "takes": [
+            {
+              "generation_id": "kIBqPuWtJxsFrl8OLiIz",
+              "sha256": "14acd27adcb443fb5c4538924597119e342e28dda35fb2b32aae4b8af582f6ea"
+            }
+          ],
+          "reason": "One swell peaking at 1.25 s, little chop."
+        }
+      ],
+      "source_folder": "build/sound-effects/source/egypt/"
+    },
+    "ankh_catch": {
+      "flow": "https://elevenlabs.io/app/flows/fxNpEkVOAm49dMvjGLj0",
+      "date": "2026-10-04",
+      "node_id": "zswoKQTJ2bceJnKyyEVy",
+      "prompt": "A small solid gold charm caught in a hand: one bright gold metal clink with a soft thump, short, isolated on silence.",
+      "settings": {
+        "duration_seconds": 0.6,
+        "prompt_influence": 0.6
+      },
+      "takes": [
+        {
+          "source": "ankh_catch-4.mp3",
+          "generation_id": "kuT173iodnvJ7DzgYlRl",
+          "sha256": "e019dbbe4de33dc92bb32599fc58454910b30f4a98d14d37d140e911aef30f6f"
+        }
+      ],
+      "use": "A bright gold clink over a low thump, rung out by .35 s. Soft-knee RMS -18.",
+      "rejected": [
+        {
+          "node_id": "zswoKQTJ2bceJnKyyEVy",
+          "takes": [
+            {
+              "generation_id": "Wxj7c7Su70GeRJj3OhCU",
+              "sha256": "e75a0ff6142e129b5f8f9cfe4cdb0913b28821deeebd60fcc56ab4d4705996df"
+            }
+          ],
+          "reason": "A bell with no thump."
+        },
+        {
+          "node_id": "zswoKQTJ2bceJnKyyEVy",
+          "takes": [
+            {
+              "generation_id": "c4tpa1zhmFPWzCowpLIr",
+              "sha256": "e3edd9589dbf30f79e1f4b314eb53ca9cb08e91efa66cc3c249f2d15735f9ca4"
+            }
+          ],
+          "reason": "A bell ringing too long for .35 s."
+        },
+        {
+          "node_id": "zswoKQTJ2bceJnKyyEVy",
+          "takes": [
+            {
+              "generation_id": "i5md2JGt0UykeeInwlGm",
+              "sha256": "57677aed80947e69f9a2b06a98fcff0f855a38e380e11401dc0792ac70b787fa"
+            }
+          ],
+          "reason": "34 % in the phone band."
+        }
+      ],
+      "source_folder": "build/sound-effects/source/egypt/"
+    },
+    "mummy_fury": {
+      "flow": "https://elevenlabs.io/app/flows/fxNpEkVOAm49dMvjGLj0",
+      "date": "2026-10-04",
+      "node_id": "VVV5G9R0Mol6aespgNIK",
+      "prompt": "Giant angry cartoon hoopoe bird: two harsh furious hooting cries, the first longer and the second short, over a sharp rip of tearing linen cloth, ending on a low temple gong, isolated on silence, no human voice, no music.",
+      "settings": {
+        "duration_seconds": 1.5,
+        "prompt_influence": 0.6
+      },
+      "takes": [
+        {
+          "source": "mummy_fury-4.mp3",
+          "generation_id": "pSVj3iWOnwZOEM5HNaUW",
+          "sha256": "575bf8597e1c69a32f7509841fccadea98d4130712b75c3afa28c55b2475d4a6"
+        }
+      ],
+      "use": "Three rough cries 0-.5 s; the take's second phrase, at .745 s, is moved to .60 s (FURY_JOIN), where the picture opens his beak again (.60-.88 s). temple_gong from .60 s at .3 of the take's peak.",
+      "layers": [
+        {
+          "node_id": "zmrFJY7yGtS5rKVAQQi9",
+          "prompt": "A small brass temple gong struck softly once, a warm shimmering ring that fades out, isolated on silence.",
+          "settings": {
+            "duration_seconds": 2.0,
+            "prompt_influence": 0.6
+          },
+          "takes": [
+            {
+              "source": "temple_gong-1.mp3",
+              "generation_id": "ghmxzAbkukTEagPHcojC",
+              "sha256": "6cc23e65483133947ea0742a1ce117c7b55caee3a38f4b41d40166bfa37b7714"
+            }
+          ]
+        }
+      ],
+      "rejected": [
+        {
+          "node_id": "VVV5G9R0Mol6aespgNIK",
+          "takes": [
+            {
+              "generation_id": "yY1sqv7k9zWPqw8NnxOq",
+              "sha256": "1299f46363ebffbb78f8e1654e2a3bf791c93990b738f377f5c5090e39cd2c87"
+            }
+          ],
+          "reason": "A short cry, then two at .52 and .74 s: the wrong phrasing."
+        },
+        {
+          "node_id": "VVV5G9R0Mol6aespgNIK",
+          "takes": [
+            {
+              "generation_id": "WnOF6iHZqnTBxBk6KIId",
+              "sha256": "d428a0ef8d410b4bbeadeea9e930d59ebc717911da4d6d4a6ecbe379b59373d4"
+            }
+          ],
+          "reason": "A shrill 850 Hz screech, not his voice."
+        },
+        {
+          "node_id": "VVV5G9R0Mol6aespgNIK",
+          "takes": [
+            {
+              "generation_id": "GzMHvakRRbVtJ52GVYCw",
+              "sha256": "52af21c7f1a2ce2c1eb9c53897148db23ae2a03d566f36fe46e037239c868916"
+            }
+          ],
+          "reason": "One unbroken run of four cries."
+        },
+        {
+          "node_id": "zmrFJY7yGtS5rKVAQQi9",
+          "takes": [
+            {
+              "generation_id": "DjxdcMjrEwwA3Bi6369A",
+              "sha256": "fe19a8b5b01a39b0f40921270dda68c3b26351f8b1b681fcdcb307616ce51c56"
+            }
+          ],
+          "reason": "22 % in the phone band.",
+          "layer": "temple_gong"
+        },
+        {
+          "node_id": "zmrFJY7yGtS5rKVAQQi9",
+          "takes": [
+            {
+              "generation_id": "PNh7ThxVereeGndBoyg9",
+              "sha256": "597dfbaaf105147c4bdd8ad1fabd47bd4705d7f52d2373a2604b4b418d55347b"
+            }
+          ],
+          "reason": "35 % in the phone band.",
+          "layer": "temple_gong"
+        },
+        {
+          "node_id": "zmrFJY7yGtS5rKVAQQi9",
+          "takes": [
+            {
+              "generation_id": "IUAYSYAVKWwziXXc47qP",
+              "sha256": "66fc6400b6d94560170b8f1e6bea12fa8ea6ee6dec4e88e530f7ba6044428ea5"
+            }
+          ],
+          "reason": "A pulsing partial at 345-368 Hz, too near the hoots' pitch.",
+          "layer": "temple_gong"
+        }
+      ],
+      "source_folder": "build/sound-effects/source/egypt/"
+    },
+    "mask_pop": {
+      "flow": "https://elevenlabs.io/app/flows/fxNpEkVOAm49dMvjGLj0",
+      "date": "2026-10-04",
+      "node_id": "LcstJLoHEsAtgArMGnL9",
+      "prompt": "A golden metal mask knocked off and clanging once: one bright resonant brass clang with a sharp pop and a short ring, close-mic, isolated on silence.",
+      "settings": {
+        "duration_seconds": 0.8,
+        "prompt_influence": 0.6
+      },
+      "takes": [
+        {
+          "source": "mask_clang-3.mp3",
+          "generation_id": "J1YGhr0uU4CPBgjSY3Z0",
+          "sha256": "11f9a929d7617126e5d97ee56328f6b8bfbeb0a6b8e8f82dcef55631d84036ea"
+        }
+      ],
+      "use": "A bright brass clang (the file's first sample), with paper_flurry from .06 s at .5 of the clang's peak. Soft-knee RMS -19 (-15 played 6 dB over the Gargoyle's shatter, A-weighted).",
+      "layers": [
+        {
+          "node_id": "CexFuP8B0uKKq9TOgeCW",
+          "prompt": "A burst of many paper letters and envelopes bursting out and fluttering through the air, a flurry of flapping paper that thins out and fades, isolated on silence, no music or voices.",
+          "settings": {
+            "duration_seconds": 1.5,
+            "prompt_influence": 0.5
+          },
+          "takes": [
+            {
+              "source": "paper_flurry-4.mp3",
+              "generation_id": "uEdG2H1yUbidt47jX8Co",
+              "sha256": "f7a7932b9b0b9a35b64edfd8a00dacd9fa410d63878b1acfb17cc508bd19d884"
+            }
+          ]
+        }
+      ],
+      "rejected": [
+        {
+          "node_id": "LcstJLoHEsAtgArMGnL9",
+          "takes": [
+            {
+              "generation_id": "Lg1TnWGM0z7yqR19MrnM",
+              "sha256": "70ddb69c26b0956bce1284522318834efe1b477a2ca5aa1d60ef847096283934"
+            }
+          ],
+          "reason": "Thuddy after the hit (centroid falls to 108 Hz)."
+        },
+        {
+          "node_id": "LcstJLoHEsAtgArMGnL9",
+          "takes": [
+            {
+              "generation_id": "9b4iiOFNCOtjcfiQ6OWv",
+              "sha256": "b3fc57288bad1e8b6693260b8b0b8dbc3b9f009609e60bf3b87ce8273ba07116"
+            }
+          ],
+          "reason": "Darker than take 3."
+        },
+        {
+          "node_id": "LcstJLoHEsAtgArMGnL9",
+          "takes": [
+            {
+              "generation_id": "Ia70BighggpWmRRRhRLT",
+              "sha256": "2d358e675f17a925185f828e17f2b16d3b50cb51231f21367667c12cbe22edad"
+            }
+          ],
+          "reason": "A shorter ring than take 3."
+        },
+        {
+          "node_id": "clCchV2N4LYGuseHSS2s",
+          "takes": [
+            {
+              "generation_id": "jGpGYXKUk3dcab0fuCkF",
+              "sha256": "a7144b9ae1b8800968e55d1f0c0db15bb3bc5f54e8bfd66e66e54ba592662a5a"
+            }
+          ],
+          "reason": "Nearly silent (-48 dB).",
+          "prompt": "A golden metal mask popping off with a bright clang, then a flurry of fluttering paper letters and unravelling linen, cartoon boss defeat, isolated on silence, no music or voices.",
+          "settings": {
+            "duration_seconds": 1.5,
+            "prompt_influence": 0.5
+          }
+        },
+        {
+          "node_id": "clCchV2N4LYGuseHSS2s",
+          "takes": [
+            {
+              "generation_id": "mTBTCLoTFxgInmLKLikj",
+              "sha256": "5391120f1511ac2245dfdc522bc551c603e69efa6e93746c5f2e61f008980dfe"
+            }
+          ],
+          "reason": "A quiet tone, then a crash at .26 s, over by .5 s.",
+          "prompt": "A golden metal mask popping off with a bright clang, then a flurry of fluttering paper letters and unravelling linen, cartoon boss defeat, isolated on silence, no music or voices.",
+          "settings": {
+            "duration_seconds": 1.5,
+            "prompt_influence": 0.5
+          }
+        },
+        {
+          "node_id": "clCchV2N4LYGuseHSS2s",
+          "takes": [
+            {
+              "generation_id": "nTWe43vj6dIilGZ1NgPF",
+              "sha256": "a1d2df14d454bece4ce97309505bf4c4362acbc17733abae16af09712594a9e2"
+            }
+          ],
+          "reason": "Weak, no clang.",
+          "prompt": "A golden metal mask popping off with a bright clang, then a flurry of fluttering paper letters and unravelling linen, cartoon boss defeat, isolated on silence, no music or voices.",
+          "settings": {
+            "duration_seconds": 1.5,
+            "prompt_influence": 0.5
+          }
+        },
+        {
+          "node_id": "clCchV2N4LYGuseHSS2s",
+          "takes": [
+            {
+              "generation_id": "pjjLkSLyOl97Y8iT35xc",
+              "sha256": "31f406a4b43abe21b263d263b2068b4b270c79742fcb44bfd03ed60fcfa6c3c7"
+            }
+          ],
+          "reason": "The crash comes at .77 s and is over by .95 s.",
+          "prompt": "A golden metal mask popping off with a bright clang, then a flurry of fluttering paper letters and unravelling linen, cartoon boss defeat, isolated on silence, no music or voices.",
+          "settings": {
+            "duration_seconds": 1.5,
+            "prompt_influence": 0.5
+          }
+        },
+        {
+          "node_id": "CexFuP8B0uKKq9TOgeCW",
+          "takes": [
+            {
+              "generation_id": "A3yJFx38s9KRlGDQ5O8I",
+              "sha256": "5d32caa804c41725ce3db0d78c0e01950de75e23f5534a62d915ee2dcc21f944"
+            }
+          ],
+          "reason": "Loudest at .91 s: the burst comes late.",
+          "layer": "paper_flurry"
+        },
+        {
+          "node_id": "CexFuP8B0uKKq9TOgeCW",
+          "takes": [
+            {
+              "generation_id": "DZksfluGyTL6ERzgAUnI",
+              "sha256": "7ded666ff01a6c580ca88159f6c8dcd88fe330c89966711364855067b40da08c"
+            }
+          ],
+          "reason": "Loudest at .79 s: the burst comes late.",
+          "layer": "paper_flurry"
+        },
+        {
+          "node_id": "CexFuP8B0uKKq9TOgeCW",
+          "takes": [
+            {
+              "generation_id": "6RHiDHxmHdDtEOmGNDPA",
+              "sha256": "1767be22164bedfc66eddf34b29611f2abf9a89aaab6712a6034a5c96fc000e3"
+            }
+          ],
+          "reason": "Over by .9 s.",
+          "layer": "paper_flurry"
+        }
+      ],
+      "source_folder": "build/sound-effects/source/egypt/"
+    },
+    "lost_letter": {
+      "flow": "https://elevenlabs.io/app/flows/fxNpEkVOAm49dMvjGLj0",
+      "date": "2026-10-04",
+      "node_id": "npQTsHhAaMxFLQvHVvtw",
+      "prompt": "One single soft warm bell note, a gentle celesta chime ringing and fading, one clean pitch, isolated on silence.",
+      "settings": {
+        "duration_seconds": 1.5,
+        "prompt_influence": 0.6
+      },
+      "takes": [
+        {
+          "source": "bell_note-1.mp3",
+          "generation_id": "J23LQ6ekUIUDr1cWod4Q",
+          "sha256": "24f1a8b52846a40bfe0bbae9ef7fad963973292e3dfe0f8745f1872def3d1d7a"
+        }
+      ],
+      "use": "A near-pure 831.7 Hz tone (BELL_HZ; every other partial 41 dB down), played at C5, E5, G5 and C6, .16 s apart, each dying away over about .4 s, at .55 each.",
+      "rejected": [
+        {
+          "node_id": "npQTsHhAaMxFLQvHVvtw",
+          "takes": [
+            {
+              "generation_id": "TumvKM3L4cEqCyDIDo6R",
+              "sha256": "d76b80ec56ce6b53299db958548353c7d711c16f61214278239a2e9329d57f60"
+            }
+          ],
+          "reason": "A 441 Hz tone over a 199 Hz hum."
+        },
+        {
+          "node_id": "npQTsHhAaMxFLQvHVvtw",
+          "takes": [
+            {
+              "generation_id": "JOZ957V3YnQYfzLvXUou",
+              "sha256": "0956457a37ecba5919bbca5dc119a1ad59b1c24504d356a5a1ca75a19b40b18d"
+            }
+          ],
+          "reason": "A cluster at 650-800 Hz with no clear pitch."
+        },
+        {
+          "node_id": "npQTsHhAaMxFLQvHVvtw",
+          "takes": [
+            {
+              "generation_id": "eBckwCdPWZUco4ReiYAa",
+              "sha256": "3de1b7aa647648d67095cc4490335a400f1419414dc6de4026986b75276ead22"
+            }
+          ],
+          "reason": "A cluster at 600-730 Hz with no clear pitch."
+        },
+        {
+          "node_id": "S5ZqjUYu1XZGpwz7Ismy",
+          "takes": [
+            {
+              "generation_id": "B3otG4dl8o9uYjdFVkTF",
+              "sha256": "eb0537967f85f89a922453f5b82acf8267f807713ef9f5234619a4c88bc17ad0"
+            }
+          ],
+          "reason": "A 10 kHz hiss.",
+          "prompt": "A warm magical discovery chime: four soft bell notes climbing upward, gentle and happy, with a faint sparkle, isolated on silence, no voices.",
+          "settings": {
+            "duration_seconds": 1.6,
+            "prompt_influence": 0.5
+          }
+        },
+        {
+          "node_id": "S5ZqjUYu1XZGpwz7Ismy",
+          "takes": [
+            {
+              "generation_id": "dM2Gjn40WKoZlwuHwPhW",
+              "sha256": "a75d53f7eabf67fc6c1a418ca84f57006a797cd7644fd4e1fedcf7dc9aab8d92"
+            }
+          ],
+          "reason": "A high sparkle, no notes.",
+          "prompt": "A warm magical discovery chime: four soft bell notes climbing upward, gentle and happy, with a faint sparkle, isolated on silence, no voices.",
+          "settings": {
+            "duration_seconds": 1.6,
+            "prompt_influence": 0.5
+          }
+        },
+        {
+          "node_id": "S5ZqjUYu1XZGpwz7Ismy",
+          "takes": [
+            {
+              "generation_id": "KYMPoYylWWmzCUTJDaFS",
+              "sha256": "f524270df1e63ff1cfbac82cb45931983e9d6ab8f4b88e9a56a04814546d0c9e"
+            }
+          ],
+          "reason": "A high sparkle, no notes.",
+          "prompt": "A warm magical discovery chime: four soft bell notes climbing upward, gentle and happy, with a faint sparkle, isolated on silence, no voices.",
+          "settings": {
+            "duration_seconds": 1.6,
+            "prompt_influence": 0.5
+          }
+        },
+        {
+          "node_id": "S5ZqjUYu1XZGpwz7Ismy",
+          "takes": [
+            {
+              "generation_id": "qHeCpG5wpXxwsDJVObQl",
+              "sha256": "c5d5a01e1b47593d6898941a8f69fb2986eeffe89bc8709e332ec1a3bd9ea25e"
+            }
+          ],
+          "reason": "One note pulsing, not four.",
+          "prompt": "A warm magical discovery chime: four soft bell notes climbing upward, gentle and happy, with a faint sparkle, isolated on silence, no voices.",
+          "settings": {
+            "duration_seconds": 1.6,
+            "prompt_influence": 0.5
+          }
+        }
+      ],
+      "source_folder": "build/sound-effects/source/egypt/"
     }
   },
   "superseded_sources": {
@@ -1260,8 +2193,8 @@
               "asset": "hoopoe_roar.wav",
               "seconds": 1.4,
               "peak_db": -3.1,
-              "rms_db": -14.48,
-              "sha256": "f21461d3406eff807d580de3a948e3e2d42169fe0872c3ee3a4c8c79814c0c1b"
+              "rms_db": -14.68,
+              "sha256": "58e100291d960fa90f0cffbea49f7706f95bd52406bf7b45e1b315e7cd56461b"
             }
           ]
         },
@@ -1286,8 +2219,8 @@
               "asset": "sand_devil.wav",
               "seconds": 1.6,
               "peak_db": -3.1,
-              "rms_db": -18.79,
-              "sha256": "2a12f49cd2a3f3e92ac134db4a8c4a06f94a8798dcfb18ab7439046a0b909e6a"
+              "rms_db": -21.23,
+              "sha256": "d741f071d37465b7bd64920c9713a82357621b26348cabe07043c8cbbdd1c824"
             }
           ]
         },
@@ -1312,8 +2245,8 @@
               "asset": "mail_call.wav",
               "seconds": 1.0,
               "peak_db": -3.1,
-              "rms_db": -21.81,
-              "sha256": "1ee67fea9233bfb7984b950a61592a7f3db2b6ad72815c34e9d67a95ed0ece4f"
+              "rms_db": -18.8,
+              "sha256": "4c905401c61c12d2f1d795eba5a4366cad9cb8e3911ee6876d6f5383db97ad2c"
             }
           ]
         },
@@ -1336,8 +2269,8 @@
               "asset": "letter_flick.wav",
               "seconds": 0.25,
               "peak_db": -3.1,
-              "rms_db": -19.3,
-              "sha256": "be47c945ffcb62c9abc8ffbf2783b781bc18b2e39019a840bfe4be903e2a8eff"
+              "rms_db": -22.73,
+              "sha256": "f9e3504e002c3dad27579826b537c1cab29dd02b6fad96013eefc66de7a8b120"
             }
           ]
         },
@@ -1362,8 +2295,8 @@
               "asset": "letter_return.wav",
               "seconds": 0.4,
               "peak_db": -3.1,
-              "rms_db": -20.3,
-              "sha256": "073486e6520598dc98594a9004afb9230b06a705ba241f9e9e8551a13fc5238b"
+              "rms_db": -21.24,
+              "sha256": "7d822f09f95fbdc525c463b5719e5af9ed1f46355ce90b16676facc3774c32e9"
             }
           ]
         },
@@ -1389,8 +2322,8 @@
               "asset": "postage_due.wav",
               "seconds": 0.7,
               "peak_db": -3.1,
-              "rms_db": -14.53,
-              "sha256": "e33e8215688860a2776f46697ec965a84272cd5e0ca5f33198096ebb232e7db5"
+              "rms_db": -14.83,
+              "sha256": "eb996d5ee01e3f5c902a1f29eda7698caa30c3c1cd958df525541f13c60afe00"
             }
           ]
         },
@@ -1413,8 +2346,8 @@
               "asset": "wrap_scuff.wav",
               "seconds": 0.16,
               "peak_db": -3.1,
-              "rms_db": -17.58,
-              "sha256": "d54a44226fe7f9a79ef06beccbea00ba3d8f7a8f9f65aa6755e574f545003098"
+              "rms_db": -18.2,
+              "sha256": "c66d5dffdf09448b1cd2809d4b807b87d30b4aa528db88f5bd793349d6d54794"
             }
           ]
         },
@@ -1438,8 +2371,8 @@
               "asset": "ankh_raise.wav",
               "seconds": 1.4,
               "peak_db": -3.1,
-              "rms_db": -17.17,
-              "sha256": "5a83a1aa908405a8deb9e957b58eae5af1f2f79248cca1fcd8a4bb20b04d5835"
+              "rms_db": -17.88,
+              "sha256": "b57e22ac911270ff9c2a83c4bdfde7f2bfaabcde4724bfb1eb893256d2e4653c"
             }
           ]
         },
@@ -1462,8 +2395,8 @@
               "asset": "ankh_whir.wav",
               "seconds": 2.6,
               "peak_db": -3.1,
-              "rms_db": -19.91,
-              "sha256": "c06c9a659501c15687d233b559262d901e4804d7f242fdc3459d003b6791bc61"
+              "rms_db": -21.46,
+              "sha256": "5943525b6b81cdecae15538710445238600d91070ff14ff3dfec1741e03b9803"
             }
           ]
         },
@@ -1487,8 +2420,8 @@
               "asset": "ankh_catch.wav",
               "seconds": 0.35,
               "peak_db": -3.1,
-              "rms_db": -20.64,
-              "sha256": "829bf49f9e250163668f3480d9d078311821cced6bdd9c95a925f0061c450e22"
+              "rms_db": -17.3,
+              "sha256": "222445abb153ba0c3b8a1dbb1f273320917a5bc5f5b053c06e4b9fd7f7978333"
             }
           ]
         },
@@ -1513,8 +2446,8 @@
               "asset": "mummy_fury.wav",
               "seconds": 1.3,
               "peak_db": -3.1,
-              "rms_db": -17.18,
-              "sha256": "7f60e11c64bd2e85e891bbcac1e9573afca06344b5f10affbb08e2688185adcc"
+              "rms_db": -18.09,
+              "sha256": "541b0e4a76320bfa5641bc3f20015fd5f108d9b1f296bfaae24a095733b361a1"
             }
           ]
         },
@@ -1541,8 +2474,8 @@
               "asset": "mask_pop.wav",
               "seconds": 1.3,
               "peak_db": -3.1,
-              "rms_db": -14.79,
-              "sha256": "463555a084db1279bfb834c12887ca54aec68f36b05e81079a589788120a3fd5"
+              "rms_db": -18.65,
+              "sha256": "81d9507d27df887d8d919f212e679c64320aebfd0cef6dacf310bc9600c30f36"
             }
           ]
         },
@@ -1565,8 +2498,8 @@
               "asset": "lost_letter.wav",
               "seconds": 1.4,
               "peak_db": -3.1,
-              "rms_db": -16.25,
-              "sha256": "8db2bf39dd0d2f481e90b6b636032521f6ceef796b8547678ca918950cc3f433"
+              "rms_db": -15.78,
+              "sha256": "d8ad3883d8f6ab0ec4596e233c6eda251a3634f2058cd9991563bc12b974aefa"
             }
           ]
         }
@@ -1578,7 +2511,9 @@
           "volume": 0.11,
           "relative_db": -6.0
         }
-      }
+      },
+      "note": "Since 2026-10-04 these WAVs are made from ElevenLabs takes (sources.<cue>: eleven_text_to_sound_v2, flow https://elevenlabs.io/app/flows/fxNpEkVOAm49dMvjGLj0, picked takes in ignored build/sound-effects/source/egypt/); the files below are those. The syntheses described here (helpers, seeds) still render, byte for byte as before, with python3 tool/prepare_sound_effects.py --egypt-synth --only <the 13 cues>.",
+      "elevenlabs_command": "python3 tool/prepare_sound_effects.py --only hoopoe_roar sand_devil mail_call letter_flick letter_return postage_due wrap_scuff ankh_raise ankh_whir ankh_catch mummy_fury mask_pop lost_letter"
     }
   }
 }

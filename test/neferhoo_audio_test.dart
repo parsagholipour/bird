@@ -1,7 +1,8 @@
 // Neferhoo's sound (rules version 50): the design's 13 cues
-// (`egypt-ws/reports/01-egypt-guardian.md` section 6) and the edges that
-// ring them. Nobody could listen while they were built, so this pins what an
-// ear would notice (format, length against the rules' own timings, headroom,
+// (`egypt-ws/reports/01-egypt-guardian.md` section 6), made from ElevenLabs
+// takes since 2026-10-04 (`EGYPT_TAKES` in tool/prepare_sound_effects.py),
+// and the edges that ring them. The takes were picked by measurement, not by
+// ear, so this pins what an ear would notice (format, length against the rules' own timings, headroom,
 // the phone band, how loud each is next to the other guardians') and that
 // every cue sounds exactly once on its edge, never on a seek or a rewind, and
 // never with Sound effects off.
@@ -236,22 +237,23 @@ void main() {
   group('a phone can play them', () {
     // The design's rule: every cue keeps at least 40 % of its energy in
     // 250 Hz-8 kHz (two 12 dB/octave filters each side). Measured when the
-    // WAVs were rendered (tool/check_sound_effects.py's sharp FFT band reads
-    // 63-100 %): 49 % the roar (a deep call over a gong), 59-66 % the mail
-    // call, return, postage due, mask pop and ankh raise, the rest 72-96 %.
+    // ElevenLabs takes were rendered (2026-10-04): the closest are the ankh
+    // raise (41 %: its chimes' sparkle runs above 8 kHz), the mail call and
+    // the postage due (43 %: a satchel thump and a stamp's thud), so the
+    // tool high-passes the mail call, the ankh raise and the whir.
     const measured = {
-      'hoopoe_roar': .49,
-      'sand_devil': .91,
-      'mail_call': .59,
-      'letter_flick': .93,
-      'letter_return': .65,
-      'postage_due': .65,
-      'wrap_scuff': .96,
-      'ankh_raise': .64,
-      'ankh_whir': .78,
-      'ankh_catch': .72,
-      'mummy_fury': .77,
-      'mask_pop': .66,
+      'hoopoe_roar': .72,
+      'sand_devil': .52,
+      'mail_call': .43,
+      'letter_flick': .71,
+      'letter_return': .64,
+      'postage_due': .43,
+      'wrap_scuff': .98,
+      'ankh_raise': .41,
+      'ankh_whir': .71,
+      'ankh_catch': .55,
+      'mummy_fury': .73,
+      'mask_pop': .92,
       'lost_letter': .96,
     };
     for (final name in design.keys) {
@@ -341,30 +343,52 @@ void main() {
   group('the shape that makes each one recognisable', () {
     test('the roar is three hoots in the first half second, then a gong', () {
       final w = wav('hoopoe_roar');
-      // The call's body: a bright voice near 300 Hz while his beak pulses
-      // (the picture opens it at 0, .15 and .30 s of the roar for .15 s each).
-      expect(w.peakHz(.02, .5, 200, 420), inInclusiveRange(230, 380));
+      // The call's body: the take's hollow hoots near 390 Hz while his beak
+      // pulses (the picture opens it at 0, .15 and .30 s of the roar for
+      // .15 s each; the tool re-times the take's hoots onto those).
+      expect(w.peakHz(.02, .5, 200, 600), inInclusiveRange(340, 440));
+      // A hoot at each beak peak, and a dip of 10 dB or more within 20 ms of
+      // where the beak shuts after it (.15, .30 and .46 s).
+      for (final (open, shut) in [(.075, .15), (.225, .30), (.375, .46)]) {
+        var dip = 0.0;
+        for (var t = shut - .02; t <= shut + .02; t += .005) {
+          dip = math.min(dip, w.rmsDb(t - .005, t + .005));
+        }
+        expect(
+          w.rmsDb(open - .02, open + .02),
+          greaterThan(dip + 10),
+          reason: 'a hoot at $open, a dip near $shut',
+        );
+      }
       expect(w.rmsDb(0, .5), greaterThan(w.rmsDb(.9, 1.4) + 15));
     });
 
     test('the postage due is a thud then a bell, the loudest at the start', () {
       final w = wav('postage_due');
       expect(w.rmsDb(0, .1), greaterThan(w.rmsDb(.4, .7) + 8));
-      // The counter bell: G6 (1568 Hz) rings after the thump.
-      expect(w.peakHz(.14, .4, 1200, 2400), closeTo(1568, 60));
+      // The counter bell rings on after the stamp's double thump: the take's
+      // partial near 1.3 kHz.
+      expect(w.peakHz(.14, .4, 1200, 2400), closeTo(1314, 60));
     });
 
     test('the ankh whir is chopped, level, and as long as a throw', () {
       final w = wav('ankh_whir');
       final env = w.envelope(.1);
-      // A steady beat: nothing in the body drops far below its neighbours.
-      final body = env.sublist(2, env.length - 2);
+      // Steady: no 100 ms of the body drops into a gap (the take's chops are
+      // shorter than that, so they only dent it).
+      final body = env.sublist(2, env.length - 3);
       expect(
         body.reduce(math.max) - body.reduce(math.min),
-        lessThan(8),
-        reason: 'a drone or a gap would show here',
+        lessThan(16),
+        reason: 'a gap would show here',
       );
-      expect(w.centroid(0, w.seconds), greaterThan(2000));
+      // Chopped: about four whooshes a second from start to finish (the take
+      // turns about four times a second), not a drone.
+      final turns = w.onsets(hop: .02, rise: 8, within: 20);
+      expect(turns.length, greaterThanOrEqualTo(6));
+      expect(turns.last - turns.first, greaterThan(1.6));
+      // As long as a throw: still whirring as the ankh comes home.
+      expect(w.rmsDb(2.0, 2.3), greaterThan(w.rmsDb(.1, 2.3) - 8));
     });
 
     test('the lost letter is four warm notes climbing, and ends quiet', () {
@@ -932,6 +956,19 @@ void main() {
         );
       },
     );
+
+    test('every cue names its ElevenLabs take (the syntheses stay as '
+        '--egypt-synth)', () {
+      final takes = RegExp(
+        r'EGYPT_TAKES = \{(.*?)\}',
+        dotAll: true,
+      ).firstMatch(tool)!.group(1)!;
+      expect(
+        RegExp(r"'([a-z_]+)': '").allMatches(takes).map((m) => m[1]).toList(),
+        design.keys.toList(),
+      );
+      expect(tool, contains("'--egypt-synth'"));
+    });
 
     test('the seeds stay in 501-619', () {
       final from = tool.indexOf('# ---- Egypt: Neferhoo');

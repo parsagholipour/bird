@@ -839,6 +839,173 @@ def whir(data, seed, start, seconds, rate_from, rate_to, hz, gain):
         data[first + j] += gain * env * chop * band * 3
 
 
+# ---- Egypt from ElevenLabs takes (2026-10-04) --------------------------------
+# The owner asked for Neferhoo's sounds from ElevenLabs: eleven_text_to_sound_v2
+# takes (flow fxNpEkVOAm49dMvjGLj0) replace his 13 syntheses. Prompts,
+# generation ids and hashes are in docs/sound-effects-sources.json. The picked
+# takes and layers live in build/sound-effects/source/egypt/. `--egypt-synth`
+# renders the original syntheses (synth()'s Egypt branches) instead.
+EGYPT_TAKES = {
+    'hoopoe_roar': 'hoopoe_roar-1.mp3',
+    'sand_devil': 'sand_devil-4.mp3',
+    'mail_call': 'mail_call-2.mp3',
+    'letter_flick': 'letter_flick-3.mp3',
+    'letter_return': 'letter_return-2.mp3',
+    'postage_due': 'postage_due-3.mp3',
+    'wrap_scuff': 'wrap_scuff-3.mp3',
+    'ankh_raise': 'ankh_raise-1.mp3',
+    'ankh_whir': 'ankh_whir-4.mp3',
+    'ankh_catch': 'ankh_catch-4.mp3',
+    'mummy_fury': 'mummy_fury-4.mp3',
+    'mask_pop': 'mask_clang-3.mp3',
+    'lost_letter': 'bell_note-1.mp3',
+}
+# Layers that egypt_take() mixes in: the gong under the roar and the cry, the
+# paper flurry after the mask's clang.
+EGYPT_LAYERS = {'gong': 'temple_gong-1.mp3', 'flurry': 'paper_flurry-4.mp3'}
+
+# The take's three hoots start at 0, .26 and .555 s (10 ms envelope); each is
+# cut to .15 s (the last keeps its tail) and starts on its ROAR_NOTES time, so
+# the call follows the beak's pulses, .15 s apart, not the take's .28 s.
+ROAR_HOOTS = [(0.0, .15), (.26, .15), (.555, None)]
+# The fury take's second cry starts at .745 s; the cut joins it at .60 s, where
+# the picture opens his beak again (0-.52 s and .60-.88 s).
+FURY_JOIN = (.60, .745)
+# The bell take is one near-pure tone (measured: 831.7 Hz, every other
+# partial 41 dB down); it is played at four notes, .16 s apart (C5, E5, G5,
+# C6), each dying away over about .4 s so the motif ends quiet.
+BELL_HZ = 831.7
+LOST_LETTER_NOTES = [(0.0, 523.25), (.16, 659.26), (.32, 783.99), (.48, 1046.5)]
+# Takes whose sub-bass would leave too little in the 250 Hz-8 kHz a phone plays
+# (the design's rule: at least 40 %): a 12 dB/octave high-pass at this Hz.
+EGYPT_HIGHPASS = {'ankh_whir': 220, 'mail_call': 150, 'ankh_raise': 200}
+# Soft-knee RMS targets (dBFS, as main()'s `targets`) for takes whose short
+# transient would otherwise set their level: the scuff and the catch, and the
+# mail call, which its high-pass leaves too quiet for a telegraph. The mask's
+# bright clang and papers need less push than the synthesis's -15 (at -15 it
+# played 6 dB over the Gargoyle's shatter, A-weighted).
+EGYPT_TAKE_LEVELS = {'wrap_scuff': -18, 'ankh_catch': -18, 'mail_call': -19,
+                     'mask_pop': -19}
+
+
+def egypt_source(folder, file):
+    path = folder / file
+    if not path.exists():
+        raise FileNotFoundError(f'Missing generated source: {path} '
+                                '(or render the syntheses with --egypt-synth)')
+    return decode(path)
+
+
+def lead_trim(samples, threshold=.055):
+    """Drops a take's leading silence (as excerpt() does), keeping 4 ms."""
+    window = 220
+    energies = [math.sqrt(sum(v * v for v in samples[i:i + window]) / window)
+                for i in range(0, len(samples), window)]
+    first = next((i for i, v in enumerate(energies)
+                  if v > max(energies) * threshold), 0)
+    return samples[max(0, first * window - int(.004 * RATE)):]
+
+
+def clip(samples, start, end=None, fade=.02):
+    """[start, end) of a take in seconds, with a 3 ms fade in and a cosine
+    fade out of [fade] seconds (no fade out when it runs to the take's end)."""
+    seg = samples[int(start * RATE):None if end is None else int(end * RATE)]
+    for i in range(min(int(.003 * RATE), len(seg))):
+        seg[i] *= i / (.003 * RATE)
+    if end is not None:
+        n = min(int(fade * RATE), len(seg))
+        for i in range(n):
+            seg[-1 - i] *= .5 - .5 * math.cos(math.pi * i / n)
+    return seg
+
+
+def layer(samples, main, level):
+    """A layer take scaled so its peak is [level] times [main]'s peak."""
+    gain = level * max(abs(v) for v in main) / max(1e-9, max(abs(v) for v in samples))
+    return [v * gain for v in samples]
+
+
+def place(data, samples, at, gain=1.0):
+    start = int(at * RATE)
+    for i, v in enumerate(samples[:max(0, len(data) - start)]):
+        data[start + i] += v * gain
+
+
+def repitch(samples, ratio):
+    """Plays a take [ratio] times faster (and so higher), linear interpolation."""
+    out, pos = [], 0.0
+    while pos < len(samples) - 1:
+        i = int(pos)
+        out.append(samples[i] + (samples[i + 1] - samples[i]) * (pos - i))
+        pos += ratio
+    return out
+
+
+def highpass(samples, hz, q=.707):
+    """A 12 dB/octave high-pass (RBJ biquad): moves a take's sub-bass, which a
+    phone cannot play, out of the way of the band it can."""
+    w = 2 * math.pi * hz / RATE
+    alpha = math.sin(w) / (2 * q)
+    cos = math.cos(w)
+    a0 = 1 + alpha
+    b0, b1, b2 = (1 + cos) / 2 / a0, -(1 + cos) / a0, (1 + cos) / 2 / a0
+    a1, a2 = -2 * cos / a0, (1 - alpha) / a0
+    out, x1, x2, y1, y2 = [], 0.0, 0.0, 0.0, 0.0
+    for x in samples:
+        y = b0 * x + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2
+        x2, x1, y2, y1 = x1, x, y1, y
+        out.append(y)
+    return out
+
+
+def fade_tail(data, seconds):
+    n = min(int(seconds * RATE), len(data))
+    for i in range(n):
+        data[-1 - i] *= .5 - .5 * math.cos(math.pi * i / n)
+
+
+def egypt_take(name, seconds, folder):
+    """One of Neferhoo's cues from its ElevenLabs take, cut to the bank's
+    length and, where the picture needs it, re-timed or layered."""
+    n = int(seconds * RATE)
+    data = [0.0] * n
+    x = egypt_source(folder, EGYPT_TAKES[name])
+    if name not in ('hoopoe_roar', 'mummy_fury'):
+        # (the roar's and the cry's cut points are times in the whole take)
+        x = lead_trim(x)
+    if name == 'hoopoe_roar':
+        for (at, *_), (start, length) in zip(ROAR_NOTES, ROAR_HOOTS):
+            end = None if length is None else start + length
+            place(data, clip(x, start, end), at)
+        gong = lead_trim(egypt_source(folder, EGYPT_LAYERS['gong']))
+        place(data, layer(gong, x, .35), ROAR_NOTES[-1][0])
+    elif name == 'mummy_fury':
+        join, resume = FURY_JOIN
+        place(data, clip(x, 0, join + .015, fade=.015), 0)
+        place(data, clip(x, resume), join)
+        gong = lead_trim(egypt_source(folder, EGYPT_LAYERS['gong']))
+        place(data, layer(gong, x, .3), join)
+    elif name == 'mask_pop':
+        # The clang is the file's first sample; the papers burst out after it.
+        place(data, x, 0)
+        flurry = lead_trim(egypt_source(folder, EGYPT_LAYERS['flurry']))
+        place(data, layer(flurry, x, .5), .06)
+    elif name == 'lost_letter':
+        for at, hz in LOST_LETTER_NOTES:
+            note = repitch(x, hz / BELL_HZ)
+            place(data, [v * math.exp(-i / RATE / .4) for i, v in enumerate(note)],
+                  at, .55)
+    elif name == 'letter_flick':
+        # The snap, not the swish before it: the letter leaves his hand then.
+        data = excerpt(x, seconds, transient=True, attack_lead=.03)
+    else:
+        place(data, x, 0)
+    if name in EGYPT_HIGHPASS:
+        data = highpass(data, EGYPT_HIGHPASS[name])
+    fade_tail(data, min(.25, seconds * .2))
+    return data
+
+
 def synth(name, seconds, variant):
     if name in MENU_NOTES:
         return menu_chime(name, seconds)
@@ -1536,6 +1703,9 @@ def main():
     parser.add_argument('--sources', type=Path, default=ROOT / 'build/sound-effects/source')
     parser.add_argument('--only', nargs='+', metavar='NAME',
                         help='render just these cues and leave the report alone')
+    parser.add_argument('--egypt-synth', action='store_true',
+                        help="render Neferhoo's original syntheses instead of "
+                             'his ElevenLabs takes')
     args = parser.parse_args()
     bank = (ROOT / 'lib/game/sound_bank.dart').read_text()
     records = []
@@ -1560,7 +1730,10 @@ def main():
                 source = args.sources / 'boss_roar.mp3'
             if name == 'finish_snap':
                 source = args.sources / 'finish_snap_tape.mp3'
-            if source.exists():
+            if name in EGYPT_CUES and not args.egypt_synth:
+                data = egypt_take(name, seconds, args.sources / 'egypt')
+                origin = EGYPT_TAKES[name]
+            elif source.exists():
                 # A charged rock reuses the shot take a fourth slower and lower.
                 ratio = .75 if name == 'power_shot' else 1
                 data = excerpt(decode(source), seconds * ratio,
@@ -1594,6 +1767,8 @@ def main():
                        'finish_snap': -19,
                        # Egypt's three loud payoffs (the roar, the jackpot, the mask).
                        'hoopoe_roar': -15, 'postage_due': -15, 'mask_pop': -15}
+            if name in EGYPT_TAKE_LEVELS and not args.egypt_synth:
+                targets[name] = EGYPT_TAKE_LEVELS[name]
             if name in ['boss_warning', 'boss_reveal', 'boss_roar']:
                 data = phone_presence(data)
             data = master(data, target_peak=.45 if name in MENU_NOTES else .70,
