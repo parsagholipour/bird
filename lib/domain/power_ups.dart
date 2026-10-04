@@ -70,7 +70,7 @@ abstract final class ShotPower {
 /// A touch sprint's burst and cooldown. The top is [Sprint.seconds] (1.2)
 /// and [Sprint.cooldown] (15), as before upgrades.
 abstract final class SprintPower {
-  static const _seconds = [.7, .8, .95, 1.05, 1.2];
+  static const _seconds = [.9, .95, 1.0, 1.1, 1.2];
   static const _cooldown = [25.0, 22.0, 19.0, 17.0, 15.0];
   static double seconds(int level) => _seconds[level];
   static double cooldown(int level) => _cooldown[level];

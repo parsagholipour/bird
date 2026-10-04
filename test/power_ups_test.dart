@@ -165,22 +165,22 @@ void main() {
   test('a level-0 sprint is shorter and comes back later', () {
     final sim = flight(const PowerUps())..invulnerableUntil = double.infinity;
     expect(sim.sprint(), isTrue);
-    expect(sim.sprintRemaining, closeTo(.7, 1e-9));
+    expect(sim.sprintRemaining, closeTo(.9, 1e-9));
     expect(sim.sprintCooldownRemaining, closeTo(25, 1e-9));
-    hover(sim, .72);
+    hover(sim, .92);
     expect(sim.sprinting, isFalse);
     expect(sim.sprintBoost, 1);
-    hover(sim, 25 - .72 - .1);
+    hover(sim, 25 - .92 - .1);
     expect(sim.canSprint, isFalse);
     hover(sim, .12);
     expect(sim.canSprint, isTrue);
   });
 
   test('the sprint burst eases out before its shorter end', () {
-    double boostAt(double age) => Sprint.boost(age, length: .7);
+    double boostAt(double age) => Sprint.boost(age, length: .9);
     expect(boostAt(.3), Sprint.peakBoost);
-    expect(boostAt(.7 - .2), closeTo(1.75, 1e-9));
-    expect(boostAt(.7), 1);
+    expect(boostAt(.9 - .2), closeTo(1.75, 1e-9));
+    expect(boostAt(.9), 1);
     expect(Sprint.boost(.5), Sprint.boost(.5, length: Sprint.seconds));
   });
 

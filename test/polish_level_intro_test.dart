@@ -35,6 +35,7 @@ import 'package:push_up_bird/ui/theme.dart';
 
 import 'campaign_save_test.dart' show levelRun;
 import 'play_session_test.dart' show SilentAudio;
+import 'bird_unlocks.dart';
 
 const _capture = bool.fromEnvironment('CAPTURE_POLISH');
 const _folder = 'build/visual-review/campaign/polish/level-intro';
@@ -133,6 +134,7 @@ Future<void> _open(
   final folder = Directory.systemTemp.createTempSync('polish-intro');
   await tester.runAsync(() async {
     await repo.setSetting(SettingKey.reducedMotion, true);
+    await unlockBirds(repo);
     await repo.equipBird(bird);
     await _seed(repo, stars, failed);
     // The story has been watched, so no scene plays over the card.

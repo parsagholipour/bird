@@ -11,6 +11,7 @@ import 'match_hud.dart' show MatchIcon, MatchSymbol;
 import 'mini_chrome.dart';
 import 'star_wallet.dart';
 import 'theme.dart';
+import 'ui_sounds.dart';
 
 /// The hangar: the equipped bird on its perch with the four upgrades
 /// ([PowerUp]) as gear sockets around it. Tapping a socket opens its
@@ -38,7 +39,14 @@ class _UpgradesScreenState extends ConsumerState<UpgradesScreen> {
   Future<void> _buy(PowerUp up) async {
     setState(() => _busy = true);
     try {
+      final level = ref.read(progressProvider).value?.upgrades[up] ?? 0;
       await ref.read(progressProvider.notifier).buyUpgrade(up);
+      if (mounted) {
+        UiSounds.effect(
+          context,
+          level + 1 >= PowerUp.maxLevel ? ShopCues.maxed : ShopCues.upgrade,
+        );
+      }
     } catch (e) {
       if (mounted) showFailure(context, e);
     } finally {
@@ -82,8 +90,12 @@ class _UpgradesScreenState extends ConsumerState<UpgradesScreen> {
                               child: _Hangar(
                                 progress: p,
                                 selected: selected,
-                                onSelect: (up) =>
-                                    setState(() => _selected = up),
+                                onSelect: (up) {
+                                  if (up != selected) {
+                                    UiSounds.effect(context, ShopCues.select);
+                                  }
+                                  setState(() => _selected = up);
+                                },
                               ),
                             ),
                             const SizedBox(width: 18),
@@ -627,6 +639,7 @@ class _Callout extends StatelessWidget {
                       enabled: affordable && !busy,
                       busy: busy,
                       onPressed: onBuy,
+                      onDenied: () => UiSounds.effect(context, ShopCues.denied),
                     ),
                   ],
                 ],
@@ -891,10 +904,13 @@ class _UpgradeKey extends StatelessWidget {
     required this.enabled,
     required this.busy,
     required this.onPressed,
+    required this.onDenied,
   });
   final int cost;
   final bool enabled, busy;
-  final VoidCallback onPressed;
+
+  /// [onPressed] buys; [onDenied] answers a press on the locked key.
+  final VoidCallback onPressed, onDenied;
 
   @override
   Widget build(BuildContext context) {
@@ -971,16 +987,20 @@ class _UpgradeKey extends StatelessWidget {
                 onPressed: onPressed,
                 builder: (context, _) => face,
               )
-            : Container(
-                decoration: BoxDecoration(
-                  color: _lockedFace,
-                  borderRadius: BorderRadius.circular(22),
-                  border: Border.all(color: _locked, width: 3),
-                  boxShadow: const [
-                    BoxShadow(color: _lockedLip, offset: Offset(0, 6)),
-                  ],
+            : GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: busy ? null : onDenied,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: _lockedFace,
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(color: _locked, width: 3),
+                    boxShadow: const [
+                      BoxShadow(color: _lockedLip, offset: Offset(0, 6)),
+                    ],
+                  ),
+                  child: face,
                 ),
-                child: face,
               ),
       ),
     );

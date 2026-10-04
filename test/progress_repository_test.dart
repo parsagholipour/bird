@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:push_up_bird/data/progress_repository.dart';
 import 'package:push_up_bird/domain/game_rules.dart';
 import 'package:push_up_bird/domain/tracking.dart';
+import 'bird_unlocks.dart';
 
 RunResult run(
   String id,
@@ -91,33 +92,38 @@ void main() {
       );
     },
   );
-  test(
-    'every bird can be equipped from the start and reset is complete',
-    () async {
-      final repo = SqliteProgressRepository(
-        ProgressDatabase(NativeDatabase.memory()),
-      );
-      addTearDown(repo.close);
-      for (var bird = 0; bird < birdNames.length; bird++) {
-        await repo.equipBird(bird);
-        expect((await repo.load()).settings.bird, bird);
-      }
-      await expectLater(repo.equipBird(birdNames.length), throwsArgumentError);
-      await repo.setSetting(SettingKey.music, false);
-      await repo.setSetting(SettingKey.recordAudio, true);
-      await repo.saveRun(run('a', 30, bird: 3));
-      await repo.equipBird(1);
-      await repo.reset();
-      final p = await repo.load();
-      expect(p.totalObstacles, 0);
-      expect(p.birdsFlown, isEmpty);
-      expect(p.settings.bird, firstBird);
-      expect(p.unlockedBirds, {1, 2});
-      expect(p.settings.music, true);
-      expect(p.settings.recordAudio, false);
-      expect(p.recent, isEmpty);
-    },
-  );
+  test('free birds equip from the start, bought ones after, and reset is '
+      'complete', () async {
+    final repo = SqliteProgressRepository(
+      ProgressDatabase(NativeDatabase.memory()),
+    );
+    addTearDown(repo.close);
+    // Pip and Orbit stay locked, even equipped or flown: Minty flies.
+    await repo.saveRun(run('pip', 10, bird: 0));
+    for (final bird in [0, 3]) {
+      await repo.equipBird(bird);
+      expect((await repo.load()).settings.bird, firstBird);
+    }
+    await unlockBirds(repo);
+    for (var bird = 0; bird < birdNames.length; bird++) {
+      await repo.equipBird(bird);
+      expect((await repo.load()).settings.bird, bird);
+    }
+    await expectLater(repo.equipBird(birdNames.length), throwsArgumentError);
+    await repo.setSetting(SettingKey.music, false);
+    await repo.setSetting(SettingKey.recordAudio, true);
+    await repo.saveRun(run('a', 30, bird: 3));
+    await repo.equipBird(1);
+    await repo.reset();
+    final p = await repo.load();
+    expect(p.totalObstacles, 0);
+    expect(p.birdsFlown, isEmpty);
+    expect(p.settings.bird, firstBird);
+    expect(p.unlockedBirds, {1, 2});
+    expect(p.settings.music, true);
+    expect(p.settings.recordAudio, false);
+    expect(p.recent, isEmpty);
+  });
   test(
     'records, settings and cosmetics survive closing and reopening SQLite',
     () async {

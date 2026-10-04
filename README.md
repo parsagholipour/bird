@@ -220,7 +220,7 @@ every upgrade at level 0.
 | Level | 0 | 1 | 2 | 3 | 4 |
 | --- | --- | --- | --- | --- | --- |
 | Shot power: most charge | 40% | 55% | 70% | 85% | 100% |
-| Sprint: burst / cooldown | 0.7 / 25 s | 0.8 / 22 s | 0.95 / 19 s | 1.05 / 17 s | 1.2 / 15 s |
+| Sprint: burst / cooldown | 0.9 / 25 s | 0.95 / 22 s | 1.0 / 19 s | 1.1 / 17 s | 1.2 / 15 s |
 | Shield: stars to restore / cover after it breaks | 15 / 0.6 s | 13 / 0.8 s | 11 / 1.0 s | 10 / 1.25 s | 9 / 1.5 s |
 | Magnet: perfect gates / seconds / reach | 5 / 5 s / 0.16 | 4 / 6 s / 0.17 | 4 / 7 s / 0.185 | 3 / 8 s / 0.20 | 3 / 10 s / 0.22 |
 

@@ -25,6 +25,7 @@ import 'package:push_up_bird/ui/level_intro.dart';
 
 import 'campaign_save_test.dart' show levelRun;
 import 'play_session_test.dart' show SilentAudio;
+import 'bird_unlocks.dart';
 
 /// Every level of chapters 1 and 2 finished, their postcards seen.
 Future<void> seedTwoChapters(ProgressRepository repo) async {
@@ -61,6 +62,7 @@ Future<void> open(
   final folder = Directory.systemTemp.createTempSync('campaign-opening');
   await tester.runAsync(() async {
     await repo.setSetting(SettingKey.reducedMotion, true);
+    await unlockBirds(repo);
     await repo.equipBird(0);
     if (twoChapters) await seedTwoChapters(repo);
     for (final scene in CampaignStory.scenes) {

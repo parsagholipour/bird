@@ -11,6 +11,7 @@ import 'match_hud.dart' show MatchIcon, MatchSymbol, matchInkEdge;
 import 'mini_chrome.dart';
 import 'star_wallet.dart';
 import 'theme.dart';
+import 'ui_sounds.dart';
 
 /// Each bird's tile color, from its feathers: Pip, Peaches, Minty, Orbit.
 const _birdColors = [
@@ -46,10 +47,15 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
   int? _viewing;
   bool _busy = false;
 
-  Future<void> _run(Future<void> Function(ProgressController) action) async {
+  /// Runs [action] and, once it has gone through, plays [cue].
+  Future<void> _run(
+    Future<void> Function(ProgressController) action,
+    String cue,
+  ) async {
     setState(() => _busy = true);
     try {
       await action(ref.read(progressProvider.notifier));
+      if (mounted) UiSounds.effect(context, cue);
     } catch (e) {
       if (mounted) showFailure(context, e);
     } finally {
@@ -95,9 +101,16 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
                                 bird: viewing,
                                 progress: p,
                                 busy: _busy,
-                                onFly: () => _run((n) => n.equip(viewing)),
-                                onUnlock: () =>
-                                    _run((n) => n.unlockBird(viewing)),
+                                onFly: () => _run(
+                                  (n) => n.equip(viewing),
+                                  ShopCues.birdEquip,
+                                ),
+                                onUnlock: () => _run(
+                                  (n) => n.unlockBird(viewing),
+                                  ShopCues.birdUnlock,
+                                ),
+                                onDenied: () =>
+                                    UiSounds.effect(context, ShopCues.denied),
                               ),
                             ),
                             const SizedBox(width: 18),
@@ -106,8 +119,12 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
                               child: _Roster(
                                 progress: p,
                                 viewing: viewing,
-                                onView: (bird) =>
-                                    setState(() => _viewing = bird),
+                                onView: (bird) {
+                                  if (bird != viewing) {
+                                    UiSounds.effect(context, ShopCues.select);
+                                  }
+                                  setState(() => _viewing = bird);
+                                },
                               ),
                             ),
                           ],
@@ -132,11 +149,12 @@ class _Showcase extends StatelessWidget {
     required this.busy,
     required this.onFly,
     required this.onUnlock,
+    required this.onDenied,
   });
   final int bird;
   final ProgressSnapshot progress;
   final bool busy;
-  final VoidCallback onFly, onUnlock;
+  final VoidCallback onFly, onUnlock, onDenied;
 
   @override
   Widget build(BuildContext context) {
@@ -300,6 +318,7 @@ class _Showcase extends StatelessWidget {
                             enabled: p.canUnlock(bird) && !busy,
                             busy: busy,
                             onPressed: onUnlock,
+                            onDenied: onDenied,
                           ),
                   ),
                 ],
@@ -468,12 +487,16 @@ class _ActionKey extends StatelessWidget {
     required this.enabled,
     required this.busy,
     required this.onPressed,
+    this.onDenied,
     this.price,
   });
   final String label, semantics;
   final int? price;
   final bool enabled, busy;
   final VoidCallback onPressed;
+
+  /// Answers a press on the greyed key, when it is not just busy.
+  final VoidCallback? onDenied;
 
   @override
   Widget build(BuildContext context) {
@@ -574,22 +597,26 @@ class _ActionKey extends StatelessWidget {
               onPressed: onPressed,
               builder: (context, _) => face,
             )
-          : Container(
-              decoration: BoxDecoration(
-                color: live ? SkyColors.yellow : _lockedFace,
-                borderRadius: BorderRadius.circular(22),
-                border: Border.all(
-                  color: live ? SkyColors.ink : _locked,
-                  width: 3,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: live ? SkyColors.gold : _lockedLip,
-                    offset: const Offset(0, 6),
+          : GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: busy ? null : onDenied,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: live ? SkyColors.yellow : _lockedFace,
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(
+                    color: live ? SkyColors.ink : _locked,
+                    width: 3,
                   ),
-                ],
+                  boxShadow: [
+                    BoxShadow(
+                      color: live ? SkyColors.gold : _lockedLip,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: face,
               ),
-              child: face,
             ),
     );
   }

@@ -47,6 +47,7 @@ import 'campaign_save_test.dart' show levelRun;
 import 'fake_video_platform.dart';
 import 'play_session_test.dart' show SilentAudio;
 import 'recorded_flight.dart' show rideTheSky;
+import 'bird_unlocks.dart';
 
 const _capture = bool.fromEnvironment('CAPTURE_CAMPAIGN_SCREENS');
 const _folder = 'build/visual-review/campaign/screens';
@@ -149,6 +150,7 @@ Future<_App> _open(
   final folder = Directory.systemTemp.createTempSync('campaign-screens');
   await tester.runAsync(() async {
     await repo.setSetting(SettingKey.reducedMotion, reduced);
+    await unlockBirds(repo);
     await repo.equipBird(bird);
     await _seed(repo, stars, postcards: postcards);
     if (!story) {

@@ -1,5 +1,22 @@
 import 'package:flutter/widgets.dart';
 
+/// The cues the shop screens (Upgrades and the crew) play, from the sound
+/// bank: a choice, a purchase, a bird unlocked or picked, and a key that
+/// cannot be pressed yet.
+abstract final class ShopCues {
+  /// Looking at another socket or bird.
+  static const select = 'ui_toggle';
+
+  /// An upgrade level bought, and the last level of one.
+  static const upgrade = 'streak', maxed = 'wing';
+
+  /// A bird bought, and a bird picked to fly.
+  static const birdUnlock = 'unlock', birdEquip = 'sprint_ready';
+
+  /// A greyed key pressed before the wallet can pay.
+  static const denied = 'ammo_empty';
+}
+
 /// The app owns this player so navigation never cuts off a button's short tail.
 /// It also speaks the story's recorded lines over the menu music.
 class UiSounds extends InheritedWidget {

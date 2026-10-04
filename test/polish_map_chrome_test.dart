@@ -28,6 +28,7 @@ import 'package:push_up_bird/ui/level_intro.dart' show LevelIntroCard;
 import 'package:push_up_bird/ui/theme.dart';
 
 import 'campaign_save_test.dart' show levelRun;
+import 'bird_unlocks.dart';
 
 const _capture = bool.fromEnvironment('CAPTURE_POLISH');
 const _folder = 'build/visual-review/campaign/polish/map-chrome';
@@ -118,6 +119,7 @@ Future<void> _open(
   final repo = repoOf?.call(db) ?? SqliteProgressRepository(db);
   await tester.runAsync(() async {
     await repo.setSetting(SettingKey.reducedMotion, reduced);
+    await unlockBirds(repo);
     await repo.equipBird(bird);
     await _seed(repo, stars);
   });
