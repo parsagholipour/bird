@@ -44,6 +44,7 @@ class SkyEnemy {
     int? maxHp,
     this.squad = false,
     this.throwsCrumbs = false,
+    this.dive,
   }) : maxHp = maxHp ?? healthFor(appearance),
        pigeon = !squad && _kindOf(appearance) == EnemyKind.alleyPigeon
            ? PigeonFlight()
@@ -143,6 +144,11 @@ class SkyEnemy {
   /// the lane the boss planned.
   SquadTrack? track;
 
+  /// A diving flight (one of the wilder Neferhoo's mummy bats, rules version
+  /// 61), or null for the plain course: its height follows the dive's line
+  /// as it closes in, its flight bob riding on that.
+  final EnemyDive? dive;
+
   EnemyAttack get attack => switch (kind) {
     // A raiding pigeon fires nothing: it takes stars.
     EnemyKind.alleyPigeon =>
@@ -172,7 +178,8 @@ class SkyEnemy {
   /// The drawn body, hit circle and emitted ammo all follow the same small
   /// flight arc. Shooters steady themselves through windup and discharge.
   double get y {
-    if (flightPhase == null || track != null) return _y;
+    final base = dive?.yAt(x) ?? _y;
+    if (flightPhase == null || track != null) return base;
     final amplitude = switch (kind) {
       EnemyKind.simpleBat || EnemyKind.mummyBat => .011,
       EnemyKind.caveBat => .010,
@@ -184,7 +191,7 @@ class SkyEnemy {
     final bob =
         math.sin(t * _flightRate) * .8 +
         math.sin(t * _flightRate * .57 + .8) * .2;
-    return _y + amplitude * bob * _steadiness;
+    return base + amplitude * bob * _steadiness;
   }
 
   set y(double value) => _y = value;
@@ -209,6 +216,28 @@ class SkyEnemy {
   }
 
   double get recoil => (1 - (age - lastShotAt) / .24).clamp(0.0, 1.0);
+}
+
+/// A straight dive from ([fromX], [fromY]) through ([toX], [toY]): the height
+/// of an enemy flying it is a pure function of its x, so a replay, or a seek
+/// that re-simulates, flies it exactly. Past [toX] it carries on along the
+/// same line (kept within [minY] and [maxY]).
+class EnemyDive {
+  const EnemyDive({
+    required this.fromX,
+    required this.fromY,
+    required this.toX,
+    required this.toY,
+  });
+  final double fromX, fromY, toX, toY;
+  static const minY = -.2, maxY = 1.2;
+
+  /// Its height at screen x [x].
+  double yAt(double x) {
+    final span = fromX - toX;
+    if (span <= 0) return toY;
+    return (toY + (fromY - toY) * (x - toX) / span).clamp(minY, maxY);
+  }
 }
 
 class EnemyAmmo {

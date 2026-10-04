@@ -27,7 +27,12 @@ part of 'game_rules.dart';
 ///    behind its letters, small enemies from then on ([EnemyKind.mummyBat]);
 ///  * in the faster fight (rules version 55, [SkyBoss.fasterNeferhoo]) the
 ///    calls follow its own clock ([NeferhooBeats.faster], `_latchFasterCalls`)
-///    and a returned letter deals [Neferhoo.fasterReturnDamage].
+///    and a returned letter deals [Neferhoo.fasterReturnDamage];
+///  * in the wilder fight (rules version 61, [SkyBoss.wilderNeferhoo]) some
+///    of a call's letters slant up or down off its lane and bounce off the
+///    sky's edges ([Neferhoo.slantOf]: the hurt and catch tests follow each
+///    letter's height, [NeferhooLetter.yAt]), and more bats come, some
+///    diving in from above or below ([Neferhoo.batEntryOf]).
 ///
 /// Every latch time is an exact cycle time of the boss's clock where the
 /// clock decides it (locks, releases, throws, homecomings, landings) and the
@@ -222,7 +227,7 @@ extension _NeferhooRules on FlightSimulation {
     final bulk = Neferhoo.bulkReturns(rock.charge);
     for (final letter in fight.letters) {
       if (letter.returned || letter.gone || !letter.dealtBy(age)) continue;
-      if (!Neferhoo.catches(rock.y, letter.lane)) continue;
+      if (!Neferhoo.catches(rock.y, letter.yAt(age))) continue;
       final x = letter.xAt(age, handX);
       if (!Neferhoo.catchesAcross(
         previousX,
@@ -252,7 +257,7 @@ extension _NeferhooRules on FlightSimulation {
       for (final bird in flock) {
         if (!Neferhoo.letterTouches(
           x,
-          letter.lane,
+          letter.yAt(age),
           bird.x,
           bird.y,
           FlightSimulation.birdRadius,
@@ -343,8 +348,10 @@ extension _NeferhooRules on FlightSimulation {
           letters: letters,
         ),
       );
+      final wilder = courier.wilderNeferhoo;
       if (kind == NeferhooCallKind.wave) {
-        for (var b = 0; b < Neferhoo.waveBats; b++) {
+        final wave = wilder ? Neferhoo.wilderWaveBats : Neferhoo.waveBats;
+        for (var b = 0; b < wave; b++) {
           fight.bats.add(
             NeferhooBat(
               cycle: cycle,
@@ -354,6 +361,7 @@ extension _NeferhooRules on FlightSimulation {
               pace: Neferhoo.batPace,
               fury: false,
               call: number,
+              entry: wilder ? Neferhoo.batEntryOf(number, b) : 0,
             ),
           );
         }
@@ -374,12 +382,22 @@ extension _NeferhooRules on FlightSimulation {
             speed: pace,
             express: express,
             call: number,
+            climb: wilder
+                ? Neferhoo.letterClimb(
+                    slant: Neferhoo.slantOf(number, l, letters),
+                    speed: pace,
+                    handX: courier.handX,
+                    fury: express,
+                  )
+                : 0,
           ),
         );
       }
-      final bats = kind == NeferhooCallKind.first
-          ? Neferhoo.batsFor(courier.stage, faster: true)
-          : 0;
+      final bats = kind != NeferhooCallKind.first
+          ? 0
+          : wilder
+          ? Neferhoo.wilderBatsFor(courier.stage)
+          : Neferhoo.batsFor(courier.stage, faster: true);
       for (var b = 0; b < bats; b++) {
         fight.bats.add(
           NeferhooBat(
@@ -392,6 +410,7 @@ extension _NeferhooRules on FlightSimulation {
             pace: express ? Neferhoo.furyBatPace : Neferhoo.batPace,
             fury: express,
             call: number,
+            entry: wilder ? Neferhoo.batEntryOf(number, b) : 0,
           ),
         );
       }
@@ -408,9 +427,13 @@ extension _NeferhooRules on FlightSimulation {
   /// now on: the simple bat's flight arc (its own phase), settling into the
   /// lane on its final approach, closing in at its drift of the scroll
   /// speed set so that it flies at its pace (the scroll speed now, without a
-  /// sprint's boost). A rock of any weapon downs it.
+  /// sprint's boost). A rock of any weapon downs it. A wilder fight's bat
+  /// may dive in from above or below instead ([Neferhoo.batDive]).
   void _launchBat(SkyBoss courier, NeferhooBat bat, double viewportWidth) {
     final enemy = SkyEnemy(
+      dive: bat.entry == 0
+          ? null
+          : Neferhoo.batDive(bat.entry, bat.lane, viewportWidth),
       x: Neferhoo.batStartX(viewportWidth),
       y: bat.lane,
       appearance: EnemyKind.mummyBat.index,
@@ -427,8 +450,9 @@ extension _NeferhooRules on FlightSimulation {
   /// Sends [letter], struck at screen x [x], home: harmless from now on, it
   /// lands on his chest [Neferhoo.returnSecondsOf] of its distance later.
   void _returnLetter(SkyBoss courier, NeferhooLetter letter, double x) {
-    final dx = courier.x - x, dy = courier.y - letter.lane;
     final age = courier.age;
+    final y = letter.yAt(age);
+    final dx = courier.x - x, dy = courier.y - y;
     // Letters sent back together (a bulk return near his hand) land one
     // after another, never two in one step: each landing is its own thud,
     // cue and line.
@@ -452,7 +476,7 @@ extension _NeferhooRules on FlightSimulation {
     letter
       ..returnedAt = age
       ..struckX = x
-      ..struckY = letter.lane
+      ..struckY = y
       ..homeAt = home;
     courier.neferhoo
       ..lettersReturned += 1

@@ -76,7 +76,7 @@ void fightTo(SkyBoss boss, double t, {double birdY = .46}) {
 void returnLetter(SkyBoss boss, NeferhooLetter letter, {double birdY = .46}) {
   final sim = flightOf(boss);
   final x = letter.xAt(boss.age, boss.handX);
-  sim.rocks.add(BirdRock(x: x - Neferhoo.letterHalfWidth - .03, y: letter.lane));
+  sim.rocks.add(BirdRock(x: x - Neferhoo.letterHalfWidth - .03, y: letter.yAt(boss.age)));
   for (var guard = 0; guard < 30 && !letter.returned; guard++) {
     _step(boss, birdY);
   }
