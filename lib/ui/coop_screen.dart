@@ -16,6 +16,7 @@ import '../game/duel_art.dart';
 import '../game/play_controller.dart';
 import '../game/tether_art.dart';
 import 'components.dart';
+import 'coop_setup.dart';
 import 'flight_score.dart';
 import 'home_keys.dart' show HomeKeyColors;
 import 'match_hud.dart';
@@ -312,9 +313,40 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
     final chosen = mode ?? CoopMode.roped;
     final best = progress.coop.record(chosen).best;
     final duels = progress.coop.duels;
-    final reducedMotion = settings.reducedMotion;
+    final reducedMotion =
+        settings.reducedMotion || MediaQuery.disableAnimationsOf(context);
+    // The space between the two cards, where the rope hangs or the rivals'
+    // badge sits.
+    const gap = 104.0;
+    final (lead, body) = switch (chosen) {
+      CoopMode.roped => (
+        'Your birds share one rope.',
+        'Flap together to climb high: a bird flapping alone lifts both, but '
+            'only a little. Sprint to drag your partner along.',
+      ),
+      CoopMode.free => (
+        'No rope:',
+        'each bird flies on its own and only bumps into the other. Hearts, '
+            'shield and score are still shared.',
+      ),
+      CoopMode.duel => (
+        'Fight!',
+        'Each bird has its own hearts. Grab mystery boxes: some send bats, a '
+            'spitter or meteors at your rival, others bring a heart, a shield '
+            'or star power. Last bird flying wins.',
+      ),
+    };
+    Widget card(int player, int bird) => _PlayerCard(
+      player: player,
+      bird: bird,
+      mode: chosen,
+      reducedMotion: reducedMotion,
+      onPick: (bird) => setState(
+        () => picks = player == 0 ? (bird, picks!.$2) : (picks!.$1, bird),
+      ),
+    );
     return Padding(
-      padding: const EdgeInsets.fromLTRB(28, 18, 28, 14),
+      padding: const EdgeInsets.fromLTRB(28, 18, 28, 12),
       child: Column(
         children: [
           MiniHeader(
@@ -341,87 +373,110 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           Expanded(
             child: picked == null
                 ? const Center(child: CircularProgressIndicator())
-                : Row(
+                : Stack(
+                    fit: StackFit.expand,
                     children: [
-                      Expanded(
-                        child: _PlayerCard(
-                          player: 0,
-                          bird: picked.$1,
-                          reducedMotion: reducedMotion,
-                          onPick: (bird) =>
-                              setState(() => picks = (bird, picks!.$2)),
-                        ),
+                      Row(
+                        children: [
+                          Expanded(child: card(0, picked.$1)),
+                          const SizedBox(width: gap),
+                          Expanded(child: card(1, picked.$2)),
+                        ],
                       ),
-                      SizedBox(
-                        width: 110,
-                        // Without the rope the cards stand apart; rivals
-                        // face off.
-                        child: switch (chosen) {
-                          CoopMode.roped => CustomPaint(
-                            painter: _RopePainter(reducedMotion: reducedMotion),
+                      // The rope is tied to rings on the cards' inner
+                      // frames, so it paints over both of them; without it
+                      // the cut ends hang loose, and rivals face off.
+                      Positioned.fill(
+                        child: IgnorePointer(
+                          child: AnimatedSwitcher(
+                            duration: reducedMotion
+                                ? Duration.zero
+                                : const Duration(milliseconds: 260),
+                            switchInCurve: Curves.easeOutBack,
+                            transitionBuilder: (child, animation) =>
+                                FadeTransition(
+                                  opacity: animation,
+                                  child: ScaleTransition(
+                                    scale: Tween(
+                                      begin: .85,
+                                      end: 1.0,
+                                    ).animate(animation),
+                                    child: child,
+                                  ),
+                                ),
+                            child: Stack(
+                              key: ValueKey(chosen),
+                              fit: StackFit.expand,
+                              children: [
+                                CoopTether(
+                                  mode: chosen,
+                                  gap: gap,
+                                  reducedMotion: reducedMotion,
+                                  rope: CustomPaint(
+                                    painter: _RopePainter(
+                                      reducedMotion: reducedMotion,
+                                    ),
+                                  ),
+                                ),
+                                if (chosen == CoopMode.duel)
+                                  const Align(
+                                    alignment: Alignment(0, -.24),
+                                    child: SizedBox.square(
+                                      dimension: 92,
+                                      child: _Versus(),
+                                    ),
+                                  ),
+                              ],
+                            ),
                           ),
-                          CoopMode.free => null,
-                          CoopMode.duel => const Center(child: _Versus()),
-                        },
-                      ),
-                      Expanded(
-                        child: _PlayerCard(
-                          player: 1,
-                          bird: picked.$2,
-                          reducedMotion: reducedMotion,
-                          onPick: (bird) =>
-                              setState(() => picks = (picks!.$1, bird)),
                         ),
                       ),
                     ],
                   ),
           ),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              _ModeToggle(
-                mode: chosen,
-                onChanged: (choice) => setState(() => mode = choice),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(switch (chosen) {
-                  CoopMode.roped =>
-                    'Your birds share one rope. Flap together to climb '
-                        'high: a bird flapping alone lifts both, but only '
-                        'a little. Sprint to drag your partner along.',
-                  CoopMode.free =>
-                    'No rope: each bird flies on its own and only bumps '
-                        'into the other. Hearts, shield and score are '
-                        'still shared.',
-                  CoopMode.duel =>
-                    'Fight! Each bird has its own hearts. Grab mystery '
-                        'boxes: some send bats, a spitter or meteors at '
-                        'your rival, others bring a heart, a shield or '
-                        'star power. Last bird flying wins.',
-                }, style: bodyText(13, color: SkyColors.muted)),
-              ),
-              const SizedBox(width: 20),
-              SizedBox(
-                width: 210,
-                child: MiniKey(
-                  key: const ValueKey('coop-start'),
-                  label: chosen.team ? 'Fly together' : 'Fight!',
-                  icon: chosen.team
-                      ? Icons.flight_takeoff_rounded
-                      : Icons.sports_mma_rounded,
-                  colors: chosen.team
-                      ? HomeKeyColors.mint
-                      : HomeKeyColors.coral,
-                  height: 60,
-                  onPressed: picked == null ? null : start,
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 70,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _ModeToggle(
+                  mode: chosen,
+                  onChanged: (choice) => setState(() => mode = choice),
                 ),
-              ),
-            ],
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    child: CoopBubble(
+                      lead: lead,
+                      body: body,
+                      accent: chosen.team ? SkyColors.mint : SkyColors.coral,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                SizedBox(
+                  width: 224,
+                  child: CoopStartKey(
+                    key: const ValueKey('coop-start'),
+                    label: chosen.team ? 'Fly together' : 'Fight!',
+                    icon: chosen.team
+                        ? Icons.flight_takeoff_rounded
+                        : Icons.sports_mma_rounded,
+                    colors: chosen.team
+                        ? HomeKeyColors.mint
+                        : HomeKeyColors.coral,
+                    reducedMotion: reducedMotion,
+                    onPressed: picked == null ? null : start,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -1169,154 +1224,192 @@ class _PrizeBanner extends StatelessWidget {
   );
 }
 
-/// One player's bird picker: their colour, the bird they fly and a row of
-/// all four birds to choose from.
+/// One player's card: a banner with their number, the bird they fly in a
+/// sunburst window with its name, and a tray of all four birds to choose
+/// from. The two cards face each other, so player 2's is mirrored: its
+/// bird stands on the inner side, near player 1's, and in a duel turns to
+/// face its rival.
 class _PlayerCard extends StatelessWidget {
   const _PlayerCard({
     required this.player,
     required this.bird,
+    required this.mode,
     required this.reducedMotion,
     required this.onPick,
   });
   final int player, bird;
+  final CoopMode mode;
   final bool reducedMotion;
   final ValueChanged<int> onPick;
 
   @override
   Widget build(BuildContext context) {
     final color = TetherArt.players[player];
-    final side = player == 0 ? 'left' : 'right';
-    return MiniCard(
-      accent: color,
-      padding: EdgeInsets.zero,
-      child: Column(
-        children: [
-          Expanded(
-            child: MiniArtBand(
-              color: color,
-              child: Stack(
-                children: [
-                  Positioned(
-                    top: 12,
-                    left: 14,
-                    child: MiniTag(
-                      'PLAYER ${player + 1}',
-                      color: color,
-                      foreground: SkyColors.white,
-                    ),
-                  ),
-                  Positioned(
-                    top: 16,
-                    right: 16,
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.touch_app_rounded,
-                          size: 15,
-                          color: SkyColors.ink.withValues(alpha: .75),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Tap the $side half',
-                          style: bodyText(12, weight: FontWeight.w800),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Positioned.fill(
-                    top: 34,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 18),
-                      child: _PlayerBird(
-                        bird: bird,
-                        player: player,
-                        reducedMotion: reducedMotion,
-                      ),
-                    ),
-                  ),
-                ],
+    final mirrored = player == 1;
+    return CoopCard(
+      color: color,
+      art: CoopArtWindow(
+        color: color,
+        focus: Alignment(mirrored ? -.42 : .42, .12),
+        child: Stack(
+          children: [
+            Positioned(
+              top: 10,
+              left: mirrored ? null : 0,
+              right: mirrored ? 0 : null,
+              child: CoopRibbon(
+                label: 'PLAYER ${player + 1}',
+                color: color,
+                mirrored: mirrored,
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 2, 12, 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                for (final i in birdOrder)
-                  _BirdChoice(
-                    key: ValueKey('coop-pick-$player-$i'),
-                    bird: i,
-                    selected: i == bird,
-                    color: color,
-                    label: 'Player ${player + 1}: ${birdNames[i]}',
-                    onTap: () {
-                      UiSounds.effect(context, 'ui_toggle');
-                      onPick(i);
-                    },
-                  ),
-              ],
+            Positioned(
+              top: 12,
+              left: mirrored ? 10 : null,
+              right: mirrored ? null : 10,
+              child: CoopHint(
+                text: 'Tap the ${mirrored ? 'right' : 'left'} half',
+              ),
             ),
-          ),
+            Positioned.fill(
+              top: 38,
+              child: _PlayerBird(
+                bird: bird,
+                player: player,
+                facing: mirrored && !mode.team,
+                reducedMotion: reducedMotion,
+              ),
+            ),
+          ],
+        ),
+      ),
+      tray: CoopTray(
+        color: color,
+        children: [
+          for (final i in birdOrder)
+            _BirdChoice(
+              key: ValueKey('coop-pick-$player-$i'),
+              bird: i,
+              selected: i == bird,
+              color: color,
+              reducedMotion: reducedMotion,
+              label: 'Player ${player + 1}: ${birdNames[i]}',
+              onTap: () {
+                UiSounds.effect(context, 'ui_toggle');
+                onPick(i);
+              },
+            ),
         ],
       ),
     );
   }
 }
 
-/// The bird a player flies, with its name and a line about it.
+/// The bird a player flies, with its name and a line about it on the outer
+/// side of the card. [facing] turns it to face the other card.
 class _PlayerBird extends StatelessWidget {
   const _PlayerBird({
     required this.bird,
     required this.player,
+    required this.facing,
     required this.reducedMotion,
   });
   final int bird, player;
-  final bool reducedMotion;
+  final bool facing, reducedMotion;
 
   @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      Expanded(
-        child: Center(
-          child: BirdArt(
-            key: ValueKey('coop-bird-$player-$bird'),
-            bird: bird,
-            size: 132,
-            reducedMotion: reducedMotion,
-          ),
+  Widget build(BuildContext context) {
+    final mirrored = player == 1;
+    final align = mirrored ? CrossAxisAlignment.end : CrossAxisAlignment.start;
+    final art = AnimatedSwitcher(
+      duration: reducedMotion
+          ? Duration.zero
+          : const Duration(milliseconds: 240),
+      switchInCurve: Curves.easeOutBack,
+      transitionBuilder: (child, animation) => ScaleTransition(
+        scale: Tween(begin: .6, end: 1.0).animate(animation),
+        child: FadeTransition(opacity: animation, child: child),
+      ),
+      child: Transform.flip(
+        key: ValueKey(bird),
+        flipX: facing,
+        child: BirdArt(
+          key: ValueKey('coop-bird-$player-$bird'),
+          bird: bird,
+          size: 126,
+          reducedMotion: reducedMotion,
         ),
       ),
-      SizedBox(
-        width: 120,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(birdNames[bird], style: heading(26, weight: FontWeight.w700)),
-            const SizedBox(height: 4),
-            Text(
-              birdDescriptions[bird],
-              style: bodyText(12, color: SkyColors.ink),
+    );
+    final about = Padding(
+      padding: EdgeInsets.only(
+        left: mirrored ? 0 : 16,
+        right: mirrored ? 16 : 0,
+        bottom: 18,
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: align,
+        children: [
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              birdNames[bird],
+              maxLines: 1,
+              style: heading(30, weight: FontWeight.w700).copyWith(
+                height: 1.05,
+                shadows: const [
+                  Shadow(color: SkyColors.cream, offset: Offset(0, 2)),
+                ],
+              ),
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 3),
+          Container(
+            width: 34,
+            height: 5,
+            decoration: BoxDecoration(
+              color: TetherArt.players[player],
+              borderRadius: BorderRadius.circular(3),
+              border: Border.all(color: SkyColors.ink, width: 1.2),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            birdDescriptions[bird],
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            textAlign: mirrored ? TextAlign.right : TextAlign.left,
+            style: bodyText(
+              12.5,
+              color: SkyColors.ink.withValues(alpha: .82),
+            ).copyWith(height: 1.2),
+          ),
+        ],
       ),
-    ],
-  );
+    );
+    final children = [
+      Expanded(flex: 5, child: about),
+      Expanded(flex: 6, child: Center(child: art)),
+    ];
+    return Row(children: mirrored ? children.reversed.toList() : children);
+  }
 }
 
+/// One bird in a player's tray: a coin to tap, raised in their colour with a
+/// check when it is the bird they fly.
 class _BirdChoice extends StatelessWidget {
   const _BirdChoice({
     super.key,
     required this.bird,
     required this.selected,
     required this.color,
+    required this.reducedMotion,
     required this.label,
     required this.onTap,
   });
   final int bird;
-  final bool selected;
+  final bool selected, reducedMotion;
   final Color color;
   final String label;
   final VoidCallback onTap;
@@ -1330,36 +1423,11 @@ class _BirdChoice extends StatelessWidget {
     child: InkResponse(
       onTap: onTap,
       radius: 34,
-      child: AnimatedContainer(
-        duration: MediaQuery.disableAnimationsOf(context)
-            ? Duration.zero
-            : const Duration(milliseconds: 160),
-        width: 58,
-        height: 58,
-        padding: const EdgeInsets.all(5),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: selected
-              ? Color.lerp(color, SkyColors.cream, .55)
-              : SkyColors.white,
-          border: Border.all(
-            color: selected
-                ? SkyColors.ink
-                : SkyColors.ink.withValues(alpha: .2),
-            width: selected ? 2.5 : 1.5,
-          ),
-          boxShadow: [
-            if (selected) ...[
-              BoxShadow(color: color, spreadRadius: 3),
-              const BoxShadow(
-                color: SkyColors.ink,
-                spreadRadius: 4.5,
-                offset: Offset(0, 2),
-              ),
-            ],
-          ],
-        ),
-        child: BirdArt(bird: bird, size: 46, bob: false),
+      child: CoopPickCoin(
+        selected: selected,
+        color: color,
+        reducedMotion: reducedMotion,
+        child: BirdArt(bird: bird, size: 44, bob: false),
       ),
     ),
   );
@@ -1426,106 +1494,100 @@ class _SideHints extends StatelessWidget {
   );
 }
 
-/// The badge between two rivals' cards.
+/// The badge between two rivals' cards: a burst split between their
+/// colours. It fills the box it is given, up to 92 across.
 class _Versus extends StatelessWidget {
   const _Versus();
 
   @override
-  Widget build(BuildContext context) => Container(
-    key: const ValueKey('coop-versus'),
-    width: 74,
-    height: 74,
-    alignment: Alignment.center,
-    decoration: BoxDecoration(
-      shape: BoxShape.circle,
-      gradient: const LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        stops: [.5, .5],
-        colors: TetherArt.players,
-      ),
-      border: Border.all(color: SkyColors.ink, width: 3),
-      boxShadow: [
-        BoxShadow(
-          color: SkyColors.ink.withValues(alpha: .18),
-          offset: const Offset(0, 5),
-        ),
-      ],
-    ),
-    child: Text(
-      'VS',
-      style: heading(
-        30,
-        color: SkyColors.white,
-        weight: FontWeight.w700,
-      ).copyWith(shadows: matchInkEdge(1.5)),
-    ),
+  Widget build(BuildContext context) => const SizedBox(
+    key: ValueKey('coop-versus'),
+    width: 92,
+    height: 92,
+    child: CoopVersusBurst(),
   );
 }
 
-/// Roped, no rope or 1 v 1: three chips, the chosen one filled.
+/// Roped, no rope or 1 v 1: a strip of three stickers, each a little picture
+/// of the mode over its name, the chosen one raised in its colour.
 class _ModeToggle extends StatelessWidget {
   const _ModeToggle({required this.mode, required this.onChanged});
   final CoopMode mode;
   final ValueChanged<CoopMode> onChanged;
 
   @override
-  Widget build(BuildContext context) => MatchPlate(
-    padding: const EdgeInsets.all(3),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        for (final choice in CoopMode.values)
-          Semantics(
-            button: true,
-            selected: choice == mode,
-            label: switch (choice) {
-              CoopMode.roped => 'Roped: the birds share a rope',
-              CoopMode.free => 'No rope: each bird flies on its own',
-              CoopMode.duel => '1 v 1: the birds fight each other',
-            },
-            excludeSemantics: true,
-            child: InkWell(
-              key: ValueKey('coop-mode-${choice.name}'),
-              borderRadius: BorderRadius.circular(999),
-              onTap: () {
-                if (choice == mode) return;
-                UiSounds.effect(context, 'ui_toggle');
-                onChanged(choice);
+  Widget build(BuildContext context) {
+    final still = MediaQuery.disableAnimationsOf(context);
+    return MatchPlate(
+      radius: 20,
+      padding: const EdgeInsets.fromLTRB(5, 5, 5, 6),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final choice in CoopMode.values)
+            Semantics(
+              button: true,
+              selected: choice == mode,
+              label: switch (choice) {
+                CoopMode.roped => 'Roped: the birds share a rope',
+                CoopMode.free => 'No rope: each bird flies on its own',
+                CoopMode.duel => '1 v 1: the birds fight each other',
               },
-              child: Container(
-                constraints: const BoxConstraints(minHeight: 48),
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                decoration: BoxDecoration(
-                  color: choice != mode
-                      ? null
-                      : choice.team
-                      ? SkyColors.mint
-                      : SkyColors.coral,
-                  borderRadius: BorderRadius.circular(999),
-                  border: choice != mode
-                      ? null
-                      : Border.all(color: SkyColors.ink, width: 2),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(switch (choice) {
-                      CoopMode.roped => Icons.link_rounded,
-                      CoopMode.free => Icons.link_off_rounded,
-                      CoopMode.duel => Icons.sports_mma_rounded,
-                    }, size: 18),
-                    const SizedBox(width: 6),
-                    Text(
-                      choice.title,
-                      style: bodyText(14, weight: FontWeight.w800),
+              excludeSemantics: true,
+              child: InkWell(
+                key: ValueKey('coop-mode-${choice.name}'),
+                borderRadius: BorderRadius.circular(16),
+                onTap: () {
+                  if (choice == mode) return;
+                  UiSounds.effect(context, 'ui_toggle');
+                  onChanged(choice);
+                },
+                child: SizedBox(
+                  width: 84,
+                  child: CustomPaint(
+                    painter: choice == mode
+                        ? CoopStickerPainter(
+                            color: choice.team
+                                ? SkyColors.mint
+                                : SkyColors.coral,
+                          )
+                        : null,
+                    child: AnimatedSlide(
+                      duration: still
+                          ? Duration.zero
+                          : const Duration(milliseconds: 160),
+                      offset: Offset(0, choice == mode ? -.03 : 0),
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(4, 5, 4, 7),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CoopModeGlyph(choice, muted: choice != mode),
+                            const SizedBox(height: 3),
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                choice.title,
+                                maxLines: 1,
+                                style: bodyText(
+                                  14,
+                                  weight: FontWeight.w900,
+                                  color: choice == mode
+                                      ? SkyColors.ink
+                                      : SkyColors.ink.withValues(alpha: .6),
+                                ).copyWith(height: 1.1),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 }
