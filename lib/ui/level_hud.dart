@@ -129,7 +129,7 @@ class _MatchLevelStarsState extends State<MatchLevelStars>
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const MatchIcon(MatchSymbol.star, size: 36),
+                  const MatchIcon(MatchSymbol.star, size: 28),
                   const SizedBox(width: 3),
                   // The count and its target share a baseline.
                   Row(
@@ -142,9 +142,9 @@ class _MatchLevelStarsState extends State<MatchLevelStars>
                         children: [
                           Opacity(
                             opacity: 0,
-                            child: Text(digits, style: matchDigits(56)),
+                            child: Text(digits, style: matchDigits(38)),
                           ),
-                          Text('$stars', style: matchDigits(56)),
+                          Text('$stars', style: matchDigits(38)),
                         ],
                       ),
                       const SizedBox(width: 1),
@@ -188,13 +188,13 @@ class _MatchLevelStarsState extends State<MatchLevelStars>
 
   /// The next mark's count: quiet next to the hero number, still readable.
   static final _targetStyle = matchDigits(
-    22,
+    17,
     color: SkyColors.ink.withValues(alpha: .58),
   );
 
   /// The same slot once every mark is in.
   static final _doneStyle = matchDigits(
-    18,
+    14,
     color: SkyColors.ink.withValues(alpha: .58),
   ).copyWith(letterSpacing: .6);
 }
@@ -216,7 +216,7 @@ class _Marks extends StatelessWidget {
   final Animation<double> pop;
   final bool popSecond, popThird;
 
-  static const width = 118.0, height = 48.0;
+  static const width = 100.0, height = 40.0;
 
   /// Where the ★★ notch sits along the track. Each mark is a stretch of the
   /// track, so the track's fill shows how close the next mark is, and the

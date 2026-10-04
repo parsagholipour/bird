@@ -40,7 +40,7 @@ void main() {
     expect(scale(tester), 1);
     final text = tester.widget<Text>(find.text('10'));
     expect(text.style!.fontFamily, 'Fredoka');
-    expect(text.style!.fontSize, 56);
+    expect(text.style!.fontSize, 38);
     expect(text.style!.fontWeight, FontWeight.w700);
     final plate = tester.widget<MatchPlate>(
       find.descendant(

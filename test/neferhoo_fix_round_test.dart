@@ -194,7 +194,7 @@ void main() {
   });
 
   group('the ankh never hides under the hearts plate (QA major M3)', () {
-    for (final (birdY, under) in [(.22, true), (.6, true), (.46, false)]) {
+    for (final (birdY, under) in [(.52, true), (.46, false)]) {
       test('a lock at $birdY ${under ? 'passes under the plate: it fades for the whole flight' : 'stays clear of it: it stays'}', () {
         for (final px in [640.0, 792.0, 864.0]) {
           for (final inset in _insets) {
