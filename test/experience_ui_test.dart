@@ -355,10 +355,7 @@ void main() {
         expect(find.text(name), findsOneWidget);
       }
       if (player == 'choosing') {
-        final card = find.ancestor(
-          of: find.text('Peaches'),
-          matching: find.byType(Panel),
-        );
+        final card = find.byKey(const ValueKey('bird-card-1'));
         await tester.tap(
           find.descendant(of: card, matching: find.text('Fly with me')),
         );

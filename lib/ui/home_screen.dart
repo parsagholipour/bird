@@ -7,6 +7,7 @@ import '../data/progress_repository.dart';
 import '../domain/campaign_progress.dart';
 import '../domain/game_rules.dart';
 import '../domain/tracking.dart';
+import 'campaign_chrome.dart' show MapGlyph, MapKey;
 import 'campaign_screen.dart' show campaignStarsInBuild;
 import 'components.dart';
 import 'flight_goals.dart';
@@ -229,8 +230,9 @@ class _HomeTools extends StatelessWidget {
     child: Transform.scale(
       scale: 1.1,
       alignment: Alignment.topRight,
-      child: RoundButton(
-        icon: Icons.settings_rounded,
+      // The same round sticker key as every Back key in the menus.
+      child: MapKey(
+        glyph: MapGlyph.settings,
         label: 'Settings',
         onPressed: () => context.go('/settings'),
       ),
