@@ -150,7 +150,7 @@ void main() {
       await tester.tap(find.text('Push-Up Flight'));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
-      expect(find.textContaining('Every 9 stars'), findsOneWidget);
+      expect(find.textContaining('Stars restore your shield'), findsOneWidget);
       await capture(tester, 'star-trail-setup');
       final dynamic state = tester.state(find.byType(PlayScreen));
       final controller = state.controller as PlayController;
@@ -237,6 +237,8 @@ void main() {
       await tester.pump();
       expect(audio.stars, starSounds, reason: 'The final star sounds once');
       expect(audio.trios, 0, reason: 'No special final-star sound plays');
+      // A new save's level-0 magnet takes five perfect gates.
+      expect(sim.magnetGates, MagnetPower.gates(0));
       sim.magnetCharge = 2;
       controller.notify();
       await tester.pump();
@@ -244,7 +246,7 @@ void main() {
         tester
             .widget<MatchMeter>(find.byKey(const ValueKey('match-magnet')))
             .value,
-        closeTo(2 / 3, .001),
+        closeTo(2 / sim.magnetGates, .001),
       );
       expect(tester.takeException(), isNull);
       sim.magnetCharge = 0;

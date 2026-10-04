@@ -11,6 +11,7 @@ import 'gale.dart';
 import 'level_plan.dart';
 import 'obstacle.dart';
 import 'power_shot.dart';
+import 'power_ups.dart';
 import 'rush_path.dart';
 import 'sky_boss.dart';
 import 'sky_enemy.dart';
@@ -29,6 +30,7 @@ export 'gale.dart';
 export 'level_plan.dart';
 export 'obstacle.dart';
 export 'power_shot.dart';
+export 'power_ups.dart';
 export 'rush_path.dart';
 export 'sky_boss.dart';
 export 'sky_enemy.dart';
@@ -380,6 +382,7 @@ class FlightSimulation {
     this.rulesVersion = currentRulesVersion,
     this.skipCountdown = false,
     int weaponDamage = BirdRock.baseDamage,
+    PowerUps upgrades = PowerUps.legacy,
     FlightPlan plan = FlightPlan.endless,
     this.coop,
     math.Random? random,
@@ -395,6 +398,7 @@ class FlightSimulation {
            if (coop != null) FlightBird(homeX: birdX + Tether.spread),
          ],
        ],
+       _upgrades = upgrades,
        _nextBossAt = _planFor(coop, plan).firstBossAt,
        _nextRushAt = _planFor(coop, plan).firstRushAt {
     if (coop != null &&
@@ -424,6 +428,9 @@ class FlightSimulation {
         'rulesVersion',
         'Level ${plan.levelId} needs rules version ${plan.minRulesVersion}',
       );
+    }
+    if (!upgrades.valid) {
+      throw ArgumentError.value(upgrades, 'upgrades');
     }
     setWeaponDamage(weaponDamage);
   }
@@ -456,12 +463,23 @@ class FlightSimulation {
   /// back in pairs ([cooPairsRulesVersion]); 57 shortens the countdown and
   /// lets retries skip it ([quickStartRulesVersion]); 58 shortens the
   /// all-rings bonus ([shorterRingsBonusRulesVersion]); 59 lets shatter
-  /// blasts destroy nearby pellets ([shatterAmmoRulesVersion]). Endless
-  /// and co-op
+  /// blasts destroy nearby pellets ([shatterAmmoRulesVersion]); 60 flies
+  /// with the player's star-bought upgrades ([upgradesRulesVersion]).
+  /// Endless and co-op
   /// flights fly at 50 exactly as at 43 until that Baron arrives; duels
   /// exactly as at 43.
-  static const currentRulesVersion = 59;
+  static const currentRulesVersion = 60;
   final int rulesVersion;
+
+  /// Rules version 60: shot power, sprint, shield and magnet follow the
+  /// [upgrades] the flight was started with ([PowerUps]). Every flight
+  /// recorded earlier flies with [PowerUps.legacy], exactly as at 59.
+  static const upgradesRulesVersion = 60;
+  final PowerUps _upgrades;
+
+  /// The upgrade levels in force: the flight's own from rules version 60.
+  PowerUps get upgrades =>
+      rulesVersion >= upgradesRulesVersion ? _upgrades : PowerUps.legacy;
 
   /// Rules version 58: the all-rings bonus adds [Rush.allRingsBonus] (1.2)
   /// seconds to the last ring sprint instead of [Rush.firstAllRingsBonus]
@@ -987,26 +1005,37 @@ class FlightSimulation {
   double get shotCharge {
     if (!charging) return 0;
     final held = (elapsed - chargeStartedAt!) / PowerShot.fullChargeSeconds;
-    return math.min(held.clamp(0.0, 1.0), PowerShot.affordable(ammo));
+    return math.min(held.clamp(0.0, maxCharge), PowerShot.affordable(ammo));
   }
+
+  /// The most a held shot can charge: 1 at the top shot-power upgrade.
+  double get maxCharge => ShotPower.maxCharge(upgrades.shot);
+
+  /// Whether the held shot has reached [maxCharge] and its release window
+  /// is running.
+  bool get shotChargeFull => _fullChargeAt != null;
 
   /// When the held shot first reached charge 1, or null if it has not.
   double? get _fullChargeAt {
     final started = chargeStartedAt;
     final ammoThen = _chargeAmmo;
     if (!charging || started == null || ammoThen == null) return null;
-    final byTime = started + PowerShot.fullChargeSeconds;
-    final at = PowerShot.affordable(ammoThen) >= 1
+    final top = maxCharge;
+    final byTime = started + PowerShot.fullChargeSeconds * top;
+    final at = PowerShot.affordable(ammoThen) >= top
         ? byTime
         : math.max(
             byTime,
             math.max(started, lastShotAt + PowerShot.refillDelay) +
-                (PowerShot.fullCost - ammoThen) / PowerShot.refillPerSecond,
+                // The top level pays exactly the full cost it always did.
+                ((top >= 1 ? PowerShot.fullCost : PowerShot.cost(top)) -
+                        ammoThen) /
+                    PowerShot.refillPerSecond,
           );
     return elapsed + 1e-9 >= at ? at : null;
   }
 
-  /// 1 until the shot is fully charged, then the share of the 500 ms
+  /// 1 until the shot reaches [maxCharge], then the share of the 500 ms
   /// window still left. At 0 the shot releases itself.
   double get fullHoldLeft {
     final at = _fullChargeAt;
@@ -1019,7 +1048,7 @@ class FlightSimulation {
   bool get _fullHoldExpired {
     final at = _fullChargeAt;
     return at != null &&
-        shotCharge >= 1 - 1e-9 &&
+        shotCharge >= maxCharge - 1e-9 &&
         elapsed - at >= PowerShot.maxFullHoldSeconds - 1e-9;
   }
 
@@ -1069,16 +1098,20 @@ class FlightSimulation {
   double get sprintAge => elapsed - lastSprintAt;
   bool get sprinting => _sprintingOf(_view);
   bool _sprintingOf(FlightBird bird) =>
-      supportsSprint && elapsed - bird.lastSprintAt < Sprint.seconds;
+      supportsSprint && elapsed - bird.lastSprintAt < sprintSeconds;
+
+  /// A sprint's burst and cooldown at the flight's sprint upgrade.
+  double get sprintSeconds => SprintPower.seconds(upgrades.sprint);
+  double get sprintCooldown => SprintPower.cooldown(upgrades.sprint);
+  double _boostAt(double age) => Sprint.boost(age, length: sprintSeconds);
 
   /// 0 to 1 as [bird]'s burst surges and eases, like its scroll boost.
   double _surgeOf(FlightBird bird) => _sprintingOf(bird)
-      ? (Sprint.boost(elapsed - bird.lastSprintAt) - 1) / (Sprint.peakBoost - 1)
+      ? (_boostAt(elapsed - bird.lastSprintAt) - 1) / (Sprint.peakBoost - 1)
       : 0;
-  double get sprintRemaining => sprinting ? Sprint.seconds - sprintAge : 0;
-  double get sprintCooldownRemaining => supportsSprint
-      ? math.max(0, lastSprintAt + Sprint.cooldown - elapsed)
-      : 0;
+  double get sprintRemaining => sprinting ? sprintSeconds - sprintAge : 0;
+  double get sprintCooldownRemaining =>
+      supportsSprint ? math.max(0, lastSprintAt + sprintCooldown - elapsed) : 0;
   bool get canSprint =>
       supportsSprint &&
       _combatReady &&
@@ -1089,11 +1122,11 @@ class FlightSimulation {
   /// other along at its average boost: half the extra speed of a sprint by
   /// both.
   double get sprintBoost {
-    if (!paired) return sprinting ? Sprint.boost(sprintAge) : 1;
+    if (!paired) return sprinting ? _boostAt(sprintAge) : 1;
     var extra = 0.0;
     for (final bird in flock) {
       if (_sprintingOf(bird)) {
-        extra += Sprint.boost(elapsed - bird.lastSprintAt) - 1;
+        extra += _boostAt(elapsed - bird.lastSprintAt) - 1;
       }
     }
     return 1 + extra / flock.length;
@@ -1215,14 +1248,22 @@ class FlightSimulation {
   set invulnerableUntil(double value) => _keeper.invulnerableUntil = value;
   double get recoveryRemaining =>
       isTrail ? math.max(0, invulnerableUntil - elapsed) : 0;
+
+  /// How long the latest hit recovery lasts in all. Presentation only.
+  double get recoverySeconds => _keeper.recoverySeconds;
   int magnetCharge = 0, magnetActivations = 0;
   double magnetUntil = 0;
-  static const magnetDuration = 8.0;
+
+  /// The magnet at the flight's upgrade: perfect gates to earn it, how long
+  /// it pulls and its pickup reach.
+  int get magnetGates => MagnetPower.gates(upgrades.magnet);
+  double get magnetDuration => MagnetPower.seconds(upgrades.magnet);
+  double get magnetRadius => MagnetPower.radius(upgrades.magnet);
   bool get supportsMagnet => collectsStars && rulesVersion >= 3 && !duel;
   double get magnetRemaining =>
       supportsMagnet ? math.max(0, magnetUntil - elapsed) : 0;
   bool get magnetActive => magnetRemaining > 0;
-  double get pickupRadius => magnetActive ? .20 : .085;
+  double get pickupRadius => magnetActive ? magnetRadius : .085;
   static const trailDuration = 60.0;
   bool get isTrail => course == FlightCourse.starTrail;
   bool get endless => rulesVersion >= 12;
@@ -1233,7 +1274,10 @@ class FlightSimulation {
   int get multiplier => 1 + (combo ~/ 6).clamp(0, 2);
 
   /// Stars towards the next shield: the flight's, or a duel bird's own.
-  int get shieldCharge => (duel ? _view.stars : collectedStars) % 9;
+  int get shieldCharge => (duel ? _view.stars : collectedStars) % shieldStars;
+
+  /// Stars that restore the shield at the flight's shield upgrade.
+  int get shieldStars => ShieldPower.stars(upgrades.shield);
   double get remainingSeconds => math.max(0, course.duration - elapsed);
   String get clockLabel {
     if (timed) return '${remainingSeconds.ceil()}s';
@@ -1659,7 +1703,7 @@ class FlightSimulation {
               _event(FlightEventKind.perfect, perfectStreak);
               if (supportsMagnet && !magnetActive) {
                 magnetCharge++;
-                if (magnetCharge == 3) {
+                if (magnetCharge >= magnetGates) {
                   magnetCharge = 0;
                   magnetUntil = elapsed + magnetDuration;
                   magnetActivations++;
@@ -3705,7 +3749,7 @@ class FlightSimulation {
         }
         // A duel bird's own stars charge its own shield.
         if (isTrail &&
-            (duel ? taker.stars : collectedStars) % 9 == 0 &&
+            (duel ? taker.stars : collectedStars) % shieldStars == 0 &&
             !viewing(taker, () => shield)) {
           viewing(taker, () {
             shield = true;
@@ -3736,7 +3780,13 @@ class FlightSimulation {
     if (duel && (_view.downAt != null || _starPowered(_view))) return false;
     combo = 0;
     perfectStreak = 0;
-    invulnerableUntil = elapsed + 1.5;
+    // A broken shield covers the bird for as long as its upgrade allows; a
+    // lost heart always for the full 1.5 s.
+    final recovery = shield && isTrail
+        ? ShieldPower.cover(upgrades.shield)
+        : 1.5;
+    invulnerableUntil = elapsed + recovery;
+    _keeper.recoverySeconds = recovery;
     if (rushPath?.phase == RushPhase.running) rushPath!.hurt = true;
     if (gale?.phase == GalePhase.blowing) gale!.hurt = true;
     if (shield) {

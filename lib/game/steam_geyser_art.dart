@@ -213,7 +213,7 @@ abstract final class SteamGeyserArt {
     if (h <= 0) return;
     final bird = Offset(sim.birdScreenX * h, sim.birdY * h);
     final clock = reducedMotion ? 0.0 : sim.elapsed;
-    final since = 1.5 - sim.recoveryRemaining;
+    final since = sim.recoverySeconds - sim.recoveryRemaining;
     for (final vent in sim.steamVents) {
       final dx = (vent.x - sim.birdScreenX).abs();
       if (dx > .25) continue;

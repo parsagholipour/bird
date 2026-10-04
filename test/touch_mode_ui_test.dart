@@ -191,7 +191,10 @@ void main() {
         game.update(.02);
       }
       await tester.pump();
-      expect(game.simulation.shotCharge, greaterThan(.5));
+      // A new save's level-0 shot power holds the charge at its cap.
+      expect(game.simulation.maxCharge, ShotPower.maxCharge(0));
+      expect(game.simulation.shotCharge, closeTo(ShotPower.maxCharge(0), 1e-9));
+      expect(game.simulation.shotChargeFull, isTrue);
       expect(game.simulation.shots, 3);
       game.resumeEngine();
       await tester.pump();
@@ -200,7 +203,10 @@ void main() {
       await capture(tester, 'touch-charging-${width.toInt()}');
       await held.up();
       expect(game.simulation.shots, 4);
-      expect(game.simulation.rocks.last.charge, greaterThan(.5));
+      expect(
+        game.simulation.rocks.last.charge,
+        closeTo(ShotPower.maxCharge(0), 1e-9),
+      );
       expect(
         game.simulation.rocks.last.damage,
         greaterThan(game.simulation.weaponDamage),
@@ -239,7 +245,8 @@ void main() {
       await steer(60);
       expect(game.simulation.sprinting, isFalse);
       final secondsLeft = game.simulation.sprintCooldownRemaining.ceil();
-      expect(secondsLeft, 14);
+      // A new save's level-0 sprint recharges for 25 s, not 15.
+      expect(secondsLeft, 24);
       expect(
         find.descendant(of: sprint, matching: find.text('$secondsLeft')),
         findsOne,

@@ -122,6 +122,8 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
       bird: first,
       partner: second,
       coopMode: coopMode,
+      upgrades:
+          ref.read(progressProvider).asData?.value.upgrades ?? const PowerUps(),
       reducedMotion: settings.reducedMotion,
       // Each co-op mode keeps its own best, apart from the solo records.
       saveRun: (run) => progress.saveCoop(coopMode, run),
@@ -592,6 +594,7 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
         charge: sim.shotCharge,
         spend: sim.charging && !sim.outOfAmmo ? sim.shotCost : 0,
         hold: sim.fullHoldLeft,
+        limit: sim.maxCharge,
         charging: sim.charging,
         empty: sim.outOfAmmo,
         onPress: sim.phase == RunPhase.playing
@@ -604,8 +607,8 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
       final sprintButton = MatchSprintButton(
         key: ValueKey('coop-sprint-$player'),
         label: 'Player ${player + 1} sprint',
-        recharge: 1 - sim.sprintCooldownRemaining / Sprint.cooldown,
-        burst: sim.sprintRemaining / Sprint.seconds,
+        recharge: 1 - sim.sprintCooldownRemaining / sim.sprintCooldown,
+        burst: sim.sprintRemaining / sim.sprintSeconds,
         secondsLeft: sim.sprintCooldownRemaining.ceil(),
         onPressed: sim.canSprint ? () => flight.sprint(player: player) : null,
         reducedMotion: reducedMotion,
@@ -675,6 +678,7 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
                     hearts: sim.hearts,
                     shield: sim.shield,
                     charge: sim.shieldCharge,
+                    stars: sim.shieldStars,
                     recovering: sim.recoveryRemaining > 0,
                     reducedMotion: reducedMotion,
                   ),
@@ -687,18 +691,17 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
                       child: MatchMeter(
                         symbol: MatchSymbol.magnet,
                         value: sim.magnetActive
-                            ? sim.magnetRemaining /
-                                  FlightSimulation.magnetDuration
-                            : sim.magnetCharge / 3,
+                            ? sim.magnetRemaining / sim.magnetDuration
+                            : sim.magnetCharge / sim.magnetGates,
                         text: sim.magnetActive
                             ? '${sim.magnetRemaining.ceil()}s'
                             : null,
                         label: sim.magnetActive
                             ? 'Star magnet: ${sim.magnetRemaining.ceil()} seconds remaining'
-                            : 'Magnet charging: ${sim.magnetCharge} of 3 perfect gates',
+                            : 'Magnet charging: ${sim.magnetCharge} of ${sim.magnetGates} perfect gates',
                         color: SkyColors.purple,
                         active: sim.magnetActive,
-                        segments: sim.magnetActive ? 0 : 3,
+                        segments: sim.magnetActive ? 0 : sim.magnetGates,
                       ),
                     ),
                   ],
@@ -810,6 +813,7 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
               hearts: sim.hearts,
               shield: sim.shield,
               charge: sim.shieldCharge,
+              stars: sim.shieldStars,
               recovering: sim.recoveryRemaining > 0,
               reducedMotion: reducedMotion,
             ),

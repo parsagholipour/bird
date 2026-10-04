@@ -38,6 +38,9 @@ class FlightBird {
   bool shield = true;
   double invulnerableUntil = 0;
 
+  /// The latest hit recovery's whole length. Presentation only.
+  double recoverySeconds = 1.5;
+
   /// Stars this bird has collected. A duel bird's own stars charge its
   /// shield.
   int stars = 0;

@@ -212,6 +212,24 @@ From version 59, the blast also clears small-enemy pellets within its radius.
 Those pellets pop without starting another explosion; boss ammo is unaffected.
 Saved replays keep the behavior of their recorded version.
 
+**Upgrades (version 60):** spend the stars you collect on scored flights
+(endless and campaign) in **Upgrades** on the title screen. Each of the four
+upgrades has levels 0–4, costing 50, 120, 250 and 450 stars. A new save starts
+every upgrade at level 0.
+
+| Level | 0 | 1 | 2 | 3 | 4 |
+| --- | --- | --- | --- | --- | --- |
+| Shot power: most charge | 25% | 45% | 65% | 85% | 100% |
+| Sprint: burst / cooldown | 0.7 / 25 s | 0.8 / 22 s | 0.95 / 19 s | 1.05 / 17 s | 1.2 / 15 s |
+| Shield: stars to restore / cover after it breaks | 15 / 0.6 s | 13 / 0.8 s | 11 / 1.0 s | 10 / 1.25 s | 9 / 1.5 s |
+| Magnet: perfect gates / seconds / reach | 5 / 5 s / 0.16 | 4 / 6 s / 0.17 | 4 / 7 s / 0.185 | 3 / 8 s / 0.20 | 3 / 10 s / 0.22 |
+
+Shot power, sprint and shield top out at how they flew before upgrades; the
+magnet used to fly at level 3. A capped shot releases itself 500 ms after it
+reaches its cap. A lost heart still recovers for 1.5 s at every shield level.
+Replays record the levels they were flown with; earlier replays fly the old
+values.
+
 **Sprint (version 29):** tap **Sprint**, left of Shoot, to rush forward for
 1.2 seconds. The course surges to 2.5× speed and eases back before the burst
 ends. While sprinting, the bird smashes any bat it touches, whatever its

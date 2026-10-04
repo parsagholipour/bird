@@ -34,7 +34,7 @@ enum FlightCourse {
   String get instructions => switch (this) {
     classic => 'Find the gaps. Follow the aiming marks for a perfect pass.',
     starTrail =>
-      'Collect all 3 stars in a group for +5. Chain stars for up to 3×. Every 9 stars restores a shield; three perfect gates earn an 8-second magnet!',
+      'Collect all 3 stars in a group for +5. Chain stars for up to 3×. Stars restore your shield; perfect gates earn a star magnet. Upgrade both with stars!',
   };
   String get scoreLabel => switch (this) {
     classic => 'OBSTACLES',

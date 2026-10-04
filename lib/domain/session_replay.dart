@@ -17,6 +17,7 @@ class ReplayTape {
     this.recordedVersion = version,
     this.skipCountdown = false,
     this.weaponDamage = BirdRock.baseDamage,
+    this.upgrades = PowerUps.legacy,
     this.plan,
     this.partner,
     this.coop = CoopMode.roped,
@@ -30,6 +31,10 @@ class ReplayTape {
   final bool practice, reducedMotion;
   final int seed, bird;
   final int weaponDamage;
+
+  /// The upgrade levels flown with, from rules version 60. Older journals
+  /// fly with [PowerUps.legacy].
+  final PowerUps upgrades;
 
   /// The campaign level's whole plan as it was flown, from rules version
   /// 41, so a level retuned later still replays exactly. Null for endless.
@@ -56,6 +61,7 @@ class ReplayTape {
     rulesVersion: recordedVersion,
     skipCountdown: skipCountdown,
     weaponDamage: weaponDamage,
+    upgrades: upgrades,
     plan: plan ?? FlightPlan.endless,
     coop: partner == null ? null : coop,
     random: Random(seed),
@@ -74,6 +80,8 @@ class ReplayTape {
         skipCountdown)
       'skipCountdown': true,
     if (recordedVersion >= 26) 'weaponDamage': weaponDamage,
+    if (recordedVersion >= FlightSimulation.upgradesRulesVersion)
+      'upgrades': upgrades.toJson(),
     if (recordedVersion >= 41 && plan != null) ...{
       'level': plan!.id,
       'plan': plan!.toJson(),
@@ -104,6 +112,9 @@ class ReplayTape {
     if (weaponDamage is! int || weaponDamage <= 0) {
       throw const FormatException('Invalid weapon damage');
     }
+    final upgrades = recordedVersion >= FlightSimulation.upgradesRulesVersion
+        ? PowerUps.fromJson(json['upgrades'])
+        : PowerUps.legacy;
     // A campaign flight carries its level's plan from rules version 41.
     final planJson = recordedVersion >= 41 ? json['plan'] : null;
     final level = recordedVersion >= 41 ? json['level'] : null;
@@ -151,6 +162,7 @@ class ReplayTape {
       reducedMotion: json['reducedMotion'] as bool,
       originMs: (json['originMs'] as num).toDouble(),
       weaponDamage: weaponDamage,
+      upgrades: upgrades,
       plan: plan,
       partner: partner,
       coop: coop == null ? CoopMode.roped : CoopMode.values.byName(coop),

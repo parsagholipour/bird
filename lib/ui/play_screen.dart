@@ -137,6 +137,8 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       clock: ref.read(appClockProvider),
       audio: audio,
       bird: settings.bird,
+      upgrades:
+          ref.read(progressProvider).asData?.value.upgrades ?? const PowerUps(),
       reducedMotion: settings.reducedMotion,
       recordAudio: settings.recordAudio,
       rememberRecordAudio: (value) => ref
@@ -1378,6 +1380,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                 hearts: sim.hearts,
                 shield: sim.shield,
                 charge: sim.shieldCharge,
+                stars: sim.shieldStars,
                 recovering: sim.recoveryRemaining > 0,
                 reducedMotion: controller.reducedMotion,
               ),
@@ -1496,18 +1499,17 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                       key: const ValueKey('match-magnet'),
                       symbol: MatchSymbol.magnet,
                       value: sim.magnetActive
-                          ? sim.magnetRemaining /
-                                FlightSimulation.magnetDuration
-                          : sim.magnetCharge / 3,
+                          ? sim.magnetRemaining / sim.magnetDuration
+                          : sim.magnetCharge / sim.magnetGates,
                       text: sim.magnetActive
                           ? '${sim.magnetRemaining.ceil()}s'
                           : null,
                       label: sim.magnetActive
                           ? 'Star magnet: ${sim.magnetRemaining.ceil()} seconds remaining'
-                          : 'Magnet charging: ${sim.magnetCharge} of 3 perfect gates',
+                          : 'Magnet charging: ${sim.magnetCharge} of ${sim.magnetGates} perfect gates',
                       color: SkyColors.purple,
                       active: sim.magnetActive,
-                      segments: sim.magnetActive ? 0 : 3,
+                      segments: sim.magnetActive ? 0 : sim.magnetGates,
                     ),
                   ),
                 ),
@@ -1559,6 +1561,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
               charge: sim.shotCharge,
               spend: sim.charging && !sim.outOfAmmo ? sim.shotCost : 0,
               hold: sim.fullHoldLeft,
+              limit: sim.maxCharge,
               charging: sim.charging,
               empty: sim.outOfAmmo,
               onPress: sim.phase == RunPhase.playing
@@ -1576,8 +1579,8 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
             child: MatchSprintButton(
               key: const ValueKey('touch-sprint'),
               label: 'Sprint',
-              recharge: 1 - sim.sprintCooldownRemaining / Sprint.cooldown,
-              burst: sim.sprintRemaining / Sprint.seconds,
+              recharge: 1 - sim.sprintCooldownRemaining / sim.sprintCooldown,
+              burst: sim.sprintRemaining / sim.sprintSeconds,
               secondsLeft: sim.sprintCooldownRemaining.ceil(),
               onPressed: sim.canSprint ? controller.sprint : null,
               reducedMotion: controller.reducedMotion,

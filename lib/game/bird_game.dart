@@ -660,7 +660,12 @@ class BirdGame extends FlameGame {
       canvas.drawArc(
         recovery,
         -math.pi / 2,
-        math.pi * 2 * (simulation.recoveryRemaining / 1.5).clamp(0, 1),
+        math.pi *
+            2 *
+            (simulation.recoveryRemaining / simulation.recoverySeconds).clamp(
+              0,
+              1,
+            ),
         false,
         Paint()
           ..color = SkyColors.cream
