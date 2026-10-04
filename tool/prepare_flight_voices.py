@@ -246,7 +246,11 @@ def moments(speaker):
     if speaker in BIRDS:
         return BIRD_MOMENTS
     extra = {'tide': 3} if speaker == 'captain' else {}
-    return {**BOSS_MOMENTS, **extra}
+    counts = {**BOSS_MOMENTS, **extra}
+    if speaker == 'neferhoo':
+        # Two lines per moment. Farewells and cargo stay at one, like the others.
+        return {moment: 2 for moment in counts}
+    return counts
 
 
 def limit(moment):

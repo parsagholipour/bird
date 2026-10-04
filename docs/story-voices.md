@@ -349,23 +349,20 @@ keeper on 4-1). Every Gargoyle clip already carries its fallback. Words worth
 a listen in the take: "darling", "Stoneface", "weather vane" (not "vain" or
 "vein") and "Gargoyle".
 
-### The Alley Pigeon and the fight barks
+### The Alley Pigeon and the fight bark
 
 The **Alley Pigeon does not speak**: pigeons coo and flap, which is sound-effect
 work (`tool/prepare_sound_effects.py`), and King Coo should stay the only bird
 in the stop with lines. The squadron's and the flocks' voices are therefore not
 in this file.
 
-Six **fight barks** were proposed and are kept, unrecorded, under
-`optional_clips` in the sources file: `coo-pop` ("Ooof! My lunch!"), `coo-fury`
-("That’s it! Squad, FORM UP!"), `gargoyle-spotted-1` to `-3` ("Spotted!", "There
-you are!", "Gotcha, darling!") and `gargoyle-fury` ("Brighter! Brighter!"). Nothing in the game plays
-them, so they are not in `clips` and the script ignores them. The game's
-in-flight voice system, where the characters speak during a flight
-(`docs/flight-voices.md` once it is landed), is the place to play them from: a
-bark there is a moment with a pool of lines, silent with Character voices off.
-Move a bark into `clips` only when the hook exists, and then it needs a `wanted`
-name in `CampaignVoices` (the test fails for a clip the game never asks for).
+One **fight bark** is kept, unrecorded, under `optional_clips` in the sources
+file: `coo-pop` ("Ooof! My lunch!"). Nothing in the game plays it, so it is not
+in `clips` and the script ignores it. The in-flight voice system
+(`docs/flight-voices.md`) is the place to play it from: a bark there is a
+moment with a pool of lines, silent with Character voices off. Move it into
+`clips` only when the hook exists, and then it needs a `wanted` name in
+`CampaignVoices` (the test fails for a clip the game never asks for).
 
 ### The 47 clips and their prompts
 
@@ -410,7 +407,7 @@ All 31 clips are in `docs/story-voices-sources.json`, pending recording:
 | The pyramid caretaker's thank-you (`thanks-2-6`) | Jessie – Vintage Narrator (`KgUSWQPFmuiZ5ycRbnty`) | 1 |
 
 Every tag in these prompts is proven by a recorded take, so none needs a
-transcription check first. He also has 34 in-flight lines and his birds 16
+transcription check first. He also has 16 in-flight lines and his birds 16
 (`docs/flight-voices-sources.json`, pending; [flight-voices.md](flight-voices.md)).
 
 ### Neferhoo
@@ -431,7 +428,7 @@ the design's first choice), AK – British Posh Well-Spoken Old Man
 (`y0SYydk17lMbUIUvSf3N`), Grampa Werthers – Old & Cranky (`MKlLqCItoCkvdhrxgtLv`,
 the fallback; he is also the 3-4 tower keeper), Daniel – The Gruff Old British
 Wizard (`htZQqY7WtacRNV7s62Iy`) and Cornelius – Wise Sage (`6sFKzaJr574YWVu4UuJF`).
-Where the takes are and how to put the winner on his 8 story clips and 34 flight
+Where the takes are and how to put the winner on his 8 story clips and 16 flight
 lines: [story-voices-recording.md](story-voices-recording.md), section 2,
 "Neferhoo".
 

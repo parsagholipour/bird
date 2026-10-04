@@ -3105,7 +3105,9 @@
    "text": "Letters incoming! Bonk them back, bonk them back!",
    "prompt": "[excited] Letters incoming! Bonk them back, bonk them back!",
    "voice_id": "XjGYkUkzth8BPs29fmcV",
-   "voice": "Teddy Twinkle - Cute Cartoon Boy"
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "RnWTJEpcOuJYit2b8cc0",
+   "source_sha256": "081bbabb02335b3cb29b1cb5974a20f5ca9d94555415ee20150bef86b0cb43d8"
   },
   {
    "name": "minty-boss-neferhoo-02",
@@ -3114,7 +3116,9 @@
    "text": "A mummy? He's even slower than the sloth!",
    "prompt": "[laughs] A mummy? He's even slower than the sloth!",
    "voice_id": "XjGYkUkzth8BPs29fmcV",
-   "voice": "Teddy Twinkle - Cute Cartoon Boy"
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "k8zwEuakJ6Mh0p0Y8tKH",
+   "source_sha256": "43069b372001ba8dc8451ca3ed9284599c02ddb9819242d2a63357553d4cb071"
   },
   {
    "name": "minty-boss-again-01",
@@ -3420,7 +3424,9 @@
    "text": "Every letter lands! Woo-hoo!",
    "prompt": "[excited] Every letter lands! Woo-hoo!",
    "voice_id": "XjGYkUkzth8BPs29fmcV",
-   "voice": "Teddy Twinkle - Cute Cartoon Boy"
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "RSrcSj7Tx6nL9g5o1zi7",
+   "source_sha256": "036cbe3b0b8c5ebc710fd2b190b9d3e396c8dac316a3b927e2cc019a826d902e"
   },
   {
    "name": "minty-retort-01",
@@ -4056,7 +4062,9 @@
    "text": "Duster delivery! Zip in, swish swish, zip out!",
    "prompt": "[excited] Duster delivery! Zip in, swish swish, zip out!",
    "voice_id": "XjGYkUkzth8BPs29fmcV",
-   "voice": "Teddy Twinkle - Cute Cartoon Boy"
+   "voice": "Teddy Twinkle - Cute Cartoon Boy",
+   "generation_id": "kkYWlKc2el9rSZKZa0mU",
+   "source_sha256": "17ffa1a85ddd23e29511405410751ef3049a3e65eed0b23263d070e14b6b6e03"
   },
   {
    "name": "minty-cargo-2-7-01",
@@ -4528,15 +4536,6 @@
    "voice": "Neferhoo (audition)"
   },
   {
-   "name": "neferhoo-arrive-03",
-   "speaker": "neferhoo",
-   "moment": "arrive",
-   "text": "Four thousand years of quiet, and now YOU.",
-   "prompt": "[sighs] Four thousand years of quiet, [grumpy] and now YOU.",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
-  },
-  {
    "name": "neferhoo-taunt-01",
    "speaker": "neferhoo",
    "moment": "taunt",
@@ -4551,60 +4550,6 @@
    "moment": "taunt",
    "text": "My satchel is full of letters nobody wanted. Take one!",
    "prompt": "[mischievously] My satchel is full of letters nobody wanted. Take one!",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
-  },
-  {
-   "name": "neferhoo-taunt-03",
-   "speaker": "neferhoo",
-   "moment": "taunt",
-   "text": "No stamp? No address? No entry!",
-   "prompt": "[firmly] No stamp? No address? No entry!",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
-  },
-  {
-   "name": "neferhoo-taunt-04",
-   "speaker": "neferhoo",
-   "moment": "taunt",
-   "text": "Is that a feather duster? Are you calling me dusty?",
-   "prompt": "[disgusted] Is that a feather duster? [angry] Are you calling me dusty?",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
-  },
-  {
-   "name": "neferhoo-taunt-05",
-   "speaker": "neferhoo",
-   "moment": "taunt",
-   "text": "Every letter lands, fledgling. Mine land on you.",
-   "prompt": "[haughtily] Every letter lands, fledgling. [chuckles] Mine land on you.",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
-  },
-  {
-   "name": "neferhoo-taunt-06",
-   "speaker": "neferhoo",
-   "moment": "taunt",
-   "text": "In my day, couriers flew uphill. Both ways. Through sand.",
-   "prompt": "[grumbling] In my day, couriers flew uphill. Both ways. Through sand.",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
-  },
-  {
-   "name": "neferhoo-taunt-07",
-   "speaker": "neferhoo",
-   "moment": "taunt",
-   "text": "Hold still while I sort you.",
-   "prompt": "[mischievously] Hold still while I sort you.",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
-  },
-  {
-   "name": "neferhoo-taunt-08",
-   "speaker": "neferhoo",
-   "moment": "taunt",
-   "text": "Postage due, postage due, postage DUE!",
-   "prompt": "[excited] Postage due, postage due, postage DUE!",
    "voice_id": null,
    "voice": "Neferhoo (audition)"
   },
@@ -4627,24 +4572,6 @@
    "voice": "Neferhoo (audition)"
   },
   {
-   "name": "neferhoo-attack-03",
-   "speaker": "neferhoo",
-   "moment": "attack",
-   "text": "First class, coming through!",
-   "prompt": "[proudly] First class, coming through!",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
-  },
-  {
-   "name": "neferhoo-attack-04",
-   "speaker": "neferhoo",
-   "moment": "attack",
-   "text": "Sign here, please!",
-   "prompt": "[mischievously] Sign here, please!",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
-  },
-  {
    "name": "neferhoo-summon-01",
    "speaker": "neferhoo",
    "moment": "summon",
@@ -4659,15 +4586,6 @@
    "moment": "summon",
    "text": "Round and round it goes!",
    "prompt": "[excited] Round and round it goes!",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
-  },
-  {
-   "name": "neferhoo-summon-03",
-   "speaker": "neferhoo",
-   "moment": "summon",
-   "text": "My ankh knows the way home.",
-   "prompt": "[mysteriously] My ankh knows the way home.",
    "voice_id": null,
    "voice": "Neferhoo (audition)"
   },
@@ -4690,33 +4608,6 @@
    "voice": "Neferhoo (audition)"
   },
   {
-   "name": "neferhoo-hurt-03",
-   "speaker": "neferhoo",
-   "moment": "hurt",
-   "text": "Ow! That one was first class!",
-   "prompt": "[shouting] Ow! [grumbling] That one was first class!",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
-  },
-  {
-   "name": "neferhoo-hurt-04",
-   "speaker": "neferhoo",
-   "moment": "hurt",
-   "text": "Undeliverable! Undeliverable!",
-   "prompt": "[angry] Undeliverable! Undeliverable!",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
-  },
-  {
-   "name": "neferhoo-hurt-05",
-   "speaker": "neferhoo",
-   "moment": "hurt",
-   "text": "Ack! Insufficient postage!",
-   "prompt": "[gasps] Ack! [grumpy] Insufficient postage!",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
-  },
-  {
    "name": "neferhoo-gloat-01",
    "speaker": "neferhoo",
    "moment": "gloat",
@@ -4731,33 +4622,6 @@
    "moment": "gloat",
    "text": "Delivered! No signature needed.",
    "prompt": "[proudly] Delivered! No signature needed.",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
-  },
-  {
-   "name": "neferhoo-gloat-03",
-   "speaker": "neferhoo",
-   "moment": "gloat",
-   "text": "That is what I call express post.",
-   "prompt": "[chuckles] That is what I call express post.",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
-  },
-  {
-   "name": "neferhoo-gloat-04",
-   "speaker": "neferhoo",
-   "moment": "gloat",
-   "text": "Right on the address!",
-   "prompt": "[excited] Right on the address!",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
-  },
-  {
-   "name": "neferhoo-gloat-05",
-   "speaker": "neferhoo",
-   "moment": "gloat",
-   "text": "Your parcel has been... flattened.",
-   "prompt": "[dryly] Your parcel has been... flattened.",
    "voice_id": null,
    "voice": "Neferhoo (audition)"
   },
@@ -4780,15 +4644,6 @@
    "voice": "Neferhoo (audition)"
   },
   {
-   "name": "neferhoo-mad-03",
-   "speaker": "neferhoo",
-   "moment": "mad",
-   "text": "Now it is personal mail!",
-   "prompt": "[firmly] Now it is personal mail!",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
-  },
-  {
    "name": "neferhoo-defeated-01",
    "speaker": "neferhoo",
    "moment": "defeated",
@@ -4803,15 +4658,6 @@
    "moment": "defeated",
    "text": "Return... to... sender...",
    "prompt": "[sighs] Return... to... sender...",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
-  },
-  {
-   "name": "neferhoo-defeated-03",
-   "speaker": "neferhoo",
-   "moment": "defeated",
-   "text": "Outflown by a rookie. Four thousand years, and outflown.",
-   "prompt": "[disappointed] Outflown by a rookie. [sighs] Four thousand years, and outflown.",
    "voice_id": null,
    "voice": "Neferhoo (audition)"
   },
@@ -6384,7 +6230,9 @@
    "text": "Wrapped up like a sleepy bedtime story.",
    "prompt": "[softly] Wrapped up like a sleepy bedtime story.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "NrEPhSg4FF0lZM3ujf7n",
+   "source_sha256": "217693402af1cd187851844fb2c6079918a1ace27bd2bde081c329a560fad5bb"
   },
   {
    "name": "orbit-boss-neferhoo-02",
@@ -6393,7 +6241,9 @@
    "text": "Shh... his letters only want to go home.",
    "prompt": "[whispers] Shh... his letters only want to go home.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "3BV1uC5VtSgNTYi828L2",
+   "source_sha256": "27a06668154b1bdad77fc2f3044e2948344063e4ad43e8e04628f561e6b1ab61"
   },
   {
    "name": "orbit-boss-again-01",
@@ -6699,7 +6549,9 @@
    "text": "Sleep well, old courier. Your letter landed.",
    "prompt": "[gently] Sleep well, old courier. Your letter landed.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "SQ5YtwY96EuZBA8CiDHN",
+   "source_sha256": "4dc89e994dc2364c0611e0d3f31f970ae5494e92d5e1fdda5052328c261d064b"
   },
   {
    "name": "orbit-retort-01",
@@ -7335,7 +7187,9 @@
    "text": "A feather duster... for very old, very sleepy dust.",
    "prompt": "[softly] A feather duster... for very old, very sleepy dust.",
    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "voice": "Lola - Soft, Innocent and Calming"
+   "voice": "Lola - Soft, Innocent and Calming",
+   "generation_id": "PWyqNytKpmg8oLMr6H33",
+   "source_sha256": "f4421d2eb1a68ecd646d1514b7bcdf556cebef87d75829b62c0ab8702a341be1"
   },
   {
    "name": "orbit-cargo-2-7-01",
@@ -9357,7 +9211,9 @@
    "text": "Ooh, a pharaoh bird! His letters smell like old books.",
    "prompt": "[excited] Ooh, a pharaoh bird! [curious] His letters smell like old books.",
    "voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "voice": "Cherry Twinkle – Adorable Cartoon Girl"
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "1jDUWvGR5ulM43jFugDf",
+   "source_sha256": "f8634e224375dd9d5535d5cbb9f276c4bd9845f1d3de69f4dda0e0ba7f88fd22"
   },
   {
    "name": "peaches-boss-neferhoo-02",
@@ -9366,7 +9222,9 @@
    "text": "Return to sender, mister! With love!",
    "prompt": "[mischievously] Return to sender, mister! [giggles] With love!",
    "voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "voice": "Cherry Twinkle – Adorable Cartoon Girl"
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "xWxshGDq5tac7FVXdAZx",
+   "source_sha256": "f63b3705df7795faafc5b5966c3719197b9c738b04dd1a876a1d6bb8e39fcfd6"
   },
   {
    "name": "peaches-boss-again-01",
@@ -9672,7 +9530,9 @@
    "text": "Go deliver your letter, Mister Neferhoo!",
    "prompt": "[warmly] Go deliver your letter, Mister Neferhoo!",
    "voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "voice": "Cherry Twinkle – Adorable Cartoon Girl"
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "cm14QCJgB2f2etlZvxjI",
+   "source_sha256": "0eaf05bbf68d77af5f51633353fe9e9cb69c7d6496dc3d5427aae94c0377dcf9"
   },
   {
    "name": "peaches-retort-01",
@@ -10308,7 +10168,9 @@
    "text": "A feather duster for the pyramid! Dust bunnies, beware!",
    "prompt": "[cheerfully] A feather duster for the pyramid! [excited] Dust bunnies, beware!",
    "voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "voice": "Cherry Twinkle – Adorable Cartoon Girl"
+   "voice": "Cherry Twinkle – Adorable Cartoon Girl",
+   "generation_id": "vN0yleJBIZO4eSAbSI6G",
+   "source_sha256": "aa92043308379681b5218a3b586412cba82e9021901ca72ff59320e040f07ece"
   },
   {
    "name": "peaches-cargo-2-7-01",
@@ -12330,7 +12192,9 @@
    "text": "A mummy with a mailbag! Shoot the letters back, Pip!",
    "prompt": "[excited] A mummy with a mailbag! [determined] Shoot the letters back, Pip!",
    "voice_id": "EaX6rnyDKjJx35tchi80",
-   "voice": "Nelson – Awkward Nerd Character"
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "h1pdjvlpb5lGYDmCu8i1",
+   "source_sha256": "847072362849f439c66339dc0b47cf49e3ca8fb766c007aa1834208308ae0ce1"
   },
   {
    "name": "pip-boss-neferhoo-02",
@@ -12339,7 +12203,9 @@
    "text": "Royal Courier? I'm just Courier. Courier Pip.",
    "prompt": "[nervous] Royal Courier? [thoughtfully] I'm just Courier. Courier Pip.",
    "voice_id": "EaX6rnyDKjJx35tchi80",
-   "voice": "Nelson – Awkward Nerd Character"
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "7clv9wUQCRBUOrJ2ex2C",
+   "source_sha256": "b6b3364dac9305054ea8e8896d9a2b9c6a8dbf204444c94724b4c2fd846f6588"
   },
   {
    "name": "pip-boss-again-01",
@@ -12645,7 +12511,9 @@
    "text": "Delivered! Even four thousand years late.",
    "prompt": "[cheerfully] Delivered! Even four thousand years late.",
    "voice_id": "EaX6rnyDKjJx35tchi80",
-   "voice": "Nelson – Awkward Nerd Character"
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "EQLXHoQOOgvL3nFKgr9f",
+   "source_sha256": "e335791be9fb07e3dacc9c6bd1ac7224887f1398fe5aaaba15be76ed2331b2bb"
   },
   {
    "name": "pip-retort-01",
@@ -13281,7 +13149,9 @@
    "text": "A feather duster. I'm choosing not to ask whose feathers.",
    "prompt": "[nervous] A feather duster. [thoughtfully] I'm choosing not to ask whose feathers.",
    "voice_id": "EaX6rnyDKjJx35tchi80",
-   "voice": "Nelson – Awkward Nerd Character"
+   "voice": "Nelson – Awkward Nerd Character",
+   "generation_id": "msXn3N1gFd2ZzVXVgV69",
+   "source_sha256": "59b1dda77f8b45e9197c78625ba1559ad466911ebef0cacb0243582099a46f82"
   },
   {
    "name": "pip-cargo-2-7-01",

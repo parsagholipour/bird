@@ -4,8 +4,69 @@
  "flow": "https://elevenlabs.io/app/flows/aO9NKhIYwMqvPrxxU2tH",
  "date": "2026-09-30",
  "export_format": "mp3_44100_128",
- "voice_settings": null,
- "voice_settings_note": "Every recorded take is Eleven v4, one generation, English, exported as MP3 mono 44.1 kHz 128 kbps (mp3_44100_128; all 308 takes were checked with ffprobe). The voice settings (stability preset, similarity, style, speed, speaker boost) were not written down: assume each voice's defaults on 2026-09-30. To close the gap, open one history item (for example before-1-1-1, generation id UysfLzHl68MIorRDjpAY), copy its settings into \"voice_settings\" here, and use the same for every new take. Never change a setting for one clip only. See docs/story-voices-recording.md.",
+ "voice_settings": {
+  "recorded_on": "2026-10-05",
+  "flow": "https://elevenlabs.io/app/flows/SFstNdujZX3UGULFUaJD",
+  "model_parameters_by_voice": {
+   "EaX6rnyDKjJx35tchi80": {
+    "voice": "EaX6rnyDKjJx35tchi80",
+    "voice_id": "EaX6rnyDKjJx35tchi80",
+    "language_code": "en",
+    "output_format": "mp3_44100_128",
+    "pronunciation_dictionary_locators": []
+   },
+   "HAvvFKatz0uu0Fv55Riy": {
+    "voice": "HAvvFKatz0uu0Fv55Riy",
+    "voice_id": "HAvvFKatz0uu0Fv55Riy",
+    "language_code": "en",
+    "output_format": "mp3_44100_128",
+    "pronunciation_dictionary_locators": []
+   },
+   "KgUSWQPFmuiZ5ycRbnty": {
+    "voice": "KgUSWQPFmuiZ5ycRbnty",
+    "voice_id": "KgUSWQPFmuiZ5ycRbnty",
+    "language_code": "en",
+    "output_format": "mp3_44100_128",
+    "pronunciation_dictionary_locators": []
+   },
+   "Qz7YNvloEr5RXwYE3NCH": {
+    "voice": "Qz7YNvloEr5RXwYE3NCH",
+    "voice_id": "Qz7YNvloEr5RXwYE3NCH",
+    "language_code": "en",
+    "output_format": "mp3_44100_128",
+    "pronunciation_dictionary_locators": []
+   },
+   "XJ2fW4ybq7HouelYYGcL": {
+    "voice": "XJ2fW4ybq7HouelYYGcL",
+    "voice_id": "XJ2fW4ybq7HouelYYGcL",
+    "language_code": "en",
+    "output_format": "mp3_44100_128",
+    "pronunciation_dictionary_locators": []
+   },
+   "XjGYkUkzth8BPs29fmcV": {
+    "voice": "XjGYkUkzth8BPs29fmcV",
+    "voice_id": "XjGYkUkzth8BPs29fmcV",
+    "language_code": "en",
+    "output_format": "mp3_44100_128",
+    "pronunciation_dictionary_locators": []
+   },
+   "f9imtLc2jfOLXtqe3Ihb": {
+    "voice": "f9imtLc2jfOLXtqe3Ihb",
+    "voice_id": "f9imtLc2jfOLXtqe3Ihb",
+    "language_code": "en",
+    "output_format": "mp3_44100_128",
+    "pronunciation_dictionary_locators": []
+   },
+   "fGIZlgPQ75MMlvQ6WxgY": {
+    "voice": "fGIZlgPQ75MMlvQ6WxgY",
+    "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+    "language_code": "en",
+    "output_format": "mp3_44100_128",
+    "pronunciation_dictionary_locators": []
+   }
+  }
+ },
+ "voice_settings_note": "The 2026-10-05 cast batch used the saved model parameters above consistently for every take of each voice, including the single pronunciation retake. Stability, similarity, style, speed and speaker boost were not overridden; ElevenLabs did not expose numeric defaults through the Flow schema. The original before-1-1-1 node (khb9FTqNbNkkYZQHaIAQ, generation UysfLzHl68MIorRDjpAY) likewise stores the voice, mp3_44100_128 and no pronunciation dictionaries, without numeric voice settings. All new source MP3s were checked with ffprobe: mono, 44.1 kHz, 128 kbps.",
  "status_note": "A clip with \"status\": \"pending recording\" is written, printed and in the game, but not recorded yet: voice_id, generation_id and source_sha256 stay null until its take exists, and the game shows its text without a voice. \"voice\" is the voice planned for it, \"planned_voice_id\" that voice's id when it is already in the cast, \"fallback_voice\" the cast voice to use if the audition does not pan out. When the take is recorded: fill the null fields and delete status, planned_voice_id, fallback_voice_id, fallback_voice and plays. See docs/story-voices.md, \"Adding a new character or voice\".",
  "clips": [
   {
@@ -723,13 +784,10 @@
    "name": "before-2-6-0",
    "text": "One feather duster for the pyramid caretaker. She says the dust talks back.",
    "prompt": "[cheerfully] One feather duster for the pyramid caretaker. [whispers] She says the dust talks back.",
-   "voice_id": null,
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
    "voice": "GERALD - Exciting Older Voice (NEW)",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "fGIZlgPQ75MMlvQ6WxgY",
-   "plays": "Scene before-2-6, line 0. Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it."
+   "generation_id": "ecK3fS6cBfg0m7l2JOGu",
+   "source_sha256": "083f59db75fe9128ae0962183c28c64ce4bd1901b0d4923a8181c520875ef76f"
   },
   {
    "name": "before-2-6-1",
@@ -749,49 +807,37 @@
    "name": "before-2-6-2-pip",
    "text": "A mummy? With a mailbag?",
    "prompt": "[surprised] A mummy? [curious] With a mailbag?",
-   "voice_id": null,
+   "voice_id": "EaX6rnyDKjJx35tchi80",
    "voice": "Nelson – Awkward Nerd Character",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "EaX6rnyDKjJx35tchi80",
-   "plays": "Scene before-2-6, line 2 (Pip). Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it."
+   "generation_id": "hr782H4g8vjDd31YuUdr",
+   "source_sha256": "3d7e8cb87f64d41a6f33e524237f93e0ca7b77d10971c980fadc8548aa54edc3"
   },
   {
    "name": "before-2-6-2-peaches",
    "text": "A mummy? With a mailbag?",
    "prompt": "[surprised] A mummy? [curious] With a mailbag?",
-   "voice_id": null,
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
    "voice": "Cherry Twinkle – Adorable Cartoon Girl",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "plays": "Scene before-2-6, line 2 (Peaches). Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it."
+   "generation_id": "gVaJdmAe5NI7nd6md2jh",
+   "source_sha256": "20081533c8721ae565b749f414bddcba53f32816656a92eaa4da7b030fb92376"
   },
   {
    "name": "before-2-6-2-minty",
    "text": "A mummy? With a mailbag?",
    "prompt": "[surprised] A mummy? [curious] With a mailbag?",
-   "voice_id": null,
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
    "voice": "Teddy Twinkle - Cute Cartoon Boy",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "XjGYkUkzth8BPs29fmcV",
-   "plays": "Scene before-2-6, line 2 (Minty). Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it."
+   "generation_id": "RLdkGm9QM9h9nPgHfPig",
+   "source_sha256": "5e8be97033052e9ee319b23d1c5f80065fe8670a83930fcdbb9c70c9c2470420"
   },
   {
    "name": "before-2-6-2-orbit",
    "text": "A mummy? With a mailbag?",
    "prompt": "[surprised] A mummy? [curious] With a mailbag?",
-   "voice_id": null,
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
    "voice": "Lola - Soft, Innocent and Calming",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "plays": "Scene before-2-6, line 2 (Orbit). Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it."
+   "generation_id": "ZBOP2h9zRMa4RjCAc1gv",
+   "source_sha256": "d4dac9e2a76bdf4b115c8226dc7034a956f9faf5cd85691ef0b1f0dd65bc6d12"
   },
   {
    "name": "before-2-6-3",
@@ -825,61 +871,46 @@
    "name": "before-2-6-5-pip",
    "text": "Bill… is that the letter we lost?",
    "prompt": "[whispers] Bill… [curious] is that the letter we lost?",
-   "voice_id": null,
+   "voice_id": "EaX6rnyDKjJx35tchi80",
    "voice": "Nelson – Awkward Nerd Character",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "EaX6rnyDKjJx35tchi80",
-   "plays": "Scene before-2-6, line 5 (Pip). Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it."
+   "generation_id": "9Rk2oJ2032Rp0TF7logY",
+   "source_sha256": "815ebeee58c3e91c129488ee58e50851d63390af7fba228c8c8e93277743fcff"
   },
   {
    "name": "before-2-6-5-peaches",
    "text": "Bill… is that the letter we lost?",
    "prompt": "[whispers] Bill… [curious] is that the letter we lost?",
-   "voice_id": null,
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
    "voice": "Cherry Twinkle – Adorable Cartoon Girl",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "plays": "Scene before-2-6, line 5 (Peaches). Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it."
+   "generation_id": "d1yQ4tRNalLvyz5IH6mT",
+   "source_sha256": "edf39ac0d61738f5cac194266de3ec8f7f26e26ac7c55639b4e3d2ce80293356"
   },
   {
    "name": "before-2-6-5-minty",
    "text": "Bill… is that the letter we lost?",
    "prompt": "[whispers] Bill… [curious] is that the letter we lost?",
-   "voice_id": null,
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
    "voice": "Teddy Twinkle - Cute Cartoon Boy",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "XjGYkUkzth8BPs29fmcV",
-   "plays": "Scene before-2-6, line 5 (Minty). Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it."
+   "generation_id": "hBL4ltYNpavaQdgRnJLa",
+   "source_sha256": "96c4966c681bde0d95eeefa396d677882fe6912d54d94ceb58c1f3f832f068af"
   },
   {
    "name": "before-2-6-5-orbit",
    "text": "Bill… is that the letter we lost?",
    "prompt": "[whispers] Bill… [curious] is that the letter we lost?",
-   "voice_id": null,
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
    "voice": "Lola - Soft, Innocent and Calming",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "plays": "Scene before-2-6, line 5 (Orbit). Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it."
+   "generation_id": "mXMtUowyVu4flvja86NI",
+   "source_sha256": "47ff5711fdfac9d2131b1ad6fe931c7c579c77ec43df388798b799c8f918a219"
   },
   {
    "name": "before-2-6-6",
    "text": "No flame seal on this guardian. Just a very old, very stubborn postman.",
    "prompt": "[chuckles] No flame seal on this guardian. [dryly] Just a very old, very stubborn postman.",
-   "voice_id": null,
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
    "voice": "GERALD - Exciting Older Voice (NEW)",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "fGIZlgPQ75MMlvQ6WxgY",
-   "plays": "Scene before-2-6, line 6. Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it."
+   "generation_id": "KTfcub2KGajI5V1Bg1JQ",
+   "source_sha256": "24e9bbca7532f2971bbbdde92cd18a8866e4cf45ec88ea97347a0dce1fb6153a"
   },
   {
    "name": "before-2-6-7",
@@ -899,13 +930,10 @@
    "name": "before-2-6-8",
    "text": "Shoot his letters back, rookie. And mind the ankh: it comes back!",
    "prompt": "[urgently] Shoot his letters back, rookie. [firmly] And mind the ankh: it comes back!",
-   "voice_id": null,
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
    "voice": "GERALD - Exciting Older Voice (NEW)",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "fGIZlgPQ75MMlvQ6WxgY",
-   "plays": "Scene before-2-6, line 8. Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it."
+   "generation_id": "W7PvSkACFPdu5jaDYrLL",
+   "source_sha256": "91839d274100e0cd90563c42b6dcee59e971d013ef1422f049f2da2426a5759d"
   },
   {
    "name": "last-2-6-0",
@@ -925,49 +953,37 @@
    "name": "last-2-6-1-pip",
    "text": "Sir, who is your last letter for?",
    "prompt": "[gently] Sir, who is your last letter for?",
-   "voice_id": null,
+   "voice_id": "EaX6rnyDKjJx35tchi80",
    "voice": "Nelson – Awkward Nerd Character",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "EaX6rnyDKjJx35tchi80",
-   "plays": "Scene last-2-6, line 1 (Pip). Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it."
+   "generation_id": "20l32BSFzBLteMMkIBVg",
+   "source_sha256": "7d801bb3f299121a70f9c911d57e724e7379b2f2660562da604a46fd46f585d4"
   },
   {
    "name": "last-2-6-1-peaches",
    "text": "Sir, who is your last letter for?",
    "prompt": "[gently] Sir, who is your last letter for?",
-   "voice_id": null,
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
    "voice": "Cherry Twinkle – Adorable Cartoon Girl",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "plays": "Scene last-2-6, line 1 (Peaches). Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it."
+   "generation_id": "5VuUpNIlQw1aQ1NLFF10",
+   "source_sha256": "9f84d6a25f8798f8e4aa0ac9c29af3903bf278080e98b3c0b75e8dacbad75b34"
   },
   {
    "name": "last-2-6-1-minty",
    "text": "Sir, who is your last letter for?",
    "prompt": "[gently] Sir, who is your last letter for?",
-   "voice_id": null,
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
    "voice": "Teddy Twinkle - Cute Cartoon Boy",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "XjGYkUkzth8BPs29fmcV",
-   "plays": "Scene last-2-6, line 1 (Minty). Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it."
+   "generation_id": "mhLG4YTsU80ThDNlB8QU",
+   "source_sha256": "b0b18dcc6558183239de1e6cdbdc971081e91871c3ffe5abc676dc6ac601f823"
   },
   {
    "name": "last-2-6-1-orbit",
    "text": "Sir, who is your last letter for?",
    "prompt": "[gently] Sir, who is your last letter for?",
-   "voice_id": null,
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
    "voice": "Lola - Soft, Innocent and Calming",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "plays": "Scene last-2-6, line 1 (Orbit). Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it."
+   "generation_id": "1qUFpvI3wVFCEwWbAsgt",
+   "source_sha256": "710a4c03856d42087b3a2f73496f392ce22c61ad7ad79b30121ebfaf36a6e0a0"
   },
   {
    "name": "last-2-6-2",
@@ -987,13 +1003,10 @@
    "name": "last-2-6-3",
    "text": "So that’s the letter we lost! The Sphinx was too polite to complain.",
    "prompt": "[laughs] So that’s the letter we lost! [warmly] The Sphinx was too polite to complain.",
-   "voice_id": null,
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
    "voice": "GERALD - Exciting Older Voice (NEW)",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "fGIZlgPQ75MMlvQ6WxgY",
-   "plays": "Scene last-2-6, line 3. Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it."
+   "generation_id": "5Lxf5Iab4MzdiOJo8vMv",
+   "source_sha256": "64d0a198d6d32383ede24358ebb72706bb9aefadc3bccb5b68c57c2003a6a830"
   },
   {
    "name": "last-2-6-4",
@@ -1013,61 +1026,46 @@
    "name": "last-2-6-5-pip",
    "text": "It still counts. Every letter lands!",
    "prompt": "[cheerfully] It still counts. [excited] Every letter lands!",
-   "voice_id": null,
+   "voice_id": "EaX6rnyDKjJx35tchi80",
    "voice": "Nelson – Awkward Nerd Character",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "EaX6rnyDKjJx35tchi80",
-   "plays": "Scene last-2-6, line 5 (Pip). Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it."
+   "generation_id": "iLN6cMOygqL3MF6f2bCW",
+   "source_sha256": "9ca9fba048c077ca7c9dcde37040987bca4872d4ef739ab6a4c9c42bf62cfdfd"
   },
   {
    "name": "last-2-6-5-peaches",
    "text": "It still counts. Every letter lands!",
    "prompt": "[cheerfully] It still counts. [excited] Every letter lands!",
-   "voice_id": null,
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
    "voice": "Cherry Twinkle – Adorable Cartoon Girl",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "plays": "Scene last-2-6, line 5 (Peaches). Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it."
+   "generation_id": "IJeUp0i6LwqHPsQQkKl0",
+   "source_sha256": "aeae26a99e4335771e096302be26173a430cf6a9f8a84b42a9cdc81420e66859"
   },
   {
    "name": "last-2-6-5-minty",
    "text": "It still counts. Every letter lands!",
    "prompt": "[cheerfully] It still counts. [excited] Every letter lands!",
-   "voice_id": null,
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
    "voice": "Teddy Twinkle - Cute Cartoon Boy",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "XjGYkUkzth8BPs29fmcV",
-   "plays": "Scene last-2-6, line 5 (Minty). Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it."
+   "generation_id": "CssyfZ8ZSX1yK1kNQW4c",
+   "source_sha256": "d38b1e88bb3ea6a49aa890c1a068980bd266d9df149f4d0a07230781555da99d"
   },
   {
    "name": "last-2-6-5-orbit",
    "text": "It still counts. Every letter lands!",
    "prompt": "[cheerfully] It still counts. [excited] Every letter lands!",
-   "voice_id": null,
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
    "voice": "Lola - Soft, Innocent and Calming",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "plays": "Scene last-2-6, line 5 (Orbit). Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it."
+   "generation_id": "P0CUg0N1TQoGIwkJjjhd",
+   "source_sha256": "d640ff50b696c48ed1b55a76e410b6030b7659b0faaecb45b4348ef270ab9a4d"
   },
   {
    "name": "last-2-6-6",
    "text": "Neferhoo, the club needs a Keeper of Lost Letters. Care to apply?",
    "prompt": "[warmly] Neferhoo, the club needs a Keeper of Lost Letters. [chuckles] Care to apply?",
-   "voice_id": null,
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
    "voice": "GERALD - Exciting Older Voice (NEW)",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "fGIZlgPQ75MMlvQ6WxgY",
-   "plays": "Scene last-2-6, line 6. Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it."
+   "generation_id": "fornMLkDvqqMWdQSMopm",
+   "source_sha256": "645f160dc906f8c9a0be8d11c04ea357af121f9e3e64c16f118a0547f461f9eb"
   },
   {
    "name": "last-2-6-7",
@@ -1087,13 +1085,10 @@
    "name": "last-2-6-8",
    "text": "“Delivered at last. Worth the wait. Signed: the Sphinx.”",
    "prompt": "[dryly] [slowly] “Delivered at last. [pause] Worth the wait. Signed: the Sphinx.”",
-   "voice_id": null,
+   "voice_id": "HAvvFKatz0uu0Fv55Riy",
    "voice": "Matthew Schmitz - Ancient Sage Dragon Wizard",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "HAvvFKatz0uu0Fv55Riy",
-   "plays": "Scene last-2-6, line 8. Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it. A letter read aloud (a caption on airmail paper) in its writer’s voice, as the Dragon’s letter is read in Bill’s: the Sphinx (the voice of thanks-2-4). The design’s “— The Sphinx” is written “Signed: the Sphinx.” inside the quote, as the Dragon’s letter is signed (after-5-4), so the printed line ends on a sentence mark."
+   "generation_id": "lBkbzL8bW8YEn2R7Bq89",
+   "source_sha256": "210f198af0559ec32f7f44ebf299f48997c3265fc3a96c89084c44bede24a3f2"
   },
   {
    "name": "before-2-7-0",
@@ -1536,49 +1531,37 @@
    "name": "before-3-2-1-pip",
    "text": "Sky Club post! Umbrellas for the newsstand pigeons.",
    "prompt": "[cheerfully] Sky Club post! Umbrellas for the newsstand pigeons.",
-   "voice_id": null,
+   "voice_id": "EaX6rnyDKjJx35tchi80",
    "voice": "Nelson – Awkward Nerd Character",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "EaX6rnyDKjJx35tchi80",
-   "plays": "Scene before-3-2, line 1 (Pip). Map, at the lair: plays before 3-2's level card opens the first time; the card's story key replays it."
+   "generation_id": "BsrjeyJGhLOU3TlfG64S",
+   "source_sha256": "b606c7acab48aad060a6170823f1b4bb60dcca0c730c414382775962a2d0cef3"
   },
   {
    "name": "before-3-2-1-peaches",
    "text": "Sky Club post! Umbrellas for the newsstand pigeons.",
    "prompt": "[cheerfully] Sky Club post! Umbrellas for the newsstand pigeons.",
-   "voice_id": null,
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
    "voice": "Cherry Twinkle – Adorable Cartoon Girl",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "plays": "Scene before-3-2, line 1 (Peaches). Map, at the lair: plays before 3-2's level card opens the first time; the card's story key replays it."
+   "generation_id": "PA1saBEQvsqvFu7VjfRU",
+   "source_sha256": "78b980d04faa932f96418862403029e95d0779e6f9ecd13369d2517a7817833a"
   },
   {
    "name": "before-3-2-1-minty",
    "text": "Sky Club post! Umbrellas for the newsstand pigeons.",
    "prompt": "[cheerfully] Sky Club post! Umbrellas for the newsstand pigeons.",
-   "voice_id": null,
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
    "voice": "Teddy Twinkle - Cute Cartoon Boy",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "XjGYkUkzth8BPs29fmcV",
-   "plays": "Scene before-3-2, line 1 (Minty). Map, at the lair: plays before 3-2's level card opens the first time; the card's story key replays it."
+   "generation_id": "XP8U3v5AusdfvODz2y6l",
+   "source_sha256": "9d00fb3a187c83b9c52a3a3bf6b8af554a357011ea4f0c6084a97882086bf067"
   },
   {
    "name": "before-3-2-1-orbit",
    "text": "Sky Club post! Umbrellas for the newsstand pigeons.",
    "prompt": "[cheerfully] Sky Club post! Umbrellas for the newsstand pigeons.",
-   "voice_id": null,
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
    "voice": "Lola - Soft, Innocent and Calming",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "plays": "Scene before-3-2, line 1 (Orbit). Map, at the lair: plays before 3-2's level card opens the first time; the card's story key replays it."
+   "generation_id": "dttAE7fzpdPMoOT00e8z",
+   "source_sha256": "a65db6b3584394067115378ddbf98c7edeca1bb1465fcf1197976d223bcb6a7d"
   },
   {
    "name": "before-3-2-2",
@@ -1598,49 +1581,37 @@
    "name": "before-3-2-3-pip",
    "text": "Your bread cart?",
    "prompt": "[surprised] Your bread cart?",
-   "voice_id": null,
+   "voice_id": "EaX6rnyDKjJx35tchi80",
    "voice": "Nelson – Awkward Nerd Character",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "EaX6rnyDKjJx35tchi80",
-   "plays": "Scene before-3-2, line 3 (Pip). Map, at the lair: plays before 3-2's level card opens the first time; the card's story key replays it."
+   "generation_id": "RuCqRyjGeFccT1XUVvxE",
+   "source_sha256": "3513a9e1f876e0575f5d95bf65e7de4ba176f1a416738c2ad39927d10067b01f"
   },
   {
    "name": "before-3-2-3-peaches",
    "text": "Your bread cart?",
    "prompt": "[surprised] Your bread cart?",
-   "voice_id": null,
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
    "voice": "Cherry Twinkle – Adorable Cartoon Girl",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "plays": "Scene before-3-2, line 3 (Peaches). Map, at the lair: plays before 3-2's level card opens the first time; the card's story key replays it."
+   "generation_id": "QKUG4ObYE3GGDUZs98jh",
+   "source_sha256": "a739c0194b60ec4b91325369885c47f3ed0b7cb753745a3a5c05e7951453d10d"
   },
   {
    "name": "before-3-2-3-minty",
    "text": "Your bread cart?",
    "prompt": "[surprised] Your bread cart?",
-   "voice_id": null,
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
    "voice": "Teddy Twinkle - Cute Cartoon Boy",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "XjGYkUkzth8BPs29fmcV",
-   "plays": "Scene before-3-2, line 3 (Minty). Map, at the lair: plays before 3-2's level card opens the first time; the card's story key replays it."
+   "generation_id": "uXjXki45xBnf5qcR6aaN",
+   "source_sha256": "6636b3b531889ac788952503c4d91404346e9125079252f8ab3fa55326069f0d"
   },
   {
    "name": "before-3-2-3-orbit",
    "text": "Your bread cart?",
    "prompt": "[surprised] Your bread cart?",
-   "voice_id": null,
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
    "voice": "Lola - Soft, Innocent and Calming",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "plays": "Scene before-3-2, line 3 (Orbit). Map, at the lair: plays before 3-2's level card opens the first time; the card's story key replays it."
+   "generation_id": "DrmO0ND819oodJjex8Pl",
+   "source_sha256": "dc8918198566689b6beba179862a3097b64a8e661227b0a3a1fff08949e7937b"
   },
   {
    "name": "before-3-2-4",
@@ -1660,13 +1631,10 @@
    "name": "before-3-2-5",
    "text": "No flame seal on this guardian. Just a hungry pigeon and his star-grabbing gang.",
    "prompt": "[chuckles] No flame seal on this guardian. [amused] Just a hungry pigeon and his star-grabbing gang.",
-   "voice_id": null,
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
    "voice": "GERALD - Exciting Older Voice (NEW)",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "fGIZlgPQ75MMlvQ6WxgY",
-   "plays": "Scene before-3-2, line 5. Map, at the lair: plays before 3-2's level card opens the first time; the card's story key replays it."
+   "generation_id": "uocnJC7v8txxvcX33KLm",
+   "source_sha256": "13e65e6e7757c5455378686e84bf39b8eed528f3af5b0dc2a85098d728c882a3"
   },
   {
    "name": "before-3-2-6",
@@ -1686,13 +1654,10 @@
    "name": "before-3-2-7",
    "text": "Shoot him when he puffs up to whistle. Dodge stale crumb bombs, fly the open lane!",
    "prompt": "[urgently] Shoot him when he puffs up to whistle. [chuckles] Dodge stale crumb bombs, fly the open lane!",
-   "voice_id": null,
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
    "voice": "GERALD - Exciting Older Voice (NEW)",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "fGIZlgPQ75MMlvQ6WxgY",
-   "plays": "Scene before-3-2, line 7. Map, at the lair: plays before 3-2's level card opens the first time; the card's story key replays it."
+   "generation_id": "c6OrwyLGVSB47OlbU3W0",
+   "source_sha256": "0c6bd18f5e6ce7edaa9994b8a6b470c311fb5a385a5e0aef903c39c6a12dafb9"
   },
   {
    "name": "last-3-2-0",
@@ -1712,49 +1677,37 @@
    "name": "last-3-2-1-pip",
    "text": "Commissioner, I remember a bread cart under the theatre marquee, out of the rain.",
    "prompt": "[gently] Commissioner, I remember a bread cart under the theatre marquee, out of the rain.",
-   "voice_id": null,
+   "voice_id": "EaX6rnyDKjJx35tchi80",
    "voice": "Nelson – Awkward Nerd Character",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "EaX6rnyDKjJx35tchi80",
-   "plays": "Scene last-3-2, line 1 (Pip). Map, at the lair: plays after 3-2 is first beaten; the card's story key replays it."
+   "generation_id": "HwFAf79mXyTjy7usNtPL",
+   "source_sha256": "ef8d2f661899c2b10e5569041672a2ee8161221973949effceff262ae5bca951"
   },
   {
    "name": "last-3-2-1-peaches",
    "text": "Commissioner, I remember a bread cart under the theatre marquee, out of the rain.",
    "prompt": "[gently] Commissioner, I remember a bread cart under the theatre marquee, out of the rain.",
-   "voice_id": null,
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
    "voice": "Cherry Twinkle – Adorable Cartoon Girl",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "plays": "Scene last-3-2, line 1 (Peaches). Map, at the lair: plays after 3-2 is first beaten; the card's story key replays it."
+   "generation_id": "JZvjMHJJ3VSOwNSowj0w",
+   "source_sha256": "1cd57028fbcdb900e3de6a6168d0c396e8ac71433a7d5a3cb60db8e5018f2799"
   },
   {
    "name": "last-3-2-1-minty",
    "text": "Commissioner, I remember a bread cart under the theatre marquee, out of the rain.",
    "prompt": "[gently] Commissioner, I remember a bread cart under the theatre marquee, out of the rain.",
-   "voice_id": null,
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
    "voice": "Teddy Twinkle - Cute Cartoon Boy",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "XjGYkUkzth8BPs29fmcV",
-   "plays": "Scene last-3-2, line 1 (Minty). Map, at the lair: plays after 3-2 is first beaten; the card's story key replays it."
+   "generation_id": "6mQ0zAEwI8eCJfU7uEjF",
+   "source_sha256": "e83a5c46214af3635219df7d7a5a38163191db8b0f46308b706e32c929378820"
   },
   {
    "name": "last-3-2-1-orbit",
    "text": "Commissioner, I remember a bread cart under the theatre marquee, out of the rain.",
    "prompt": "[gently] Commissioner, I remember a bread cart under the theatre marquee, out of the rain.",
-   "voice_id": null,
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
    "voice": "Lola - Soft, Innocent and Calming",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "plays": "Scene last-3-2, line 1 (Orbit). Map, at the lair: plays after 3-2 is first beaten; the card's story key replays it."
+   "generation_id": "pMM3YgsWMA9ZiMXL0NNQ",
+   "source_sha256": "bf5d2c3613566705f8f3f978bbada9f2badc03933b744be4e877602bac3cdaad"
   },
   {
    "name": "last-3-2-2",
@@ -1774,49 +1727,37 @@
    "name": "last-3-2-3-pip",
    "text": "Nobody stole it, sir. It just wanted to stay dry.",
    "prompt": "[warmly] Nobody stole it, sir. It just wanted to stay dry.",
-   "voice_id": null,
+   "voice_id": "EaX6rnyDKjJx35tchi80",
    "voice": "Nelson – Awkward Nerd Character",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "EaX6rnyDKjJx35tchi80",
-   "plays": "Scene last-3-2, line 3 (Pip). Map, at the lair: plays after 3-2 is first beaten; the card's story key replays it."
+   "generation_id": "IIZ6gLM4CvAltiA6KngM",
+   "source_sha256": "b6f886f61e17603c23a937eddf2003bbde38715ae7b6bbf03a46144bb7769d13"
   },
   {
    "name": "last-3-2-3-peaches",
    "text": "Nobody stole it, sir. It just wanted to stay dry.",
    "prompt": "[warmly] Nobody stole it, sir. It just wanted to stay dry.",
-   "voice_id": null,
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
    "voice": "Cherry Twinkle – Adorable Cartoon Girl",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "plays": "Scene last-3-2, line 3 (Peaches). Map, at the lair: plays after 3-2 is first beaten; the card's story key replays it."
+   "generation_id": "C1yeF5CTIr26t860DSCW",
+   "source_sha256": "ac98caf4dac5a4ea5393b89c16ce274c4404c810a3250c1bc0e0fe5458220b86"
   },
   {
    "name": "last-3-2-3-minty",
    "text": "Nobody stole it, sir. It just wanted to stay dry.",
    "prompt": "[warmly] Nobody stole it, sir. It just wanted to stay dry.",
-   "voice_id": null,
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
    "voice": "Teddy Twinkle - Cute Cartoon Boy",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "XjGYkUkzth8BPs29fmcV",
-   "plays": "Scene last-3-2, line 3 (Minty). Map, at the lair: plays after 3-2 is first beaten; the card's story key replays it."
+   "generation_id": "AOyGwBmMEcrdX27mXsCH",
+   "source_sha256": "5fab250a83250c2d8511c9664da6e15a5729badbce6072a933652dbb8fe9d804"
   },
   {
    "name": "last-3-2-3-orbit",
    "text": "Nobody stole it, sir. It just wanted to stay dry.",
    "prompt": "[warmly] Nobody stole it, sir. It just wanted to stay dry.",
-   "voice_id": null,
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
    "voice": "Lola - Soft, Innocent and Calming",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "plays": "Scene last-3-2, line 3 (Orbit). Map, at the lair: plays after 3-2 is first beaten; the card's story key replays it."
+   "generation_id": "kAqXPqshiEzRKSsKJK0P",
+   "source_sha256": "d4d82a2f7268ac61f83a9b5af086427b851489693b1575b190388b9b9300e574"
   },
   {
    "name": "last-3-2-4",
@@ -1836,13 +1777,10 @@
    "name": "last-3-2-5",
    "text": "Our pigeonholes have never had a pigeon. Commissioner wanted. Pay: a hot bagel a day.",
    "prompt": "[warmly] Our pigeonholes have never had a pigeon. [chuckles] Commissioner wanted. Pay: a hot bagel a day.",
-   "voice_id": null,
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
    "voice": "GERALD - Exciting Older Voice (NEW)",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "fGIZlgPQ75MMlvQ6WxgY",
-   "plays": "Scene last-3-2, line 5. Map, at the lair: plays after 3-2 is first beaten; the card's story key replays it."
+   "generation_id": "GrlP1YIkNXj8B9xpi7H5",
+   "source_sha256": "f046ad2b703c7a315ee517059cbbf8a8b2cd490d7ded0d1a3fecbff5af9e9f1c"
   },
   {
    "name": "last-3-2-6",
@@ -1862,25 +1800,19 @@
    "name": "last-3-2-7",
    "text": "Next, rookie: Steam Alley. Vents hiss before they burst. Every letter lands!",
    "prompt": "[urgently] Next, rookie: Steam Alley. Vents hiss before they burst. [cheerfully] Every letter lands!",
-   "voice_id": null,
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
    "voice": "GERALD - Exciting Older Voice (NEW)",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "fGIZlgPQ75MMlvQ6WxgY",
-   "plays": "Scene last-3-2, line 7. Map, at the lair: plays after 3-2 is first beaten; the card's story key replays it."
+   "generation_id": "xX1RpqYzNbDfdv8twR1i",
+   "source_sha256": "cba4dfdd66225792ae976830a0aa967d00c406024c8f497998403f17e5d30f53"
   },
   {
    "name": "before-3-4-0",
    "text": "The tower keeper says something up on the ledge shines lights at the night mail.",
    "prompt": "[curious] The tower keeper says something up on the ledge shines lights at the night mail.",
-   "voice_id": null,
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
    "voice": "GERALD - Exciting Older Voice (NEW)",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "fGIZlgPQ75MMlvQ6WxgY",
-   "plays": "Scene before-3-4, line 0. Map, at the lair: plays before 3-4's level card opens the first time; the card's story key replays it."
+   "generation_id": "IOV1FuRLm8EuOmMjc9Wk",
+   "source_sha256": "1b2a733c1b2292915344a08934c486acb2769d38d0120d2912b76c27a3cf9597"
   },
   {
    "name": "before-3-4-1",
@@ -1900,49 +1832,37 @@
    "name": "before-3-4-2-pip",
    "text": "Sky Club post! We have the tower’s weather vane. Please stop shining that at us.",
    "prompt": "[nervously] Sky Club post! We have the tower’s weather vane. [firmly] Please stop shining that at us.",
-   "voice_id": null,
+   "voice_id": "EaX6rnyDKjJx35tchi80",
    "voice": "Nelson – Awkward Nerd Character",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "EaX6rnyDKjJx35tchi80",
-   "plays": "Scene before-3-4, line 2 (Pip). Map, at the lair: plays before 3-4's level card opens the first time; the card's story key replays it."
+   "generation_id": "HIPglHUoR2X5OK3NalQ6",
+   "source_sha256": "0e2282db846bd8e9fe8d4ad79d2f0c11cc54732b72ed6a83701f10acf1fff9ec"
   },
   {
    "name": "before-3-4-2-peaches",
    "text": "Sky Club post! We have the tower’s weather vane. Please stop shining that at us.",
    "prompt": "[nervously] Sky Club post! We have the tower’s weather vane. [firmly] Please stop shining that at us.",
-   "voice_id": null,
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
    "voice": "Cherry Twinkle – Adorable Cartoon Girl",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "plays": "Scene before-3-4, line 2 (Peaches). Map, at the lair: plays before 3-4's level card opens the first time; the card's story key replays it."
+   "generation_id": "5wZeKeG7L8Y5ueVw0pz4",
+   "source_sha256": "05fa4d07c12460677d92fc2fdd0f7fc949b45e896bbcde47075eddcf4ffa98b3"
   },
   {
    "name": "before-3-4-2-minty",
    "text": "Sky Club post! We have the tower’s weather vane. Please stop shining that at us.",
    "prompt": "[nervously] Sky Club post! We have the tower’s weather vane. [firmly] Please stop shining that at us.",
-   "voice_id": null,
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
    "voice": "Teddy Twinkle - Cute Cartoon Boy",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "XjGYkUkzth8BPs29fmcV",
-   "plays": "Scene before-3-4, line 2 (Minty). Map, at the lair: plays before 3-4's level card opens the first time; the card's story key replays it."
+   "generation_id": "rYPSBrOMf0QKnnZAnDIs",
+   "source_sha256": "bdffde051196cae54f2803acc2246eed663d2b177cfa2aaad8391f7f8bc5e9a5"
   },
   {
    "name": "before-3-4-2-orbit",
    "text": "Sky Club post! We have the tower’s weather vane. Please stop shining that at us.",
    "prompt": "[nervously] Sky Club post! We have the tower’s weather vane. [firmly] Please stop shining that at us.",
-   "voice_id": null,
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
    "voice": "Lola - Soft, Innocent and Calming",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "plays": "Scene before-3-4, line 2 (Orbit). Map, at the lair: plays before 3-4's level card opens the first time; the card's story key replays it."
+   "generation_id": "NLjTcRB7qj2q4wF0ipdH",
+   "source_sha256": "5c5e9fd164b97162cc3f132754b2bf11bafd55490d29796989fcfd802be5b4d7"
   },
   {
    "name": "before-3-4-3",
@@ -1976,13 +1896,10 @@
    "name": "before-3-4-5",
    "text": "Stay in the dark, rookie, and shoot when his lamp opens. Don’t mention pigeons.",
    "prompt": "[urgently] Stay in the dark, rookie, and shoot when his lamp opens. [whispers] Don’t mention pigeons.",
-   "voice_id": null,
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
    "voice": "GERALD - Exciting Older Voice (NEW)",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "fGIZlgPQ75MMlvQ6WxgY",
-   "plays": "Scene before-3-4, line 5. Map, at the lair: plays before 3-4's level card opens the first time; the card's story key replays it."
+   "generation_id": "2HeSv8G8XDAAGjJ7ThjB",
+   "source_sha256": "f3b0d9a5c53f23d94685ede7fd1cf37a62bc1918d17e78a18e5f99c3bb980c9a"
   },
   {
    "name": "last-3-4-0",
@@ -2002,49 +1919,37 @@
    "name": "last-3-4-1-pip",
    "text": "Sorry! I couldn’t look away. And look: the tower’s new weather vane is spinning.",
    "prompt": "[gently] Sorry! I couldn’t look away. And look: the tower’s new weather vane is spinning.",
-   "voice_id": null,
+   "voice_id": "EaX6rnyDKjJx35tchi80",
    "voice": "Nelson – Awkward Nerd Character",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "EaX6rnyDKjJx35tchi80",
-   "plays": "Scene last-3-4, line 1 (Pip). Map, at the lair: plays after 3-4 is first beaten; the card's story key replays it."
+   "generation_id": "0XgpbaqOiJoBIij4a4k4",
+   "source_sha256": "fe4db60e0018296216904c4dcc21060a5390d2f967a19e334ecd2a8295224943"
   },
   {
    "name": "last-3-4-1-peaches",
    "text": "Sorry! I couldn’t look away. And look: the tower’s new weather vane is spinning.",
    "prompt": "[gently] Sorry! I couldn’t look away. And look: the tower’s new weather vane is spinning.",
-   "voice_id": null,
+   "voice_id": "XJ2fW4ybq7HouelYYGcL",
    "voice": "Cherry Twinkle – Adorable Cartoon Girl",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "XJ2fW4ybq7HouelYYGcL",
-   "plays": "Scene last-3-4, line 1 (Peaches). Map, at the lair: plays after 3-4 is first beaten; the card's story key replays it."
+   "generation_id": "xl4Q1i6WFS1XSVa93jj3",
+   "source_sha256": "b8681492cebf6363ae67641023835bf0fc02c8a8cf1e425863ef4687f019899a"
   },
   {
    "name": "last-3-4-1-minty",
    "text": "Sorry! I couldn’t look away. And look: the tower’s new weather vane is spinning.",
    "prompt": "[gently] Sorry! I couldn’t look away. And look: the tower’s new weather vane is spinning.",
-   "voice_id": null,
+   "voice_id": "XjGYkUkzth8BPs29fmcV",
    "voice": "Teddy Twinkle - Cute Cartoon Boy",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "XjGYkUkzth8BPs29fmcV",
-   "plays": "Scene last-3-4, line 1 (Minty). Map, at the lair: plays after 3-4 is first beaten; the card's story key replays it."
+   "generation_id": "VwcI6njiTS9EOnWw1vsm",
+   "source_sha256": "f0f7ae29f14e88fdef189b0c01bbe39c883a1c2ad9eb475745e390c8e475d68c"
   },
   {
    "name": "last-3-4-1-orbit",
    "text": "Sorry! I couldn’t look away. And look: the tower’s new weather vane is spinning.",
    "prompt": "[gently] Sorry! I couldn’t look away. And look: the tower’s new weather vane is spinning.",
-   "voice_id": null,
+   "voice_id": "f9imtLc2jfOLXtqe3Ihb",
    "voice": "Lola - Soft, Innocent and Calming",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "f9imtLc2jfOLXtqe3Ihb",
-   "plays": "Scene last-3-4, line 1 (Orbit). Map, at the lair: plays after 3-4 is first beaten; the card's story key replays it."
+   "generation_id": "1RIBTjaQIt2jni6KtWHw",
+   "source_sha256": "832b68a38a48f1cf42f1b11606a66df3d1a814ad1cd749fa521bb1314b8454df"
   },
   {
    "name": "last-3-4-2",
@@ -2064,13 +1969,10 @@
    "name": "last-3-4-3",
    "text": "Stoneface, the night mail needs a landing light. Every courier will look up!",
    "prompt": "[warmly] Stoneface, the night mail needs a landing light. [chuckles] Every courier will look up!",
-   "voice_id": null,
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
    "voice": "GERALD - Exciting Older Voice (NEW)",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "fGIZlgPQ75MMlvQ6WxgY",
-   "plays": "Scene last-3-4, line 3. Map, at the lair: plays after 3-4 is first beaten; the card's story key replays it."
+   "generation_id": "wipUzHwJ25dB0fxejKSK",
+   "source_sha256": "d4ff7c026a36b47d1f84285f6bd76f80b9ab32e25061e13911cc2c63ad58a7b9"
   },
   {
    "name": "last-3-4-4",
@@ -2090,25 +1992,19 @@
    "name": "last-3-4-5",
    "text": "Welcome to the club, Stoneface. And yes, the pigeons may stay.",
    "prompt": "[warmly] Welcome to the club, Stoneface. [cheerfully] And yes, the pigeons may stay.",
-   "voice_id": null,
+   "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
    "voice": "GERALD - Exciting Older Voice (NEW)",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "fGIZlgPQ75MMlvQ6WxgY",
-   "plays": "Scene last-3-4, line 5. Map, at the lair: plays after 3-4 is first beaten; the card's story key replays it."
+   "generation_id": "wFxlAFg1rIw5j2TOj7ii",
+   "source_sha256": "1ba7f99c29c7e69f343d5bc099889654181c42d85e7ab19c118c2acc9f25099f"
   },
   {
    "name": "last-3-4-6",
    "text": "To be continued… Next stop: Paris, the City of Light.",
    "prompt": "[softly] To be continued… [pause] Next stop: Paris, the City of Light.",
-   "voice_id": null,
+   "voice_id": "Qz7YNvloEr5RXwYE3NCH",
    "voice": "Twinkle - Narration & Acting",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "Qz7YNvloEr5RXwYE3NCH",
-   "plays": "Scene last-3-4, line 6. Map, at the lair: plays after 3-4 is first beaten; the card's story key replays it."
+   "generation_id": "iy6Ya3bwlrfNqA8gdvLh",
+   "source_sha256": "c904f100600b26021ab90ca03a2201c284ca738d598644c44d597310af1b5def"
   },
   {
    "name": "before-3-5-0",
@@ -3365,13 +3261,10 @@
    "name": "thanks-2-6",
    "text": "Four thousand years of dust, gone by lunch!",
    "prompt": "[delighted] Four thousand years of dust, [laughs] gone by lunch!",
-   "voice_id": null,
+   "voice_id": "KgUSWQPFmuiZ5ycRbnty",
    "voice": "Jessie - Vintage Narrator",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": "KgUSWQPFmuiZ5ycRbnty",
-   "plays": "The result of 2-6 (Return to Sender), as its thank-you note lands. Signed: The pyramid caretaker."
+   "generation_id": "ZChDiPa3dHrLq0Jvm236",
+   "source_sha256": "74e1aaa8761ba8305e57f8127cc020c3b26c5af82ce3d483c5a75cab149b694d"
   },
   {
    "name": "thanks-2-7",
@@ -3761,7 +3654,7 @@
    "source_sha256": "605016df40ac881d3c4fcee564bdcb1c82ca856142903feab7e8cf05d36da7e7"
   }
  ],
- "optional_note": "Fight barks for the New York guardians. No code plays them yet (they need a hook from the boss audio cues to SkyAudio.speak, silent with Character voices off), so they are not in \"clips\" and tool/prepare_story_voices.py skips them. Move one into \"clips\" when its hook is built.",
+ "optional_note": "One fight bark for King Coo. No code plays it yet (it needs a hook from the boss audio cues to SkyAudio.speak, silent with Character voices off), so it is not in \"clips\" and tool/prepare_story_voices.py skips it. Move it into \"clips\" when its hook is built.",
  "optional_clips": [
   {
    "name": "coo-pop",
@@ -3776,76 +3669,6 @@
    "fallback_voice_id": "507tTFX0IPtqFzGd1CAL",
    "fallback_voice": "Rusty Malone - Deep & Raspy",
    "plays": "In King Coo's fight, when his chest pops (three puffed hits). Needs a hook to SkyAudio.speak that does not exist yet; silent with Character voices off."
-  },
-  {
-   "name": "coo-fury",
-   "text": "That’s it! Squad, FORM UP!",
-   "prompt": "[shouting] That’s it! [angrily] Squad, FORM UP!",
-   "voice_id": null,
-   "voice": "King Coo (audition)",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": null,
-   "fallback_voice_id": "507tTFX0IPtqFzGd1CAL",
-   "fallback_voice": "Rusty Malone - Deep & Raspy",
-   "plays": "In King Coo's fight, when he reaches fury (70 HP). Needs the same hook."
-  },
-  {
-   "name": "gargoyle-spotted-1",
-   "text": "Spotted!",
-   "prompt": "[gleefully] Spotted!",
-   "voice_id": null,
-   "voice": "Searchlight Gargoyle (audition)",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": null,
-   "fallback_voice_id": "LvmvHEBEmMJBJw9UuhwO",
-   "fallback_voice": "Eldrin - Wise Epic Fantasy Narration Storyteller",
-   "plays": "In the Searchlight Gargoyle's fight, when a beam catches the bird; the three \"spotted\" lines rotate and never repeat back to back. Needs the same hook."
-  },
-  {
-   "name": "gargoyle-spotted-2",
-   "text": "There you are!",
-   "prompt": "[delighted] There you are!",
-   "voice_id": null,
-   "voice": "Searchlight Gargoyle (audition)",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": null,
-   "fallback_voice_id": "LvmvHEBEmMJBJw9UuhwO",
-   "fallback_voice": "Eldrin - Wise Epic Fantasy Narration Storyteller",
-   "plays": "As gargoyle-spotted-1."
-  },
-  {
-   "name": "gargoyle-spotted-3",
-   "text": "Gotcha, darling!",
-   "prompt": "[cackles] Gotcha, darling!",
-   "voice_id": null,
-   "voice": "Searchlight Gargoyle (audition)",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": null,
-   "fallback_voice_id": "LvmvHEBEmMJBJw9UuhwO",
-   "fallback_voice": "Eldrin - Wise Epic Fantasy Narration Storyteller",
-   "plays": "As gargoyle-spotted-1."
-  },
-  {
-   "name": "gargoyle-fury",
-   "text": "Brighter! Brighter!",
-   "prompt": "[shouting] [ecstatic] Brighter! Brighter!",
-   "voice_id": null,
-   "voice": "Searchlight Gargoyle (audition)",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": null,
-   "fallback_voice_id": "LvmvHEBEmMJBJw9UuhwO",
-   "fallback_voice": "Eldrin - Wise Epic Fantasy Narration Storyteller",
-   "plays": "In the Searchlight Gargoyle's fight, when he reaches fury (80 HP). Needs the same hook."
   }
  ]
 }

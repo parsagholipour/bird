@@ -365,8 +365,8 @@ void main() {
     };
     expect(guardianClips, hasLength(47));
     // Egypt's guardian (rules 50): Neferhoo's two scenes and the pyramid
-    // caretaker's thank-you on 2-6 are written and pending until the owner
-    // has picked his voice (the renamed Arabian clips stay recorded): 31
+    // caretaker's thank-you on 2-6: the cast voices are recorded while his
+    // own lines await casting (the renamed Arabian clips stay recorded): 31
     // clips (18 lines, the courier's 4 in each bird's voice, and the note).
     final egyptClips = {
       for (final clip in _clips(_sources()))
@@ -376,7 +376,7 @@ void main() {
           clip['name'] as String,
     };
     expect(egyptClips, hasLength(31));
-    expect(egyptClips.difference(pending), isEmpty);
+    expect(egyptClips.difference(pending), hasLength(23));
     // His 8 wait for the audition (the placeholder voice, no id yet); the
     // rest are in voices the cast already has.
     final egyptVoices = {
@@ -391,7 +391,12 @@ void main() {
     for (final clip in _clips(_sources())) {
       if (!egyptClips.contains(clip['name'])) continue;
       expect(
-        clip['planned_voice_id'] == null,
+        clip['voice_id'] == null,
+        clip['voice'] == 'Neferhoo (audition)',
+        reason: '${clip['name']}',
+      );
+      expect(
+        pending.contains(clip['name']),
         clip['voice'] == 'Neferhoo (audition)',
         reason: '${clip['name']}',
       );
@@ -836,13 +841,14 @@ void main() {
       }
     });
 
-    testWidgets('Neferhoo\'s scenes, unrecorded, are written out at the '
+    testWidgets('Neferhoo\'s unrecorded lines are written out at the '
         'pace of voices off with voices on', (tester) async {
       final cue = find.byKey(const ValueKey('story-cue'));
       for (final id in ['before-2-6', 'last-2-6']) {
         final scene = CampaignStory.scene(id)!;
-        final text = scene.lines.first.text;
-        expect(CampaignVoices.line(scene, 0, bird: 0), isNull, reason: id);
+        final index = id == 'before-2-6' ? 1 : 0;
+        final text = scene.lines[index].text;
+        expect(CampaignVoices.line(scene, index, bird: 0), isNull, reason: id);
         final paced = (text.length * 26).clamp(260, 1700);
         final (said, _) = await play(
           tester,
@@ -850,11 +856,18 @@ void main() {
           voices: true,
           reduced: false,
         );
+        for (var i = 0; i < index; i++) {
+          final voice = CampaignVoices.line(scene, i, bird: 0)!;
+          await tester.pump(CampaignVoices.length(voice)!);
+          await tester.tap(find.byKey(const ValueKey('story-advance')));
+          await tester.pump();
+        }
+        final spokenBefore = said.length;
         await tester.pump(Duration(milliseconds: (paced * .9).round()));
         expect(cue, findsNothing, reason: id);
         await tester.pump(Duration(milliseconds: (paced * .2).round()));
         expect(cue, findsOneWidget, reason: id);
-        expect(said, isEmpty, reason: id);
+        expect(said, hasLength(spokenBefore), reason: id);
         await tester.tap(find.byKey(const ValueKey('story-skip')));
         await tester.pump(const Duration(seconds: 1));
       }

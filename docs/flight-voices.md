@@ -3,16 +3,17 @@
 During a flight the characters talk. The equipped bird reacts to what
 happens to it, in its own voice and in its own words, and each boss speaks
 in its own fight. Nothing is shared: Pip, Peaches, Minty and Orbit each
-have 271 lines of their own, and each boss 34 (the Pirate Captain 37).
+have 271 lines of their own, and each endless boss 34 (the Pirate Captain 37).
+Neferhoo has two lines per moment (16).
 Every line is recorded with ElevenLabs **Eleven v4**, one take each, in
 the voice the character has in the story ([story-voices.md](story-voices.md)).
 They are bundled in `assets/audio/flight/` and play offline.
 
-1,241 of the 1,291 lines are recorded (2026-10-01; ElevenLabs' daily
+1,241 of the 1,273 lines are recorded (2026-10-01; ElevenLabs' daily
 generation limit spread the last 214 over the next day) and bundled: 85
-minutes of speech, 29.5 MB. The other 50 are Egypt's guardian's (rules 50):
-Neferhoo's 34, each bird's 2 greetings and 1 farewell for him, and each
-bird's cargo line for 2-6. They are written and **pending recording**
+minutes of speech, 29.5 MB. The other 32 are Egypt's guardian's (rules 50):
+Neferhoo's 16 (two lines per moment), each bird's two greetings and one
+farewell for him, and each bird's cargo line for 2-6. They are written and **pending recording**
 ([Neferhoo](#neferhoo-written-not-recorded) below).
 
 ## When a character speaks
@@ -60,7 +61,7 @@ Their faces do not move for speech: their rigs do not read `FlightSpeech`
 ### Neferhoo: written, not recorded
 
 Egypt's guardian (2-6, rules 50, key `neferhoo`) has his lines written in the
-script, in the five bosses' moments and counts, and each bird answers him.
+script, in the five bosses' moments, two lines each, and each bird answers him.
 `FlightVoices.pendingBosses` names him: the game asks for his pools as for any
 boss's, each is empty until its takes are in, so his fight runs in silence
 (the bird's own lines and the effects aside) and paces exactly as it will with
@@ -68,14 +69,14 @@ voices off. His moments, mapped onto his fight in `FlightVoices`:
 
 | Moment | Lines | When |
 | --- | --- | --- |
-| `arrive` | 3 | His arrival; in the campaign his name-card line (`neferhoo-card` = the story clip `before-2-6-7`, "Return to sender! This route has a courier.") comes first |
-| `taunt` | 8 | Quiet moments of the fight |
-| `attack` | 4 | The **mail call**: as a lane locks (`NeferhooFight.mailLocks` rises) |
-| `summon` | 3 | The **ankh**, thrown (`ankhThrows` rises; he summons nobody) |
-| `hurt` | 5 | One of his own **letters lands home** (`returnsLanded` rises). A rock on his padded wraps says nothing |
-| `gloat` | 5 | He hits the bird |
-| `mad` | 3 | The **fury** stage (a third of his health left: "Enough! EXPRESS POST!") |
-| `defeated` | 3 | His fall ("My mask! Where is my… oh. I can see!") |
+| `arrive` | 2 | His arrival; in the campaign his name-card line (`neferhoo-card` = the story clip `before-2-6-7`, "Return to sender! This route has a courier.") comes first |
+| `taunt` | 2 | Quiet moments of the fight |
+| `attack` | 2 | The **mail call**: as a lane locks (`NeferhooFight.mailLocks` rises) |
+| `summon` | 2 | The **ankh**, thrown (`ankhThrows` rises; he summons nobody) |
+| `hurt` | 2 | One of his own **letters lands home** (`returnsLanded` rises). A rock on his padded wraps says nothing |
+| `gloat` | 2 | He hits the bird |
+| `mad` | 2 | The **fury** stage (a third of his health left: "Enough! EXPRESS POST!") |
+| `defeated` | 2 | His fall ("My mask! Where is my… oh. I can see!") |
 
 The birds: `boss-neferhoo` (2 each), `boss-down-neferhoo` (1 each), and
 `cargo-2-6` (1 each, "A feather duster…", played on 2-6's first try). The
@@ -86,8 +87,8 @@ His voice is not cast: the script's `voice_id` is `null` and `voice` is
 `Neferhoo (audition)` until the owner picks one of five auditions
 ([story-voices-recording.md](story-voices-recording.md), section 2). Then put
 the voice in `VOICES['neferhoo']` in `tool/prepare_flight_voices.py`, run
-`script`, record the lines (section 7 of that document lists all 50 with their
-prompts; every tag is proven by a recorded take) and master them. Once his 34
+`script`, record the lines (section 7 of that document lists all 32 with their
+prompts; every tag is proven by a recorded take) and master them. Once his 16
 and his birds' 12 are in, move him from `pendingBosses` to `voicedBosses`
 (`flight_voice_script_test` insists on exactly that) and decide whether his rig
 moves its face to his lines (`talking_faces_art_test` keeps every boss outside

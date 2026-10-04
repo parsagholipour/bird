@@ -101,19 +101,18 @@ void main() {
     expect(voices['neferhoo'], isNull);
   });
 
-  test('only Egypt\'s guardian and his level wait for their takes', () {
+  test('only the uncast Egyptian guardian waits for his takes', () {
     final pending = {
       for (final c in clips)
         if (!_recorded(c)) c['name'] as String,
     };
-    // His 34 lines (the five endless bosses' moments and counts), each
-    // bird's two greetings and one farewell, and the four 2-6 cargo lines.
+    // His 16 lines (two per moment) await casting. Each bird's two greetings,
+    // farewell and 2-6 cargo line are recorded in their existing voices.
     final egypt = RegExp(
       r'^(neferhoo-|\w+-boss-(down-)?neferhoo-|\w+-cargo-2-6-)',
     );
-    expect(pending, everyElement(matches(egypt)));
-    expect(pending, hasLength(50));
-    expect(pending.where((n) => n.startsWith('neferhoo-')), hasLength(34));
+    expect(pending, everyElement(startsWith('neferhoo-')));
+    expect(pending, hasLength(16));
     for (final name in pending) {
       expect(flightVoiceClips, isNot(contains(name)), reason: name);
       expect(
@@ -146,7 +145,7 @@ void main() {
       );
       expect(
         FlightVoices.pendingBosses.contains(boss),
-        lines.every((c) => !_recorded(c)),
+        lines.any((c) => !_recorded(c)),
         reason: key,
       );
     }
@@ -154,12 +153,14 @@ void main() {
     // (docs/story-voices-recording.md, section 7).
     final doc = File('docs/story-voices-recording.md').readAsStringSync();
     final listed = doc.substring(doc.indexOf('## 7. Neferhoo'));
-    for (final name in pending) {
-      final clip = clips.firstWhere((c) => c['name'] == name);
+    for (final clip in clips.where(
+      (c) => egypt.hasMatch(c['name'] as String),
+    )) {
+      final name = clip['name'] as String;
       expect(listed, contains('| `$name` |'), reason: name);
       expect(listed, contains('| ${clip['prompt']} |'), reason: name);
     }
-    expect(RegExp(r'^\| `', multiLine: true).allMatches(listed), hasLength(50));
+    expect(RegExp(r'^\| `', multiLine: true).allMatches(listed), hasLength(32));
     // His pools are empty, so his fight is silent (card included).
     for (final moment in [...bossMoments(BossKind.neferhoo), 'card']) {
       expect(
@@ -169,12 +170,12 @@ void main() {
       );
     }
     for (final bird in CampaignVoices.birds) {
-      for (final moment in [
-        'boss-neferhoo',
-        'boss-down-neferhoo',
-        'cargo-2-6',
-      ]) {
-        expect(FlightVoices.recorded['$bird-$moment'], isEmpty);
+      for (final MapEntry(key: moment, value: count) in const {
+        'boss-neferhoo': 2,
+        'boss-down-neferhoo': 1,
+        'cargo-2-6': 1,
+      }.entries) {
+        expect(FlightVoices.recorded['$bird-$moment'], hasLength(count));
       }
     }
   });

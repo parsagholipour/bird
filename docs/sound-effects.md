@@ -764,8 +764,8 @@ to spot.
   of report 05), although its reuse list also names `boss_enrage` and
   `boss_burst`. Both are one line each in `BossAudioCues` (`_fury`, the burst
   branch).
-- Speech-free barks: the reports' barks (`gargoyle-spotted-*`, `coo-pop`,
-  `gargoyle-fury`, `coo-fury`) are voice lines, so no extra SFX was made.
+- Speech-free barks: the reports' barks were voice lines, so no extra SFX was
+  made. One remains written (`coo-pop`); the others were dropped.
   `BossAudioCues` already has the edges a voice hook would use (`spots`,
   `pops`, fury).
 - The rules must raise the counters named above as described; see the notes
