@@ -1,6 +1,4 @@
 import '../domain/squat_tracking.dart';
-import 'squat_setup_art.dart';
-import 'jump_setup_art.dart';
 import 'dart:async';
 import 'dart:io';
 import 'package:flame/game.dart';
@@ -24,17 +22,19 @@ import '../game/knockout_art.dart';
 import '../game/neferhoo_fight_art.dart';
 import '../game/play_controller.dart';
 import 'calibration_probe.dart' show LandmarkPainter;
+import 'mini_calibration.dart';
 import 'components.dart';
 import 'theme.dart';
-import 'setup_art.dart';
-import 'flight_portrait.dart';
+import 'mini_setup.dart';
 import 'flight_score.dart';
 import 'jump_glide_hud.dart';
 import 'match_hud.dart';
+import 'home_keys.dart' show HomeKeyColors;
+import 'mini_chrome.dart';
 import 'level_hud.dart';
-import 'flight_goals.dart';
 import 'game_over_stage.dart';
 import 'level_result.dart';
+import 'mini_results.dart';
 import 'ui_sounds.dart';
 
 class PlayScreen extends ConsumerStatefulWidget {
@@ -497,247 +497,581 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     );
   }
 
-  Widget _header(String title, {Widget? trailing}) => Row(
-    children: [
-      RoundButton(
-        icon: Icons.arrow_back_rounded,
-        label: 'Back home',
-        onPressed: leave,
-      ),
-      const SizedBox(width: 16),
-      Text(title, style: heading(30)),
-      const Spacer(),
-      ?trailing,
-    ],
-  );
-  Widget _setup(ProgressSnapshot p) => Padding(
-    padding: const EdgeInsets.all(28),
-    child: Column(
-      children: [
-        _header(
-          widget.mode == PlayMode.pushUp
-              ? 'A little setup. A lot of sky.'
-              : widget.mode == PlayMode.squat
-              ? 'Feet planted. Wings open.'
-              : 'Small jumps. Big wings.',
-          trailing: Pill(
-            '${widget.course.title.toUpperCase()} · SCORED',
-            icon: Icons.emoji_events_outlined,
-            color: SkyColors.yellow,
+  Widget _header(String title, {List<Widget> trailing = const []}) =>
+      MiniHeader(title: title, onBack: leave, trailing: trailing);
+
+  Widget _setup(ProgressSnapshot p) {
+    final mode = widget.mode;
+    final color = miniColor(mode);
+    final pushUp = mode == PlayMode.pushUp, squat = mode == PlayMode.squat;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(28, 22, 28, 20),
+      child: Column(
+        children: [
+          _header(
+            pushUp
+                ? 'A little setup. A lot of sky.'
+                : squat
+                ? 'Feet planted. Wings open.'
+                : 'Small jumps. Big wings.',
+            trailing: [
+              MiniTag(
+                '${widget.course.title.toUpperCase()} · SCORED',
+                icon: widget.course.collectsStars
+                    ? Icons.star_rounded
+                    : Icons.emoji_events_rounded,
+                color: SkyColors.yellow,
+              ),
+            ],
           ),
-        ),
-        const SizedBox(height: 22),
-        Expanded(
-          child: Row(
-            children: [
-              Expanded(
-                flex: 5,
-                child: Panel(
-                  color: const Color(0xffe5f3db),
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: widget.mode == PlayMode.pushUp
-                            ? CustomPaint(
-                                size: const Size(
-                                  double.infinity,
-                                  double.infinity,
+          const SizedBox(height: 16),
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  flex: 5,
+                  child: MiniCard(
+                    accent: color,
+                    padding: EdgeInsets.zero,
+                    child: Column(
+                      children: [
+                        // The picker's scene for this workout, grown into a
+                        // hero: the phone watching, you moving, the bird
+                        // answering.
+                        Expanded(
+                          child: SetupHero(
+                            mode: mode,
+                            color: color,
+                            bird: p.settings.bird,
+                            reducedMotion: controller.reducedMotion,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(14, 0, 14, 10),
+                          child: Column(
+                            children: [
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  pushUp
+                                      ? 'Make a little room to move.'
+                                      : 'Show your whole body.',
+                                  style: heading(23, weight: FontWeight.w700),
                                 ),
-                                painter: const PushUpSetupArt(),
-                              )
-                            : CustomPaint(
-                                size: const Size(
-                                  double.infinity,
-                                  double.infinity,
-                                ),
-                                painter: widget.mode == PlayMode.squat
-                                    ? const SquatSetupArt()
-                                    : const JumpSetupArt(),
                               ),
-                      ),
-                      Text(
-                        widget.mode == PlayMode.pushUp
-                            ? 'Make a little room to move.'
-                            : 'Show your whole body.',
-                        style: heading(25),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        widget.mode == PlayMode.pushUp
-                            ? 'Phone low. Show an arm and hip.\nFacing it? Keep both shoulders in view.'
-                            : widget.mode == PlayMode.squat
-                            ? 'Squat to descend. Stand to rise.\nKeep both feet on the floor.'
-                            : 'Jump for a boost + 3s glide.\nLand before jumping again.',
-                        style: bodyText(15, color: SkyColors.muted),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 12),
-                      _microphoneOption(),
-                    ],
+                              const SizedBox(height: 3),
+                              Text(
+                                pushUp
+                                    ? 'Phone low. Show an arm and hip.\nFacing it? Keep both shoulders in view.'
+                                    : squat
+                                    ? 'Squat to descend. Stand to rise.\nKeep both feet on the floor.'
+                                    : 'Jump for a boost + 3s glide.\nLand before jumping again.',
+                                style: bodyText(
+                                  13.5,
+                                  color: SkyColors.muted,
+                                  weight: FontWeight.w600,
+                                ).copyWith(height: 1.3),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 9),
+                              _microphoneOption(),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 24),
-              Expanded(
-                flex: 4,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'HOW TO FLY',
-                      style: bodyText(
-                        12,
-                        weight: FontWeight.w900,
-                        color: SkyColors.muted,
+                const SizedBox(width: 22),
+                Expanded(
+                  flex: 4,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: MiniCard(
+                          accent: color,
+                          padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.flight_takeoff_rounded,
+                                    size: 15,
+                                    color: Color.lerp(
+                                      color,
+                                      SkyColors.ink,
+                                      .45,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'HOW TO FLY',
+                                    style: bodyText(
+                                      12,
+                                      weight: FontWeight.w900,
+                                      color: SkyColors.muted,
+                                    ).copyWith(letterSpacing: 1.4),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              // Long course notes or large text shrink the
+                              // steps to fit rather than spill out of the card.
+                              Expanded(
+                                child: LayoutBuilder(
+                                  builder: (context, box) => FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    alignment: Alignment.topLeft,
+                                    child: SizedBox(
+                                      width: box.maxWidth,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          _step(
+                                            '1',
+                                            pushUp
+                                                ? 'Show your arm and hip'
+                                                : squat
+                                                ? 'Make room to squat'
+                                                : 'Make room to jump',
+                                            pushUp
+                                                ? 'Facing the phone? Show both shoulders, one arm and a hip.'
+                                                : 'Phone in landscape. Show your body and both feet.',
+                                          ),
+                                          _step(
+                                            '2',
+                                            pushUp
+                                                ? 'Find your movement range'
+                                                : squat
+                                                ? 'Find your comfortable squat'
+                                                : 'Stand tall and still',
+                                            pushUp
+                                                ? 'Find a comfortable top, then move down and up twice.'
+                                                : squat
+                                                ? 'Stand still, squat and hold briefly, then stand back up.'
+                                                : 'Hold still briefly. Then jump for a big boost.',
+                                          ),
+                                          _step(
+                                            '3',
+                                            widget.course.title,
+                                            mode == PlayMode.jump &&
+                                                    widget.course.collectsStars
+                                                ? 'Stars add 0.75s of glide, up to 5s. Collect trios for +5 points.'
+                                                : widget.course.instructions,
+                                            last: true,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              SetupLives(
+                                hearts: widget.course == FlightCourse.starTrail,
+                                text: widget.course == FlightCourse.starTrail
+                                    ? 'Three hearts + a shield. You can pause any time.'
+                                    : 'A collision or losing your position ends a scored flight. You can pause any time.',
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    _step(
-                      '1',
-                      widget.mode == PlayMode.pushUp
-                          ? 'Show your arm and hip'
-                          : widget.mode == PlayMode.squat
-                          ? 'Make room to squat'
-                          : 'Make room to jump',
-                      widget.mode == PlayMode.pushUp
-                          ? 'Facing the phone? Show both shoulders, one arm and a hip.'
-                          : 'Phone in landscape. Show your body and both feet.',
-                    ),
-                    _step(
-                      '2',
-                      widget.mode == PlayMode.pushUp
-                          ? 'Find your movement range'
-                          : widget.mode == PlayMode.squat
-                          ? 'Find your comfortable squat'
-                          : 'Stand tall and still',
-                      widget.mode == PlayMode.pushUp
-                          ? 'Find a comfortable top, then move down and up twice.'
-                          : widget.mode == PlayMode.squat
-                          ? 'Stand still, squat and hold briefly, then stand back up.'
-                          : 'Hold still briefly. Then jump for a big boost.',
-                    ),
-                    _step(
-                      '3',
-                      widget.course.title,
-                      widget.mode == PlayMode.jump &&
-                              widget.course.collectsStars
-                          ? 'Stars add 0.75s of glide, up to 5s. Collect trios for +5 points.'
-                          : widget.course.instructions,
-                    ),
-                    const Spacer(),
-                    Text(
-                      widget.course == FlightCourse.starTrail
-                          ? 'Three hearts + a shield. You can pause any time.'
-                          : 'A collision or losing your position ends a scored flight. You can pause any time.',
-                      style: bodyText(13, color: SkyColors.muted),
-                    ),
-                    const SizedBox(height: 14),
-                    SizedBox(
-                      width: double.infinity,
-                      child: SkyButton(
+                      const SizedBox(height: 12),
+                      MiniKey(
                         label: 'Set up my camera',
-                        icon: Icons.camera_alt_outlined,
+                        icon: Icons.camera_alt_rounded,
+                        colors: miniKeyColors(mode),
+                        size: 22,
                         onPressed: controller.microphoneRequestPending
                             ? null
                             : () => controller.startCamera(),
                       ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// The optional microphone, as a toggle tile: a badge that lights up when
+  /// replays will carry sound, the switch at the far end.
+  Widget _microphoneOption() {
+    final on = controller.recordAudio;
+    return AnimatedContainer(
+      duration:
+          MediaQuery.disableAnimationsOf(context) || controller.reducedMotion
+          ? Duration.zero
+          : const Duration(milliseconds: 180),
+      padding: const EdgeInsets.fromLTRB(8, 5, 4, 5),
+      decoration: BoxDecoration(
+        color: on
+            ? Color.lerp(SkyColors.mint, SkyColors.cream, .55)
+            : SkyColors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: on ? SkyColors.teal : SkyColors.ink.withValues(alpha: .2),
+          width: 1.5,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              SetupMicBadge(on: on),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text.rich(
+                      TextSpan(
+                        text: 'Record microphone',
+                        children: [
+                          TextSpan(
+                            text: on ? ' · On' : ' · Optional',
+                            style: bodyText(
+                              12.5,
+                              color: on ? SkyColors.teal : SkyColors.muted,
+                              weight: on ? FontWeight.w900 : FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: bodyText(13.5, weight: FontWeight.w800),
+                    ),
+                    const SizedBox(height: 1),
+                    Text(
+                      controller.microphoneMessage.isEmpty
+                          ? 'Add your voice and room sound to replays. Uses the microphone during flight only. Saved on this phone.'
+                          : controller.microphoneMessage,
+                      style: bodyText(
+                        10.5,
+                        color: SkyColors.muted,
+                      ).copyWith(height: 1.25),
                     ),
                   ],
                 ),
               ),
+              Semantics(
+                label: 'Record microphone for replays',
+                child: Switch(
+                  value: on,
+                  activeTrackColor: SkyColors.teal,
+                  activeThumbColor: SkyColors.white,
+                  inactiveTrackColor: SkyColors.cream,
+                  inactiveThumbColor: SkyColors.muted,
+                  trackOutlineColor: WidgetStatePropertyAll(
+                    on ? SkyColors.ink : SkyColors.ink.withValues(alpha: .5),
+                  ),
+                  onChanged: controller.microphoneRequestPending
+                      ? null
+                      : controller.setRecordAudio,
+                ),
+              ),
             ],
           ),
-        ),
-      ],
-    ),
-  );
-  Widget _microphoneOption() => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-    decoration: BoxDecoration(
-      color: SkyColors.cream,
-      borderRadius: BorderRadius.circular(14),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            const Icon(Icons.mic_none_rounded, size: 22),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                'Record microphone · Optional',
-                style: bodyText(14, weight: FontWeight.w800),
+          if (controller.microphoneSettingsAvailable)
+            Padding(
+              padding: const EdgeInsets.only(left: 38),
+              child: TextButton.icon(
+                onPressed: controller.source!.openSettings,
+                icon: const Icon(Icons.settings_rounded, size: 16),
+                label: const Text('Microphone settings'),
               ),
             ),
-            Semantics(
-              label: 'Record microphone for replays',
-              child: Switch(
-                value: controller.recordAudio,
-                onChanged: controller.microphoneRequestPending
-                    ? null
-                    : controller.setRecordAudio,
-              ),
-            ),
-          ],
-        ),
-        Text(
-          controller.microphoneMessage.isEmpty
-              ? 'Add your voice and room sound to replays. Uses the microphone during flight only. Saved on this phone.'
-              : controller.microphoneMessage,
-          style: bodyText(12, color: SkyColors.muted),
-        ),
-        if (controller.microphoneSettingsAvailable)
-          TextButton(
-            onPressed: controller.source!.openSettings,
-            child: const Text('Microphone settings'),
-          ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 
-  Widget _step(String number, String title, String subtitle) => Padding(
-    padding: const EdgeInsets.only(bottom: 8),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 30,
-          height: 30,
-          alignment: Alignment.center,
-          decoration: const BoxDecoration(
-            color: SkyColors.yellow,
-            shape: BoxShape.circle,
-          ),
-          child: Text(number, style: bodyText(16, weight: FontWeight.w900)),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: heading(20)),
-              const SizedBox(height: 4),
-              Text(subtitle, style: bodyText(14, color: SkyColors.muted)),
-            ],
-          ),
-        ),
-      ],
-    ),
+  Widget _step(
+    String number,
+    String title,
+    String subtitle, {
+    bool last = false,
+  }) => SetupStep(
+    number: number,
+    title: title,
+    subtitle: subtitle,
+    color: miniColor(widget.mode),
+    last: last,
   );
   Widget _calibration(ProgressSnapshot p) {
     final ready = controller.stage == PlayStage.ready,
         busy = controller.stage == PlayStage.starting,
         error = controller.stage == PlayStage.error;
+    final mode = widget.mode, accent = miniColor(mode);
+    final still = p.settings.reducedMotion;
     final title = ready
         ? 'You found your wings!'
         : busy
         ? 'Waking up your camera…'
         : error
         ? 'Let’s reconnect your camera.'
-        : widget.mode.controlsHeight
+        : mode.controlsHeight
         ? 'Find your movement range.'
         : 'Stand tall and still.';
+    final camera = busy
+        ? CameraState.starting
+        : error
+        ? CameraState.offline
+        : ready
+        ? CameraState.ready
+        : CameraState.live;
+    final body = controller.body, squat = controller.squat;
+    final (step, stepTitle) = ready
+        ? (3, 'Try moving your bird.')
+        : mode == PlayMode.pushUp
+        ? switch (body.step) {
+            BodyCalibrationStep.position => (1, 'Find a comfortable top.'),
+            BodyCalibrationStep.lower => (2, 'Lower yourself slowly.'),
+            _ => (3, 'Push back up.'),
+          }
+        : mode == PlayMode.squat
+        ? switch (squat.step) {
+            SquatCalibrationStep.standing => (1, 'Stand tall and still.'),
+            SquatCalibrationStep.lower => (2, 'Squat comfortably.'),
+            SquatCalibrationStep.rise => (3, 'Stand back up.'),
+            SquatCalibrationStep.complete => (3, 'You found your wings!'),
+          }
+        : (1, 'Stand tall and still.');
+    // Push-ups fill half the meter each, a little more as each one goes down
+    // and comes back up; squats a third per step; jumps over the still hold.
+    final (segments, progress) = switch (mode) {
+      PlayMode.pushUp => (
+        2,
+        (body.cycles +
+                switch (body.step) {
+                  BodyCalibrationStep.lower => .35,
+                  BodyCalibrationStep.raise => .7,
+                  _ => 0.0,
+                }) /
+            2,
+      ),
+      PlayMode.squat => (3, squat.progress),
+      _ => (4, controller.jump.progress),
+    };
+    // The way back when the camera will not start: what usually fixes it,
+    // then Try again and a shortcut to the camera permission.
+    final trouble = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: MiniCard(
+            accent: SkyColors.coral,
+            padding: const EdgeInsets.fromLTRB(18, 16, 18, 14),
+            child: LayoutBuilder(
+              builder: (context, box) => FittedBox(
+                fit: BoxFit.scaleDown,
+                child: SizedBox(
+                  width: box.maxWidth,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 58,
+                        height: 58,
+                        decoration: BoxDecoration(
+                          color: Color.lerp(
+                            SkyColors.coral,
+                            SkyColors.cream,
+                            .55,
+                          ),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: SkyColors.ink, width: 2.5),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: SkyColors.ink,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.videocam_off_rounded,
+                          size: 30,
+                          color: SkyColors.coralDeep,
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      Text(
+                        'A fresh start usually helps.',
+                        style: heading(23, weight: FontWeight.w700),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      const CalibrationTip(
+                        icon: Icons.lock_open_rounded,
+                        text: 'Allow camera access in Settings.',
+                      ),
+                      const SizedBox(height: 10),
+                      const CalibrationTip(
+                        icon: Icons.apps_rounded,
+                        text: 'Close any other camera app, then try again.',
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: MiniKey(
+                label: 'Try again',
+                icon: Icons.refresh_rounded,
+                colors: miniKeyColors(mode),
+                height: 58,
+                size: 20,
+                onPressed: () => controller.startCamera(),
+              ),
+            ),
+            const SizedBox(width: 12),
+            MiniRoundKey(
+              icon: Icons.settings_rounded,
+              label: 'Camera permission settings',
+              onPressed: controller.source!.openSettings,
+            ),
+          ],
+        ),
+      ],
+    );
+    // The step at hand, the bird following the player in its little sky, a
+    // meter for how far calibration has come, and the way on.
+    final guide = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        CalibrationStepTitle(
+          title: stepTitle,
+          step: step,
+          accent: accent,
+          done: ready,
+        ),
+        const SizedBox(height: 6),
+        Text(
+          ready
+              ? (mode == PlayMode.pushUp
+                    ? 'Push up to rise. Lower to glide.'
+                    : mode == PlayMode.squat
+                    ? 'Squat to descend. Stand to rise.'
+                    : 'Jump, then rest while your bird glides.')
+              : (mode == PlayMode.pushUp
+                    ? 'Keep your shoulders, one arm and a hip in view. Move comfortably.'
+                    : 'Keep your shoulders, hips and both feet in view.'),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: bodyText(13.5, color: SkyColors.ink, weight: FontWeight.w700),
+        ),
+        const SizedBox(height: 10),
+        Expanded(
+          child: MiniCard(
+            accent: ready ? SkyColors.mint : accent,
+            padding: EdgeInsets.zero,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: CalibrationPreview(
+                    bird: p.settings.bird,
+                    color: ready ? SkyColors.mint : accent,
+                    still: still,
+                    height: ready
+                        ? controller.movement.height
+                        : mode == PlayMode.pushUp
+                        ? body.previewHeight
+                        : mode == PlayMode.squat
+                        ? squat.previewHeight
+                        : .5,
+                    caption: !ready
+                        ? (mode.controlsHeight
+                              ? 'Learning your range as you move.'
+                              : 'Your bird moves after calibration.')
+                        : mode == PlayMode.jump
+                        ? (controller.movement.flap
+                              ? 'Jump!'
+                              : controller.movement.feedback)
+                        : null,
+                  ),
+                ),
+                DecoratedBox(
+                  decoration: const BoxDecoration(
+                    border: Border(
+                      top: BorderSide(color: SkyColors.ink, width: 2),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 9, 10, 9),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: CalibrationMeter(
+                            value: ready ? 1 : progress,
+                            segments: segments,
+                            color: ready ? const Color(0xff69c893) : accent,
+                            still: still,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: MiniTag(
+                            ready
+                                ? 'CONTROL CHECK'
+                                : mode == PlayMode.pushUp
+                                ? '${body.cycles} / 2 PUSH-UPS'
+                                : '${((mode == PlayMode.squat ? squat.progress : controller.jump.progress) * 100).round()}% CALIBRATED',
+                            color: ready ? SkyColors.mint : SkyColors.yellow,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        if (ready)
+          MiniKey(
+            label: 'Ready for takeoff',
+            icon: Icons.flight_takeoff_rounded,
+            colors: miniKeyColors(mode),
+            height: 58,
+            size: 20,
+            onPressed: controller.fly,
+          )
+        else
+          MiniKey(
+            label: busy ? 'Starting…' : 'Start calibration again',
+            onPressed: busy ? null : () => controller.startCamera(),
+            colors: HomeKeyColors.paper,
+            icon: Icons.restart_alt_rounded,
+            height: 58,
+            size: 19,
+            busy: busy,
+          ),
+        const SizedBox(height: 5),
+        CalibrationMetrics(
+          '${controller.metrics.hz.toStringAsFixed(0)} updates/s · ${controller.metrics.p95.toStringAsFixed(0)} ms p95${controller.metrics.sensorTimestamp ? '' : ' (processing only)'}',
+        ),
+      ],
+    );
     return Stack(
       children: [
         Positioned(
@@ -746,77 +1080,121 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
           top: 24,
           child: _header(
             title,
-            trailing: Row(
-              children: [
-                RoundButton(
-                  icon: Icons.cameraswitch_outlined,
-                  label: 'Switch camera',
-                  onPressed: busy ? null : controller.switchCamera,
-                ),
-                const SizedBox(width: 10),
-                Pill(
-                  ready
-                      ? 'READY'
-                      : busy
-                      ? 'STARTING'
-                      : 'CALIBRATING',
-                  icon: ready
-                      ? Icons.check_circle_outline
-                      : Icons.center_focus_strong,
-                  color: ready ? SkyColors.mint : SkyColors.cream,
-                ),
-              ],
-            ),
+            trailing: [
+              MiniTag(
+                ready
+                    ? 'READY'
+                    : busy
+                    ? 'STARTING'
+                    : error
+                    ? 'CAMERA OFF'
+                    : 'CALIBRATING',
+                icon: ready
+                    ? Icons.check_circle_rounded
+                    : error
+                    ? Icons.videocam_off_rounded
+                    : Icons.center_focus_strong_rounded,
+                color: ready
+                    ? SkyColors.mint
+                    : error
+                    ? Color.lerp(SkyColors.coral, SkyColors.cream, .5)!
+                    : SkyColors.cream,
+              ),
+              MiniRoundKey(
+                icon: Icons.cameraswitch_rounded,
+                label: 'Switch camera',
+                onPressed: busy ? null : controller.switchCamera,
+              ),
+            ],
           ),
         ),
+        // The camera window keeps the live preview's exact box; its frame
+        // paints outside it, and only small marks sit over the picture.
         Positioned(
           left: 28,
           top: 92,
           width: 540,
           height: 322,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(24),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                if (busy || error) Container(color: SkyColors.ink),
-                IgnorePointer(
-                  child: CustomPaint(
-                    painter: LandmarkPainter(
-                      controller.latest,
-                      controller.front,
-                      widget.mode,
-                    ),
-                  ),
-                ),
-                if (busy)
-                  const Center(
-                    child: CircularProgressIndicator(color: SkyColors.yellow),
-                  ),
-                Positioned(
-                  left: 14,
-                  right: 14,
-                  bottom: 14,
-                  child: Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: SkyColors.ink.withValues(alpha: .9),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Text(
-                      controller.message.isEmpty
-                          ? 'Step into view'
-                          : controller.message,
-                      style: bodyText(
-                        18,
-                        color: SkyColors.white,
-                        weight: FontWeight.w800,
+          child: CameraBezel(
+            accent: accent,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  if (busy || error)
+                    const DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: RadialGradient(
+                          radius: 1.1,
+                          colors: [Color(0xff2b4b56), SkyColors.night],
+                        ),
                       ),
                     ),
+                  // While the camera wakes, its lens has the window to
+                  // itself; the pose guide returns once it is watching.
+                  if (!busy)
+                    IgnorePointer(
+                      child: CustomPaint(
+                        painter: LandmarkPainter(
+                          controller.latest,
+                          controller.front,
+                          mode,
+                        ),
+                      ),
+                    ),
+                  ViewfinderCorners(
+                    color: switch (camera) {
+                      CameraState.starting => SkyColors.yellow,
+                      CameraState.live => SkyColors.cream,
+                      CameraState.ready => const Color(0xff7fe0a8),
+                      CameraState.offline => SkyColors.coral,
+                    },
                   ),
-                ),
-              ],
+                  if (busy)
+                    Align(
+                      alignment: const Alignment(0, -.3),
+                      child: WakingLens(accent: SkyColors.yellow, still: still),
+                    ),
+                  if (error)
+                    const Align(
+                      alignment: Alignment(0, -.45),
+                      child: SleepyCamera(size: 132),
+                    ),
+                  Positioned(
+                    left: 14,
+                    right: 14,
+                    bottom: 14,
+                    child: CalibrationNote(
+                      text: controller.message.isEmpty
+                          ? 'Step into view'
+                          : controller.message,
+                      icon: busy
+                          ? Icons.hourglass_top_rounded
+                          : error
+                          ? Icons.videocam_off_rounded
+                          : ready
+                          ? Icons.flight_rounded
+                          : Icons.accessibility_new_rounded,
+                      accent: error
+                          ? SkyColors.coral
+                          : ready
+                          ? SkyColors.mint
+                          : accent,
+                    ),
+                  ),
+                ],
+              ),
             ),
+          ),
+        ),
+        // The badge sits on the frame's top edge, like a camera's notch.
+        Positioned(
+          left: 28,
+          width: 540,
+          top: 92 - CameraBezel.width - 6,
+          child: Center(
+            child: CameraBadge(state: camera, still: still),
           ),
         ),
         Positioned(
@@ -824,181 +1202,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
           right: 28,
           top: 92,
           bottom: 36,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (error) ...[
-                Expanded(
-                  child: Panel(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.videocam_off_outlined,
-                          size: 46,
-                          color: SkyColors.coralDeep,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'A fresh start usually helps.',
-                          style: heading(24),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          'Allow camera access in Settings. Close any other camera app, then try again.',
-                          style: bodyText(15, color: SkyColors.muted),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: SkyButton(
-                        label: 'Try again',
-                        onPressed: () => controller.startCamera(),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    RoundButton(
-                      icon: Icons.settings_outlined,
-                      label: 'Camera permission settings',
-                      onPressed: controller.source!.openSettings,
-                    ),
-                  ],
-                ),
-              ] else ...[
-                Text(
-                  ready
-                      ? 'Try moving your bird.'
-                      : widget.mode == PlayMode.pushUp
-                      ? controller.body.step == BodyCalibrationStep.position
-                            ? 'Find a comfortable top.'
-                            : controller.body.step == BodyCalibrationStep.lower
-                            ? 'Lower yourself slowly.'
-                            : 'Push back up.'
-                      : widget.mode == PlayMode.squat
-                      ? switch (controller.squat.step) {
-                          SquatCalibrationStep.standing =>
-                            'Stand tall and still.',
-                          SquatCalibrationStep.lower => 'Squat comfortably.',
-                          SquatCalibrationStep.rise => 'Stand back up.',
-                          SquatCalibrationStep.complete =>
-                            'You found your wings!',
-                        }
-                      : 'Stand tall and still.',
-                  style: heading(27),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  ready
-                      ? (widget.mode == PlayMode.pushUp
-                            ? 'Push up to rise. Lower to glide.'
-                            : widget.mode == PlayMode.squat
-                            ? 'Squat to descend. Stand to rise.'
-                            : 'Jump, then rest while your bird glides.')
-                      : (widget.mode == PlayMode.pushUp
-                            ? 'Keep your shoulders, one arm and a hip in view. Move comfortably.'
-                            : 'Keep your shoulders, hips and both feet in view.'),
-                  style: bodyText(14, color: SkyColors.muted),
-                ),
-                const SizedBox(height: 12),
-                Expanded(
-                  child: Panel(
-                    padding: const EdgeInsets.all(12),
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          top: 0,
-                          right: 0,
-                          child: Pill(
-                            ready
-                                ? 'CONTROL CHECK'
-                                : widget.mode == PlayMode.pushUp
-                                ? '${controller.body.cycles} / 2 PUSH-UPS'
-                                : '${((widget.mode == PlayMode.squat ? controller.squat.progress : controller.jump.progress) * 100).round()}% CALIBRATED',
-                            color: ready ? SkyColors.mint : SkyColors.yellow,
-                          ),
-                        ),
-                        Align(
-                          alignment: Alignment(
-                            -.45,
-                            ready
-                                ? .8 - controller.movement.height * 1.6
-                                : widget.mode == PlayMode.pushUp
-                                ? .8 - controller.body.previewHeight * 1.6
-                                : widget.mode == PlayMode.squat
-                                ? .8 - controller.squat.previewHeight * 1.6
-                                : 0,
-                          ),
-                          child: BirdArt(
-                            bird: p.settings.bird,
-                            size: 100,
-                            bob: false,
-                          ),
-                        ),
-                        if (!ready)
-                          Positioned(
-                            bottom: 4,
-                            left: 0,
-                            right: 0,
-                            child: Text(
-                              widget.mode.controlsHeight
-                                  ? 'Learning your range as you move.'
-                                  : 'Your bird moves after calibration.',
-                              style: bodyText(12, color: SkyColors.muted),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        if (ready && widget.mode == PlayMode.jump)
-                          Positioned(
-                            bottom: 4,
-                            left: 0,
-                            right: 0,
-                            child: Text(
-                              controller.movement.flap
-                                  ? 'Jump!'
-                                  : controller.movement.feedback,
-                              style: bodyText(12, color: SkyColors.muted),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                if (ready)
-                  SizedBox(
-                    width: double.infinity,
-                    child: SkyButton(
-                      label: 'Ready for takeoff',
-                      onPressed: controller.fly,
-                    ),
-                  )
-                else
-                  SizedBox(
-                    width: double.infinity,
-                    child: SkyButton(
-                      label: busy ? 'Starting…' : 'Start calibration again',
-                      onPressed: busy ? null : () => controller.startCamera(),
-                      color: SkyColors.cream,
-                      icon: Icons.restart_alt_rounded,
-                      busy: busy,
-                    ),
-                  ),
-                const SizedBox(height: 6),
-                Text(
-                  '${controller.metrics.hz.toStringAsFixed(0)} updates/s · ${controller.metrics.p95.toStringAsFixed(0)} ms p95${controller.metrics.sensorTimestamp ? '' : ' (processing only)'}',
-                  style: bodyText(11, color: SkyColors.muted),
-                ),
-              ],
-            ],
-          ),
+          child: error ? trouble : guide,
         ),
       ],
     );
@@ -1519,354 +1723,18 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     );
   }
 
-  Widget _results(ProgressSnapshot p) {
-    final r = controller.result!;
-    final goals = FlightGoals.forRun(r);
-    final newStamps = p.passport
-        .where((p) => p.earned && !initialStamps.contains(p.stamp))
-        .toList();
-    final nextStamp = p.nextStamp;
-    final newDailyCard =
-        controller.saved &&
-        p.today?.complete == true &&
-        (initialDailyKey != p.today?.dayKey || !initialDailyComplete);
-    final isBest = r.score > initialBest;
-    final reason = switch (r.reason) {
-      EndReason.collision => 'A little bump in the clouds.',
-      EndReason.trackingLost => 'We lost sight of you for a moment.',
-      EndReason.postureLost => 'Your position moved out of range.',
-      EndReason.backgrounded => 'You stepped away from the sky.',
-      EndReason.breakTaken => 'A well-earned breather.',
-      EndReason.quit => 'Until the next adventure.',
-      EndReason.stalled => 'The game was interrupted.',
-      EndReason.completed => 'A whole sky of stars. All yours.',
-    };
-    return Padding(
-      padding: const EdgeInsets.all(30),
-      child: Column(
-        children: [
-          _header(
-            'Every flight counts.',
-            trailing: Pill(
-              isBest ? 'NEW PERSONAL BEST!' : 'FLIGHT COMPLETE',
-              icon: Icons.emoji_events_outlined,
-              color: SkyColors.yellow,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Expanded(
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 4,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      FlightPortrait(
-                        key: ValueKey(r.id),
-                        bird: p.settings.bird,
-                        reducedMotion: p.settings.reducedMotion,
-                        arrivedCourse:
-                            r.reason == EndReason.completed &&
-                                r.course.legacyTimed
-                            ? r.course
-                            : null,
-                        celebrate:
-                            isBest ||
-                            FlightGoals.earned(goals) == 3 ||
-                            newDailyCard ||
-                            newStamps.isNotEmpty ||
-                            r.reason == EndReason.completed,
-                      ),
-                      Text(
-                        isBest
-                            ? 'Look at you go!'
-                            : r.reason == EndReason.completed
-                            ? 'Trail complete!'
-                            : 'Nice flying.',
-                        style: heading(40),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        reason,
-                        style: bodyText(16, color: SkyColors.muted),
-                        textAlign: TextAlign.center,
-                      ),
-                      if (newDailyCard) ...[
-                        const SizedBox(height: 8),
-                        TextButton.icon(
-                          onPressed: () => leave('/daily'),
-                          icon: const Icon(
-                            Icons.local_post_office_outlined,
-                            color: SkyColors.teal,
-                          ),
-                          label: Text(
-                            'Today’s postcard stamped!',
-                            style: bodyText(13, weight: FontWeight.w900),
-                          ),
-                        ),
-                      ] else if (newStamps.isNotEmpty) ...[
-                        const SizedBox(height: 8),
-                        TextButton.icon(
-                          onPressed: () => leave('/passport'),
-                          icon: const Icon(
-                            Icons.workspace_premium_rounded,
-                            color: SkyColors.gold,
-                          ),
-                          label: Text(
-                            'Stamp earned: ${newStamps.first.stamp.title}',
-                            style: bodyText(13, weight: FontWeight.w900),
-                          ),
-                        ),
-                      ] else if (controller.saved && nextStamp != null) ...[
-                        const SizedBox(height: 8),
-                        TextButton.icon(
-                          onPressed: () => leave('/passport'),
-                          icon: const Icon(Icons.explore_outlined, size: 22),
-                          label: Column(
-                            children: [
-                              Text(
-                                'Next stamp: ${nextStamp.stamp.title} · ${nextStamp.current}/${nextStamp.stamp.target}',
-                                style: bodyText(13, weight: FontWeight.w900),
-                              ),
-                              const SizedBox(height: 3),
-                              Text(
-                                nextStamp.stamp.description,
-                                style: bodyText(11, color: SkyColors.muted),
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 26),
-                Expanded(
-                  flex: 5,
-                  child: Panel(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: SingleChildScrollView(
-                            child: Column(
-                              children: [
-                                if (goals.isNotEmpty)
-                                  TextButton(
-                                    key: const ValueKey('result-flight-goals'),
-                                    onPressed: () => showFlightGoals(
-                                      context,
-                                      r.course,
-                                      progress: goals,
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        FlightWings(goals: goals),
-                                        const SizedBox(width: 10),
-                                        Text(
-                                          '${FlightGoals.earned(goals)}/3 flight wings',
-                                          style: bodyText(
-                                            13,
-                                            weight: FontWeight.w900,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 6),
-                                        const Icon(
-                                          Icons.chevron_right_rounded,
-                                          size: 18,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: _stat(
-                                        widget.course.scoreLabel,
-                                        '${r.score}',
-                                        large: true,
-                                      ),
-                                    ),
-                                    Container(
-                                      height: 70,
-                                      width: 1,
-                                      color: SkyColors.sand,
-                                    ),
-                                    Expanded(
-                                      child: _stat(
-                                        'PERSONAL BEST',
-                                        '${p.record(widget.mode, widget.course).best}',
-                                        large: true,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: _stat(
-                                        widget.mode == PlayMode.pushUp
-                                            ? 'PUSH-UPS'
-                                            : widget.mode == PlayMode.squat
-                                            ? 'SQUATS'
-                                            : widget.mode == PlayMode.jump
-                                            ? 'JUMPS'
-                                            : 'FLAPS',
-                                        '${widget.mode.controlsHeight ? r.repetitions : r.flaps}',
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: _stat(
-                                        'FLIGHT TIME',
-                                        '${r.durationSeconds.round()}s',
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Pill(
-                                      '${r.perfectPasses} perfect',
-                                      icon: Icons.center_focus_strong_rounded,
-                                      color: SkyColors.mint,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    if (r.course.collectsStars)
-                                      Pill(
-                                        '${r.bestCombo} best streak',
-                                        icon: Icons.auto_awesome,
-                                        color: SkyColors.yellow,
-                                      )
-                                    else if (r.score >= 5)
-                                      Pill(
-                                        r.score >= 25
-                                            ? 'Sky captain'
-                                            : r.score >= 10
-                                            ? 'Cloud explorer'
-                                            : 'First wings',
-                                        icon: Icons.workspace_premium_outlined,
-                                        color: SkyColors.yellow,
-                                      ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                if (controller.saveError.isNotEmpty)
-                                  TextButton(
-                                    onPressed: controller.persist,
-                                    child: Text(
-                                      controller.saveError,
-                                      style: bodyText(
-                                        13,
-                                        color: SkyColors.coralDeep,
-                                      ),
-                                    ),
-                                  )
-                                else
-                                  Text(
-                                    controller.saved
-                                        ? 'Saved on this phone · ${p.totalObstacles} total gates'
-                                        : 'Saving your flight…',
-                                    style: bodyText(13, color: SkyColors.muted),
-                                  ),
-                                if (controller.sessionSaved)
-                                  Text(
-                                    'Session saved · Watch in Records',
-                                    style: bodyText(12, color: SkyColors.teal),
-                                  ),
-                                if (controller.sessionError.isNotEmpty ||
-                                    controller.cameraRecordingError.isNotEmpty)
-                                  Text(
-                                    controller.sessionError.isNotEmpty
-                                        ? controller.sessionError
-                                        : controller.cameraRecordingError,
-                                    style: bodyText(
-                                      11,
-                                      color: SkyColors.coralDeep,
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(
-                              flex: 2,
-                              child: SkyButton(
-                                label: 'Home',
-                                compact: true,
-                                onPressed: leave,
-                                color: SkyColors.cream,
-                                icon: Icons.home_outlined,
-                              ),
-                            ),
-                            if (controller.simulation?.started == true) ...[
-                              const SizedBox(width: 8),
-                              Expanded(
-                                flex: 3,
-                                child: SkyButton(
-                                  key: const ValueKey('save-or-watch-session'),
-                                  label: controller.sessionSaved
-                                      ? 'Watch replay'
-                                      : controller.preparingReplay
-                                      ? 'Preparing…'
-                                      : controller.sessionSaving
-                                      ? 'Saving…'
-                                      : 'Save session',
-                                  compact: true,
-                                  color: SkyColors.yellow,
-                                  icon: null,
-                                  busy:
-                                      controller.preparingReplay ||
-                                      controller.sessionSaving,
-                                  onPressed: controller.sessionSaved
-                                      ? () => leave('/replay/${r.id}')
-                                      : controller.canSaveSession &&
-                                            !controller.sessionSaving
-                                      ? controller.persistSession
-                                      : null,
-                                ),
-                              ),
-                            ],
-                            const SizedBox(width: 8),
-                            Expanded(
-                              flex: 3,
-                              child: SkyButton(
-                                label: 'Fly again',
-                                compact: true,
-                                onPressed: () => controller.retry(),
-                                icon: Icons.replay_rounded,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _stat(String label, String value, {bool large = false}) => Column(
-    children: [
-      Text(
-        label,
-        style: bodyText(12, color: SkyColors.muted, weight: FontWeight.w900),
-      ),
-      const SizedBox(height: 4),
-      Text(value, style: heading(large ? 42 : 24)),
-    ],
+  /// A flight that ended without a bump, outside the campaign: a workout
+  /// finished from the pause menu, or a whole trail flown.
+  Widget _results(ProgressSnapshot p) => MiniResults(
+    key: ValueKey(controller.result!.id),
+    controller: controller,
+    progress: p,
+    mode: widget.mode,
+    course: widget.course,
+    initialBest: initialBest,
+    initialStamps: initialStamps,
+    initialDailyKey: initialDailyKey,
+    initialDailyComplete: initialDailyComplete,
+    onLeave: leave,
   );
 }
