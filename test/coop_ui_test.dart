@@ -37,7 +37,8 @@ void main() {
     addTearDown(repo.close);
     await repo.equipBird(2);
     var progress = await repo.load();
-    expect(progress.coop.birds, (2, 3));
+    // Minty and the next unlocked bird; Orbit costs stars.
+    expect(progress.coop.birds, (2, 1));
     expect(progress.coop.mode, CoopMode.roped);
     expect(progress.coop.record(CoopMode.roped).best, 0);
     RunResult run(String id, int score) => RunResult(
@@ -131,12 +132,15 @@ void main() {
       expect(find.text('Fly Together'), findsOneWidget);
       expect(tester.takeException(), isNull);
 
-      // Player 1 takes Minty, player 2 Orbit.
+      // Locked Pip and Orbit are not offered; player 1 takes Minty and
+      // player 2 Peaches.
+      expect(find.byKey(const ValueKey('coop-pick-1-3')), findsNothing);
+      expect(find.byKey(const ValueKey('coop-pick-0-0')), findsNothing);
       await tester.tap(find.byKey(const ValueKey('coop-pick-0-2')));
-      await tester.tap(find.byKey(const ValueKey('coop-pick-1-3')));
+      await tester.tap(find.byKey(const ValueKey('coop-pick-1-1')));
       await tester.pumpAndSettle();
       expect(find.byKey(const ValueKey('coop-bird-0-2')), findsOneWidget);
-      expect(find.byKey(const ValueKey('coop-bird-1-3')), findsOneWidget);
+      expect(find.byKey(const ValueKey('coop-bird-1-1')), findsOneWidget);
       if (mode == CoopMode.free) {
         await tester.tap(find.byKey(const ValueKey('coop-mode-free')));
         await tester.pumpAndSettle();
@@ -153,7 +157,7 @@ void main() {
       await tester.pump();
       game.pauseEngine();
       expect(game.bird, 2);
-      expect(game.partnerBird, 3);
+      expect(game.partnerBird, 1);
       final sim = game.simulation;
       expect(sim.paired, isTrue);
       expect(sim.coop, mode);
@@ -228,7 +232,7 @@ void main() {
       expect(progress.coop.record(mode).flights, 1);
       expect(progress.coop.flights, 1);
       expect(progress.coop.mode, mode);
-      expect(progress.coop.birds, (2, 3));
+      expect(progress.coop.birds, (2, 1));
       expect(progress.flightsFlown, 0);
 
       await tester.tap(find.byKey(const ValueKey('coop-change')));

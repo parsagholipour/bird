@@ -195,6 +195,11 @@ const firstBird = 2;
 
 /// The order the bird pickers show the cast in, [firstBird] first.
 const birdOrder = [firstBird, 0, 1, 3];
+
+/// Stars each bird costs to unlock, by index: Pip 500 and Orbit 1000;
+/// Peaches and Minty fly free from the start.
+const birdPrices = [500, 0, 0, 1000];
+
 const birdDescriptions = [
   'Small bird. Big sky.',
   'Rosy cheeks, curly crest, all heart.',
@@ -279,6 +284,8 @@ class ProgressSnapshot {
     this.trailSquat = const ModeRecord(),
     this.campaignFlights = const ModeRecord(),
     this.birdsFlown = const {},
+    this.birdFlights = const {},
+    this.unlockedBirds = const {1, 2},
     this.recent = const [],
     this.adventures = const [],
     this.coop = const CoopProgress(),
@@ -332,6 +339,19 @@ class ProgressSnapshot {
 
   /// Birds taken on at least one scored flight, campaign levels included.
   final Set<int> birdsFlown;
+
+  /// Scored flights per bird, campaign levels included. Birds never flown
+  /// are missing.
+  final Map<int, int> birdFlights;
+
+  /// Birds the player may fly: the free ones, the ones bought with stars,
+  /// and any a save flew or had equipped before birds cost stars.
+  final Set<int> unlockedBirds;
+  bool birdUnlocked(int bird) => unlockedBirds.contains(bird);
+
+  /// Whether [bird] is still locked and the wallet can pay for it.
+  bool canUnlock(int bird) =>
+      !birdUnlocked(bird) && starWallet >= birdPrices[bird];
 
   /// The latest endless flights.
   final List<RunResult> recent;
@@ -413,6 +433,10 @@ abstract interface class ProgressRepository {
   /// Buys [p]'s next level with collected stars. Throws a [StateError] when
   /// it is already at the top or the wallet cannot pay for it.
   Future<void> buyUpgrade(PowerUp p);
+
+  /// Unlocks [bird] for its [birdPrices] stars. Throws a [StateError] when
+  /// it is already unlocked or the wallet cannot pay for it.
+  Future<void> unlockBird(int bird);
   Future<void> reset();
   Future<void> close();
 }
@@ -428,13 +452,8 @@ class SqliteProgressRepository implements ProgressRepository {
       for (final row in await db.select(db.preferences).get())
         row.key: row.value,
     };
-    final birdsFlown = {
-      for (final row
-          in await db
-              .customSelect('SELECT DISTINCT bird FROM runs WHERE practice = 0')
-              .get())
-        row.read<int>('bird'),
-    };
+    final birdFlights = await _birdFlights();
+    final birdsFlown = birdFlights.keys.toSet();
     Future<ModeRecord> tally(
       String where, [
       List<Variable> variables = const [],
@@ -489,6 +508,7 @@ class SqliteProgressRepository implements ProgressRepository {
               ..limit(10))
             .get();
     final levels = await db.select(db.levelProgress).get();
+    final unlocked = await _unlockedBirds(prefs, birdsFlown);
     return ProgressSnapshot(
       settings: GameSettings(
         music: prefs['music'] != 'false',
@@ -514,6 +534,8 @@ class SqliteProgressRepository implements ProgressRepository {
         storyWatched: _storyWatched(prefs[_storyKey]),
       ),
       birdsFlown: birdsFlown,
+      birdFlights: birdFlights,
+      unlockedBirds: unlocked,
       recent: rows.map(_runResult).toList(),
       coop: CoopProgress(
         records: {
@@ -524,7 +546,7 @@ class SqliteProgressRepository implements ProgressRepository {
                   int.tryParse(prefs[_coopKey('Flights', mode)] ?? '') ?? 0,
             ),
         },
-        birds: _coopBirds(prefs[_coopBirdsKey], selected),
+        birds: _coopBirds(prefs[_coopBirdsKey], selected, unlocked),
         mode:
             CoopMode.values.asNameMap()[prefs[_coopModeKey]] ?? CoopMode.roped,
       ),
@@ -738,16 +760,99 @@ class SqliteProgressRepository implements ProgressRepository {
       'coop$name.${mode.name}';
 
   /// The saved co-op birds, or the equipped bird and the next one.
-  static (int, int) _coopBirds(String? saved, int equipped) {
-    final first = equipped >= 0 && equipped < birdNames.length ? equipped : 0;
-    final fallback = (first, (first + 1) % birdNames.length);
+  /// The saved co-op birds, or the equipped bird and the next unlocked one
+  /// the pickers show. Locked birds never fly co-op.
+  static (int, int) _coopBirds(String? saved, int equipped, Set<int> unlocked) {
+    bool valid(int? bird) =>
+        bird != null &&
+        bird >= 0 &&
+        bird < birdNames.length &&
+        unlocked.contains(bird);
+    final first = valid(equipped) ? equipped : firstBird;
+    final fallback = (
+      first,
+      birdOrder.firstWhere((b) => b != first && valid(b)),
+    );
     final parts = saved?.split(',').map(int.tryParse).toList();
     if (parts == null || parts.length != 2) return fallback;
     final [a, b] = parts;
-    bool valid(int? bird) =>
-        bird != null && bird >= 0 && bird < birdNames.length;
     return valid(a) && valid(b) ? (a!, b!) : fallback;
   }
+
+  Future<Map<int, int>> _birdFlights() async => {
+    for (final row
+        in await db
+            .customSelect(
+              'SELECT bird, COUNT(*) AS n FROM runs WHERE practice = 0 '
+              'GROUP BY bird',
+            )
+            .get())
+      row.read<int>('bird'): row.read<int>('n'),
+  };
+
+  /// The preference listing the unlocked birds, such as `1,2,3`.
+  static const _birdUnlocksKey = 'birdUnlocks';
+
+  /// The unlocked birds. A save from before birds cost stars has no list
+  /// yet: it keeps every bird it flew or had equipped, besides the free
+  /// ones, and that list is saved so later choices never unlock a bird.
+  Future<Set<int>> _unlockedBirds(
+    Map<String, String> prefs,
+    Set<int> flown,
+  ) async {
+    final saved = prefs[_birdUnlocksKey];
+    if (saved != null) {
+      return {
+        for (var b = 0; b < birdNames.length; b++)
+          if (birdPrices[b] == 0) b,
+        for (final part in saved.split(','))
+          if (int.tryParse(part) case final b?
+              when b >= 0 && b < birdNames.length)
+            b,
+      };
+    }
+    final equipped = int.tryParse(prefs['bird'] ?? '');
+    final unlocked = {
+      for (var b = 0; b < birdNames.length; b++)
+        if (birdPrices[b] == 0 || flown.contains(b) || b == equipped) b,
+    };
+    await _remember(_birdUnlocksKey, (unlocked.toList()..sort()).join(','));
+    prefs[_birdUnlocksKey] = (unlocked.toList()..sort()).join(',');
+    return unlocked;
+  }
+
+  @override
+  Future<void> unlockBird(int bird) => db.transaction(() async {
+    if (bird < 0 || bird >= birdNames.length) {
+      throw ArgumentError.value(bird, 'bird');
+    }
+    final prefs = {
+      for (final row in await db.select(db.preferences).get())
+        row.key: row.value,
+    };
+    final unlocked = await _unlockedBirds(
+      prefs,
+      (await _birdFlights()).keys.toSet(),
+    );
+    if (unlocked.contains(bird)) {
+      throw StateError('${birdNames[bird]} is already unlocked');
+    }
+    final price = birdPrices[bird];
+    final earned = await db
+        .customSelect(
+          'SELECT COALESCE(SUM(stars),0) AS stars FROM runs WHERE practice = 0',
+        )
+        .getSingle();
+    final spent = _starsSpent(prefs);
+    if (earned.read<int>('stars') - spent < price) {
+      throw StateError('Not enough stars for ${birdNames[bird]}');
+    }
+    await _remember(
+      _birdUnlocksKey,
+      ({...unlocked, bird}.toList()..sort()).join(','),
+    );
+    await _remember(_starsSpentKey, '${spent + price}');
+  });
 
   Future<void> _remember(String key, String value) => db
       .into(db.preferences)

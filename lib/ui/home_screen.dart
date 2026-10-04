@@ -278,7 +278,7 @@ class _Dock extends StatelessWidget {
         key: const ValueKey('upgrades'),
         label: 'Upgrades',
         semanticLabel: 'Upgrades. ${progress.starWallet} stars to spend.',
-        badge: HomeBadge('${progress.starWallet}★'),
+        badge: HomeBadge('${progress.starWallet}'),
         art: const FittedBox(child: MatchIcon(MatchSymbol.star, size: 64)),
         onTap: () => context.go('/upgrades'),
       ),

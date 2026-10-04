@@ -58,19 +58,20 @@ void perfectGate(FlightSimulation sim) {
   hover(sim, .02);
 }
 
-RunResult trail(String id, int stars, {bool practice = false}) => RunResult(
-  id: id,
-  mode: PlayMode.touch,
-  practice: practice,
-  course: FlightCourse.starTrail,
-  score: stars,
-  stars: stars,
-  repetitions: 0,
-  flaps: 10,
-  durationSeconds: 30,
-  reason: EndReason.collision,
-  finishedAt: DateTime(2026, 10, 4),
-);
+RunResult trail(String id, int stars, {bool practice = false, int? score}) =>
+    RunResult(
+      id: id,
+      mode: PlayMode.touch,
+      practice: practice,
+      course: FlightCourse.starTrail,
+      score: score ?? stars,
+      stars: stars,
+      repetitions: 0,
+      flaps: 10,
+      durationSeconds: 30,
+      reason: EndReason.collision,
+      finishedAt: DateTime(2026, 10, 4),
+    );
 
 void main() {
   test('the top levels keep shot, sprint and shield as they always were; '
@@ -125,22 +126,27 @@ void main() {
     );
   });
 
-  test('a level-0 shot charges only a little and releases itself', () {
+  test('a level-0 shot charges enough to see, shatter, and release itself', () {
     final sim = flight(const PowerUps());
-    expect(sim.maxCharge, .25);
+    expect(sim.maxCharge, .40);
+    expect(
+      PowerShot.shatters(sim.maxCharge),
+      isTrue,
+      reason: 'Even level 0 can show what a charged rock does',
+    );
     expect(sim.startCharge(), isTrue);
-    hover(sim, .2);
-    expect(sim.shotCharge, closeTo(.2, 1e-9));
+    hover(sim, .3);
+    expect(sim.shotCharge, closeTo(.3, 1e-9));
     expect(sim.shotChargeFull, isFalse);
-    hover(sim, .1);
-    expect(sim.shotCharge, closeTo(.25, 1e-9));
+    hover(sim, .12);
+    expect(sim.shotCharge, closeTo(.40, 1e-9));
     expect(sim.shotChargeFull, isTrue);
     expect(sim.shots, 0);
     hover(sim, PowerShot.maxFullHoldSeconds);
     expect(sim.shots, 1, reason: 'The capped charge fires on its own');
-    expect(sim.rocks.single.charge, closeTo(.25, 1e-9));
-    expect(sim.rocks.single.damage, PowerShot.damage(BirdRock.baseDamage, .25));
-    expect(sim.ammo, closeTo(1 - PowerShot.cost(.25), 1e-9));
+    expect(sim.rocks.single.charge, closeTo(.40, 1e-9));
+    expect(sim.rocks.single.damage, PowerShot.damage(BirdRock.baseDamage, .40));
+    expect(sim.ammo, closeTo(1 - PowerShot.cost(.40), 1e-9));
   });
 
   test('each shot level charges further, up to a full second at the top', () {
@@ -277,10 +283,10 @@ void main() {
     expect(p.canBuy(PowerUp.shot), isFalse);
     await expectLater(repo.buyUpgrade(PowerUp.shot), throwsStateError);
 
-    await repo.saveRun(trail('a', 100));
+    await repo.saveRun(trail('a', 100, score: 900));
     await repo.saveRun(trail('practice', 500, practice: true));
     p = await repo.load();
-    expect(p.starsEarned, 100);
+    expect(p.starsEarned, 100, reason: 'Stars picked up, never the score');
     expect(p.starWallet, 100);
     expect(p.canBuy(PowerUp.magnet), isTrue);
     await repo.buyUpgrade(PowerUp.magnet);

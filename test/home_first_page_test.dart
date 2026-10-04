@@ -427,9 +427,11 @@ void main() {
     await tester.pump(const Duration(seconds: 5));
     expect(await pixels(tester), calm);
     // The bird is back on its perch, not frozen mid-hop.
-    await tester.runAsync(
-      () => container.read(progressProvider.notifier).equip(3),
-    );
+    // Orbit is equipped straight in the save, as a grandfathered bird.
+    await tester.runAsync(() async {
+      await container.read(progressRepositoryProvider).equipBird(3);
+      await container.read(progressProvider.notifier).refresh();
+    });
     await tester.pumpAndSettle();
     expect(find.text('Orbit is ready. Are you?'), findsOneWidget);
   });

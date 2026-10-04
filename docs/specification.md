@@ -250,7 +250,8 @@ cost 50, 120, 250 and 450 stars. A new flight takes the saved levels
 always fly `PowerUps.legacy` (shot 4, sprint 4, shield 4, magnet 3), which is
 exactly the earlier behavior.
 
-- Shot power caps the charge at 0.25, 0.45, 0.65, 0.85, 1. The charge grows at
+- Shot power caps the charge at 0.40, 0.55, 0.70, 0.85, 1, so even level 0
+  reaches the 0.35 shatter charge. The charge grows at
   the usual rate; the 500 ms full-hold window starts at the cap, and the
   inner ring beyond the cap stays dark.
 - Sprint lasts 0.7, 0.8, 0.95, 1.05, 1.2 s with cooldowns of 25, 22, 19, 17,

@@ -86,7 +86,11 @@ class ProgressController extends AsyncNotifier<ProgressSnapshot> {
     await refresh();
   }
 
+  /// Equips an unlocked bird. A locked one has to be bought first
+  /// ([unlockBird]).
   Future<void> equip(int bird) async {
+    final unlocked = (await future).birdUnlocked(bird);
+    if (!unlocked) throw StateError('${birdNames[bird]} is locked');
     await _repo.equipBird(bird);
     await refresh();
   }
@@ -99,6 +103,12 @@ class ProgressController extends AsyncNotifier<ProgressSnapshot> {
 
   Future<void> chooseCoop(int first, int second, CoopMode mode) async {
     await _repo.chooseCoop(first, second, mode);
+    await refresh();
+  }
+
+  /// Unlocks [bird] with collected stars.
+  Future<void> unlockBird(int bird) async {
+    await _repo.unlockBird(bird);
     await refresh();
   }
 
