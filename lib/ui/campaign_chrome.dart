@@ -7,12 +7,14 @@ import 'theme.dart';
 import 'ui_sounds.dart';
 
 /// What a [MapKey] shows on its face.
-enum MapGlyph { back, previous, next }
+enum MapGlyph { back, close, previous, next }
 
 /// A round key in the flight HUD's sticker material (an ink-outlined face on
 /// a lip, like Pause), for the back key and the stop arrows around the map.
 /// Every piece of chrome on the map shares that material, so none of it
-/// vanishes into the cloud banks or the scenery behind.
+/// vanishes into the cloud banks or the scenery behind. The menus' back keys
+/// and the close keys on their dialogs are the same key, so the way out
+/// looks the same everywhere.
 ///
 /// Pressing sinks the key into its lip; with Reduced Motion it stays put and
 /// a held press shades the face instead.
@@ -42,10 +44,10 @@ class _MapKeyState extends State<MapKey> {
   bool pressed = false, focused = false;
 
   void _press() {
-    UiSounds.effect(
-      context,
-      widget.glyph == MapGlyph.back ? 'ui_back' : 'ui_tap',
-    );
+    UiSounds.effect(context, switch (widget.glyph) {
+      MapGlyph.back || MapGlyph.close => 'ui_back',
+      MapGlyph.previous || MapGlyph.next => 'ui_tap',
+    });
     widget.onPressed();
   }
 
@@ -113,7 +115,7 @@ class _MapKeyState extends State<MapKey> {
   }
 }
 
-/// A chunky arrow or chevron: round caps and a stroke as heavy as the
+/// A chunky arrow, cross or chevron: round caps and a stroke as heavy as the
 /// HUD's pause bars, so the face reads at a glance.
 class _GlyphPainter extends CustomPainter {
   const _GlyphPainter(this.glyph);
@@ -132,6 +134,12 @@ class _GlyphPainter extends CustomPainter {
           ..moveTo(11.5, 4)
           ..lineTo(3.5, 12)
           ..lineTo(11.5, 20);
+      case MapGlyph.close:
+        path
+          ..moveTo(5.5, 5.5)
+          ..lineTo(18.5, 18.5)
+          ..moveTo(18.5, 5.5)
+          ..lineTo(5.5, 18.5);
       case MapGlyph.previous:
         path
           ..moveTo(15, 3.5)
