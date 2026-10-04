@@ -21,6 +21,7 @@ import '../game/audio.dart';
 import '../game/bird_game.dart';
 import '../game/finish_celebration_art.dart';
 import 'theme.dart';
+import 'campaign_chrome.dart' show MapGlyph, MapKey;
 import 'campaign_map_art.dart' show MapStarsPainter;
 import 'components.dart';
 import 'flight_goals.dart';
@@ -677,10 +678,10 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                   padding: const EdgeInsets.fromLTRB(8, 4, 16, 12),
                   child: Row(
                     children: [
-                      IconButton(
-                        tooltip: 'Back to saved sessions',
+                      MapKey(
+                        glyph: MapGlyph.back,
+                        label: 'Back to saved sessions',
                         onPressed: () => context.go('/sessions'),
-                        icon: const Icon(Icons.arrow_back),
                       ),
                       const SizedBox(width: 8),
                       Expanded(

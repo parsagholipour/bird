@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../data/providers.dart';
 import '../data/progress_repository.dart';
 import '../game/bird_trail.dart';
+import 'campaign_chrome.dart' show MapGlyph, MapKey;
 import 'components.dart';
 import 'theme.dart';
 
@@ -24,8 +25,8 @@ class CollectionScreen extends ConsumerWidget {
                     children: [
                       Row(
                         children: [
-                          RoundButton(
-                            icon: Icons.arrow_back_rounded,
+                          MapKey(
+                            glyph: MapGlyph.back,
                             label: 'Back home',
                             onPressed: () => context.go('/'),
                           ),
@@ -33,7 +34,7 @@ class CollectionScreen extends ConsumerWidget {
                           Text('Meet your flight crew.', style: heading(36)),
                           const Spacer(),
                           Pill(
-                            '${p.birdsFlown.length} of ${birdNames.length} flown',
+                            '${p.birdsFlown.length} OF ${birdNames.length} FLOWN',
                             icon: Icons.flutter_dash_rounded,
                             color: SkyColors.yellow,
                           ),

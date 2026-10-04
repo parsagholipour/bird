@@ -7,6 +7,7 @@ import '../domain/flight_course.dart';
 import '../domain/flight_goals.dart';
 import '../domain/tether.dart';
 import 'campaign_screen.dart' show campaignStarsInBuild;
+import 'campaign_chrome.dart' show MapGlyph, MapKey;
 import 'components.dart';
 import 'mini_games.dart' show miniGameModes;
 import 'theme.dart';
@@ -32,8 +33,8 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
               children: [
                 Row(
                   children: [
-                    RoundButton(
-                      icon: Icons.arrow_back_rounded,
+                    MapKey(
+                      glyph: MapGlyph.back,
                       label: 'Back home',
                       onPressed: () => context.go('/'),
                     ),

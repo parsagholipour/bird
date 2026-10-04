@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../domain/tracking.dart';
-import 'components.dart';
+import 'campaign_chrome.dart' show MapGlyph, MapKey;
 import 'mode_picker_art.dart';
 import 'theme.dart';
 import 'ui_sounds.dart';
@@ -81,8 +81,8 @@ Future<PlayMode?> showMiniGames(BuildContext context) => showDialog<PlayMode>(
                           ],
                         ),
                       ),
-                      RoundButton(
-                        icon: Icons.close_rounded,
+                      MapKey(
+                        glyph: MapGlyph.close,
                         label: 'Close mini games',
                         onPressed: () => Navigator.pop(context),
                       ),

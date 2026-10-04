@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../domain/replay_highlights.dart';
+import 'campaign_chrome.dart' show MapGlyph, MapKey;
 import 'theme.dart';
 
 Future<ReplayHighlight?> showReplayHighlights(
@@ -27,10 +28,10 @@ Future<ReplayHighlight?> showReplayHighlights(
           Row(
             children: [
               Expanded(child: Text('Flight highlights', style: heading(26))),
-              IconButton(
-                tooltip: 'Close highlights',
+              MapKey(
+                glyph: MapGlyph.close,
+                label: 'Close highlights',
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.close_rounded, color: SkyColors.ink),
               ),
             ],
           ),
