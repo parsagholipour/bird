@@ -254,7 +254,7 @@ exactly the earlier behavior.
   reaches the 0.35 shatter charge. The charge grows at
   the usual rate; the 500 ms full-hold window starts at the cap, and the
   inner ring beyond the cap stays dark.
-- Sprint lasts 0.7, 0.8, 0.95, 1.05, 1.2 s with cooldowns of 25, 22, 19, 17,
+- Sprint lasts 0.9, 0.95, 1.0, 1.1, 1.2 s with cooldowns of 25, 22, 19, 17,
   15 s. The surge and ease keep their lengths inside the shorter burst.
 - Shield is restored every 15, 13, 11, 10, 9 stars, and the recovery after it
   absorbs a hit lasts 0.6, 0.8, 1.0, 1.25, 1.5 s. A lost heart keeps 1.5 s.
