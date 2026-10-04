@@ -129,6 +129,23 @@ and `resume`: tuned harmonics, major-key confirmation intervals, softer attacks
 and 270–430 ms tails. Hash checks confirmed that combat effects and music were
 unchanged. All 17 affected audio/menu/button/settings tests passed.
 
+### Shop screens
+
+The Upgrades and crew screens reuse existing cues (`ShopCues` in
+`lib/ui/ui_sounds.dart`); no new audio files. Pressing any key still clicks
+`ui_tap`. On top of that:
+
+| Moment | Cue |
+| --- | --- |
+| Looking at another socket or bird | `ui_toggle` |
+| An upgrade level bought | `streak` |
+| An upgrade's last level bought | `wing` |
+| A bird unlocked with stars | `unlock` |
+| Flying with another bird | `sprint_ready` |
+| A greyed key pressed (not enough stars yet) | `ammo_empty` |
+
+A cue plays once the purchase or choice has gone through, never when it fails.
+
 The subsequent combat mix refinement lowers star playback from 0.28 to 0.10
 (about 9 dB), and also reduces trio, perfect-gate and combo chimes. Shooting uses
 one new ElevenLabs take with a deterministic midrange crack, a 240 ms tail,
