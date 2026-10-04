@@ -167,17 +167,26 @@ void main() {
     expect((await repo.load()).unlockedBirds, {1, 2});
   });
 
-  test('a save from before birds cost stars keeps the birds it used', () async {
+  test('a save from before birds cost stars buys Pip and Orbit too', () async {
     final repo = SqliteProgressRepository(
       ProgressDatabase(NativeDatabase.memory()),
     );
     addTearDown(repo.close);
     // Flew Orbit and had Pip equipped, all before unlocking existed.
-    await repo.saveRun(flight('a', 10, bird: 3));
+    await repo.saveRun(flight('a', 600, bird: 3));
     await repo.equipBird(0);
-    final p = await repo.load();
-    expect(p.unlockedBirds, {0, 1, 2, 3});
-    expect(p.starWallet, 10, reason: 'Nothing is charged for them');
+    var p = await repo.load();
+    expect(p.unlockedBirds, {1, 2});
+    expect(
+      p.settings.bird,
+      firstBird,
+      reason: 'Minty flies until Pip is bought',
+    );
+    expect(p.birdsFlown, {3}, reason: 'Flown, but still locked');
+    await repo.unlockBird(0);
+    p = await repo.load();
+    expect(p.settings.bird, 0, reason: 'The equipped Pip is back once bought');
+    expect(p.starWallet, 100);
   });
 
   test('locked birds cannot be equipped or flown co-op', () async {

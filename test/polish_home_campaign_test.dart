@@ -26,6 +26,7 @@ import 'package:push_up_bird/ui/components.dart';
 
 import 'campaign_save_test.dart' show levelRun;
 import 'play_session_test.dart' show SilentAudio;
+import 'bird_unlocks.dart';
 
 const _capture = bool.fromEnvironment('CAPTURE_POLISH');
 const _folder = 'build/visual-review/campaign/polish/home-campaign';
@@ -87,6 +88,7 @@ Future<void> _open(
   final folder = Directory.systemTemp.createTempSync('polish-home');
   await tester.runAsync(() async {
     await repo.setSetting(SettingKey.reducedMotion, reduced);
+    await unlockBirds(repo);
     await repo.equipBird(bird);
     await _seed(repo, stars);
   });

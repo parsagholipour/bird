@@ -14,6 +14,7 @@ import 'package:push_up_bird/ui/home_screen.dart';
 import 'package:push_up_bird/ui/home_keys.dart';
 import 'package:push_up_bird/ui/theme.dart';
 import 'daily_adventure_test.dart' show dailyRun;
+import 'bird_unlocks.dart';
 
 /// Renders the title screen for the states and phones that matter and, with
 /// `--dart-define=CAPTURE_VISUALS=true`, saves them to build/visual-review.
@@ -427,10 +428,13 @@ void main() {
     await tester.pump(const Duration(seconds: 5));
     expect(await pixels(tester), calm);
     // The bird is back on its perch, not frozen mid-hop.
-    // Orbit is equipped straight in the save, as a grandfathered bird.
+    // Orbit is bought, then equipped.
     await tester.runAsync(() async {
-      await container.read(progressRepositoryProvider).equipBird(3);
+      await unlockBirds(
+        container.read(progressRepositoryProvider) as SqliteProgressRepository,
+      );
       await container.read(progressProvider.notifier).refresh();
+      await container.read(progressProvider.notifier).equip(3);
     });
     await tester.pumpAndSettle();
     expect(find.text('Orbit is ready. Are you?'), findsOneWidget);

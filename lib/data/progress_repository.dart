@@ -344,8 +344,8 @@ class ProgressSnapshot {
   /// are missing.
   final Map<int, int> birdFlights;
 
-  /// Birds the player may fly: the free ones, the ones bought with stars,
-  /// and any a save flew or had equipped before birds cost stars.
+  /// Birds the player may fly: the free ones and the ones bought with
+  /// stars.
   final Set<int> unlockedBirds;
   bool birdUnlocked(int bird) => unlockedBirds.contains(bird);
 
@@ -508,7 +508,7 @@ class SqliteProgressRepository implements ProgressRepository {
               ..limit(10))
             .get();
     final levels = await db.select(db.levelProgress).get();
-    final unlocked = await _unlockedBirds(prefs, birdsFlown);
+    final unlocked = _unlockedBirds(prefs);
     return ProgressSnapshot(
       settings: GameSettings(
         music: prefs['music'] != 'false',
@@ -516,9 +516,9 @@ class SqliteProgressRepository implements ProgressRepository {
         reducedMotion: prefs['reducedMotion'] == 'true',
         recordAudio: prefs['recordAudio'] == 'true',
         voices: prefs['voices'] != 'false',
-        bird: selected >= 0 && selected < birdNames.length
-            ? selected
-            : firstBird,
+        // A locked bird left equipped (from before birds cost stars) gives
+        // way to Minty until it is bought.
+        bird: unlocked.contains(selected) ? selected : firstBird,
       ),
       pushUp: await record(PlayMode.pushUp, FlightCourse.classic),
       jump: await record(PlayMode.jump, FlightCourse.classic),
@@ -793,33 +793,16 @@ class SqliteProgressRepository implements ProgressRepository {
   /// The preference listing the unlocked birds, such as `1,2,3`.
   static const _birdUnlocksKey = 'birdUnlocks';
 
-  /// The unlocked birds. A save from before birds cost stars has no list
-  /// yet: it keeps every bird it flew or had equipped, besides the free
-  /// ones, and that list is saved so later choices never unlock a bird.
-  Future<Set<int>> _unlockedBirds(
-    Map<String, String> prefs,
-    Set<int> flown,
-  ) async {
-    final saved = prefs[_birdUnlocksKey];
-    if (saved != null) {
-      return {
-        for (var b = 0; b < birdNames.length; b++)
-          if (birdPrices[b] == 0) b,
-        for (final part in saved.split(','))
-          if (int.tryParse(part) case final b?
-              when b >= 0 && b < birdNames.length)
-            b,
-      };
-    }
-    final equipped = int.tryParse(prefs['bird'] ?? '');
-    final unlocked = {
-      for (var b = 0; b < birdNames.length; b++)
-        if (birdPrices[b] == 0 || flown.contains(b) || b == equipped) b,
-    };
-    await _remember(_birdUnlocksKey, (unlocked.toList()..sort()).join(','));
-    prefs[_birdUnlocksKey] = (unlocked.toList()..sort()).join(',');
-    return unlocked;
-  }
+  /// The unlocked birds: the free ones and every one bought with stars.
+  /// Flying or equipping a bird never unlocks it, so a save from before
+  /// birds cost stars buys Pip and Orbit like everyone else.
+  static Set<int> _unlockedBirds(Map<String, String> prefs) => {
+    for (var b = 0; b < birdNames.length; b++)
+      if (birdPrices[b] == 0) b,
+    for (final part in (prefs[_birdUnlocksKey] ?? '').split(','))
+      if (int.tryParse(part) case final b? when b >= 0 && b < birdNames.length)
+        b,
+  };
 
   @override
   Future<void> unlockBird(int bird) => db.transaction(() async {
@@ -830,10 +813,7 @@ class SqliteProgressRepository implements ProgressRepository {
       for (final row in await db.select(db.preferences).get())
         row.key: row.value,
     };
-    final unlocked = await _unlockedBirds(
-      prefs,
-      (await _birdFlights()).keys.toSet(),
-    );
+    final unlocked = _unlockedBirds(prefs);
     if (unlocked.contains(bird)) {
       throw StateError('${birdNames[bird]} is already unlocked');
     }

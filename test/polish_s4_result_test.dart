@@ -43,6 +43,7 @@ import 'package:push_up_bird/ui/theme.dart';
 import 'campaign_save_test.dart' show levelRun;
 import 'play_session_test.dart' show SilentAudio;
 import 'recorded_flight.dart' show rideTheSky;
+import 'bird_unlocks.dart';
 
 const _capture = bool.fromEnvironment('CAPTURE_POLISH');
 const _only = String.fromEnvironment('POLISH_ONLY');
@@ -108,6 +109,7 @@ Future<void> _open(
   final folder = Directory.systemTemp.createTempSync('polish-s4');
   await tester.runAsync(() async {
     await repo.setSetting(SettingKey.reducedMotion, reduced);
+    await unlockBirds(repo);
     await repo.equipBird(bird);
     await _seed(repo, stars, seedScore);
     // The story has been watched, so no scene plays on the way.

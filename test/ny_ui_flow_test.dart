@@ -39,6 +39,7 @@ import 'package:push_up_bird/ui/theme.dart';
 import 'campaign_save_test.dart' show levelRun;
 import 'play_session_test.dart' show SilentAudio;
 import 'recorded_flight.dart' show rideTheSky;
+import 'bird_unlocks.dart';
 
 const _capture = bool.fromEnvironment('CAPTURE_NY_UI');
 
@@ -75,6 +76,7 @@ Future<void> _open(
   final folder = Directory.systemTemp.createTempSync('ny-ui-flow');
   await tester.runAsync(() async {
     await repo.setSetting(SettingKey.reducedMotion, reduced);
+    await unlockBirds(repo);
     await repo.equipBird(bird);
     var n = 0;
     for (final MapEntry(key: id, value: rating) in stars.entries) {

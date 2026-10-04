@@ -22,6 +22,7 @@ import 'package:push_up_bird/ui/ui_sounds.dart';
 import 'campaign_flight.dart' show obstacleSignature;
 import 'play_session_test.dart' show SessionSource, SilentAudio;
 import 'recorded_flight.dart' show rideTheSky;
+import 'bird_unlocks.dart';
 
 class CueAudio extends SilentAudio {
   final cues = <String>[];
@@ -89,6 +90,7 @@ Future<({PlayController controller, BirdGame game})> launchLevel(
     ProgressDatabase(NativeDatabase.memory()),
   );
   await repo.setSetting(SettingKey.reducedMotion, reduced);
+  await unlockBirds(repo);
   await repo.equipBird(bird);
   final folder = Directory.systemTemp.createTempSync('campaign-play');
   final source = SessionSource();
