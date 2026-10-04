@@ -5,6 +5,7 @@ import '../data/providers.dart';
 import '../data/progress_repository.dart';
 import '../domain/daily_adventure.dart';
 import '../domain/game_rules.dart';
+import 'campaign_chrome.dart' show MapGlyph, MapKey;
 import 'components.dart';
 import 'theme.dart';
 
@@ -74,8 +75,8 @@ class DailyAdventureScreen extends ConsumerWidget {
       children: [
         Row(
           children: [
-            RoundButton(
-              icon: Icons.arrow_back_rounded,
+            MapKey(
+              glyph: MapGlyph.back,
               label: 'Back home',
               onPressed: () => context.go('/'),
             ),

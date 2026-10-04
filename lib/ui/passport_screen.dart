@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../data/providers.dart';
 import '../data/passport_progress.dart';
 import '../domain/sky_passport.dart';
+import 'campaign_chrome.dart' show MapGlyph, MapKey;
 import 'components.dart';
 import 'theme.dart';
 
@@ -22,8 +23,8 @@ class PassportScreen extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    RoundButton(
-                      icon: Icons.arrow_back_rounded,
+                    MapKey(
+                      glyph: MapGlyph.back,
                       label: 'Back home',
                       onPressed: () => context.go('/'),
                     ),

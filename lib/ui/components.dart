@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'match_hud.dart' show MatchPlate, matchInkEdge;
 import 'theme.dart';
 import 'ui_sounds.dart';
 
@@ -263,14 +264,7 @@ class RoundButton extends StatelessWidget {
       onPressed: onPressed == null
           ? null
           : () {
-              UiSounds.effect(
-                context,
-                sound == 'ui_tap' &&
-                        (icon == Icons.arrow_back_rounded ||
-                            icon == Icons.close_rounded)
-                    ? 'ui_back'
-                    : sound,
-              );
+              UiSounds.effect(context, sound);
               onPressed!();
             },
       icon: Icon(icon, color: SkyColors.ink),
@@ -308,6 +302,9 @@ class Panel extends StatelessWidget {
   );
 }
 
+/// A badge: a small sticker plate (an ink-outlined face on a lip, like the
+/// HUD's keys) with an icon and a few capital words. A white [foreground]
+/// gets an ink edge so it reads on any color.
 class Pill extends StatelessWidget {
   const Pill(
     this.label, {
@@ -320,26 +317,30 @@ class Pill extends StatelessWidget {
   final IconData? icon;
   final Color color, foreground;
   @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-    decoration: BoxDecoration(
+  Widget build(BuildContext context) {
+    final light = foreground == SkyColors.white;
+    return MatchPlate(
       color: color,
-      borderRadius: BorderRadius.circular(999),
-    ),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (icon != null) ...[
-          Icon(icon, size: 15, color: foreground),
-          const SizedBox(width: 6),
+      padding: const EdgeInsets.fromLTRB(11, 5, 13, 5),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 16, color: foreground),
+            const SizedBox(width: 6),
+          ],
+          Text(
+            label,
+            style: bodyText(12, color: foreground, weight: FontWeight.w900)
+                .copyWith(
+                  letterSpacing: .6,
+                  shadows: light ? matchInkEdge(1) : null,
+                ),
+          ),
         ],
-        Text(
-          label,
-          style: bodyText(12, color: foreground, weight: FontWeight.w800),
-        ),
-      ],
-    ),
-  );
+      ),
+    );
+  }
 }
 
 class SceneLayout extends StatelessWidget {

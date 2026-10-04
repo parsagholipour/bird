@@ -18,6 +18,7 @@ import 'package:push_up_bird/game/play_controller.dart';
 import 'package:push_up_bird/main.dart';
 import 'package:push_up_bird/ui/play_screen.dart';
 import 'package:push_up_bird/ui/record_chase.dart';
+import 'package:push_up_bird/ui/campaign_chrome.dart' show MapKey;
 import 'package:push_up_bird/ui/components.dart';
 import 'package:push_up_bird/ui/flight_goals.dart';
 import 'package:push_up_bird/ui/match_hud.dart';
@@ -139,7 +140,7 @@ void main() {
         await capture(tester, 'flight-goals-guide');
         await tester.tap(
           find.byWidgetPredicate(
-            (w) => w is RoundButton && w.label == 'Close flight goals',
+            (w) => w is MapKey && w.label == 'Close flight goals',
           ),
         );
         await tester.pumpAndSettle();
@@ -328,7 +329,7 @@ void main() {
         await capture(tester, 'flight-goals-earned');
         await tester.tap(
           find.byWidgetPredicate(
-            (w) => w is RoundButton && w.label == 'Close flight goals',
+            (w) => w is MapKey && w.label == 'Close flight goals',
           ),
         );
         await tester.pumpAndSettle();

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../domain/flight_goals.dart';
 import '../domain/flight_course.dart';
-import 'components.dart';
+import 'campaign_chrome.dart' show MapGlyph, MapKey;
 import 'theme.dart';
 
 class WingBadge extends StatelessWidget {
@@ -115,8 +115,8 @@ Future<void> showFlightGoals(
                       style: heading(25),
                     ),
                   ),
-                  RoundButton(
-                    icon: Icons.close_rounded,
+                  MapKey(
+                    glyph: MapGlyph.close,
                     label: 'Close flight goals',
                     onPressed: () => Navigator.pop(context),
                   ),

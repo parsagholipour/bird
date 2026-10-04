@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../domain/tracking.dart';
 import 'campaign_chrome.dart' show MapGlyph, MapKey;
+import 'components.dart' show Pill;
 import 'home_keys.dart';
 import 'match_hud.dart' show MatchPlate, matchInkEdge;
 import 'theme.dart';
@@ -104,30 +105,8 @@ class MiniTag extends StatelessWidget {
   final Color color, foreground;
 
   @override
-  Widget build(BuildContext context) {
-    final light = foreground == SkyColors.white;
-    return MatchPlate(
-      color: color,
-      padding: const EdgeInsets.fromLTRB(11, 5, 13, 5),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (icon != null) ...[
-            Icon(icon, size: 16, color: foreground),
-            const SizedBox(width: 6),
-          ],
-          Text(
-            label,
-            style: bodyText(12, color: foreground, weight: FontWeight.w900)
-                .copyWith(
-                  letterSpacing: .6,
-                  shadows: light ? matchInkEdge(1) : null,
-                ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) =>
+      Pill(label, icon: icon, color: color, foreground: foreground);
 }
 
 /// A paper card with an ink outline on a lip of [accent], like the cards in

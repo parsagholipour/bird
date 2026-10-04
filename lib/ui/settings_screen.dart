@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../app_brand.dart';
 import '../data/providers.dart';
 import '../data/progress_repository.dart';
+import 'campaign_chrome.dart' show MapGlyph, MapKey;
 import 'components.dart';
 import 'theme.dart';
 import 'ui_sounds.dart';
@@ -104,8 +105,8 @@ class SettingsScreen extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    RoundButton(
-                      icon: Icons.arrow_back_rounded,
+                    MapKey(
+                      glyph: MapGlyph.back,
                       label: 'Back home',
                       onPressed: () => context.go('/'),
                     ),
