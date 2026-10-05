@@ -21,6 +21,7 @@ class StageKey extends StatefulWidget {
     this.shine = 0,
     this.height,
     this.sound = 'ui_tap',
+    this.tint,
   });
   final String label;
   final IconData icon;
@@ -33,6 +34,9 @@ class StageKey extends StatefulWidget {
 
   /// The cue the key plays when tapped.
   final String sound;
+
+  /// Colours a secondary key's cap instead of cream; the hero stays coral.
+  final Color? tint;
 
   @override
   State<StageKey> createState() => _StageKeyState();
@@ -71,6 +75,7 @@ class _StageKeyState extends State<StageKey> {
     final depth = hero ? 8.0 : 6.0;
     final radius = BorderRadius.circular(hero ? 24 : 20);
     final sink = pressed && !still ? depth - 2 : 0.0;
+    final tint = widget.tint;
     final (top, bottom, base) = !enabled
         ? (
             const Color(0xffe6eef0),
@@ -89,6 +94,12 @@ class _StageKeyState extends State<StageKey> {
                   SkyColors.coral,
                   const Color(0xffb34a39),
                 )
+        : tint != null
+        ? (
+            Color.lerp(tint, SkyColors.white, pressed ? .2 : .45)!,
+            pressed ? Color.lerp(tint, SkyColors.ink, .06)! : tint,
+            Color.lerp(tint, SkyColors.ink, .3)!,
+          )
         : pressed
         ? (
             const Color(0xfff6ecd6),

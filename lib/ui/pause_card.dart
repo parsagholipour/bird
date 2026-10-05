@@ -14,11 +14,15 @@ class PauseAction {
     required this.icon,
     required this.onPressed,
     this.key,
+    this.tint,
   });
   final String label;
   final IconData icon;
   final VoidCallback onPressed;
   final Key? key;
+
+  /// Colours the key's cap instead of cream, such as mint for Retry.
+  final Color? tint;
 }
 
 /// The in-flight pause: the frozen sky softly blurred behind a card that
@@ -145,6 +149,7 @@ class PauseCard extends StatelessWidget {
                           height: 76,
                           label: action.label,
                           icon: action.icon,
+                          tint: action.tint,
                           onPressed: action.onPressed,
                         ),
                       ),

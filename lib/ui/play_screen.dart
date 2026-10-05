@@ -1661,6 +1661,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                   key: const ValueKey('pause-retry'),
                   label: 'Retry',
                   icon: Icons.replay_rounded,
+                  tint: SkyColors.mint,
                   onPressed: restart,
                 ),
               ] else
