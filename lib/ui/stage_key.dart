@@ -20,6 +20,7 @@ class StageKey extends StatefulWidget {
     this.busy = false,
     this.shine = 0,
     this.height,
+    this.sound = 'ui_tap',
   });
   final String label;
   final IconData icon;
@@ -29,6 +30,9 @@ class StageKey extends StatefulWidget {
 
   /// The key's height with its base; 86 for the hero key and 70 otherwise.
   final double? height;
+
+  /// The cue the key plays when tapped.
+  final String sound;
 
   @override
   State<StageKey> createState() => _StageKeyState();
@@ -138,7 +142,7 @@ class _StageKeyState extends State<StageKey> {
           overlayColor: const WidgetStatePropertyAll(Colors.transparent),
           onTap: enabled
               ? () {
-                  UiSounds.effect(context);
+                  UiSounds.effect(context, widget.sound);
                   widget.onPressed!();
                 }
               : null,

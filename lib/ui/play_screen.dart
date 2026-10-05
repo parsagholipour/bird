@@ -1647,38 +1647,27 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                 : controller.isTouch
                 ? 'Your bird is perched and waiting. We’ll count you back in.'
                 : 'Shake it out, then get back in position. We’ll count you in.',
-            // Stays put for the whole pause; moves on as the flight does.
-            tip: pauseTip(
-              controller.isTouch ? pauseTipsTouch : pauseTipsWorkout,
-              sim.gates,
-            ),
-            secondary: [
+            actions: [
               // A level starts over or goes back to the map; either way the
               // attempt is saved.
               if (level != null) ...[
-                SkyButton(
+                PauseAction(
                   key: const ValueKey('pause-map'),
                   label: 'Map',
+                  icon: Icons.map_rounded,
                   onPressed: () => leave('/campaign'),
-                  color: SkyColors.cream,
-                  icon: Icons.map_outlined,
-                  compact: true,
                 ),
-                SkyButton(
+                PauseAction(
                   key: const ValueKey('pause-retry'),
                   label: 'Retry',
-                  onPressed: restart,
-                  color: SkyColors.cream,
                   icon: Icons.replay_rounded,
-                  compact: true,
+                  onPressed: restart,
                 ),
               ] else
-                SkyButton(
+                PauseAction(
                   label: 'Finish flight',
+                  icon: Icons.flag_rounded,
                   onPressed: controller.endFlight,
-                  color: SkyColors.cream,
-                  icon: Icons.flag_outlined,
-                  compact: true,
                 ),
             ],
             onResume: () => controller.resume(),

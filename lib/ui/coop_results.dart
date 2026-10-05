@@ -2183,14 +2183,10 @@ class CoopPauseCard extends StatelessWidget {
     required this.birds,
     required this.onFinish,
     required this.onResume,
-    this.tipSeed = 0,
     this.reducedMotion = false,
   });
   final (int, int) birds;
   final VoidCallback onFinish, onResume;
-
-  /// Picks the breather tip; keep it fixed for the length of a pause.
-  final int tipSeed;
   final bool reducedMotion;
 
   @override
@@ -2199,14 +2195,11 @@ class CoopPauseCard extends StatelessWidget {
     return PauseCard(
       reducedMotion: reducedMotion,
       subtitle: 'You’re both perched and waiting. We’ll count you both in.',
-      tip: pauseTip(pauseTipsCoop, tipSeed),
-      secondary: [
-        SkyButton(
+      actions: [
+        PauseAction(
           label: 'Finish flight',
+          icon: Icons.flag_rounded,
           onPressed: onFinish,
-          color: SkyColors.cream,
-          icon: Icons.flag_outlined,
-          compact: true,
         ),
       ],
       onResume: onResume,
