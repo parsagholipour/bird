@@ -9,6 +9,7 @@ import '../game/play_controller.dart';
 import '../game/tether_art.dart';
 import 'components.dart';
 import 'match_hud.dart';
+import 'pause_card.dart';
 import 'theme.dart';
 
 /// Fly Together's end screens, staged like the solo game-over stage over
@@ -2174,99 +2175,59 @@ class _Inset extends StatelessWidget {
 
 // ------------------------------------------------------------------ pause --
 
-/// Fly Together's pause card: PlayScreen's card with the paused badge
-/// crowning it, and the pair perched on its top edge for their breather.
+/// Fly Together's pause card: PlayScreen's [PauseCard], with the pair
+/// perched on its top edge for their breather.
 class CoopPauseCard extends StatelessWidget {
   const CoopPauseCard({
     super.key,
     required this.birds,
     required this.onFinish,
     required this.onResume,
+    this.tipSeed = 0,
+    this.reducedMotion = false,
   });
   final (int, int) birds;
   final VoidCallback onFinish, onResume;
 
+  /// Picks the breather tip; keep it fixed for the length of a pause.
+  final int tipSeed;
+  final bool reducedMotion;
+
   @override
   Widget build(BuildContext context) {
     final (first, second) = birds;
-    return Container(
-      color: SkyColors.ink.withValues(alpha: .35),
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 34),
-          child: Stack(
-            clipBehavior: Clip.none,
-            alignment: Alignment.topCenter,
-            children: [
-              MatchPlate(
-                radius: 28,
-                padding: const EdgeInsets.fromLTRB(36, 46, 36, 26),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('Take a breather.', style: heading(38)),
-                    const SizedBox(height: 10),
-                    Text(
-                      'Ready for more? We’ll count you both in.',
-                      style: bodyText(16, color: SkyColors.muted),
-                    ),
-                    const SizedBox(height: 22),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SkyButton(
-                          label: 'Finish flight',
-                          onPressed: onFinish,
-                          color: SkyColors.cream,
-                          icon: Icons.flag_outlined,
-                        ),
-                        const SizedBox(width: 16),
-                        SkyButton(
-                          label: 'Keep flying',
-                          sound: 'resume',
-                          onPressed: onResume,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              // The pair rests on the card's edge, either side of the badge.
-              for (final (player, bird) in [first, second].indexed)
-                Positioned(
-                  top: -45,
-                  left: player == 0 ? 34 : null,
-                  right: player == 1 ? 34 : null,
-                  child: ExcludeSemantics(
-                    child: _PuppetBird(
-                      bird: bird,
-                      width: 66,
-                      flip: player == 1,
-                      wing: .25,
-                      expression: BirdExpression.blink,
-                    ),
-                  ),
-                ),
-              // The paused badge crowns the card.
-              const Positioned(
-                top: -34,
-                child: ExcludeSemantics(
-                  child: SizedBox.square(
-                    dimension: 68,
-                    child: MatchPlate(
-                      color: SkyColors.yellow,
-                      padding: EdgeInsets.zero,
-                      child: Center(
-                        child: MatchIcon(MatchSymbol.pause, size: 34),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+    return PauseCard(
+      reducedMotion: reducedMotion,
+      subtitle: 'You’re both perched and waiting. We’ll count you both in.',
+      tip: pauseTip(pauseTipsCoop, tipSeed),
+      secondary: [
+        SkyButton(
+          label: 'Finish flight',
+          onPressed: onFinish,
+          color: SkyColors.cream,
+          icon: Icons.flag_outlined,
+          compact: true,
         ),
-      ),
+      ],
+      onResume: onResume,
+      perched: [
+        // The pair rests on the card's edge, either side of the badge.
+        for (final (player, bird) in [first, second].indexed)
+          Positioned(
+            top: -45,
+            left: player == 0 ? 34 : null,
+            right: player == 1 ? 34 : null,
+            child: ExcludeSemantics(
+              child: _PuppetBird(
+                bird: bird,
+                width: 66,
+                flip: player == 1,
+                wing: .25,
+                expression: BirdExpression.blink,
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

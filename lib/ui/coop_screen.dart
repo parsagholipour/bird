@@ -788,6 +788,8 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
             birds: picks!,
             onFinish: flight.endFlight,
             onResume: () => flight.resume(),
+            tipSeed: sim.gates,
+            reducedMotion: reducedMotion,
           ),
       ],
     );
