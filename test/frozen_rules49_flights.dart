@@ -9,6 +9,7 @@ import 'endless_plan_baseline_test.dart' show CountingRandom, stateOf;
 import 'frozen_flights.dart' show FrozenResult, fnvHex, outcomeOf;
 import 'ny_pilots.dart';
 import 'recorded_flight.dart';
+import 'retuned_levels.dart';
 
 /// Helpers for the frozen rules 49 fixtures (test/fixtures/frozen_rules49.json
 /// and test/fixtures/frozen_rules49_tapes/). The Neferhoo landing (rules 50,
@@ -48,9 +49,10 @@ const frozen49Levels = [
 /// level (see `CampaignIds.renumbered`).
 String current49IdOf(String frozenId) => CampaignIds.level(frozenId);
 
-/// The level the base called [frozenId], as the catalog has it now.
+/// The level the base called [frozenId], as the catalog has it now (or as
+/// recorded, when it was retuned since: see [asRecorded]).
 CampaignLevel frozen49Level(String frozenId) =>
-    Campaign.level(current49IdOf(frozenId))!;
+    asRecorded(Campaign.level(current49IdOf(frozenId))!);
 
 String _n(double value) => value.toString();
 

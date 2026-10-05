@@ -9,6 +9,7 @@ import 'endless_plan_baseline_test.dart' show CountingRandom, stateOf;
 import 'frozen_flights.dart' show FrozenResult, fnvHex, outcomeOf;
 import 'ny_pilots.dart';
 import 'recorded_flight.dart';
+import 'retuned_levels.dart';
 
 /// Helpers for the frozen rules 45 fixtures (test/fixtures/frozen_rules45.json
 /// and test/fixtures/frozen_rules45_tapes/). The Egypt program (rules 50,
@@ -46,9 +47,10 @@ const frozen45Levels = [
 /// level (see `CampaignIds.renumbered`).
 String currentIdOf(String frozenId) => CampaignIds.level(frozenId);
 
-/// The level the base called [frozenId], as the catalog has it now.
+/// The level the base called [frozenId], as the catalog has it now (or as
+/// recorded, when it was retuned since: see [asRecorded]).
 CampaignLevel frozenLevel(String frozenId) =>
-    Campaign.level(currentIdOf(frozenId))!;
+    asRecorded(Campaign.level(currentIdOf(frozenId))!);
 
 String _n(double value) => value.toString();
 

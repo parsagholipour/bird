@@ -7,6 +7,7 @@ import 'package:push_up_bird/domain/tracking.dart';
 
 import 'endless_plan_baseline_test.dart' show FlightDigest, stateOf;
 import 'recorded_flight.dart';
+import 'retuned_levels.dart';
 
 /// Helpers for the frozen rules 41 fixtures (test/fixtures/frozen_rules41.json
 /// and test/fixtures/frozen_tapes/). Nothing here may change how a flight is
@@ -32,9 +33,10 @@ const frozenIds = [
   '2-1', '2-2', '2-3', '2-4', '2-5', '2-6', '2-7', '2-8',
 ];
 
-/// The level the fixtures call [frozenId], as the catalog has it now.
+/// The level the fixtures call [frozenId], as the catalog has it now (or as
+/// recorded, when it was retuned since: see [asRecorded]).
 CampaignLevel frozenLevel(String frozenId) =>
-    Campaign.level(CampaignIds.level(frozenId))!;
+    asRecorded(Campaign.level(CampaignIds.level(frozenId))!);
 
 /// Its plan with the frozen id written back: renumbering changed the id
 /// string and nothing else, so this is the plan as it was saved at 41.

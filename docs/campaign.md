@@ -52,7 +52,7 @@ regions. A chapter ends at its boss's lair, the last level of its last region.
 
 | # | Route | Boss | Regions (levels) | New in this chapter |
 | --- | --- | --- | --- | --- |
-| 1 | The Canopy Route | Baron Bat | Jungle (3), Brazil (2), Aztec (3) | Flying, stars and streaks, Shoot, bats, Sprint; wind lifts, petal shutters |
+| 1 | The Canopy Route | Baron Bat | Jungle (3), Brazil (2), Aztec (3) | Flying, stars and streaks, Shoot, bats, Sprint; wind lifts, petal shutters; Brazil's football gale |
 | 2 | The Ancient Road | Spitter King | Ancient Rome (3), Egypt (3), Ancient Arabia (3) | Spitter beetles, stone panels (charged shots), rush paths (Wildfire, Skyfall), a guardian (Neferhoo); switchbacks, lantern drift |
 | 3 | The Lamplight Line | Dusk Empress | New York (4), Paris (4) | Dusk moths, Alley Pigeons, steam geysers, two guardians (King Coo, the Searchlight Gargoyle); sun wheels; gales, Swarm rush, crystal steps (Paris) |
 | 4 | The Tide Route | Pirate Captain | Mexico (3), Open Sea (5) | Eruption rush, the sea, the tide |
@@ -353,11 +353,20 @@ Enemies: simple purple bat and cave bat. Toughness 0.
 | 1-1 | First Delivery | Jungle | 60 s | Garden gates only, no enemies. *NEW: Tap to flap. Fly through the stars.* | 0:00 | 81 | 35 / 60 |
 | 1-2 | Star Streak | Jungle | 60 s | Garden, wind lifts. *NEW: Chain stars for 3×; three perfect gates earn a magnet.* | 0:00 | 81 | 35 / 60 |
 | 1-3 | Bat Patrol | Jungle | 65 s | + bats (every 4th passage). *NEW: Shoot. Tap Shoot to knock out bats.* | 0:10 | 87 | 40 / 65 |
-| 1-4 | Carnival Skies | Brazil | 70 s | + petal shutters; bats every other passage | 0:20 | 96 | 45 / 70 |
+| 1-4 | Carnival Skies | Brazil | 80 s | + petal shutters; bats every other passage; gale at 30 s, blowing footballs. *NEW: Gale! Watch the ! and dodge the footballs.* | 0:20 | 69 | 30 / 50 |
 | 1-5 | Express Post | Brazil | 70 s | Sprint. *NEW: Sprint smashes bats and surges ahead.* | 0:30 | 96 | 45 / 70 |
 | 1-6 | Temple Steps | Aztec | 75 s | All of chapter 1 | 0:40 | 105 | 45 / 80 |
 | 1-7 | Sunrise Roost | Aztec | 80 s | All of chapter 1 | 0:50 | 114 | 50 / 85 |
 | 1-8 | **Baron Bat** | Aztec | 30 s + boss | All of chapter 1, then Baron Bat's bats and Baron Bat (600 HP) | 0:40 | 36 | 15 / 25 |
+
+Carnival Skies gained its gale on 2026-10-06, the first gale on the route:
+the endless gale unchanged, except that over Brazil its debris are
+footballs, a different ball on each gust (art only). The level grew from
+70 s to 80 s so it flies about as long as before, since the tailwind
+carries the bird through the gale's 20 route seconds in 13. Paris's 3-6
+keeps its own NEW gale hint, now a reprise. Saved flights replay as flown
+(a tape carries its plan), and the frozen fixtures keep the 70 s plan they
+recorded (`test/retuned_levels.dart`).
 
 ### Chapter 2: The Ancient Road (Spitter King)
 

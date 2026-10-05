@@ -340,16 +340,21 @@ abstract final class Campaign {
             from: 'The samba macaws',
             thanks: 'The parade starts now. You made it!',
           ),
+          // Brazil's gale blows footballs, not junk (the art follows the
+          // region). At 80 s it flies about as long as it did at 70 s
+          // without the tailwind.
+          hint: 'Gale! Watch the ! and dodge the footballs.',
           plan: LevelPlan(
             id: '1-4',
             region: _brazil,
-            length: 70,
+            length: 80,
             start: 20,
             seed: 1104,
             families: _canopy,
             lineup: _bats,
             sprint: false,
-            marks: StarMarks(45, 70),
+            pieces: [SetPiece(_gale, at: 30)],
+            marks: StarMarks(30, 50),
           ),
         ),
         CampaignLevel(

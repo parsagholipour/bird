@@ -89,13 +89,14 @@ void main() {
       expect(seen.enemies, isNot(contains(EnemyKind.duskMoth)), reason: id);
       expect(seen.kinds, isNot(contains(ObstacleKind.sunWheels)));
       expect(seen.kinds, isNot(contains(ObstacleKind.crystalSteps)));
-      expect(seen.gales, isFalse, reason: id);
+      // Brazil's football gale (1-4) is the only one before Paris.
+      expect(seen.gales, level.plan.pieces.any((p) => p.gale), reason: id);
       expect(seen.vents, isFalse, reason: id);
       expect(seen.swarm, isFalse, reason: id);
       expect(seen.sea, isFalse, reason: id);
       expect(seen.rushes, isNot(contains(RushPathKind.eruption)));
       expect(seen.rushes, isNot(contains(RushPathKind.swarm)));
-      expect(seen.rushes, level.plan.pieces.map((p) => p.kind.rush).toSet());
+      expect(seen.rushes, {for (final p in level.plan.pieces) ?p.kind.rush});
       expect(seen.bosses, {?level.boss}, reason: id);
       if (level.id == '1-1' || level.id == '1-2') {
         expect(seen.enemies, isEmpty, reason: id);
@@ -109,6 +110,7 @@ void main() {
     }
 
     expect(flown('1-3').enemies, isNotEmpty);
+    expect(flown('1-4').gales, isTrue);
     expect(flown('2-1').enemies, contains(EnemyKind.spitterBeetle));
     expect(flown('2-2').panels, isTrue);
     expect(flown('2-3').rushes, {RushPathKind.wildfire});
@@ -223,8 +225,11 @@ void main() {
 
   test('a cruising bird meets moving passages in the same phase on every '
       'phone', () {
+    // Brazil's petal gates without a set piece: a gale's debris reach the
+    // bird later on a wider phone, so the gate after 1-4's gale can differ
+    // (by 4e-5 rad), as passages after any set piece can.
     List<double> phases(double width) {
-      final sim = levelFlight(level('1-4'));
+      final sim = levelFlight(level('1-5'));
       final met = <Obstacle, double>{};
       flyLevel(
         sim,

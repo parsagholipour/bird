@@ -466,6 +466,10 @@ Meanwhile a warning lane runs in from the right edge at its height. An
 exclamation mark stands at the lane's inner end, 0.6 in from the edge, clear
 of the pause, Shoot and Sprint controls, and a gust whistle plays. A piece flies level at 0.9 plus course speed, so it crosses a
 phone screen in about a second. Its hit circle has radius 0.05.
+Over Brazil (Carnival Skies, 1-4, or an endless leg there) the pieces are
+footballs in four kits, and a strike tears up turf instead of splinters
+(`lib/game/gale_football_art.dart`). A piece keeps the region it was
+launched in. This is art only: the rules are the same everywhere.
 
 Debris hurts on contact like a wall, sprinting or not. A shot rock glances off
 it without breaking it. Each piece that passes the bird untouched scores 1

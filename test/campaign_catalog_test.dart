@@ -136,12 +136,16 @@ void main() {
       final kinds = plan.families.toSet();
       final enemies = plan.lineup.toSet();
       final rushes = {for (final p in plan.pieces) p.kind};
+      // Brazil's football gale (1-4) is the one set piece before chapter 2.
+      final brazilGale = id == '1-4';
       expect(kinds, contains(ObstacleKind.garden), reason: id);
       if (chapter < 3) {
         expect(kinds, isNot(contains(ObstacleKind.sunWheels)), reason: id);
         expect(kinds, isNot(contains(ObstacleKind.crystalSteps)));
         expect(enemies, isNot(contains(EnemyKind.duskMoth)), reason: id);
-        expect(rushes, isNot(contains(SetPieceKind.gale)), reason: id);
+        if (!brazilGale) {
+          expect(rushes, isNot(contains(SetPieceKind.gale)), reason: id);
+        }
         expect(rushes, isNot(contains(SetPieceKind.swarm)), reason: id);
       }
       if (chapter < 2) {
@@ -149,7 +153,7 @@ void main() {
         expect(kinds, isNot(contains(ObstacleKind.lanternDrift)));
         expect(enemies, isNot(contains(EnemyKind.spitterBeetle)));
         expect(plan.panels, 0, reason: id);
-        expect(rushes, isEmpty, reason: id);
+        expect(rushes, brazilGale ? {SetPieceKind.gale} : isEmpty, reason: id);
       }
       if (chapter < 4) {
         expect(rushes, isNot(contains(SetPieceKind.eruption)), reason: id);
@@ -197,6 +201,11 @@ void main() {
     expect(at('1-3').plan.cadence, 4);
     expect(at('1-4').plan.families, contains(ObstacleKind.petalGate));
     expect(at('2-1').plan.lineup, contains(EnemyKind.spitterBeetle));
+    // Brazil's gale: footballs on the wind, the gale's first lesson.
+    expect(at('1-4').plan.pieces.map((p) => (p.kind, p.at)), [
+      (SetPieceKind.gale, 30),
+    ]);
+    expect(at('1-4').plan.length, 80);
     expect(at('2-1').plan.panels, 0);
     expect(at('2-2').plan.panels, .35);
     expect(at('2-3').plan.pieces.single.kind, SetPieceKind.wildfire);
@@ -228,7 +237,7 @@ void main() {
     expect(at('4-2').plan.pieces.single.kind, SetPieceKind.eruption);
     expect(at('5-1').plan.pieces.single.kind, SetPieceKind.shuffled);
     for (final id in [
-      '1-1', '1-2', '1-3', '1-5', '2-1', '2-2', '2-3', '2-5', '2-6',
+      '1-1', '1-2', '1-3', '1-4', '1-5', '2-1', '2-2', '2-3', '2-5', '2-6',
       // New York: moths, the Alley Pigeon, steam and the Gargoyle's lamp;
       // Paris introduces the Gale and the Swarm rush the stop gave up.
       '3-1', '3-2', '3-3', '3-4', '3-6', '3-7',
@@ -243,7 +252,7 @@ void main() {
     expect(at('3-4').hint, contains('light'));
     expect(at('3-6').hint, contains('Gale'));
     expect(at('3-7').hint, contains('flocks'));
-    expect(at('1-4').hint, isNull);
+    expect(at('1-4').hint, contains('footballs'));
     expect(at('5-1').hintIsNew, isFalse);
   });
 
@@ -275,6 +284,9 @@ void main() {
     }
     int stars(String id) => routeOf(Campaign.level(id)!).stars;
     expect(stars('1-1'), 81);
+    // Carnival Skies' gale lays no stars while it blows (96 at 70 s before
+    // it came).
+    expect(stars('1-4'), 69);
     expect(stars('1-8'), 36);
     expect(stars('2-6'), 36);
     expect(stars('2-8'), 111);

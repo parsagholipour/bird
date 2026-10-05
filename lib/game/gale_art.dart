@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 import '../domain/game_rules.dart';
 import '../ui/theme.dart';
+import 'gale_football_art.dart';
 import 'sky_scenery.dart';
 
 /// A gale reads at speed: the sky streaks with wind, debris tumbles at the
@@ -423,8 +424,9 @@ abstract final class GaleArt {
     }
   }
 
-  /// Debris on screen: cartwheels, barrels, crates and torn boughs, each
-  /// tumbling on the circle it really hits, with the wind tearing off it.
+  /// Debris on screen: cartwheels, barrels, crates and torn boughs (or,
+  /// over Brazil, footballs), each tumbling on the circle it really hits,
+  /// with the wind tearing off it.
   /// A piece that struck the bird glances away; [impacts] draws the burst
   /// over the bird.
   static void debris(
@@ -452,11 +454,18 @@ abstract final class GaleArt {
         d.shape,
         reducedMotion ? _restingTurn(d.shape) : d.age * d.spin,
         1,
+        football: _football(sim, d),
       );
     }
   }
 
   static double _restingTurn(int shape) => shape * .7 - .35;
+
+  /// Over Brazil the gale throws footballs. A piece keeps the region it was
+  /// launched in, so one never changes costume mid-flight on a crossing.
+  static bool _football(FlightSimulation sim, GaleDebris d) =>
+      WorldTour.at(sim.elapsed - d.age, held: sim.region).dominant ==
+      WorldRegion.brazil;
 
   /// What the wind tears off a piece: a pale smear the width of its body
   /// streaming back the way it came, with torn streaks along its middle
@@ -539,15 +548,21 @@ abstract final class GaleArt {
   }
 
   /// One piece of debris at [center], turned to [turn], filling the circle
-  /// of radius [r] it hits. Ink outlines keep it solid over any sky.
+  /// of radius [r] it hits. Ink outlines keep it solid over any sky. A
+  /// [football]'s shape picks its kit.
   static void _body(
     Canvas canvas,
     Offset center,
     double r,
     int shape,
     double turn,
-    double alpha,
-  ) {
+    double alpha, {
+    bool football = false,
+  }) {
+    if (football) {
+      GaleFootballArt.paint(canvas, center, r, shape, turn, alpha);
+      return;
+    }
     // A shadow behind the piece lifts it off a busy backdrop.
     canvas.drawCircle(
       center + Offset(r * .1, r * .16),
@@ -791,7 +806,7 @@ abstract final class GaleArt {
     canvas.translate(center.dx, center.dy);
     canvas.scale(squash, 2 - squash);
     canvas.translate(-center.dx, -center.dy);
-    _body(canvas, center, r, d.shape, turn, fade);
+    _body(canvas, center, r, d.shape, turn, fade, football: _football(sim, d));
     canvas.restore();
   }
 
@@ -817,13 +832,14 @@ abstract final class GaleArt {
         scroll,
         strike.up,
         reducedMotion,
+        football: _football(sim, d),
       );
     }
   }
 
   /// The strike itself: a white star of impact, a ring of air, splinters
-  /// (or leaves) thrown back the way the piece came, and a puff of dust
-  /// the course carries away.
+  /// (leaves from a bough, torn turf from a [football]) thrown back the way
+  /// the piece came, and a puff of dust the course carries away.
   static void _burst(
     Canvas canvas,
     double h,
@@ -832,8 +848,9 @@ abstract final class GaleArt {
     double age,
     double scroll,
     bool up,
-    bool reducedMotion,
-  ) {
+    bool reducedMotion, {
+    bool football = false,
+  }) {
     if (age >= _burstSeconds) return;
     final r = GaleDebris.radius * h;
     final s = age / _burstSeconds;
@@ -897,7 +914,7 @@ abstract final class GaleArt {
     }
     final travel = reducedMotion ? .45 : 1 - (1 - s) * (1 - s);
     final alpha = math.min(1.0, (1 - s) * 2.2);
-    final leafy = d.shape == 3;
+    final leafy = !football && d.shape == 3;
     for (var i = 0; i < 6; i++) {
       final u = _hash(i, seed + 11), v = _hash(i + 20, seed + 11);
       // Thrown back up the course, fanning to the side it bounced.
@@ -909,7 +926,23 @@ abstract final class GaleArt {
       canvas.save();
       canvas.translate(p.dx, p.dy);
       canvas.rotate(u * 6 + (reducedMotion ? 0 : age * (v - .5) * 24));
-      final piece = leafy
+      // A football tears up turf: grass blades and the odd clod of earth.
+      final clod = football && i % 3 == 2;
+      final piece = football
+          ? (clod
+                ? (Path()..addOval(
+                    Rect.fromCenter(
+                      center: Offset.zero,
+                      width: size * 1.2,
+                      height: size * .85,
+                    ),
+                  ))
+                : (Path()
+                    ..moveTo(-size, size * .34)
+                    ..quadraticBezierTo(0, -size * .3, size * 1.25, -size * .4)
+                    ..quadraticBezierTo(0, size * .3, -size, -size * .24)
+                    ..close()))
+          : leafy
           ? (Path()
               ..moveTo(-size, 0)
               ..quadraticBezierTo(0, -size * .6, size, 0)
@@ -927,7 +960,11 @@ abstract final class GaleArt {
           piece,
           Paint()
             ..color =
-                (leafy
+                (clod
+                        ? _woodDark
+                        : football
+                        ? (i.isEven ? _leaf : _leafLight)
+                        : leafy
                         ? (i.isEven ? _leaf : _leafAutumn)
                         : (i.isEven ? _woodLight : _wood))
                     .withValues(alpha: alpha),
@@ -936,7 +973,7 @@ abstract final class GaleArt {
           piece,
           Paint()
             ..style = PaintingStyle.stroke
-            ..strokeWidth = r * .07
+            ..strokeWidth = r * (football ? .05 : .07)
             ..strokeJoin = StrokeJoin.round
             ..color = SkyColors.ink.withValues(alpha: alpha * .8),
         )
