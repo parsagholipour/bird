@@ -466,10 +466,11 @@ class FlightSimulation {
   /// blasts destroy nearby pellets ([shatterAmmoRulesVersion]); 60 flies
   /// with the player's star-bought upgrades ([upgradesRulesVersion]); 61
   /// makes Neferhoo wilder, with slanted letters and diving mummy bats
-  /// ([wilderNeferhooRulesVersion]). Endless and co-op
+  /// ([wilderNeferhooRulesVersion]); 62 has two of King Coo's whistle
+  /// squadron throw crusts ([squadThrowersRulesVersion]). Endless and co-op
   /// flights fly at 50 exactly as at 43 until that Baron arrives; duels
   /// exactly as at 43.
-  static const currentRulesVersion = 61;
+  static const currentRulesVersion = 62;
   final int rulesVersion;
 
   /// Rules version 60: shot power, sprint, shield and magnet follow the
@@ -706,6 +707,11 @@ class FlightSimulation {
   /// returns; the return times and the number of pigeons owed stay the same.
   static const cooPairsRulesVersion = 56;
 
+  /// Rules version 62: two pigeons of each squadron King Coo whistles in
+  /// throw a crust at the bird as the squadron is about to pass
+  /// ([KingCoo.throwers]). Everything else flies exactly as at 61.
+  static const squadThrowersRulesVersion = 62;
+
   /// Every schedule knob of this flight. See [FlightPlan].
   final FlightPlan plan;
 
@@ -917,6 +923,11 @@ class FlightSimulation {
   /// King Coo's stragglers return in pairs ([cooPairsRulesVersion]).
   bool get supportsCooPairs =>
       supportsTougherCoo && rulesVersion >= cooPairsRulesVersion;
+
+  /// Two of King Coo's whistle squadron throw crusts
+  /// ([squadThrowersRulesVersion]).
+  bool get supportsSquadThrowers =>
+      supportsTougherCoo && rulesVersion >= squadThrowersRulesVersion;
 
   /// The fiercer Searchlight Gargoyle ([fiercerGargoyleRulesVersion]).
   bool get supportsFiercerGargoyle =>
