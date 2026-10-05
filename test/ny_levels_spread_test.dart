@@ -41,10 +41,12 @@ double _gate(Skill skill) => skill == Skill.casual ? .75 : .90;
 /// (100% at rules 44; 91 / 84 / 66% before the stragglers). These are
 /// floors under that, pooled only. With paired returns at rules 56, the
 /// sharp pilot finishes 9 of 32 flights (28%); keep a 25% floor for it.
+// From rules 62 two pigeons of each whistle squadron throw crusts as they
+// pass (the owner's choice): only the sharp pilot still beats him.
 double _cooGate(Skill skill) => switch (skill) {
   Skill.sharp => .25,
-  Skill.average => .2,
-  Skill.casual => .03,
+  Skill.average => 0,
+  Skill.casual => 0,
 };
 
 class Cell {
@@ -240,7 +242,9 @@ void main() {
         // his stragglers back and throwing, as the owner chose) every pilot
         // is caught about 2.5 times a fight, won or lost (a lost fight has
         // no length here, so the bound is per fight).
-        expect(minutes, greaterThan(0));
+        // From rules 62 (two of each squadron throwing) only the sharp
+        // pilot wins a fight, so only its fights have a length.
+        if (skill == Skill.sharp) expect(minutes, greaterThan(0));
         expect(hits / cell.n, lessThanOrEqualTo(3.5), reason: skill.name);
         // Every flight ends: he falls, or (from rules 45, his vanguard
         // throwing and his health doubled) the pilot is knocked out. None
@@ -266,10 +270,7 @@ void main() {
           // that reached him (`ny_star_marks_test` flies it unharmed).
           if (id == '3-2') {
             final marks = Campaign.level(id)!.marks;
-            final reached = [
-              for (final run in cell.runs)
-                ?run.starsAtBoss,
-            ];
+            final reached = [for (final run in cell.runs) ?run.starsAtBoss];
             expect(reached.length / cell.n, greaterThanOrEqualTo(.6));
             expect(
               reached.where((stars) => stars >= marks.three).length /

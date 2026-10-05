@@ -162,8 +162,16 @@ extension _KingCooRules on FlightSimulation {
   /// (wing slots a little behind it), on their tracks. They are Alley Pigeons
   /// that never snatch ([SkyEnemy.squad]), scroll with nothing (`drift` 0)
   /// and die like any small enemy: a rock or a ram kills, touching hurts.
+  ///
+  /// From rules 62 two pigeons of a call's first plan
+  /// ([KingCoo.throwers]) throw one crust each as the squadron is about to
+  /// pass: their wind-up ends as they reach [KingCoo.throwAhead] in front of
+  /// the birds, while they may still attack (see `_advanceEnemyAttacks`).
   void _releaseSquad(SkyBoss coo, SquadPlan plan, double at) {
     final appearance = EnemyKind.alleyPigeon.index;
+    final throwers = supportsSquadThrowers && coo.squadReleased == 0
+        ? KingCoo.throwers(plan)
+        : const <int>[];
     for (final (i, slot) in plan.slots.indexed) {
       final track = SquadTrack(
         x0: coo.x + slot.behind,
@@ -171,18 +179,25 @@ extension _KingCooRules on FlightSimulation {
         lane: slot.y,
         bornAt: at,
       );
-      enemies.add(
-        SkyEnemy(
-          x: track.x(coo.age),
-          y: track.y(coo.age),
-          appearance: appearance,
-          maxHp: _enemyHealth(appearance),
-          flightPhase:
-              ((coo.whistles * 2 + coo.squadReleased) * 7 + i) * 2.399963,
-          drift: 0,
-          squad: true,
-        )..track = track,
-      );
+      final throws = throwers.contains(i);
+      final enemy = SkyEnemy(
+        x: track.x(coo.age),
+        y: track.y(coo.age),
+        appearance: appearance,
+        maxHp: _enemyHealth(appearance),
+        flightPhase:
+            ((coo.whistles * 2 + coo.squadReleased) * 7 + i) * 2.399963,
+        drift: 0,
+        squad: true,
+        throwsCrumbs: throws,
+      )..track = track;
+      if (throws) {
+        final throwAt = track.crossesAt(
+          FlightSimulation.birdX + KingCoo.throwAhead,
+        );
+        enemy.fireIn = math.max(SkyEnemy.warningSeconds, throwAt - coo.age);
+      }
+      enemies.add(enemy);
     }
   }
 

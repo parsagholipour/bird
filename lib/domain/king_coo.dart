@@ -210,6 +210,28 @@ abstract final class KingCoo {
   /// at the widest phone (width 2.4), has passed the bird's column.
   static const squadCrossesBy = 13.0;
 
+  /// From rules version 62 two pigeons of each call throw a crust as the
+  /// squadron is about to pass the bird: once each, aimed as they reach
+  /// [throwAhead] in front of the bird's column (or as soon after as their
+  /// full wind-up allows).
+  static const squadThrowers = 2, throwAhead = .55;
+
+  /// Which of [plan]'s slots throw: the V's two outer wing tips, or the two
+  /// blockers that flank a picket's gap.
+  static List<int> throwers(SquadPlan plan) {
+    final slots = plan.slots;
+    if (plan.shape == SquadShape.v) {
+      return [
+        for (var i = slots.length - squadThrowers; i < slots.length; i++) i,
+      ];
+    }
+    final gap = plan.gap!;
+    return [
+      slots.indexWhere((s) => s.y < gap),
+      slots.indexWhere((s) => s.y > gap),
+    ];
+  }
+
   /// Bird heights (inclusive) for which a picket's gap moves off the centre.
   static const picketMiddle = (.385, .615);
 
