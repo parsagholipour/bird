@@ -1,10 +1,13 @@
 import '../domain/squat_tracking.dart';
+
 import 'dart:async';
 import 'dart:io';
+
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../data/providers.dart';
 import '../data/progress_repository.dart';
 import '../data/passport_progress.dart';
@@ -35,6 +38,7 @@ import 'level_hud.dart';
 import 'game_over_stage.dart';
 import 'level_result.dart';
 import 'mini_results.dart';
+import 'pause_card.dart';
 import 'ui_sounds.dart';
 
 class PlayScreen extends ConsumerStatefulWidget {
@@ -1636,91 +1640,38 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
             ),
           ),
         if (paused)
-          Container(
-            color: SkyColors.ink.withValues(alpha: .35),
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 34),
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  alignment: Alignment.topCenter,
-                  children: [
-                    MatchPlate(
-                      radius: 28,
-                      padding: const EdgeInsets.fromLTRB(36, 46, 36, 26),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text('Take a breather.', style: heading(38)),
-                          const SizedBox(height: 10),
-                          Text(
-                            level != null
-                                ? '${level.id} · ${level.name}. Ready for more?'
-                                : controller.isTouch
-                                ? 'Ready for more? We’ll count you in.'
-                                : 'Get back in position. We’ll count you in.',
-                            style: bodyText(16, color: SkyColors.muted),
-                          ),
-                          const SizedBox(height: 22),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              // A level starts over or goes back to the map;
-                              // either way the attempt is saved.
-                              if (level != null) ...[
-                                SkyButton(
-                                  key: const ValueKey('pause-map'),
-                                  label: 'Map',
-                                  onPressed: () => leave('/campaign'),
-                                  color: SkyColors.cream,
-                                  icon: Icons.map_outlined,
-                                ),
-                                const SizedBox(width: 12),
-                                SkyButton(
-                                  key: const ValueKey('pause-retry'),
-                                  label: 'Retry',
-                                  onPressed: restart,
-                                  color: SkyColors.cream,
-                                  icon: Icons.replay_rounded,
-                                ),
-                              ] else
-                                SkyButton(
-                                  label: 'Finish flight',
-                                  onPressed: controller.endFlight,
-                                  color: SkyColors.cream,
-                                  icon: Icons.flag_outlined,
-                                ),
-                              const SizedBox(width: 16),
-                              SkyButton(
-                                label: 'Keep flying',
-                                sound: 'resume',
-                                onPressed: () => controller.resume(),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    // The paused badge crowns the card.
-                    const Positioned(
-                      top: -34,
-                      child: ExcludeSemantics(
-                        child: SizedBox.square(
-                          dimension: 68,
-                          child: MatchPlate(
-                            color: SkyColors.yellow,
-                            padding: EdgeInsets.zero,
-                            child: Center(
-                              child: MatchIcon(MatchSymbol.pause, size: 34),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+          PauseCard(
+            reducedMotion: controller.reducedMotion,
+            subtitle: level != null
+                ? '${level.id} · ${level.name}. Your bird is perched and waiting.'
+                : controller.isTouch
+                ? 'Your bird is perched and waiting. We’ll count you back in.'
+                : 'Shake it out, then get back in position. We’ll count you in.',
+            actions: [
+              // A level starts over or goes back to the map; either way the
+              // attempt is saved.
+              if (level != null) ...[
+                PauseAction(
+                  key: const ValueKey('pause-map'),
+                  label: 'Map',
+                  icon: Icons.map_rounded,
+                  onPressed: () => leave('/campaign'),
                 ),
-              ),
-            ),
+                PauseAction(
+                  key: const ValueKey('pause-retry'),
+                  label: 'Retry',
+                  icon: Icons.replay_rounded,
+                  tint: SkyColors.mint,
+                  onPressed: restart,
+                ),
+              ] else
+                PauseAction(
+                  label: 'Finish flight',
+                  icon: Icons.flag_rounded,
+                  onPressed: controller.endFlight,
+                ),
+            ],
+            onResume: () => controller.resume(),
           ),
       ],
     );
