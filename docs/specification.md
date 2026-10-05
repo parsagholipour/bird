@@ -1325,8 +1325,10 @@ keys, side tints and player tags. The last bird flying wins.
 enemies or heart pickups (a `DuelPlan`), so every enemy in the sky was sent
 by a player. Passages, their families, stars, pace and openings are as in an
 endless flight. Both birds cruise in the solo bird's column; player 1 starts
-at height 0.38 and player 2 at 0.62. They bump at 0.09 as without the rope,
-and a sprint surges only the sprinter ahead.
+at height 0.38 and player 2 at 0.62. From rules version 63
+(`passingRivalsRulesVersion`) they fly through each other, one passing over
+the other for a moment; a duel recorded at 42–62 replays with them bumping
+at 0.09 as without the rope. A sprint surges only the sprinter ahead.
 
 **Hearts.** Each bird has its own three hearts, shield and 1.5-second hit
 recovery; only the bird that is hit loses them. A wall hurts each bird that

@@ -31,12 +31,16 @@ class RiggedRandom implements Random {
 
 /// A duel past its countdown with an empty sky, so a test chooses what the
 /// birds meet.
-FlightSimulation duel({RiggedRandom? random}) {
+FlightSimulation duel({
+  RiggedRandom? random,
+  int rulesVersion = FlightSimulation.currentRulesVersion,
+}) {
   final sim = FlightSimulation(
     rules: TapFlyMode(),
     practice: false,
     course: FlightCourse.starTrail,
     coop: CoopMode.duel,
+    rulesVersion: rulesVersion,
     random: random ?? RiggedRandom(9),
   );
   step(sim, sim.countdownSeconds.toDouble());
@@ -134,6 +138,28 @@ void main() {
       }
       expect(CoopMode.duel.team, isFalse);
       expect(CoopMode.free.team, isTrue);
+    });
+
+    test('the rivals fly through each other; before 63 they bump', () {
+      const passing = FlightSimulation.passingRivalsRulesVersion;
+      expect(passing, 63);
+      expect(
+        FlightSimulation.currentRulesVersion,
+        greaterThanOrEqualTo(passing),
+      );
+      double gapAt(int rulesVersion) {
+        final sim = duel(rulesVersion: rulesVersion);
+        final [one, two] = sim.flock;
+        // Player 2 overtakes player 1 right through it.
+        hold(sim, [.5, .5]);
+        two.x = FlightSimulation.birdX + .02;
+        step(sim, .02);
+        final dx = two.x - one.x, dy = two.y - one.y;
+        return sqrt(dx * dx + dy * dy);
+      }
+
+      expect(gapAt(passing), lessThan(Tether.contact / 2));
+      expect(gapAt(passing - 1), closeTo(Tether.contact, 1e-6));
     });
 
     test('each bird has its own hearts, shield and recovery', () {

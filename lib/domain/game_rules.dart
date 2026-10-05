@@ -467,10 +467,11 @@ class FlightSimulation {
   /// with the player's star-bought upgrades ([upgradesRulesVersion]); 61
   /// makes Neferhoo wilder, with slanted letters and diving mummy bats
   /// ([wilderNeferhooRulesVersion]); 62 has two of King Coo's whistle
-  /// squadron throw crusts ([squadThrowersRulesVersion]). Endless and co-op
-  /// flights fly at 50 exactly as at 43 until that Baron arrives; duels
-  /// exactly as at 43.
-  static const currentRulesVersion = 62;
+  /// squadron throw crusts ([squadThrowersRulesVersion]); 63 lets a duel's
+  /// rivals fly through each other ([passingRivalsRulesVersion]). Endless
+  /// and co-op flights fly at 50 exactly as at 43 until that Baron arrives;
+  /// duels exactly as at 43.
+  static const currentRulesVersion = 63;
   final int rulesVersion;
 
   /// Rules version 60: shot power, sprint, shield and magnet follow the
@@ -711,6 +712,11 @@ class FlightSimulation {
   /// throw a crust at the bird as the squadron is about to pass
   /// ([KingCoo.throwers]). Everything else flies exactly as at 61.
   static const squadThrowersRulesVersion = 62;
+
+  /// Rules version 63: a duel's two birds fly through each other instead of
+  /// bumping ([Tether.bump]); one may pass over the other for a moment.
+  /// Every other flight flies exactly as at 62.
+  static const passingRivalsRulesVersion = 63;
 
   /// Every schedule knob of this flight. See [FlightPlan].
   final FlightPlan plan;
@@ -2029,14 +2035,16 @@ class FlightSimulation {
 
   /// Each bird eases back to its place (a sprinting one surges ahead of
   /// it), then the rope (on a roped flight) keeps them together and their
-  /// bodies keep them apart.
+  /// bodies keep them apart, except a duel's rivals from rules version 63.
   void _advanceFormation(double step) {
     for (final bird in flock) {
       Tether.cruise(bird, _holding ? 0 : _surgeOf(bird), step);
     }
     if (!roped) {
       if (duel) _starPowerContact();
-      Tether.bump(lead, partner!);
+      if (!duel || rulesVersion < passingRivalsRulesVersion) {
+        Tether.bump(lead, partner!);
+      }
       return;
     }
     final pull = Tether.bind(lead, partner!);

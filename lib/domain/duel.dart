@@ -74,7 +74,8 @@ class MeteorShower {
 ///
 /// Two birds fly the same column, one above the other, so neither starts
 /// with a shot at the other: a bird's rock can only hit its rival once one
-/// has surged ahead, as a sprint does. Each bird has its own hearts and
+/// has surged ahead, as a sprint does. From rules version 63 they fly
+/// through each other rather than bump. Each bird has its own hearts and
 /// shield; its own stars charge its shield. Every other passage carries a
 /// [MysteryBox] off its star line, and nothing else attacks: no boss, no
 /// set piece and no ordinary enemy, so every enemy in the sky was sent by

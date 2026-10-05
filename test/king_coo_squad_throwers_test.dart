@@ -45,9 +45,12 @@ Map<SkyEnemy, List<double>> _throws(int version) {
 }
 
 void main() {
-  test('62 is the current rules version', () {
+  test('62 throws crusts and is in force', () {
     expect(_throwers, 62);
-    expect(FlightSimulation.currentRulesVersion, _throwers);
+    expect(
+      FlightSimulation.currentRulesVersion,
+      greaterThanOrEqualTo(_throwers),
+    );
   });
 
   test('before 62 the whistle squadron throws nothing', () {
@@ -72,9 +75,9 @@ void main() {
     expect(KingCoo.throwers(v).map((i) => v.slots[i].y), [.35, .65]);
     final picket = KingCoo.squad(cycle: 1, birdY: .2, fury: false).single;
     final gap = picket.gap!;
-    expect(
-      KingCoo.throwers(picket).map((i) => picket.slots[i].y),
-      [gap - KingCoo.picketFirst, gap + KingCoo.picketFirst],
-    );
+    expect(KingCoo.throwers(picket).map((i) => picket.slots[i].y), [
+      gap - KingCoo.picketFirst,
+      gap + KingCoo.picketFirst,
+    ]);
   });
 }
