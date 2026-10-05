@@ -83,10 +83,11 @@ void main() {
       }
     });
 
-    test('the voiced bosses are exactly the endless five', () {
+    test('the voiced bosses are the endless five and Neferhoo', () {
       expect(FlightVoices.voicedBosses, {
         for (final kind in BossKind.values)
           if (!kind.campaignOnly) kind,
+        BossKind.neferhoo,
       });
     });
 

@@ -197,14 +197,13 @@ class FlightVoices {
     BossKind.duskMoth,
     BossKind.pirate,
     BossKind.dragon,
+    BossKind.neferhoo,
   };
 
   /// The bosses whose in-flight lines are written in the script but not
-  /// recorded yet: Neferhoo (Egypt's guardian, rules 50), whose voice the
-  /// owner has still to pick from the auditions. The game asks for their
-  /// pools as for any boss's; every one is empty, so the fight is silent
-  /// until the takes are in. Then the boss moves to [voicedBosses].
-  static const pendingBosses = {BossKind.neferhoo};
+  /// recorded yet. The game asks for their pools as for any boss's; an
+  /// empty pool stays silent until its takes are in.
+  static const pendingBosses = <BossKind>{};
 
   /// A region's name in clip names.
   static String regionKey(WorldRegion region) => region.name.replaceAllMapped(

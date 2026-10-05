@@ -77,11 +77,9 @@ VOICES = {
     'captain': ('4Vl3K2x290GidNvuaLm7',
                 'Matthew Schmitz - Old Pirate Captain'),
     'dragon': ('xsiB5fGhEtknnqzudCO6', 'Smoke - The Dragon'),
-    # Egypt's guardian (rules 50): NOT CAST YET. The owner picks one of five
-    # auditions (docs/story-voices-recording.md, "Neferhoo's voice"); until
-    # then his id is None, `script` writes "voice_id": null and his lines stay
-    # pending. Once picked, put the voice's id and name here and run `script`.
-    'neferhoo': (None, 'Neferhoo (audition)'),
+    # Egypt's guardian (rules 50): Herbie, chosen from the new auditions.
+    'neferhoo': ('Kz0DA4tCctbPjLay2QT1',
+                 'Herbie (Old Man with a Lisp and whistle S sounds)'),
 }
 BIRDS = ['pip', 'peaches', 'minty', 'orbit']
 BOSSES = ['baron', 'spitter', 'empress', 'captain', 'dragon', 'neferhoo']

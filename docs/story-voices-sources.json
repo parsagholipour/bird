@@ -63,10 +63,20 @@
     "language_code": "en",
     "output_format": "mp3_44100_128",
     "pronunciation_dictionary_locators": []
+   },
+   "Kz0DA4tCctbPjLay2QT1": {
+    "voice": "Kz0DA4tCctbPjLay2QT1",
+    "voice_id": "Kz0DA4tCctbPjLay2QT1",
+    "language_code": "en",
+    "output_format": "mp3_44100_128",
+    "pronunciation_dictionary_locators": []
    }
-  }
+  },
+  "additional_flows": [
+   "https://elevenlabs.io/app/flows/rdk7xWsLiNcCB7rVa9ew"
+  ]
  },
- "voice_settings_note": "The 2026-10-05 cast batch used the saved model parameters above consistently for every take of each voice, including the single pronunciation retake. Stability, similarity, style, speed and speaker boost were not overridden; ElevenLabs did not expose numeric defaults through the Flow schema. The original before-1-1-1 node (khb9FTqNbNkkYZQHaIAQ, generation UysfLzHl68MIorRDjpAY) likewise stores the voice, mp3_44100_128 and no pronunciation dictionaries, without numeric voice settings. All new source MP3s were checked with ffprobe: mono, 44.1 kHz, 128 kbps.",
+ "voice_settings_note": "The 2026-10-05 cast batch used the saved model parameters above consistently for every take of each voice, including the single pronunciation retake. Stability, similarity, style, speed and speaker boost were not overridden; ElevenLabs did not expose numeric defaults through the Flow schema. The original before-1-1-1 node (khb9FTqNbNkkYZQHaIAQ, generation UysfLzHl68MIorRDjpAY) likewise stores the voice, mp3_44100_128 and no pronunciation dictionaries, without numeric voice settings. All new source MP3s were checked with ffprobe: mono, 44.1 kHz, 128 kbps. Neferhoo was recorded in the owner-approved Herbie voice on 2026-10-05, using the same saved model parameters as his audition for all 24 first takes; no numeric voice settings were overridden.",
  "status_note": "A clip with \"status\": \"pending recording\" is written, printed and in the game, but not recorded yet: voice_id, generation_id and source_sha256 stay null until its take exists, and the game shows its text without a voice. \"voice\" is the voice planned for it, \"planned_voice_id\" that voice's id when it is already in the cast, \"fallback_voice\" the cast voice to use if the audition does not pan out. When the take is recorded: fill the null fields and delete status, planned_voice_id, fallback_voice_id, fallback_voice and plays. See docs/story-voices.md, \"Adding a new character or voice\".",
  "clips": [
   {
@@ -793,15 +803,10 @@
    "name": "before-2-6-1",
    "text": "HALT! No courier flies the Pharaoh’s post but me!",
    "prompt": "[shouting] HALT! [haughtily] No courier flies the Pharaoh’s post but me!",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": null,
-   "fallback_voice_id": "MKlLqCItoCkvdhrxgtLv",
-   "fallback_voice": "Grampa Werthers - Old & Cranky",
-   "plays": "Scene before-2-6, line 1. Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it."
+   "voice_id": "Kz0DA4tCctbPjLay2QT1",
+   "voice": "Herbie (Old Man with a Lisp and whistle S sounds)",
+   "generation_id": "IMMxmjRf8MJMpIbAwadQ",
+   "source_sha256": "3bfac4c3e91f6e7b7fc17067bd9d8d560fe2eec7d269a5de26555e56f84dd7e1"
   },
   {
    "name": "before-2-6-2-pip",
@@ -843,29 +848,19 @@
    "name": "before-2-6-3",
    "text": "Neferhoo, Royal Courier. Four thousand years on this route.",
    "prompt": "[proudly] Neferhoo, Royal Courier. [clears throat] Four thousand years on this route.",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": null,
-   "fallback_voice_id": "MKlLqCItoCkvdhrxgtLv",
-   "fallback_voice": "Grampa Werthers - Old & Cranky",
-   "plays": "Scene before-2-6, line 3. Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it."
+   "voice_id": "Kz0DA4tCctbPjLay2QT1",
+   "voice": "Herbie (Old Man with a Lisp and whistle S sounds)",
+   "generation_id": "oViIAKcuH6XsrcHsN8eP",
+   "source_sha256": "e6157f922716f857d91b8eb78b0027e94819186c94a9cb1f8855a089d543ab06"
   },
   {
    "name": "before-2-6-4",
    "text": "One letter left in my bag… and I cannot find its door.",
    "prompt": "[sadly] One letter left in my bag… [sighs] and I cannot find its door.",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": null,
-   "fallback_voice_id": "MKlLqCItoCkvdhrxgtLv",
-   "fallback_voice": "Grampa Werthers - Old & Cranky",
-   "plays": "Scene before-2-6, line 4. Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it."
+   "voice_id": "Kz0DA4tCctbPjLay2QT1",
+   "voice": "Herbie (Old Man with a Lisp and whistle S sounds)",
+   "generation_id": "Kh4C1EI7rkwkBXD7KFEq",
+   "source_sha256": "ab7e4d31d7c240a778b461b6b1530490815c4def1743f52a4ddcbfdb87e26982"
   },
   {
    "name": "before-2-6-5-pip",
@@ -916,15 +911,10 @@
    "name": "before-2-6-7",
    "text": "Return to sender! This route has a courier.",
    "prompt": "[shouting] Return to sender! [haughtily] This route has a courier.",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": null,
-   "fallback_voice_id": "MKlLqCItoCkvdhrxgtLv",
-   "fallback_voice": "Grampa Werthers - Old & Cranky",
-   "plays": "Scene before-2-6, line 7. Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it. The same words are on the boss’s name card in the flight (CampaignLevel.bossLine)."
+   "voice_id": "Kz0DA4tCctbPjLay2QT1",
+   "voice": "Herbie (Old Man with a Lisp and whistle S sounds)",
+   "generation_id": "NY1LDtYZ9oZJWHgFNrXD",
+   "source_sha256": "e74df8b98c7da9b83fe657e3c8b5c0c4c15f0919bfc32de161b407bf2678f397"
   },
   {
    "name": "before-2-6-8",
@@ -939,15 +929,10 @@
    "name": "last-2-6-0",
    "text": "My mask! …Oh. Oh my. I can see!",
    "prompt": "[gasps] My mask! [pause] …Oh. Oh my. [delighted] I can see!",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": null,
-   "fallback_voice_id": "MKlLqCItoCkvdhrxgtLv",
-   "fallback_voice": "Grampa Werthers - Old & Cranky",
-   "plays": "Scene last-2-6, line 0. Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it."
+   "voice_id": "Kz0DA4tCctbPjLay2QT1",
+   "voice": "Herbie (Old Man with a Lisp and whistle S sounds)",
+   "generation_id": "ZL0UZmYK6rQVVXaZ0CQb",
+   "source_sha256": "488ece22fa00703802df2c9fc0fa4bcabe9d416db322d923348e676c8071d17b"
   },
   {
    "name": "last-2-6-1-pip",
@@ -989,15 +974,10 @@
    "name": "last-2-6-2",
    "text": "“To the Sphinx, Giza.” …It was right outside the whole time.",
    "prompt": "[slowly] “To the Sphinx, Giza.” [pause] [sheepishly] …It was right outside the whole time.",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": null,
-   "fallback_voice_id": "MKlLqCItoCkvdhrxgtLv",
-   "fallback_voice": "Grampa Werthers - Old & Cranky",
-   "plays": "Scene last-2-6, line 2. Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it."
+   "voice_id": "Kz0DA4tCctbPjLay2QT1",
+   "voice": "Herbie (Old Man with a Lisp and whistle S sounds)",
+   "generation_id": "vihV9LOm6kDpXFcC34au",
+   "source_sha256": "38314f6753c8c7364b082c2a0240b0839c32096a9435f4d44629e8f28b55db9e"
   },
   {
    "name": "last-2-6-3",
@@ -1012,15 +992,10 @@
    "name": "last-2-6-4",
    "text": "Four thousand years late. Not my finest delivery.",
    "prompt": "[sighs] Four thousand years late. [sadly] Not my finest delivery.",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": null,
-   "fallback_voice_id": "MKlLqCItoCkvdhrxgtLv",
-   "fallback_voice": "Grampa Werthers - Old & Cranky",
-   "plays": "Scene last-2-6, line 4. Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it."
+   "voice_id": "Kz0DA4tCctbPjLay2QT1",
+   "voice": "Herbie (Old Man with a Lisp and whistle S sounds)",
+   "generation_id": "x57C67GCuLd7itwgmVXj",
+   "source_sha256": "c0266152e0591c513e436f71776a5f04dfebc23b2dc68aa6f843249a7718c431"
   },
   {
    "name": "last-2-6-5-pip",
@@ -1071,15 +1046,10 @@
    "name": "last-2-6-7",
    "text": "Lost letters? …Then I start with this one. Off to the Sphinx!",
    "prompt": "[thoughtfully] Lost letters? [pause] …Then I start with this one. [excited] Off to the Sphinx!",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)",
-   "generation_id": null,
-   "source_sha256": null,
-   "status": "pending recording",
-   "planned_voice_id": null,
-   "fallback_voice_id": "MKlLqCItoCkvdhrxgtLv",
-   "fallback_voice": "Grampa Werthers - Old & Cranky",
-   "plays": "Scene last-2-6, line 7. Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it."
+   "voice_id": "Kz0DA4tCctbPjLay2QT1",
+   "voice": "Herbie (Old Man with a Lisp and whistle S sounds)",
+   "generation_id": "vizjE0eRZxR8EPV2OKwT",
+   "source_sha256": "bbbc9a25b38d8936534d533e8fa70e2c4b3c10dde3ae10f4a7003f4e182786dc"
   },
   {
    "name": "last-2-6-8",

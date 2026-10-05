@@ -45,10 +45,7 @@ Future<List<int>> _pixels(void Function(Canvas c) paint, Size size) async {
   final recorder = ui.PictureRecorder();
   paint(Canvas(recorder));
   final picture = recorder.endRecording();
-  final image = await picture.toImage(
-    size.width.round(),
-    size.height.round(),
-  );
+  final image = await picture.toImage(size.width.round(), size.height.round());
   final data = (await image.toByteData(format: ui.ImageByteFormat.rawRgba))!;
   image.dispose();
   picture.dispose();
@@ -184,16 +181,17 @@ void main() {
     expect(cues.advance(null), isEmpty);
   });
 
-  test('his voice key is his own; he is silent in flight until voiced', () {
+  test('his voice key and recorded lines are his own', () {
     expect(FlightVoices.bossKey(BossKind.neferhoo), 'neferhoo');
-    expect(FlightVoices.voicedBosses, isNot(contains(BossKind.neferhoo)));
-    expect(FlightVoices.recorded['neferhoo-card'], isEmpty);
-    expect(FlightVoices.recorded['neferhoo-taunt'], isEmpty);
+    expect(FlightVoices.voicedBosses, contains(BossKind.neferhoo));
+    expect(FlightVoices.recorded['neferhoo-card'].map((c) => c.name), [
+      'before-2-6-7',
+    ]);
+    expect(FlightVoices.recorded['neferhoo-taunt'], hasLength(2));
     // The Spitter King's card line moved with his lair to 2-9.
-    expect(
-      FlightVoices.recorded['spitter-card'].map((c) => c.name),
-      ['before-2-9-4'],
-    );
+    expect(FlightVoices.recorded['spitter-card'].map((c) => c.name), [
+      'before-2-9-4',
+    ]);
   });
 
   test('the semantics hint and the name card line', () {

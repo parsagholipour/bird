@@ -32,7 +32,7 @@ Set<String> birdMoments() => {
 };
 
 /// The bosses whose lines the script holds: the recorded ones and those
-/// written but still pending recording (Neferhoo, rules 50).
+/// written but still pending recording.
 final _scripted = {...FlightVoices.voicedBosses, ...FlightVoices.pendingBosses};
 
 /// A line is recorded once it has a take's generation; until then it is
@@ -94,35 +94,22 @@ void main() {
           .join(' ');
       expect(prompt, (clip['text'] as String).split(' ').join(' '));
     }
-    // Four birds and the five endless bosses, and Neferhoo, whose voice the
-    // owner picks from the auditions (docs/story-voices-recording.md).
+    // Four birds, the five endless bosses, and Neferhoo in his chosen voice.
     expect(voices, hasLength(10));
-    expect(voices.values.nonNulls.toSet(), hasLength(9), reason: 'nine voices');
-    expect(voices['neferhoo'], isNull);
+    expect(voices.values.nonNulls.toSet(), hasLength(10), reason: 'ten voices');
+    expect(voices['neferhoo'], 'Kz0DA4tCctbPjLay2QT1');
   });
 
-  test('only the uncast Egyptian guardian waits for his takes', () {
+  test('all flight lines are recorded, including the Egyptian guardian', () {
     final pending = {
       for (final c in clips)
         if (!_recorded(c)) c['name'] as String,
     };
-    // His 16 lines (two per moment) await casting. Each bird's two greetings,
-    // farewell and 2-6 cargo line are recorded in their existing voices.
+    // His 16 lines and each bird's greetings, farewell and cargo are recorded.
     final egypt = RegExp(
       r'^(neferhoo-|\w+-boss-(down-)?neferhoo-|\w+-cargo-2-6-)',
     );
-    expect(pending, everyElement(startsWith('neferhoo-')));
-    expect(pending, hasLength(16));
-    for (final name in pending) {
-      expect(flightVoiceClips, isNot(contains(name)), reason: name);
-      expect(
-        File('assets/audio/flight/$name.ogg').existsSync(),
-        isFalse,
-        reason: name,
-      );
-      final clip = clips.firstWhere((c) => c['name'] == name);
-      expect(clip['source_sha256'], isNull, reason: name);
-    }
+    expect(pending, isEmpty);
     // A boss is voiced once every line of it is recorded, and pending
     // until then: never both, never neither while the script has it.
     expect(
@@ -161,14 +148,16 @@ void main() {
       expect(listed, contains('| ${clip['prompt']} |'), reason: name);
     }
     expect(RegExp(r'^\| `', multiLine: true).allMatches(listed), hasLength(32));
-    // His pools are empty, so his fight is silent (card included).
-    for (final moment in [...bossMoments(BossKind.neferhoo), 'card']) {
+    for (final moment in bossMoments(BossKind.neferhoo)) {
       expect(
         FlightVoices.recorded['neferhoo-$moment'],
-        isEmpty,
+        hasLength(2),
         reason: moment,
       );
     }
+    expect(FlightVoices.recorded['neferhoo-card'].map((c) => c.name), [
+      'before-2-6-7',
+    ]);
     for (final bird in CampaignVoices.birds) {
       for (final MapEntry(key: moment, value: count) in const {
         'boss-neferhoo': 2,
@@ -200,10 +189,13 @@ void main() {
       'pending',
     ]);
     expect(pending.exitCode, 0, reason: '${pending.stderr}');
-    expect((pending.stdout as String).trim().split('\n').toSet(), {
-      for (final c in clips)
-        if (!_recorded(c)) c['name'] as String,
-    });
+    expect(
+      (pending.stdout as String).split('\n').where((n) => n.isNotEmpty).toSet(),
+      {
+        for (final c in clips)
+          if (!_recorded(c)) c['name'] as String,
+      },
+    );
   });
 
   test('every recorded line is in the script, bundled and short', () {

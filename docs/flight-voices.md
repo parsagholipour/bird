@@ -9,12 +9,10 @@ Every line is recorded with ElevenLabs **Eleven v4**, one take each, in
 the voice the character has in the story ([story-voices.md](story-voices.md)).
 They are bundled in `assets/audio/flight/` and play offline.
 
-1,241 of the 1,273 lines are recorded (2026-10-01; ElevenLabs' daily
-generation limit spread the last 214 over the next day) and bundled: 85
-minutes of speech, 29.5 MB. The other 32 are Egypt's guardian's (rules 50):
-Neferhoo's 16 (two lines per moment), each bird's two greetings and one
-farewell for him, and each bird's cargo line for 2-6. They are written and **pending recording**
-([Neferhoo](#neferhoo-written-not-recorded) below).
+All 1,273 lines are recorded and bundled as of 2026-10-05. Egypt's guardian
+(rules 50) now has Neferhoo's 16 lines (two per moment), each bird's two
+greetings and one farewell for him, and each bird's cargo line for 2-6
+([Neferhoo](#neferhoo-recorded) below).
 
 ## When a character speaks
 
@@ -45,7 +43,7 @@ exchanges.
 Gargoyle (rules version 43, campaign only) have no in-flight lines yet. They
 have their own clip keys (`coo`, `gargoyle`; `FlightVoices.bossKey`), never
 another boss's, so they cannot borrow a voice, and `FlightVoices.voicedBosses`
-lists the five bosses the script (`flight-voices-sources.json`) covers. Every
+lists the six bosses the script (`flight-voices-sources.json`) covers. Every
 pool asked for a guardian (`coo-arrive`, `pip-boss-coo`, `gargoyle-taunt`,
 ...) is empty, and an empty pool says nothing, so their fights run in silence
 apart from the bird's own lines and the effects. Their name-card lines are
@@ -58,14 +56,12 @@ script and regenerate the clip tables with `tool/prepare_flight_voices.py`.
 Their faces do not move for speech: their rigs do not read `FlightSpeech`
 (`talking_faces_art_test`, "the guardians stay unaffected").
 
-### Neferhoo: written, not recorded
+### Neferhoo: recorded
 
 Egypt's guardian (2-6, rules 50, key `neferhoo`) has his lines written in the
-script, in the five bosses' moments, two lines each, and each bird answers him.
-`FlightVoices.pendingBosses` names him: the game asks for his pools as for any
-boss's, each is empty until its takes are in, so his fight runs in silence
-(the bird's own lines and the effects aside) and paces exactly as it will with
-voices off. His moments, mapped onto his fight in `FlightVoices`:
+script, in the five endless bosses' moments, two lines each, and each bird
+answers him. `FlightVoices.voicedBosses` names him, and his pools now contain
+his recordings. His moments, mapped onto his fight in `FlightVoices`:
 
 | Moment | Lines | When |
 | --- | --- | --- |
@@ -83,16 +79,14 @@ The birds: `boss-neferhoo` (2 each), `boss-down-neferhoo` (1 each), and
 director's pacing rules are the shared ones for each moment (the mail call is an
 urgent `attack`, at most every 21 s in the campaign; his cycle is 12 s).
 
-His voice is not cast: the script's `voice_id` is `null` and `voice` is
-`Neferhoo (audition)` until the owner picks one of five auditions
-([story-voices-recording.md](story-voices-recording.md), section 2). Then put
-the voice in `VOICES['neferhoo']` in `tool/prepare_flight_voices.py`, run
-`script`, record the lines (section 7 of that document lists all 32 with their
-prompts; every tag is proven by a recorded take) and master them. Once his 16
-and his birds' 12 are in, move him from `pendingBosses` to `voicedBosses`
-(`flight_voice_script_test` insists on exactly that) and decide whether his rig
-moves its face to his lines (`talking_faces_art_test` keeps every boss outside
-`voicedBosses` still).
+The owner chose **Herbie (Old Man with a Lisp and whistle S sounds)**,
+`Kz0DA4tCctbPjLay2QT1`, on 2026-10-05
+([story-voices-recording.md](story-voices-recording.md), section 2).
+His 16 flight lines and 8 story lines use that voice; the birds keep their own
+voices. `VOICES['neferhoo']` in `tool/prepare_flight_voices.py` stores the cast.
+Section 7 of the recording document lists all 32 Egypt flight prompts.
+His current rig does not animate its face for speech; `talking_faces_art_test`
+checks that its picture is unaffected by his recorded dialogue.
 
 ## Never the same line
 

@@ -25,6 +25,11 @@ import 'package:push_up_bird/ui/theme.dart';
 const capture = bool.fromEnvironment('CAPTURE_TALKING_FACES');
 final folder = Directory('build/visual-review/talking-faces');
 
+// Neferhoo has recorded dialogue; his current rig does not read speech.
+final _talkingBosses = FlightVoices.voicedBosses
+    .where((kind) => kind != BossKind.neferhoo)
+    .toSet();
+
 Future<Uint8List> raster(
   int w,
   int h,
@@ -104,7 +109,7 @@ Offset faceOf(BossKind kind) => switch (kind) {
   BossKind.duskMoth => const Offset(-1, -.25),
   BossKind.pirate => const Offset(-.5, -.4),
   BossKind.dragon => const Offset(-1.3, -1.9),
-  // The guardians do not talk in flight (no recorded lines yet).
+  // These guardians' rigs do not animate their faces for speech.
   BossKind.kingCoo ||
   BossKind.searchlightGargoyle ||
   BossKind.neferhoo => Offset.zero,
@@ -372,11 +377,9 @@ void main() {
   });
 
   group('the guardians stay unaffected', () {
-    // King Coo and the Searchlight Gargoyle have no in-flight voice: a line
-    // said by anyone, even one keyed to them, leaves their pictures as they
-    // are (their rigs do not read speech).
+    // These rigs do not read speech, including Neferhoo's recorded dialogue.
     for (final kind in BossKind.values.where(
-      (kind) => !FlightVoices.voicedBosses.contains(kind),
+      (kind) => !_talkingBosses.contains(kind),
     )) {
       test('${kind.name} paints the same whoever speaks', () async {
         final silent = await boss(kind);
@@ -396,7 +399,7 @@ void main() {
   });
 
   group('the bosses talk', () {
-    for (final kind in FlightVoices.voicedBosses) {
+    for (final kind in _talkingBosses) {
       test(
         '${kind.name} opens its mouth to the words and shows the mood',
         () async {
@@ -579,7 +582,7 @@ void main() {
 
     test('bosses: silence, then moods by mouth frames', () async {
       if (!capture) return;
-      for (final kind in FlightVoices.voicedBosses) {
+      for (final kind in _talkingBosses) {
         // Close-up: moods (rows) by mouth frames (columns), silence first.
         const cw = 300.0, ch = 260.0;
         // The Empress and the Captain have small faces: closer.

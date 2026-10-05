@@ -10,8 +10,8 @@ import 'package:push_up_bird/game/flight_voices.dart';
 import 'touch_combat_test.dart' show playing;
 
 /// Neferhoo in the in-flight voices (Egypt's guardian, rules 50). His lines
-/// are written (docs/flight-voices-sources.json) and pending recording, so
-/// with the real bank he says nothing. The director already knows his fight:
+/// are recorded in Herbie's voice (docs/flight-voices-sources.json).
+/// The director knows his fight:
 /// his attack is the mail call (as a lane locks), his summon is the ankh
 /// (thrown), and he cries out when one of his own letters lands home, never
 /// for a rock on his padded wraps.
@@ -122,7 +122,7 @@ void main() {
     expect(fly(6), isEmpty);
   });
 
-  test('with the real bank the bird can speak while he stays silent', () {
+  test('with the real bank he and the bird speak in their own voices', () {
     meet(FlightVoices.recorded);
     final said = <String>[
       ...fly(boss.arrivalDuration + 2),
@@ -139,18 +139,30 @@ void main() {
     boss.defeatedAt = boss.age;
     said.addAll(fly(4));
     final key = FlightVoices.bossKey(BossKind.neferhoo);
-    expect(said.where((n) => n.startsWith('$key-')), isEmpty);
+    // The first-try cargo can occupy the arrival, so check the fight's
+    // recorded calls rather than requiring its card to win that slot.
+    expect(
+      said.map(pool),
+      containsAll([
+        'neferhoo-attack',
+        'neferhoo-summon',
+        'neferhoo-mad',
+        'neferhoo-defeated',
+      ]),
+    );
+    expect(said.where((n) => n.startsWith('$key-')), isNotEmpty);
     expect(said, contains('pip-cargo-2-6-01'));
     for (final other in FlightVoices.voicedBosses) {
+      if (other == BossKind.neferhoo) continue;
       expect(
         said.where((n) => n.startsWith('${FlightVoices.bossKey(other)}-')),
         isEmpty,
         reason: '${other.name} lends no voice',
       );
     }
-    expect(v.speech?.boss, isNull);
-    // His card is the lair scene's line 7, pending too.
-    expect(FlightVoices.recorded['$key-card'], isEmpty);
+    expect(FlightVoices.recorded['$key-card'].map((c) => c.name), [
+      'before-2-6-7',
+    ]);
     for (final bird in CampaignVoices.birds) {
       expect(FlightVoices.recorded['$bird-boss-$key'], hasLength(2));
       expect(FlightVoices.recorded['$bird-boss-down-$key'], hasLength(1));
@@ -158,9 +170,9 @@ void main() {
     }
   });
 
-  test('his key and pools are his own, and he waits to be voiced', () {
+  test('his key and recorded pools are his own', () {
     expect(FlightVoices.bossKey(BossKind.neferhoo), 'neferhoo');
-    expect(FlightVoices.voicedBosses, isNot(contains(BossKind.neferhoo)));
-    expect(FlightVoices.pendingBosses, {BossKind.neferhoo});
+    expect(FlightVoices.voicedBosses, contains(BossKind.neferhoo));
+    expect(FlightVoices.pendingBosses, isEmpty);
   });
 }

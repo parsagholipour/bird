@@ -1,10 +1,12 @@
 # Recording the guardians: from zero to recorded
 
-Six scenes are written and in the game with no voice yet: New York's four
+Six scenes have 78 story clips: New York's four
 (`before-3-2`, `last-3-2`: King Coo; `before-3-4`, `last-3-4`: the Searchlight
 Gargoyle) and Egypt's two (`before-2-6`, `last-2-6`: Neferhoo, the Mummy Courier,
-rules 50), with the pyramid caretaker's thank-you on 2-6 (`thanks-2-6`): 78 story
-clips. Neferhoo also has 32 in-flight lines (section 7). This is the working
+rules 50), with the pyramid caretaker's thank-you on 2-6 (`thanks-2-6`).
+As of 2026-10-05, 64 are recorded; King Coo's 8 and the Gargoyle's 6 await
+casting. Neferhoo and the birds also have 32 recorded in-flight lines (section 7).
+This is the working
 document for recording them: a walkthrough a stranger can follow, the settings, the
 auditions (Neferhoo's five takes are already made: section 2), the audio-tag risks,
 the clip list and what to do after each batch. The reasons, the cast and the recipe
@@ -219,14 +221,19 @@ the stage manager at the marquee where the bread cart hides (`thanks-3-1`), so h
 the second choice; Scruffy Duck and Mister Gruff thank the courier in the same stop
 and stay out. Audition any fallback before relying on it, then regenerate section 4.
 
-### Neferhoo (Egypt's guardian): pick one of five
+### Neferhoo (Egypt's guardian): Herbie chosen
+
+The owner chose **Herbie (Old Man with a Lisp and whistle S sounds)**,
+`Kz0DA4tCctbPjLay2QT1`, from five new auditions on 2026-10-05. Those samples
+and their generation ids are in
+`build/story-voices/neferhoo-auditions-2026-10-05/manifest.json`.
+The five older auditions below are retained as history.
 
 **The part**: an elderly royal courier, a 4,000-year-old hoopoe in linen wraps and a
 gold mask; fussy, precise, reedy, a little creaky, very proper, quick to take offence,
 warm and silly underneath. Comic, never scary. Distinct from Bill (raspy eccentric
 British), the Sphinx (ancient sage, `thanks-2-4`), the Dragon (grand, weary), the
-Gargoyle (theatrical ham) and King Coo (Brooklyn). He speaks 8 story clips (marked
-`Neferhoo (audition)` in section 4) and 16 in-flight lines (section 7).
+Gargoyle (theatrical ham) and King Coo (Brooklyn). He speaks 8 recorded story clips and 16 recorded in-flight lines (section 7).
 
 **The takes** (Eleven v4, one generation each, 2026-10-03; ids, generations and
 transcripts in `manifest.json` beside them, notes in its `README.md`):
@@ -313,7 +320,6 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
 
 | Voice | Id | Clips |
 | --- | --- | --- |
-| Neferhoo (audition) | to audition | 8 |
 | King Coo (audition) | to audition | 8 |
 | Searchlight Gargoyle (audition) | to audition | 6 |
 
@@ -331,109 +337,9 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
 - `last-3-4-2`: [softly, voice cracking], [sniffs], [happily]
 - `last-3-4-4`: [ecstatic], [theatrically]
 
-### before-2-6 (4 clips)
-
-- [ ] **1/22 `before-2-6-1`**: Neferhoo (audition)
-  - Fallback: Grampa Werthers - Old & Cranky (`MKlLqCItoCkvdhrxgtLv`)
-  - Prompt, exactly:
-
-    ```
-    [shouting] HALT! [haughtily] No courier flies the Pharaoh’s post but me!
-    ```
-
-  - Model `eleven_v4`, 1 generation.
-  - Save the take as `build/story-voices/source/before-2-6-1.mp3`; it becomes `assets/audio/story/before-2-6-1.ogg`.
-  - Scene before-2-6, line 1. Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it.
-
-- [ ] **2/22 `before-2-6-3`**: Neferhoo (audition)
-  - Fallback: Grampa Werthers - Old & Cranky (`MKlLqCItoCkvdhrxgtLv`)
-  - Prompt, exactly:
-
-    ```
-    [proudly] Neferhoo, Royal Courier. [clears throat] Four thousand years on this route.
-    ```
-
-  - Model `eleven_v4`, 1 generation.
-  - Save the take as `build/story-voices/source/before-2-6-3.mp3`; it becomes `assets/audio/story/before-2-6-3.ogg`.
-  - Scene before-2-6, line 3. Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it.
-
-- [ ] **3/22 `before-2-6-4`**: Neferhoo (audition)
-  - Fallback: Grampa Werthers - Old & Cranky (`MKlLqCItoCkvdhrxgtLv`)
-  - Prompt, exactly:
-
-    ```
-    [sadly] One letter left in my bag… [sighs] and I cannot find its door.
-    ```
-
-  - Model `eleven_v4`, 1 generation.
-  - Save the take as `build/story-voices/source/before-2-6-4.mp3`; it becomes `assets/audio/story/before-2-6-4.ogg`.
-  - Scene before-2-6, line 4. Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it.
-
-- [ ] **4/22 `before-2-6-7`**: Neferhoo (audition)
-  - Fallback: Grampa Werthers - Old & Cranky (`MKlLqCItoCkvdhrxgtLv`)
-  - Prompt, exactly:
-
-    ```
-    [shouting] Return to sender! [haughtily] This route has a courier.
-    ```
-
-  - Model `eleven_v4`, 1 generation.
-  - Save the take as `build/story-voices/source/before-2-6-7.mp3`; it becomes `assets/audio/story/before-2-6-7.ogg`.
-  - Scene before-2-6, line 7. Map, at the lair: plays before 2-6’s level card opens the first time; the card’s story key replays it. The same words are on the boss’s name card in the flight (CampaignLevel.bossLine).
-
-### last-2-6 (4 clips)
-
-- [ ] **5/22 `last-2-6-0`**: Neferhoo (audition)
-  - Fallback: Grampa Werthers - Old & Cranky (`MKlLqCItoCkvdhrxgtLv`)
-  - Prompt, exactly:
-
-    ```
-    [gasps] My mask! [pause] …Oh. Oh my. [delighted] I can see!
-    ```
-
-  - Model `eleven_v4`, 1 generation.
-  - Save the take as `build/story-voices/source/last-2-6-0.mp3`; it becomes `assets/audio/story/last-2-6-0.ogg`.
-  - Scene last-2-6, line 0. Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it.
-
-- [ ] **6/22 `last-2-6-2`**: Neferhoo (audition)
-  - Fallback: Grampa Werthers - Old & Cranky (`MKlLqCItoCkvdhrxgtLv`)
-  - Prompt, exactly:
-
-    ```
-    [slowly] “To the Sphinx, Giza.” [pause] [sheepishly] …It was right outside the whole time.
-    ```
-
-  - Model `eleven_v4`, 1 generation.
-  - Save the take as `build/story-voices/source/last-2-6-2.mp3`; it becomes `assets/audio/story/last-2-6-2.ogg`.
-  - Scene last-2-6, line 2. Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it.
-
-- [ ] **7/22 `last-2-6-4`**: Neferhoo (audition)
-  - Fallback: Grampa Werthers - Old & Cranky (`MKlLqCItoCkvdhrxgtLv`)
-  - Prompt, exactly:
-
-    ```
-    [sighs] Four thousand years late. [sadly] Not my finest delivery.
-    ```
-
-  - Model `eleven_v4`, 1 generation.
-  - Save the take as `build/story-voices/source/last-2-6-4.mp3`; it becomes `assets/audio/story/last-2-6-4.ogg`.
-  - Scene last-2-6, line 4. Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it.
-
-- [ ] **8/22 `last-2-6-7`**: Neferhoo (audition)
-  - Fallback: Grampa Werthers - Old & Cranky (`MKlLqCItoCkvdhrxgtLv`)
-  - Prompt, exactly:
-
-    ```
-    [thoughtfully] Lost letters? [pause] …Then I start with this one. [excited] Off to the Sphinx!
-    ```
-
-  - Model `eleven_v4`, 1 generation.
-  - Save the take as `build/story-voices/source/last-2-6-7.mp3`; it becomes `assets/audio/story/last-2-6-7.ogg`.
-  - Scene last-2-6, line 7. Map, at the lair: plays after 2-6 is first beaten; the card’s story key replays it.
-
 ### before-3-2 (4 clips)
 
-- [ ] **9/22 `before-3-2-0`**: King Coo (audition)
+- [ ] **1/14 `before-3-2-0`**: King Coo (audition)
   - Fallback: Rusty Malone - Deep & Raspy (`507tTFX0IPtqFzGd1CAL`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [pompously] -> [dramatically] or [haughtily]
   - Prompt, exactly:
@@ -446,7 +352,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-2-0.mp3`; it becomes `assets/audio/story/before-3-2-0.ogg`.
   - Scene before-3-2, line 0. Map, at the lair: plays before 3-2's level card opens the first time; the card's story key replays it.
 
-- [ ] **10/22 `before-3-2-2`**: King Coo (audition)
+- [ ] **2/14 `before-3-2-2`**: King Coo (audition)
   - Fallback: Rusty Malone - Deep & Raspy (`507tTFX0IPtqFzGd1CAL`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [suspiciously] -> [knowingly]; [fuming] -> [angry]
   - Prompt, exactly:
@@ -459,7 +365,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-2-2.mp3`; it becomes `assets/audio/story/before-3-2-2.ogg`.
   - Scene before-3-2, line 2. Map, at the lair: plays before 3-2's level card opens the first time; the card's story key replays it.
 
-- [ ] **11/22 `before-3-2-4`**: King Coo (audition)
+- [ ] **3/14 `before-3-2-4`**: King Coo (audition)
   - Fallback: Rusty Malone - Deep & Raspy (`507tTFX0IPtqFzGd1CAL`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [wistfully] -> [sadly]; [sniffs] -> [sighs]
   - Prompt, exactly:
@@ -472,7 +378,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-2-4.mp3`; it becomes `assets/audio/story/before-3-2-4.ogg`.
   - Scene before-3-2, line 4. Map, at the lair: plays before 3-2's level card opens the first time; the card's story key replays it.
 
-- [ ] **12/22 `before-3-2-6`**: King Coo (audition)
+- [ ] **4/14 `before-3-2-6`**: King Coo (audition)
   - Fallback: Rusty Malone - Deep & Raspy (`507tTFX0IPtqFzGd1CAL`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [pompously] -> [dramatically] or [haughtily]
   - Prompt, exactly:
@@ -487,7 +393,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
 
 ### last-3-2 (4 clips)
 
-- [ ] **13/22 `last-3-2-0`**: King Coo (audition)
+- [ ] **5/14 `last-3-2-0`**: King Coo (audition)
   - Fallback: Rusty Malone - Deep & Raspy (`507tTFX0IPtqFzGd1CAL`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [quietly] -> [softly]
   - Prompt, exactly:
@@ -500,7 +406,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-2-0.mp3`; it becomes `assets/audio/story/last-3-2-0.ogg`.
   - Scene last-3-2, line 0. Map, at the lair: plays after 3-2 is first beaten; the card's story key replays it.
 
-- [ ] **14/22 `last-3-2-2`**: King Coo (audition)
+- [ ] **6/14 `last-3-2-2`**: King Coo (audition)
   - Fallback: Rusty Malone - Deep & Raspy (`507tTFX0IPtqFzGd1CAL`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [deadpan] -> [dryly]
   - Prompt, exactly:
@@ -513,7 +419,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-2-2.mp3`; it becomes `assets/audio/story/last-3-2-2.ogg`.
   - Scene last-3-2, line 2. Map, at the lair: plays after 3-2 is first beaten; the card's story key replays it.
 
-- [ ] **15/22 `last-3-2-4`**: King Coo (audition)
+- [ ] **7/14 `last-3-2-4`**: King Coo (audition)
   - Fallback: Rusty Malone - Deep & Raspy (`507tTFX0IPtqFzGd1CAL`)
   - Prompt, exactly:
 
@@ -525,7 +431,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-2-4.mp3`; it becomes `assets/audio/story/last-3-2-4.ogg`.
   - Scene last-3-2, line 4. Map, at the lair: plays after 3-2 is first beaten; the card's story key replays it.
 
-- [ ] **16/22 `last-3-2-6`**: King Coo (audition)
+- [ ] **8/14 `last-3-2-6`**: King Coo (audition)
   - Fallback: Rusty Malone - Deep & Raspy (`507tTFX0IPtqFzGd1CAL`)
   - Prompt, exactly:
 
@@ -539,7 +445,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
 
 ### before-3-4 (3 clips)
 
-- [ ] **17/22 `before-3-4-1`**: Searchlight Gargoyle (audition)
+- [ ] **9/14 `before-3-4-1`**: Searchlight Gargoyle (audition)
   - Fallback: Eldrin - Wise Epic Fantasy Narration Storyteller (`LvmvHEBEmMJBJw9UuhwO`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [delighted gasp] -> [gasps] [delighted]
   - Prompt, exactly:
@@ -552,7 +458,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-4-1.mp3`; it becomes `assets/audio/story/before-3-4-1.ogg`.
   - Scene before-3-4, line 1. Map, at the lair: plays before 3-4's level card opens the first time; the card's story key replays it.
 
-- [ ] **18/22 `before-3-4-3`**: Searchlight Gargoyle (audition)
+- [ ] **10/14 `before-3-4-3`**: Searchlight Gargoyle (audition)
   - Fallback: Eldrin - Wise Epic Fantasy Narration Storyteller (`LvmvHEBEmMJBJw9UuhwO`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [wistfully] -> [sadly]; [quietly] -> [softly]
   - Prompt, exactly:
@@ -565,7 +471,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-4-3.mp3`; it becomes `assets/audio/story/before-3-4-3.ogg`.
   - Scene before-3-4, line 3. Map, at the lair: plays before 3-4's level card opens the first time; the card's story key replays it.
 
-- [ ] **19/22 `before-3-4-4`**: Searchlight Gargoyle (audition)
+- [ ] **11/14 `before-3-4-4`**: Searchlight Gargoyle (audition)
   - Fallback: Eldrin - Wise Epic Fantasy Narration Storyteller (`LvmvHEBEmMJBJw9UuhwO`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [theatrically] -> [dramatically]; [pleading] -> [worried]
   - Prompt, exactly:
@@ -580,7 +486,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
 
 ### last-3-4 (3 clips)
 
-- [ ] **20/22 `last-3-4-0`**: Searchlight Gargoyle (audition)
+- [ ] **12/14 `last-3-4-0`**: Searchlight Gargoyle (audition)
   - Fallback: Eldrin - Wise Epic Fantasy Narration Storyteller (`LvmvHEBEmMJBJw9UuhwO`)
   - Prompt, exactly:
 
@@ -592,7 +498,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-4-0.mp3`; it becomes `assets/audio/story/last-3-4-0.ogg`.
   - Scene last-3-4, line 0. Map, at the lair: plays after 3-4 is first beaten; the card's story key replays it.
 
-- [ ] **21/22 `last-3-4-2`**: Searchlight Gargoyle (audition)
+- [ ] **13/14 `last-3-4-2`**: Searchlight Gargoyle (audition)
   - Fallback: Eldrin - Wise Epic Fantasy Narration Storyteller (`LvmvHEBEmMJBJw9UuhwO`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [softly, voice cracking] -> [softly] [trembling voice]; [sniffs] -> [sighs]; [happily] -> [happy]
   - Prompt, exactly:
@@ -605,7 +511,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-4-2.mp3`; it becomes `assets/audio/story/last-3-4-2.ogg`.
   - Scene last-3-4, line 2. Map, at the lair: plays after 3-4 is first beaten; the card's story key replays it.
 
-- [ ] **22/22 `last-3-4-4`**: Searchlight Gargoyle (audition)
+- [ ] **14/14 `last-3-4-4`**: Searchlight Gargoyle (audition)
   - Fallback: Eldrin - Wise Epic Fantasy Narration Storyteller (`LvmvHEBEmMJBJw9UuhwO`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [ecstatic] -> [overjoyed]; [theatrically] -> [dramatically]
   - Prompt, exactly:
@@ -652,14 +558,14 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
 - **Neferhoo's in-flight lines** are not story clips: they are in
   `docs/flight-voices-sources.json`, listed in section 7.
 
-## 7. Neferhoo's in-flight lines (32, pending)
+## 7. Neferhoo's in-flight lines (32, recorded)
 
 They live in `docs/flight-voices-sources.json` (the flight script's format: a line
 with no `generation_id` has no take yet). `python3 tool/prepare_flight_voices.py
 pending` lists them; this table is for reading and ticking, the sources file is the
 record (`flight_voice_script_test` checks every prompt below is the file's). His 16
-wait for his voice (section 2); the birds' 16 can be recorded now, in the voices
-they already have. Each of his moments, and each bird's greeting, keeps two lines.
+are recorded in Herbie's voice (section 2); the birds' 16 use their existing
+voices. Each of his moments, and each bird's greeting, keeps two lines.
 Farewells and the cargo lines stay at one, and the only unused fight bark left is
 `coo-pop` (section 6).
 
@@ -679,57 +585,57 @@ lines play by themselves once mastered.
 
 | Line | Voice | Prompt |
 | --- | --- | --- |
-| `neferhoo-arrive-01` | Neferhoo (audition) | [haughtily] Who disturbs the Pharaoh's post? |
-| `neferhoo-arrive-02` | Neferhoo (audition) | [surprised] A courier? [angry] On MY route? [shouting] Return to sender! |
+| `neferhoo-arrive-01` | Herbie (Old Man with a Lisp and whistle S sounds) (`Kz0DA4tCctbPjLay2QT1`) | [haughtily] Who disturbs the Pharaoh's post? |
+| `neferhoo-arrive-02` | Herbie (Old Man with a Lisp and whistle S sounds) (`Kz0DA4tCctbPjLay2QT1`) | [surprised] A courier? [angry] On MY route? [shouting] Return to sender! |
 
 **Neferhoo: taunt (quiet moments)**
 
 | Line | Voice | Prompt |
 | --- | --- | --- |
-| `neferhoo-taunt-01` | Neferhoo (audition) | [proudly] I have outflown sandstorms, fledgling. [dryly] You are a breeze. |
-| `neferhoo-taunt-02` | Neferhoo (audition) | [mischievously] My satchel is full of letters nobody wanted. Take one! |
+| `neferhoo-taunt-01` | Herbie (Old Man with a Lisp and whistle S sounds) (`Kz0DA4tCctbPjLay2QT1`) | [proudly] I have outflown sandstorms, fledgling. [dryly] You are a breeze. |
+| `neferhoo-taunt-02` | Herbie (Old Man with a Lisp and whistle S sounds) (`Kz0DA4tCctbPjLay2QT1`) | [mischievously] My satchel is full of letters nobody wanted. Take one! |
 
 **Neferhoo: attack = the MAIL CALL, as the lane locks**
 
 | Line | Voice | Prompt |
 | --- | --- | --- |
-| `neferhoo-attack-01` | Neferhoo (audition) | [shouting] Mail call! |
-| `neferhoo-attack-02` | Neferhoo (audition) | [excited] Special delivery! |
+| `neferhoo-attack-01` | Herbie (Old Man with a Lisp and whistle S sounds) (`Kz0DA4tCctbPjLay2QT1`) | [shouting] Mail call! |
+| `neferhoo-attack-02` | Herbie (Old Man with a Lisp and whistle S sounds) (`Kz0DA4tCctbPjLay2QT1`) | [excited] Special delivery! |
 
 **Neferhoo: summon = the ankh, thrown**
 
 | Line | Voice | Prompt |
 | --- | --- | --- |
-| `neferhoo-summon-01` | Neferhoo (audition) | [chuckles] Catch, fledgling! It always comes back. |
-| `neferhoo-summon-02` | Neferhoo (audition) | [excited] Round and round it goes! |
+| `neferhoo-summon-01` | Herbie (Old Man with a Lisp and whistle S sounds) (`Kz0DA4tCctbPjLay2QT1`) | [chuckles] Catch, fledgling! It always comes back. |
+| `neferhoo-summon-02` | Herbie (Old Man with a Lisp and whistle S sounds) (`Kz0DA4tCctbPjLay2QT1`) | [excited] Round and round it goes! |
 
 **Neferhoo: hurt = one of his own letters lands home (never a rock on his wraps)**
 
 | Line | Voice | Prompt |
 | --- | --- | --- |
-| `neferhoo-hurt-01` | Neferhoo (audition) | [gasps] Oof! [surprised] Return to... me? |
-| `neferhoo-hurt-02` | Neferhoo (audition) | [surprised] My own letter?! [grumpy] How rude. |
+| `neferhoo-hurt-01` | Herbie (Old Man with a Lisp and whistle S sounds) (`Kz0DA4tCctbPjLay2QT1`) | [gasps] Oof! [surprised] Return to... me? |
+| `neferhoo-hurt-02` | Herbie (Old Man with a Lisp and whistle S sounds) (`Kz0DA4tCctbPjLay2QT1`) | [surprised] My own letter?! [grumpy] How rude. |
 
 **Neferhoo: gloat (he hits the bird)**
 
 | Line | Voice | Prompt |
 | --- | --- | --- |
-| `neferhoo-gloat-01` | Neferhoo (audition) | [laughs] Signed, sealed, delivered! |
-| `neferhoo-gloat-02` | Neferhoo (audition) | [proudly] Delivered! No signature needed. |
+| `neferhoo-gloat-01` | Herbie (Old Man with a Lisp and whistle S sounds) (`Kz0DA4tCctbPjLay2QT1`) | [laughs] Signed, sealed, delivered! |
+| `neferhoo-gloat-02` | Herbie (Old Man with a Lisp and whistle S sounds) (`Kz0DA4tCctbPjLay2QT1`) | [proudly] Delivered! No signature needed. |
 
 **Neferhoo: mad = the fury stage (a third of his health left)**
 
 | Line | Voice | Prompt |
 | --- | --- | --- |
-| `neferhoo-mad-01` | Neferhoo (audition) | [angry] Enough! [shouting] EXPRESS POST! |
-| `neferhoo-mad-02` | Neferhoo (audition) | [disgusted] You have crumpled my wrappings! |
+| `neferhoo-mad-01` | Herbie (Old Man with a Lisp and whistle S sounds) (`Kz0DA4tCctbPjLay2QT1`) | [angry] Enough! [shouting] EXPRESS POST! |
+| `neferhoo-mad-02` | Herbie (Old Man with a Lisp and whistle S sounds) (`Kz0DA4tCctbPjLay2QT1`) | [disgusted] You have crumpled my wrappings! |
 
 **Neferhoo: defeated**
 
 | Line | Voice | Prompt |
 | --- | --- | --- |
-| `neferhoo-defeated-01` | Neferhoo (audition) | [gasps] My mask! Where is my... [surprised] oh. [delighted] I can see! |
-| `neferhoo-defeated-02` | Neferhoo (audition) | [sighs] Return... to... sender... |
+| `neferhoo-defeated-01` | Herbie (Old Man with a Lisp and whistle S sounds) (`Kz0DA4tCctbPjLay2QT1`) | [gasps] My mask! Where is my... [surprised] oh. [delighted] I can see! |
+| `neferhoo-defeated-02` | Herbie (Old Man with a Lisp and whistle S sounds) (`Kz0DA4tCctbPjLay2QT1`) | [sighs] Return... to... sender... |
 
 **Each bird meets him (2) and sees him off (1)**
 

@@ -4523,8 +4523,10 @@
    "moment": "arrive",
    "text": "Who disturbs the Pharaoh's post?",
    "prompt": "[haughtily] Who disturbs the Pharaoh's post?",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
+   "voice_id": "Kz0DA4tCctbPjLay2QT1",
+   "voice": "Herbie (Old Man with a Lisp and whistle S sounds)",
+   "generation_id": "7H67MJz5FjRYb8RV7XHC",
+   "source_sha256": "35ee3715bef1ef8b9ad84ec992090e561fde8e6a5cb456c30827d7df81bff989"
   },
   {
    "name": "neferhoo-arrive-02",
@@ -4532,8 +4534,10 @@
    "moment": "arrive",
    "text": "A courier? On MY route? Return to sender!",
    "prompt": "[surprised] A courier? [angry] On MY route? [shouting] Return to sender!",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
+   "voice_id": "Kz0DA4tCctbPjLay2QT1",
+   "voice": "Herbie (Old Man with a Lisp and whistle S sounds)",
+   "generation_id": "taCJHwoFKcErplO4Bywx",
+   "source_sha256": "87a2fc18183d6eabe853f52620f162acdc3e16b41c987404490d66c90e750e08"
   },
   {
    "name": "neferhoo-taunt-01",
@@ -4541,8 +4545,10 @@
    "moment": "taunt",
    "text": "I have outflown sandstorms, fledgling. You are a breeze.",
    "prompt": "[proudly] I have outflown sandstorms, fledgling. [dryly] You are a breeze.",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
+   "voice_id": "Kz0DA4tCctbPjLay2QT1",
+   "voice": "Herbie (Old Man with a Lisp and whistle S sounds)",
+   "generation_id": "EMTfwKOObGnN31KIA6C7",
+   "source_sha256": "680857b9b8c096f97d71029640cd974d47ddaa740111fc454eca98a3e63b4547"
   },
   {
    "name": "neferhoo-taunt-02",
@@ -4550,8 +4556,10 @@
    "moment": "taunt",
    "text": "My satchel is full of letters nobody wanted. Take one!",
    "prompt": "[mischievously] My satchel is full of letters nobody wanted. Take one!",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
+   "voice_id": "Kz0DA4tCctbPjLay2QT1",
+   "voice": "Herbie (Old Man with a Lisp and whistle S sounds)",
+   "generation_id": "oQhSb8jYsb5LO2mlYCtk",
+   "source_sha256": "8f86a0949784aa90db64dd5012cb5f537267ac96d1deffc42f6645c5e1077b3e"
   },
   {
    "name": "neferhoo-attack-01",
@@ -4559,8 +4567,10 @@
    "moment": "attack",
    "text": "Mail call!",
    "prompt": "[shouting] Mail call!",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
+   "voice_id": "Kz0DA4tCctbPjLay2QT1",
+   "voice": "Herbie (Old Man with a Lisp and whistle S sounds)",
+   "generation_id": "mGDV2pJDh0z3g7JaJ13H",
+   "source_sha256": "1c48621196f5c729cf20afd55cdfae72d3d82c398304b6cc6f9872db609f4f76"
   },
   {
    "name": "neferhoo-attack-02",
@@ -4568,8 +4578,10 @@
    "moment": "attack",
    "text": "Special delivery!",
    "prompt": "[excited] Special delivery!",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
+   "voice_id": "Kz0DA4tCctbPjLay2QT1",
+   "voice": "Herbie (Old Man with a Lisp and whistle S sounds)",
+   "generation_id": "H2gUIC2yfcfozTsQLZ1K",
+   "source_sha256": "f326220b89419a3f6d5c14f5a7cb43988a898d2e2095503b0d141c1a886080b7"
   },
   {
    "name": "neferhoo-summon-01",
@@ -4577,8 +4589,10 @@
    "moment": "summon",
    "text": "Catch, fledgling! It always comes back.",
    "prompt": "[chuckles] Catch, fledgling! It always comes back.",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
+   "voice_id": "Kz0DA4tCctbPjLay2QT1",
+   "voice": "Herbie (Old Man with a Lisp and whistle S sounds)",
+   "generation_id": "3TMClLZlBvILE1VJPw9W",
+   "source_sha256": "796f4afe3d63f17c8da3a644d972bf007b4898f9daadff3b4fbd0d9644178705"
   },
   {
    "name": "neferhoo-summon-02",
@@ -4586,8 +4600,10 @@
    "moment": "summon",
    "text": "Round and round it goes!",
    "prompt": "[excited] Round and round it goes!",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
+   "voice_id": "Kz0DA4tCctbPjLay2QT1",
+   "voice": "Herbie (Old Man with a Lisp and whistle S sounds)",
+   "generation_id": "c3X4kayStWN4TtDu1gHX",
+   "source_sha256": "2c40aff4d83465bb893af47b371e142aa6b42175f77cdbb4be4f1fc5c827d2fb"
   },
   {
    "name": "neferhoo-hurt-01",
@@ -4595,8 +4611,10 @@
    "moment": "hurt",
    "text": "Oof! Return to... me?",
    "prompt": "[gasps] Oof! [surprised] Return to... me?",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
+   "voice_id": "Kz0DA4tCctbPjLay2QT1",
+   "voice": "Herbie (Old Man with a Lisp and whistle S sounds)",
+   "generation_id": "MYbuMkA11MZo6HuucUov",
+   "source_sha256": "0d76307804eebe03886e61125ed996ddf8712b2d7cd927378f00b2a34070c85e"
   },
   {
    "name": "neferhoo-hurt-02",
@@ -4604,8 +4622,10 @@
    "moment": "hurt",
    "text": "My own letter?! How rude.",
    "prompt": "[surprised] My own letter?! [grumpy] How rude.",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
+   "voice_id": "Kz0DA4tCctbPjLay2QT1",
+   "voice": "Herbie (Old Man with a Lisp and whistle S sounds)",
+   "generation_id": "etAuCXLrH0syN0r1D2DY",
+   "source_sha256": "fddeea25d4f45e390e90d209586b51f663620f2fb77574247157769252cfbac5"
   },
   {
    "name": "neferhoo-gloat-01",
@@ -4613,8 +4633,10 @@
    "moment": "gloat",
    "text": "Signed, sealed, delivered!",
    "prompt": "[laughs] Signed, sealed, delivered!",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
+   "voice_id": "Kz0DA4tCctbPjLay2QT1",
+   "voice": "Herbie (Old Man with a Lisp and whistle S sounds)",
+   "generation_id": "RbwNcjtuW1YpL7KalcBK",
+   "source_sha256": "218610489a6037b5745f8b07976af4efee43f10779434f9a8d78c2b096d8bbe0"
   },
   {
    "name": "neferhoo-gloat-02",
@@ -4622,8 +4644,10 @@
    "moment": "gloat",
    "text": "Delivered! No signature needed.",
    "prompt": "[proudly] Delivered! No signature needed.",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
+   "voice_id": "Kz0DA4tCctbPjLay2QT1",
+   "voice": "Herbie (Old Man with a Lisp and whistle S sounds)",
+   "generation_id": "zUjkQ0GYivzlyUziVNIH",
+   "source_sha256": "25de176ff51158782c90697d98d7e8f72ccbf37bf7a56425503570e9895ee1e8"
   },
   {
    "name": "neferhoo-mad-01",
@@ -4631,8 +4655,10 @@
    "moment": "mad",
    "text": "Enough! EXPRESS POST!",
    "prompt": "[angry] Enough! [shouting] EXPRESS POST!",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
+   "voice_id": "Kz0DA4tCctbPjLay2QT1",
+   "voice": "Herbie (Old Man with a Lisp and whistle S sounds)",
+   "generation_id": "raRjfxHOXTm26IQvbh6H",
+   "source_sha256": "d4f39d3a96ed6a38ccf31c148a90d36b4fd22e57c73ee6cfde2d8792e199a81f"
   },
   {
    "name": "neferhoo-mad-02",
@@ -4640,8 +4666,10 @@
    "moment": "mad",
    "text": "You have crumpled my wrappings!",
    "prompt": "[disgusted] You have crumpled my wrappings!",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
+   "voice_id": "Kz0DA4tCctbPjLay2QT1",
+   "voice": "Herbie (Old Man with a Lisp and whistle S sounds)",
+   "generation_id": "zuZ0Apk3lwRYQOM0Oi00",
+   "source_sha256": "39c673128bf6b111ec9f412416659a15c7e3a302920fbe91b6ce23145274d3d3"
   },
   {
    "name": "neferhoo-defeated-01",
@@ -4649,8 +4677,10 @@
    "moment": "defeated",
    "text": "My mask! Where is my... oh. I can see!",
    "prompt": "[gasps] My mask! Where is my... [surprised] oh. [delighted] I can see!",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
+   "voice_id": "Kz0DA4tCctbPjLay2QT1",
+   "voice": "Herbie (Old Man with a Lisp and whistle S sounds)",
+   "generation_id": "qddVYJKYwuOo0KHj20mp",
+   "source_sha256": "e5b24ec2ecfe557cc41235381d2fdfaa0ae0d5d98949f17d63c5e0c3ecd19ac7"
   },
   {
    "name": "neferhoo-defeated-02",
@@ -4658,8 +4688,10 @@
    "moment": "defeated",
    "text": "Return... to... sender...",
    "prompt": "[sighs] Return... to... sender...",
-   "voice_id": null,
-   "voice": "Neferhoo (audition)"
+   "voice_id": "Kz0DA4tCctbPjLay2QT1",
+   "voice": "Herbie (Old Man with a Lisp and whistle S sounds)",
+   "generation_id": "BIactgUyO0bdIrgk7lMY",
+   "source_sha256": "fc1457a173d2445be11382f62e460411cf6024444be43557d596ad314c6f0ac0"
   },
   {
    "name": "orbit-takeoff-01",
