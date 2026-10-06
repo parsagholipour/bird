@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'campaign_map_art.dart' show MapPadlockPainter, MapRibbonPainter;
 import 'campaign_text_scale.dart';
+import 'keyboard.dart' show BackKeyTarget;
 import 'match_hud.dart' show MatchIcon, MatchPlate, MatchSymbol, matchDigits;
 import 'theme.dart';
 import 'ui_sounds.dart';
@@ -60,7 +61,7 @@ class _MapKeyState extends State<MapKey> {
     final ring =
         focused &&
         FocusManager.instance.highlightMode == FocusHighlightMode.traditional;
-    return Semantics(
+    final key = Semantics(
       button: true,
       label: widget.label,
       onTap: _press,
@@ -113,6 +114,12 @@ class _MapKeyState extends State<MapKey> {
         ),
       ),
     );
+    // Esc presses the screen's back or close key.
+    return switch (widget.glyph) {
+      MapGlyph.back ||
+      MapGlyph.close => BackKeyTarget(onBack: _press, child: key),
+      MapGlyph.previous || MapGlyph.next || MapGlyph.settings => key,
+    };
   }
 }
 

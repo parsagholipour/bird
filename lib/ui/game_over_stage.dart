@@ -1228,6 +1228,7 @@ class _GameOverStageState extends State<GameOverStage>
                 label: c.campaign ? 'Retry' : 'Fly again',
                 icon: Icons.replay_rounded,
                 hero: true,
+                autofocus: true,
                 shine: ready,
                 onPressed: () => c.retry(),
               ),

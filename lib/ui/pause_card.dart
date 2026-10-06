@@ -163,6 +163,8 @@ class PauseCard extends StatelessWidget {
                         icon: Icons.play_arrow_rounded,
                         hero: true,
                         sound: 'resume',
+                        // Enter flies on; Esc does too (see PlayScreen).
+                        autofocus: true,
                         onPressed: onResume,
                       ),
                     ),

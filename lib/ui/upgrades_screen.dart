@@ -7,6 +7,7 @@ import '../data/progress_repository.dart';
 import '../domain/power_ups.dart';
 import 'components.dart';
 import 'home_keys.dart' show HomeKey, HomeKeyColors;
+import 'keyboard.dart' show KeyTap;
 import 'match_hud.dart' show MatchIcon, MatchSymbol;
 import 'mini_chrome.dart';
 import 'star_wallet.dart';
@@ -328,106 +329,115 @@ class _Socket extends StatelessWidget {
               ? 'Next level $cost stars'
               : 'Next level $cost stars, not enough yet'}',
       excludeSemantics: true,
-      child: GestureDetector(
-        key: ValueKey('upgrade-card-${power.name}'),
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
-        child: SizedBox(
-          width: 130,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox.square(
-                dimension: _size + 12,
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  alignment: Alignment.center,
-                  children: [
-                    if (selected)
-                      Container(
-                        width: _size + 14,
-                        height: _size + 14,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: SkyColors.yellow.withValues(alpha: .6),
-                          border: Border.all(color: SkyColors.ink, width: 3),
-                        ),
-                      ),
-                    CustomPaint(
-                      size: const Size.square(_size),
-                      painter: _LevelRing(level: level, color: color),
-                    ),
-                    Container(
-                      width: _size - 26,
-                      height: _size - 26,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: color,
-                        border: Border.all(color: SkyColors.ink, width: 3),
-                        boxShadow: const [
-                          BoxShadow(color: SkyColors.ink, offset: Offset(0, 3)),
-                        ],
-                      ),
-                      alignment: Alignment.center,
-                      child: MatchIcon(_symbolOf(power), size: 34),
-                    ),
-                    Positioned(
-                      right: 0,
-                      top: 2,
-                      child: _Chip(
-                        '$level/${PowerUp.maxLevel}',
-                        color: SkyColors.white,
-                      ),
-                    ),
-                    // A coral dot calls out what the wallet can buy now.
-                    if (affordable && !selected)
-                      Positioned(
-                        left: 8,
-                        top: 6,
-                        child: Container(
-                          width: 22,
-                          height: 22,
+      child: KeyTap(
+        onPressed: onTap,
+        shape: BoxShape.rectangle,
+        radius: BorderRadius.circular(26),
+        spread: 4,
+        child: GestureDetector(
+          key: ValueKey('upgrade-card-${power.name}'),
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: SizedBox(
+            width: 130,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox.square(
+                  dimension: _size + 12,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    alignment: Alignment.center,
+                    children: [
+                      if (selected)
+                        Container(
+                          width: _size + 14,
+                          height: _size + 14,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: SkyColors.coral,
-                            border: Border.all(
-                              color: SkyColors.ink,
-                              width: 2.5,
-                            ),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            '!',
-                            style: heading(
-                              14,
-                              color: SkyColors.white,
-                              weight: FontWeight.w700,
-                            ).copyWith(height: 1),
+                            color: SkyColors.yellow.withValues(alpha: .6),
+                            border: Border.all(color: SkyColors.ink, width: 3),
                           ),
                         ),
+                      CustomPaint(
+                        size: const Size.square(_size),
+                        painter: _LevelRing(level: level, color: color),
                       ),
-                  ],
+                      Container(
+                        width: _size - 26,
+                        height: _size - 26,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: color,
+                          border: Border.all(color: SkyColors.ink, width: 3),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: SkyColors.ink,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        alignment: Alignment.center,
+                        child: MatchIcon(_symbolOf(power), size: 34),
+                      ),
+                      Positioned(
+                        right: 0,
+                        top: 2,
+                        child: _Chip(
+                          '$level/${PowerUp.maxLevel}',
+                          color: SkyColors.white,
+                        ),
+                      ),
+                      // A coral dot calls out what the wallet can buy now.
+                      if (affordable && !selected)
+                        Positioned(
+                          left: 8,
+                          top: 6,
+                          child: Container(
+                            width: 22,
+                            height: 22,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: SkyColors.coral,
+                              border: Border.all(
+                                color: SkyColors.ink,
+                                width: 2.5,
+                              ),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              '!',
+                              style: heading(
+                                14,
+                                color: SkyColors.white,
+                                weight: FontWeight.w700,
+                              ).copyWith(height: 1),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
-              ),
-              Container(
-                padding: const EdgeInsets.fromLTRB(10, 1, 10, 3),
-                decoration: BoxDecoration(
-                  color: selected ? SkyColors.ink : null,
-                  borderRadius: BorderRadius.circular(999),
+                Container(
+                  padding: const EdgeInsets.fromLTRB(10, 1, 10, 3),
+                  decoration: BoxDecoration(
+                    color: selected ? SkyColors.ink : null,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    power.title,
+                    maxLines: 1,
+                    style: heading(
+                      18,
+                      color: selected ? SkyColors.white : SkyColors.ink,
+                      weight: FontWeight.w600,
+                    ).copyWith(height: 1.1),
+                  ),
                 ),
-                child: Text(
-                  power.title,
-                  maxLines: 1,
-                  style: heading(
-                    18,
-                    color: selected ? SkyColors.white : SkyColors.ink,
-                    weight: FontWeight.w600,
-                  ).copyWith(height: 1.1),
-                ),
-              ),
-              const SizedBox(height: 4),
-              _PriceTag(cost: cost, affordable: affordable),
-            ],
+                const SizedBox(height: 4),
+                _PriceTag(cost: cost, affordable: affordable),
+              ],
+            ),
           ),
         ),
       ),

@@ -921,6 +921,7 @@ class _MiniResultsState extends State<MiniResults>
               label: 'Fly again',
               icon: Icons.replay_rounded,
               hero: true,
+              autofocus: true,
               shine: shine,
               onPressed: () => c.retry(),
             ),

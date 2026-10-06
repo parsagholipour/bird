@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -42,6 +43,7 @@ import 'level_hud.dart';
 import 'game_over_stage.dart';
 import 'level_result.dart';
 import 'mini_results.dart';
+import 'keyboard.dart';
 import 'pause_card.dart';
 import 'ui_sounds.dart';
 
@@ -117,6 +119,10 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
   Map<SkyStamp, StampMedal> initialStamps = {};
   String? initialDailyKey;
   bool initialDailyComplete = false;
+
+  /// The keyboard's shot key while it is held: the shot charges until it is
+  /// let go.
+  LogicalKeyboardKey? _shotKey;
 
   /// A campaign or built level flies to its region's song; endless keeps
   /// the flight's.
@@ -502,106 +508,192 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
           unawaited(leave());
         }
       },
-      child: Scaffold(
-        body: SkyBackdrop(
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              SceneLayout(
-                child: Stack(
-                  children: [
-                    if (!controller.isTouch &&
-                        Platform.isAndroid &&
-                        stage != PlayStage.setup &&
-                        stage != PlayStage.fallen &&
-                        stage != PlayStage.results)
-                      const Positioned(
-                        left: 28,
-                        top: 92,
-                        width: 540,
-                        height: 322,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.all(Radius.circular(24)),
-                          child: AndroidView(
-                            key: ValueKey('camera-preview'),
-                            viewType: 'push_up_bird/camera',
+      // Every key on this screen passes here on its way up (see _key); the
+      // stages' own keys still take the focus inside it.
+      child: FocusScope(
+        autofocus: true,
+        onKeyEvent: _key,
+        child: Scaffold(
+          body: SkyBackdrop(
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                SceneLayout(
+                  child: Stack(
+                    children: [
+                      if (!controller.isTouch &&
+                          Platform.isAndroid &&
+                          stage != PlayStage.setup &&
+                          stage != PlayStage.fallen &&
+                          stage != PlayStage.results)
+                        const Positioned(
+                          left: 28,
+                          top: 92,
+                          width: 540,
+                          height: 322,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.all(Radius.circular(24)),
+                            child: AndroidView(
+                              key: ValueKey('camera-preview'),
+                              viewType: 'push_up_bird/camera',
+                            ),
                           ),
                         ),
-                      ),
-                    if (stage == PlayStage.setup && !controller.isTouch)
-                      _setup(p),
-                    if (stage == PlayStage.starting ||
-                        stage == PlayStage.calibration ||
-                        stage == PlayStage.ready ||
-                        stage == PlayStage.error)
-                      _calibration(p),
-                    if (stage == PlayStage.results &&
-                        !knockedOut &&
-                        level == null &&
-                        built == null)
-                      _results(p),
-                  ],
-                ),
-              ),
-              if ((stage == PlayStage.flying ||
-                          stage == PlayStage.celebrating) &&
-                      game != null ||
-                  knockedOut &&
-                      (stage == PlayStage.fallen ||
-                          stage == PlayStage.results) ||
-                  (levelResult || builtResult) && game != null)
-                Positioned.fill(child: _flight()),
-              if (stage == PlayStage.fallen && knockedOut)
-                Positioned.fill(child: _knockoutSkip()),
-              if (stage == PlayStage.celebrating && game != null)
-                Positioned.fill(child: _celebrationSkip()),
-              if (stage == PlayStage.results && knockedOut && built == null)
-                Positioned.fill(
-                  child: GameOverStage(
-                    controller: controller,
-                    progress: p,
-                    mode: widget.mode,
-                    course: widget.course,
-                    initialBest: initialBest,
-                    initialStamps: initialStamps,
-                    initialDailyKey: initialDailyKey,
-                    initialDailyComplete: initialDailyComplete,
-                    onLeave: leave,
-                    splash: KnockoutArt.atSea(controller.simulation!),
+                      if (stage == PlayStage.setup && !controller.isTouch)
+                        _setup(p),
+                      if (stage == PlayStage.starting ||
+                          stage == PlayStage.calibration ||
+                          stage == PlayStage.ready ||
+                          stage == PlayStage.error)
+                        _calibration(p),
+                      if (stage == PlayStage.results &&
+                          !knockedOut &&
+                          level == null &&
+                          built == null)
+                        _results(p),
+                    ],
                   ),
                 ),
-              if (builtResult && !passing)
-                Positioned.fill(
-                  child: BuiltResultStage(
-                    key: ValueKey(controller.result!.id),
-                    controller: controller,
-                    flight: built,
-                    before: initialBuiltBest,
-                    onLeave: leave,
-                    handoff: controller.handedOff,
+                if ((stage == PlayStage.flying ||
+                            stage == PlayStage.celebrating) &&
+                        game != null ||
+                    knockedOut &&
+                        (stage == PlayStage.fallen ||
+                            stage == PlayStage.results) ||
+                    (levelResult || builtResult) && game != null)
+                  Positioned.fill(child: _flight()),
+                if (stage == PlayStage.fallen && knockedOut)
+                  Positioned.fill(child: _knockoutSkip()),
+                if (stage == PlayStage.celebrating && game != null)
+                  Positioned.fill(child: _celebrationSkip()),
+                if (stage == PlayStage.results && knockedOut && built == null)
+                  Positioned.fill(
+                    child: GameOverStage(
+                      controller: controller,
+                      progress: p,
+                      mode: widget.mode,
+                      course: widget.course,
+                      initialBest: initialBest,
+                      initialStamps: initialStamps,
+                      initialDailyKey: initialDailyKey,
+                      initialDailyComplete: initialDailyComplete,
+                      onLeave: leave,
+                      splash: KnockoutArt.atSea(controller.simulation!),
+                    ),
                   ),
-                ),
-              if (levelResult && !passing)
-                Positioned.fill(
-                  child: LevelResultStage(
-                    key: ValueKey(controller.result!.id),
-                    controller: controller,
-                    level: level,
-                    progress: p,
-                    before: initialRecord ?? LevelRecord(levelId: level.id),
-                    nextWasOpen: initialNextOpen,
-                    initialStamps: initialStamps,
-                    initialDailyKey: initialDailyKey,
-                    initialDailyComplete: initialDailyComplete,
-                    onLeave: leave,
-                    handoff: controller.handedOff,
+                if (builtResult && !passing)
+                  Positioned.fill(
+                    child: BuiltResultStage(
+                      key: ValueKey(controller.result!.id),
+                      controller: controller,
+                      flight: built,
+                      before: initialBuiltBest,
+                      onLeave: leave,
+                      handoff: controller.handedOff,
+                    ),
                   ),
-                ),
-            ],
+                if (levelResult && !passing)
+                  Positioned.fill(
+                    child: LevelResultStage(
+                      key: ValueKey(controller.result!.id),
+                      controller: controller,
+                      level: level,
+                      progress: p,
+                      before: initialRecord ?? LevelRecord(levelId: level.id),
+                      nextWasOpen: initialNextOpen,
+                      initialStamps: initialStamps,
+                      initialDailyKey: initialDailyKey,
+                      initialDailyComplete: initialDailyComplete,
+                      onLeave: leave,
+                      handoff: controller.handedOff,
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  /// Keys in flight (see [FlightKeys]): flap, hold to charge and throw,
+  /// sprint and pause, as the sky and the HUD's keys do; Space or Enter
+  /// skips a knockout or a celebration once it may be skipped. Anything
+  /// else, and every key while paused but the pause keys, goes on to the
+  /// focused key or Esc's back.
+  KeyEventResult _key(FocusNode node, KeyEvent event) {
+    final key = event.logicalKey;
+    // Letting go of the shot key throws, whatever happened while it was
+    // held, as lifting a finger off Shoot does.
+    if (event is KeyUpEvent && key == _shotKey) {
+      _shotKey = null;
+      controller.shoot();
+      return KeyEventResult.handled;
+    }
+    final down = event is KeyDownEvent;
+    final stage = controller.stage;
+    if (stage == PlayStage.fallen && controller.knockout != null ||
+        stage == PlayStage.celebrating) {
+      if (!FlightKeys.presses(key)) return KeyEventResult.ignored;
+      if (down) {
+        stage == PlayStage.fallen
+            ? controller.skipKnockout()
+            : controller.skipCelebration();
+      }
+      return KeyEventResult.handled;
+    }
+    final sim = controller.simulation;
+    if (stage != PlayStage.flying || sim == null) return KeyEventResult.ignored;
+    final action = FlightKeys.of(key);
+    if (sim.phase == RunPhase.paused) {
+      if (action != FlightKey.pause) return KeyEventResult.ignored;
+      if (down) {
+        UiSounds.effect(context, 'resume');
+        unawaited(controller.resume());
+      }
+      return KeyEventResult.handled;
+    }
+    // A test of a push-up or squat level steers by height: Up climbs and
+    // Down sinks, a step a press, a held key repeating.
+    final steer = controller.testFly && controller.mode.controlsHeight
+        ? switch (key) {
+            LogicalKeyboardKey.arrowUp || LogicalKeyboardKey.keyW => .1,
+            LogicalKeyboardKey.arrowDown || LogicalKeyboardKey.keyS => -.1,
+            _ => 0.0,
+          }
+        : 0.0;
+    if (steer != 0) {
+      if (event is! KeyUpEvent) {
+        controller.standIn(controller.standInHeight + steer);
+      }
+      return KeyEventResult.handled;
+    }
+    // Down would walk the focus onto the Shoot key, which keeps Space for
+    // itself.
+    if (key == LogicalKeyboardKey.arrowDown) return KeyEventResult.handled;
+    if (action == null) return KeyEventResult.ignored;
+    // A held key flaps once, as a held finger does.
+    if (!down) return KeyEventResult.handled;
+    switch (action) {
+      case FlightKey.flap:
+        controller.flap();
+      case FlightKey.shoot:
+        if (_shotKey == null &&
+            sim.offersShoot &&
+            !sim.victoryGlide &&
+            sim.phase == RunPhase.playing) {
+          _shotKey = key;
+          controller.startCharge();
+        }
+      case FlightKey.sprint:
+        if (sim.offersSprint && !sim.victoryGlide && sim.canSprint) {
+          controller.sprint();
+        }
+      case FlightKey.pause:
+        UiSounds.effect(context, 'pause');
+        controller.pause();
+    }
+    return KeyEventResult.handled;
   }
 
   Widget _header(String title, {List<Widget> trailing = const []}) =>
@@ -1386,13 +1478,15 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                     controller.flap();
                   },
                   onPointerMove: standIn,
-                  child: GameWidget(game: game!),
+                  // A mouse steers without a press.
+                  onPointerHover: standIn,
+                  child: _sky(),
                 );
               },
             ),
           )
         else
-          GameWidget(game: game!),
+          _sky(),
         // The sky fills the display; only controls use the safe, scaled layout.
         // The HUD fades out as a level's celebration takes the screen.
         if (controller.stage == PlayStage.flying ||
@@ -1418,6 +1512,11 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       ],
     );
   }
+
+  /// The flight itself. Flame's game widget would take the focus and keep
+  /// every key from this screen, so it never gets it.
+  Widget _sky() =>
+      ExcludeFocus(child: GameWidget(game: game!, autofocus: false));
 
   /// Taps during the knockout skip to the stage, but only once
   /// [KnockoutArt.skipAfter] has passed, so mashing cannot dismiss it.
@@ -1479,11 +1578,25 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         sim.supportsMagnet && (sim.magnetActive || sim.magnetCharge > 0);
     final level = controller.level;
     final marks = controller.marks;
+    // A player on a keyboard is told the keys (see FlightKeys).
+    final keys = keyboardInUse;
     final hint = counting
         ? (controller.testFly && controller.mode.controlsHeight
-              ? 'Test flight: drag up and down to steer.'
+              ? keys
+                    ? 'Test flight: Up and Down steer.'
+                    : 'Test flight: drag up and down to steer.'
               : controller.testFly && controller.mode == PlayMode.jump
-              ? 'Test flight: tap for a jump.'
+              ? keys
+                    ? 'Test flight: Space for a jump.'
+                    : 'Test flight: tap for a jump.'
+              : controller.isTouch && keys
+              ? (controller.routed && !sim.offersShoot
+                    ? 'Space to flap. Fly through the stars.'
+                    : controller.routed && !sim.offersSprint
+                    ? 'Space to flap. Hold D to charge a shot.'
+                    : sim.supportsCombat
+                    ? 'Space to flap. Hold D to charge a shot. A to sprint!'
+                    : 'Space to flap. Esc pauses.')
               : controller.isTouch
               ? (controller.routed && !sim.offersShoot
                     ? 'Tap the sky to flap. Fly through the stars.'

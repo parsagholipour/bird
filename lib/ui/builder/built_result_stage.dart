@@ -1162,6 +1162,7 @@ class _BuiltResultStageState extends State<BuiltResultStage>
       label: editLeads ? 'Edit level' : 'Edit',
       icon: Icons.edit_rounded,
       hero: editLeads,
+      autofocus: editLeads,
       shine: editLeads ? ready : 0,
       height: editLeads ? null : _keyHeight,
       onPressed: () => widget.onLeave(
@@ -1173,6 +1174,7 @@ class _BuiltResultStageState extends State<BuiltResultStage>
       label: _finished ? 'Fly again' : 'Retry',
       icon: Icons.replay_rounded,
       hero: !editLeads,
+      autofocus: !editLeads,
       shine: editLeads ? 0 : ready,
       height: editLeads ? _keyHeight : null,
       onPressed: () => c.retry(),

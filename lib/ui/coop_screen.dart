@@ -20,6 +20,7 @@ import 'coop_results.dart';
 import 'coop_setup.dart';
 import 'flight_score.dart';
 import 'home_keys.dart' show HomeKeyColors;
+import 'keyboard.dart' show FlightKeys, keyboardInUse;
 import 'match_hud.dart';
 import 'stage_key.dart';
 import 'mini_chrome.dart';
@@ -283,27 +284,33 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) unawaited(leave());
       },
-      child: Scaffold(
-        body: SkyBackdrop(
-          reducedMotion: settings.reducedMotion,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              if (flight == null)
-                SceneLayout(child: _setup(progress))
-              else if (showFlight)
-                Positioned.fill(child: _flight(flight)),
-              if (stage == PlayStage.fallen)
-                Positioned.fill(
-                  child: Listener(
-                    key: const ValueKey('coop-knockout-skip'),
-                    behavior: HitTestBehavior.opaque,
-                    onPointerDown: (_) => flight!.skipKnockout(),
+      // Every key on this screen passes here on its way up (see _key); the
+      // setup's and the results' keys still take the focus inside it.
+      child: FocusScope(
+        autofocus: true,
+        onKeyEvent: _key,
+        child: Scaffold(
+          body: SkyBackdrop(
+            reducedMotion: settings.reducedMotion,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                if (flight == null)
+                  SceneLayout(child: _setup(progress))
+                else if (showFlight)
+                  Positioned.fill(child: _flight(flight)),
+                if (stage == PlayStage.fallen)
+                  Positioned.fill(
+                    child: Listener(
+                      key: const ValueKey('coop-knockout-skip'),
+                      behavior: HitTestBehavior.opaque,
+                      onPointerDown: (_) => flight!.skipKnockout(),
+                    ),
                   ),
-                ),
-              if (stage == PlayStage.results && flight!.result != null)
-                Positioned.fill(child: _results(flight, progress)),
-            ],
+                if (stage == PlayStage.results && flight!.result != null)
+                  Positioned.fill(child: _results(flight, progress)),
+              ],
+            ),
           ),
         ),
       ),
@@ -498,41 +505,69 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
 
   Widget _flight(PlayController flight) {
     final sim = flight.simulation!;
-    return Focus(
-      autofocus: true,
-      onKeyEvent: (_, event) => _key(flight, event),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          LayoutBuilder(
-            builder: (context, constraints) => Semantics(
-              label:
-                  'Player 1 taps the left half to flap, player 2 the right half',
-              child: Listener(
-                key: const ValueKey('coop-flight'),
-                behavior: HitTestBehavior.opaque,
-                onPointerDown: (event) => flight.flap(
-                  player: event.localPosition.dx < constraints.maxWidth / 2
-                      ? 0
-                      : 1,
-                ),
-                child: GameWidget(game: game!),
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        LayoutBuilder(
+          builder: (context, constraints) => Semantics(
+            label:
+                'Player 1 taps the left half to flap, player 2 the right half',
+            child: Listener(
+              key: const ValueKey('coop-flight'),
+              behavior: HitTestBehavior.opaque,
+              onPointerDown: (event) => flight.flap(
+                player: event.localPosition.dx < constraints.maxWidth / 2
+                    ? 0
+                    : 1,
+              ),
+              // Flame's game widget would take the focus and keep every
+              // key from this screen, so it never gets it.
+              child: ExcludeFocus(
+                child: GameWidget(game: game!, autofocus: false),
               ),
             ),
           ),
-          if (sim.phase == RunPhase.countdown && sim.countdown > 0)
-            const _SideHints(),
-          if (flight.stage == PlayStage.flying)
-            SceneLayout(child: _hud(flight, sim)),
-        ],
-      ),
+        ),
+        if (sim.phase == RunPhase.countdown && sim.countdown > 0)
+          const _SideHints(),
+        if (flight.stage == PlayStage.flying)
+          SceneLayout(child: _hud(flight, sim)),
+      ],
     );
   }
 
   /// Keys for a keyboard or two: player 1 flaps with W, sprints with A and
-  /// holds D to shoot; player 2 uses Up, Left and Right.
-  KeyEventResult _key(PlayController flight, KeyEvent event) {
+  /// holds D to shoot; player 2 uses Up, Left and Right. Esc or P pauses
+  /// and resumes, and Space or Enter skips the knockout once it may be
+  /// skipped. Anything else, and every key while paused but the pause
+  /// keys, goes on to the focused key or Esc's back.
+  KeyEventResult _key(FocusNode node, KeyEvent event) {
+    final flight = controller;
+    final sim = flight?.simulation;
+    if (flight == null || sim == null) return KeyEventResult.ignored;
     final key = event.logicalKey;
+    final down = event is KeyDownEvent;
+    if (flight.stage == PlayStage.fallen) {
+      if (!FlightKeys.presses(key)) return KeyEventResult.ignored;
+      if (down) flight.skipKnockout();
+      return KeyEventResult.handled;
+    }
+    if (flight.stage != PlayStage.flying) return KeyEventResult.ignored;
+    if (key == LogicalKeyboardKey.escape || key == LogicalKeyboardKey.keyP) {
+      if (!down) return KeyEventResult.handled;
+      if (sim.phase == RunPhase.paused) {
+        UiSounds.effect(context, 'resume');
+        unawaited(flight.resume());
+      } else {
+        UiSounds.effect(context, 'pause');
+        flight.pause();
+      }
+      return KeyEventResult.handled;
+    }
+    if (sim.phase == RunPhase.paused) return KeyEventResult.ignored;
+    // Down would walk the focus onto a Shoot key, which keeps Space for
+    // itself.
+    if (key == LogicalKeyboardKey.arrowDown) return KeyEventResult.handled;
     final player = switch (key) {
       LogicalKeyboardKey.keyW ||
       LogicalKeyboardKey.keyA ||
@@ -913,6 +948,7 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
       label: flight.duel ? 'Rematch' : 'Fly again',
       icon: flight.duel ? Icons.sports_mma_rounded : Icons.replay_rounded,
       hero: true,
+      autofocus: true,
       onPressed: () => unawaited(flight.retry()),
     ),
   ];
@@ -1233,33 +1269,44 @@ class _SideHints extends StatelessWidget {
   const _SideHints();
 
   @override
-  Widget build(BuildContext context) => IgnorePointer(
-    child: Row(
-      children: [
-        for (final player in [0, 1])
-          Expanded(
-            child: Container(
-              color: TetherArt.players[player].withValues(alpha: .1),
-              alignment: Alignment.bottomCenter,
-              padding: const EdgeInsets.only(bottom: 150),
-              child: Text(
-                'P${player + 1} · tap this side',
-                style:
-                    heading(
-                      22,
-                      color: SkyColors.white,
-                      weight: FontWeight.w700,
-                    ).copyWith(
-                      shadows: const [
-                        Shadow(color: SkyColors.ink, offset: Offset(0, 2)),
-                      ],
-                    ),
+  Widget build(BuildContext context) {
+    final keys = keyboardInUse;
+    return IgnorePointer(
+      child: Row(
+        children: [
+          for (final player in [0, 1])
+            Expanded(
+              child: Container(
+                color: TetherArt.players[player].withValues(alpha: .1),
+                alignment: Alignment.bottomCenter,
+                padding: const EdgeInsets.fromLTRB(12, 0, 12, 150),
+                // On a keyboard each player is told their keys (see _key).
+                child: Text(
+                  !keys
+                      ? 'P${player + 1} · tap this side'
+                      : player == 0
+                      ? 'P1 · W flap · D shoot · A sprint'
+                      : 'P2 · Up flap · Right shoot · Left sprint',
+                  maxLines: 1,
+                  softWrap: false,
+                  overflow: TextOverflow.fade,
+                  style:
+                      heading(
+                        keys ? 18 : 22,
+                        color: SkyColors.white,
+                        weight: FontWeight.w700,
+                      ).copyWith(
+                        shadows: const [
+                          Shadow(color: SkyColors.ink, offset: Offset(0, 2)),
+                        ],
+                      ),
+                ),
               ),
             ),
-          ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 }
 
 /// The badge between two rivals' cards: a burst split between their

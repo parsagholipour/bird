@@ -23,6 +23,7 @@ import 'theme.dart';
 import 'campaign_chrome.dart' show MapGlyph, MapKey;
 import 'campaign_map_art.dart' show MapStarsPainter;
 import 'components.dart';
+import 'keyboard.dart' show BackKeyTarget;
 import 'replay_highlights.dart';
 
 enum ReplayView { corner, background, gameplay }
@@ -32,10 +33,13 @@ class SessionLibraryScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
     appBar: AppBar(
-      leading: IconButton(
-        tooltip: 'Back to Records',
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () => context.go('/records'),
+      leading: BackKeyTarget(
+        onBack: () => context.go('/records'),
+        child: IconButton(
+          tooltip: 'Back to Records',
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/records'),
+        ),
       ),
       title: const Text('Saved sessions'),
     ),
@@ -602,7 +606,11 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                     children: [
                       if (_view == ReplayView.background)
                         _camera(background: true),
-                      GameWidget(game: _game!),
+                      // Flame's game widget would take the focus and keep
+                      // every key from the replay's controls.
+                      ExcludeFocus(
+                        child: GameWidget(game: _game!, autofocus: false),
+                      ),
                       if (_view == ReplayView.corner)
                         Align(
                           alignment: [

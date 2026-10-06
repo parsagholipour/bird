@@ -22,6 +22,7 @@ class StageKey extends StatefulWidget {
     this.height,
     this.sound = 'ui_tap',
     this.tint,
+    this.autofocus = false,
   });
   final String label;
   final IconData icon;
@@ -37,6 +38,10 @@ class StageKey extends StatefulWidget {
 
   /// Colours a secondary key's cap instead of cream; the hero stays coral.
   final Color? tint;
+
+  /// Takes the keyboard focus as soon as it can be pressed, unless another
+  /// key on its screen has it, so Enter presses it.
+  final bool autofocus;
 
   @override
   State<StageKey> createState() => _StageKeyState();
@@ -146,6 +151,8 @@ class _StageKeyState extends State<StageKey> {
       child: Material(
         type: MaterialType.transparency,
         child: InkWell(
+          // A key that starts busy takes the focus once it is ready.
+          autofocus: widget.autofocus && enabled,
           onFocusChange: (v) {
             if (mounted) setState(() => hasFocus = v);
           },

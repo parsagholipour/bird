@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,6 +31,7 @@ import 'data/providers.dart';
 import 'domain/daily_adventure.dart';
 import 'game/audio.dart';
 import 'ui/ui_sounds.dart';
+import 'ui/keyboard.dart';
 import 'data/progress_repository.dart';
 
 Future<void> main() async {
@@ -285,6 +287,7 @@ class _PushUpBirdAppState extends ConsumerState<PushUpBirdApp>
       debugShowCheckedModeBanner: false,
       theme: skyTheme(),
       routerConfig: appRouter,
+      scrollBehavior: const _AnyPointerDrags(),
       builder: (context, child) {
         final mediaQuery = MediaQuery.of(context);
         return MediaQuery(
@@ -301,11 +304,24 @@ class _PushUpBirdAppState extends ConsumerState<PushUpBirdApp>
                 if (_foreground) _menuAudio.speak(asset);
               },
               hush: _menuAudio.hush,
-              child: child!,
+              child: EscapeBack(
+                popRoute: appRouter.routerDelegate.popRoute,
+                child: child!,
+              ),
             ),
           ),
         );
       },
     );
   }
+}
+
+/// A mouse drags lists and the map the way a finger does. Flutter leaves
+/// mouse drags out by default, which leaves a sideways list to Shift and
+/// the wheel.
+class _AnyPointerDrags extends MaterialScrollBehavior {
+  const _AnyPointerDrags();
+
+  @override
+  Set<PointerDeviceKind> get dragDevices => PointerDeviceKind.values.toSet();
 }

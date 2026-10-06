@@ -11,6 +11,7 @@ import 'campaign_keepsake_art.dart' show CampaignHeadwear;
 import 'campaign_map_art.dart';
 import 'campaign_text_scale.dart';
 import 'components.dart';
+import 'keyboard.dart' show KeyTap;
 import 'theme.dart';
 import 'ui_sounds.dart';
 
@@ -388,6 +389,12 @@ class _CampaignMapState extends State<CampaignMap>
                               onLevel: widget.onLevel,
                               onLockedLevel: widget.onLockedLevel,
                               onPostcard: widget.onPostcard,
+                              // Enter flies on from the level in view; the
+                              // map turns to wherever the keys go.
+                              focusNext: i == page && !widget.chromeHidden,
+                              onFocused: () {
+                                if (i != page) _goTo(i);
+                              },
                             ),
                           ),
                         ),
@@ -584,6 +591,8 @@ class _StopLayer extends StatelessWidget {
     required this.onLevel,
     required this.onLockedLevel,
     required this.onPostcard,
+    this.focusNext = false,
+    this.onFocused,
   });
   final CampaignMapStop stop;
   final List<Offset> spots;
@@ -598,6 +607,13 @@ class _StopLayer extends StatelessWidget {
   final ValueChanged<String> onLevel;
   final ValueChanged<String>? onLockedLevel;
   final ValueChanged<int>? onPostcard;
+
+  /// Gives the keyboard focus to the stop's next level up, if it has one.
+  final bool focusNext;
+
+  /// Called when the keyboard brings the focus to one of the stop's levels
+  /// or its postcard, so the map turns to it.
+  final VoidCallback? onFocused;
 
   @override
   Widget build(BuildContext context) {
@@ -650,6 +666,8 @@ class _StopLayer extends StatelessWidget {
                 if (stop.comingSoon) soonPoke.value++;
                 onLockedLevel?.call(id);
               },
+              autofocus: focusNext && node.isCurrent,
+              onFocused: onFocused,
             ),
         if (stop.postcard && boss != null && bossIndex < spots.length)
           Positioned(
@@ -848,6 +866,8 @@ class _NodeSlot extends StatefulWidget {
     required this.compactNames,
     required this.onLevel,
     required this.onLockedLevel,
+    this.autofocus = false,
+    this.onFocused,
   });
   final CampaignMapNode node;
   final Offset center;
@@ -856,6 +876,13 @@ class _NodeSlot extends StatefulWidget {
   final bool still, dimmed, compactNames;
   final ValueChanged<String> onLevel;
   final ValueChanged<String>? onLockedLevel;
+
+  /// Takes the keyboard focus, as the next level up on the stop in view
+  /// does.
+  final bool autofocus;
+
+  /// Called when the keyboard brings the focus to it.
+  final VoidCallback? onFocused;
 
   static const radius = 29.0, bossRadius = 38.0;
 
@@ -963,54 +990,62 @@ class _NodeSlotState extends State<_NodeSlot>
               label: _semantics,
               onTap: _tap,
               excludeSemantics: true,
-              child: GestureDetector(
-                key: ValueKey('campaign-node-${node.id}'),
-                behavior: HitTestBehavior.opaque,
-                onTap: _tap,
-                onTapDown: (_) => setState(() => pressed = true),
-                onTapUp: (_) => setState(() => pressed = false),
-                onTapCancel: () => setState(() => pressed = false),
-                child: AnimatedBuilder(
-                  animation: wiggle,
-                  builder: (context, child) => Transform.rotate(
-                    angle:
-                        math.sin(wiggle.value * math.pi * 5) *
-                        (1 - wiggle.value) *
-                        .22,
-                    child: child,
-                  ),
-                  child: SizedBox.square(
-                    dimension: box,
-                    child: Center(
-                      child: SizedBox(
-                        width:
-                            (node.isGuardian
-                                    ? MapGuardianPainter.halfWidth(r)
-                                    : r) *
-                                2 +
-                            4,
-                        height: reach * 2 + MapNodePainter.depth + 4,
-                        child: CustomPaint(
-                          painter: node.isGuardian
-                              ? MapGuardianPainter(
-                                  look: look,
-                                  radius: r,
-                                  boss: node.boss!,
-                                  pressed: pressed && !node.locked,
-                                )
-                              : MapNodePainter(
-                                  look: look,
-                                  radius: r,
-                                  boss: node.boss,
-                                  pressed: pressed && !node.locked,
-                                ),
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                              bottom:
-                                  MapNodePainter.depth +
-                                  (pressed && !node.locked ? -4 : 0),
+              // A keyboard walks the open levels; a locked one only answers
+              // a tap.
+              child: KeyTap(
+                onPressed: node.locked ? null : _tap,
+                spread: 2,
+                autofocus: widget.autofocus,
+                onFocused: widget.onFocused,
+                child: GestureDetector(
+                  key: ValueKey('campaign-node-${node.id}'),
+                  behavior: HitTestBehavior.opaque,
+                  onTap: _tap,
+                  onTapDown: (_) => setState(() => pressed = true),
+                  onTapUp: (_) => setState(() => pressed = false),
+                  onTapCancel: () => setState(() => pressed = false),
+                  child: AnimatedBuilder(
+                    animation: wiggle,
+                    builder: (context, child) => Transform.rotate(
+                      angle:
+                          math.sin(wiggle.value * math.pi * 5) *
+                          (1 - wiggle.value) *
+                          .22,
+                      child: child,
+                    ),
+                    child: SizedBox.square(
+                      dimension: box,
+                      child: Center(
+                        child: SizedBox(
+                          width:
+                              (node.isGuardian
+                                      ? MapGuardianPainter.halfWidth(r)
+                                      : r) *
+                                  2 +
+                              4,
+                          height: reach * 2 + MapNodePainter.depth + 4,
+                          child: CustomPaint(
+                            painter: node.isGuardian
+                                ? MapGuardianPainter(
+                                    look: look,
+                                    radius: r,
+                                    boss: node.boss!,
+                                    pressed: pressed && !node.locked,
+                                  )
+                                : MapNodePainter(
+                                    look: look,
+                                    radius: r,
+                                    boss: node.boss,
+                                    pressed: pressed && !node.locked,
+                                  ),
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                bottom:
+                                    MapNodePainter.depth +
+                                    (pressed && !node.locked ? -4 : 0),
+                              ),
+                              child: Center(child: _face(r)),
                             ),
-                            child: Center(child: _face(r)),
                           ),
                         ),
                       ),
@@ -1328,44 +1363,51 @@ class _PostcardMarker extends StatelessWidget {
       height: 48,
       child: CustomPaint(painter: MapPostcardPainter(boss)),
     );
+    final press = onTap == null
+        ? null
+        : () {
+            UiSounds.effect(context);
+            onTap!(chapter);
+          };
     return Semantics(
       button: true,
       label: 'Chapter $chapter postcard',
       excludeSemantics: true,
       onTap: onTap == null ? null : () => onTap!(chapter),
-      child: GestureDetector(
-        key: ValueKey('campaign-postcard-$chapter'),
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap == null
-            ? null
-            : () {
-                UiSounds.effect(context);
-                onTap!(chapter);
-              },
-        child: Container(
-          padding: const EdgeInsets.all(6),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: RadialGradient(
-              colors: [
-                SkyColors.cream.withValues(alpha: .75),
-                SkyColors.cream.withValues(alpha: 0),
-              ],
+      child: KeyTap(
+        onPressed: press,
+        shape: BoxShape.rectangle,
+        radius: BorderRadius.circular(20),
+        spread: 2,
+        child: GestureDetector(
+          key: ValueKey('campaign-postcard-$chapter'),
+          behavior: HitTestBehavior.opaque,
+          onTap: press,
+          child: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(
+                colors: [
+                  SkyColors.cream.withValues(alpha: .75),
+                  SkyColors.cream.withValues(alpha: 0),
+                ],
+              ),
             ),
-          ),
-          child: still
-              ? Transform.rotate(angle: -.12, child: card)
-              : AnimatedBuilder(
-                  animation: clock,
-                  child: card,
-                  builder: (context, child) => Transform.translate(
-                    offset: Offset(0, math.sin(clock.value * 2) * 3),
-                    child: Transform.rotate(
-                      angle: -.12 + math.sin(clock.value * 1.3) * .05,
-                      child: child,
+            child: still
+                ? Transform.rotate(angle: -.12, child: card)
+                : AnimatedBuilder(
+                    animation: clock,
+                    child: card,
+                    builder: (context, child) => Transform.translate(
+                      offset: Offset(0, math.sin(clock.value * 2) * 3),
+                      child: Transform.rotate(
+                        angle: -.12 + math.sin(clock.value * 1.3) * .05,
+                        child: child,
+                      ),
                     ),
                   ),
-                ),
+          ),
         ),
       ),
     );

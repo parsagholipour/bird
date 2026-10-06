@@ -121,6 +121,7 @@ class LevelIntroCard extends StatelessWidget {
                       label: 'Fly!',
                       icon: Icons.play_arrow_rounded,
                       hero: true,
+                      autofocus: true,
                       height: _keyHeight,
                       onPressed: onFly,
                     ),

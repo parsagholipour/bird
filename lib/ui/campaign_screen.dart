@@ -268,28 +268,32 @@ class _CampaignScreenState extends ConsumerState<CampaignScreen> {
         // Under a scene, card or postcard the map is out of the semantics tree
         // too, so a screen reader meets the card first and not the map's
         // forty-odd buttons.
+        // Its keys step out of the keyboard's way too.
         ExcludeSemantics(
           excluding: covered,
           child: TickerMode(
             enabled: !covered,
-            child: CampaignMap(
-              stops: _stopsOf(campaign),
-              bird: progress.settings.bird,
-              reducedMotion: still,
-              chromeHidden: covered,
-              focusStop: _focus,
-              onLevel: _open,
-              onLockedLevel: _locked,
-              onPostcard: (chapter) => setState(() => _revisit = chapter),
-              leading: MapKey(
-                glyph: MapGlyph.back,
-                label: 'Back home',
+            child: ExcludeFocus(
+              excluding: covered,
+              child: CampaignMap(
+                stops: _stopsOf(campaign),
+                bird: progress.settings.bird,
                 reducedMotion: still,
-                onPressed: () => context.go('/'),
-              ),
-              trailing: CampaignStarTotal(
-                stars: campaign.totalStars,
-                of: campaignStarsInBuild,
+                chromeHidden: covered,
+                focusStop: _focus,
+                onLevel: _open,
+                onLockedLevel: _locked,
+                onPostcard: (chapter) => setState(() => _revisit = chapter),
+                leading: MapKey(
+                  glyph: MapGlyph.back,
+                  label: 'Back home',
+                  reducedMotion: still,
+                  onPressed: () => context.go('/'),
+                ),
+                trailing: CampaignStarTotal(
+                  stars: campaign.totalStars,
+                  of: campaignStarsInBuild,
+                ),
               ),
             ),
           ),

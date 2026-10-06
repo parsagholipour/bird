@@ -1272,6 +1272,7 @@ class _LevelResultStageState extends State<LevelResultStage>
       label: 'Map',
       icon: Icons.map_rounded,
       hero: next == null && c.levelComplete,
+      autofocus: next == null && c.levelComplete,
       shine: next == null && c.levelComplete ? ready : 0,
       height: next == null && c.levelComplete ? null : _keyHeight,
       onPressed: () => widget.onLeave('/campaign'),
@@ -1281,6 +1282,7 @@ class _LevelResultStageState extends State<LevelResultStage>
       label: 'Retry',
       icon: Icons.replay_rounded,
       hero: !c.levelComplete,
+      autofocus: !c.levelComplete,
       shine: c.levelComplete ? 0 : ready,
       height: c.levelComplete ? _keyHeight : null,
       onPressed: () => c.retry(),
@@ -1314,6 +1316,7 @@ class _LevelResultStageState extends State<LevelResultStage>
               label: 'Next',
               icon: Icons.arrow_forward_rounded,
               hero: true,
+              autofocus: true,
               shine: ready,
               // Leaving waits for the save, so the next level is open.
               busy: !c.saved && c.saveError.isEmpty,

@@ -7,6 +7,7 @@ import '../data/progress_repository.dart';
 import '../game/bird_trail.dart';
 import 'components.dart';
 import 'home_keys.dart' show HomeKey, HomeKeyColors;
+import 'keyboard.dart' show KeyTap;
 import 'match_hud.dart' show MatchIcon, MatchSymbol, matchInkEdge;
 import 'mini_chrome.dart';
 import 'star_wallet.dart';
@@ -728,161 +729,167 @@ class _Tile extends StatelessWidget {
         if (unlocked && !flown) 'new',
       ].join(', '),
       excludeSemantics: true,
-      child: GestureDetector(
-        key: ValueKey('bird-card-$bird'),
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 160),
-          decoration: BoxDecoration(
-            color: SkyColors.ink,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              color: selected ? SkyColors.yellow : SkyColors.ink,
-              width: selected ? 5 : 3,
+      child: KeyTap(
+        onPressed: onTap,
+        shape: BoxShape.rectangle,
+        radius: BorderRadius.circular(24),
+        spread: 6,
+        child: GestureDetector(
+          key: ValueKey('bird-card-$bird'),
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 160),
+            decoration: BoxDecoration(
+              color: SkyColors.ink,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: selected ? SkyColors.yellow : SkyColors.ink,
+                width: selected ? 5 : 3,
+              ),
+              boxShadow: [
+                if (selected)
+                  const BoxShadow(
+                    color: Color(0x99ffd45b),
+                    blurRadius: 18,
+                    spreadRadius: 3,
+                  ),
+                const BoxShadow(color: SkyColors.ink, offset: Offset(0, 5)),
+              ],
             ),
-            boxShadow: [
-              if (selected)
-                const BoxShadow(
-                  color: Color(0x99ffd45b),
-                  blurRadius: 18,
-                  spreadRadius: 3,
-                ),
-              const BoxShadow(color: SkyColors.ink, offset: Offset(0, 5)),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(selected ? 19 : 21),
-            child: LayoutBuilder(
-              builder: (context, box) {
-                final strip = math.min(40.0, box.maxHeight * .3);
-                return Stack(
-                  children: [
-                    Positioned.fill(
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              Color.lerp(
-                                _birdColors[bird],
-                                SkyColors.white,
-                                .35,
-                              )!,
-                              _birdColors[bird],
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    // A head-and-shoulders crop: the art runs off the
-                    // bottom, under the name strip.
-                    Positioned(
-                      left: box.maxWidth * .1,
-                      top: 6,
-                      child: ColorFiltered(
-                        colorFilter: unlocked
-                            ? const ColorFilter.mode(
-                                Colors.transparent,
-                                BlendMode.dst,
-                              )
-                            : const ColorFilter.matrix([
-                                .5, .3, .1, 0, 20, //
-                                .2, .5, .1, 0, 20,
-                                .2, .3, .4, 0, 30,
-                                0, 0, 0, 1, 0,
-                              ]),
-                        child: BirdArt(
-                          bird: bird,
-                          size: box.maxWidth * 1.05,
-                          bob: false,
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      height: strip,
-                      child: Container(
-                        decoration: const BoxDecoration(
-                          color: SkyColors.cream,
-                          border: Border(
-                            top: BorderSide(color: SkyColors.ink, width: 3),
-                          ),
-                        ),
-                        alignment: Alignment.center,
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            birdNames[bird],
-                            style: heading(
-                              22,
-                              weight: FontWeight.w700,
-                            ).copyWith(height: 1),
-                          ),
-                        ),
-                      ),
-                    ),
-                    if (equipped)
-                      const Positioned(
-                        left: 8,
-                        top: 8,
-                        child: _Badge(
-                          icon: Icons.check_rounded,
-                          text: 'FLYING',
-                          color: SkyColors.teal,
-                          ink: SkyColors.white,
-                        ),
-                      )
-                    else if (unlocked && !flown)
-                      const Positioned(
-                        right: 8,
-                        top: 8,
-                        child: _Badge(
-                          text: 'NEW',
-                          color: SkyColors.coral,
-                          ink: SkyColors.white,
-                        ),
-                      )
-                    else if (flown)
-                      Positioned(
-                        right: 8,
-                        top: 8,
-                        child: Container(
-                          width: 28,
-                          height: 28,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(selected ? 19 : 21),
+              child: LayoutBuilder(
+                builder: (context, box) {
+                  final strip = math.min(40.0, box.maxHeight * .3);
+                  return Stack(
+                    children: [
+                      Positioned.fill(
+                        child: DecoratedBox(
                           decoration: BoxDecoration(
-                            color: SkyColors.white,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: SkyColors.ink,
-                              width: 2.5,
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                Color.lerp(
+                                  _birdColors[bird],
+                                  SkyColors.white,
+                                  .35,
+                                )!,
+                                _birdColors[bird],
+                              ],
                             ),
                           ),
-                          child: const Icon(
-                            Icons.check_rounded,
-                            size: 18,
-                            color: SkyColors.teal,
+                        ),
+                      ),
+                      // A head-and-shoulders crop: the art runs off the
+                      // bottom, under the name strip.
+                      Positioned(
+                        left: box.maxWidth * .1,
+                        top: 6,
+                        child: ColorFiltered(
+                          colorFilter: unlocked
+                              ? const ColorFilter.mode(
+                                  Colors.transparent,
+                                  BlendMode.dst,
+                                )
+                              : const ColorFilter.matrix([
+                                  .5, .3, .1, 0, 20, //
+                                  .2, .5, .1, 0, 20,
+                                  .2, .3, .4, 0, 30,
+                                  0, 0, 0, 1, 0,
+                                ]),
+                          child: BirdArt(
+                            bird: bird,
+                            size: box.maxWidth * 1.05,
+                            bob: false,
                           ),
                         ),
                       ),
-                    if (!unlocked)
                       Positioned(
                         left: 0,
                         right: 0,
-                        bottom: strip + 10,
-                        child: Center(
-                          child: _PriceTag(
-                            price: price,
-                            affordable: affordable,
+                        bottom: 0,
+                        height: strip,
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            color: SkyColors.cream,
+                            border: Border(
+                              top: BorderSide(color: SkyColors.ink, width: 3),
+                            ),
+                          ),
+                          alignment: Alignment.center,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              birdNames[bird],
+                              style: heading(
+                                22,
+                                weight: FontWeight.w700,
+                              ).copyWith(height: 1),
+                            ),
                           ),
                         ),
                       ),
-                  ],
-                );
-              },
+                      if (equipped)
+                        const Positioned(
+                          left: 8,
+                          top: 8,
+                          child: _Badge(
+                            icon: Icons.check_rounded,
+                            text: 'FLYING',
+                            color: SkyColors.teal,
+                            ink: SkyColors.white,
+                          ),
+                        )
+                      else if (unlocked && !flown)
+                        const Positioned(
+                          right: 8,
+                          top: 8,
+                          child: _Badge(
+                            text: 'NEW',
+                            color: SkyColors.coral,
+                            ink: SkyColors.white,
+                          ),
+                        )
+                      else if (flown)
+                        Positioned(
+                          right: 8,
+                          top: 8,
+                          child: Container(
+                            width: 28,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              color: SkyColors.white,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: SkyColors.ink,
+                                width: 2.5,
+                              ),
+                            ),
+                            child: const Icon(
+                              Icons.check_rounded,
+                              size: 18,
+                              color: SkyColors.teal,
+                            ),
+                          ),
+                        ),
+                      if (!unlocked)
+                        Positioned(
+                          left: 0,
+                          right: 0,
+                          bottom: strip + 10,
+                          child: Center(
+                            child: _PriceTag(
+                              price: price,
+                              affordable: affordable,
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                },
+              ),
             ),
           ),
         ),

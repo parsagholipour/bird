@@ -118,6 +118,7 @@ class PlayController extends ChangeNotifier {
   /// A test flight's stand-in for a push-up or squat: the movement's
   /// height (0 at the bottom, 1 at the top) under the finger.
   double _standIn = 1;
+  double get standInHeight => _standIn;
   double get nowMs => isTouch ? _touchTime : source!.nowMs;
   final Future<void> Function(RunResult) saveRun;
   final SkyAudio audio;

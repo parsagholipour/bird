@@ -32,6 +32,19 @@ an input journal and any camera footage for replay in Records → Saved sessions
 Replay **Flight highlights** lets you jump to streaks, power-ups and the final
 approach, with a short lead-in before each moment.
 
+**Keyboard and mouse:** on a Chromebook or a tablet with a keyboard, Space, W
+or Up flaps; holding D or Right charges a shot and letting go throws it; A or
+Left sprints; Esc or P pauses and resumes. Space or Enter skips a knockout or
+a finish celebration once it can be skipped. Elsewhere, Tab and the arrow keys
+move between keys (map levels and postcards, bird cards and upgrades too),
+Enter or Space presses one, and Esc goes back as the back button does. The
+pause card, a level's card and the result stages open with their lead key
+focused, and the map with the next level up, so Enter carries on. A countdown
+names the keys once a key has been pressed. A mouse clicks like a tap and drags
+lists and the map like a finger. The Level Builder is mouse-only; a mouse steers
+a push-up or squat test flight by pointing, without a press, and Up and Down
+step it on a keyboard.
+
 **Endless flights:** keep going with three hearts, a shield and
 streak multipliers. Every control has a gradual time-based speed increase,
 with no finish timer. Garden gates give way to rising **Wind Lifts**, opening
@@ -400,6 +413,7 @@ the birds together, or **No rope** to fly side by side. Player 1 taps the left
 half of the sky and has Shoot and Sprint in the bottom-left corner; player 2
 has the right half and the bottom-right corner. On a keyboard, player 1 flaps
 with W, sprints with A and holds D to shoot; player 2 uses Up, Left and Right.
+Esc or P pauses.
 Roped, the two birds are tied together. The rope hangs slack while they stay
 close and stops them 0.30 screen heights apart. When it snaps taut, the two
 birds share the pull like two equal weights: a bird flapping alone lifts both
