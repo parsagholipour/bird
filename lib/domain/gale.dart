@@ -9,8 +9,17 @@ import 'dart:math' as math;
 enum GalePhase { approach, blowing, weathered }
 
 class Gale {
-  Gale({required this.number, required this.startDistance});
+  Gale({required this.number, required this.startDistance, this.fury = 0})
+    : assert(fury >= 0 && fury <= maxFury);
   final int number;
+
+  /// How many steps harder than the first gale this one blows (rules
+  /// version 65, [FlightSimulation.risingGalesRulesVersion]). Each endless
+  /// gale after the first adds a step, up to [maxFury]: it blows longer,
+  /// the tailwind is stronger, gusts come quicker and pair more often, and
+  /// the debris flies faster. Fury 0 is every gale before 65, every first
+  /// endless gale and every campaign gale.
+  final int fury;
 
   /// World position of the bird ([FlightSimulation.distance] plus its x)
   /// where the wind rises. The last wall is behind the bird by then.
@@ -34,12 +43,30 @@ class Gale {
   };
 
   /// Course speed multiplier at [elapsed].
-  double boost(double elapsed) => 1 + (peakBoost - 1) * wind(elapsed);
+  double boost(double elapsed) => 1 + (peak - 1) * wind(elapsed);
 
-  /// Seconds between gusts: they come quicker as the gale goes on.
-  double gustInterval(double blowingFor) =>
-      gustStart +
-      (gustEnd - gustStart) * (blowingFor / seconds).clamp(0.0, 1.0);
+  /// How long this gale blows, its strongest course speed multiplier and
+  /// how fast its debris flies, all rising with [fury].
+  double get blowSeconds => seconds + furySeconds * fury;
+  double get peak => peakBoost + furyBoost * fury;
+  double get debrisSpeed => GaleDebris.baseSpeed + furySpeed * fury;
+
+  /// Seconds between gusts: they come quicker as the gale goes on, and
+  /// quicker still in a fiercer gale.
+  double gustInterval(double blowingFor) {
+    final start = gustStart - furyGust * fury;
+    final end = gustEnd - furyGust * fury;
+    return start + (end - start) * (blowingFor / blowSeconds).clamp(0.0, 1.0);
+  }
+
+  /// Whether gust number [gust] (from 0) sends a pair. The first gale
+  /// pairs odd gusts; a fiercer one pairs two gusts in three, and from
+  /// fury 2 every gust but the first.
+  bool pairs(int gust) => switch (fury) {
+    0 => gust.isOdd,
+    1 => gust % 3 != 0,
+    _ => gust > 0,
+  };
 
   /// The first gale waits this long after the Dusk Empress leaves, so a few
   /// ordinary walls come first. The usual rush path follows the gale.
@@ -50,6 +77,13 @@ class Gale {
   static const warningLead = 1.2, clearance = .45;
   static const seconds = 13.0, peakBoost = 1.6;
   static const riseSeconds = 1.2, fallSeconds = 1.5;
+
+  /// What each step of [fury] adds, up to [maxFury] steps. At full fury a
+  /// gale blows 19 seconds at 1.9x, gusts every 0.96 s easing to 0.61 s,
+  /// and its debris flies at 1.35 plus course speed.
+  static const maxFury = 3;
+  static const furySeconds = 2.0, furyBoost = .1, furySpeed = .15;
+  static const furyGust = .08;
 
   /// Gusts stop [calmSeconds] before the end, so the last pieces clear the
   /// screen as the wind drops.
@@ -79,9 +113,14 @@ class GaleDebris {
     required this.y,
     required this.shape,
     required this.spin,
+    this.speed = baseSpeed,
   });
   double x;
   final double y;
+
+  /// How fast it flies on top of the course scroll: [baseSpeed], or faster
+  /// from a fiercer gale ([Gale.debrisSpeed]).
+  final double speed;
 
   /// Which piece of debris it is and how it tumbles. The rules never read
   /// them.
@@ -91,15 +130,18 @@ class GaleDebris {
   double? hitAt;
   bool dodged = false;
 
-  static const radius = .05, speed = .9;
+  static const radius = .05, baseSpeed = .9;
 
   /// Seconds between the warning and the piece coming into view.
   static const warningSeconds = .9;
 
-  /// Where a piece starts so it enters the screen after [warningSeconds]
-  /// at the given course scroll.
-  static double launchX(double viewportWidth, double scroll) =>
-      viewportWidth + radius + (speed + scroll) * warningSeconds;
+  /// Where a piece flying at [speed] starts so it enters the screen after
+  /// [warningSeconds] at the given course scroll.
+  static double launchX(
+    double viewportWidth,
+    double scroll, {
+    double speed = baseSpeed,
+  }) => viewportWidth + radius + (speed + scroll) * warningSeconds;
 
   /// Seconds until the piece enters a screen [viewportWidth] wide at the
   /// given scroll; 0 once it is in view.

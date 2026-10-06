@@ -477,10 +477,12 @@ class FlightSimulation {
   /// ([wilderNeferhooRulesVersion]); 62 has two of King Coo's whistle
   /// squadron throw crusts ([squadThrowersRulesVersion]); 63 lets a duel's
   /// rivals fly through each other ([passingRivalsRulesVersion]); 64 flies
-  /// levels players built by hand ([builtLevelsRulesVersion]). Endless
+  /// levels players built by hand ([builtLevelsRulesVersion]); 65 makes
+  /// each endless gale after the first blow harder
+  /// ([risingGalesRulesVersion]). Endless
   /// and co-op flights fly at 50 exactly as at 43 until that Baron arrives;
   /// duels exactly as at 43.
-  static const currentRulesVersion = 64;
+  static const currentRulesVersion = 65;
   final int rulesVersion;
 
   /// Rules version 60: shot power, sprint, shield and magnet follow the
@@ -733,6 +735,13 @@ class FlightSimulation {
   /// through a built plan, which refuses older rules; every other flight
   /// flies exactly as at 63.
   static const builtLevelsRulesVersion = 64;
+
+  /// Rules version 65: each endless gale after the first blows one step
+  /// fiercer than the last ([Gale.fury]), up to [Gale.maxFury]. Every first
+  /// gale and every campaign gale blows exactly as at 64.
+  static const risingGalesRulesVersion = 65;
+  bool get supportsRisingGales =>
+      supportsGales && rulesVersion >= risingGalesRulesVersion;
 
   /// The next of a built plan's items to lay, and whether its boss has
   /// been called (`built_rules.dart`).
@@ -3473,7 +3482,11 @@ class FlightSimulation {
       last == null ? 0.0 : last.x + last.width + Gale.clearance,
     );
     galesBlown++;
-    gale = Gale(number: galesBlown, startDistance: distance + start);
+    gale = Gale(
+      number: galesBlown,
+      startDistance: distance + start,
+      fury: supportsRisingGales ? math.min(galesBlown - 1, Gale.maxFury) : 0,
+    );
   }
 
   void _advanceGale(double dt, double scroll, double viewportWidth) {
@@ -3498,36 +3511,38 @@ class FlightSimulation {
         final blowingFor = elapsed - current.startedAt!;
         current.gustIn -= dt;
         if (current.gustIn <= 0 &&
-            blowingFor < Gale.seconds - Gale.calmSeconds) {
+            blowingFor < current.blowSeconds - Gale.calmSeconds) {
           _gust(current, scroll, viewportWidth);
           current.gustIn += current.gustInterval(blowingFor);
         }
-        if (blowingFor >= Gale.seconds) _weather(current);
+        if (blowingFor >= current.blowSeconds) _weather(current);
       case GalePhase.weathered:
         if (elapsed - current.weatheredAt! >= Gale.fallSeconds) gale = null;
     }
   }
 
-  /// Every gust aims one piece at the bird's height as it is warned. Odd
-  /// gusts add a second piece above or below it, so the bird has to pick
-  /// the open side.
+  /// Every gust aims one piece at the bird's height as it is warned. Paired
+  /// gusts ([Gale.pairs]) add a second piece above or below it, so the bird
+  /// has to pick the open side.
   void _gust(Gale current, double scroll, double viewportWidth) {
     final aimed = _target(current.gusts).y.clamp(Gale.top, Gale.bottom);
     final lanes = [aimed];
-    if (current.gusts.isOdd) {
+    if (current.pairs(current.gusts)) {
       final spread =
           Gale.pairSpread + _galeRandom.nextDouble() * Gale.pairSpreadRange;
       var other = aimed + (_galeRandom.nextBool() ? spread : -spread);
       if (other < Gale.top || other > Gale.bottom) other = 2 * aimed - other;
       lanes.add(other.clamp(Gale.top, Gale.bottom));
     }
-    final x = GaleDebris.launchX(viewportWidth, scroll);
+    final speed = current.debrisSpeed;
+    final x = GaleDebris.launchX(viewportWidth, scroll, speed: speed);
     for (final (i, y) in lanes.indexed) {
       galeDebris.add(
         GaleDebris(
           // A pair arrives slightly staggered, like one gust tearing loose.
           x: x + i * .15,
           y: y,
+          speed: speed,
           shape: (gusts * 3 + i * 5) % 4,
           spin: (gusts.isEven ? 1 : -1) * (2.4 + (gusts * 7 + i) % 5 * .5),
         ),
@@ -3542,7 +3557,7 @@ class FlightSimulation {
   void _advanceGaleDebris(double dt, double scroll) {
     galeDebris.removeWhere((d) {
       d.age += dt;
-      d.x -= (GaleDebris.speed + scroll) * dt;
+      d.x -= (d.speed + scroll) * dt;
       if (d.hitAt == null && !d.dodged) {
         const reach = birdRadius + GaleDebris.radius;
         if (flock.any((bird) => _near(bird, d.x, d.y, reach))) {

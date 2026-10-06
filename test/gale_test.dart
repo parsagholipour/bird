@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
@@ -11,18 +12,38 @@ import 'package:push_up_bird/domain/tracking.dart';
 import 'package:push_up_bird/game/bird_game.dart';
 import 'package:push_up_bird/game/combat_audio_cues.dart';
 import 'package:push_up_bird/game/sky_scenery.dart';
-import 'boss_fight_test.dart' show arena, step, hover, hitBoss;
+import 'boss_fight_test.dart' show step, hover, hitBoss;
 import 'power_shot_test.dart' show flight;
 import 'recorded_flight.dart';
 
 const birdX = FlightSimulation.birdX;
 
 /// A current touch flight the moment the boss numbered [bossesDefeated] + 1
-/// has flown off after its defeat.
-FlightSimulation bossDown({int bossesDefeated = 2}) {
-  final sim = arena(version: FlightSimulation.currentRulesVersion)
-    ..bossesDefeated = bossesDefeated;
-  step(sim);
+/// has flown off after its defeat. [galesBlown] gales came before it, and
+/// [clock] moves the flight on so the course runs at that pace.
+FlightSimulation bossDown({
+  int bossesDefeated = 2,
+  int galesBlown = 0,
+  int version = FlightSimulation.currentRulesVersion,
+  double? clock,
+  int seed = 4,
+}) {
+  final sim =
+      FlightSimulation(
+          rules: TapFlyMode(rulesVersion: version),
+          practice: true,
+          course: FlightCourse.starTrail,
+          rulesVersion: version,
+          random: math.Random(seed),
+        )
+        ..phase = RunPhase.playing
+        ..started = true
+        ..elapsed = clock ?? FlightSimulation.bossInterval - .01
+        ..bossesDefeated = bossesDefeated
+        ..galesBlown = galesBlown;
+  for (var i = 0; i < 100 && sim.boss == null; i++) {
+    hover(sim, .02);
+  }
   final boss = sim.boss!;
   hover(sim, boss.arrivalDuration + .1);
   hitBoss(sim, count: boss.hp ~/ BirdRock.baseDamage + 2);
@@ -50,8 +71,8 @@ void cruise(
 }
 
 /// A flight whose gale has just started blowing.
-FlightSimulation blowing() {
-  final sim = bossDown();
+FlightSimulation blowing({int galesBlown = 0, double? clock, int seed = 4}) {
+  final sim = bossDown(galesBlown: galesBlown, clock: clock, seed: seed);
   cruise(sim, 40, until: () => sim.gale?.phase == GalePhase.blowing);
   expect(sim.gale!.phase, GalePhase.blowing);
   sim.invulnerableUntil = 0;
@@ -80,6 +101,54 @@ void dodge(FlightSimulation sim, double seconds, {bool Function()? until}) {
     sim.velocity = 0;
     step(sim);
   }
+}
+
+/// Taps as a player would: it sees a piece only [reaction] seconds after
+/// its warning appears, then plans flaps with the real tap physics to stay
+/// clear of everything it has seen. It replans every frame.
+bool tapThrough(FlightSimulation sim, {double reaction = .3}) {
+  final gravity = sim.rules.gravity, impulse = sim.rules.flapImpulse;
+  final scroll = sim.speed * sim.courseBoost;
+  final seen = [
+    for (final d in sim.galeDebris)
+      if (d.hitAt == null && !d.dodged && d.age >= reaction)
+        (x: d.x, y: d.y, pace: d.speed + scroll),
+  ];
+  // Flaps may fall in any of 16 slots 0.08 s apart, at most three of them.
+  const dt = .04, slots = 16, slotSteps = 2;
+  const reach = FlightSimulation.birdRadius + GaleDebris.radius + .015;
+  double cost(List<int> flaps) {
+    var y = sim.birdY, v = sim.velocity, cost = 0.0;
+    for (var s = 0; s < slots * slotSteps; s++) {
+      if (s % slotSteps == 0 && flaps.contains(s ~/ slotSteps)) v = impulse;
+      v += gravity * dt;
+      y += v * dt;
+      if (y < .07 || y > .93) cost += 50;
+      for (final d in seen) {
+        final dx = d.x - d.pace * (s + 1) * dt - birdX, dy = y - d.y;
+        if (dx * dx + dy * dy < reach * reach) cost += 100 / (1 + s * .05);
+        if (dx.abs() < .12) cost += math.max(0, .2 - dy.abs()) * 2;
+      }
+    }
+    return cost + (y - .5).abs() * .5;
+  }
+
+  var best = cost(const []), flap = false;
+  void consider(List<int> flaps) {
+    final c = cost(flaps);
+    if (c < best) (best, flap) = (c, flaps.first == 0);
+  }
+
+  for (var a = 0; a < slots; a++) {
+    consider([a]);
+    for (var b = a + 3; b < slots; b++) {
+      consider([a, b]);
+      for (var c = b + 3; c < slots; c++) {
+        consider([a, b, c]);
+      }
+    }
+  }
+  return flap;
 }
 
 void main() {
@@ -265,6 +334,102 @@ void main() {
       sim.elapsed,
       greaterThan(weatheredAt + Gale.rushAfter + Rush.bossLead),
     );
+  });
+
+  test('each endless gale blows harder than the last, up to full fury', () {
+    final first = Gale(number: 1, startDistance: 0);
+    expect(first.blowSeconds, Gale.seconds);
+    expect(first.peak, Gale.peakBoost);
+    expect(first.debrisSpeed, GaleDebris.baseSpeed);
+    expect(first.gustInterval(0), Gale.gustStart);
+    expect(first.gustInterval(Gale.seconds), Gale.gustEnd);
+    expect(
+      [for (var g = 0; g < 6; g++) first.pairs(g)],
+      [false, true, false, true, false, true],
+    );
+    for (var fury = 1; fury <= Gale.maxFury; fury++) {
+      final calmer = Gale(number: fury, startDistance: 0, fury: fury - 1);
+      final gale = Gale(number: fury + 1, startDistance: 0, fury: fury);
+      expect(gale.blowSeconds, greaterThan(calmer.blowSeconds));
+      expect(gale.peak, greaterThan(calmer.peak));
+      expect(gale.debrisSpeed, greaterThan(calmer.debrisSpeed));
+      for (final t in [0.0, 6.0, 12.0]) {
+        expect(gale.gustInterval(t), lessThan(calmer.gustInterval(t)));
+      }
+      int pairs(Gale g) =>
+          [for (var i = 0; i < 12; i++) g.pairs(i)].where((p) => p).length;
+      expect(pairs(gale), greaterThanOrEqualTo(pairs(calmer)));
+      // The first gust is always a single piece, so the bird gets a feel
+      // for the wind before it has to pick a side.
+      expect(gale.pairs(0), isFalse);
+    }
+
+    // Gales one to five of a flight, and the second at rules 64.
+    for (final (blown, version, fury) in [
+      (0, FlightSimulation.currentRulesVersion, 0),
+      (1, FlightSimulation.currentRulesVersion, 1),
+      (2, FlightSimulation.currentRulesVersion, 2),
+      (3, FlightSimulation.currentRulesVersion, 3),
+      (4, FlightSimulation.currentRulesVersion, 3),
+      (1, 64, 0),
+    ]) {
+      final sim = bossDown(galesBlown: blown, version: version);
+      cruise(sim, 30, until: () => sim.gale != null);
+      final gale = sim.gale!;
+      expect(gale.number, blown + 1);
+      expect(gale.fury, fury, reason: 'gale ${blown + 1} at rules $version');
+    }
+    expect(flight(version: 64).supportsRisingGales, isFalse);
+    expect(flight().supportsRisingGales, isTrue);
+  });
+
+  test('a fiercer gale blows longer and faster, with quicker debris', () {
+    final sim = blowing(galesBlown: 3);
+    final gale = sim.gale!;
+    expect(gale.fury, Gale.maxFury);
+    final startedAt = gale.startedAt!;
+    cruise(sim, Gale.riseSeconds + .05);
+    expect(sim.courseBoost, closeTo(gale.peak, 1e-6));
+    final piece = sim.galeDebris.first;
+    expect(piece.speed, gale.debrisSpeed);
+    final scroll = sim.speed * sim.courseBoost;
+    final x = piece.x;
+    cruise(sim, .1);
+    expect(x - piece.x, closeTo((gale.debrisSpeed + scroll) * .1, .01));
+    cruise(sim, 40, until: () => gale.phase == GalePhase.weathered);
+    expect(gale.weatheredAt! - startedAt, closeTo(gale.blowSeconds, .02));
+    // A first gale sends 11 gusts and 16 pieces; the fiercest about twice
+    // the gusts and nearly three times the pieces.
+    expect(gale.gusts, greaterThanOrEqualTo(20));
+    expect(gale.hits + gale.dodges, greaterThanOrEqualTo(40));
+  });
+
+  test('the fiercest gale can still be weathered flawlessly with taps', () {
+    // Late in a long flight, where the course is near its top pace, with
+    // a player who only reacts 0.3 s after each warning.
+    for (final seed in [1, 2, 3]) {
+      final sim = blowing(galesBlown: 3, clock: 900, seed: seed);
+      final gale = sim.gale!;
+      expect(gale.fury, Gale.maxFury);
+      expect(sim.paceMultiplier, greaterThan(1.6));
+      for (var i = 0; i < 1500 && gale.phase == GalePhase.blowing; i++) {
+        final now = (sim.elapsed + .02) * 1000;
+        sim.apply(
+          MovementInput(valid: true, flap: tapThrough(sim)),
+          TrackingSample(
+            mode: PlayMode.touch,
+            timestampMs: now,
+            receivedMs: now,
+            joints: const [],
+          ),
+          now,
+        );
+        sim.tick(.02, now, viewportWidth: 2.2);
+      }
+      expect(gale.phase, GalePhase.weathered, reason: 'seed $seed');
+      expect(gale.hits, 0, reason: 'seed $seed');
+      expect(gale.bonus, Gale.weatherBonus + Gale.flawlessBonus);
+    }
   });
 
   test('gale audio cues follow the warning, each gust and the calm', () {

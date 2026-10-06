@@ -766,7 +766,7 @@ abstract final class GaleArt {
         birdY = e.y;
       }
     }
-    final struckAt = Offset(d.x + (GaleDebris.speed + scroll) * age, d.y);
+    final struckAt = Offset(d.x + (d.speed + scroll) * age, d.y);
     final toBird = Offset(FlightSimulation.birdX, birdY) - struckAt;
     return (
       contact:
@@ -798,7 +798,7 @@ abstract final class GaleArt {
     if (!reducedMotion) {
       final up = _strike(sim, d, age, scroll).up;
       final lift = up ? -.5 * age + .9 * age * age : .45 * age + .6 * age * age;
-      center += Offset((GaleDebris.speed + scroll) * age * .6 * h, lift * h);
+      center += Offset((d.speed + scroll) * age * .6 * h, lift * h);
       turn = d.age * d.spin + age * age * 22 * d.spin.sign;
     }
     final squash = reducedMotion ? 1.0 : 1 - .16 * (1 - _smooth(age / .12));
@@ -996,14 +996,13 @@ abstract final class GaleArt {
   }) {
     final h = size.height, w = size.width;
     final scroll = sim.speed * sim.courseBoost;
-    final pace = GaleDebris.speed + scroll;
     for (final d in sim.galeDebris) {
       if (d.hitAt != null) continue;
       final enter = d.entersIn(w / h, scroll);
       // Once the piece is in view the mark pops and clears out of its way.
       final shown = enter > 0
           ? 0.0
-          : (w / h + GaleDebris.radius - d.x) / pace / .16;
+          : (w / h + GaleDebris.radius - d.x) / (d.speed + scroll) / .16;
       if (shown >= 1) continue;
       _mark(
         canvas,

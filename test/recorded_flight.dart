@@ -87,7 +87,7 @@ bool rideTheSky(FlightSimulation sim) {
     consider(
       debris.x,
       debris.y,
-      -pace - GaleDebris.speed,
+      -pace - debris.speed,
       0,
       room: FlightSimulation.birdRadius + GaleDebris.radius + .06,
       horizon: 2,

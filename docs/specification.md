@@ -488,6 +488,27 @@ replay highlight (“Weathered the gale”). Gales are part of the seeded
 simulation, so replays and seeks reproduce them exactly with no extra events.
 Rules 1–32, camera modes and Classic have no gales.
 
+### Rising gales (rules version 65)
+
+Each endless gale after the first blows one step fiercer than the one before
+(its fury), up to three steps: the fourth gale and every later one blow at
+full fury. The first gale of a flight is unchanged. Each step adds:
+
+| Fury | Blows | Peak speed | Gusts every | Paired gusts | Debris speed |
+| ---- | ----- | ---------- | ----------- | ------------ | ------------ |
+| 0 (first) | 13 s | 1.6× | 1.20 → 0.85 s | odd ones | 0.90 |
+| 1 | 15 s | 1.7× | 1.12 → 0.77 s | two in three | 1.05 |
+| 2 | 17 s | 1.8× | 1.04 → 0.69 s | all but the first | 1.20 |
+| 3 (cap) | 19 s | 1.9× | 0.96 → 0.61 s | all but the first | 1.35 |
+
+Debris speed is added to the course speed. The warning still leads every
+piece by 0.9 seconds, the calm still comes 1.6 seconds before the end, and
+the bonuses are unchanged. A full-fury gale sends about 22 gusts and 43
+pieces where the first sends 11 and 16. The cap is set so that a pilot
+flying real taps, reacting 0.3 seconds after each warning at the course's
+top pace, still weathers a full-fury gale without a hit (`test/gale_test.dart`).
+Campaign gales and flights recorded below 65 blow as at 64.
+
 ### Pause and resume (rules version 35)
 
 From rules version 57, new flights count down 2–1. Retry skips the countdown
