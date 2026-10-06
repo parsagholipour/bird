@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:async';
 import 'builder_providers.dart';
+import 'play_games.dart';
 import 'progress_repository.dart';
 import 'session_repository.dart';
 import '../game/audio.dart';
@@ -119,14 +121,18 @@ class ProgressController extends AsyncNotifier<ProgressSnapshot> {
     await refresh();
   }
 
+  /// Clears this phone's progress and, once this phone has synced with Play
+  /// Games, the cloud logbook too (see [ProgressRepository.reset]).
   Future<void> reset() async {
+    final cloud = await _repo.cloudSynced();
     await ref.read(sessionRepositoryProvider).reset();
     ref.invalidate(sessionsProvider);
-    await _repo.reset();
+    await _repo.reset(cloud: cloud);
     ref.invalidate(builtShelfProvider);
     ref.invalidate(builtLevelProvider);
     ref.invalidate(flightVoiceMemoryProvider);
     ref.read(selectedCourseProvider.notifier).select(FlightCourse.starTrail);
     await refresh();
+    if (cloud) unawaited(ref.read(playGamesProvider.notifier).afterReset());
   }
 }

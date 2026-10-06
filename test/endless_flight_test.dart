@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:push_up_bird/data/passport_progress.dart';
 import 'package:push_up_bird/data/progress_repository.dart';
 import 'package:push_up_bird/domain/daily_adventure.dart';
-import 'package:push_up_bird/domain/flight_goals.dart';
 import 'package:push_up_bird/domain/game_rules.dart';
 import 'package:push_up_bird/domain/session_replay.dart';
 import 'package:push_up_bird/domain/sky_passport.dart';
@@ -61,11 +60,12 @@ void main() {
       }
       final saved = await repo.load();
       expect(saved.trailCompletions, 3);
+      // Three full minutes count once each, short of bronze's five.
       expect(
         saved.passport
             .singleWhere((p) => p.stamp == SkyStamp.trailblazer)
-            .earned,
-        isTrue,
+            .current,
+        3,
       );
       expect(
         saved.today!.goals
@@ -130,7 +130,6 @@ void main() {
               expect(sim.collectedStars, greaterThan(30));
               expect(sim.bestCombo, sim.collectedStars);
             }
-            expect(FlightGoals.forSimulation(sim).last.earned, isTrue);
           },
         );
       }
@@ -168,37 +167,31 @@ void main() {
     },
   );
 
-  test(
-    'old trails retain their timer, finish cue and static gates',
-    () {
-      for (final course in [FlightCourse.starTrail]) {
-        final sim =
-            FlightSimulation(
-                rules: PushUpFlightMode(cycleSeconds: 3),
-                practice: false,
-                course: course,
-                rulesVersion: 11,
-                random: Random(3),
-              )
-              ..phase = RunPhase.playing
-              ..started = true
-              ..elapsed = course.duration - 10.01;
-        step(sim, 20, y: .5);
-        expect(
-          sim.events.where((e) => e.kind == FlightEventKind.finalStretch),
-          hasLength(1),
-        );
-        expect(
-          sim.obstacles.every((o) => o.kind == ObstacleKind.garden),
-          isTrue,
-        );
-        sim.elapsed = course.duration - .01;
-        step(sim, 40, y: .5);
-        expect(sim.elapsed, course.duration);
-        expect(sim.endReason, EndReason.completed);
-      }
-    },
-  );
+  test('old trails retain their timer, finish cue and static gates', () {
+    for (final course in [FlightCourse.starTrail]) {
+      final sim =
+          FlightSimulation(
+              rules: PushUpFlightMode(cycleSeconds: 3),
+              practice: false,
+              course: course,
+              rulesVersion: 11,
+              random: Random(3),
+            )
+            ..phase = RunPhase.playing
+            ..started = true
+            ..elapsed = course.duration - 10.01;
+      step(sim, 20, y: .5);
+      expect(
+        sim.events.where((e) => e.kind == FlightEventKind.finalStretch),
+        hasLength(1),
+      );
+      expect(sim.obstacles.every((o) => o.kind == ObstacleKind.garden), isTrue);
+      sim.elapsed = course.duration - .01;
+      step(sim, 40, y: .5);
+      expect(sim.elapsed, course.duration);
+      expect(sim.endReason, EndReason.completed);
+    }
+  });
 
   test('the moving opening determines collisions, even on a slow frame', () {
     for (final phase in [-pi / 2, pi / 2]) {

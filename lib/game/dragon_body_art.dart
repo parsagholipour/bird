@@ -1954,6 +1954,18 @@ abstract final class DragonBodyArt {
     required bool far,
   }) => legPaint(c, p, legOf(p, hind: hind, far: far));
 
+  /// The near legs at rest, which their scale rows are laid out on.
+  static final _restHind = legOf(
+    DragonBodyPose.of(DragonPose.still),
+    hind: true,
+    far: false,
+  );
+  static final _restFore = legOf(
+    DragonBodyPose.of(DragonPose.still),
+    hind: false,
+    far: false,
+  );
+
   /// Paints [leg]. On its own ([hide] false) the limb wears a full ink
   /// contour; in the hide it stands opaque in front of the body, its
   /// contour melting into the skin where it lies on the trunk (see
@@ -2061,19 +2073,28 @@ abstract final class DragonBodyArt {
     // the hide they are laid along the limb itself (no clip needed).
     if (hide) {
       final rows = Path();
+      ({Offset centre, Offset normal, double plus, double minus}) Function(
+        double,
+      )
+      frame(List<Offset> spine, List<double> width) => (u) {
+        final n = spine.length;
+        final i = u.floor().clamp(0, n - 2), t = u - i;
+        final d = DragonKit.unit(spine[i + 1] - spine[i]);
+        final w = DragonKit.mix(width[i], width[i + 1], t) / 2;
+        return (
+          centre: Offset.lerp(spine[i], spine[i + 1], t)!,
+          normal: Offset(-d.dy, d.dx),
+          plus: w,
+          minus: w,
+        );
+      };
+      // (Laid out on the resting leg and carried by this one: see
+      // [DragonKit.tubeRows].)
+      final rest = hind ? _restHind : _restFore;
       DragonKit.tubeRows(
         rows,
-        (u) {
-          final i = u.floor().clamp(0, n - 2), t = u - i;
-          final d = DragonKit.unit(limb.spine[i + 1] - limb.spine[i]);
-          final w = DragonKit.mix(limb.width[i], limb.width[i + 1], t) / 2;
-          return (
-            centre: Offset.lerp(limb.spine[i], limb.spine[i + 1], t)!,
-            normal: Offset(-d.dy, d.dx),
-            plus: w,
-            minus: w,
-          );
-        },
+        frame(limb.spine, limb.width),
+        layout: frame(rest.spine, rest.width),
         from: .6,
         to: hind ? 3.8 : 3.3,
         pitchFrom: .23,

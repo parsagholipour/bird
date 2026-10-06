@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../game/star_art.dart';
 import 'theme.dart';
 
-enum MenuCollectible { adventure, passport, records, goals }
+enum MenuCollectible { adventure, passport, records }
 
 /// Small illustrated objects from the bird's world, drawn at a 100 × 80 scale.
 class MenuCollectibleArt extends StatelessWidget {
@@ -74,8 +74,6 @@ class _CollectiblePainter extends CustomPainter {
         _passport(canvas);
       case MenuCollectible.records:
         _trophy(canvas);
-      case MenuCollectible.goals:
-        _wings(canvas);
     }
     canvas.restore();
   }
@@ -310,82 +308,6 @@ class _CollectiblePainter extends CustomPainter {
       2.5,
     );
     _star(c, const Offset(86, 7), 6);
-  }
-
-  void _wings(Canvas c) {
-    for (final flipped in [false, true]) {
-      c.save();
-      if (flipped) {
-        c.translate(100, 0);
-        c.scale(-1, 1);
-      }
-      _shape(
-        c,
-        Path()
-          ..moveTo(41, 26)
-          ..cubicTo(26, 26, 13, 22, 5, 14)
-          ..quadraticBezierTo(2, 27, 16, 35)
-          ..quadraticBezierTo(7, 34, 9, 38)
-          ..quadraticBezierTo(12, 49, 28, 48)
-          ..quadraticBezierTo(20, 50, 23, 54)
-          ..quadraticBezierTo(32, 61, 44, 49)
-          ..close(),
-        SkyColors.cream,
-      );
-      _line(
-        c,
-        Path()
-          ..moveTo(15, 29)
-          ..quadraticBezierTo(25, 36, 34, 35)
-          ..moveTo(19, 41)
-          ..lineTo(33, 43),
-        SkyColors.sand,
-        2,
-      );
-      c.restore();
-    }
-    _shape(
-      c,
-      Path()
-        ..moveTo(38, 49)
-        ..lineTo(51, 54)
-        ..lineTo(40, 76)
-        ..lineTo(36, 67)
-        ..lineTo(27, 70)
-        ..close(),
-      SkyColors.lavender,
-    );
-    _shape(
-      c,
-      Path()
-        ..moveTo(49, 54)
-        ..lineTo(62, 49)
-        ..lineTo(73, 70)
-        ..lineTo(64, 67)
-        ..lineTo(60, 76)
-        ..close(),
-      SkyColors.purple,
-    );
-    _shape(
-      c,
-      Path()..addOval(const Rect.fromLTWH(29, 16, 42, 42)),
-      SkyColors.gold,
-    );
-    _shape(
-      c,
-      Path()..addOval(const Rect.fromLTWH(33, 20, 34, 34)),
-      SkyColors.yellow,
-      width: 1.5,
-    );
-    _star(c, const Offset(50, 37), 12);
-    _line(
-      c,
-      Path()
-        ..moveTo(39, 26)
-        ..quadraticBezierTo(43, 22, 49, 23),
-      SkyColors.cream,
-      2.5,
-    );
   }
 
   @override

@@ -7,6 +7,9 @@ import '../domain/game_rules.dart';
 import '../domain/tracking.dart';
 import 'progress_repository.dart';
 
+/// The preference listing the ids of deleted built levels.
+const builtDeletedKey = 'builtDeleted';
+
 /// The levels players build, and their flights' bests. Starter templates
 /// live in code (`BuiltTemplates`); only their flights are kept here.
 abstract interface class BuiltLevelStore {
@@ -152,9 +155,23 @@ class SqliteBuiltLevelStore implements BuiltLevelStore {
   });
 
   @override
-  Future<void> delete(String id) async {
+  Future<void> delete(String id) => db.transaction(() async {
     await (db.delete(db.builtLevels)..where((l) => l.id.equals(id))).go();
-  }
+    // Remembered so a Play Games merge never brings the level back.
+    final row = await (db.select(
+      db.preferences,
+    )..where((p) => p.key.equals(builtDeletedKey))).getSingleOrNull();
+    final deleted = {...?row?.value.split(',').where((id) => id.isNotEmpty)};
+    if (!deleted.add(id)) return;
+    await db
+        .into(db.preferences)
+        .insertOnConflictUpdate(
+          PreferencesCompanion.insert(
+            key: builtDeletedKey,
+            value: (deleted.toList()..sort()).join(','),
+          ),
+        );
+  });
 
   @override
   Future<BuiltLevel?> sameRoute(BuiltPlan plan) async {

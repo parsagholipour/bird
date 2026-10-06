@@ -91,7 +91,7 @@ class DailyAdventureScreen extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.only(left: 64),
           child: Text(
-            'Three goals. Any control. Fly Star Trail to work on all three.',
+            'Three goals. Any control. One endless flight works on all three.',
             style: bodyText(15, weight: FontWeight.w800),
           ),
         ),

@@ -205,12 +205,12 @@ void main() {
       expect(
         progress.passport
             .firstWhere((s) => s.stamp == SkyStamp.skyCaptain)
-            .earned,
-        isTrue,
+            .current,
+        50,
       );
       expect(
         progress.passport
-            .firstWhere((s) => s.stamp == SkyStamp.bothWings)
+            .firstWhere((s) => s.stamp == SkyStamp.allRounder)
             .earned,
         isFalse,
       );

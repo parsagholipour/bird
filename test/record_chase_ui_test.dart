@@ -124,7 +124,6 @@ void main() {
 
         await fly();
         expect(find.byType(RecordChase), findsNothing);
-        expect(find.text('0/3 flight wings'), findsNothing);
         final sim = controller.simulation!;
         sim.elapsed = 24;
         sim.birdY = .45;
@@ -159,7 +158,6 @@ void main() {
         await tester.runAsync(controller.retry);
         await tester.pump();
         await fly();
-        expect(find.text('0/3 flight wings'), findsNothing);
         expect(find.byType(RecordChase), findsNothing);
         controller.simulation!.score = 22;
         controller.notify();

@@ -22,7 +22,7 @@ class CoursePreview extends StatelessWidget {
     label: switch (course) {
       FlightCourse.classic => 'Classic: fly through the gaps.',
       FlightCourse.starTrail =>
-        'Star Trail: collect stars with three hearts and a shield.',
+        'Endless: collect stars with three hearts and a shield.',
     },
     excludeSemantics: true,
     child: SizedBox(
@@ -82,7 +82,7 @@ class _CoursePainter extends CustomPainter {
           (const Offset(60, 83), 12.0),
           (const Offset(270, 19), 23.0),
         ]) {
-          // The Star Trail's collectible, as the bird meets it in flight.
+          // The endless flight's collectible, as the bird meets it in flight.
           StarArt.paint(canvas, position, radius * 1.1);
         }
         canvas.drawArc(

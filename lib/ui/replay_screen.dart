@@ -14,7 +14,6 @@ import '../data/progress_repository.dart';
 import '../data/session_repository.dart';
 import '../domain/campaign.dart';
 import '../domain/game_rules.dart';
-import '../domain/flight_goals.dart';
 import '../domain/session_replay.dart';
 import '../domain/replay_highlights.dart';
 import '../game/audio.dart';
@@ -24,7 +23,6 @@ import 'theme.dart';
 import 'campaign_chrome.dart' show MapGlyph, MapKey;
 import 'campaign_map_art.dart' show MapStarsPainter;
 import 'components.dart';
-import 'flight_goals.dart';
 import 'replay_highlights.dart';
 
 enum ReplayView { corner, background, gameplay }
@@ -178,11 +176,11 @@ int _shields(FlightSimulation sim) => sim.duel
     ? sim.flock.where((bird) => bird.shield).length
     : (sim.shield ? 1 : 0);
 
-/// Wings earned so far, for the wing chime. A level's collection marks take
-/// their place, as in live play, read from the plan the replay flies.
-int _wings(FlightSimulation sim) => switch (sim.plan) {
+/// A level's collection marks reached so far, for the wing chime, as in live
+/// play, read from the plan the replay flies. Endless flights have none.
+int _marks(FlightSimulation sim) => switch (sim.plan) {
   LevelPlan(:final marks) => marks.reached(sim.collectedStars),
-  _ => FlightGoals.earned(FlightGoals.forSimulation(sim)),
+  _ => 0,
 };
 
 class ReplayScreen extends ConsumerStatefulWidget {
@@ -323,7 +321,7 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
     final oldStars = _player!.simulation.collectedStars;
     final oldMultiplier = _player!.simulation.multiplier;
     final oldMagnets = _player!.simulation.magnetActivations;
-    final oldWings = _wings(_player!.simulation);
+    final oldMarks = _marks(_player!.simulation);
     final oldFlightTime = _player!.simulation.elapsed;
     final oldHearts = _hearts(_player!.simulation);
     final oldShields = _shields(_player!.simulation);
@@ -347,7 +345,7 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
           sim.countdown.ceil() != oldCount) {
         _audio.effect('ready');
       }
-      if (sim.phase == RunPhase.playing && _wings(sim) > oldWings) {
+      if (sim.phase == RunPhase.playing && _marks(sim) > oldMarks) {
         _audio.effect('wing');
       } else if (sim.magnetActivations > oldMagnets) {
         _audio.effect('magnet');
@@ -739,8 +737,7 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                             '${_player!.simulation.score}',
                             style: heading(32, color: Colors.white),
                           ),
-                          // A level earns its stars at the finish, in place of
-                          // flight wings.
+                          // A level earns its stars at the finish.
                           if (_player!.simulation.levelId != null)
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 4),
@@ -752,16 +749,6 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                                     _player!.simulation.levelStars,
                                   ),
                                 ),
-                              ),
-                            )
-                          else if (!_player!.simulation.practice)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 3),
-                              child: FlightWings(
-                                goals: FlightGoals.forSimulation(
-                                  _player!.simulation,
-                                ),
-                                size: 18,
                               ),
                             ),
                           if (_player!.simulation.isTrail)

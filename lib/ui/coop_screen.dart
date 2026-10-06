@@ -26,7 +26,7 @@ import 'mini_chrome.dart';
 import 'theme.dart';
 import 'ui_sounds.dart';
 
-/// Fly Together: two players on one phone fly Star Trail with their birds
+/// Fly Together: two players on one phone fly endlessly with their birds
 /// roped together ([Tether]). Player 1 taps the left half of the sky and has
 /// Shoot and Sprint in the bottom-left corner; player 2 has the right half
 /// and the bottom-right corner. Hearts, shield and score are shared.

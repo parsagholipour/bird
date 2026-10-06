@@ -6,7 +6,6 @@ import '../data/providers.dart';
 import '../domain/game_rules.dart' show RunResult;
 import '../domain/tracking.dart';
 import '../domain/flight_course.dart';
-import '../domain/flight_goals.dart';
 import '../domain/tether.dart';
 import '../game/star_art.dart';
 import 'campaign_screen.dart' show campaignStarsInBuild;
@@ -16,7 +15,6 @@ import 'match_hud.dart' show MatchPlate;
 import 'mini_chrome.dart';
 import 'mini_games.dart' show miniGameModes;
 import 'theme.dart';
-import 'flight_goals.dart';
 
 /// The pictogram a flight with [mode] is steered by.
 FlyControl _control(PlayMode mode) => switch (mode) {
@@ -371,7 +369,7 @@ class _Total extends StatelessWidget {
 }
 
 /// One recent flight on a paper slip: how it was steered, where and when,
-/// its score and the wings it earned.
+/// and its score.
 class _FlightSlip extends StatelessWidget {
   const _FlightSlip({required this.run});
   final RunResult run;
@@ -379,9 +377,8 @@ class _FlightSlip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final r = run;
-    final goals = FlightGoals.forRun(r);
     return Container(
-      padding: const EdgeInsets.fromLTRB(8, 6, 2, 6),
+      padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
       decoration: BoxDecoration(
         color: SkyColors.white,
         borderRadius: BorderRadius.circular(14),
@@ -403,7 +400,7 @@ class _FlightSlip extends StatelessWidget {
                   style: bodyText(15, weight: FontWeight.w900),
                 ),
                 Text(
-                  '${r.course.title} · ${r.finishedAt.day}/${r.finishedAt.month} · ${r.durationSeconds.round()} sec',
+                  '${r.course == FlightCourse.classic ? 'Classic · ' : ''}${r.finishedAt.day}/${r.finishedAt.month} · ${r.durationSeconds.round()} sec',
                   style: bodyText(12, color: SkyColors.muted),
                 ),
               ],
@@ -420,12 +417,6 @@ class _FlightSlip extends StatelessWidget {
                 Text('${r.score}', style: heading(20, weight: FontWeight.w700)),
               ],
             ),
-          ),
-          IconButton(
-            tooltip: 'View ${r.course.title} flight goals',
-            onPressed: () =>
-                showFlightGoals(context, r.course, progress: goals),
-            icon: FlightWings(goals: goals, size: 15),
           ),
         ],
       ),

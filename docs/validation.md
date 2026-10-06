@@ -266,7 +266,7 @@ seconds plus boost." Collecting every ring of a rush path now adds
 `Rush.allRingsBonus` (2 s) to the last ring sprint, at full 3× boost
 (`FlightSimulation.allRingsRulesVersion` = 51, `supportsAllRingsBonus`,
 `FlightEventKind.allRings`, `allRingsBonuses` counter). It applies to every
-touch Star Trail flight with rush paths: endless, co-op, duel and campaign.
+touch flight with rush paths: endless, co-op, duel and campaign.
 
 - `test/all_rings_bonus_test.dart`: the bonus comes with the sixth ring and
   holds peak boost until the last half second of the longer sprint, a missed
@@ -1947,7 +1947,7 @@ thunder (there is no cue for it).
 - Endless is guarded two ways:
   - `test/endless_plan_baseline_test.dart` pins 44 seeded flights and replays
     to digests recorded before plans existed
-    (`test/fixtures/endless_plan_baseline.json`). They cover touch Star Trail
+    (`test/fixtures/endless_plan_baseline.json`). They cover touch endless flights
     at 28 rules versions from 5 to 40, three widths and Reduced Motion. They
     also cover the base weapon, including a flight that ends, plus Classic,
     practice, the camera modes, and replays at rules 27, 33, 38 and 40. Every checkpoint samples the obstacles, enemies,
@@ -1972,7 +1972,7 @@ thunder (there is no cue for it).
     - star marks for all 40 levels pinned to the route (see below);
     - plans surviving JSON exactly, and malformed plans rejected.
   - `campaign_flight_test.dart` checks:
-    - campaign rules need a touch Star Trail at rules 41;
+    - campaign rules need a touch `FlightCourse.starTrail` flight at rules 41;
     - the same seed and inputs fly the same level exactly;
     - every attempt lays the same route whether or not it sprints, at every
       width, with moving passages in the same phase;
@@ -2004,7 +2004,7 @@ thunder (there is no cue for it).
       empty campaign;
     - level bests, with each flight counted once;
     - no endless records from campaign flights;
-    - only a scored touch Star Trail of a real level can carry a level;
+    - only a scored touch flight of a real level can carry a level;
     - postcards marked seen, the progress controller, and reset;
     - daily adventure and passport counting;
     - a saved campaign session keeping its level and replaying to the same
@@ -2586,7 +2586,7 @@ Device playtest, still pending:
 
 ## 2026-09-29 gales
 
-- Rules version 33 adds gales to touch Star Trail flights. A gale follows each
+- Rules version 33 adds gales to touch flights. A gale follows each
   Dusk Empress victory, 12 seconds after she leaves, and no other boss. Walls
   stop, a tailwind lifts course speed to 1.6×, and debris flies at the bird
   for 13 seconds. Each piece is warned 0.9 seconds before it appears, with a
@@ -2693,7 +2693,7 @@ Device playtest, still pending:
 
 ## 2026-09-26 rush paths
 
-- Rules version 32 adds touch Star Trail rush paths. Each is six beats of
+- Rules version 32 adds touch-flight rush paths. Each is six beats of
   stars, a sprint ring, bats and a rubble barrier on one route, chased by a
   wildfire or showered by a skyfall. A ring starts a 2-second, 3× ring sprint.
   Chained rings extend it from the current speed with no dip. Either sprint
@@ -2749,10 +2749,10 @@ Device playtest, still pending:
 ## 2026-09-23 retire Courier and Cloud Cruise
 
 - Sky Courier and Cloud Cruise are no longer playable. Flight School, the
-  course picker and new flights offer Classic and Star Trail only. Saved
-  journals and launch links that name either retired course open as Star Trail.
-  Old score rows remain under their original course name and do not merge into
-  Star Trail bests. Lifetime exercise totals and the both-wings stamp no longer
+  course picker and new flights offer Classic and the endless course only. Saved
+  journals and launch links that name either retired course open as
+  `FlightCourse.starTrail`. Old score rows remain under their original course
+  name and do not merge into endless bests. Lifetime exercise totals and the both-wings stamp no longer
   count Courier-only runs.
 - `flutter analyze --no-pub lib test tool` reports no issues. The full
   `flutter test --no-pub` suite passes all 503 tests. Device playtesting is
@@ -2901,7 +2901,7 @@ Device playtest, still pending:
 ## 2026-09-22 post-boss heart pickup
 
 - Rules version 24 places one heart in a seeded random safe opening among the
-  next 2–7 gates after each touch Star Trail boss victory. Collecting it adds
+  next 2–7 gates after each touch-flight boss victory. Collecting it adds
   one life up to a five-heart cap; older replay rules keep their RNG flow.
 - Focused heart, boss, cinematic, replay and phone HUD checks pass.
   Coverage includes all three bosses, repeated rewards across seeds, collection
@@ -3067,13 +3067,14 @@ Device playtest, still pending:
 
 ## 2026-09-21 regular course for Jump & Fly
 
-- Jump uses the regular Star Trail game with buildings, stars, hearts and no
-  enemies. Old Cloud Cruise diagnostic launch links now select Star Trail;
+- Jump uses the regular endless game with buildings, stars, hearts and no
+  enemies. Old Cloud Cruise diagnostic launch links now select the endless course;
   saved replays keep their original course. The menu describes this behavior.
 - Static analysis and 19 targeted menu, jump, glide and combat tests pass.
   The release APK passes offline-model and 16 KB native-library checks.
 - Installed the release APK on the connected phone and opened Jump mode;
-  the device shows `STAR TRAIL · SCORED` with the charged-jump instructions.
+  the device showed the scored setup tag (now `ENDLESS · SCORED`) with the
+  charged-jump instructions.
 
 ## 2026-09-21 body-motion jump detection after failed device retry
 
@@ -3234,7 +3235,7 @@ Device playtest, still pending:
 
 ## 2026-09-16 timed-route arrivals
 
-- Star Trail and Courier now approach gold FINISH or coral HOME pennants in
+- The endless course and Courier now approach gold FINISH or coral HOME pennants in
   their final six seconds. The decoration meets the bird when time expires and
   allows arrival at any height. Completed portraits receive matching ribbon
   medals, with course-specific greetings when other rewards do not take priority.
@@ -3252,7 +3253,7 @@ Device playtest, still pending:
 
 ## 2026-09-16 star trios
 
-- Each three-star approach in Star Trail and Cruise is connected visually.
+- Each three-star approach on the endless course and Cruise is connected visually.
   Collecting the set earns a flat +5 and unfolds a brief constellation. Missed
   sets fade; bonus points do not alter star counts, multipliers, shields,
   movement, collisions or unlock progress. Replay version 6 adds trios while
@@ -3475,7 +3476,7 @@ Device playtest, still pending:
 
 ## 2026-09-16 arcade expansion
 
-Classic, Star Trail and Cloud Cruise are implemented with separate scored
+Classic, the endless course and Cloud Cruise are implemented with separate scored
 records, deterministic replay, new scenery and effects, and an eight-stamp
 passport. Full details and Figma links are in [arcade expansion](arcade-expansion.md).
 
@@ -3882,9 +3883,9 @@ need a device check.
 ### Touch difficulty and rock shooting
 
 Touch now has a stronger flap, narrower gaps and closer buildings. Bats appear
-on alternating approaches in Classic, Star Trail and Sky Courier. Shoot fires
+on alternating approaches in Classic, the endless course and Sky Courier. Shoot fires
 a straight rock from the rendered beak, with a 280 ms cooldown; buildings stop
-rocks, one hit defeats a bat, and Star Trail awards 3 points. Enemy contact uses
+rocks, one hit defeats a bat, and the endless course awards 3 points. Enemy contact uses
 each course's existing collision/recovery rules. Cloud Cruise has no enemies.
 
 `flutter analyze --no-pub` is clean and all 278 Flutter tests pass. New checks
@@ -4220,7 +4221,7 @@ log, so replays and older tapes behave identically. `crumbleDuration` grew from
   and the aiming mark drew through the debris (it now returns after 0.45 s).
 - Regions checked for readability and the break: jungle, Antarctica, Paris
   (night), Egypt (warm sand), New York (night), Brazil, Rome and Mexico, plus
-  the default Star Trail sky. The lilac-grey plug with gold and a dark outline
+  the default endless sky. The lilac-grey plug with gold and a dark outline
   stayed distinct from every wall material; debris and dust stay readable on
   the dark night backdrops through their dark outlines.
 - Tests added or changed (`test/stone_door_art_test.dart`,

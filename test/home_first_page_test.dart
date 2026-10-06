@@ -76,9 +76,12 @@ Future<Uint8List> pixels(WidgetTester tester) async {
   }))!;
 }
 
+/// The save for [profile], with [extraFlights] more endless flights from
+/// two days ago (on no daily card).
 Future<(ProviderContainer, ProgressRepository)> makeContainer(
   Profile profile, {
   required bool reduced,
+  int extraFlights = 0,
 }) async {
   final repo = SqliteProgressRepository(
     ProgressDatabase(NativeDatabase.memory()),
@@ -100,6 +103,11 @@ Future<(ProviderContainer, ProgressRepository)> makeContainer(
   }
   if (profile == Profile.complete) {
     await repo.saveRun(dailyRun('two', today, stars: 60, gates: 12));
+  }
+  for (var i = 0; i < extraFlights; i++) {
+    await repo.saveRun(
+      dailyRun('extra-$i', today.subtract(const Duration(days: 2)), stars: 1),
+    );
   }
   final container = ProviderContainer(
     overrides: [
@@ -174,6 +182,7 @@ Future<GoRouter> pumpHome(
   Screen screen,
   Profile profile, {
   required bool reduced,
+  int extraFlights = 0,
 }) async {
   tester.view.physicalSize = Size(
     screen.width * screen.dpr,
@@ -195,7 +204,11 @@ Future<GoRouter> pumpHome(
   addTearDown(tester.view.resetDevicePixelRatio);
   addTearDown(tester.view.resetPadding);
   addTearDown(tester.view.resetViewPadding);
-  final (container, repo) = await makeContainer(profile, reduced: reduced);
+  final (container, repo) = await makeContainer(
+    profile,
+    reduced: reduced,
+    extraFlights: extraFlights,
+  );
   addTearDown(() async {
     await tester.pumpWidget(const SizedBox());
     container.dispose();
@@ -267,7 +280,6 @@ void main() {
             find.text('Birds'),
             find.text('Passport'),
             find.text('Records'),
-            find.text('Flight goals'),
             find.byTooltip('Settings'),
           ]) {
             final rect = tester.getRect(finder);
@@ -298,13 +310,63 @@ void main() {
       ('Birds', pressable('Birds')),
       ('Passport', pressable('Passport')),
       ('Records', pressable('Records')),
-      ('Flight goals', pressable('Flight goals')),
       ('Settings', find.byTooltip('Settings')),
     ]) {
       final size = tester.getSize(finder.first);
       expect(size.width, greaterThanOrEqualTo(48), reason: '$name $size');
       expect(size.height, greaterThanOrEqualTo(48), reason: '$name $size');
     }
+  });
+
+  testWidgets('the Level Builder stays locked until the fifth flight', (
+    tester,
+  ) async {
+    // Two flights flown: three to go, and the key leads nowhere yet.
+    var router = await pumpHome(
+      tester,
+      screens.first,
+      Profile.progressed,
+      reduced: true,
+    );
+    await tester.pumpAndSettle();
+    final key = find.byKey(const ValueKey('level-builder'));
+    expect(find.text('Unlocks in 3 flights'), findsOneWidget);
+    expect(
+      find.bySemanticsLabel('Level Builder. Locked. Unlocks in 3 flights.'),
+      findsOneWidget,
+    );
+    await tester.tap(key);
+    await tester.pumpAndSettle();
+    expect(location(router), '/');
+    // Four: one to go.
+    await tester.pumpWidget(const SizedBox());
+    router = await pumpHome(
+      tester,
+      screens.first,
+      Profile.progressed,
+      reduced: true,
+      extraFlights: 2,
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Unlocks in 1 flight'), findsOneWidget);
+    await tester.tap(key);
+    await tester.pumpAndSettle();
+    expect(location(router), '/');
+    // The fifth opens it.
+    await tester.pumpWidget(const SizedBox());
+    router = await pumpHome(
+      tester,
+      screens.first,
+      Profile.progressed,
+      reduced: true,
+      extraFlights: 3,
+    );
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Unlocks in'), findsNothing);
+    expect(find.text('Make · fly · share'), findsOneWidget);
+    await tester.tap(key);
+    await tester.pumpAndSettle();
+    expect(location(router), '/builder');
   });
 
   testWidgets('every destination stays reachable from the title screen', (
@@ -315,10 +377,13 @@ void main() {
       screens.first,
       Profile.progressed,
       reduced: true,
+      // The Level Builder opens after five flights.
+      extraFlights: 3,
     );
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('endless')), findsOneWidget);
     expect(find.text('Jump & Fly'), findsNothing);
+    expect(find.text('Flight goals'), findsNothing);
     for (final (finder, path) in [
       (find.byKey(const ValueKey('campaign')), '/campaign'),
       (find.byTooltip('Settings'), '/settings'),
@@ -334,12 +399,6 @@ void main() {
       router.go('/');
       await tester.pumpAndSettle();
     }
-    await tester.tap(find.text('Flight goals'));
-    await tester.pumpAndSettle();
-    expect(find.text('Star pocket'), findsOneWidget);
-    await tester.tap(find.byTooltip('Close flight goals'));
-    await tester.pumpAndSettle();
-    expect(location(router), '/');
     expect(find.text('Practice'), findsNothing);
     // The mini games open on a picker of their own; Tap & Fly is not one.
     await tester.tap(find.byKey(const ValueKey('mini-games')));
@@ -372,6 +431,8 @@ void main() {
     for (final label in ['CAMPAIGN', 'ENDLESS', 'MINI GAMES']) {
       expect(find.text(label), findsOneWidget);
     }
+    // The Level Builder opens after the first five flights.
+    expect(find.text('Unlocks in 5 flights'), findsOneWidget);
     // The campaign starts at its first level.
     expect(find.text('1-1 · First Delivery'), findsOneWidget);
     expect(

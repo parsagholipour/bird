@@ -358,6 +358,7 @@ class RunResult {
     this.bird = 0,
     this.levelId,
     this.levelName,
+    this.feats = const {},
     int? gates,
   }) : gates = gates ?? score;
   final String id;
@@ -379,6 +380,11 @@ class RunResult {
   /// A built level's name as it was flown ([BuiltPlan.name]), for the
   /// session library. Null for every other flight.
   final String? levelName;
+
+  /// What the flight did that a Play Games achievement remembers, such as
+  /// `boss:duskMoth` or `pigeonFreed` (see the repository's feats). Saved
+  /// with the flight's progress, never with its run row or session.
+  final Set<String> feats;
 }
 
 /// Deterministic simulation, independent of Flame, Flutter and camera hardware.
@@ -416,7 +422,11 @@ class FlightSimulation {
       throw ArgumentError.value(coop, 'coop', 'Needs an endless touch flight');
     }
     if (coop == CoopMode.duel && course != FlightCourse.starTrail) {
-      throw ArgumentError.value(coop, 'coop', 'A duel flies Star Trail');
+      throw ArgumentError.value(
+        coop,
+        'coop',
+        'A duel flies the endless course',
+      );
     }
     if (plan.levelId != null &&
         (!plan.flies(rules.mode) ||
@@ -425,7 +435,7 @@ class FlightSimulation {
       throw ArgumentError.value(
         plan.levelId,
         'plan',
-        'Needs a touch Star Trail',
+        'Needs a touch flight on the endless course',
       );
     }
     // A plan that uses rules 43's additions must not fly under older rules,
@@ -891,6 +901,10 @@ class FlightSimulation {
   int steamHisses = 0, steamBursts = 0, steamRides = 0;
   int steamScalds = 0, steamClears = 0;
   int bossesDefeated = 0;
+
+  /// The kind of each boss defeated, in order. Only read after the flight
+  /// (Play Games feats); the rules never read it.
+  final List<BossKind> bossKindsDefeated = [];
 
   /// Times King Coo cut short the cycle he grew furious in (rules 54, see
   /// [SkyBoss.quickRestart]): at most once a fight. Read by tests, like the
@@ -3740,6 +3754,7 @@ class FlightSimulation {
   void _defeatBoss(SkyBoss current) {
     current.defeatedAt = current.age;
     bossesDefeated++;
+    bossKindsDefeated.add(current.kind);
     bossAmmo.clear();
     enemyAmmo.clear();
     enemies.clear();
@@ -3931,7 +3946,7 @@ class FlightSimulation {
   }
 
   /// The Searchlight Gargoyle's beam hurts like a course edge (Classic ends,
-  /// Star Trail loses the shield, then a heart, with the usual recovery):
+  /// others lose the shield, then a heart, with the usual recovery):
   /// he has "spotted" [bird].
   void _spotted(SkyBoss warden, FlightBird bird) {
     if (!collectsStars) {

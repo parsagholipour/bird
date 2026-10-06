@@ -4,6 +4,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../app_brand.dart';
+import '../data/play_games.dart';
 import '../data/providers.dart';
 import '../data/progress_repository.dart';
 import 'components.dart';
@@ -33,9 +34,16 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   Future<void> reset(BuildContext context, WidgetRef ref) async {
+    // Whether this phone has ever synced, not whether it is connected now:
+    // the next sync would otherwise restore what the reset cleared.
+    final cloud = await ref
+        .read(progressRepositoryProvider)
+        .cloudSynced()
+        .catchError((Object _) => false);
+    if (!context.mounted) return;
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (_) => const _ResetDialog(),
+      builder: (_) => _ResetDialog(cloud: cloud),
     );
     if (confirmed != true) return;
     try {
@@ -79,6 +87,27 @@ class SettingsScreen extends ConsumerWidget {
     final s = progress.asData?.value.settings;
     final bird = s?.bird ?? 0;
     final failed = s == null && progress.hasError;
+    // Play Games has its strip only where it can work (play_games_ids.dart);
+    // then the lab and About keys share one row to make room.
+    final playGames = ref.watch(playGamesProvider).available;
+    void lab() => context.go('/lab');
+    void about() => showLicensePage(
+      context: context,
+      applicationName: AppBrand.name,
+      applicationVersion: _version,
+      applicationIcon: Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Image.asset(
+            AppBrand.logo,
+            width: 80,
+            height: 80,
+            excludeFromSemantics: true,
+          ),
+        ),
+      ),
+    );
     Widget toggle(
       SettingKey key,
       IconData icon,
@@ -195,40 +224,58 @@ class SettingsScreen extends ConsumerWidget {
                               child: _PanelBody(
                                 children: [
                                   const _PrivacyCard(),
-                                  const SizedBox(height: 12),
-                                  _ActionRow(
-                                    icon: Icons.camera_alt_rounded,
-                                    label: 'Camera & tracking lab',
-                                    onTap: () => context.go('/lab'),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  _ActionRow(
-                                    icon: Icons.info_outline_rounded,
-                                    label: 'About & licenses',
-                                    detail: 'v$_version',
-                                    semanticLabel:
-                                        'About & licenses, version $_version',
-                                    onTap: () => showLicensePage(
-                                      context: context,
-                                      applicationName: AppBrand.name,
-                                      applicationVersion: _version,
-                                      applicationIcon: Padding(
-                                        padding: const EdgeInsets.only(top: 8),
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                            20,
+                                  if (playGames) ...[
+                                    const SizedBox(height: 8),
+                                    const _PlayGamesStrip(),
+                                    const SizedBox(height: 6),
+                                    // Both keys as tall as the taller.
+                                    IntrinsicHeight(
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.stretch,
+                                        children: [
+                                          Expanded(
+                                            child: _ActionRow(
+                                              icon: Icons.camera_alt_rounded,
+                                              label: 'Camera & tracking lab',
+                                              compact: true,
+                                              onTap: lab,
+                                            ),
                                           ),
-                                          child: Image.asset(
-                                            AppBrand.logo,
-                                            width: 80,
-                                            height: 80,
-                                            excludeFromSemantics: true,
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: _ActionRow(
+                                              icon: Icons.info_outline_rounded,
+                                              label: 'About & licenses',
+                                              detail: 'v$_version',
+                                              semanticLabel:
+                                                  'About & licenses, version $_version',
+                                              compact: true,
+                                              onTap: about,
+                                            ),
                                           ),
-                                        ),
+                                        ],
                                       ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 10),
+                                    const SizedBox(height: 6),
+                                  ] else ...[
+                                    const SizedBox(height: 12),
+                                    _ActionRow(
+                                      icon: Icons.camera_alt_rounded,
+                                      label: 'Camera & tracking lab',
+                                      onTap: lab,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    _ActionRow(
+                                      icon: Icons.info_outline_rounded,
+                                      label: 'About & licenses',
+                                      detail: 'v$_version',
+                                      semanticLabel:
+                                          'About & licenses, version $_version',
+                                      onTap: about,
+                                    ),
+                                    const SizedBox(height: 10),
+                                  ],
                                   const Spacer(),
                                   _ActionRow(
                                     icon: Icons.restart_alt_rounded,
@@ -681,12 +728,17 @@ class _ActionRow extends StatelessWidget {
     this.detail,
     this.semanticLabel,
     this.danger = false,
+    this.compact = false,
   });
   final IconData icon;
   final String label;
   final String? detail, semanticLabel;
   final VoidCallback onTap;
   final bool danger;
+
+  /// A half-width key: the label may take two lines, the [detail] sits
+  /// under it and there is no chevron.
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -709,39 +761,76 @@ class _ActionRow extends StatelessWidget {
             onTap();
           },
           child: ExcludeSemantics(
-            child: Row(
-              children: [
-                MiniCoin(
-                  icon: icon,
-                  size: 32,
-                  color: danger ? SkyColors.coral : SkyColors.sky,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    label,
-                    style: bodyText(15, color: ink, weight: FontWeight.w900),
+            child: compact
+                ? Row(
+                    children: [
+                      MiniCoin(icon: icon, size: 30, color: SkyColors.sky),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              label,
+                              maxLines: 2,
+                              style: bodyText(
+                                14,
+                                color: ink,
+                                weight: FontWeight.w900,
+                              ).copyWith(height: 1.1),
+                            ),
+                            if (detail != null)
+                              Text(
+                                detail!,
+                                style: bodyText(
+                                  11.5,
+                                  color: SkyColors.muted,
+                                  weight: FontWeight.w800,
+                                ).copyWith(height: 1.1),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  )
+                : Row(
+                    children: [
+                      MiniCoin(
+                        icon: icon,
+                        size: 32,
+                        color: danger ? SkyColors.coral : SkyColors.sky,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          label,
+                          style: bodyText(
+                            15,
+                            color: ink,
+                            weight: FontWeight.w900,
+                          ),
+                        ),
+                      ),
+                      if (detail != null) ...[
+                        Text(
+                          detail!,
+                          style: bodyText(
+                            12,
+                            color: SkyColors.muted,
+                            weight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(width: 2),
+                      ],
+                      if (!danger)
+                        const Icon(
+                          Icons.chevron_right_rounded,
+                          size: 26,
+                          color: SkyColors.ink,
+                        ),
+                    ],
                   ),
-                ),
-                if (detail != null) ...[
-                  Text(
-                    detail!,
-                    style: bodyText(
-                      12,
-                      color: SkyColors.muted,
-                      weight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(width: 2),
-                ],
-                if (!danger)
-                  const Icon(
-                    Icons.chevron_right_rounded,
-                    size: 26,
-                    color: SkyColors.ink,
-                  ),
-              ],
-            ),
           ),
         ),
       ),
@@ -749,8 +838,226 @@ class _ActionRow extends StatelessWidget {
   }
 }
 
+/// Play Games in one strip: whether it is connected, the cloud save's
+/// state, and Google's achievements screen (or Connect). Everything else
+/// runs in the background (lib/data/play_games.dart).
+class _PlayGamesStrip extends ConsumerStatefulWidget {
+  const _PlayGamesStrip();
+
+  @override
+  ConsumerState<_PlayGamesStrip> createState() => _PlayGamesStripState();
+}
+
+class _PlayGamesStripState extends ConsumerState<_PlayGamesStrip> {
+  /// Google's sign-in sheet is open; then it failed or was cancelled, which
+  /// shows until the player leaves Settings.
+  bool connecting = false, failed = false;
+
+  Future<void> connect() async {
+    setState(() {
+      connecting = true;
+      failed = false;
+    });
+    final ok = await ref.read(playGamesProvider.notifier).connect();
+    if (!mounted) return;
+    setState(() {
+      connecting = false;
+      failed = !ok;
+    });
+  }
+
+  /// "2 min ago", "3 h ago".
+  static String ago(DateTime at, DateTime now) {
+    final d = now.difference(at);
+    if (d.inMinutes < 1) return 'just now';
+    if (d.inHours < 1) return '${d.inMinutes} min ago';
+    if (d.inDays < 1) return '${d.inHours} h ago';
+    return '${d.inDays} d ago';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final s = ref.watch(playGamesProvider);
+    final now = ref.read(appClockProvider)();
+    final saved = s.savedAt;
+    final (IconData cloud, String line) = !s.connected
+        ? connecting
+              ? (Icons.cloud_sync_rounded, 'Connecting…')
+              : failed
+              ? (Icons.cloud_off_rounded, 'Couldn’t connect')
+              : (Icons.cloud_outlined, 'Cloud save & achievements')
+        : s.saving
+        ? (Icons.cloud_sync_rounded, 'Saving to cloud…')
+        : s.offline
+        ? (
+            Icons.cloud_off_rounded,
+            saved == null
+                ? 'Offline · not saved yet'
+                : 'Offline · saved ${ago(saved, now)}',
+          )
+        : s.updateNeeded
+        ? (Icons.system_update_rounded, 'Update Beakbound to sync')
+        : s.unreadable
+        ? (Icons.sync_problem_rounded, 'Cloud save can’t be read')
+        : saved == null
+        ? (Icons.cloud_outlined, 'Cloud save is on')
+        : s.resetElsewhere
+        ? (Icons.cloud_done_rounded, 'Reset on another phone')
+        : (
+            Icons.cloud_done_rounded,
+            '${s.restored ? 'Cloud restored' : 'Saved to cloud'} · '
+                '${ago(saved, now)}',
+          );
+    final ink = s.connected ? _tealInk : SkyColors.muted;
+    return Container(
+      margin: const EdgeInsets.only(bottom: _Keycap.depth),
+      padding: const EdgeInsets.fromLTRB(8, 5, 6, 5),
+      decoration: BoxDecoration(
+        color: Color.lerp(SkyColors.cream, SkyColors.sky, .35),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: SkyColors.ink, width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: Color.lerp(SkyColors.skyDeep, SkyColors.ink, .4)!,
+            offset: const Offset(0, _Keycap.depth),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          const MiniCoin(
+            icon: Icons.sports_esports_rounded,
+            color: SkyColors.mint,
+            size: 34,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        'Play Games',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: heading(17),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Icon(
+                      s.connected
+                          ? Icons.circle
+                          : Icons.radio_button_unchecked_rounded,
+                      size: 9,
+                      color: ink,
+                    ),
+                    const SizedBox(width: 3),
+                    Text(
+                      s.connected ? 'Connected' : 'Not connected',
+                      style: bodyText(
+                        11.5,
+                        color: ink,
+                        weight: FontWeight.w900,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 1),
+                Row(
+                  children: [
+                    Icon(cloud, size: 14, color: SkyColors.muted),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        line,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: bodyText(
+                          12,
+                          color: SkyColors.muted,
+                          weight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 6),
+          MergeSemantics(
+            child: Semantics(
+              button: true,
+              label: s.connected
+                  ? 'Play Games achievements'
+                  : 'Connect Play Games',
+              child: _Keycap(
+                minHeight: 48,
+                padding: const EdgeInsets.symmetric(horizontal: 9),
+                color: s.connected ? SkyColors.white : SkyColors.yellow,
+                lip: s.connected
+                    ? Color.lerp(SkyColors.sand, SkyColors.ink, .2)!
+                    : SkyColors.gold,
+                onTap: s.connected
+                    ? () {
+                        UiSounds.effect(context);
+                        ref.read(playGamesProvider.notifier).showAchievements();
+                      }
+                    : connecting
+                    ? null
+                    : () {
+                        UiSounds.effect(context);
+                        connect();
+                      },
+                child: ExcludeSemantics(
+                  child: SizedBox(
+                    height: 48 - _Keycap.depth,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (connecting)
+                          const SizedBox.square(
+                            dimension: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              color: SkyColors.ink,
+                            ),
+                          )
+                        else
+                          Icon(
+                            s.connected
+                                ? Icons.emoji_events_rounded
+                                : Icons.login_rounded,
+                            size: 18,
+                            color: SkyColors.ink,
+                          ),
+                        const SizedBox(width: 5),
+                        Text(
+                          s.connected ? 'Achievements' : 'Connect',
+                          style: bodyText(13.5, weight: FontWeight.w900),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _ResetDialog extends StatelessWidget {
-  const _ResetDialog();
+  const _ResetDialog({this.cloud = false});
+
+  /// This phone has synced with Play Games, so the reset clears the cloud
+  /// save too.
+  final bool cloud;
 
   @override
   Widget build(BuildContext context) => AlertDialog(
@@ -778,7 +1085,9 @@ class _ResetDialog extends StatelessWidget {
     content: ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 440),
       child: Text(
-        'This deletes your saved videos, replays, scores, runs, built levels and settings from this phone. It cannot be undone.',
+        cloud
+            ? 'This deletes your saved videos, replays, scores, runs, built levels and settings from this phone, and your Play Games cloud save. It cannot be undone.'
+            : 'This deletes your saved videos, replays, scores, runs, built levels and settings from this phone. It cannot be undone.',
         style: bodyText(16),
       ),
     ),

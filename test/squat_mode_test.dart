@@ -141,7 +141,7 @@ void main() {
       }
       expect(p.recent.every((r) => r.flaps == 0 && r.repetitions == 4), isTrue);
       expect(
-        p.passport.firstWhere((s) => s.stamp == SkyStamp.bothWings).current,
+        p.passport.firstWhere((s) => s.stamp == SkyStamp.allRounder).current,
         1,
       );
       expect(p.today!.goals.any((g) => g.current > 0), isTrue);

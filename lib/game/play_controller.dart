@@ -63,7 +63,7 @@ class PlayController extends ChangeNotifier {
        assert(
          level == null ||
              (mode == PlayMode.touch && course == FlightCourse.starTrail),
-         'A campaign level is a Tap & Fly Star Trail',
+         'A campaign level is a Tap & Fly flight',
        ),
        assert(
          built == null ||
@@ -71,7 +71,7 @@ class PlayController extends ChangeNotifier {
                  partner == null &&
                  mode == built.level.plan.mode &&
                  course == FlightCourse.starTrail),
-         'A built level is a solo Star Trail of its own mode',
+         'A built level is a solo flight of its own mode',
        ),
        assert(
          partner == null || (mode == PlayMode.touch && level == null),
@@ -942,6 +942,10 @@ class PlayController extends ChangeNotifier {
       bird: bird,
       levelId: game.levelId,
       levelName: built?.plan.name,
+      feats: {
+        for (final kind in game.bossKindsDefeated) 'boss:${kind.name}',
+        if (game.starsFreed > 0) 'pigeonFreed',
+      },
     );
     _rememberVoices();
     // A level's finish line plays its celebration first, and a fatal bump
@@ -953,7 +957,7 @@ class PlayController extends ChangeNotifier {
     if (game.endReason == EndReason.collision) {
       stage = PlayStage.fallen;
       _startKnockout();
-      // Star Trail's last lost heart already sounds its bump.
+      // The last lost heart already sounds its bump.
       if (!game.isTrail) audio.effect('bump');
     } else if (celebrate) {
       stage = PlayStage.celebrating;

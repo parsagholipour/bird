@@ -104,6 +104,9 @@ void main() {
         // a light steam layer (a steam slot is not a set piece).
         expect(level.length, 30, reason: id);
         expect(plan.pieces, isEmpty, reason: id);
+      } else if (id == '1-1' || id == '1-2') {
+        // The opening two are short: 30 s and 45 s (2026-10-06).
+        expect(level.length, id == '1-1' ? 30 : 45, reason: id);
       } else {
         expect(level.length, inInclusiveRange(60, 90), reason: id);
       }
@@ -161,7 +164,8 @@ void main() {
       if (chapter < 5) {
         expect(rushes, isNot(contains(SetPieceKind.shuffled)), reason: id);
       }
-      expect(plan.shoot, chapter > 1 || level.number >= 3, reason: id);
+      // Shoot is on everywhere, from 1-1.
+      expect(plan.shoot, isTrue, reason: id);
       // Sprint is on from 1-5, except in the Searchlight Gargoyle's level
       // (3-4): a sprint makes his feathers close faster than the lane they
       // were aimed for, which his fairness proof assumes away.
@@ -196,7 +200,11 @@ void main() {
     CampaignLevel at(String id) => Campaign.level(id)!;
     expect(at('1-1').plan.families, [ObstacleKind.garden]);
     expect(at('1-1').plan.lineup, isEmpty);
-    expect(at('1-2').plan.lineup, isEmpty);
+    expect(at('1-1').plan.length, 30);
+    // 1-2 meets the first small bats, on every fourth passage.
+    expect(at('1-2').plan.lineup, [EnemyKind.simpleBat]);
+    expect(at('1-2').plan.cadence, 4);
+    expect(at('1-2').plan.length, 45);
     expect(at('1-2').plan.families, contains(ObstacleKind.windLift));
     expect(at('1-3').plan.cadence, 4);
     expect(at('1-4').plan.families, contains(ObstacleKind.petalGate));
@@ -283,7 +291,9 @@ void main() {
       expect(marks.three, lessThan(stars), reason: level.id);
     }
     int stars(String id) => routeOf(Campaign.level(id)!).stars;
-    expect(stars('1-1'), 81);
+    // First Delivery is 30 s (81 stars at 60 s); Star Streak 45 s.
+    expect(stars('1-1'), 33);
+    expect(stars('1-2'), 57);
     // Carnival Skies' gale lays no stars while it blows (96 at 70 s before
     // it came).
     expect(stars('1-4'), 69);

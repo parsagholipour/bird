@@ -81,7 +81,7 @@ void main() {
         expect(find.textContaining('No streak to lose.'), findsOneWidget);
         expect(
           find.text(
-            'Three goals. Any control. Fly Star Trail to work on all three.',
+            'Three goals. Any control. One endless flight works on all three.',
           ),
           findsOneWidget,
         );

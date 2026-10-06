@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../data/builder_providers.dart';
+import '../data/play_games.dart';
 import '../data/providers.dart';
 import '../data/progress_repository.dart';
 import '../data/passport_progress.dart';
@@ -17,7 +18,6 @@ import '../domain/sky_passport.dart';
 import '../domain/campaign.dart';
 import '../domain/campaign_progress.dart';
 import '../domain/game_rules.dart';
-import '../domain/flight_goals.dart';
 import '../domain/tracking.dart';
 import '../game/audio.dart';
 import '../game/bird_game.dart';
@@ -56,11 +56,11 @@ class PlayScreen extends ConsumerStatefulWidget {
   final FlightCourse course;
   final PlayMode mode;
 
-  /// The campaign level to fly (a scored touch Star Trail), or null for
+  /// The campaign level to fly (a scored touch flight), or null for
   /// endless.
   final CampaignLevel? level;
 
-  /// The built level to fly (a Star Trail of its own mode), or the
+  /// The built level to fly (a flight of its own mode), or the
   /// creator's test flight of one; null otherwise.
   final BuiltFlight? built;
   @override
@@ -78,7 +78,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       previousPerfects = 0,
       previousMultiplier = 1,
       previousMagnets = 0,
-      previousWings = 0,
+      previousMarks = 0,
       previousHearts = 3;
   double previousFlightTime = 0;
 
@@ -88,6 +88,14 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
   bool previousShield = true;
   bool awardSoundPlayed = false;
   bool leaving = false;
+
+  /// Waits for the results stage to settle: then it is a calm moment for
+  /// Play Games (its sync and Google's one unlock pop-up).
+  Timer? _calm;
+
+  /// This flight's own save is landing: the one progress change that may
+  /// raise its medals.
+  bool _saving = false;
 
   /// A campaign attempt is being ended from the pause card to fly again.
   bool restarting = false;
@@ -106,7 +114,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
   /// Whether the level after this one was open before the flight (a finished
   /// level stays open, so a returning player may have it already).
   bool initialNextOpen = false;
-  Set<SkyStamp> initialStamps = {};
+  Map<SkyStamp, StampMedal> initialStamps = {};
   String? initialDailyKey;
   bool initialDailyComplete = false;
 
@@ -144,16 +152,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                   .record(widget.mode, widget.course)
                   .best ??
               0;
-    initialStamps =
-        ref
-            .read(progressProvider)
-            .asData
-            ?.value
-            .passport
-            .where((p) => p.earned)
-            .map((p) => p.stamp)
-            .toSet() ??
-        {};
+    initialStamps = ref.read(progressProvider).asData?.value.medals ?? {};
     controller = PlayController(
       mode: widget.mode,
       course: widget.course,
@@ -177,9 +176,16 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         await ref.read(sessionRepositoryProvider).save(session);
         ref.invalidate(sessionsProvider);
       },
-      saveRun: (run) => widget.built == null
-          ? ref.read(progressProvider.notifier).save(run)
-          : saveBuiltFlight(ref, widget.built!, run),
+      saveRun: (run) async {
+        _saving = true;
+        try {
+          await (widget.built == null
+              ? ref.read(progressProvider.notifier).save(run)
+              : saveBuiltFlight(ref, widget.built!, run));
+        } finally {
+          _saving = false;
+        }
+      },
       best: initialBest,
       voiceMemory: ref.read(flightVoiceMemoryProvider).asData?.value,
       rememberVoices: (memory) => ref
@@ -196,6 +202,18 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       );
     }
     controller.addListener(changed);
+    // Only this flight's own save may raise its medals: anything else that
+    // raises one (a cloud restore) moves the starting point with it.
+    ref.listenManual(progressProvider, (before, after) {
+      if (_saving) return;
+      final was = before?.asData?.value.medals ?? const {};
+      initialStamps = {
+        ...initialStamps,
+        for (final MapEntry(:key, :value)
+            in after.asData?.value.medals.entries ?? const [])
+          if (value != was[key]) key: value,
+      };
+    });
     unawaited(controller.verifyMicrophoneAccess());
     // Touch flights count straight in; only camera modes need setup.
     if (controller.isTouch) {
@@ -219,7 +237,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       previousPerfects = 0;
       previousMultiplier = 1;
       previousMagnets = 0;
-      previousWings = 0;
+      previousMarks = 0;
       previousFlightTime = 0;
       previousToGo = null;
       previousHearts = 3;
@@ -247,12 +265,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
           }, onError: (_) {}),
         );
       }
-      initialStamps =
-          progress?.passport
-              .where((p) => p.earned)
-              .map((p) => p.stamp)
-              .toSet() ??
-          {};
+      initialStamps = progress?.medals ?? {};
       initialDailyKey = progress?.today?.dayKey;
       initialDailyComplete = progress?.today?.complete ?? false;
       final level = widget.level;
@@ -280,19 +293,16 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       );
     }
     if (sim != null) {
-      // A level's collection marks take the place of flight wings, with
-      // the same chime, and it never chases the endless record.
-      final marks = controller.marks;
-      final wings = marks == null
-          ? FlightGoals.earned(FlightGoals.forSimulation(sim))
-          : marks.reached(sim.collectedStars);
-      final earnedWing = wings > previousWings;
+      // Reaching a level's collection mark chimes, and a level never
+      // chases the endless record.
+      final reached = controller.marks?.reached(sim.collectedStars) ?? 0;
+      final earnedMark = reached > previousMarks;
       if (!controller.routed &&
           initialBest > 0 &&
           previousScore <= initialBest &&
           sim.score > initialBest) {
         audio.effect('record');
-      } else if (earnedWing && sim.phase == RunPhase.playing) {
+      } else if (earnedMark && sim.phase == RunPhase.playing) {
         audio.effect('wing');
       } else if (sim.magnetActivations > previousMagnets) {
         audio.effect('magnet');
@@ -307,7 +317,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       }
       previousScore = sim.score;
       previousStars = sim.collectedStars;
-      previousWings = wings;
+      previousMarks = reached;
       if (sim.isTrail && sim.hearts < previousHearts) audio.effect('bump');
       if (sim.isTrail && sim.hearts > previousHearts) audio.effect('heart');
       if (sim.isTrail && sim.shield && !previousShield) audio.effect('shield');
@@ -351,9 +361,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         controller.result != null) {
       final progress = ref.read(progressProvider).asData?.value;
       if (progress != null &&
-          (progress.passport.any(
-                (p) => p.earned && !initialStamps.contains(p.stamp),
-              ) ||
+          (progress.medalsWonSince(initialStamps).isNotEmpty ||
               (progress.today?.complete == true &&
                   (initialDailyKey != progress.today?.dayKey ||
                       !initialDailyComplete)))) {
@@ -388,6 +396,24 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         }
       });
     }
+    if (controller.stage != PlayStage.results) {
+      // Flying again ends the results stage's calm moment.
+      if (_calm != null) ref.read(playGamesProvider.notifier).calm = false;
+      _calm?.cancel();
+      _calm = null;
+    } else if (controller.saved && _calm == null) {
+      _calm = Timer(const Duration(milliseconds: 2500), () {
+        // Only while the stage is still on screen: never once the player
+        // has left it (the map's story scene is not calm).
+        if (mounted &&
+            !leaving &&
+            controller.stage == PlayStage.results &&
+            ModalRoute.isCurrentOf(context) != false) {
+          final sync = ref.read(playGamesProvider.notifier)..calm = true;
+          unawaited(sync.calmMoment());
+        }
+      });
+    }
     setState(() {});
   }
 
@@ -396,6 +422,10 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
   Future<void> leave([String? destination]) async {
     if (leaving) return;
     leaving = true;
+    // Leaving ends the results stage's calm moment; the next screen's route
+    // says whether it is calm.
+    _calm?.cancel();
+    if (_calm != null) ref.read(playGamesProvider.notifier).calm = false;
     passing = controller.stage == PlayStage.flying;
     await controller.exit();
     if (mounted) {
@@ -438,6 +468,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
 
   @override
   void dispose() {
+    _calm?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     controller.removeListener(changed);
     controller.dispose();
@@ -736,7 +767,9 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                                           ),
                                           _step(
                                             '3',
-                                            widget.course.title,
+                                            widget.course.collectsStars
+                                                ? 'Collect stars'
+                                                : widget.course.title,
                                             mode == PlayMode.jump &&
                                                     widget.course.collectsStars
                                                 ? 'Stars add 0.75s of glide, up to 5s. Collect trios for +5 points.'

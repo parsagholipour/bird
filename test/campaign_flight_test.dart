@@ -98,8 +98,10 @@ void main() {
       expect(seen.rushes, isNot(contains(RushPathKind.swarm)));
       expect(seen.rushes, {for (final p in level.plan.pieces) ?p.kind.rush});
       expect(seen.bosses, {?level.boss}, reason: id);
-      if (level.id == '1-1' || level.id == '1-2') {
-        expect(seen.enemies, isEmpty, reason: id);
+      if (level.id == '1-1') expect(seen.enemies, isEmpty, reason: id);
+      // 1-2 meets the first small bats; cave bats wait for 1-3.
+      if (level.id == '1-2') {
+        expect(seen.enemies, {EnemyKind.simpleBat}, reason: id);
       }
     }
     // Where a mechanic arrives, the flight shows it.
@@ -117,8 +119,16 @@ void main() {
     expect(flown('2-5').meteors, isTrue);
   });
 
-  test('Shoot and Sprint are refused before 1-3 and 1-5', () {
-    for (final level in playable) {
+  test('Shoot is offered from 1-1; Sprint is refused before 1-5', () {
+    // A plan without Shoot (1-1 and 1-2 were saved so before 2026-10-06)
+    // still hides it and refuses every shot.
+    final first = level('1-1');
+    final noShoot = CampaignLevel(
+      name: first.name,
+      delivery: first.delivery,
+      plan: LevelPlan.fromJson({...first.plan.toJson(), 'shoot': false}),
+    );
+    for (final level in [...playable, noShoot]) {
       final sim = levelFlight(level);
       var shots = 0, charges = 0, sprints = 0;
       flyLevel(
@@ -130,7 +140,8 @@ void main() {
           if (sim.sprint()) sprints++;
         },
       );
-      final shoot = level.chapter > 1 || level.number >= 3;
+      final shoot = level.plan.shoot;
+      expect(shoot, level != noShoot, reason: level.id);
       final sprint = level.chapter > 1 || level.number >= 5;
       expect(sim.offersShoot, shoot, reason: level.id);
       expect(sim.offersSprint, sprint, reason: level.id);
@@ -290,7 +301,7 @@ void main() {
     expect(line.crossedAt, sim.elapsed);
     // Laid before it comes into view, clear of the last passage.
     expect(laidAt, lessThan(level('1-1').length - 4));
-    expect(sim.starsLaid, 81);
+    expect(sim.starsLaid, 33);
     expect(sim.obstacles.every((o) => o.scored), isTrue);
     expect(sim.routeProgress, 1);
     expect(sim.distanceToGo, 0);
@@ -478,12 +489,15 @@ void main() {
     expect(marks.rate(finished: true, stars: 60), 3);
     expect(marks.rate(finished: true, stars: 81), 3);
 
-    final sim = levelFlight(level('1-1'))..collectedStars = 60;
+    // 1-1's own marks: 15 and 25.
+    final sim = levelFlight(level('1-1'))..collectedStars = 25;
     expect(sim.levelStars, 0, reason: 'not finished yet');
     sim.end(EndReason.completed);
     expect(sim.levelStars, 3);
-    sim.collectedStars = 59;
+    sim.collectedStars = 24;
     expect(sim.levelStars, 2);
+    sim.collectedStars = 14;
+    expect(sim.levelStars, 1);
     final endless = FlightSimulation(
       rules: TapFlyMode(),
       practice: false,

@@ -3,7 +3,7 @@
 ## Courses and controls
 
 The movement activity and the arcade course are independent. New home flights
-use Star Trail with push-ups, squats, jumps or touch. Flight School also offers
+use the endless course with push-ups, squats, jumps or touch. Flight School also offers
 Classic. Version 12 makes every new flight endless,
 adds a gradual speed ramp and mixes garden gates with Wind Lifts, Petal Shutters
 and split Switchbacks. Version 13 adds floating Lantern Drift, orbiting Sun
@@ -13,14 +13,14 @@ and artwork. The current design sheet is generated from gameplay rendering at
 `build/visual-review/obstacle-variety.png`.
 
 Sky Courier and Cloud Cruise are retired. Flight School and new flights offer
-Classic and Star Trail only. A saved journal that names either retired course
-opens as Star Trail. Old score rows stay under their original course name, so
-they do not replace a Star Trail best.
+Classic and the endless course only. A saved journal that names either retired
+course opens as `FlightCourse.starTrail`. Old score rows stay under their
+original course name, so they do not replace an endless best.
 
 | Course | Objective | Collisions | Records |
 | --- | --- | --- | --- |
 | Classic | Clear as many gates as possible | One ends the flight | Separate best for each control |
-| Star Trail | Collect star points for as long as you can | Shield, then three hearts | Separate best for each control |
+| Endless | Collect star points for as long as you can | Shield, then three hearts | Separate best for each control |
 
 Classic retains its score units and collision behavior; all new courses use
 time-based acceleration and seeded obstacle patterns. A perfect pass means staying within 0.075 viewport heights
@@ -29,12 +29,12 @@ and stars follow the calibrated top and bottom endpoints (0.15 and 0.85 viewport
 heights). Smile flights aim at the gap center. Perfect passes and every five gates
 have visual celebrations without inflating the Classic obstacle score.
 
-Star Trail starts with three hearts and a shield. Collecting six consecutive stars
+An endless flight starts with three hearts and a shield. Collecting six consecutive stars
 raises the multiplier to 2×; twelve raises it to 3×. The threshold pickup earns the
 new multiplier. A missed star or a collision resets the current streak, but keeps
 the best streak. Every ninth collected star restores an absent shield. A shield
 save or lost heart grants 1.5 seconds of protection, and a struck gate can only
-hit once. Struck gates do not earn cosmetic unlock progress. Star Trail's wider
+hit once. Struck gates do not earn cosmetic unlock progress. The endless course's wider
 gaps, 10% slower scroll and extra 1.3 seconds between passages accommodate the
 leading constellation without requiring faster calibrated movement.
 
@@ -54,13 +54,37 @@ leading constellation without requiring faster calibrated movement.
 - Original synthesized star, perfect-pass, shield and impact sounds are included
   in `tool/generate_audio.py`. Effects and music still obey Settings. Music resumes
   when a paused flight resumes; replay uses the same new effect cues.
-- Sky Passport contains eight durable goals derived from saved scored flights.
-  Progress combines both controls where appropriate. A Classic-only captain
-  badge never reads Star Trail points. Duplicate saves cannot award extra progress.
-- Retry snapshots the latest record and earned stamps, so a later attempt does
-  not repeat the previous flight's personal-best or stamp announcement.
+- Sky Passport contains eight durable stamps derived from saved scored flights,
+  each with a bronze, silver and gold medal won in order (24 medals). Bronze is
+  a first real goal, silver takes a few weeks of flying and gold is a
+  long-term mastery goal. The numbers come from what a flight yields: a strong
+  endless minute collects about 70 stars, scores about 300 points and flies
+  6–7 perfect passes, and a near-flawless 10-minute flight holds a streak of
+  about 35–55 stars. Duplicate saves cannot award extra progress. Passport text
+  says "endless flight", never the internal course name.
+
+  | Stamp | Measure | Bronze / Silver / Gold | Why |
+  | --- | --- | --- | --- |
+  | Frequent flyer (was First wings) | Scored flights, campaign included | 10 / 100 / 500 | A first evening, a habit, a long-time flyer. |
+  | On the dot | Perfect passes, campaign included | 25 / 200 / 1,000 | A few tidy flights, ~40 careful ones, a perfectionist's long haul. |
+  | Star chaser | Stars collected, campaign included | 50 / 500 / 5,000 | The owner's numbers: one good flight, ~10, ~100. |
+  | Constellation | Longest star streak in one flight | 15 / 40 / 80 | Past the ×3 multiplier, a clean long run, more than an autopilot manages in 10 min. |
+  | Sky captain | Best score in one endless flight | 100 / 500 / 2,000 | A solid first minute, ~2 strong minutes, ~6 near-flawless minutes. |
+  | Trailblazer | Endless flights of 60 s or more | 5 / 50 / 250 | A first few full minutes, then half of a frequent flyer's flights. |
+  | Flock together | Bronze/silver: birds flown; gold: flights with the least-flown bird | 2 / 4 / 25 | Try the second free bird, buy and fly all four, then fly every bird for real. |
+  | All-rounder (was Both wings) | Bronze/silver: camera mini games tried; gold: flights in the least-flown one | 1 / 3 / 10 | Try one, try all three; gold stays light because the mini games are a side to the tap-to-fly adventure. |
+
+  The capped stamps changed measure so their medals still mean something:
+  four birds and three camera controls are too few for three tiers of the old
+  "fly them all" goal.
+- Retry snapshots each stamp's medal, so a later attempt does not repeat the
+  previous flight's personal-best or medal announcement. A flight that wins a
+  medal says so ("Star chaser: Silver") with that medal's goal.
 - A newly unlocked bird appears on the results screen with a link to the flock.
-  Flights without a new reward suggest the nearest unfinished passport stamp.
+  Flights without a new reward suggest the nearest medal still to win ("Next:
+  Star chaser · Silver", with its count and progress bar). The passport screen
+  shows each stamp's three medals, the next medal's goal and progress, and a
+  postmark once gold is won.
   Course selection survives visits to results, records, settings and the flock
   within the same app session.
 - Secondary text uses the darker shared `color/muted` token in Flutter and Figma
@@ -76,7 +100,7 @@ across scored courses, not multiplied star points.
 Replay formats 2 through 5 record the course. Format 4 adds Sky Courier and
 format 5 adds cloud friends. Formats 1 through 4 retain their recorded rules.
 Format 1 uses Classic and
-its original input journal and random seed. Star Trail and Cloud Cruise use the
+its original input journal and random seed. The endless course and Cloud Cruise use the
 same deterministic simulation during playback and seeking. Session summaries
 persist course and the new metrics; missing fields retain legacy defaults.
 
@@ -85,7 +109,7 @@ persist course and the new metrics; missing fields retain legacy defaults.
 The existing Figma file was extended without replacing the original screen:
 
 - [Adventure Home](https://www.figma.com/design/3l8DyW2mxf917HzgXsQaz7?node-id=35-78)
-- [Star Trail gameplay direction](https://www.figma.com/design/3l8DyW2mxf917HzgXsQaz7?node-id=36-154)
+- [Endless flight gameplay direction](https://www.figma.com/design/3l8DyW2mxf917HzgXsQaz7?node-id=36-154)
 
 Both reuse Sky Club typography, color variables, bird artwork and button
 components. `design/star-trail-world.svg` is the editable scenery source for the
@@ -117,7 +141,7 @@ Generate actual rendered UI review images (not mock screenshots):
 flutter test --dart-define=CAPTURE_VISUALS=true test/experience_ui_test.dart
 ```
 
-Images are written to `build/visual-review/`: course menus, Star Trail setup,
+Images are written to `build/visual-review/`: course menus, endless flight setup,
 flight and results, next goals, bird unlocks, both motion settings in three
 regions, star power, Cruise flight/pause/results, records and passport.
 The UI tests cover 1000×450 and 800×360 landscape surfaces.
@@ -132,11 +156,11 @@ remain part of the full suite.
 A release ARM64 APK is built locally. Physical camera playtesting and device frame
 rate/thermal testing remain pending: no Android device was connected during this
 update. Follow the existing device checks in `docs/validation.md`, including both
-control methods, a full Star Trail, Cruise pause/resume and saved camera replay.
+control methods, a full endless flight, Cruise pause/resume and saved camera replay.
 
 ## Star Magnet follow-up
 
-Three perfect gates in Star Trail, or three perfect rings in Cloud Cruise,
+Three perfect gates in an endless flight, or three perfect rings in Cloud Cruise,
 activate an eight-second magnet. Charge survives ordinary passes and bumps.
 The magnet expands the star pickup radius from 0.085 to 0.20 viewport heights;
 each star still scores once and follows the existing streak/shield rules.
@@ -165,8 +189,8 @@ an earned magnet, intact health, and no missed star streak.
 The home screen's Today badge opens three rotating goals and a themed postcard.
 Complete all three to stamp it. Goals cover scored flights or cleared gates,
 collected stars or a single-flight star streak, and perfect passes or a full
-Star Trail. Every combination can be completed with either push-ups or smiles;
-the screen launches Star Trail directly using the chosen control. Classic
+endless flight. Every combination can be completed with either push-ups or smiles;
+the screen launches an endless flight directly using the chosen control. Classic
 flights contribute to the goals they support. Practice and Cloud Cruise do not.
 
 Cards are calculated from persisted scored flights, using local calendar dates.
@@ -201,7 +225,7 @@ wrap from twilight to sunrise. They sit behind gameplay objects, have no collisi
 or reward behavior, and use simulation time and distance so pauses and replays
 stay consistent. Reduced Motion freezes all landmark movement.
 
-Star Trail's brief hit protection has a shrinking ring around the bird and a
+The endless flight's brief hit protection has a shrinking ring around the bird and a
 remaining-time readout. The bird remains fully visible throughout; there is no
 flashing. A completed trail has its own rising completion sound. Results show a
 finite confetti portrait when a scored flight earns a record, reward, or complete
@@ -216,7 +240,7 @@ Peach Horizon balloon source at `design/peach-balloons.svg`.
 
 ## Chase your record and leave a little garden
 
-Scored Classic and Star Trail flights now show a compact personal-best target
+Scored Classic and endless flights now show a compact personal-best target
 beside the score. It counts down to **beating** the existing best, recognizes a
 tie, and turns gold with a short sound and a finite pop when the record is passed.
 The baseline is specific to the current course and control and remains fixed for
@@ -285,7 +309,7 @@ preserves cargo and clock; scored breaks or tracking interruptions end the run.
 Courier records are separate for each control and from all other courses.
 Clean gates contribute to bird unlocks, and scored flights and perfect passes
 contribute to applicable daily/passport goals. Courier completions do not count
-as completed Star Trails. Practice remains excluded. Existing schema 3 stores
+as completed endless flights. Practice remains excluded. Existing schema 3 stores
 this new course by its stable name; no database migration is needed.
 
 All 147 tests pass and static analysis is clean. New checks cover alternating
@@ -293,7 +317,7 @@ stops, cargo capacity, misses, collisions, recovery, timer boundaries, practice,
 both controls, separate records, duplicate saves, and backward replay seeking.
 Full simulated routes finish with no cargo loss at 1-, 4- and 9-second calibrated
 push-up cycles. This validates ideal input pacing; physical camera comfort still
-needs a device playtest. Existing version-3 Star Trails keep their score and
+needs a device playtest. Existing version-3 endless flights keep their score and
 physics under the new reader.
 
 Home, both setup screens, empty/carrying/dropped cargo, results, records and actual
@@ -309,10 +333,10 @@ Every scored course now has three goals that belong to a single flight:
 | Course | Wing one | Wing two | Wing three |
 | --- | --- | --- | --- |
 | Classic | Clear 5 gates | Clear 10 gates | Clear 25 gates |
-| Star Trail | Collect 12 stars | Reach a 6-star streak | Fly for 60 seconds in one trail |
+| Endless | Collect 12 stars | Reach a 6-star streak | Fly for 60 seconds in one trail |
 | Sky Courier | Deliver 1 letter | Deliver 3 letters | Fly for 75 seconds in one route |
 
-Goals earn independently; a Star Trail can earn its streak wing before the
+Goals earn independently; an endless flight can earn its streak wing before the
 12-star wing. Losing a current streak does not remove a wing already earned by
 the best streak. Endurance wings unlock at the full duration while the flight
 continues, regardless of how it eventually ends. Practice and Cloud Cruise omit
@@ -377,7 +401,7 @@ match the shared Canvas art used by the game and its UI.
 
 ## Course previews on Home
 
-Selecting a course now changes the Home illustration. Star Trail surrounds the
+Selecting a course now changes the Home illustration. The endless course surrounds the
 equipped bird with stars and a shield; Courier adds a letter, delivery trail and
 postbox; Cruise introduces all three cloud friends. Classic retains its original
 island. The artwork reuses the game renderers and switches with a short crossfade
@@ -386,7 +410,7 @@ clear of the preview. Course descriptions also have accessible semantic labels.
 
 The Home, daily navigation and course flow checks pass (15 tests), analysis is
 clean, and the new layouts were rendered at 800×360 and 1000×450. The existing
-[Star Trail Home](https://www.figma.com/design/3l8DyW2mxf917HzgXsQaz7?node-id=35-78)
+[Endless Home](https://www.figma.com/design/3l8DyW2mxf917HzgXsQaz7?node-id=35-78)
 is updated, with new [Courier](https://www.figma.com/design/3l8DyW2mxf917HzgXsQaz7?node-id=68-419)
 and [Cruise](https://www.figma.com/design/3l8DyW2mxf917HzgXsQaz7?node-id=68-456)
 Home views built from its existing bird, island and button components.
@@ -482,13 +506,13 @@ Frames appear in `build/visual-review/star-aura/`.
 
 ## Legacy constellations (versions 6–29)
 
-The three stars on each Star Trail or Cruise approach now form a connected set.
+The three stars on each endless or Cruise approach now form a connected set.
 Collect all three to earn a flat five-point bonus and unfold a small triangular
 constellation. Collected stars leave small marks on the approach; missed sets
 fade, and the next set is a fresh chance. The original targets, calibrated pace,
 collision rules and magnet reach stay the same. Bonus points never add stars,
 advance a multiplier, charge a shield, heal a heart or count toward bird unlocks.
-Cruise remains practice. Scored Star Trail records include the bonus.
+Cruise remains practice. Scored endless records include the bonus.
 
 The first completed trio appears in replay highlights. Its final star uses the
 normal rotating pickup sound; completing the trio adds no separate
@@ -513,7 +537,7 @@ This finish presentation is retained for pre-version-12 saved replays. New
 endless flights do not show a destination or a finish countdown.
 
 The final six seconds of a timed route now reveal a destination: gold FINISH
-pennants in Star Trail and coral HOME pennants in Courier. A light checker ribbon
+pennants on the endless course and coral HOME pennants in Courier. A light checker ribbon
 marks the approach, with the name positioned below the score and reward HUDs.
 Players can arrive at any height; the artwork has no collision or scoring rules.
 It tracks remaining time and current scroll speed, meeting the bird at zero.

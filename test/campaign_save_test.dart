@@ -452,14 +452,14 @@ void main() {
       );
       var p = await repo.load();
       expect(stamps(p), {
-        SkyStamp.firstWings: 1,
+        SkyStamp.frequentFlyer: 1,
         SkyStamp.onTheDot: 10,
         SkyStamp.starChaser: 60,
         SkyStamp.constellation: 12,
         SkyStamp.skyCaptain: 0,
         SkyStamp.trailblazer: 0,
         SkyStamp.flockTogether: 1,
-        SkyStamp.bothWings: 0,
+        SkyStamp.allRounder: 0,
       });
 
       await repo.saveRun(
@@ -467,16 +467,16 @@ void main() {
       );
       p = await repo.load();
       expect(stamps(p), {
-        SkyStamp.firstWings: 2,
+        SkyStamp.frequentFlyer: 2,
         SkyStamp.onTheDot: 11,
         SkyStamp.starChaser: 65,
         SkyStamp.constellation: 12,
         SkyStamp.skyCaptain: 55,
         SkyStamp.trailblazer: 1,
         SkyStamp.flockTogether: 2,
-        SkyStamp.bothWings: 0,
+        SkyStamp.allRounder: 0,
       });
-      expect(SkyStamp.starChaser.description, 'Collect 50 stars.');
+      expect(SkyStamp.starChaser.goal(StampMedal.bronze), 'Collect 50 stars.');
     },
   );
 

@@ -1,10 +1,10 @@
 # Campaign
 
 A Tap & Fly campaign that puts every region and every boss on a map, in
-order. Endless Star Trail stays the high-score mode and does not change.
+order. The endless flight stays the high-score mode and does not change.
 
 **The campaign is Tap & Fly only.** Every level is flown by tapping (a touch
-Star Trail flight, `/play/touch?level=…`) and every campaign flight is saved as
+flight, `/play/touch?level=…`) and every campaign flight is saved as
 one. The camera and push-ups cannot play it; they stay in endless play
 and practice.
 
@@ -106,7 +106,7 @@ The map follows the same trip, one region at a time:
 - A level is data. It has a fixed seed, its region, its length, the hazards
   it allows, its starting difficulty, where its set pieces go, its star marks,
   and whether it ends in a boss. There are no hand-placed obstacles.
-- It starts like a Star Trail: three hearts, a shield, stars, streak
+- It starts like an endless flight: three hearts, a shield, stars, streak
   multipliers and the star magnet. There are no heart pickups on the route;
   the only hearts are the two a boss knocks loose as it grows stronger (see
   [Boss fights](#boss-fights)).
@@ -220,7 +220,7 @@ upgrade shop can use it.
 
 A level's difficulty is written as the endless clock it starts from. From
 there it ramps along the route exactly as endless ramps with time. For touch
-flights on Star Trail:
+flights on the endless course:
 
 | Start | Pace | Opening |
 | --- | --- | --- |
@@ -323,7 +323,7 @@ the Searchlight Gargoyle arrive straight away.
 - **Obstacle families** unlock by chapter. A level's first three passages are
   garden gates, as in endless.
 - **Enemies** lead every other passage, as in endless, taking the level's
-  lineup in turn. 1-3 shows its bats on every fourth passage only. 2-1
+  lineup in turn. 1-2 and 1-3 show their bats on every fourth passage only. 2-1
   alternates the new enemy with the others, so it leads every fourth passage;
   3-1 shows its first moth on the second enemy passage and one enemy in four
   after it (bat, moth, cave bat, beetle).
@@ -336,9 +336,9 @@ the Searchlight Gargoyle arrive straight away.
   hot (hop over it) and soft (ride it) in turn, seven in 3-3 (the steady layer
   cut short by its 65 s route), three in 3-4.
   They never take an enemy's passage.
-- **Controls:** Shoot appears from 1-3 and Sprint from 1-5, except on 3-4,
-  where Sprint is off. Before that the buttons are hidden and the rules ignore
-  the inputs.
+- **Controls:** Shoot is on from 1-1. Sprint appears from 1-5, except on 3-4,
+  where Sprint is off. Before that its button is hidden and the rules ignore
+  the input.
 - **Stone panels:** none in 2-1, 35% of eligible walls in 2-2 so the player
   meets several, and 25% from 2-3 on. Two never come in a row.
 
@@ -350,9 +350,9 @@ Enemies: simple purple bat and cave bat. Toughness 0.
 
 | Level | Name | Region | Length | Hazards | Start | Route ★ | ★★ / ★★★ |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1-1 | First Delivery | Jungle | 60 s | Garden gates only, no enemies. *NEW: Tap to flap. Fly through the stars.* | 0:00 | 81 | 35 / 60 |
-| 1-2 | Star Streak | Jungle | 60 s | Garden, wind lifts. *NEW: Chain stars for 3×; three perfect gates earn a magnet.* | 0:00 | 81 | 35 / 60 |
-| 1-3 | Bat Patrol | Jungle | 65 s | + bats (every 4th passage). *NEW: Shoot. Tap Shoot to knock out bats.* | 0:10 | 87 | 40 / 65 |
+| 1-1 | First Delivery | Jungle | 30 s | Garden gates only, no enemies; Shoot is on. *NEW: Tap to flap. Fly through the stars.* | 0:00 | 33 | 15 / 25 |
+| 1-2 | Star Streak | Jungle | 45 s | Garden, wind lifts, + small bats (every 4th passage). *NEW: Chain stars for 3×; three perfect gates earn a magnet.* | 0:00 | 57 | 25 / 45 |
+| 1-3 | Bat Patrol | Jungle | 65 s | + cave bats (bats every 4th passage). *NEW: Shoot. Tap Shoot to knock out bats.* | 0:10 | 87 | 40 / 65 |
 | 1-4 | Carnival Skies | Brazil | 80 s | + petal shutters; bats every other passage; gale at 30 s, blowing footballs. *NEW: Gale! Watch the ! and dodge the footballs.* | 0:20 | 69 | 30 / 50 |
 | 1-5 | Express Post | Brazil | 70 s | Sprint. *NEW: Sprint smashes bats and surges ahead.* | 0:30 | 96 | 45 / 70 |
 | 1-6 | Temple Steps | Aztec | 75 s | All of chapter 1 | 0:40 | 105 | 45 / 80 |
@@ -730,18 +730,17 @@ Campaign flights are scored Tap & Fly flights saved with their level id.
 | Where | Counts? |
 | --- | --- |
 | Endless records, the Home best pill, the personal-best target, Records and its recent flights | Never |
-| Star Trail flight wings | No; the level's stars take their place |
 | Home's first-time greeting | Yes; a level counts as a first flight |
 | Daily adventure: flights, gates, stars, streak, perfect passes | Yes |
-| Daily adventure: "The whole journey" (60 s in one Star Trail) | No |
-| Passport: First wings, On the dot, Star chaser, Constellation, Flock together | Yes |
-| Passport: Sky captain, Trailblazer, Both wings | No |
+| Daily adventure: "The whole journey" (60 s in one endless flight) | No |
+| Passport: Frequent flyer, On the dot, Star chaser, Constellation, Flock together | Yes |
+| Passport: Sky captain, Trailblazer, All-rounder | No |
 | Saved sessions and replay highlights | Yes, named after the level |
 
 Wording changes:
 
-- The daily star goal says "across today's flights" instead of "Star Trails".
-- Star chaser drops "in Star Trail".
+- The daily star goal says "across today's flights" instead of naming the course.
+- Star chaser no longer names the course.
 
 ## How it is built
 

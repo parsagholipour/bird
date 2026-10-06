@@ -36,7 +36,7 @@ class PassportScreen extends ConsumerWidget {
                       onPressed: () => context.go('/daily'),
                     ),
                     MiniTag(
-                      '${progress?.earnedStamps ?? 0} / ${SkyStamp.values.length} STAMPS',
+                      '${progress?.earnedMedals ?? 0} / $passportMedals MEDALS',
                       icon: Icons.workspace_premium_rounded,
                       color: SkyColors.yellow,
                     ),
@@ -46,7 +46,7 @@ class PassportScreen extends ConsumerWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 64),
                   child: Text(
-                    'Small adventures. Lasting souvenirs. Earn stamps in scored flights.',
+                    'Small adventures. Lasting souvenirs. Bronze, silver and gold for every stamp.',
                     style: bodyText(15, weight: FontWeight.w800),
                   ),
                 ),
@@ -97,24 +97,25 @@ class PassportScreen extends ConsumerWidget {
 }
 
 /// One stamp of the passport, printed as a postage stamp with perforated
-/// edges. An earned stamp is tinted in its color and franked with a
-/// postmark; one still to earn shows how far along it is.
+/// edges. Its three medals sit along the bottom, and the stamp tints deeper
+/// in its color with each one. Until gold it shows the next medal's goal and
+/// how far along it is; a gold stamp is franked with a postmark.
 class _StampCard extends StatelessWidget {
   const _StampCard({required this.progress});
   final StampProgress progress;
   @override
   Widget build(BuildContext context) {
     final stamp = progress.stamp;
-    final earned = progress.earned;
+    final medal = progress.medal;
     final icon = switch (stamp) {
-      SkyStamp.firstWings => Icons.flight_takeoff_rounded,
+      SkyStamp.frequentFlyer => Icons.flight_takeoff_rounded,
       SkyStamp.onTheDot => Icons.center_focus_strong_rounded,
       SkyStamp.starChaser => Icons.star_rounded,
       SkyStamp.constellation => Icons.auto_awesome_rounded,
       SkyStamp.skyCaptain => Icons.explore_rounded,
       SkyStamp.trailblazer => Icons.route_rounded,
       SkyStamp.flockTogether => Icons.flutter_dash_rounded,
-      SkyStamp.bothWings => Icons.favorite_rounded,
+      SkyStamp.allRounder => Icons.fitness_center_rounded,
     };
     final accent = [
       SkyColors.yellow,
@@ -122,66 +123,104 @@ class _StampCard extends StatelessWidget {
       SkyColors.coral,
       SkyColors.lavender,
     ][stamp.index % 4];
+    final held = medal == null ? 'No medal yet' : '${medal.label} medal';
     return Semantics(
-      label:
-          '${stamp.title}. ${stamp.description} ${earned ? 'Earned' : '${progress.current} of ${stamp.target}'}',
+      label: progress.complete
+          ? '${stamp.title}. Gold medal. ${progress.goal}'
+          : '${stamp.title}. $held. Next, ${progress.aim.label}: '
+                '${progress.goal} ${progress.current} of ${progress.target}.',
       excludeSemantics: true,
       child: CustomPaint(
         painter: _StampPainter(
-          tint: earned
-              ? Color.lerp(SkyColors.cream, accent, .42)!
-              : SkyColors.cream,
-          earned: earned,
+          tint: medal == null
+              ? SkyColors.cream
+              : Color.lerp(
+                  SkyColors.cream,
+                  accent,
+                  const [.2, .32, .46][medal.index],
+                )!,
+          earned: medal != null,
         ),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+          padding: const EdgeInsets.fromLTRB(16, 14, 16, 15),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  MiniCoin(icon: icon, color: accent, size: 32, muted: !earned),
-                  const SizedBox(width: 8),
+                  MiniCoin(
+                    icon: icon,
+                    color: accent,
+                    size: 30,
+                    muted: medal == null,
+                  ),
+                  const SizedBox(width: 7),
                   Expanded(
                     child: Text(
                       stamp.title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: heading(17, weight: FontWeight.w700),
+                      style: heading(16.5, weight: FontWeight.w700),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 5),
               Text(
-                stamp.description,
-                maxLines: 3,
+                progress.goal,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: bodyText(11.5, color: SkyColors.muted),
               ),
               const Spacer(),
-              if (earned)
-                const Align(
-                  alignment: Alignment.centerRight,
-                  child: _Postmark(),
-                )
-              else
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  for (final m in StampMedal.values)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 3),
+                      child: _Medal(
+                        m,
+                        won: medal != null && m.index <= medal.index,
+                        next: m == progress.nextMedal,
+                      ),
+                    ),
+                  const Spacer(),
+                  if (progress.complete)
+                    const _Postmark()
+                  else
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 2),
+                      child: Text(
+                        'TO ${progress.aim.label.toUpperCase()}',
+                        style: bodyText(
+                          10.5,
+                          color: SkyColors.muted,
+                          weight: FontWeight.w900,
+                        ).copyWith(letterSpacing: 1.1),
+                      ),
+                    ),
+                ],
+              ),
+              if (!progress.complete) ...[
+                const SizedBox(height: 6),
                 Row(
                   children: [
                     Expanded(
                       child: MiniMeter(
                         value: progress.fraction,
                         color: accent,
-                        height: 11,
+                        height: 10,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 6),
                     Text(
-                      '${progress.current}/${stamp.target}',
+                      progress.tally,
                       style: bodyText(11, weight: FontWeight.w900),
                     ),
                   ],
                 ),
+              ],
             ],
           ),
         ),
@@ -190,13 +229,127 @@ class _StampCard extends StatelessWidget {
   }
 }
 
-/// The frank on an earned stamp: a tilted oval of teal ink.
+/// A medal's metal: a face, a darker rim and a ribbon.
+const _metals = {
+  StampMedal.bronze: (Color(0xffd9955a), Color(0xff9c5d2c), SkyColors.coral),
+  StampMedal.silver: (Color(0xffdfe6ee), Color(0xff8e9cae), SkyColors.sky),
+  StampMedal.gold: (SkyColors.yellow, SkyColors.gold, SkyColors.coral),
+};
+
+/// One small medal on its ribbon. A medal won is struck in its metal; one
+/// still to win is a pale blank, outlined darker when it is the next one.
+class _Medal extends StatelessWidget {
+  const _Medal(this.medal, {required this.won, required this.next});
+  final StampMedal medal;
+  final bool won, next;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: 21,
+    height: 27,
+    child: CustomPaint(
+      painter: _MedalPainter(medal, won: won, next: next),
+    ),
+  );
+}
+
+class _MedalPainter extends CustomPainter {
+  const _MedalPainter(this.medal, {required this.won, required this.next});
+  final StampMedal medal;
+  final bool won, next;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final (face, rim, ribbon) = _metals[medal]!;
+    final ink = SkyColors.ink.withValues(alpha: won ? 1 : (next ? .6 : .28));
+    final outline = Paint()
+      ..color = ink
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = won || next ? 1.6 : 1.3
+      ..strokeJoin = StrokeJoin.round;
+    final w = size.width;
+    final r = w / 2 - 1;
+    final center = Offset(w / 2, size.height - r - 1);
+    // The ribbon: a V of two tails from the top edge to the medal.
+    if (won) {
+      for (final side in [-1.0, 1.0]) {
+        final tail = Path()
+          ..moveTo(w / 2 + side * 7, 1)
+          ..lineTo(w / 2 + side * 2, 1)
+          ..lineTo(w / 2 - side * 3, center.dy - r + 2.5)
+          ..lineTo(w / 2 + side * 2, center.dy - r + 2.5)
+          ..close();
+        canvas.drawPath(
+          tail,
+          Paint()..color = side < 0 ? ribbon : Color.lerp(ribbon, rim, .35)!,
+        );
+        canvas.drawPath(tail, outline);
+      }
+    }
+    if (won) {
+      canvas.drawCircle(center + const Offset(0, 1.4), r, Paint()..color = ink);
+    }
+    canvas.drawCircle(
+      center,
+      r,
+      Paint()
+        ..color = won
+            ? rim
+            : next
+            ? Color.lerp(SkyColors.cream, face, .55)!
+            : Color.lerp(SkyColors.cream, SkyColors.sky, .3)!,
+    );
+    if (next) {
+      // The next medal waits in a dashed ring of its metal's rim.
+      final ring = Path()
+        ..addOval(Rect.fromCircle(center: center, radius: r - 2.6));
+      for (final metric in ring.computeMetrics()) {
+        for (var d = 0.0; d < metric.length; d += 4.4) {
+          canvas.drawPath(
+            metric.extractPath(d, d + 2.2),
+            Paint()
+              ..color = rim
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = 1.2,
+          );
+        }
+      }
+    }
+    if (won) {
+      canvas.drawCircle(center, r - 2.2, Paint()..color = face);
+      // A struck star and a glint.
+      final star = Path();
+      for (var i = 0; i < 10; i++) {
+        final a = -math.pi / 2 + i * math.pi / 5;
+        final d = i.isEven ? r * .52 : r * .23;
+        final p = center + Offset(math.cos(a) * d, math.sin(a) * d);
+        i == 0 ? star.moveTo(p.dx, p.dy) : star.lineTo(p.dx, p.dy);
+      }
+      star.close();
+      canvas.drawPath(star, Paint()..color = rim);
+      canvas.drawCircle(
+        center + Offset(-r * .42, -r * .42),
+        1.1,
+        Paint()..color = SkyColors.white.withValues(alpha: .85),
+      );
+    }
+    canvas.drawCircle(center, r, outline);
+  }
+
+  @override
+  bool shouldRepaint(_MedalPainter oldDelegate) =>
+      oldDelegate.medal != medal ||
+      oldDelegate.won != won ||
+      oldDelegate.next != next;
+}
+
+/// The frank on a gold stamp: a tilted oval of teal ink.
 class _Postmark extends StatelessWidget {
   const _Postmark();
 
   @override
   Widget build(BuildContext context) => Transform.rotate(
-    angle: -.14,
+    angle: -.12,
     child: Container(
       padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
@@ -204,7 +357,7 @@ class _Postmark extends StatelessWidget {
         border: Border.all(color: _tealInk, width: 2),
       ),
       child: Container(
-        padding: const EdgeInsets.fromLTRB(7, 1, 9, 1),
+        padding: const EdgeInsets.fromLTRB(5, 0, 7, 0),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: _tealInk.withValues(alpha: .6), width: 1),
@@ -212,15 +365,15 @@ class _Postmark extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.check_rounded, size: 14, color: _tealInk),
-            const SizedBox(width: 3),
+            const Icon(Icons.check_rounded, size: 13, color: _tealInk),
+            const SizedBox(width: 2),
             Text(
               'STAMPED',
               style: bodyText(
-                11,
+                10.5,
                 color: _tealInk,
                 weight: FontWeight.w900,
-              ).copyWith(letterSpacing: 1.4, height: 1.2),
+              ).copyWith(letterSpacing: 1.2, height: 1.2),
             ),
           ],
         ),

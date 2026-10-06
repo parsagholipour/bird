@@ -6,6 +6,7 @@ import 'dragon_body_art.dart';
 import 'dragon_head_art.dart';
 import 'dragon_kit.dart';
 import 'dragon_layout.dart';
+import 'dragon_pose.dart';
 
 /// The Ember Dragon's hide: torso, neck, head, tail and near legs painted as
 /// ONE creature instead of parts laid over each other.
@@ -307,6 +308,44 @@ final class DragonHide {
 
   // ------------------------------------------------------- scale rows --
 
+  /// The neck and tail at rest, which the scale rows are laid out on.
+  static final _restNeck = DragonHeadArt.neckOf(
+    DragonHeadPose.of(DragonPose.still),
+  );
+  static final _restTail = DragonBodyArt.tailOf(
+    DragonBodyPose.of(DragonPose.still).finite,
+  );
+
+  static _TubeFrame _neckFrame(DragonNeck neck) => (u) {
+    final i = u.floor().clamp(0, 7), t = u - i;
+    return (
+      centre: Offset.lerp(neck.spine[i], neck.spine[i + 1], t)!,
+      normal: DragonKit.unit(Offset.lerp(neck.nrm[i], neck.nrm[i + 1], t)!),
+      plus: DragonKit.mix(neck.plus[i], neck.plus[i + 1], t),
+      minus: DragonKit.mix(neck.minus[i], neck.minus[i + 1], t),
+    );
+  };
+
+  static _TubeFrame _tailFrame(DragonTail tail) => (u) {
+    final n = tail.spine.length;
+    final i = u.floor().clamp(0, n - 2), t = u - i;
+    final d = DragonKit.unit(Offset.lerp(tail.dirs[i], tail.dirs[i + 1], t)!);
+    final w =
+        DragonKit.mix(
+          (tail.belly[i] - tail.dorsal[i]).distance,
+          (tail.belly[i + 1] - tail.dorsal[i + 1]).distance,
+          t,
+        ) /
+        2;
+    // (the belly is the +normal side)
+    return (
+      centre: Offset.lerp(tail.spine[i], tail.spine[i + 1], t)!,
+      normal: Offset(-d.dy, d.dx),
+      plus: w,
+      minus: w,
+    );
+  };
+
   /// Scale rows on the neck and the tail, in the torso's own vocabulary: dark
   /// arcs with a lit lip, bulging toward the tail, the pitch shrinking toward
   /// the head and the tip (foreshortening). They begin where the tube leaves
@@ -314,46 +353,22 @@ final class DragonHide {
   void _rows(Canvas c) {
     final tone = body.tone;
     final path = Path();
+    // (Laid out on the resting dragon and carried by this pose's: see
+    // [DragonKit.tubeRows].)
     DragonKit.tubeRows(
       path,
-      (u) {
-        final i = u.floor().clamp(0, 7), t = u - i;
-        return (
-          centre: Offset.lerp(neck.spine[i], neck.spine[i + 1], t)!,
-          normal: DragonKit.unit(Offset.lerp(neck.nrm[i], neck.nrm[i + 1], t)!),
-          plus: DragonKit.mix(neck.plus[i], neck.plus[i + 1], t),
-          minus: DragonKit.mix(neck.minus[i], neck.minus[i + 1], t),
-        );
-      },
+      _neckFrame(neck),
+      layout: _neckFrame(_restNeck),
       from: 1.5,
       to: 7.0,
       pitchFrom: .24,
       pitchTo: .15,
       bulge: -1,
     );
-    final n = tail.spine.length;
     DragonKit.tubeRows(
       path,
-      (u) {
-        final i = u.floor().clamp(0, n - 2), t = u - i;
-        final d = DragonKit.unit(
-          Offset.lerp(tail.dirs[i], tail.dirs[i + 1], t)!,
-        );
-        final w =
-            DragonKit.mix(
-              (tail.belly[i] - tail.dorsal[i]).distance,
-              (tail.belly[i + 1] - tail.dorsal[i + 1]).distance,
-              t,
-            ) /
-            2;
-        // (the belly is the +normal side)
-        return (
-          centre: Offset.lerp(tail.spine[i], tail.spine[i + 1], t)!,
-          normal: Offset(-d.dy, d.dx),
-          plus: w,
-          minus: w,
-        );
-      },
+      _tailFrame(tail),
+      layout: _tailFrame(_restTail),
       from: 3.4,
       to: 10.2,
       pitchFrom: .22,
@@ -890,3 +905,8 @@ final class DragonHide {
   /// How far inside the trunk (torso or tail) [p] is; negative outside.
   double _depth(Offset p) => math.max(_torsoDepth(p), _tailDepth(p));
 }
+
+typedef _TubeFrame =
+    ({Offset centre, Offset normal, double plus, double minus}) Function(
+      double u,
+    );

@@ -407,7 +407,8 @@ void main() {
       await _open(tester, phone, '/play/touch?level=1-4', stars: open);
       final game = await _game(tester);
       final controller = _controller(tester);
-      _fly(controller, collect: 50);
+      // 1-4's marks are 30 and 50 since Brazil's gale.
+      _fly(controller, collect: 30);
       await _settle(tester);
       await _paint(tester, game);
       await tester.pump(const Duration(seconds: 2));

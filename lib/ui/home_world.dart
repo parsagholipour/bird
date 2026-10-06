@@ -161,7 +161,7 @@ class HomeEntrance extends StatelessWidget {
 }
 
 /// Everything that lives behind the menu: sky, sun, clouds, far islands, the
-/// star trail, the island and the bird.
+/// trail of stars, the island and the bird.
 class HomeWorld extends StatelessWidget {
   const HomeWorld({super.key, required this.bird});
   final int bird;
@@ -491,8 +491,8 @@ class _SunPainter extends CustomPainter {
   bool shouldRepaint(_SunPainter oldDelegate) => oldDelegate.accent != accent;
 }
 
-/// Small far-off islands, the dotted star trail from the Endless key and the
-/// stars along it. A pulse of light travels the trail from the key, and the
+/// Small far-off islands and the dotted trail of stars from the Endless key.
+/// A pulse of light travels the trail from the key, and the
 /// bird's hop ends in a star that pops.
 class _TrailPainter extends CustomPainter {
   _TrailPainter({required this.clock, required this.enter, required this.still})

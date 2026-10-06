@@ -628,6 +628,12 @@ abstract final class DragonKit {
   /// gives the tube at a sample: its centre, its unit normal (+ is the side
   /// [plus] wide) and both half widths; [reach] is how much of the width the
   /// arcs cover. Alternate rows are staggered, as the torso's are.
+  ///
+  /// [layout], when given, is the same tube at rest: where the rows fall and
+  /// how many arcs each holds are measured on it, and [frame] only carries
+  /// them. A tube that bends, stretches or swells then moves its scales with
+  /// it like a skin, instead of re-laying them every frame (which made whole
+  /// rows and arcs pop in and out as the neck moved).
   static void tubeRows(
     Path out,
     ({Offset centre, Offset normal, double plus, double minus}) Function(
@@ -640,21 +646,27 @@ abstract final class DragonKit {
     required double pitchTo,
     required double bulge,
     double reach = 1,
+    ({Offset centre, Offset normal, double plus, double minus}) Function(
+      double u,
+    )?
+    layout,
   }) {
+    final lay = layout ?? frame;
     var u = from;
     var row = 0;
     while (u < to) {
       final k = (u - from) / (to - from);
       final pitch = mix(pitchFrom, pitchTo, k);
       final f0 = frame(u);
+      final l0 = lay(u);
       // Samples per unit of arclength here, from a quarter-sample step.
       final speed = math.max(
         .05,
-        (frame(u + .25).centre - f0.centre).distance / .25,
+        (lay(u + .25).centre - l0.centre).distance / .25,
       );
       final du = pitch / speed;
       final f1 = frame(u + bulge * du * 1.35);
-      final width = f0.plus + f0.minus;
+      final width = l0.plus + l0.minus;
       final cols = math.max(1, (width / .3).round());
       final step = 2 * reach / cols;
       final half = step / 2;

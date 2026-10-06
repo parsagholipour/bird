@@ -18,9 +18,7 @@ import 'package:push_up_bird/game/play_controller.dart';
 import 'package:push_up_bird/main.dart';
 import 'package:push_up_bird/ui/play_screen.dart';
 import 'package:push_up_bird/ui/record_chase.dart';
-import 'package:push_up_bird/ui/campaign_chrome.dart' show MapKey;
 import 'package:push_up_bird/ui/components.dart';
-import 'package:push_up_bird/ui/flight_goals.dart';
 import 'package:push_up_bird/ui/match_hud.dart';
 import 'play_session_test.dart' show SessionSource, SilentAudio, startFlight;
 import 'daily_adventure_test.dart' show dailyRun;
@@ -131,20 +129,6 @@ void main() {
       await capture(tester, 'home-classic');
       expect(find.byKey(const ValueKey('endless')), findsOneWidget);
       await capture(tester, 'home-star-trail');
-      if (player == 'new') {
-        await tester.tap(find.text('Flight goals'));
-        await tester.pumpAndSettle();
-        expect(find.text('Star pocket'), findsOneWidget);
-        expect(find.text('Fly for 60 seconds in one trail.'), findsOneWidget);
-        expect(tester.takeException(), isNull);
-        await capture(tester, 'flight-goals-guide');
-        await tester.tap(
-          find.byWidgetPredicate(
-            (w) => w is MapKey && w.label == 'Close flight goals',
-          ),
-        );
-        await tester.pumpAndSettle();
-      }
       await tester.tap(find.byKey(const ValueKey('mini-games')));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Push-Up Flight'));
@@ -223,15 +207,18 @@ void main() {
       await tester.pump(const Duration(milliseconds: 16));
       game.pauseEngine();
       await tester.pump();
-      expect(find.byType(FlightGoalHud), findsNothing);
-      expect(find.text('Wing earned!'), findsNothing);
-      if (player == 'new') expect(audio.wings, 1);
+      expect(
+        audio.wings,
+        0,
+        reason: 'An endless flight has no goals to chime for',
+      );
+      final earlierStars = audio.stars;
       sim.collectedStars++;
       sim.completedTrios++;
       controller.notify();
       await tester.pump();
       final starSounds = audio.stars;
-      expect(starSounds, 1);
+      expect(starSounds, earlierStars + 1);
       expect(audio.trios, 0);
       controller.notify();
       await tester.pump();
@@ -277,7 +264,6 @@ void main() {
       );
       expect(tester.takeException(), isNull);
       await capture(tester, 'star-trail-recovery');
-      if (player == 'new') expect(audio.wings, 1);
       sim.phase = RunPhase.paused;
       controller.notify();
       await tester.pump();
@@ -293,16 +279,16 @@ void main() {
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       expect(find.text('STAR POINTS'), findsOneWidget);
-      expect(find.text('3/3 flight wings'), findsOneWidget);
-      if (player == 'new') expect(audio.wings, 1);
+      expect(audio.wings, 0);
       expect(find.text('11 best streak'), findsOneWidget);
       expect(
         find.textContaining(
           player == 'daily'
               ? 'Today’s postcard stamped!'
               : returning
-              ? 'Next stamp: Constellation'
-              : 'Stamp earned: First wings',
+              // A second bird, after the earlier flight's.
+              ? 'Flock together: Bronze'
+              : 'All-rounder: Bronze',
         ),
         findsOneWidget,
       );
@@ -319,28 +305,13 @@ void main() {
       expect(tester.takeException(), isNull);
       expect(find.text('Your star points to beat'), findsOneWidget);
       await capture(tester, 'records-star-trail');
-      if (player == 'new') {
-        await tester.tap(find.byTooltip('View Star Trail flight goals'));
-        await tester.pumpAndSettle();
-        expect(find.text('EARNED'), findsNWidgets(3));
-        expect(
-          find.text('All three wings earned in one flight!'),
-          findsOneWidget,
-        );
-        expect(tester.takeException(), isNull);
-        await capture(tester, 'flight-goals-earned');
-        await tester.tap(
-          find.byWidgetPredicate(
-            (w) => w is MapKey && w.label == 'Close flight goals',
-          ),
-        );
-        await tester.pumpAndSettle();
-      }
       appRouter.go('/passport');
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
-      expect(find.text('First wings'), findsOneWidget);
-      expect(find.text('STAMPED'), findsOneWidget);
+      expect(find.text('Frequent flyer'), findsOneWidget);
+      // A first push-up flight wins the All-rounder's bronze.
+      expect(find.text('TO SILVER'), findsWidgets);
+      expect(find.text('STAMPED'), findsNothing);
       await capture(tester, 'sky-passport');
       appRouter.go('/birds');
       await tester.pumpAndSettle();

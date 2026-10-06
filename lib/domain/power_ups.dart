@@ -76,7 +76,7 @@ abstract final class SprintPower {
   static double cooldown(int level) => _cooldown[level];
 }
 
-/// Stars that restore a Star Trail shield, and the hit recovery after it
+/// Stars that restore the bird's shield, and the hit recovery after it
 /// takes a hit. The top is every 9 stars and 1.5 s, as before upgrades. A
 /// lost heart keeps the full 1.5 s at every level.
 abstract final class ShieldPower {

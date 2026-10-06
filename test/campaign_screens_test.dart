@@ -23,7 +23,6 @@ import 'package:push_up_bird/data/providers.dart';
 import 'package:push_up_bird/data/session_repository.dart';
 import 'package:push_up_bird/domain/campaign.dart';
 import 'package:push_up_bird/domain/campaign_story.dart';
-import 'package:push_up_bird/domain/flight_goals.dart';
 import 'package:push_up_bird/domain/game_rules.dart';
 import 'package:push_up_bird/game/audio.dart';
 import 'package:push_up_bird/game/bird_game.dart';
@@ -518,8 +517,8 @@ void main() {
       expect(find.byType(LevelIntroCard), findsOneWidget);
       expect(find.text('First Delivery'), findsWidgets);
       expect(find.text('Reach the finish'), findsOneWidget);
-      expect(find.text('Collect 35 stars'), findsOneWidget);
-      expect(find.text('Collect 60 stars'), findsOneWidget);
+      expect(find.text('Collect 15 stars'), findsOneWidget);
+      expect(find.text('Collect 25 stars'), findsOneWidget);
       expect(find.text('NEW'), findsOneWidget);
       expect(find.text('Tap to flap. Fly through the stars.'), findsOneWidget);
       await _tap(tester, find.byKey(const ValueKey('level-intro-fly')));
@@ -531,7 +530,7 @@ void main() {
       expect(controller.level, same(_level('1-1')));
       expect(controller.stage, PlayStage.flying);
       expect(find.text('Start touch flight'), findsNothing);
-      _fly(controller, collect: 40);
+      _fly(controller, collect: 20);
       expect(controller.simulation!.endReason, EndReason.completed);
       await _settle(tester);
       expect(controller.stage, PlayStage.results);
@@ -573,10 +572,10 @@ void main() {
       );
       await _tap(tester, find.byKey(const ValueKey('campaign-node-1-1')));
       expect(
-        find.bySemanticsLabel('Two stars: Collect 35 stars. Earned.'),
+        find.bySemanticsLabel('Two stars: Collect 15 stars. Earned.'),
         findsOneWidget,
       );
-      expect(find.text('Best: 40 stars'), findsOneWidget);
+      expect(find.text('Best: 20 stars'), findsOneWidget);
     });
 
     testWidgets('with motion, the map holds still under its card', (
@@ -664,7 +663,7 @@ void main() {
       // The knockout keeps its own tumbling bird.
       expect(game.hideBird, isFalse);
       await tester.pump(const Duration(milliseconds: 1600));
-      // Campaign keys; no endless best or flight wings.
+      // Campaign keys; no endless best.
       expect(find.text('Retry'), findsOneWidget);
       expect(find.text('Map'), findsOneWidget);
       expect(find.text('Fly again'), findsNothing);
@@ -906,9 +905,7 @@ void main() {
       expect(audio.said, isEmpty);
     });
 
-    testWidgets('a replayed level chimes at its own marks, not flight goals', (
-      tester,
-    ) async {
+    testWidgets('a replayed level chimes at its own marks', (tester) async {
       VideoPlayerPlatform.instance = FakeVideoPlatform();
       final audio = _HeardAudio();
       final app = await _open(tester, phone, audio: () => audio);
@@ -931,8 +928,6 @@ void main() {
       expect(sim.endReason, EndReason.completed);
       final marks = plan.marks.reached(sim.collectedStars);
       expect(marks, 1);
-      // The endless goals would chime twice: 12 stars and a 6-star streak.
-      expect(FlightGoals.earned(FlightGoals.forSimulation(sim)), 2);
       final run = levelRun(
         'chime',
         '1-1',
@@ -967,7 +962,7 @@ void main() {
       expect(sessionTitle(levelRun('a', '1-3')), '1-3 · Bat Patrol');
       expect(
         sessionTitle(levelRun('b', '1-3').copyWithoutLevel()),
-        'Tap & Fly · Star Trail',
+        'Tap & Fly · Endless',
       );
     });
   });

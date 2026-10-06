@@ -10,6 +10,13 @@ levels for normal game (tap to fly) or mini games like push ups, jump,
 squat (not 1v1). (conversations not included like normal campaigns)", with
 every gate, star, heart, enemy and the finish line placed by hand.
 
+The builder opens after a player's first five scored flights (campaign
+levels, endless and the camera mini games; co-op, duels and built flights do
+not count), so they know what a level is made of before they make one. Until
+then Home's Level Builder key is greyed and padlocked, says "Unlocks in N
+flights", and a press only plays the shop's "not yet" cue
+(`builderUnlockFlights`, `ProgressSnapshot.flightsToBuilder`).
+
 ## A built level
 
 A built level is one region's route with everything on it placed by hand

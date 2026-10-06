@@ -10,7 +10,6 @@ import '../domain/tracking.dart';
 import 'campaign_chrome.dart' show MapGlyph, MapKey;
 import 'campaign_screen.dart' show campaignStarsInBuild;
 import 'components.dart';
-import 'flight_goals.dart';
 import 'home_keys.dart';
 import 'home_parts.dart';
 import 'home_world.dart';
@@ -178,6 +177,7 @@ class _HomeScene extends StatelessWidget {
                 slide: const Offset(0, 14),
                 child: HomeLevelBuilderKey(
                   key: const ValueKey('level-builder'),
+                  flightsLeft: progress.flightsToBuilder,
                   onPressed: () => context.go('/builder'),
                 ),
               ),
@@ -301,7 +301,8 @@ class _Dock extends StatelessWidget {
       ),
       HomeDockItem(
         label: 'Passport',
-        semanticLabel: 'Passport. ${progress.earnedStamps} of 8 stamps.',
+        semanticLabel:
+            'Passport. ${progress.earnedMedals} of $passportMedals medals.',
         art: const MenuCollectibleArt(MenuCollectible.passport),
         onTap: () => context.go('/passport'),
       ),
@@ -309,11 +310,6 @@ class _Dock extends StatelessWidget {
         label: 'Records',
         art: const MenuCollectibleArt(MenuCollectible.records),
         onTap: () => context.go('/records'),
-      ),
-      HomeDockItem(
-        label: 'Flight goals',
-        art: const MenuCollectibleArt(MenuCollectible.goals),
-        onTap: () => showFlightGoals(context, _course),
       ),
     ];
     return HomeEntrance(

@@ -17,6 +17,7 @@ import 'package:push_up_bird/main.dart';
 import 'package:push_up_bird/ui/builder/builder_canvas.dart';
 import 'package:push_up_bird/ui/builder/builder_controller.dart';
 
+import 'daily_adventure_test.dart' show dailyRun;
 import 'play_session_test.dart' show SessionSource, SilentAudio;
 
 /// The Level Builder's UI tests open the whole app (its router, frame and
@@ -46,7 +47,8 @@ class BuilderApp {
 }
 
 /// Opens the app at [at] on a [size] display (logical pixels at [dpr]),
-/// with [levels] already kept, Reduced Motion on unless [reduced] is false.
+/// with [levels] already kept and [flown] endless flights saved, Reduced
+/// Motion on unless [reduced] is false.
 Future<BuilderApp> pumpBuilderApp(
   WidgetTester tester, {
   String at = '/builder',
@@ -54,6 +56,7 @@ Future<BuilderApp> pumpBuilderApp(
   double dpr = 1,
   EdgeInsets? insets,
   List<BuiltPlan> levels = const [],
+  int flown = 0,
   bool reduced = true,
 }) async {
   tester.view.physicalSize = size * dpr;
@@ -75,6 +78,11 @@ Future<BuilderApp> pumpBuilderApp(
   await repo.setSetting(SettingKey.reducedMotion, reduced);
   for (final plan in levels) {
     await repo.builtLevels.create(plan);
+  }
+  for (var i = 0; i < flown; i++) {
+    await repo.saveRun(
+      dailyRun('flown-$i', DateTime(2026, 9, 1), mode: PlayMode.touch),
+    );
   }
   final container = ProviderContainer(
     overrides: [

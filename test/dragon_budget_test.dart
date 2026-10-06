@@ -42,7 +42,9 @@ const _shares = <_Share>[
   // the throat (one more keeps the throat's belly plates behind it), against
   // the old 5; and 144-173 ops against the old 190 (the shared outline
   // replaces five double strokes). So the share is the old ones' sum,
-  // tightened to what the hide needs plus a little headroom.
+  // tightened to what the hide needs plus a little headroom. (+2 in 2026-10:
+  // the circlet, drawn in perspective, paints its far band and that band's
+  // ink; the defeat's .3 frame measured 181.)
   (
     'hide: neck+head+body (B1+B2+B9)',
     [
@@ -55,7 +57,7 @@ const _shares = <_Share>[
       'foreleg',
       'smoke',
     ],
-    180,
+    182,
     4,
     5,
   ),

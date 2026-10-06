@@ -454,11 +454,11 @@ class _Rail extends CustomPainter {
 }
 
 /// What a scored flight forgives, as a sticker: three hearts and a shield on
-/// Star Trail, a single heart on Classic, followed by [text].
+/// endless flights, a single heart on Classic, followed by [text].
 class SetupLives extends StatelessWidget {
   const SetupLives({super.key, required this.hearts, required this.text});
 
-  /// Star Trail's three hearts and a shield, or Classic's one chance.
+  /// Three hearts and a shield, or Classic's one chance.
   final bool hearts;
   final String text;
 

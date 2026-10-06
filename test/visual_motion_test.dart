@@ -5,9 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:push_up_bird/game/sky_scenery.dart';
 import 'package:push_up_bird/game/bird_trail.dart';
 import 'package:push_up_bird/ui/flight_portrait.dart';
-import 'package:push_up_bird/ui/flight_goals.dart';
-import 'package:push_up_bird/domain/flight_goals.dart';
-import 'package:push_up_bird/domain/flight_course.dart';
 
 Future<List<int>> renderScenery({
   required double seconds,
@@ -132,43 +129,6 @@ void main() {
   }
 
   for (final reduced in [true, false]) {
-    testWidgets(
-      'wing celebration settles and respects Reduced Motion $reduced',
-      (tester) async {
-        Widget hud(int gates) => MaterialApp(
-          home: Center(
-            child: RepaintBoundary(
-              key: const ValueKey('portrait-capture'),
-              child: SizedBox(
-                width: 120,
-                child: FlightGoalHud(
-                  goals: [
-                    for (final goal in FlightGoals.forCourse(
-                      FlightCourse.classic,
-                    ))
-                      FlightGoalProgress(goal, gates),
-                  ],
-                  celebrating: gates > 0,
-                  reducedMotion: reduced,
-                ),
-              ),
-            ),
-          ),
-        );
-        await tester.pumpWidget(hud(0));
-        await tester.pumpWidget(hud(5));
-        final first = await portraitPixels(tester);
-        await tester.pump(const Duration(milliseconds: 300));
-        final middle = await portraitPixels(tester);
-        expect(middle, reduced ? equals(first) : isNot(equals(first)));
-        await tester.pumpAndSettle();
-        final settled = await portraitPixels(tester);
-        await tester.pumpWidget(hud(5));
-        await tester.pump(const Duration(seconds: 2));
-        expect(await portraitPixels(tester), settled);
-        expect(tester.takeException(), isNull);
-      },
-    );
     testWidgets(
       'result celebration is finite and respects reduced motion $reduced',
       (tester) async {

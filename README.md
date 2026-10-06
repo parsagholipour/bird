@@ -32,7 +32,7 @@ an input journal and any camera footage for replay in Records → Saved sessions
 Replay **Flight highlights** lets you jump to streaks, power-ups and the final
 approach, with a short lead-in before each moment.
 
-**Endless flights:** Star Trail keeps going with three hearts, a shield and
+**Endless flights:** keep going with three hearts, a shield and
 streak multipliers. Every control has a gradual time-based speed increase,
 with no finish timer. Garden gates give way to rising **Wind Lifts**, opening
 and closing **Petal Shutters**, and two-column **Switchbacks**. Longer flights
@@ -54,26 +54,28 @@ magnet/glide meters when relevant and a round Shoot control with ammo and charge
 Custom illustrated icons, brief state-change pops and press feedback keep the
 sky clear; Reduced Motion disables the decorative movement. Endless flights
 omit the clock, pace, flap count and persistent instruction/goal cards. The
-60-second flight wing, daily goal and passport stamp remain endurance milestones,
-so you can earn them and keep flying. Existing replay journals retain their original timing and physics,
+60-second daily goal and passport stamp remain endurance milestones, so you can
+earn them and keep flying. Existing replay journals retain their original timing and physics,
 including the four-pattern version-12 flights.
 
-**Classic** and **Star Trail** both run endlessly. Sky Courier
+**Classic** and the endless course (`FlightCourse.starTrail`) both run endlessly. Sky Courier
 and Cloud Cruise are retired; a saved journal that names either one opens as
-Star Trail. Every course supports push-ups, squats, jumps and touch. Three changing
+the endless course. Every course supports push-ups, squats, jumps and touch. Three changing
 sky regions with leafy stone, festival flags and lantern-lit gates,
 perfect-pass celebrations, bird trails and an eight-stamp
-**Sky Passport** give flights more character and goals. Each scored course keeps
-separate records for each control. See the
+**Sky Passport** give flights more character and goals. Each stamp has a
+bronze, silver and gold medal (24 in all), from a first real goal to a
+long-term one; Star chaser, for one, asks for 50, 500 and 5,000 stars. Each
+scored course keeps separate records for each control. See the
 [arcade update notes](docs/arcade-expansion.md) for rules, design links and checks.
 
 **Home** opens on a sunny title scene: your equipped bird hops on its island
-under turning sun rays, and a dotted star trail leads from the **Endless** key to
+under turning sun rays, and a dotted trail of stars leads from the **Endless** key to
 it. The main game leads, with two keys of the same size under the title: the
 mint **Campaign** key shows a little map, the level the journey continues with
 (such as "1-3 · Canopy Run", or "Every letter delivered") and the level stars
 earned, and opens the campaign map; the yellow **Endless** key breathes, shows
-your best endless flight and starts Tap & Fly on Star Trail immediately,
+your best endless flight and starts an endless Tap & Fly flight immediately,
 with no setup screen. Below them, a quieter lavender **Mini games** key opens
 a picker with Push-Up Flight, Squat & Fly and Jump & Fly (camera workouts) and Fly Together
 (two players on one phone). Every screen behind the picker (each workout's
@@ -88,7 +90,7 @@ glows with its 0/3 count and turns gold when all three goals are done. Clouds
 drift, stars twinkle and the screen assembles itself on launch; with Reduced
 Motion the whole scene is still.
 
-**Tap & Fly**, the **Endless** key on Home, starts a full touch flight on Star Trail. Tap
+**Tap & Fly**, the **Endless** key on Home, starts a full endless touch flight. Tap
 anywhere in the sky to rise, then release and tap again. Touch flights have a
 stronger flap, narrower openings and closer buildings. Tap **Shoot** to spit a
 rock straight from the bird's beak at bats ahead, or hold it to charge a bigger
@@ -96,7 +98,7 @@ rock; aim by changing your height. Defeating an enemy earns +3 points on Star
 Trail; buildings block rocks, and each shot has a short cooldown and spends
 ammo. Bats use the same shield/heart collision rules as
 buildings. Scored flights contribute
-to the passport, daily adventures and flight goals, with separate touch bests in
+to the passport and daily adventures, with separate touch bests in
 Records. Any flight can pause and resume after a short countdown; scored flights
 still end on a collision or lost tracking. Save session keeps a gameplay replay without camera video,
 including shots and enemies. Existing replays keep their original flight rules.
@@ -158,7 +160,7 @@ close-up and gameplay-size frames (`spitter-*.png`) in the same folder.
 **Touch boss fights:** after 45 seconds, the gates clear for **Baron Bat**.
 Dodge his aimed fireballs, spread volleys and small bat helpers while using
 Shoot to drain his visible health bar. He attacks faster below half health.
-Winning earns 30 Star Trail points and restores your shield, then normal flight
+Winning earns 30 star points and restores your shield, then normal flight
 resumes. Another boss arrives after 45 more seconds of normal flight. Baron
 Bat starts with 12 HP and reaches a maximum of 24 HP. Movement controls stay
 free of bosses. Version 15
@@ -240,7 +242,7 @@ recharges for 15 seconds from the press; the button counts down the seconds
 and chimes when ready. Pauses freeze the burst and the cooldown. Tapping
 Sprint never flaps. Earlier replays have no sprint.
 
-**Rush paths (version 32):** 22 seconds into a Star Trail flight, and between
+**Rush paths (version 32):** 22 seconds into an endless flight, and between
 later bosses, the course turns into a rush path. A banner warns which kind is
 coming, and each brings danger from a different side:
 - “WILDFIRE!”: a wall of flame chases you from behind.
@@ -311,16 +313,16 @@ warm-up, stronger at two thirds of its health, fury at one third), and Baron
 Bat, the Spitter King, the Dusk Empress and King Coo send a vanguard of small
 enemies before they show up. From rules version 45 King Coo's pigeons throw
 stale crusts and he has twice the health; from 46 the Searchlight Gargoyle
-fights as long, with faster sweeps and feathers that fall on his open lamp; from 47 the bird catches a boss's heart when it touches it; from 49 the Gargoyle's feathers come in as level at the bottom of the sky as at the top. Endless Star Trail stays the high-score mode;
+fights as long, with faster sweeps and feathers that fall on his open lamp; from 47 the bird catches a boss's heart when it touches it; from 49 the Gargoyle's feathers come in as level at the bottom of the sky as at the top. The endless flight stays the high-score mode;
 from rules version 48 its returning Baron Bat (the second of a flight, and every later one) has twice the
 health, and from 53 every endless boss has 25% more health at each meeting after its second than at the
 one before. See the [campaign design](docs/campaign.md).
 
 Levels are generated from data, not built by hand. Each has a fixed seed,
-its region, 60–90 seconds of flight to a gold FINISH line, the hazards it
+its region, 30–90 seconds of flight to a gold FINISH line, the hazards it
 allows and the endless pace it starts from. Every attempt lays the same route
 on every phone, however you fly it. Mechanics arrive gently. Chapter 1 brings
-flying, stars, Shoot and bats (from 1-3) and Sprint (from 1-5). Chapter 2
+flying, stars and Shoot (from 1-1), bats (from 1-2) and Sprint (from 1-5). Chapter 2
 brings spitter beetles, stone panels and rush paths. A level that brings
 something new says so on its card. The last level of a chapter is 30 seconds
 of flight and then the boss's debut fight. The boss says one line of story on
@@ -365,9 +367,9 @@ next chapter, and a postcard from the route arrives on the map. Each level
 keeps its best stars, star count and score, and the level stars are saved
 for a future upgrade shop.
 
-Campaign flights never count as endless records, bests or flight wings. They
+Campaign flights never count as endless records or bests. They
 do count toward daily adventures (except "The whole journey") and toward the
-First wings, On the dot, Star chaser, Constellation and Flock together
+Frequent flyer, On the dot, Star chaser, Constellation and Flock together
 stamps. A saved session keeps the level's whole plan, so it replays exactly
 even after the level is retuned. The library names it after the level, such
 as "1-3 · Bat Patrol". Progress lives in database schema 5, whose migration
@@ -491,7 +493,7 @@ follow the full calibrated top and bottom positions. Older saved replays retain
 their original targets and scoring rules.
 
 **Star groups (version 30):** collect all three stars in one group for +5
-points in Star Trail. Each pickup moves into the bird and shrinks
+points in endless flights. Each pickup moves into the bird and shrinks
 away over 220 ms. A small gold aura fades at the last star's position when the
 group is complete. Groups have no connecting lines, charge slots or bird bursts.
 Missing a star forfeits that group's bonus; the next group starts fresh. Bonus points do not
@@ -513,14 +515,11 @@ The crew also reacts with pleased eyes after rewards, a brief startled look for
 bumps, and occasional blinks. These expressions follow replay time and stay
 neutral under Reduced Motion.
 
-Pre-endless Star Trail journals approach gold finish pennants in their last six
+Pre-endless `FlightCourse.starTrail` journals approach gold finish pennants in their last six
 seconds. Completed routes add a matching ribbon medal to the result portrait.
 
-**Flight goals:** earn three wings in one scored flight. Classic rewards 5, 10
-and 25 gates; Star Trail rewards 12 stars, a six-star streak and a full trail.
-Open Flight
-goals from Home to see the targets, or tap a result's wings for progress. Results
-keep Save session visible, then offer Watch replay directly after saving.
+Results keep Save session visible, then offer Watch replay directly after
+saving. Goals live in the daily Adventure; there are no per-flight goals.
 
 **Knockouts:** losing your last heart plays a short cartoon knockout. The flight
 freezes for a beat with a flash and a camera kick. The bird's eyes turn to dizzy
@@ -598,6 +597,19 @@ python3 tool/check_android_apk.py build/app/outputs/flutter-apk/app-release.apk
 
 Also run the Android SDK's `zipalign -c -P 16 -v 4` on the APK. ELF/ZIP alignment
 checks do not replace runtime testing on a device with a 16KB page size.
+
+### Google Play Games (optional)
+
+Cloud save and achievements through Google Play Games are built in but dormant
+until the Play Console project exists. Every Play id goes in one file,
+`lib/data/play_games_ids.dart`: the numeric project id in `playGamesAppId` and
+each achievement's `CgkI…` id in `playAchievementIds`. While the project id is
+empty the game makes no Play Games call, Android never starts the SDK, and
+Settings shows no Play Games strip. Android reads the id from that file at
+build time, so a rebuild is all it takes. Play Games is Android only; iOS hides
+it and needs iOS 14 (the plugin's minimum). The design, the logbook's merge
+rules and the Play Console steps are in
+[docs/specification.md](docs/specification.md#google-play-games-optional).
 
 ## Structure
 

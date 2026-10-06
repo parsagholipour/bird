@@ -140,7 +140,7 @@ abstract class FlightPlan {
   int rate({required bool finished, required int stars});
 }
 
-/// The endless Star Trail and every older flight, as they flew before
+/// The endless flight and every older flight, as they flew before
 /// plans existed.
 class EndlessPlan extends FlightPlan {
   const EndlessPlan();

@@ -11,7 +11,44 @@ import 'package:push_up_bird/domain/game_rules.dart';
 /// - 1-4 Carnival Skies gained Brazil's gale (2026-10-06): 80 s, a gale at
 ///   30 s, the gale's NEW hint and marks 30 / 50. It was 70 s with no set
 ///   piece, no hint and marks 45 / 70.
+/// - 1-1 First Delivery (2026-10-06): 30 s with Shoot, marks 15 / 25. It was
+///   60 s without Shoot, marks 35 / 60.
+/// - 1-2 Star Streak (2026-10-06): 45 s with a small bat on every fourth
+///   passage and Shoot, marks 25 / 45. It was 60 s with no enemies and no
+///   Shoot, marks 35 / 60.
 CampaignLevel asRecorded(CampaignLevel level) => switch (level.id) {
+  '1-1' => CampaignLevel(
+    name: level.name,
+    delivery: level.delivery,
+    hint: level.hint,
+    plan: const LevelPlan(
+      id: '1-1',
+      region: WorldRegion.jungle,
+      length: 60,
+      start: 0,
+      seed: 1101,
+      families: [ObstacleKind.garden],
+      shoot: false,
+      sprint: false,
+      marks: StarMarks(35, 60),
+    ),
+  ),
+  '1-2' => CampaignLevel(
+    name: level.name,
+    delivery: level.delivery,
+    hint: level.hint,
+    plan: const LevelPlan(
+      id: '1-2',
+      region: WorldRegion.jungle,
+      length: 60,
+      start: 0,
+      seed: 1102,
+      families: [ObstacleKind.garden, ObstacleKind.windLift],
+      shoot: false,
+      sprint: false,
+      marks: StarMarks(35, 60),
+    ),
+  ),
   '1-4' => CampaignLevel(
     name: level.name,
     delivery: level.delivery,

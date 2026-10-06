@@ -280,16 +280,16 @@ abstract final class Campaign {
             thanks: 'Best birthday ever! We squawked for an hour.',
           ),
           hint: 'Tap to flap. Fly through the stars.',
+          // A short first flight (30 s, was 60), with Shoot from the start.
           plan: LevelPlan(
             id: '1-1',
             region: _jungle,
-            length: 60,
+            length: 30,
             start: 0,
             seed: 1101,
             families: [_garden],
-            shoot: false,
             sprint: false,
-            marks: StarMarks(35, 60),
+            marks: StarMarks(15, 25),
           ),
         ),
         CampaignLevel(
@@ -300,16 +300,19 @@ abstract final class Campaign {
             thanks: 'No rush, I said. You rushed. Thank you.',
           ),
           hint: 'Chain stars for 3×; three perfect gates earn a magnet.',
+          // 45 s (was 60), with the first small bats on every fourth
+          // passage; cave bats join in 1-3.
           plan: LevelPlan(
             id: '1-2',
             region: _jungle,
-            length: 60,
+            length: 45,
             start: 0,
             seed: 1102,
             families: [_garden, _lift],
-            shoot: false,
+            lineup: [_bat],
+            cadence: 4,
             sprint: false,
-            marks: StarMarks(35, 60),
+            marks: StarMarks(25, 45),
           ),
         ),
         CampaignLevel(

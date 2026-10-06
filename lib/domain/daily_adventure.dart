@@ -29,7 +29,8 @@ class DailyGoal {
     DailyTask.stars => 'Collect $target stars across today’s flights.',
     DailyTask.streak => 'Collect $target stars in one unbroken streak.',
     DailyTask.perfects => 'Fly $target perfect passes today.',
-    DailyTask.finishTrail => 'Fly for at least 60 seconds in one Star Trail.',
+    DailyTask.finishTrail =>
+      'Fly for at least 60 seconds in one endless flight.',
   };
 }
 
@@ -77,7 +78,7 @@ class DailyAdventure {
       if (run.course == FlightCourse.starTrail) {
         stars += run.stars;
         if (run.bestCombo > streak) streak = run.bestCombo;
-        // "The whole journey" is an endless Star Trail; a campaign level
+        // "The whole journey" is an endless flight; a campaign level
         // has its own finish line.
         if (run.levelId == null &&
             run.durationSeconds >= FlightSimulation.trailDuration) {

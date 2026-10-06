@@ -4,6 +4,8 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:push_up_bird/data/progress_repository.dart'
+    show builderUnlockFlights;
 import 'package:push_up_bird/domain/built_code.dart';
 import 'package:push_up_bird/domain/built_level.dart';
 import 'package:push_up_bird/domain/built_templates.dart';
@@ -21,7 +23,12 @@ void main() {
 
   testWidgets('Home’s Level Builder key opens the builder, which lists the '
       'starter levels and invites a first level', (tester) async {
-    final app = await pumpBuilderApp(tester, at: '/');
+    // Home's key opens once the first flights are flown.
+    final app = await pumpBuilderApp(
+      tester,
+      at: '/',
+      flown: builderUnlockFlights,
+    );
     final key = find.byKey(const ValueKey('level-builder'));
     expect(key, findsOneWidget);
     expect(find.text('LEVEL BUILDER'), findsOneWidget);

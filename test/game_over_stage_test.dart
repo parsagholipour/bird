@@ -291,7 +291,6 @@ void main() {
       expect(find.text('Bonk!'), findsNothing, reason: 'Letters drop in');
       expect(find.bySemanticsLabel('Bonk!'), findsOneWidget);
       expect(find.text('${controller.result!.score}'), findsWidgets);
-      expect(find.byKey(const ValueKey('result-flight-goals')), findsOne);
       expect(find.byKey(const ValueKey('save-or-watch-session')), findsOne);
       expect(find.text('Home'), findsOneWidget);
       // The bird shakes it off, and Fly again hops with a glint.
@@ -299,13 +298,6 @@ void main() {
       await capture(tester, 'death/stage-$w-ready');
       await tester.pumpAndSettle();
       await capture(tester, 'death/stage-$w-best-settled');
-
-      // Flight wings open their goals.
-      await tester.tap(find.byKey(const ValueKey('result-flight-goals')));
-      await tester.pumpAndSettle();
-      expect(find.byType(Dialog), findsOneWidget);
-      await tester.tapAt(const Offset(4, 4));
-      await tester.pumpAndSettle();
 
       // Save session, then Watch replay.
       await tester.runAsync(() async {

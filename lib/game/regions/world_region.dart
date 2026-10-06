@@ -195,7 +195,7 @@ class RegionBlend {
 /// a seek always lands in the same place.
 ///
 /// Endless flights run from half a minute (a first Classic attempt) to a few
-/// minutes (Star Trail with hearts and shields). A 16 second hold and a 6
+/// minutes (with hearts and shields). A 16 second hold and a 6
 /// second crossing show the first hand-off at 16 s, three regions by the
 /// one-minute mark and the whole tour of thirteen regions in 286 s before it
 /// loops.

@@ -1,7 +1,7 @@
 /// The activity controls the bird; the course defines the arcade objective.
-/// Star Trail is the course new flights start. Classic remains so older
-/// sessions still load. Sky Courier and Cloud Cruise names map here so saved
-/// journals from those retired modes still open.
+/// [starTrail] is the endless course every new flight flies. Classic remains
+/// so older sessions still load. Sky Courier and Cloud Cruise names map here
+/// so saved journals from those retired modes still open.
 enum FlightCourse {
   classic,
   starTrail;
@@ -25,7 +25,7 @@ enum FlightCourse {
 
   String get title => switch (this) {
     classic => 'Classic',
-    starTrail => 'Star Trail',
+    starTrail => 'Endless',
   };
   String get subtitle => switch (this) {
     classic => 'Endless sky. One chance. Make it count.',

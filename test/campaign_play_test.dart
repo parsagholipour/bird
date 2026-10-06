@@ -301,7 +301,7 @@ void main() {
 
   group('campaign HUD', () {
     for (final (id, shoot, sprint) in [
-      ('1-1', false, false),
+      ('1-1', true, false),
       ('1-3', true, false),
       ('2-1', true, true),
     ]) {

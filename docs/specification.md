@@ -4,7 +4,7 @@
 
 Build a colorful, competitive, offline arcade game. The main game is flown
 with taps: the **Campaign** (a trip around the world, level by level) and the
-**Endless** flight (Tap & Fly on Star Trail). The camera workouts and Fly
+**Endless** flight (Tap & Fly on the endless course). The camera workouts and Fly
 Together (two players, one phone) are the **mini games**. Four controls:
 
 - **Push-Up Flight:** body position controls bird height continuously. Pushing up raises the bird; lowering yourself brings it down. The face does not need to be visible.
@@ -68,7 +68,7 @@ leading star trio, the measured half-cycle and a reaction allowance. For flap
 controls, stars follow moving openings. Pauses freeze obstacle motion, and
 Reduced Motion removes decorative spin while keeping gameplay motion visible.
 
-The 60-second Star Trail wing is a survival milestone;
+The 60-second endless-flight wing is a survival milestone;
 daily goals and Trailblazer count saved flights lasting at least 60 seconds.
 Pre-version-12 journals retain static gates, score-based speed and their timed
 finishes, including arrival art. Version-12 journals retain their four-pattern
@@ -301,7 +301,7 @@ sprint recharges. Record `sprint` for accepted presses only. Rules 1–28 reject
 
 ### Rush paths (rules version 32)
 
-Touch Star Trail flights hand the course over to a short rush path between
+Touch flights hand the course over to a short rush path between
 bosses. The first is laid 22 seconds into the flight; each later one 18
 seconds after a boss leaves, or from rules version 33, 8 seconds after the
 gale that follows a Dusk Empress. A run needs at least 18 seconds before the next
@@ -440,7 +440,7 @@ no rush paths.
 
 ### Gales (rules version 33)
 
-Touch Star Trail flights add a gale after each Dusk Empress victory and after
+Touch flights add a gale after each Dusk Empress victory and after
 no other boss. Ordinary walls return first. The gale is laid 12 seconds after the Dusk Empress leaves and replaces
 nothing: that interval's rush path waits for it.
 
@@ -570,9 +570,8 @@ right, an ink-framed scoreboard counts the score up beside a personal-best
 plaque. A new best keeps the old record on the plaque until the count lands.
 Then the plaque turns gold under a **NEW PERSONAL BEST!** ribbon. Below that
 come this flight's stats as tiles (reps or flaps, flight time, perfect passes,
-then streak or rank). A progress row follows, with flight wings (goal details
-on tap) and the postcard, stamp-earned or next-stamp link (with a progress
-bar). Last come save status with tap-to-retry, and session and camera messages.
+then streak or rank). A progress row follows with the postcard, medal-won
+("Star chaser: Silver") or next-medal link (with a progress bar). Last come save status with tap-to-retry, and session and camera messages.
 
 The actions sit under the scoreboard, in the same place after every flight.
 **Home** and **Save session / Watch replay** are cream keys. **Fly again** is
@@ -659,7 +658,7 @@ summons no helpers. Rules 22–33 keep the three-boss cycle.
 rolls in during the first 55% of the arrival, from below the screen (1.12) to
 a surface at 0.9, and drains away over 80% of the departure. The bird is hurt
 when its bottom edge reaches the surface, like a course edge: Classic ends the
-flight; Star Trail takes a shield or heart, and the bird splashes back out
+flight; other flights take a shield or heart, and the bird splashes back out
 with at least 80% of a flap's lift. The water never hurts during cutscenes.
 
 **The tide.** Combat time runs a fixed 10-second cycle: calm until 3.0 s, a
@@ -729,7 +728,7 @@ lower half safe. Above 0.64 it burns the low band (0.5–1), leaving the upper
 half safe. Otherwise it burns the middle (0.32–0.68), leaving strips above
 and below. The band is fixed until the next inhale. During the blast, a bird
 whose circle overlaps the band is hurt like a course edge: Classic ends the
-flight, and Star Trail takes a shield or a heart with the usual 1.5-second
+flight, and other flights take a shield or a heart with the usual 1.5-second
 recovery. There are no fireball launches from 1.0 s before the inhale to the
 end of the blast, and the next one waits at least 0.9 s after it, so the
 last fireballs have passed when the warning asks the bird to move. Fury
@@ -750,9 +749,9 @@ spawning at `width + 0.1 + 0.11k`, level at the bird's height as the call
 comes (clamped to 0.15–0.85). They fly left at course speed plus 0.5 with the
 usual small bob. In fury, except on the debut, a second flock follows 1.4 s
 later at the bird's height then. A flock bat behaves as it does on a rush
-path: touching one hurts the bird (Classic ends the flight, and Star Trail
-takes a shield or a heart). A sprint rams through it and a rock smashes it,
-for 1 point in Star Trail. Both flocks have flown past the bird before the
+path: touching one hurts the bird (Classic ends the flight, and other flights
+take a shield or a heart). A sprint rams through it and a rock smashes it,
+for 1 star point. Both flocks have flown past the bird before the
 next inhale, and the defeat clears any bats still flying. The flocks fly on
 Classic too, which has no rush paths. Rules 38 dragons call none.
 
@@ -861,7 +860,7 @@ warning.
 At 6.5 s the wall leaves the Baron's mouth (his fireball muzzle) and
 sweeps left at 1.2 per second, reaching 0.08 behind its leading edge. A
 bird whose circle overlaps that band and sticks out of the gap is hurt like
-a course edge: Classic ends the flight, and Star Trail takes a shield or a
+a course edge: Classic ends the flight, and other flights take a shield or a
 heart with the usual 1.5-second recovery. At the widest phone the wall has
 crossed the bird's column a second after it leaves. There are no fireballs
 from 1.5 s before the warning to the end of the sweep, and the next waits
@@ -925,7 +924,7 @@ of chapter 3 (3-1 to 3-4, rules version 43, see "New York's levels" below):
 20 levels, 60 level stars. Paris and chapters 4–5 are level data, shown on
 the map and locked as "Coming soon". New York is open by default, decided in
 one place (`Campaign.openingEnabled`); `--dart-define=NEW_YORK_OPEN=false`
-closes it again (16 levels, 48 level stars). Endless Star Trail does not
+closes it again (16 levels, 48 level stars). The endless flight does not
 change.
 
 **Flight plans.** `FlightSimulation` takes a `FlightPlan` (default
@@ -942,7 +941,7 @@ what kind of flight it is:
 `EndlessPlan` returns exactly what the rules hard-coded before plans existed.
 44 seeded endless flights and replays across rules 5–40 are pinned to digests
 (`test/fixtures/endless_plan_baseline.json`). Endless flights at rules 41 match
-rules 40 at every checkpoint. A `LevelPlan` flies only on a touch Star Trail at
+rules 40 at every checkpoint. A `LevelPlan` flies only on a touch `FlightCourse.starTrail` flight at
 rules 41 or later; anything else throws `ArgumentError`.
 
 **Level data.** A `LevelPlan` holds:
@@ -964,7 +963,8 @@ rules 41 or later; anything else throws `ArgumentError`.
 - a boss level has a lineup and no set pieces;
 - 1 ≤ ★★ mark ≤ ★★★ mark.
 
-Level lengths are 60–90 s, or 30 s before a boss. Starts run from 0:00 (1-1)
+Level lengths are 60–90 s (1-1 30 s, 1-2 45 s), or 30 s before a boss.
+Starts run from 0:00 (1-1)
 to 4:30 (5-7).
 
 **Route clock.** `routeSeconds` advances by each step times the course
@@ -999,7 +999,7 @@ passages, whether or not the player sprints, at every screen width.
 - **Families:** the first three passages are garden gates, then a shuffle bag
   of the plan's families.
 - **Enemies:** cadence 2 (as endless) puts an enemy on passages 1, 3, 5…, and
-  cadence 4 (1-3 only) on passages 3, 7, 11…. The n-th enemy is `lineup[n mod
+  cadence 4 (1-2 and 1-3) on passages 3, 7, 11…. The n-th enemy is `lineup[n mod
   length]`, and boss helpers draw from the same lineup.
 - **Toughness:** chapter − 1. Small enemies gain 5 HP per point, so bats have
   10–30 HP across chapters 1–5.
@@ -1008,9 +1008,10 @@ passages, whether or not the player sprints, at every screen width.
 - **No extras:** no heart pickups, and no rush paths or gales except the
   plan's set pieces. A `shuffled` piece draws its kind from the endless
   shuffle bag with its own random.
-- **Controls:** `offersShoot` is false in 1-1 and 1-2, and `offersSprint` in
-  1-1 to 1-4. Their buttons are hidden, and `canShoot`, `canCharge` and
-  `canSprint` refuse.
+- **Controls:** every level offers Shoot. `offersSprint` is false in 1-1 to
+  1-4 (and 3-4): the button is hidden and `canSprint` refuses. Replays of 1-1
+  and 1-2 saved before 2026-10-06 carry their old plan (`shoot: false`), so
+  they still fly without Shoot.
 
 **Finish line.** A `FinishLine` is laid at the route's goal once the goal is
 within the passage entry reach, the screen width plus an enemy's lead. It has
@@ -1044,7 +1045,7 @@ it is 3 when the stars collected reach the ★★★ mark, 2 when they reach the
 mark, and 1 below that. `LevelRoute.stars` counts three stars per passage and
 18 per rush path; a gale lays none. The marks are 45% and 75% of it in chapter
 1, and 50% and 80% from chapter 2, rounded to the nearest five. A boss level
-counts its run-up only. For example, 1-1 lays 81 stars (marks 35 and 60), and
+counts its run-up only. For example, 1-1 lays 33 stars (marks 15 and 25), and
 every boss run-up lays 36 (15/25 in chapter 1, then 20/30). A test pins all 40
 levels to this rule and checks ★★★ < route stars.
 
@@ -1112,14 +1113,14 @@ or a replay tape.
   (`campaignFlights`, whose completions are finished levels).
 - Daily adventures count campaign flights for flights, gates, stars, streak
   and perfect passes, but not for "The whole journey".
-- The First wings (`flightsFlown`), On the dot, Star chaser, Constellation and
-  Flock together stamps count them. Sky captain, Trailblazer and Both wings do
-  not.
-- Star chaser reads "Collect 50 stars.", and the daily star goal reads
+- The Frequent flyer (`flightsFlown`), On the dot, Star chaser, Constellation
+  and Flock together stamps count them. Sky captain, Trailblazer and
+  All-rounder do not.
+- Star chaser's bronze reads "Collect 50 stars.", and the daily star goal reads
   "Collect 18 stars across today’s flights."
 - Home's first-time greeting also uses `flightsFlown`.
-- A campaign flight earns no flight wings or record chime. Its marks take
-  the wings' place, with the same chime.
+- A campaign flight earns no record chime. Reaching one of its marks
+  plays the wing chime.
 
 **Replay.** From rules 41, a campaign `ReplayTape` writes `level` (the id)
 and `plan` (the whole `LevelPlan.toJson()`) after `weaponDamage`. Endless
@@ -1144,7 +1145,7 @@ The screens:
   Run", the first unlocked level not yet cleared, or "Every letter
   delivered") and the level stars earned ("12 / 63", or "12 / 51" with
   `NEW_YORK_OPEN=false`; the total counts only levels the build can fly). The
-  yellow Endless key shows the best Tap & Fly Star Trail flight and starts
+  yellow Endless key shows the best endless Tap & Fly flight and starts
   one straight away. A lavender Mini games key (510 × 76) sits under both and
   opens the mini games: Push-Up Flight, Squat & Fly, Jump & Fly and Fly
   Together. Every key stays a full 48 dp on a 640 × 360 phone. While the
@@ -1256,7 +1257,7 @@ over 0.5 s with every star in place.
 
 ### Fly Together co-op (rules version 42)
 
-Two players fly one endless Tap & Fly Star Trail on one phone, their birds
+Two players fly one endless Tap & Fly flight on one phone, their birds
 roped together (**Roped**) or each on its own (**No rope**). Home's Mini
 games picker offers **Fly Together** beside the three camera workouts. Each
 player picks one of the four birds (both may pick
@@ -1320,7 +1321,7 @@ follows the pair's average boost, and the birds still bump at 0.09.
 per flight id). Records shows them as **Fly Together · Roped** and **Fly
 Together · No rope** beside the four solo bests, and counts co-op flights
 beside the scored flights. They never count toward the solo records, the
-passport, daily adventures or flight goals. Results show the mode, the team
+passport or daily adventures. Results show the mode, the team
 score, time, stars, gates and each player's flaps, with Fly again, Change
 birds, Save session and Home.
 
@@ -1343,7 +1344,7 @@ knockout tumbles both birds, still roped together.
 ### Fly Together 1 v 1 duel (rules version 42)
 
 A third Fly Together mode, **1 v 1**, flies the same two birds against each
-other on an endless Tap & Fly Star Trail, with the co-op controls, keyboard
+other on an endless Tap & Fly flight, with the co-op controls, keyboard
 keys, side tints and player tags. The last bird flying wins.
 
 **Course.** The endless course without bosses, rush paths, gales, ordinary
@@ -1744,7 +1745,7 @@ Everything runs on the combat clock `t = age - 4.6`, `x = t mod 9`:
   defined where it crosses the bird's column: from above `.16` to `.42`,
   from below `.84` to `.58`, gliding 1.8 s (fury 1.5 s) and then holding. The
   lit band is .09 tall each way (fury .095). Touching it hurts like a course
-  edge: Classic ends the run, Star Trail loses the shield, then a heart, with
+  edge: Classic ends the run, other flights lose the shield, then a heart, with
   the usual 1.5 s recovery.
 - The lamp is shuttered except in the vent, and it is judged as a rock
   leaves the bird (`BirdRock.releasedAt`, the boss's age at the release;
@@ -2328,7 +2329,7 @@ below 64, and every other flight flies exactly as at 63.
 
 ### Touch boss encounters (rules version 15)
 
-After 45 seconds of active touch flight in Star Trail or Classic,
+After 45 seconds of active touch flight (endless or Classic),
 clear normal gates, attached pickups, bats and rocks for Baron Bat. Preserve
 the star combo. A 2.5-second entrance and warning precede
 combat; the boss then hovers on the right with a visible HP bar. Existing Shoot
@@ -2339,7 +2340,7 @@ Alternate aimed fireballs and three-shot fans, with a charge cue before firing.
 Summon small bats every six seconds after the first five seconds of combat.
 Below half HP, every volley is a fan, shots accelerate and helpers arrive more
 often. Enemy ammo follows each course's normal shield, heart, recovery and
-collision rules. Clear ammo and helpers immediately on defeat; Star Trail
+collision rules. Clear ammo and helpers immediately on defeat; the endless course
 awards 30 points and restores the shield. After a two-second celebration,
 resume ordinary gates with safe approach distance. Schedule the next encounter
 45 seconds after normal flight resumes. No normal gates spawn during the fight.
@@ -2352,7 +2353,7 @@ wing motion, hit flashes and defeat travel while retaining gameplay movement.
 
 ### Post-boss heart pickup (rules version 24)
 
-After each touch Star Trail boss victory celebration, place one heart at the
+After each touch-flight boss victory celebration, place one heart at the
 center of a randomly chosen opening among the next 2–7 gates. Use the seeded
 simulation RNG and follow the gate's safe height, including moving openings.
 The heart scrolls into reach during the 45-second interval before the next
@@ -2642,6 +2643,152 @@ sharp, and safe-area insets are kept only where a notch reaches past a bar.
   orientation of an app on a tablet. iOS lists landscape only and requires full
   screen on iPad.
 
+### Google Play Games (optional)
+
+Play Games adds a cloud save and achievements, and stays optional and
+invisible: the game is fully playable offline, nothing ever asks the player to
+sign in, and the only UI is one strip in Settings (`_PlayGamesStrip` in
+`lib/ui/settings_screen.dart`). The strip shows whether Play Games is connected,
+the cloud save's state ("Saved to cloud · 2 min ago", "Saving to cloud…",
+"Cloud restored · just now", "Reset on another phone",
+"Offline · saved 3 h ago", "Update Beakbound to sync" when the cloud copy is
+from a newer build, "Cloud save can’t be read" when it is damaged, "Cloud save
+is on" while there is nothing to save yet, "Couldn’t connect" after a failed
+Connect; each fits the strip's one line) and one key:
+**Achievements**, which opens Google's own achievements screen, or a yellow
+**Connect** when the automatic sign-in did not happen. With the strip shown,
+*Camera & tracking lab* and *About & licenses* share a row below it. The strip
+is hidden on iOS (no Game Center yet), on phones without Play services and in
+any build without Play ids. There is no sign-out (Play Games v2 has none), no
+themed achievements screen, no toast of our own and no conflict screen: Google's
+unlock pop-up is the only feedback.
+
+**Dormant until configured.** Every Play id lives in
+`lib/data/play_games_ids.dart`: the numeric project id (`playGamesAppId`) and
+the 42 achievement ids (`CgkI…`). While the project id is empty the game makes
+no Play Games call at all. Android reads the same line when it builds
+(`android/app/build.gradle.kts` turns it into the `game_services_project_id`
+string behind the manifest's `com.google.android.gms.games.APP_ID`), the Play
+Games SDK's own start-up provider is removed from the manifest, and
+`PlayGamesGate.kt` starts the SDK only when the id is set and Play services are
+present. An achievement whose id is empty is never reported.
+
+**In the background** (`PlayGamesSync` in `lib/data/play_games.dart`):
+
+- *Launch:* the automatic sign-in's result is only read, never prompted. When
+  signed in, the cloud logbook is loaded, merged and saved back. The first
+  screen's calm moment reports the achievements, so the launch shows at most
+  one pop-up.
+- *Connect* (Settings only) opens Google's sheet, waiting at most 3 minutes,
+  then one catch-up merges the logbook and reports every earned achievement at
+  once.
+- *Calm moments* are home, Settings and a results stage 2.5 s after it appears
+  (`PlayScreen`), if it is still the current page; leaving it ends the moment
+  at once, so a story scene the map plays next is never calm.
+  `PlayGamesSync.calm` follows them. There the logbook is saved
+  when it changed, at most once a minute, and achievements are reported with at
+  most one unlock pop-up; steps short of a target go out silently. Calm moments
+  that pile up while one waits join it. The moment is checked again once the
+  cloud answers and before each unlock: when a flight has begun, the restore,
+  save and pop-up wait whole for the next calm moment, and a cloud restore
+  never counts as a medal the open results stage won. Going to the background
+  from any off-flight screen saves at once and reports nothing. Flights,
+  bosses, story scenes and camera sessions are never calm moments. A failed
+  save stays pending and is retried at the next calm moment.
+- *Never written over:* a cloud copy that cannot be loaded, read or listed
+  afresh aborts the sync (offline, Play's cached list is not trusted:
+  `PlayGamesGate.kt` reads `AnnotatedData.isStale`). A copy from a newer build
+  (`NewerLogbook`) is left alone: the strip stays connected, asks for an update,
+  and the sync is throttled like any other. A damaged copy (a
+  `FormatException`) is treated the same way, with "Cloud save can’t be read".
+  Only a reset replaces either (see below). A phone with no progress never
+  uploads to an empty cloud.
+- *One player's cloud:* each sync first asks Play who is signed in
+  (`playerId`); without an answer nothing is decided that round (Offline).
+  `cloudSynced` holds the player this phone last synced with. Another
+  player's cloud is met as on a phone that never synced: this phone takes
+  that cloud's epoch and merges, so switching accounts never wipes or loses
+  progress either way, and both accounts end up holding it. The trade-off: a
+  phone signed in to another account when X resets does not get that reset.
+  The achievements already reported are remembered per player too, so a
+  switched account is sent everything it has not got, one pop-up per calm
+  moment.
+- *Achievements Play turns down* (an unknown id, or one published as standard
+  while the code sends steps) are skipped until the next launch; three failures
+  in a row, or one unanswered call, stop the round. The 19 incremental step
+  counts are pinned in `publishedPlaySteps`, since Play cannot change them once
+  published.
+
+**The logbook** (`lib/data/cloud_logbook.dart`) is one saved game named
+`logbook`: gzipped JSON in base64, a few KB. Any new field or enum value needs a
+`Logbook.schema` bump, since older builds drop what they do not know on save. A
+sync counts as a restore only when this phone's progress moved, so a cloud
+entry this build cannot import (a built level of an unknown mode) rides along
+without looping the sync. It holds the player's status, never their history:
+
+| Field | Merge |
+| --- | --- |
+| `devices.<id>`: each phone's totals (the 8 endless records and the campaign's flights, flights per bird, built-level workouts, co-op bests and flights) | each phone writes only its own row (a random `deviceId`); `load()` adds the other phones' rows (kept in the `carried` preference) to every record, so nothing counts twice |
+| `levels`: campaign level bests | max stars, collected, score and plays; earliest first clear; latest flight; postcard seen by either |
+| `upgrades`, `unlockedBirds` | the higher level of each upgrade; union. When purchases change, `starsSpent` is recomputed at today's prices (`spentOn`), so a purchase made on two phones is paid once; the wallet floors at 0 |
+| `storyWatched`, `feats` | union |
+| `builtLevels`, `builtDeleted` | union by id, the later `updatedAt` wins; a level deleted on any phone stays deleted |
+| `epoch` | a reset on a phone that has synced raises it to the reset time; a higher local epoch replaces the cloud copy; a higher cloud epoch starts a phone that last synced with the same player afresh too, once, as it takes the new epoch (its settings, voice-over memory and saved sessions stay), while a phone that never synced with that player keeps its own progress and merges it |
+
+Saved sessions, replays, clips, the `runs` table, built-level flights and the
+device settings never leave the phone, so the privacy card stays true. A reset
+on a phone that has ever synced (`cloudSynced`, which a reset keeps) says so in
+its dialog and clears the cloud copy at the next sync, connected now or not; on
+a phone that never synced it leaves the cloud alone, so connecting later
+restores it. The reset asked for the cloud copy to go, so its fresh logbook
+replaces even one this build cannot read (damaged, or a newer build's, which
+then reads the higher epoch and starts afresh too). Only the reset does this,
+until its logbook reaches the cloud in that session, and only in the cloud of
+the player this phone last synced with; normal syncs never write over either.
+No schema change: the new state is in preferences (`feats`, `carried`,
+`deviceId`, `epoch`, `builtDeleted`, `cloudSynced`, the Play player this phone
+last synced with, and `playGames`: the player the achievements went to, those
+already reported and the last save time, which is never synced).
+
+**Achievements** (`PlayAchievement` in `lib/data/play_achievements.dart`) are a
+pure function of the progress snapshot, so a restore earns them again. The first
+24 mirror the Sky Passport's medals one for one and read
+`ProgressSnapshot.passport`, so their targets follow the passport's; a tier
+completes only once the passport holds it. The other 18 are the campaign's
+bosses and guardians (1-8, 2-6, 2-9, 3-2, 3-4), three gold sets (the Canopy
+Route, the Ancient Road, New York), the Dusk Empress, Pirate Captain and Ember
+Dragon beaten, a roped co-op flight, a duel, a built level flown to its finish,
+all 16 upgrade levels, 10 daily postcards and two hidden ones (a scored flight
+finished between midnight and 4 a.m., a star won back from an Alley Pigeon).
+Feats come from a saved scored flight (`RunResult.feats`: bosses beaten and
+`pigeonFreed`; the hour; the day's adventure card once complete), recorded in
+the same transaction as the flight. The simulation only counts the boss kinds it
+defeated (`bossKindsDefeated`); no rule changed.
+
+**Owner setup in Play Console**, in order:
+
+1. Upload a build to at least the internal testing track
+   (`com.ravanix.push_up_bird`).
+2. Grow users → Play Games Services → Setup and management → Configuration:
+   create a new project named *Beakbound* ("No, my game doesn't use Google
+   APIs").
+3. Properties: display name, description, category; turn **Saved Games on**.
+4. Credentials: set up the OAuth consent screen in the linked Google Cloud
+   project, then add an Android credential with the package name and the SHA-1
+   of the Play App Signing key, and a second one with the upload or debug key's
+   SHA-1 for local builds.
+5. Paste the numeric project id into `playGamesAppId` in
+   `lib/data/play_games_ids.dart`.
+6. Create the 42 achievements (names, descriptions, points, steps and hidden
+   flags as listed in `PlayAchievement` and the design note), each ladder in
+   bronze, silver, gold order, and paste each `CgkI…` id next to its name in
+   `playAchievementIds` in the same file.
+7. Add tester accounts under Play Games Services → Testers.
+8. Data safety: declare game progress stored with Google Play Games.
+9. Publish the Play Games configuration with the build that ships it.
+
+Rebuild after pasting; nothing else needs editing.
+
 ## Implementation
 
 ### 1. Prove body tracking and viewing comfort
@@ -2682,7 +2829,7 @@ Build the Android camera/calibration screen first and test it on the connected p
 
 **Jump & Fly**
 
-- Jump launches use the regular Star Trail course with buildings, stars and hearts, without enemies or shooting. Sky Courier and Cloud Cruise are retired. Old journals and diagnostic links that name them open as Star Trail.
+- Jump launches use the regular endless course with buildings, stars and hearts, without enemies or shooting. Sky Courier and Cloud Cruise are retired. Old journals and diagnostic links that name them open as the endless course (`FlightCourse.starTrail`).
 - Calibrate from one second of stable shoulder/hip observations, using a rolling median window that tolerates foot jitter and brief missing frames. Shoulders, hips, knees and a usable ankle or toe on each side establish full-body framing; the face does not need to be visible.
 - Detect a coordinated upward movement of hips and shoulders. Normalize the threshold to body size and measured standing noise, require upward speed and two confirming samples, then wait for the torso to settle before another boost. Feet establish framing, but their estimated motion cannot veto a jump.
 - Small hops and deliberate body bounces count; perfect airborne-foot verification is not required. Crouching, shoulder-only movements, isolated pose spikes and stale samples do not trigger boosts. A brief rejected frame preserves a previously confirmed landing but never triggers a boost itself; sustained tracking loss requires landing again.
@@ -2736,7 +2883,7 @@ Deliver an installable Android APK, reproducible build instructions, and the sha
 - Game title: **Beakbound**. The Special Delivery bird artwork is the app icon and opening splash emblem; the menu uses only the name and tagline.
 - Initial push-up mode uses standard push-ups; knee and other exercise variants come later.
 - Body checks are confidence-based gameplay checks, not a guarantee of correct exercise form.
-- Camera processing and saved session videos stay on-device. Record camera footage during flight with optional microphone audio and retain it only when the player chooses Save session. Store timestamped gameplay inputs, timing, seeded randomness and interruptions separately; reconstruct gameplay for replay. No uploads, accounts, ads or cloud services.
+- Camera processing and saved session videos stay on-device. Record camera footage during flight with optional microphone audio and retain it only when the player chooses Save session. Store timestamped gameplay inputs, timing, seeded randomness and interruptions separately; reconstruct gameplay for replay. No uploads, accounts or ads; the only cloud service is the optional Google Play Games cloud save and achievements (see "Google Play Games"), which carries progress status only.
 - Competition uses local records initially.
 - Public Play Store submission, monetization, and iOS publication follow the polished offline milestone and broader device testing.
 

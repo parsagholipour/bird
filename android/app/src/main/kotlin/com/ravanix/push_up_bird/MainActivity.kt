@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.graphics.Matrix
 import android.hardware.camera2.CameraCharacteristics
 import android.net.Uri
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
@@ -65,8 +66,14 @@ class MainActivity : FlutterActivity(), TrackingHostApi {
             TrackingCaptures(java.io.File(filesDir, "tracking_captures")) else null
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        PlayGamesGate.start(this)
+        super.onCreate(savedInstanceState)
+    }
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        PlayGamesGate.attach(flutterEngine, this)
         flutterApi = TrackingFlutterApi(flutterEngine.dartExecutor.binaryMessenger)
         TrackingHostApi.setUp(flutterEngine.dartExecutor.binaryMessenger, this)
         flutterEngine.platformViewsController.registry.registerViewFactory(

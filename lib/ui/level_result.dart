@@ -67,7 +67,7 @@ class LevelResultStage extends StatefulWidget {
   /// open: a returning player may have it already), so its unlock is not
   /// news.
   final bool nextWasOpen;
-  final Set<SkyStamp> initialStamps;
+  final Map<SkyStamp, StampMedal> initialStamps;
   final String? initialDailyKey;
   final bool initialDailyComplete;
   final Future<void> Function([String destination]) onLeave;
@@ -1128,9 +1128,7 @@ class _LevelResultStageState extends State<LevelResultStage>
         ],
       ),
     );
-    final newStamps = p.passport
-        .where((s) => s.earned && !widget.initialStamps.contains(s.stamp))
-        .toList();
+    final newStamps = p.medalsWonSince(widget.initialStamps);
     final newDailyCard =
         c.saved &&
         p.today?.complete == true &&
@@ -1172,7 +1170,7 @@ class _LevelResultStageState extends State<LevelResultStage>
         strip(
           Icons.workspace_premium_rounded,
           SkyColors.yellow,
-          'Stamp earned: ${newStamps.first.stamp.title}',
+          newStamps.first.medalTitle,
         ),
     ];
     return [

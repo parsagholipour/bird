@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import '../data/passport_progress.dart';
 import '../data/progress_repository.dart';
 import '../domain/campaign.dart';
-import '../domain/flight_goals.dart';
 import '../domain/game_rules.dart';
 import '../domain/sky_passport.dart';
 import '../domain/tracking.dart';
@@ -13,7 +12,6 @@ import '../game/bird_puppet.dart';
 import '../game/play_controller.dart';
 import 'campaign_map_art.dart' show MapStarsPainter;
 import 'components.dart';
-import 'flight_goals.dart';
 import 'stage_key.dart';
 import 'theme.dart';
 
@@ -22,14 +20,14 @@ import 'theme.dart';
 /// title drops in over the dazed bird riding a cloud up from where it fell.
 /// The right is the scoreboard: the score counts up beside the personal
 /// best, and a big Fly again key leads the actions below it. Everything the
-/// plain results panel offers stays on this stage: flight wings, personal
-/// best, mode stats, passport and postcard links, save status (tap to retry)
-/// and Save session / Watch replay.
+/// plain results panel offers stays on this stage: personal best, mode
+/// stats, passport and postcard links, save status (tap to retry) and Save
+/// session / Watch replay.
 ///
-/// A failed campaign level plays the same stage without the endless best
-/// or flight wings: the scoreboard counts the stars collected against the
-/// level's marks beside how far along the route the bird got, and the keys
-/// are Map, Save session and a big Retry.
+/// A failed campaign level plays the same stage without the endless best:
+/// the scoreboard counts the stars collected against the level's marks
+/// beside how far along the route the bird got, and the keys are Map, Save
+/// session and a big Retry.
 ///
 /// Its buttons stay inert until the entrance has settled, so taps that were
 /// meant for the bird cannot start another flight by accident. Reduced Motion
@@ -53,7 +51,7 @@ class GameOverStage extends StatefulWidget {
   final PlayMode mode;
   final FlightCourse course;
   final int initialBest;
-  final Set<SkyStamp> initialStamps;
+  final Map<SkyStamp, StampMedal> initialStamps;
   final String? initialDailyKey;
   final bool initialDailyComplete;
   final Future<void> Function([String destination]) onLeave;
@@ -120,14 +118,9 @@ class _GameOverStageState extends State<GameOverStage>
     final c = widget.controller;
     final r = c.result!;
     final p = widget.progress;
-    // A level's stars take the place of flight wings and the endless best.
+    // A level's stars take the place of the endless best.
     final level = c.level;
-    final goals = level == null
-        ? FlightGoals.forRun(r)
-        : const <FlightGoalProgress>[];
-    final newStamps = p.passport
-        .where((s) => s.earned && !widget.initialStamps.contains(s.stamp))
-        .toList();
+    final newStamps = p.medalsWonSince(widget.initialStamps);
     final nextStamp = p.nextStamp;
     final newDailyCard =
         c.saved &&
@@ -221,9 +214,7 @@ class _GameOverStageState extends State<GameOverStage>
                           child: Align(
                             alignment: Alignment.bottomCenter,
                             child: _card(
-                              context,
                               r,
-                              goals,
                               best: isBest ? math.max(best, r.score) : best,
                               isBest: isBest,
                               link: _link(
@@ -425,9 +416,7 @@ class _GameOverStageState extends State<GameOverStage>
   /// The scoreboard: an ink-framed card with the score and best on top,
   /// this flight's stats beneath, then progress and save status.
   Widget _card(
-    BuildContext context,
-    RunResult r,
-    List<FlightGoalProgress> goals, {
+    RunResult r, {
     required int best,
     required bool isBest,
     required Widget? link,
@@ -470,10 +459,13 @@ class _GameOverStageState extends State<GameOverStage>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        if (goals.isNotEmpty || link != null)
+                        if (link != null)
                           Padding(
                             padding: const EdgeInsets.only(bottom: 8),
-                            child: _progress(context, r, goals, link),
+                            child: Opacity(
+                              opacity: _span(.3, .52),
+                              child: link,
+                            ),
                           ),
                         Opacity(
                           opacity: _span(.36, .56),
@@ -943,50 +935,13 @@ class _GameOverStageState extends State<GameOverStage>
     );
   }
 
-  /// Flight wings and the passport or postcard link, side by side.
-  Widget _progress(
-    BuildContext context,
-    RunResult r,
-    List<FlightGoalProgress> goals,
-    Widget? link,
-  ) => Opacity(
-    opacity: _span(.3, .52),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (goals.isNotEmpty)
-          _chip(
-            key: const ValueKey('result-flight-goals'),
-            fill: false,
-            onTap: () => showFlightGoals(context, r.course, progress: goals),
-            body: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                FlightWings(goals: goals, size: 24),
-                const SizedBox(height: 2),
-                Text(
-                  '${FlightGoals.earned(goals)}/3 flight wings',
-                  style: bodyText(12, weight: FontWeight.w900),
-                ),
-              ],
-            ),
-          ),
-        if (goals.isNotEmpty && link != null) const SizedBox(width: 8),
-        if (link != null) Expanded(child: link),
-      ],
-    ),
-  );
-
-  /// A tappable progress chip: something leading, a body and a chevron.
-  /// A [fill] chip stretches its body so the chevron sits at the far edge.
+  /// A tappable progress chip: something leading, a body stretched so the
+  /// chevron sits at the far edge.
   Widget _chip({
-    Key? key,
     required VoidCallback onTap,
     Widget? leading,
     required Widget body,
-    bool fill = true,
   }) => Material(
-    key: key,
     color: SkyColors.white.withValues(alpha: .75),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(18),
@@ -1003,7 +958,7 @@ class _GameOverStageState extends State<GameOverStage>
             mainAxisSize: MainAxisSize.min,
             children: [
               if (leading != null) ...[leading, const SizedBox(width: 8)],
-              Flexible(fit: fill ? FlexFit.tight : FlexFit.loose, child: body),
+              Expanded(child: body),
               const Icon(
                 Icons.chevron_right_rounded,
                 size: 24,
@@ -1048,7 +1003,7 @@ class _GameOverStageState extends State<GameOverStage>
       );
     }
     if (newStamps.isNotEmpty) {
-      final stamp = newStamps.first.stamp;
+      final won = newStamps.first;
       return _chip(
         onTap: () => widget.onLeave('/passport'),
         leading: _badge(Icons.workspace_premium_rounded, SkyColors.yellow),
@@ -1056,9 +1011,9 @@ class _GameOverStageState extends State<GameOverStage>
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Stamp earned: ${stamp.title}', style: title),
+            Text(won.medalTitle, style: title),
             Text(
-              stamp.description,
+              won.stamp.goal(won.medal!),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: detail,
@@ -1068,7 +1023,6 @@ class _GameOverStageState extends State<GameOverStage>
       );
     }
     if (widget.controller.saved && nextStamp != null) {
-      final stamp = nextStamp.stamp;
       return _chip(
         onTap: () => widget.onLeave('/passport'),
         leading: _badge(Icons.explore_outlined, SkyColors.sky),
@@ -1080,7 +1034,7 @@ class _GameOverStageState extends State<GameOverStage>
               children: [
                 Expanded(
                   child: Text(
-                    'Next stamp: ${stamp.title}',
+                    'Next: ${nextStamp.nextTitle}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: title,
@@ -1088,7 +1042,7 @@ class _GameOverStageState extends State<GameOverStage>
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  '${nextStamp.current}/${stamp.target}',
+                  nextStamp.tally,
                   style: bodyText(13, weight: FontWeight.w900),
                 ),
               ],
@@ -1106,7 +1060,7 @@ class _GameOverStageState extends State<GameOverStage>
               ),
             ),
             Text(
-              stamp.description,
+              nextStamp.goal,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: detail,

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:push_up_bird/ui/home_keys.dart';
 import 'package:push_up_bird/ui/theme.dart';
+import 'package:push_up_bird/ui/ui_sounds.dart';
 
 Widget _app(
   VoidCallback onPressed, {
@@ -190,6 +191,45 @@ void main() {
     await tester.tap(find.byType(HomeLevelBuilderKey));
     await tester.pumpAndSettle();
     expect(opens, 2);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('a locked Level Builder key says how many flights are left '
+      'and answers a press with the "not yet" cue', (tester) async {
+    var opens = 0;
+    final cues = <String>[];
+    Future<void> show(int left) => tester.pumpWidget(
+      UiSounds(
+        play: cues.add,
+        child: _app(
+          () => opens++,
+          key: (onPressed) =>
+              HomeLevelBuilderKey(onPressed: onPressed, flightsLeft: left),
+          size: const Size(250, 76),
+        ),
+      ),
+    );
+    await show(3);
+    expect(find.text('LEVEL BUILDER'), findsOneWidget);
+    expect(find.text('Unlocks in 3 flights'), findsOneWidget);
+    expect(find.byIcon(Icons.lock_rounded), findsOneWidget);
+    expect(
+      find.semantics.byLabel('Level Builder. Locked. Unlocks in 3 flights.'),
+      findsOneWidget,
+    );
+    await tester.tap(find.byType(HomeLevelBuilderKey));
+    await tester.pumpAndSettle();
+    expect(opens, 0);
+    expect(cues, [ShopCues.denied]);
+    await show(1);
+    expect(find.text('Unlocks in 1 flight'), findsOneWidget);
+    await show(0);
+    expect(find.byIcon(Icons.lock_rounded), findsNothing);
+    expect(find.text('Make · fly · share'), findsOneWidget);
+    await tester.tap(find.byType(HomeLevelBuilderKey));
+    await tester.pumpAndSettle();
+    expect(opens, 1);
+    expect(cues.last, 'ui_tap');
     expect(tester.takeException(), isNull);
   });
 }

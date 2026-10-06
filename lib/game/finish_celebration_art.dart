@@ -432,7 +432,7 @@ abstract final class FinishCelebrationArt {
     c.restore();
   }
 
-  /// A Star Trail's shield bubble, still round the bird as it crosses: it
+  /// The bird's shield bubble, still round the bird as it crosses: it
   /// pops as the tape snaps, or fades in the calm crossing.
   static void _shield(
     Canvas c,

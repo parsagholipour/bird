@@ -25,6 +25,7 @@ import 'ui/theme.dart';
 import 'ui/screen_frame.dart';
 import 'ui/passport_screen.dart';
 import 'ui/daily_adventure_screen.dart';
+import 'data/play_games.dart';
 import 'data/providers.dart';
 import 'domain/daily_adventure.dart';
 import 'game/audio.dart';
@@ -117,7 +118,7 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/play/:mode',
       // A campaign level (`/play/touch?level=1-3`) is a scored Tap & Fly
-      // Star Trail, and only flies once the map has opened it.
+      // flight, and only flies once the map has opened it.
       redirect: (context, state) {
         final id = state.uri.queryParameters['level'];
         if (id == null) return null;
@@ -185,6 +186,7 @@ class _PushUpBirdAppState extends ConsumerState<PushUpBirdApp>
     final lifecycle = WidgetsBinding.instance.lifecycleState;
     _foreground = lifecycle == null || lifecycle == AppLifecycleState.resumed;
     appRouter.routerDelegate.addListener(_syncMenuMusic);
+    appRouter.routerDelegate.addListener(_calmMoment);
     ref.listenManual(
       progressProvider,
       (_, _) => _syncMenuMusic(),
@@ -193,6 +195,25 @@ class _PushUpBirdAppState extends ConsumerState<PushUpBirdApp>
     // Load what the characters said in flight before the first flight.
     ref.read(flightVoiceMemoryProvider);
     _calendar = Timer.periodic(const Duration(minutes: 1), (_) => _checkDay());
+    // Play Games: silent, and only when configured (play_games_ids.dart).
+    unawaited(ref.read(playGamesProvider.notifier).start());
+  }
+
+  /// Home and Settings are calm moments for Play Games: no flight, boss,
+  /// story scene or camera runs there. Any other screen ends the moment.
+  void _calmMoment() {
+    final path = appRouter.routerDelegate.currentConfiguration.uri.path;
+    final sync = ref.read(playGamesProvider.notifier);
+    sync.calm = path == '/' || path == '/settings';
+    if (sync.calm) unawaited(sync.calmMoment());
+  }
+
+  /// Whether a flight, a co-op flight or the camera lab is on screen. A
+  /// settled results stage is calm, not flying.
+  bool get _inFlight {
+    if (ref.read(playGamesProvider.notifier).calm) return false;
+    final path = appRouter.routerDelegate.currentConfiguration.uri.path;
+    return path.startsWith('/play/') || path == '/coop' || path == '/lab';
   }
 
   void _syncMenuMusic() {
@@ -233,6 +254,12 @@ class _PushUpBirdAppState extends ConsumerState<PushUpBirdApp>
     _foreground = state == AppLifecycleState.resumed;
     if (!_foreground) unawaited(_menuAudio.stopEffects());
     _syncMenuMusic();
+    if (state == AppLifecycleState.paused && !_inFlight) {
+      unawaited(ref.read(playGamesProvider.notifier).paused());
+    }
+    if (state == AppLifecycleState.resumed) {
+      ref.read(playGamesProvider.notifier).resumed();
+    }
     if (state == AppLifecycleState.resumed) unawaited(_checkDay());
   }
 
@@ -240,6 +267,7 @@ class _PushUpBirdAppState extends ConsumerState<PushUpBirdApp>
   void dispose() {
     _calendar?.cancel();
     appRouter.routerDelegate.removeListener(_syncMenuMusic);
+    appRouter.routerDelegate.removeListener(_calmMoment);
     unawaited(_menuAudio.dispose());
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();

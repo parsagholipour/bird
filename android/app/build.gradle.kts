@@ -11,11 +11,24 @@ val captureTrackingImages = providers.gradleProperty("dart-defines").orNull
         String(Base64.getDecoder().decode(it)) == "TRACKING_CAPTURE_IMAGES=true"
     } ?: false
 
+// Google Play Games: the project id lives with every other Play id in
+// lib/data/play_games_ids.dart. Empty leaves Play Games asleep
+// (PlayGamesGate.kt).
+val playGamesAppId = Regex("""playGamesAppId\s*=\s*'(\d*)'""")
+    .find(
+        providers.fileContents(
+            rootProject.layout.projectDirectory.file("../lib/data/play_games_ids.dart")
+        ).asText.get()
+    )?.groupValues?.get(1).orEmpty()
+
 android {
     namespace = "com.ravanix.push_up_bird"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
-    buildFeatures { buildConfig = true }
+    buildFeatures {
+        buildConfig = true
+        resValues = true
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -31,6 +44,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        resValue("string", "game_services_project_id", playGamesAppId)
     }
 
     buildTypes {
@@ -54,6 +68,8 @@ dependencies {
     implementation("androidx.camera:camera-view:1.6.2")
     implementation("androidx.camera:camera-video:1.6.2")
     implementation("com.google.mediapipe:tasks-vision:0.10.35")
+    // The games_services plugin's own SDK, started by PlayGamesGate.kt.
+    implementation("com.google.android.gms:play-services-games-v2:21.0.0")
 }
 
 kotlin {

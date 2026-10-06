@@ -4,12 +4,10 @@ import 'package:flutter/material.dart';
 
 import '../data/passport_progress.dart';
 import '../data/progress_repository.dart';
-import '../domain/flight_goals.dart';
 import '../domain/game_rules.dart';
 import '../domain/sky_passport.dart';
 import '../domain/tracking.dart';
 import '../game/play_controller.dart';
-import 'flight_goals.dart';
 import 'flight_portrait.dart';
 import 'match_hud.dart';
 import 'mini_chrome.dart';
@@ -44,7 +42,7 @@ class MiniResults extends StatefulWidget {
   final PlayMode mode;
   final FlightCourse course;
   final int initialBest;
-  final Set<SkyStamp> initialStamps;
+  final Map<SkyStamp, StampMedal> initialStamps;
   final String? initialDailyKey;
   final bool initialDailyComplete;
   final Future<void> Function([String destination]) onLeave;
@@ -97,10 +95,7 @@ class _MiniResultsState extends State<MiniResults>
     final c = widget.controller;
     final r = c.result!;
     final p = widget.progress;
-    final goals = FlightGoals.forRun(r);
-    final newStamps = p.passport
-        .where((s) => s.earned && !widget.initialStamps.contains(s.stamp))
-        .toList();
+    final newStamps = p.medalsWonSince(widget.initialStamps);
     final newDailyCard =
         c.saved &&
         p.today?.complete == true &&
@@ -120,11 +115,7 @@ class _MiniResultsState extends State<MiniResults>
       EndReason.completed => 'A whole sky of stars. All yours.',
     };
     final celebrate =
-        isBest ||
-        FlightGoals.earned(goals) == 3 ||
-        newDailyCard ||
-        newStamps.isNotEmpty ||
-        completed;
+        isBest || newDailyCard || newStamps.isNotEmpty || completed;
     return Opacity(
       opacity: _calm ? _intro.value : 1,
       child: Padding(
@@ -148,7 +139,7 @@ class _MiniResultsState extends State<MiniResults>
               ],
               trailing: [
                 MiniTag(
-                  completed ? 'TRAIL COMPLETE' : 'FLIGHT COMPLETE',
+                  'FLIGHT COMPLETE',
                   icon: Icons.emoji_events_rounded,
                   color: SkyColors.yellow,
                 ),
@@ -183,9 +174,7 @@ class _MiniResultsState extends State<MiniResults>
                           child: Align(
                             alignment: Alignment.bottomCenter,
                             child: _card(
-                              context,
                               r,
-                              goals,
                               best: isBest ? math.max(best, r.score) : best,
                               isBest: isBest,
                             ),
@@ -268,7 +257,7 @@ class _MiniResultsState extends State<MiniResults>
                       isBest
                           ? 'Look at you go!'
                           : r.reason == EndReason.completed
-                          ? 'Trail complete!'
+                          ? 'Flight complete!'
                           : 'Nice flying.',
                       textAlign: TextAlign.center,
                       style: heading(
@@ -356,7 +345,7 @@ class _MiniResultsState extends State<MiniResults>
       );
     }
     if (newStamps.isNotEmpty) {
-      final stamp = newStamps.first.stamp;
+      final won = newStamps.first;
       return _StickerCallout(
         stamp: const _PostageStamp(
           icon: Icons.workspace_premium_rounded,
@@ -368,9 +357,9 @@ class _MiniResultsState extends State<MiniResults>
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Stamp earned: ${stamp.title}', style: title),
+            Text(won.medalTitle, style: title),
             Text(
-              stamp.description,
+              won.stamp.goal(won.medal!),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: detail,
@@ -380,7 +369,6 @@ class _MiniResultsState extends State<MiniResults>
       );
     }
     if (widget.controller.saved && nextStamp != null) {
-      final stamp = nextStamp.stamp;
       return _StickerCallout(
         stamp: const _PostageStamp(
           icon: Icons.explore_rounded,
@@ -391,18 +379,26 @@ class _MiniResultsState extends State<MiniResults>
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Next stamp: ${stamp.title} · ${nextStamp.current}/${stamp.target}',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: title,
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Next: ${nextStamp.nextTitle}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: title,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(nextStamp.tally, style: title),
+              ],
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: _meter(nextStamp.fraction, SkyColors.teal, height: 9),
             ),
             Text(
-              stamp.description,
+              nextStamp.goal,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: detail,
@@ -427,14 +423,8 @@ class _MiniResultsState extends State<MiniResults>
   static const _teal = Color(0xff2e7d6f);
 
   /// The scoreboard: an ink-framed card with the score and best on top,
-  /// this flight's stats beneath, then flight wings and save status.
-  Widget _card(
-    BuildContext context,
-    RunResult r,
-    List<FlightGoalProgress> goals, {
-    required int best,
-    required bool isBest,
-  }) {
+  /// this flight's stats beneath, then the save status.
+  Widget _card(RunResult r, {required int best, required bool isBest}) {
     final t = _span(.06, .34, Curves.easeOutCubic);
     return Opacity(
       opacity: t,
@@ -470,7 +460,10 @@ class _MiniResultsState extends State<MiniResults>
                   child: SingleChildScrollView(
                     child: Opacity(
                       opacity: _span(.34, .56),
-                      child: _progress(context, r, goals),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: _status(),
+                      ),
                     ),
                   ),
                 ),
@@ -765,75 +758,6 @@ class _MiniResultsState extends State<MiniResults>
           ],
         ),
       ),
-    );
-  }
-
-  /// Flight wings beside the save status.
-  Widget _progress(
-    BuildContext context,
-    RunResult r,
-    List<FlightGoalProgress> goals,
-  ) {
-    final earned = FlightGoals.earned(goals);
-    final status = Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: goals.isEmpty
-          ? CrossAxisAlignment.center
-          : CrossAxisAlignment.start,
-      children: _status(),
-    );
-    if (goals.isEmpty) return status;
-    final all = earned == goals.length;
-    return Row(
-      children: [
-        Material(
-          key: const ValueKey('result-flight-goals'),
-          // All three wings gild the chip.
-          color: all
-              ? const Color(0xfffff0bf)
-              : SkyColors.white.withValues(alpha: .8),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
-            side: BorderSide(
-              color: all ? SkyColors.gold : SkyColors.ink.withValues(alpha: .2),
-              width: all ? 2 : 1.5,
-            ),
-          ),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(18),
-            onTap: () => showFlightGoals(context, r.course, progress: goals),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 60),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(10, 4, 4, 4),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        FlightWings(goals: goals, size: 24),
-                        const SizedBox(height: 2),
-                        Text(
-                          '$earned/3 flight wings',
-                          style: bodyText(12.5, weight: FontWeight.w900),
-                        ),
-                      ],
-                    ),
-                    const Icon(
-                      Icons.chevron_right_rounded,
-                      size: 24,
-                      color: SkyColors.muted,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(child: status),
-      ],
     );
   }
 

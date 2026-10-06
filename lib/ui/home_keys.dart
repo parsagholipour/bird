@@ -80,6 +80,15 @@ class HomeKeyColors {
     lip: Color(0xff3b82a8),
     glow: Color(0x5590d5ee),
   );
+
+  /// A key that is not open yet: the shop's greyed paper, with no glow.
+  static const locked = HomeKeyColors(
+    face: [Color(0xfff7f2e7), Color(0xffdcd8cd)],
+    hovered: [Color(0xfffaf6ee), Color(0xffe4e0d6)],
+    pressed: [Color(0xffefe9dc), Color(0xffd0ccc0)],
+    lip: Color(0xff9fb0b4),
+    glow: Color(0x00000000),
+  );
 }
 
 /// A physical-looking key with a native button underneath, so it takes taps,
@@ -100,6 +109,7 @@ class HomeKey extends StatefulWidget {
     this.radius = 26,
     this.animated = false,
     this.reducedMotion = false,
+    this.cue = 'ui_tap',
   });
 
   /// What a screen reader announces.
@@ -112,6 +122,9 @@ class HomeKey extends StatefulWidget {
   final Widget Function(BuildContext context, Animation<double> breath) builder;
   final double lip, radius;
   final bool animated, reducedMotion;
+
+  /// The sound a press plays.
+  final String cue;
 
   @override
   State<HomeKey> createState() => _HomeKeyState();
@@ -170,7 +183,7 @@ class _HomeKeyState extends State<HomeKey> with SingleTickerProviderStateMixin {
       child: TextButton(
         statesController: states,
         onPressed: () {
-          UiSounds.effect(context);
+          UiSounds.effect(context, widget.cue);
           widget.onPressed();
         },
         style: TextButton.styleFrom(
@@ -371,7 +384,7 @@ TextStyle _keyTitle(double size) =>
       shadows: const [Shadow(color: SkyColors.cream, offset: Offset(0, 1.5))],
     );
 
-/// Endless: Tap & Fly on Star Trail, straight into the sky with no mode to
+/// Endless: Tap & Fly, straight into the sky with no mode to
 /// choose. It breathes and glints to invite a quick flight, and shows the best
 /// endless flight on a tag.
 class HomeEndlessKey extends StatelessWidget {
@@ -541,12 +554,16 @@ class _HalfKey extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.subtitleColor,
+    this.trailing = Icons.arrow_forward_rounded,
+    this.trailingColor = SkyColors.ink,
+    this.cue = 'ui_tap',
   });
-  final String label, title, subtitle;
+  final String label, title, subtitle, cue;
   final HomeKeyColors colors;
   final VoidCallback onPressed;
   final Widget art;
-  final Color subtitleColor;
+  final Color subtitleColor, trailingColor;
+  final IconData trailing;
 
   @override
   Widget build(BuildContext context) => HomeKey(
@@ -554,6 +571,7 @@ class _HalfKey extends StatelessWidget {
     colors: colors,
     lip: 6,
     radius: 22,
+    cue: cue,
     onPressed: onPressed,
     builder: (context, _) => Padding(
       padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
@@ -584,11 +602,7 @@ class _HalfKey extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 4),
-          const Icon(
-            Icons.arrow_forward_rounded,
-            size: 22,
-            color: SkyColors.ink,
-          ),
+          Icon(trailing, size: 22, color: trailingColor),
         ],
       ),
     ),
@@ -635,20 +649,48 @@ class HomeMiniGamesKey extends StatelessWidget {
 
 /// The way to the Level Builder: make levels of your own for Tap & Fly and
 /// the camera workouts, fly them and share them as codes.
+///
+/// It stays locked for a new player's first flights: while [flightsLeft] is
+/// above 0 the key is greyed and padlocked, says how many flights are left,
+/// and a press plays the shop's "not yet" cue without calling [onPressed].
 class HomeLevelBuilderKey extends StatelessWidget {
-  const HomeLevelBuilderKey({super.key, required this.onPressed});
+  const HomeLevelBuilderKey({
+    super.key,
+    required this.onPressed,
+    this.flightsLeft = 0,
+  });
   final VoidCallback onPressed;
+  final int flightsLeft;
+
+  static const _lockedInk = Color(0xff52666c);
 
   @override
-  Widget build(BuildContext context) => _HalfKey(
-    label: 'Level Builder. Make your own levels, fly them and share them.',
-    colors: HomeKeyColors.blueprint,
-    onPressed: onPressed,
-    title: 'LEVEL BUILDER',
-    subtitle: 'Make · fly · share',
-    subtitleColor: const Color(0xff245a77),
-    art: const LevelBuilderGlyph(size: 46),
-  );
+  Widget build(BuildContext context) {
+    if (flightsLeft <= 0) {
+      return _HalfKey(
+        label: 'Level Builder. Make your own levels, fly them and share them.',
+        colors: HomeKeyColors.blueprint,
+        onPressed: onPressed,
+        title: 'LEVEL BUILDER',
+        subtitle: 'Make · fly · share',
+        subtitleColor: const Color(0xff245a77),
+        art: const LevelBuilderGlyph(size: 46),
+      );
+    }
+    final flights = flightsLeft == 1 ? '1 flight' : '$flightsLeft flights';
+    return _HalfKey(
+      label: 'Level Builder. Locked. Unlocks in $flights.',
+      colors: HomeKeyColors.locked,
+      cue: ShopCues.denied,
+      onPressed: () {},
+      title: 'LEVEL BUILDER',
+      subtitle: 'Unlocks in $flights',
+      subtitleColor: _lockedInk,
+      art: const Opacity(opacity: .5, child: LevelBuilderGlyph(size: 46)),
+      trailing: Icons.lock_rounded,
+      trailingColor: _lockedInk,
+    );
+  }
 }
 
 /// The Level Builder's sticker: a gate and a chequered finish flag drawn on

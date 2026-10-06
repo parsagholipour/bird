@@ -14,10 +14,10 @@ import 'gargoyle_pose.dart';
 
 /// What a spotting cost the bird (the consequence the SPOTTED! moment shows).
 enum GargoyleSpotCost {
-  /// The bird's shield took it (Star Trail, shield up).
+  /// The bird's shield took it (shield up).
   shield,
 
-  /// A heart went (Star Trail, no shield).
+  /// A heart went (no shield).
   heart,
 
   /// The run is over (Classic): nothing to show beyond the catch itself.

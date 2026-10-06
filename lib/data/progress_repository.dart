@@ -13,6 +13,7 @@ import '../domain/game_rules.dart';
 import '../domain/tracking.dart';
 import '../domain/daily_adventure.dart';
 import 'built_level_repository.dart';
+import 'cloud_logbook.dart';
 
 part 'progress_repository.g.dart';
 
@@ -256,6 +257,11 @@ const firstBird = 2;
 /// The order the bird pickers show the cast in, [firstBird] first.
 const birdOrder = [firstBird, 0, 1, 3];
 
+/// Scored flights (campaign levels, endless and the camera mini games) a
+/// player flies before the Level Builder opens, so they know what a level
+/// is made of before they make one.
+const builderUnlockFlights = 5;
+
 /// Stars each bird costs to unlock, by index: Pip 500 and Orbit 1000;
 /// Peaches and Minty fly free from the start.
 const birdPrices = [500, 0, 0, 1000];
@@ -299,6 +305,31 @@ class ModeRecord {
   });
   final int best, runs, obstacles, repetitions;
   final int stars, perfectPasses, bestCombo, completions;
+
+  /// Two phones' records together: their counts add up and their bests
+  /// stay bests.
+  ModeRecord plus(ModeRecord o) => ModeRecord(
+    best: math.max(best, o.best),
+    runs: runs + o.runs,
+    obstacles: obstacles + o.obstacles,
+    repetitions: repetitions + o.repetitions,
+    stars: stars + o.stars,
+    perfectPasses: perfectPasses + o.perfectPasses,
+    bestCombo: math.max(bestCombo, o.bestCombo),
+    completions: completions + o.completions,
+  );
+
+  /// The field-wise max of two copies of one phone's record.
+  ModeRecord max(ModeRecord o) => ModeRecord(
+    best: math.max(best, o.best),
+    runs: math.max(runs, o.runs),
+    obstacles: math.max(obstacles, o.obstacles),
+    repetitions: math.max(repetitions, o.repetitions),
+    stars: math.max(stars, o.stars),
+    perfectPasses: math.max(perfectPasses, o.perfectPasses),
+    bestCombo: math.max(bestCombo, o.bestCombo),
+    completions: math.max(completions, o.completions),
+  );
 }
 
 /// One co-op mode's team best and how many flights it has had. A duel has
@@ -352,9 +383,19 @@ class ProgressSnapshot {
     this.upgrades = const PowerUps(),
     this.starsSpent = 0,
     this.builtWorkouts = const {},
+    this.feats = const {},
+    this.builtCleared = false,
     this._campaign,
   });
   final GameSettings settings;
+
+  /// Things a flight did that only Play Games achievements read, such as
+  /// `boss:dragon`, `day:2026-10-06`, `night` and `pigeonFreed`.
+  final Set<String> feats;
+
+  /// Whether a level built here (not remixed or imported) has been flown
+  /// to the finish by its creator.
+  final bool builtCleared;
 
   /// Repetitions (push-ups, squats) and jumps done on built levels, by
   /// mode. They count towards the lifetime workout totals, and to nothing
@@ -430,6 +471,9 @@ class ProgressSnapshot {
 
   /// Every scored flight, campaign levels included.
   int get flightsFlown => totalRuns + campaignFlights.runs;
+
+  /// Flights still to fly before the Level Builder opens; 0 once it has.
+  int get flightsToBuilder => math.max(0, builderUnlockFlights - flightsFlown);
   int get totalRepetitions =>
       pushUp.repetitions +
       trailPushUp.repetitions +
@@ -512,7 +556,34 @@ abstract interface class ProgressRepository {
   /// Unlocks [bird] for its [birdPrices] stars. Throws a [StateError] when
   /// it is already unlocked or the wallet cannot pay for it.
   Future<void> unlockBird(int bird);
-  Future<void> reset();
+
+  /// Clears this phone's progress. With [cloud] (a reset on a phone that
+  /// has synced, see [cloudSynced]) the cloud logbook goes too: the epoch
+  /// rises, so the next sync replaces it instead of merging the old
+  /// progress back, and every other phone that synced starts afresh.
+  Future<void> reset({bool cloud = false});
+
+  /// Whether this phone has ever synced with the Play Games cloud, in this
+  /// session or an earlier one; with [player], whether its last sync was
+  /// with that Play player's cloud. A reset keeps it.
+  Future<bool> cloudSynced({String? player});
+
+  /// The Play Games logbook of this phone's progress
+  /// (lib/data/cloud_logbook.dart).
+  Future<Logbook> exportLogbook();
+
+  /// Merges [player]'s cloud logbook into this phone's progress in one
+  /// transaction and returns the merged logbook to save back, and whether
+  /// anything here changed. A cloud reset on another phone (a higher epoch)
+  /// first clears this phone's progress when it last synced with the same
+  /// player. Another player's cloud is met as on a phone that never synced:
+  /// this phone takes its epoch, and the two merge.
+  Future<(Logbook, bool)> importLogbook(Logbook? cloud, {String player = ''});
+
+  /// What the Play Games sync remembers on this phone only (achievements
+  /// reported, when the cloud was last saved), or null.
+  Future<String?> loadPlayGamesMemory();
+  Future<void> savePlayGamesMemory(String memory);
   Future<void> close();
 }
 
@@ -532,39 +603,40 @@ class SqliteProgressRepository implements ProgressRepository {
       for (final row in await db.select(db.preferences).get())
         row.key: row.value,
     };
-    final birdFlights = await _birdFlights();
-    final birdsFlown = birdFlights.keys.toSet();
-    Future<ModeRecord> tally(
-      String where, [
-      List<Variable> variables = const [],
-    ]) async {
-      final r = await db
-          .customSelect(
-            'SELECT COALESCE(MAX(score),0) AS best, COUNT(*) AS runs, '
-            'COALESCE(SUM(gates),0) AS obstacles, COALESCE(SUM(repetitions),0) AS repetitions '
-            ', COALESCE(SUM(stars),0) AS stars, COALESCE(SUM(perfect_passes),0) AS perfects '
-            ', COALESCE(MAX(best_combo),0) AS combo, '
-            'COALESCE(SUM(reason = \'completed\' OR (level IS NULL AND course = \'starTrail\' AND duration >= 60)),0) AS completions '
-            'FROM runs WHERE practice = 0 AND $where',
-            variables: variables,
-          )
-          .getSingle();
-      return ModeRecord(
-        best: r.read<int>('best'),
-        runs: r.read<int>('runs'),
-        obstacles: r.read<int>('obstacles'),
-        repetitions: r.read<int>('repetitions'),
-        stars: r.read<int>('stars'),
-        perfectPasses: r.read<int>('perfects'),
-        bestCombo: r.read<int>('combo'),
-        completions: r.read<int>('completions'),
-      );
+    // Other phones' totals, restored from Play Games, count with this
+    // phone's own flights.
+    final carried = DeviceTotals.decodeAll(prefs[_carriedKey]).values;
+    final birdFlights = <int, int>{...await _birdFlights()};
+    for (final row in carried) {
+      for (final MapEntry(key: bird, value: n) in row.birdFlights.entries) {
+        if (n > 0) birdFlights[bird] = (birdFlights[bird] ?? 0) + n;
+      }
     }
-
-    // Campaign levels are never endless records.
-    Future<ModeRecord> record(PlayMode mode, FlightCourse course) => tally(
-      'level IS NULL AND mode = ? AND course = ?',
-      [Variable.withInt(mode.index), Variable.withString(course.name)],
+    final birdsFlown = birdFlights.keys.toSet();
+    Future<ModeRecord> record(String key) async => carried.fold<ModeRecord>(
+      await _localRecord(key),
+      (r, row) => r.plus(row.record(key)),
+    );
+    final workouts = {...await builtLevels.workouts()};
+    for (final row in carried) {
+      for (final MapEntry(:key, :value) in row.builtWorkouts.entries) {
+        if (PlayMode.values.asNameMap()[key] case final mode?) {
+          workouts[mode] = (workouts[mode] ?? 0) + value;
+        }
+      }
+    }
+    CoopRecord coop(CoopMode mode) => carried.fold(
+      CoopRecord(
+        best: int.tryParse(prefs[_coopKey('Best', mode)] ?? '') ?? 0,
+        flights: int.tryParse(prefs[_coopKey('Flights', mode)] ?? '') ?? 0,
+      ),
+      (r, row) => switch (row.coop[mode.name]) {
+        null => r,
+        final o => CoopRecord(
+          best: math.max(r.best, o.best),
+          flights: r.flights + o.flights,
+        ),
+      },
     );
 
     final selected = int.tryParse(prefs['bird'] ?? '$firstBird') ?? firstBird;
@@ -600,15 +672,15 @@ class SqliteProgressRepository implements ProgressRepository {
         // way to Minty until it is bought.
         bird: unlocked.contains(selected) ? selected : firstBird,
       ),
-      pushUp: await record(PlayMode.pushUp, FlightCourse.classic),
-      jump: await record(PlayMode.jump, FlightCourse.classic),
-      touch: await record(PlayMode.touch, FlightCourse.classic),
-      squat: await record(PlayMode.squat, FlightCourse.classic),
-      trailPushUp: await record(PlayMode.pushUp, FlightCourse.starTrail),
-      trailJump: await record(PlayMode.jump, FlightCourse.starTrail),
-      trailTouch: await record(PlayMode.touch, FlightCourse.starTrail),
-      trailSquat: await record(PlayMode.squat, FlightCourse.starTrail),
-      campaignFlights: await tally('level IS NOT NULL'),
+      pushUp: await record('pushUp'),
+      jump: await record('jump'),
+      touch: await record('touch'),
+      squat: await record('squat'),
+      trailPushUp: await record('trailPushUp'),
+      trailJump: await record('trailJump'),
+      trailTouch: await record('trailTouch'),
+      trailSquat: await record('trailSquat'),
+      campaignFlights: await record('campaign'),
       campaign: CampaignProgress(
         levels.map(_levelRecord),
         storyWatched: _storyWatched(prefs[_storyKey]),
@@ -618,21 +690,16 @@ class SqliteProgressRepository implements ProgressRepository {
       unlockedBirds: unlocked,
       recent: rows.map(_runResult).toList(),
       coop: CoopProgress(
-        records: {
-          for (final mode in CoopMode.values)
-            mode: CoopRecord(
-              best: int.tryParse(prefs[_coopKey('Best', mode)] ?? '') ?? 0,
-              flights:
-                  int.tryParse(prefs[_coopKey('Flights', mode)] ?? '') ?? 0,
-            ),
-        },
+        records: {for (final mode in CoopMode.values) mode: coop(mode)},
         birds: _coopBirds(prefs[_coopBirdsKey], selected, unlocked),
         mode:
             CoopMode.values.asNameMap()[prefs[_coopModeKey]] ?? CoopMode.roped,
       ),
       upgrades: _upgrades(prefs),
       starsSpent: _starsSpent(prefs),
-      builtWorkouts: await builtLevels.workouts(),
+      builtWorkouts: workouts,
+      feats: _names(prefs[_featsKey]),
+      builtCleared: await _builtCleared(),
       adventures: [
         for (var i = 6; i >= 0; i--)
           DailyAdventure.forDate(
@@ -642,6 +709,63 @@ class SqliteProgressRepository implements ProgressRepository {
       ],
     );
   });
+
+  /// This phone's own record under a [DeviceTotals.recordKeys] key,
+  /// summed from its scored flights. Campaign levels are never endless
+  /// records.
+  Future<ModeRecord> _localRecord(String key) async {
+    final (where, variables) = switch (_records[key]) {
+      (final mode, final course) => (
+        'level IS NULL AND mode = ? AND course = ?',
+        [Variable.withInt(mode.index), Variable.withString(course.name)],
+      ),
+      null => ('level IS NOT NULL', const <Variable>[]),
+    };
+    final r = await db
+        .customSelect(
+          'SELECT COALESCE(MAX(score),0) AS best, COUNT(*) AS runs, '
+          'COALESCE(SUM(gates),0) AS obstacles, COALESCE(SUM(repetitions),0) AS repetitions '
+          ', COALESCE(SUM(stars),0) AS stars, COALESCE(SUM(perfect_passes),0) AS perfects '
+          ', COALESCE(MAX(best_combo),0) AS combo, '
+          'COALESCE(SUM(reason = \'completed\' OR (level IS NULL AND course = \'starTrail\' AND duration >= 60)),0) AS completions '
+          'FROM runs WHERE practice = 0 AND $where',
+          variables: variables,
+        )
+        .getSingle();
+    return ModeRecord(
+      best: r.read<int>('best'),
+      runs: r.read<int>('runs'),
+      obstacles: r.read<int>('obstacles'),
+      repetitions: r.read<int>('repetitions'),
+      stars: r.read<int>('stars'),
+      perfectPasses: r.read<int>('perfects'),
+      bestCombo: r.read<int>('combo'),
+      completions: r.read<int>('completions'),
+    );
+  }
+
+  /// The endless record each [DeviceTotals.recordKeys] key names; the
+  /// campaign's is missing.
+  static const _records = {
+    'pushUp': (PlayMode.pushUp, FlightCourse.classic),
+    'jump': (PlayMode.jump, FlightCourse.classic),
+    'touch': (PlayMode.touch, FlightCourse.classic),
+    'squat': (PlayMode.squat, FlightCourse.classic),
+    'trailPushUp': (PlayMode.pushUp, FlightCourse.starTrail),
+    'trailJump': (PlayMode.jump, FlightCourse.starTrail),
+    'trailTouch': (PlayMode.touch, FlightCourse.starTrail),
+    'trailSquat': (PlayMode.squat, FlightCourse.starTrail),
+  };
+
+  Future<bool> _builtCleared() async =>
+      (await db
+              .customSelect(
+                'SELECT EXISTS(SELECT 1 FROM built_levels WHERE origin = \'created\' '
+                'AND cleared_revision IS NOT NULL) AS cleared',
+                readsFrom: {db.builtLevels},
+              )
+              .getSingle())
+          .read<bool>('cleared');
 
   RunResult _runResult(Run r) => RunResult(
     id: r.id,
@@ -730,7 +854,45 @@ class SqliteProgressRepository implements ProgressRepository {
             mode: InsertMode.insertOrIgnore,
           );
       if (level != null) await _mergeLevel(level, result);
+      if (!result.practice) await _rememberFeats(result);
     });
+  }
+
+  /// Notes what a newly saved scored flight did for the Play Games
+  /// achievements: its own [RunResult.feats], a finish between midnight
+  /// and 4 a.m., and the day's adventure card once this flight stamps it.
+  Future<void> _rememberFeats(RunResult result) async {
+    final at = result.finishedAt.toLocal();
+    final day = DateTime(at.year, at.month, at.day);
+    final rows =
+        await (db.select(db.runs)..where(
+              (r) =>
+                  r.practice.equals(false) &
+                  r.finishedAt.isBiggerOrEqualValue(day) &
+                  r.finishedAt.isSmallerThanValue(
+                    DateTime(day.year, day.month, day.day + 1),
+                  ),
+            ))
+            .get();
+    final card = DailyAdventure.forDate(day, rows.map(_runResult));
+    await _addFeats({
+      ...result.feats,
+      if (at.hour < 4) 'night',
+      if (card.complete) 'day:${card.dayKey}',
+    });
+  }
+
+  Future<void> _addFeats(Set<String> feats) async {
+    if (feats.isEmpty) return;
+    final row = await (db.select(
+      db.preferences,
+    )..where((p) => p.key.equals(_featsKey))).getSingleOrNull();
+    final saved = _names(row?.value);
+    if (saved.containsAll(feats)) return;
+    await _remember(
+      _featsKey,
+      ({...saved, ...feats}.toList()..sort()).join(','),
+    );
   }
 
   /// Folds a campaign flight into its level's bests. It is rated against
@@ -778,10 +940,23 @@ class SqliteProgressRepository implements ProgressRepository {
   /// The preference that lists the watched story scenes by id.
   static const _storyKey = 'storyWatched';
 
-  static Set<String> _storyWatched(String? saved) => {
+  static Set<String> _storyWatched(String? saved) => _names(saved);
+
+  /// A comma-separated set of names, as the story and feats preferences
+  /// keep them.
+  static Set<String> _names(String? saved) => {
     for (final id in (saved ?? '').split(','))
       if (id.isNotEmpty) id,
   };
+
+  /// Play Games: the feats; other phones' totals rows (`carried`); this
+  /// phone's random id in the cloud logbook; the logbook's epoch; what
+  /// the achievements sync remembers (never synced); and the Play player
+  /// this phone last synced with (`cloudSynced`), whose cloud the epoch
+  /// belongs to.
+  static const _featsKey = 'feats', _carriedKey = 'carried';
+  static const _deviceKey = 'deviceId', _epochKey = 'epoch';
+  static const _playGamesKey = 'playGames', _syncedKey = 'cloudSynced';
 
   @override
   Future<void> markStoryWatched(StoryScene scene) => db.transaction(() async {
@@ -899,13 +1074,8 @@ class SqliteProgressRepository implements ProgressRepository {
       throw StateError('${birdNames[bird]} is already unlocked');
     }
     final price = birdPrices[bird];
-    final earned = await db
-        .customSelect(
-          'SELECT COALESCE(SUM(stars),0) AS stars FROM runs WHERE practice = 0',
-        )
-        .getSingle();
     final spent = _starsSpent(prefs);
-    if (earned.read<int>('stars') - spent < price) {
+    if (await _starsEarned(prefs) - spent < price) {
       throw StateError('Not enough stars for ${birdNames[bird]}');
     }
     await _remember(
@@ -968,6 +1138,20 @@ class SqliteProgressRepository implements ProgressRepository {
   static int _starsSpent(Map<String, String> prefs) =>
       math.max(0, int.tryParse(prefs[_starsSpentKey] ?? '') ?? 0);
 
+  /// Stars collected on this phone's scored flights and on the other
+  /// phones' restored from Play Games.
+  Future<int> _starsEarned(Map<String, String> prefs) async {
+    final local = await db
+        .customSelect(
+          'SELECT COALESCE(SUM(stars),0) AS stars FROM runs WHERE practice = 0',
+        )
+        .getSingle();
+    return DeviceTotals.decodeAll(prefs[_carriedKey]).values.fold<int>(
+      local.read<int>('stars'),
+      (n, row) => row.records.values.fold(n, (n, r) => n + r.stars),
+    );
+  }
+
   @override
   Future<void> buyUpgrade(PowerUp p) => db.transaction(() async {
     final prefs = {
@@ -977,13 +1161,8 @@ class SqliteProgressRepository implements ProgressRepository {
     final level = _upgrades(prefs)[p];
     final cost = PowerUp.costFrom(level);
     if (cost == null) throw StateError('${p.title} is already at the top');
-    final earned = await db
-        .customSelect(
-          'SELECT COALESCE(SUM(stars),0) AS stars FROM runs WHERE practice = 0',
-        )
-        .getSingle();
     final spent = _starsSpent(prefs);
-    if (earned.read<int>('stars') - spent < cost) {
+    if (await _starsEarned(prefs) - spent < cost) {
       throw StateError('Not enough stars for ${p.title}');
     }
     await _remember(_upgradeKey(p), '${level + 1}');
@@ -991,13 +1170,287 @@ class SqliteProgressRepository implements ProgressRepository {
   });
 
   @override
-  Future<void> reset() => db.transaction(() async {
+  Future<void> reset({bool cloud = false}) => db.transaction(() async {
+    final epoch = await _epoch();
+    // Having synced stays: the cloud holds the old progress until the next
+    // sync replaces it.
+    await _clear(const {_syncedKey});
+    // Clearing the cloud copy too: the fresh logbook's higher epoch
+    // replaces it rather than merging the old progress back. The time
+    // keeps it above a reset on another phone this one has not heard of.
+    // A reset that leaves the cloud alone keeps its epoch, so connecting
+    // later still restores the cloud's progress.
+    final next = cloud
+        ? math.max(epoch + 1, clock().millisecondsSinceEpoch)
+        : epoch;
+    if (next > 0) await _remember(_epochKey, '$next');
+  });
+
+  /// Deletes this phone's progress: its flights, levels, built levels and
+  /// every preference but the [keep] ones.
+  Future<void> _clear(Set<String> keep) async {
     await db.delete(db.runs).go();
-    await db.delete(db.preferences).go();
+    await (db.delete(db.preferences)..where((p) => p.key.isNotIn(keep))).go();
     await db.delete(db.levelProgress).go();
     await db.delete(db.builtLevels).go();
     await db.delete(db.builtFlights).go();
-  });
+  }
+
+  /// What a reset on another phone leaves here: the device settings, the
+  /// voice-over's memory and the Play Games sync's own. Saved sessions are
+  /// not in this database and stay too.
+  static final _localKeys = {
+    for (final key in SettingKey.values) key.name,
+    _flightVoicesKey,
+    _playGamesKey,
+    _syncedKey,
+  };
+
+  @override
+  Future<bool> cloudSynced({String? player}) async {
+    final last = await _pref(_syncedKey);
+    return last != null && (player == null || last == player);
+  }
+
+  Future<int> _epoch() async => int.tryParse(await _pref(_epochKey) ?? '') ?? 0;
+
+  Future<String?> _pref(String key) async => (await (db.select(
+    db.preferences,
+  )..where((p) => p.key.equals(key))).getSingleOrNull())?.value;
+
+  /// This phone's id in the cloud logbook, made on first use. A reset
+  /// forgets it, so a fresh start is a fresh row.
+  Future<String> _deviceId() async {
+    if (await _pref(_deviceKey) case final id? when id.isNotEmpty) return id;
+    final random = math.Random.secure();
+    final id = [
+      for (var i = 0; i < 16; i++)
+        random.nextInt(256).toRadixString(16).padLeft(2, '0'),
+    ].join();
+    await _remember(_deviceKey, id);
+    return id;
+  }
+
+  @override
+  Future<Logbook> exportLogbook() => db.transaction(_export);
+
+  Future<Logbook> _export() async {
+    final prefs = {
+      for (final row in await db.select(db.preferences).get())
+        row.key: row.value,
+    };
+    final me = await _deviceId();
+    final mine = DeviceTotals(
+      records: {
+        for (final key in DeviceTotals.recordKeys) key: await _localRecord(key),
+      },
+      birdFlights: await _birdFlights(),
+      builtWorkouts: {
+        for (final MapEntry(:key, :value)
+            in (await builtLevels.workouts()).entries)
+          key.name: value,
+      },
+      coop: {
+        for (final mode in CoopMode.values)
+          mode.name: CoopRecord(
+            best: int.tryParse(prefs[_coopKey('Best', mode)] ?? '') ?? 0,
+            flights: int.tryParse(prefs[_coopKey('Flights', mode)] ?? '') ?? 0,
+          ),
+      },
+    );
+    return Logbook(
+      epoch: int.tryParse(prefs[_epochKey] ?? '') ?? 0,
+      devices: {...DeviceTotals.decodeAll(prefs[_carriedKey]), me: mine},
+      levels: {
+        for (final row in await db.select(db.levelProgress).get())
+          row.level: _levelRecord(row),
+      },
+      upgrades: _upgrades(prefs),
+      birds: {
+        for (final b in _unlockedBirds(prefs))
+          if (birdPrices[b] > 0) b,
+      },
+      storyWatched: _names(prefs[_storyKey]),
+      feats: _names(prefs[_featsKey]),
+      builtLevels: {
+        for (final row in await db.select(db.builtLevels).get())
+          row.id: {
+            'name': row.name,
+            'mode': row.mode,
+            'json': row.json,
+            'fingerprint': row.fingerprint,
+            'revision': row.revision,
+            'origin': row.origin,
+            'remixOf': row.remixOf,
+            'clearedRevision': row.clearedRevision,
+            'importedCleared': row.importedCleared,
+            'createdAt': row.createdAt.millisecondsSinceEpoch,
+            'updatedAt': row.updatedAt.millisecondsSinceEpoch,
+          },
+      },
+      builtDeleted: _names(prefs[builtDeletedKey]),
+    );
+  }
+
+  @override
+  Future<(Logbook, bool)> importLogbook(Logbook? cloud, {String player = ''}) =>
+      db.transaction(() async {
+        var local = await _export();
+        // A reset on a phone that synced raised the cloud's epoch. A phone
+        // that has synced with this player before may hold that old progress
+        // anywhere, so it starts afresh too, once: it takes the new epoch as it
+        // clears. A phone that never synced with this player (another
+        // account's, or none) is never wiped, and its epoch, another cloud's,
+        // must never replace this one: it takes this cloud's and merges.
+        final synced = await cloudSynced(player: player);
+        final fresh = synced && cloud != null && cloud.epoch > local.epoch;
+        if (fresh || !synced) {
+          if (fresh) await _clear(_localKeys);
+          await _remember(_epochKey, '${cloud?.epoch ?? 0}');
+          local = await _export();
+        }
+        if (!synced) await _remember(_syncedKey, player);
+        final me = await _deviceId();
+        final merged = Logbook.merge(local, cloud, me: me);
+        final changed =
+            fresh || jsonEncode(merged.toJson()) != jsonEncode(local.toJson());
+        if (!changed) return (merged, false);
+        await _remember(
+          _carriedKey,
+          DeviceTotals.encodeAll({...merged.devices}..remove(me)),
+        );
+        await _remember(_epochKey, '${merged.epoch}');
+        for (final MapEntry(:key, :value) in merged.levels.entries) {
+          if (local.levels[key] case final old? when _same(old, value)) {
+            continue;
+          }
+          await db
+              .into(db.levelProgress)
+              .insertOnConflictUpdate(
+                LevelProgressCompanion.insert(
+                  level: key,
+                  bestStars: Value(value.bestStars),
+                  bestCollected: Value(value.bestCollected),
+                  bestScore: Value(value.bestScore),
+                  plays: Value(value.plays),
+                  firstClearedAt: Value(value.firstClearedAt),
+                  lastPlayedAt: Value(value.lastPlayedAt),
+                  postcardSeen: Value(value.postcardSeen),
+                ),
+              );
+        }
+        final bought = merged.birds.toList()..sort();
+        final purchases =
+            jsonEncode([merged.upgrades.toJson(), bought]) !=
+            jsonEncode([local.upgrades.toJson(), local.birds.toList()..sort()]);
+        if (purchases) {
+          for (final p in PowerUp.values) {
+            await _remember(_upgradeKey(p), '${merged.upgrades[p]}');
+          }
+          await _remember(_birdUnlocksKey, bought.join(','));
+          // Purchases from both phones are paid for once, at today's
+          // prices; the wallet shows 0 rather than less (see starWallet).
+          await _remember(
+            _starsSpentKey,
+            '${spentOn(merged.upgrades, bought)}',
+          );
+        }
+        await _remember(
+          _storyKey,
+          (merged.storyWatched.toList()..sort()).join(','),
+        );
+        await _remember(_featsKey, (merged.feats.toList()..sort()).join(','));
+        await _remember(
+          builtDeletedKey,
+          (merged.builtDeleted.toList()..sort()).join(','),
+        );
+        for (final id in merged.builtDeleted) {
+          await (db.delete(db.builtLevels)..where((l) => l.id.equals(id))).go();
+        }
+        for (final MapEntry(:key, :value) in merged.builtLevels.entries) {
+          final old = local.builtLevels[key];
+          if (old != null && jsonEncode(old) == jsonEncode(value)) continue;
+          if (_builtRow(key, value) case final row?) {
+            await db.into(db.builtLevels).insertOnConflictUpdate(row);
+          }
+        }
+        // Changed means this phone's progress moved, not that the merged blob
+        // differs: what this build cannot import (a built level of an unknown
+        // mode) stays in the cloud copy but never lands here. A fresh start
+        // always counts, so the screens let go of the cleared progress.
+        final after = jsonEncode((await _export()).toJson());
+        return (merged, fresh || after != jsonEncode(local.toJson()));
+      });
+
+  static bool _same(LevelRecord a, LevelRecord b) =>
+      a.bestStars == b.bestStars &&
+      a.bestCollected == b.bestCollected &&
+      a.bestScore == b.bestScore &&
+      a.plays == b.plays &&
+      a.firstClearedAt == b.firstClearedAt &&
+      a.lastPlayedAt == b.lastPlayedAt &&
+      a.postcardSeen == b.postcardSeen;
+
+  /// A built level from the logbook as a `built_levels` row, or null when
+  /// it is not a player's level or cannot be read.
+  static BuiltLevelsCompanion? _builtRow(String id, Map<String, Object?> m) {
+    final (name, mode, json, fingerprint, revision, origin) = (
+      m['name'],
+      m['mode'],
+      m['json'],
+      m['fingerprint'],
+      m['revision'],
+      m['origin'],
+    );
+    final (created, updated) = (m['createdAt'], m['updatedAt']);
+    if (!id.startsWith('u-') ||
+        name is! String ||
+        mode is! int ||
+        mode < 0 ||
+        mode >= PlayMode.values.length ||
+        json is! String ||
+        fingerprint is! String ||
+        revision is! int ||
+        origin is! String ||
+        created is! int ||
+        updated is! int) {
+      return null;
+    }
+    final remixOf = m['remixOf'], cleared = m['clearedRevision'];
+    return BuiltLevelsCompanion.insert(
+      id: id,
+      name: name,
+      mode: mode,
+      json: json,
+      fingerprint: fingerprint,
+      revision: Value(revision),
+      origin: Value(origin),
+      remixOf: Value(remixOf is String ? remixOf : null),
+      clearedRevision: Value(cleared is int ? cleared : null),
+      importedCleared: Value(m['importedCleared'] == true),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(created),
+      updatedAt: DateTime.fromMillisecondsSinceEpoch(updated),
+    );
+  }
+
+  /// Stars [upgrades] and the bought [birds] cost at today's prices.
+  static int spentOn(PowerUps upgrades, Iterable<int> birds) =>
+      PowerUp.values.fold(
+        0,
+        (n, p) =>
+            n +
+            PowerUp.costs
+                .take(upgrades[p].clamp(0, PowerUp.maxLevel))
+                .fold(0, (a, b) => a + b),
+      ) +
+      birds.fold(0, (n, b) => n + birdPrices[b]);
+
+  @override
+  Future<String?> loadPlayGamesMemory() => _pref(_playGamesKey);
+
+  @override
+  Future<void> savePlayGamesMemory(String memory) =>
+      _remember(_playGamesKey, memory);
   @override
   Future<void> close() => db.close();
 }

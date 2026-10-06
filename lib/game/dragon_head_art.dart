@@ -196,14 +196,11 @@ abstract final class DragonHeadArt {
   static Offset _liftedHornTip(DragonHeadPose p) =>
       _hornRoot +
       DragonKit.turn(_hornSpine.last - _hornRoot, hornLift(p)) * hornSquash(p);
-  static Offset crownTop(DragonHeadPose p) {
-    final (x, _, h, lean) = _crownPoints[2];
-    final tip = Offset(x + lean, _bandTop(x) - h);
-    return point(
-      p,
-      crownSeat + DragonKit.turn(tip, DragonLayout.headCrownTurn),
-    );
-  }
+  static Offset crownTop(DragonHeadPose p) => point(
+    p,
+    crownSeat +
+        DragonKit.turn(_crownTip(_crownFront), DragonLayout.headCrownTurn),
+  );
 
   /// The lowest points of the lower jaw at [gape] in the head's frame: its
   /// tip, two belly points and the chin tusks' tips. They reach toward the
@@ -2023,79 +2020,134 @@ abstract final class DragonHeadArt {
 
   // ---------------------------------------------------------------- crown --
 
-  /// The circlet's band, in its own frame: a broad arch that drops .22 by its
-  /// ends as the dome does and tapers to a point at both, so it looks wrapped
-  /// round the skull and not stood on it. Its tallest point stays at -.45:
-  /// the calm head already touches the top of the envelope (-3.72), so the
-  /// crown grows in width, band and point mass, not in height. It is a little
-  /// wider than [crownBounds] (the falling crown's layer leaves .1 round it).
-  static double _bandCentre(double x) => -.02 + .22 * (x / .58) * (x / .58);
-  static double _bandHalf(double x) =>
-      .125 * (1 - .55 * math.pow((x / .64).abs(), 4));
-  static double _bandTop(double x) => _bandCentre(x) - _bandHalf(x);
-  static double _bandBottom(double x) => _bandCentre(x) + _bandHalf(x);
+  /// The circlet is a ring round the dome, seen from the side and a little
+  /// from above while the head looks left. Angles go round the ring: 0 is
+  /// the back of the skull (right), pi the snout's side (left), pi/2 the side
+  /// nearest us and -pi/2 the far side. The band's lower edge is an ellipse
+  /// whose near half dips over the dome and whose ends sit on the skull's
+  /// line; the far half's inner face shows, in shade, above the near band.
+  /// Its tallest point (the front, with the ruby) faces the way the dragon
+  /// looks, so it sits at the left and turns away from us. Nothing is taller
+  /// than the old circlet (-.45: the calm head already touches the top of
+  /// the envelope, -3.72), and it stays inside [crownBounds] with the
+  /// falling crown's .1 to spare.
+  static const _ringX = .53, _ringY = .09, _ringDepth = .12;
+  static const _ringTilt = -.08, _ringBand = .19;
 
-  /// One ogee point standing on the band's upper edge at [x].
+  /// The band's lower edge at angle [a] round the ring.
+  static Offset _ringFoot(double a) {
+    final x = _ringX * math.cos(a);
+    return Offset(x, _ringY + _ringDepth * math.sin(a) + _ringTilt * x);
+  }
+
+  /// The band's upper edge (where the points stand) at angle [a].
+  static Offset _ringLip(double a) =>
+      _ringFoot(a) - const Offset(0, _ringBand);
+
+  /// The point's tip: [p] is (angle, half angle, height, lean back).
+  static Offset _crownTip((double, double, double, double) p) {
+    final (a, _, h, lean) = p;
+    return _ringLip(a) + Offset(lean, -h);
+  }
+
+  /// One ogee point standing on the band's upper edge at angle [a], [s]
+  /// either side of it: points facing us are wide, points turning toward an
+  /// end of the ring narrow as they go edge-on. Drawn from its right corner
+  /// to its left; [far] points are walked the other way round the ring.
   static void _crownPoint(
     Path path,
-    double x,
-    double halfBase,
-    double height,
-    double lean,
-  ) {
-    final left = Offset(x - halfBase, _bandTop(x - halfBase));
-    final right = Offset(x + halfBase, _bandTop(x + halfBase));
-    final tip = Offset(x + lean, _bandTop(x) - height);
+    (double, double, double, double) p, {
+    bool far = false,
+  }) {
+    final (a, s, h, lean) = p;
+    final right = _ringLip(far ? a + s : a - s);
+    final left = _ringLip(far ? a - s : a + s);
+    final tip = _crownTip(p);
+    final x = (left.dx + right.dx) / 2, hb = (right.dx - left.dx) / 2;
     path
       ..lineTo(right.dx, right.dy)
       ..quadraticBezierTo(
-        x + halfBase * .15 + lean * .8,
-        tip.dy + height * .55,
+        x + hb * .15 + lean * .8,
+        tip.dy + h * .55,
         tip.dx,
         tip.dy,
       )
       ..quadraticBezierTo(
-        x - halfBase * .1 + lean * .3,
-        tip.dy + height * .5,
+        x - hb * .1 + lean * .3,
+        tip.dy + h * .5,
         left.dx,
         left.dy,
       );
   }
 
-  /// Each point: x, half width at the base, height, lean back.
-  static const _crownPoints = [
-    (-.43, .09, .12, .04),
-    (-.24, .12, .23, .05),
-    (-.01, .16, .29, .05),
-    (.22, .12, .23, .05),
-    (.42, .09, .12, .03),
+  /// The edge of the ring from angle [from] to [to], in short steps.
+  static void _ringEdge(
+    Path path,
+    double from,
+    double to,
+    Offset Function(double) at,
+  ) {
+    final n = math.max(1, ((to - from).abs() / .2).ceil());
+    for (var i = 1; i <= n; i++) {
+      final q = at(from + (to - from) * i / n);
+      path.lineTo(q.dx, q.dy);
+    }
+  }
+
+  /// The points on the near side, from the back round to the front: angle,
+  /// half angle, height, lean. The last is the front's tall point.
+  static const _nearPoints = [
+    (.56, .3, .22, .03),
+    (1.4, .4, .27, .04),
+    (2.25, .38, .35, .06),
   ];
 
+  /// The far side's points, seen from behind between the near ones.
+  static const _farPoints = [(-.95, .32, .12, .02), (-1.77, .34, .12, .03)];
+
+  /// The front: the tallest point and the ruby face the way the head looks.
+  static final _crownFront = _nearPoints.last;
+
+  /// The near half of the band (its outer face) with its points.
   static final _crownBand = () {
-    const end = .62;
-    final band = Path()..moveTo(-end, _bandBottom(-end));
-    for (var x = -end + .06; x < end + .01; x += .06) {
-      band.lineTo(x, _bandBottom(x));
+    final foot = _ringFoot(math.pi);
+    final band = Path()..moveTo(foot.dx, foot.dy);
+    _ringEdge(band, math.pi, 0, _ringFoot);
+    var a = 0.0;
+    final back = _ringLip(0);
+    band.lineTo(back.dx, back.dy);
+    for (final p in _nearPoints) {
+      _ringEdge(band, a, p.$1 - p.$2, _ringLip);
+      _crownPoint(band, p);
+      a = p.$1 + p.$2;
     }
-    band.lineTo(end, _bandTop(end));
-    for (final (x, bw, h, lean) in _crownPoints.reversed) {
-      _crownPoint(band, x, bw, h, lean);
-    }
-    band
-      ..lineTo(-end, _bandTop(-end))
-      ..close();
-    return band;
+    _ringEdge(band, a, math.pi, _ringLip);
+    return band..close();
   }();
 
-  /// The tips' beads.
+  /// The far half's inner face, seen over the near band, with the far
+  /// points (bare: beads there would only read as ink dots).
+  static final _crownBack = () {
+    final back = _ringLip(0);
+    final path = Path()..moveTo(back.dx, back.dy);
+    var a = 0.0;
+    for (final p in _farPoints) {
+      _ringEdge(path, a, p.$1 + p.$2, _ringLip);
+      _crownPoint(path, p, far: true);
+      a = p.$1 - p.$2;
+    }
+    _ringEdge(path, a, -math.pi, _ringLip);
+    _ringEdge(path, math.pi, 0, _ringLip);
+    return path..close();
+  }();
+
+  /// The near tips' beads.
   static final _crownBeads = () {
     final beads = Path();
-    // (The rearmost point is left bare: beside the horn it would chain into
-    // the horn's ring.)
-    for (final (x, _, h, lean) in _crownPoints.take(4)) {
+    for (final p in _nearPoints) {
       beads.addOval(
         Rect.fromCircle(
-          center: Offset(x + lean, _bandTop(x) - h + .015),
+          center: _crownTip(p) + const Offset(0, .015),
           radius: .04,
         ),
       );
@@ -2103,36 +2155,39 @@ abstract final class DragonHeadArt {
     return beads;
   }();
 
-  /// The hard white glint of the gold: a pill along the band's front.
+  /// The ruby sits on the band at the front, turned with it: narrower than
+  /// it is tall.
+  static final _rubyAt = _ringLip(_crownFront.$1) + const Offset(0, .02);
+
+  /// The hard white glint of the gold: a stroke along the near band's face,
+  /// curving with the ring.
   static final _crownGlints = () {
     final p = Path();
-    p
-      ..moveTo(-.50, _bandCentre(-.50) - .03)
-      ..quadraticBezierTo(
-        -.40,
-        _bandCentre(-.40) - .085,
-        -.29,
-        _bandCentre(-.29) - .075,
-      );
+    Offset at(double a) => _ringFoot(a) - const Offset(0, _ringBand * .5);
+    final from = at(2.05);
+    p.moveTo(from.dx, from.dy);
+    _ringEdge(p, 2.05, 1.5, at);
     return p;
   }();
 
   /// The band's lower edge in the head's frame, for the contact shadow it
   /// throws on the dome.
   static final _crownShadow = () {
-    Offset toHead(double x, double y) =>
-        crownSeat + DragonKit.turn(Offset(x, y), DragonLayout.headCrownTurn);
+    Offset toHead(Offset q) =>
+        crownSeat + DragonKit.turn(q, DragonLayout.headCrownTurn);
     final pts = [
-      for (var x = -.56; x <= .5601; x += .14) toHead(x, _bandBottom(x) + .04),
+      for (var a = 2.95; a >= .19; a -= .46)
+        toHead(_ringFoot(a) + const Offset(0, .04)),
     ];
     return DragonKit.spline(pts, closed: false);
   }();
 
-  /// The gold circlet the Sovereign wears: a broad band wrapped over the
-  /// brow with a tall central point, two swept points either side, a bead on
-  /// every tip, a ruby in a gold bezel and hard white glints. Bright, chunky
-  /// gold (the roster's crowns are). Drawn around its seat, and on its own
-  /// when the defeat knocks it loose.
+  /// The gold circlet the Sovereign wears: a ring round the dome, turned
+  /// with the head (its tall front point and its ruby toward the snout),
+  /// the near band lit, the far band's inner face and points in shade
+  /// behind, a bead on every tip and hard white glints. Bright, chunky gold
+  /// (the roster's crowns are). Drawn around its seat, and on its own when
+  /// the defeat knocks it loose.
   static void crown(
     Canvas c, {
     DragonTone tone = const DragonTone(),
@@ -2143,37 +2198,57 @@ abstract final class DragonHeadArt {
     final heat = .3 * tone.heat;
     Color g(Color col) =>
         tone.lit(Color.lerp(col, DragonPalette.flameGold, heat)!);
+    // The far side first: the inside of the band, in shade.
+    c.drawPath(
+      _crownBack,
+      _paint(
+        ('crownBack', _tk(tone), _q(tone.heat, 4)),
+        () => DragonKit.linear(
+          const Offset(0, -.42),
+          const Offset(0, .02),
+          [
+            g(DragonPalette.goldDeep),
+            g(Color.lerp(DragonPalette.goldDeep, DragonPalette.goldShade, .5)!),
+            g(DragonPalette.goldShade),
+          ],
+          const [0, .55, 1],
+        ),
+      ),
+    );
+    c.drawPath(_crownBack, _ink1(DragonLayout.inkPart * 1.1));
+    // The near side, lit from the front and above, shading as it turns
+    // away toward the back of the skull.
     c.drawPath(
       _crownBand,
       _paint(
         ('crown', _tk(tone), _q(tone.heat, 4)),
         () => DragonKit.linear(
-          const Offset(0, -.5),
-          const Offset(0, .24),
+          const Offset(-.42, -.42),
+          const Offset(.5, .24),
           [
             g(DragonPalette.goldLit),
             g(DragonPalette.gold),
-            g(Color.lerp(DragonPalette.gold, DragonPalette.goldDeep, .32)!),
+            g(Color.lerp(DragonPalette.gold, DragonPalette.goldDeep, .45)!),
             g(DragonPalette.goldShade),
           ],
-          const [0, .34, .74, 1],
+          const [0, .32, .7, 1],
         ),
       ),
     );
     c.drawPath(_crownBand, _ink1(DragonLayout.inkPart * 1.3));
     c.drawPath(_crownBeads, DragonKit.fill(g(DragonPalette.goldLit)));
     c.drawPath(_crownBeads, _ink1(.03));
-    const ruby = Offset(-.02, -.045);
-    c.drawCircle(ruby, .14, DragonKit.fill(g(DragonPalette.goldDeep)));
-    c.drawCircle(ruby, .14, _ink1(.045));
-    c.drawCircle(
-      ruby,
-      .1,
+    final ruby = _rubyAt;
+    final bezel = Rect.fromCenter(center: ruby, width: .17, height: .24);
+    c.drawOval(bezel, DragonKit.fill(g(DragonPalette.goldDeep)));
+    c.drawOval(bezel, _ink1(.04));
+    c.drawOval(
+      Rect.fromCenter(center: ruby, width: .1, height: .16),
       _paint(
         ('ruby', _q(tone.flash, 6)),
         () => DragonKit.radial(
-          ruby + const Offset(-.03, -.04),
-          .16,
+          ruby + const Offset(-.025, -.04),
+          .13,
           [
             DragonPalette.white,
             tone.lit(DragonPalette.rubyLit),
@@ -2188,16 +2263,17 @@ abstract final class DragonHeadArt {
       _crownGlints,
       DragonKit.line(DragonPalette.white, .04, tone.flash > .5 ? .35 : .9),
     );
-    // A hard four-point sparkle rides the tallest point, always; a slower
-    // one crosses the ruby (motion).
+    // A hard four-point sparkle rides the tall front point, always; a
+    // slower one crosses the ruby (motion).
+    final tip = _crownTip(_crownFront);
     c.save();
-    c.translate(-.285, _bandTop(-.24) - .1);
+    c.translate(tip.dx - .075, tip.dy + .14);
     c.scale(.07);
     c.drawPath(_star, DragonKit.fill(DragonPalette.white, .95));
     c.restore();
     if (glint > .05) {
       c.save();
-      c.translate(ruby.dx - .035, ruby.dy - .045);
+      c.translate(ruby.dx - .025, ruby.dy - .045);
       c.scale(.06 + .12 * glint);
       c.drawPath(_star, DragonKit.fill(DragonPalette.white, glint));
       c.restore();
