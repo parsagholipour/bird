@@ -364,7 +364,8 @@ class _Pose {
   late final CaptainBodyPose body;
 
   static double _tideCall(SkyBoss boss) {
-    if (boss.phase != BossPhase.attacking) return 0;
+    // He calls up only a tide that comes, never in a staged warm-up.
+    if (boss.phase != BossPhase.attacking || !boss.tideRuns) return 0;
     final cycle = (boss.age - boss.arrivalDuration) % SkyBoss.tidePeriod;
     final up = BossMotion.ramp(
       cycle,

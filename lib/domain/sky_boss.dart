@@ -588,6 +588,14 @@ class SkyBoss {
   double get tide =>
       isPirate && phase == BossPhase.attacking ? _armedSurge(_combatTime) : 0;
 
+  /// Whether the tide cycle now running surges: a staged captain's warm-up
+  /// keeps the sea calm, so nothing may call up or warn of a tide in it.
+  /// Presentation only: the art reads it, the rules never do.
+  bool get tideRuns =>
+      isPirate &&
+      phase == BossPhase.attacking &&
+      _armedAt(_combatTime, tidePeriod);
+
   /// 0 to 1 through the warning before each surge, 0 otherwise.
   double get tideWarning {
     if (!isPirate || phase != BossPhase.attacking) return 0;

@@ -45,8 +45,11 @@ abstract final class PirateTideArt {
     if (level == null) return;
     final warning = boss.tideWarning;
     final cycle = (boss.age - boss.arrivalDuration) % SkyBoss.tidePeriod;
+    // Only a surge that comes: a staged captain's warm-up cycles stay calm.
     final rising =
-        cycle >= SkyBoss.tideRiseAt && cycle < SkyBoss.tidePeakAt + .2;
+        boss.tideRuns &&
+        cycle >= SkyBoss.tideRiseAt &&
+        cycle < SkyBoss.tidePeakAt + .2;
     if (warning <= 0 && !rising) return;
     final h = size.height, w = size.width;
     final show = warning > 0

@@ -70,6 +70,8 @@ abstract final class PirateSeaArt {
     }
     if (boss.phase != BossPhase.attacking) return .4;
     final cycle = (boss.age - boss.arrivalDuration) % SkyBoss.tidePeriod;
+    // A staged captain's warm-up cycles bring no surge to stir the sea.
+    if (!boss.tideRuns) return boss.tideWarning * .8;
     return math.max(
       boss.tideWarning * .8,
       BossMotion.ramp(cycle, SkyBoss.tideRiseAt, SkyBoss.tideRiseAt + .2) *

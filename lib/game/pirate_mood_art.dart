@@ -217,7 +217,8 @@ abstract final class PirateMoodArt {
       }
       return;
     }
-    if (boss.phase != BossPhase.attacking) return;
+    // The flash greets a surge that comes, never a calm warm-up cycle.
+    if (boss.phase != BossPhase.attacking || !boss.tideRuns) return;
     final cycle = (boss.age - boss.arrivalDuration) % SkyBoss.tidePeriod;
     final since = cycle - SkyBoss.tideRiseAt;
     final flicker =
