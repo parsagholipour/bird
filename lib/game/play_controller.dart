@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import '../domain/built_level.dart';
 import '../domain/campaign.dart';
 import '../domain/session_replay.dart';
 import '../data/session_repository.dart';
@@ -50,16 +51,27 @@ class PlayController extends ChangeNotifier {
     this.recordAudio = false,
     this.rememberRecordAudio,
     this.level,
+    this.built,
     this.best = 0,
     FlightVoiceMemory? voiceMemory,
     this.rememberVoices,
     DateTime Function()? clock,
   }) : voiceMemory = voiceMemory ?? FlightVoiceMemory(),
-       assert(mode == PlayMode.touch || source != null),
+       assert(
+         mode == PlayMode.touch || source != null || (built?.test ?? false),
+       ),
        assert(
          level == null ||
              (mode == PlayMode.touch && course == FlightCourse.starTrail),
          'A campaign level is a Tap & Fly Star Trail',
+       ),
+       assert(
+         built == null ||
+             (level == null &&
+                 partner == null &&
+                 mode == built.level.plan.mode &&
+                 course == FlightCourse.starTrail),
+         'A built level is a solo Star Trail of its own mode',
        ),
        assert(
          partner == null || (mode == PlayMode.touch && level == null),
@@ -94,10 +106,18 @@ class PlayController extends ChangeNotifier {
   final FlightCourse course;
   final DateTime Function() clock;
   final NativeTrackingSource? source;
-  bool get isTouch => mode == PlayMode.touch;
+
+  /// Driven by the touch screen rather than the camera: Tap & Fly, and a
+  /// creator's test flight of any built level, which stands in for the
+  /// movement with taps (a jump) or a finger's height (push-ups, squats).
+  bool get isTouch => mode == PlayMode.touch || testFly;
   // Touch time advances with gameplay so pauses produce no gaps in the replay.
   double _touchTime = 0;
   bool _touchFlap = false, _partnerFlap = false;
+
+  /// A test flight's stand-in for a push-up or squat: the movement's
+  /// height (0 at the bottom, 1 at the top) under the finger.
+  double _standIn = 1;
   double get nowMs => isTouch ? _touchTime : source!.nowMs;
   final Future<void> Function(RunResult) saveRun;
   final SkyAudio audio;
@@ -125,6 +145,22 @@ class PlayController extends ChangeNotifier {
   /// plan and the result carries the level id.
   final CampaignLevel? level;
   bool get campaign => level != null;
+
+  /// The built level flown, or null. Every attempt flies its plan as it
+  /// was when the flight began.
+  final BuiltFlight? built;
+
+  /// A creator's test flight: practice, saved nowhere.
+  bool get testFly => built?.test ?? false;
+
+  /// A level with a finish line: a campaign or a built one.
+  bool get routed => level != null || built != null;
+
+  /// The flown level's star marks, or null in endless.
+  StarMarks? get marks => level?.marks ?? built?.plan.marks;
+
+  /// The boss that ends the flown level, if any.
+  BossKind? get routeBoss => level?.boss ?? built?.plan.boss;
 
   /// The endless record this flight chases, for the bird's "new record".
   final int best;
@@ -168,7 +204,7 @@ class PlayController extends ChangeNotifier {
   /// Whether this flight finished its level. A level fails when the flight
   /// ends any other way, such as a knockout or Finish flight in the pause
   /// menu.
-  bool get levelComplete => campaign && result?.reason == EndReason.completed;
+  bool get levelComplete => routed && result?.reason == EndReason.completed;
 
   /// The level after this one, across chapters, or null after the last or
   /// in endless. Whether it is unlocked is up to the saved progress.
@@ -259,7 +295,10 @@ class PlayController extends ChangeNotifier {
   Future<void>? _finishing, _stoppingCamera, _sessionSave;
   Future<void>? _preparingCapture;
   bool get canSaveSession =>
-      result != null && simulation?.started == true && !preparingReplay;
+      result != null &&
+      simulation?.started == true &&
+      !preparingReplay &&
+      !testFly;
 
   Future<void> _startCapture() async {
     if (isTouch) return;
@@ -359,6 +398,12 @@ class PlayController extends ChangeNotifier {
     }
   }
 
+  /// A test flight's finger on a push-up or squat level: the movement's
+  /// [height], from 0 at the bottom of the sky to 1 at the top.
+  void standIn(double height) {
+    if (testFly) _standIn = height.clamp(0.0, 1.0);
+  }
+
   /// Reads [player]'s bird: its Shoot and Sprint state on a co-op flight.
   bool _ready(int player, bool Function(FlightSimulation sim) check) {
     final sim = simulation;
@@ -433,7 +478,7 @@ class PlayController extends ChangeNotifier {
         _touchFlap = _partnerFlap = false;
       }
       recorder?.apply(
-        MovementInput(valid: true, flap: _touchFlap),
+        MovementInput(valid: true, flap: _touchFlap, height: _standIn),
         TrackingSample(
           mode: mode,
           timestampMs: now,
@@ -659,10 +704,13 @@ class PlayController extends ChangeNotifier {
       ReplayTape(
         mode: mode,
         course: course,
-        practice: false,
+        practice: testFly,
         seed: Random().nextInt(1 << 32),
-        cycleSeconds:
-            squat.result?.cycleSeconds ?? body.result?.cycleSeconds ?? 3,
+        // A test flight's stand-in moves at the tempo the level is built
+        // for.
+        cycleSeconds: testFly
+            ? BuiltPlan.referenceCycle
+            : squat.result?.cycleSeconds ?? body.result?.cycleSeconds ?? 3,
         bird: bird,
         weaponDamage: weaponDamage,
         upgrades: upgrades,
@@ -671,6 +719,7 @@ class PlayController extends ChangeNotifier {
         skipCountdown: _skipCountdown,
         // A level ignores the seed and lays its own fixed route.
         plan: level?.plan,
+        built: built?.plan,
         partner: partner,
         coop: coopMode,
       ),
@@ -684,7 +733,8 @@ class PlayController extends ChangeNotifier {
             bird: bird,
             mode: mode,
             level: level,
-            best: best,
+            route: built != null,
+            best: built != null ? 0 : best,
             retry: _retrying,
             memory: voiceMemory,
           );
@@ -882,7 +932,7 @@ class PlayController extends ChangeNotifier {
       stars: game.collectedStars,
       bestCombo: game.bestCombo,
       perfectPasses: game.perfectPasses,
-      practice: false,
+      practice: testFly,
       score: game.score,
       repetitions: game.repetitions,
       flaps: game.flaps,
@@ -891,12 +941,13 @@ class PlayController extends ChangeNotifier {
       finishedAt: date,
       bird: bird,
       levelId: game.levelId,
+      levelName: built?.plan.name,
     );
     _rememberVoices();
     // A level's finish line plays its celebration first, and a fatal bump
     // its knockout; saving still starts right now.
     final celebrate =
-        campaign &&
+        routed &&
         game.endReason == EndReason.completed &&
         game.finishLine?.crossed == true;
     if (game.endReason == EndReason.collision) {

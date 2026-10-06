@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'builder_providers.dart';
 import 'progress_repository.dart';
 import 'session_repository.dart';
 import '../game/audio.dart';
@@ -122,6 +123,8 @@ class ProgressController extends AsyncNotifier<ProgressSnapshot> {
     await ref.read(sessionRepositoryProvider).reset();
     ref.invalidate(sessionsProvider);
     await _repo.reset();
+    ref.invalidate(builtShelfProvider);
+    ref.invalidate(builtLevelProvider);
     ref.invalidate(flightVoiceMemoryProvider);
     ref.read(selectedCourseProvider.notifier).select(FlightCourse.starTrail);
     await refresh();

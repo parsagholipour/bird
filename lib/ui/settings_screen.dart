@@ -778,7 +778,7 @@ class _ResetDialog extends StatelessWidget {
     content: ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 440),
       child: Text(
-        'This deletes your saved videos, replays, scores, runs and settings from this phone. It cannot be undone.',
+        'This deletes your saved videos, replays, scores, runs, built levels and settings from this phone. It cannot be undone.',
         style: bodyText(16),
       ),
     ),

@@ -8,9 +8,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../data/builder_providers.dart';
 import '../data/providers.dart';
 import '../data/progress_repository.dart';
 import '../data/passport_progress.dart';
+import '../domain/built_level.dart';
 import '../domain/sky_passport.dart';
 import '../domain/campaign.dart';
 import '../domain/campaign_progress.dart';
@@ -33,6 +35,8 @@ import 'flight_score.dart';
 import 'jump_glide_hud.dart';
 import 'match_hud.dart';
 import 'home_keys.dart' show HomeKeyColors;
+import 'builder/built_flight_cues.dart';
+import 'builder/built_result_stage.dart';
 import 'mini_chrome.dart';
 import 'level_hud.dart';
 import 'game_over_stage.dart';
@@ -47,6 +51,7 @@ class PlayScreen extends ConsumerStatefulWidget {
     required this.mode,
     this.course = FlightCourse.starTrail,
     this.level,
+    this.built,
   });
   final FlightCourse course;
   final PlayMode mode;
@@ -54,6 +59,10 @@ class PlayScreen extends ConsumerStatefulWidget {
   /// The campaign level to fly (a scored touch Star Trail), or null for
   /// endless.
   final CampaignLevel? level;
+
+  /// The built level to fly (a Star Trail of its own mode), or the
+  /// creator's test flight of one; null otherwise.
+  final BuiltFlight? built;
   @override
   ConsumerState<PlayScreen> createState() => _PlayScreenState();
 }
@@ -91,6 +100,9 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
   /// The level's bests before this attempt, for its result's "New best".
   LevelRecord? initialRecord;
 
+  /// A built level's bests before this attempt.
+  BuiltBest? initialBuiltBest;
+
   /// Whether the level after this one was open before the flight (a finished
   /// level stays open, so a returning player may have it already).
   bool initialNextOpen = false;
@@ -98,8 +110,17 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
   String? initialDailyKey;
   bool initialDailyComplete = false;
 
-  /// A campaign level flies to its region's song; endless keeps the flight's.
-  SkyMusic get music => SkyMusic.flightOver(widget.level?.region);
+  /// A campaign or built level flies to its region's song; endless keeps
+  /// the flight's.
+  SkyMusic get music =>
+      SkyMusic.flightOver(widget.level?.region ?? widget.built?.plan.region);
+
+  /// Where leaving a built flight goes: back to the editor after a test,
+  /// else the builder.
+  String get _builtHome {
+    final built = widget.built!;
+    return built.test ? '/builder/edit/${built.level.id}' : '/builder';
+  }
 
   /// The safe area the result stage's layout keeps, for where its courier
   /// sits.
@@ -113,14 +134,16 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         ref.read(progressProvider).asData?.value.settings ??
         const GameSettings();
     audio.configure(settings, track: music);
-    initialBest =
-        ref
-            .read(progressProvider)
-            .asData
-            ?.value
-            .record(widget.mode, widget.course)
-            .best ??
-        0;
+    // A level never chases the endless record.
+    initialBest = widget.built != null
+        ? 0
+        : ref
+                  .read(progressProvider)
+                  .asData
+                  ?.value
+                  .record(widget.mode, widget.course)
+                  .best ??
+              0;
     initialStamps =
         ref
             .read(progressProvider)
@@ -135,7 +158,9 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       mode: widget.mode,
       course: widget.course,
       level: widget.level,
-      source: widget.mode == PlayMode.touch
+      built: widget.built,
+      // A test flight stands in for the camera with the touch screen.
+      source: widget.mode == PlayMode.touch || (widget.built?.test ?? false)
           ? null
           : ref.read(trackingSourceFactoryProvider)(),
       clock: ref.read(appClockProvider),
@@ -152,7 +177,9 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         await ref.read(sessionRepositoryProvider).save(session);
         ref.invalidate(sessionsProvider);
       },
-      saveRun: (run) => ref.read(progressProvider.notifier).save(run),
+      saveRun: (run) => widget.built == null
+          ? ref.read(progressProvider.notifier).save(run)
+          : saveBuiltFlight(ref, widget.built!, run),
       best: initialBest,
       voiceMemory: ref.read(flightVoiceMemoryProvider).asData?.value,
       rememberVoices: (memory) => ref
@@ -200,7 +227,26 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       previousCount = 4;
       awardSoundPlayed = false;
       final progress = ref.read(progressProvider).asData?.value;
-      initialBest = progress?.record(widget.mode, widget.course).best ?? 0;
+      initialBest = widget.built != null
+          ? 0
+          : progress?.record(widget.mode, widget.course).best ?? 0;
+      if (widget.built case final built?) {
+        initialBuiltBest = ref
+            .read(builtShelfProvider)
+            .asData
+            ?.value
+            .best(built.level);
+        // The last flight's save (or the editor's) refreshes the shelf, so
+        // the bests may still be loading: they land long before this
+        // flight's own save.
+        unawaited(
+          ref.read(builtShelfProvider.future).then((shelf) {
+            if (mounted && identical(controller.simulation, sim)) {
+              initialBuiltBest = shelf.best(built.level);
+            }
+          }, onError: (_) {}),
+        );
+      }
       initialStamps =
           progress?.passport
               .where((p) => p.earned)
@@ -225,8 +271,9 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         advance: controller.advance,
         knockout: () => controller.knockout,
         finish: () => controller.celebration,
-        // The celebrating bird lands where the result's courier sits.
-        seat: widget.level == null
+        // The celebrating bird lands where the result's courier sits (a
+        // built level's result seats its courier in the same place).
+        seat: widget.level == null && widget.built == null
             ? null
             : (size) => LevelResultStage.courierSeat(size, _safe),
         speech: () => controller.speech,
@@ -235,11 +282,12 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     if (sim != null) {
       // A level's collection marks take the place of flight wings, with
       // the same chime, and it never chases the endless record.
-      final wings = controller.level == null
+      final marks = controller.marks;
+      final wings = marks == null
           ? FlightGoals.earned(FlightGoals.forSimulation(sim))
-          : controller.level!.marks.reached(sim.collectedStars);
+          : marks.reached(sim.collectedStars);
       final earnedWing = wings > previousWings;
-      if (controller.level == null &&
+      if (!controller.routed &&
           initialBest > 0 &&
           previousScore <= initialBest &&
           sim.score > initialBest) {
@@ -320,14 +368,14 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     // (the calm one fades as the stage fades in) before it is put away.
     if (flight != null &&
         controller.stage == PlayStage.results &&
-        widget.level != null &&
+        controller.routed &&
         controller.knockout == null &&
         (!controller.handedOff || controller.celebrationSettled)) {
       flight.hideBird = true;
     }
     if (flight != null &&
         controller.stage == PlayStage.results &&
-        (controller.knockout != null || widget.level != null) &&
+        (controller.knockout != null || controller.routed) &&
         controller.celebrationSettled &&
         !flight.paused) {
       // The knockout's last frame (or a level's settled finish) holds still
@@ -351,7 +399,14 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     passing = controller.stage == PlayStage.flying;
     await controller.exit();
     if (mounted) {
-      context.go(destination ?? (widget.level == null ? '/' : '/campaign'));
+      context.go(
+        destination ??
+            (widget.built != null
+                ? _builtHome
+                : widget.level == null
+                ? '/'
+                : '/campaign'),
+      );
     }
   }
 
@@ -402,6 +457,9 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     final level = widget.level;
     final levelResult =
         level != null && stage == PlayStage.results && !knockedOut;
+    // A built level's result stages over every ending, a bump's too.
+    final built = widget.built;
+    final builtResult = built != null && stage == PlayStage.results;
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
@@ -448,7 +506,8 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                       _calibration(p),
                     if (stage == PlayStage.results &&
                         !knockedOut &&
-                        level == null)
+                        level == null &&
+                        built == null)
                       _results(p),
                   ],
                 ),
@@ -459,13 +518,13 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                   knockedOut &&
                       (stage == PlayStage.fallen ||
                           stage == PlayStage.results) ||
-                  levelResult && game != null)
+                  (levelResult || builtResult) && game != null)
                 Positioned.fill(child: _flight()),
               if (stage == PlayStage.fallen && knockedOut)
                 Positioned.fill(child: _knockoutSkip()),
               if (stage == PlayStage.celebrating && game != null)
                 Positioned.fill(child: _celebrationSkip()),
-              if (stage == PlayStage.results && knockedOut)
+              if (stage == PlayStage.results && knockedOut && built == null)
                 Positioned.fill(
                   child: GameOverStage(
                     controller: controller,
@@ -478,6 +537,17 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                     initialDailyComplete: initialDailyComplete,
                     onLeave: leave,
                     splash: KnockoutArt.atSea(controller.simulation!),
+                  ),
+                ),
+              if (builtResult && !passing)
+                Positioned.fill(
+                  child: BuiltResultStage(
+                    key: ValueKey(controller.result!.id),
+                    controller: controller,
+                    flight: built,
+                    before: initialBuiltBest,
+                    onLeave: leave,
+                    handoff: controller.handedOff,
                   ),
                 ),
               if (levelResult && !passing)
@@ -522,7 +592,9 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                 : 'Small jumps. Big wings.',
             trailing: [
               MiniTag(
-                '${widget.course.title.toUpperCase()} · SCORED',
+                widget.built != null
+                    ? 'LEVEL · ${widget.built!.plan.name.toUpperCase()}'
+                    : '${widget.course.title.toUpperCase()} · SCORED',
                 icon: widget.course.collectsStars
                     ? Icons.star_rounded
                     : Icons.emoji_events_rounded,
@@ -1261,11 +1333,29 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                       : ''}',
             button: true,
             onTap: controller.flap,
-            child: Listener(
-              key: const ValueKey('touch-flight'),
-              behavior: HitTestBehavior.opaque,
-              onPointerDown: (_) => controller.flap(),
-              child: GameWidget(game: game!),
+            child: LayoutBuilder(
+              builder: (context, box) {
+                // A test flight of a push-up or squat level steers by the
+                // finger's height: where it is, the bird goes.
+                final steer =
+                    controller.testFly && controller.mode.controlsHeight;
+                void standIn(PointerEvent event) {
+                  if (!steer || box.maxHeight <= 0) return;
+                  final y = event.localPosition.dy / box.maxHeight;
+                  controller.standIn((.85 - y) / .70);
+                }
+
+                return Listener(
+                  key: const ValueKey('touch-flight'),
+                  behavior: HitTestBehavior.opaque,
+                  onPointerDown: (event) {
+                    standIn(event);
+                    controller.flap();
+                  },
+                  onPointerMove: standIn,
+                  child: GameWidget(game: game!),
+                );
+              },
             ),
           )
         else
@@ -1286,6 +1376,12 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
               child: SceneLayout(child: _flightHud()),
             ),
           ),
+        // A test of a push-up or squat level steers by the finger's height;
+        // a rail down the edge shows the range and where the bird is.
+        if (controller.testFly &&
+            controller.mode.controlsHeight &&
+            controller.stage == PlayStage.flying)
+          Positioned.fill(child: TestFingerRail(height: sim.birdY)),
       ],
     );
   }
@@ -1349,11 +1445,16 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     final magnet =
         sim.supportsMagnet && (sim.magnetActive || sim.magnetCharge > 0);
     final level = controller.level;
+    final marks = controller.marks;
     final hint = counting
-        ? (controller.isTouch
-              ? (level != null && !sim.offersShoot
+        ? (controller.testFly && controller.mode.controlsHeight
+              ? 'Test flight: drag up and down to steer.'
+              : controller.testFly && controller.mode == PlayMode.jump
+              ? 'Test flight: tap for a jump.'
+              : controller.isTouch
+              ? (controller.routed && !sim.offersShoot
                     ? 'Tap the sky to flap. Fly through the stars.'
-                    : level != null && !sim.offersSprint
+                    : controller.routed && !sim.offersSprint
                     ? 'Tap the sky to flap. Hold Shoot to charge.'
                     : sim.supportsCombat
                     ? 'Tap the sky to flap. Hold Shoot to charge. Sprint to smash!'
@@ -1393,7 +1494,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         // The bird flies near x = 200, so the hero score keeps to the middle.
         // A level shows its stars and marks there instead, and its route
         // where a timed flight kept its clock, centred on the pause face.
-        if (!sim.bossFight && level != null) ...[
+        if (!sim.bossFight && marks != null) ...[
           _flightReadout(
             top: edge - 4,
             left: 300,
@@ -1401,8 +1502,8 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
             child: MatchLevelStars(
               key: const ValueKey('level-stars'),
               stars: sim.collectedStars,
-              two: level.marks.two,
-              three: level.marks.three,
+              two: marks.two,
+              three: marks.three,
               reducedMotion: controller.reducedMotion,
             ),
           ),
@@ -1413,7 +1514,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
               key: const ValueKey('level-route'),
               progress: sim.routeProgress,
               bird: controller.bird,
-              boss: level.boss,
+              boss: controller.routeBoss,
               approach: sim.finishLine?.crossed == true
                   ? 1
                   : FinishGateArt.approach(FinishGateArt.toGo(sim)),
@@ -1435,6 +1536,16 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
             ),
           ),
         menu,
+        // A creator's test flight says so under its route, clear of the
+        // bird's column.
+        if (controller.testFly &&
+            !sim.bossFight &&
+            sim.phase != RunPhase.countdown)
+          _flightReadout(
+            top: edge + pauseSize + 10,
+            right: edge + pauseSize + gap,
+            child: const TestFlightTag(),
+          ),
         // Endless flights do not need a running clock or a pace readout.
         if (sim.timed)
           _flightReadout(
@@ -1599,6 +1710,10 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  if (controller.testFly) ...[
+                    const TestFlightTag(note: '· nothing is saved'),
+                    const SizedBox(height: 10),
+                  ],
                   Text(
                     counting ? 'Ready, steady…' : 'Find your position',
                     style: heading(28),
@@ -1644,13 +1759,40 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
             reducedMotion: controller.reducedMotion,
             subtitle: level != null
                 ? '${level.id} · ${level.name}. Your bird is perched and waiting.'
+                : widget.built?.test == true
+                ? 'Test flight of ${widget.built!.level.plan.name}. '
+                      'Nothing is saved.'
+                : widget.built != null
+                ? '${widget.built!.plan.name}. Your bird is perched and waiting.'
                 : controller.isTouch
                 ? 'Your bird is perched and waiting. We’ll count you back in.'
                 : 'Shake it out, then get back in position. We’ll count you in.',
             actions: [
               // A level starts over or goes back to the map; either way the
               // attempt is saved.
-              if (level != null) ...[
+              if (widget.built != null) ...[
+                PauseAction(
+                  key: const ValueKey('pause-builder'),
+                  label: widget.built!.test ? 'Edit' : 'Builder',
+                  icon: widget.built!.test
+                      ? Icons.edit_rounded
+                      : Icons.dashboard_customize_rounded,
+                  // A test goes back to the editor where it was paused.
+                  onPressed: () => leave(
+                    widget.built!.test
+                        ? '$_builtHome?at='
+                              '${BuiltResultStage.reached(controller, widget.built!)}'
+                        : _builtHome,
+                  ),
+                ),
+                PauseAction(
+                  key: const ValueKey('pause-retry'),
+                  label: 'Retry',
+                  icon: Icons.replay_rounded,
+                  tint: SkyColors.mint,
+                  onPressed: restart,
+                ),
+              ] else if (level != null) ...[
                 PauseAction(
                   key: const ValueKey('pause-map'),
                   label: 'Map',

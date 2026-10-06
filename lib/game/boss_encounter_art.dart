@@ -2119,10 +2119,13 @@ abstract final class BossEncounterArt {
   }
 
   /// A campaign boss level's one line of story, in quotes, from its
-  /// chapter. Null in endless, whose cards stay exactly as they were.
+  /// chapter. Null in endless, whose cards stay exactly as they were, and on
+  /// a built level, which tells no story.
   static String? bossLine(FlightSimulation sim) {
     final boss = sim.boss;
-    if (sim.levelId == null || boss == null) return null;
+    if (sim.levelId == null || boss == null || sim.plan is BuiltPlan) {
+      return null;
+    }
     // A guardian's line belongs to its level, not to a chapter.
     final level = Campaign.level(sim.levelId!);
     if (level != null && level.boss == boss.kind) {

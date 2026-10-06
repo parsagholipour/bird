@@ -2287,6 +2287,24 @@ guide is docs/campaign.md, "Boss fights"; the tests are
   that one returns. The return times, one-shot health and owed count stay
   the same. Rules 45–55 keep their single returns for saved replays.
 
+### Built levels (rules version 64)
+
+Players build levels by hand for Tap & Fly and the camera mini games; see
+[level-builder.md](level-builder.md). A built plan (`BuiltPlan`) is a
+`FlightPlan` whose items are laid in route order, each at its own world
+position, with nothing drawn from a random: gates, stars, trios, hearts and
+(Tap & Fly) enemies, a finish line or a boss finale. The course scrolls at
+the mode's cruising speed times the level's pace, without the endless ramp.
+On a push-up or squat level it slows for a player whose calibrated movement
+is slower than 3 seconds, by the ratio of the endless passage spacing, never
+below ×0.35 (`BuiltPlan.speedScale`); the cycle is in every tape already, so
+replays need nothing new. A moving gate's swing is timed so a cruising bird
+reaches its middle at its placed phase. Placed hearts are caught in every
+mode, from as near as a campaign bird catches one. A boss finale is the
+campaign's staged fight with its vanguard, called when the bird reaches the
+mark. The tape carries the whole plan under `built`. A plan refuses rules
+below 64, and every other flight flies exactly as at 63.
+
 ### Touch boss encounters (rules version 15)
 
 After 45 seconds of active touch flight in Star Trail or Classic,

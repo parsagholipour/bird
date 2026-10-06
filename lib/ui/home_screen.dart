@@ -23,7 +23,8 @@ import 'theme.dart';
 const _course = FlightCourse.starTrail;
 
 /// The main game is the campaign and the endless flight, both flown with
-/// taps; push-ups, squats, jumps and Fly Together are the mini games.
+/// taps; push-ups, squats, jumps and Fly Together are the mini games, and
+/// the Level Builder makes levels of one's own.
 void _flyEndless(BuildContext context) =>
     context.go('/play/touch?course=${_course.name}');
 
@@ -148,12 +149,13 @@ class _HomeScene extends StatelessWidget {
                 ),
               ),
             ),
-            // The mini games wait on one quieter key below, still a full
-            // 48 dp on the smallest phones.
+            // The mini games and the Level Builder share one quieter row
+            // below, each half of it and still a full 48 dp on the smallest
+            // phones.
             Positioned(
               left: 50,
               top: 246,
-              width: 510,
+              width: 250,
               height: 76,
               child: HomeEntrance(
                 begin: .46,
@@ -162,6 +164,21 @@ class _HomeScene extends StatelessWidget {
                 child: HomeMiniGamesKey(
                   key: const ValueKey('mini-games'),
                   onPressed: () => _chooseMiniGame(context),
+                ),
+              ),
+            ),
+            Positioned(
+              left: 310,
+              top: 246,
+              width: 250,
+              height: 76,
+              child: HomeEntrance(
+                begin: .5,
+                end: .76,
+                slide: const Offset(0, 14),
+                child: HomeLevelBuilderKey(
+                  key: const ValueKey('level-builder'),
+                  onPressed: () => context.go('/builder'),
                 ),
               ),
             ),

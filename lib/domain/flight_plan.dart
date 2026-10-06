@@ -1,11 +1,13 @@
 import 'dart:math' as math;
 
 import 'gale.dart';
+import 'game_rules.dart' show GameMode;
 import 'level_plan.dart';
 import 'obstacle.dart';
 import 'rush_path.dart';
 import 'sky_boss.dart';
 import 'sky_enemy.dart';
+import 'tracking.dart' show PlayMode;
 import 'world_region.dart';
 
 /// The boss a flight meets next: its kind, its encounter number (which sets
@@ -54,6 +56,15 @@ abstract class FlightPlan {
 
   /// The one region the flight holds, or null to tour the world.
   WorldRegion? get region;
+
+  /// Whether a flight controlled by [mode] may fly this plan. Only read
+  /// for a level plan ([levelId] not null): a campaign level is Tap & Fly
+  /// only, a built level ([BuiltPlan]) flies its own mode.
+  bool flies(PlayMode mode) => mode == PlayMode.touch;
+
+  /// A factor on the course speed. 1 for every plan but a built level,
+  /// whose pace and tempo set it ([BuiltPlan.speedScale]).
+  double speedScale(GameMode rules) => 1;
 
   /// Whether the Shoot and Sprint controls exist. The rules version and
   /// play mode still decide whether the flight supports them at all.

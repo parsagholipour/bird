@@ -57,6 +57,7 @@ class FlightVoices {
     required int bird,
     required this.mode,
     this.level,
+    this.route = false,
     this.best = 0,
     this.retry = false,
     FlightVoiceMemory? memory,
@@ -81,6 +82,11 @@ class FlightVoices {
 
   /// The campaign level flown, or null for endless.
   final CampaignLevel? level;
+
+  /// A built level's flight: its route's cues (the final stretch, the star
+  /// marks) without any of the campaign's story.
+  final bool route;
+  bool get _routed => level != null || route;
 
   /// The endless record to beat; 0 when there is none yet.
   final int best;
@@ -428,8 +434,8 @@ class FlightVoices {
       cues.add(VoiceCue.of('gale-over', _mine('gale-over')));
     }
 
-    // A campaign level's route.
-    if (level != null) {
+    // A campaign or built level's route.
+    if (_routed) {
       final route = sim.route;
       if (!_stretch &&
           route != null &&
@@ -629,7 +635,7 @@ class FlightVoices {
       sim.plan.rate(finished: true, stars: sim.collectedStars);
 
   void _remember(FlightSimulation sim) {
-    if (level != null) _stars = _levelStars(sim);
+    if (_routed) _stars = _levelStars(sim);
     _hearts = sim.hearts;
     _shield = sim.shield;
     _multiplier = sim.multiplier;

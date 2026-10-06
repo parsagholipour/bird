@@ -197,6 +197,8 @@ Map<String, dynamic> _resultJson(RunResult r) => {
   // [CampaignIds.scheme] (a session saved before has no `ids`).
   if (r.levelId != null) 'level': r.levelId,
   if (r.levelId != null) 'ids': CampaignIds.scheme,
+  // A built level's session is named after the level as it was flown.
+  if (r.levelName != null) 'levelName': r.levelName,
 };
 RunResult _readResult(Map<String, dynamic> r) => RunResult(
   id: r['id'] as String,
@@ -215,6 +217,7 @@ RunResult _readResult(Map<String, dynamic> r) => RunResult(
   finishedAt: DateTime.parse(r['finishedAt'] as String),
   bird: r['bird'] as int? ?? 0,
   levelId: _levelOf(r),
+  levelName: r['levelName'] as String?,
 );
 
 /// A session's level id as the catalog names it now: one saved before Egypt's

@@ -71,6 +71,15 @@ class HomeKeyColors {
     lip: Color(0xff7462b8),
     glow: Color(0x55b9aaf2),
   );
+
+  /// The Level Builder: blueprint blue, as quiet as the mini games beside it.
+  static const blueprint = HomeKeyColors(
+    face: [Color(0xffe2f5ff), Color(0xffa3daf3)],
+    hovered: [Color(0xffeaf8ff), Color(0xffb2e1f6)],
+    pressed: [Color(0xffcfeefc), Color(0xff8dcdec)],
+    lip: Color(0xff3b82a8),
+    glow: Color(0x5590d5ee),
+  );
 }
 
 /// A physical-looking key with a native button underneath, so it takes taps,
@@ -520,30 +529,38 @@ class _Rest implements ValueListenable<double> {
   void removeListener(VoidCallback listener) {}
 }
 
-/// The way to the mini games: push-ups, squats and jumps in front of the
-/// camera, and two players on one phone. Quieter than the main keys.
-class HomeMiniGamesKey extends StatelessWidget {
-  const HomeMiniGamesKey({super.key, required this.onPressed});
+/// One of the two quieter keys under the main game: a sticker cluster, a
+/// title and a few words, and an arrow. Mini games and the Level Builder
+/// share the row at half width each.
+class _HalfKey extends StatelessWidget {
+  const _HalfKey({
+    required this.label,
+    required this.colors,
+    required this.onPressed,
+    required this.art,
+    required this.title,
+    required this.subtitle,
+    required this.subtitleColor,
+  });
+  final String label, title, subtitle;
+  final HomeKeyColors colors;
   final VoidCallback onPressed;
+  final Widget art;
+  final Color subtitleColor;
 
   @override
   Widget build(BuildContext context) => HomeKey(
-    label: 'Mini games. Push-ups, squats, jumps, or two players.',
-    colors: HomeKeyColors.lavender,
+    label: label,
+    colors: colors,
     lip: 6,
     radius: 22,
     onPressed: onPressed,
     builder: (context, _) => Padding(
-      padding: const EdgeInsets.fromLTRB(14, 6, 18, 8),
+      padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
       child: Row(
         children: [
-          for (final control in [
-            FlyControl.pushUp,
-            FlyControl.squat,
-            FlyControl.jump,
-          ]) ...[ControlGlyph(control, size: 40), const SizedBox(width: 5)],
-          const _TwoPlayersGlyph(size: 40),
-          const SizedBox(width: 16),
+          art,
+          const SizedBox(width: 10),
           Expanded(
             child: FittedBox(
               fit: BoxFit.scaleDown,
@@ -552,24 +569,24 @@ class HomeMiniGamesKey extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('MINI GAMES', style: _keyTitle(22)),
+                  Text(title, style: _keyTitle(20)),
                   const SizedBox(height: 3),
                   Text(
-                    'Push-ups · Squats · Jumps · Fly Together',
+                    subtitle,
                     style: bodyText(
-                      12.5,
-                      color: SkyColors.muted,
-                      weight: FontWeight.w800,
+                      11.5,
+                      color: subtitleColor,
+                      weight: FontWeight.w900,
                     ),
                   ),
                 ],
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 4),
           const Icon(
             Icons.arrow_forward_rounded,
-            size: 26,
+            size: 22,
             color: SkyColors.ink,
           ),
         ],
@@ -578,26 +595,176 @@ class HomeMiniGamesKey extends StatelessWidget {
   );
 }
 
-/// Two players on one phone, as a sticker that sits with the control glyphs.
-class _TwoPlayersGlyph extends StatelessWidget {
-  const _TwoPlayersGlyph({required this.size});
+/// The way to the mini games: push-ups, squats and jumps in front of the
+/// camera, and two players on one phone. Quieter than the main keys, and
+/// half the row: the Level Builder has the other half.
+class HomeMiniGamesKey extends StatelessWidget {
+  const HomeMiniGamesKey({super.key, required this.onPressed});
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) => _HalfKey(
+    label: 'Mini games. Push-ups, squats, jumps, or two players.',
+    colors: HomeKeyColors.lavender,
+    onPressed: onPressed,
+    title: 'MINI GAMES',
+    subtitle: 'Workouts · 2 players',
+    subtitleColor: const Color(0xff4f4386),
+    // Three workouts overlapping like a hand of stickers.
+    art: SizedBox(
+      width: 66,
+      height: 44,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          for (final (i, control) in const [
+            FlyControl.pushUp,
+            FlyControl.squat,
+            FlyControl.jump,
+          ].indexed)
+            Positioned(
+              left: i * 18.0,
+              top: i.isOdd ? 0 : 12,
+              child: ControlGlyph(control, size: 30),
+            ),
+        ],
+      ),
+    ),
+  );
+}
+
+/// The way to the Level Builder: make levels of your own for Tap & Fly and
+/// the camera workouts, fly them and share them as codes.
+class HomeLevelBuilderKey extends StatelessWidget {
+  const HomeLevelBuilderKey({super.key, required this.onPressed});
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) => _HalfKey(
+    label: 'Level Builder. Make your own levels, fly them and share them.',
+    colors: HomeKeyColors.blueprint,
+    onPressed: onPressed,
+    title: 'LEVEL BUILDER',
+    subtitle: 'Make · fly · share',
+    subtitleColor: const Color(0xff245a77),
+    art: const LevelBuilderGlyph(size: 46),
+  );
+}
+
+/// The Level Builder's sticker: a gate and a chequered finish flag drawn on
+/// a scrap of blueprint, with a pencil laid across the corner.
+class LevelBuilderGlyph extends StatelessWidget {
+  const LevelBuilderGlyph({super.key, this.size = 46});
   final double size;
 
   @override
-  Widget build(BuildContext context) => Container(
-    width: size,
-    height: size,
-    decoration: BoxDecoration(
-      color: SkyColors.skyDeep,
-      shape: BoxShape.circle,
-      border: Border.all(color: SkyColors.ink, width: size / 28 * 1.6),
-    ),
-    child: Icon(
-      Icons.people_alt_rounded,
-      size: size * .56,
-      color: SkyColors.ink,
-    ),
-  );
+  Widget build(BuildContext context) =>
+      CustomPaint(size: Size.square(size), painter: const _BlueprintPainter());
+}
+
+class _BlueprintPainter extends CustomPainter {
+  const _BlueprintPainter();
+
+  static final _ink = Paint()
+    ..color = SkyColors.ink
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 1.6
+    ..strokeJoin = StrokeJoin.round
+    ..strokeCap = StrokeCap.round;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.scale(size.width / 32);
+    // A blueprint card, tilted like a sticker on the key.
+    canvas.save();
+    canvas.translate(16, 16);
+    canvas.rotate(-.08);
+    canvas.translate(-16, -16);
+    final card = RRect.fromRectAndRadius(
+      const Rect.fromLTWH(2, 3, 27, 25),
+      const Radius.circular(5),
+    );
+    canvas.drawRRect(
+      card.shift(const Offset(0, 1.6)),
+      Paint()..color = SkyColors.ink.withValues(alpha: .25),
+    );
+    canvas.drawRRect(card, Paint()..color = const Color(0xff3e8fc2));
+    canvas.save();
+    canvas.clipRRect(card);
+    final grid = Paint()
+      ..color = SkyColors.white.withValues(alpha: .28)
+      ..strokeWidth = .6;
+    for (var x = 5.0; x < 30; x += 4) {
+      canvas.drawLine(Offset(x, 3), Offset(x, 28), grid);
+    }
+    for (var y = 6.0; y < 28; y += 4) {
+      canvas.drawLine(Offset(2, y), Offset(29, y), grid);
+    }
+    canvas.restore();
+    // The gate: two cream pillars with an opening between them.
+    final pillar = Paint()..color = SkyColors.mint;
+    for (final r in const [
+      Rect.fromLTWH(7, 3, 5, 8.5),
+      Rect.fromLTWH(7, 19.5, 5, 8.5),
+    ]) {
+      final rr = RRect.fromRectAndRadius(r, const Radius.circular(1.4));
+      canvas.drawRRect(rr, pillar);
+      canvas.drawRRect(rr, _ink);
+    }
+    // A star in the opening.
+    StarArt.mini(canvas, const Offset(9.5, 15.5), 2.9, outline: .8);
+    // The finish flag on its pole.
+    canvas.drawLine(const Offset(21, 25), const Offset(21, 7.5), _ink);
+    final flag = Rect.fromLTWH(21, 7.5, 7, 5.6);
+    canvas.drawRect(flag, Paint()..color = SkyColors.cream);
+    final check = Paint()..color = SkyColors.ink;
+    for (var i = 0; i < 3; i++) {
+      for (var j = 0; j < 2; j++) {
+        if ((i + j).isEven) {
+          canvas.drawRect(
+            Rect.fromLTWH(21 + i * 7 / 3, 7.5 + j * 2.8, 7 / 3, 2.8),
+            check,
+          );
+        }
+      }
+    }
+    canvas.drawRect(flag, _ink);
+    canvas.drawRRect(card, _ink..strokeWidth = 1.8);
+    _ink.strokeWidth = 1.6;
+    canvas.restore();
+    // A yellow pencil across the bottom corner.
+    canvas.save();
+    canvas.translate(22.5, 25.5);
+    canvas.rotate(-.75);
+    final body = RRect.fromRectAndRadius(
+      const Rect.fromLTWH(-7, -2.2, 11, 4.4),
+      const Radius.circular(1),
+    );
+    canvas.drawRRect(body, Paint()..color = SkyColors.yellow);
+    final tip = Path()
+      ..moveTo(4, -2.2)
+      ..lineTo(8, 0)
+      ..lineTo(4, 2.2)
+      ..close();
+    canvas.drawPath(tip, Paint()..color = SkyColors.sand);
+    canvas.drawCircle(const Offset(7.2, 0), .9, Paint()..color = SkyColors.ink);
+    canvas.drawRect(
+      const Rect.fromLTWH(-8.6, -2.2, 2, 4.4),
+      Paint()..color = SkyColors.coral,
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        const Rect.fromLTWH(-8.6, -2.2, 12.6, 4.4),
+        const Radius.circular(1),
+      ),
+      _ink,
+    );
+    canvas.drawPath(tip, _ink);
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(_BlueprintPainter oldDelegate) => false;
 }
 
 /// The best endless flight as a small tag, or an invitation before the

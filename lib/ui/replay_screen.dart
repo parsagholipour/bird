@@ -154,6 +154,7 @@ class SessionLibraryScreen extends ConsumerWidget {
 /// A saved session's name in the library: the level for a campaign flight
 /// ("1-3 · Bat Patrol"), otherwise the mode and course.
 String sessionTitle(RunResult run) {
+  if (run.levelName case final name?) return '$name · ${run.mode.title}';
   final level = run.levelId == null ? null : Campaign.level(run.levelId!);
   if (level != null) return '${level.id} · ${level.name}';
   if (run.levelId != null) return 'Level ${run.levelId}';
@@ -487,7 +488,8 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
         active: _playing && !_scrubbing,
         // A campaign flight replays to its region's song.
         track: SkyMusic.flightOver(
-          Campaign.level(_session?.result.levelId ?? '')?.region,
+          Campaign.level(_session?.result.levelId ?? '')?.region ??
+              _session?.tape.built?.region,
         ),
       ),
     );

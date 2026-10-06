@@ -383,16 +383,17 @@ void main() {
 
     // Campaign and Endless, the main game, share the row under the title at
     // the same size: 250 × 108 at 50 and 310, 128 down the 1000 × 450
-    // canvas, with the 76-tall Mini games key under them. The reference
-    // phone shows that canvas at .792, 1.8 dp down, and every display shows
-    // the phone scaled.
+    // canvas, with the 76-tall Mini games and Level Builder keys under them,
+    // half the row each. The reference phone shows that canvas at .792,
+    // 1.8 dp down, and every display shows the phone scaled.
     for (final size in const [
       Size(640, 360),
       Size(800, 360),
       Size(1000, 450),
     ]) {
       testWidgets('Campaign and Endless lead Home side by side at '
-          '${size.width.round()}; Mini games sits under them', (tester) async {
+          '${size.width.round()}; Mini games and the Level Builder sit under '
+          'them', (tester) async {
         await _open(tester, size);
         final shown = ScreenFrame.shownIn(size);
         final s = ScreenFrame.scaleFor(size);
@@ -417,13 +418,18 @@ void main() {
         final campaign = tester.getRect(find.byKey(const ValueKey('campaign')));
         final endless = tester.getRect(find.byKey(const ValueKey('endless')));
         final mini = tester.getRect(find.byKey(const ValueKey('mini-games')));
+        final builder = tester.getRect(
+          find.byKey(const ValueKey('level-builder')),
+        );
         same(campaign, canvas(50, 128, 250, 108), 'Campaign');
         same(endless, canvas(310, 128, 250, 108), 'Endless');
-        same(mini, canvas(50, 246, 510, 76), 'Mini games');
+        same(mini, canvas(50, 246, 250, 76), 'Mini games');
+        same(builder, canvas(310, 246, 250, 76), 'Level Builder');
         for (final (name, key) in [
           ('Campaign', campaign),
           ('Endless', endless),
           ('Mini games', mini),
+          ('Level Builder', builder),
         ]) {
           expect(key.height, greaterThanOrEqualTo(48), reason: name);
           expect(key.width, greaterThanOrEqualTo(48), reason: name);
@@ -431,8 +437,15 @@ void main() {
           expect((Offset.zero & size).contains(key.bottomRight), isTrue);
         }
         expect(campaign.overlaps(endless), isFalse);
+        expect(mini.overlaps(builder), isFalse);
         expect(mini.top, greaterThan(campaign.bottom));
-        for (final key in ['campaign', 'endless', 'mini-games']) {
+        expect(builder.top, greaterThan(endless.bottom));
+        for (final key in [
+          'campaign',
+          'endless',
+          'mini-games',
+          'level-builder',
+        ]) {
           expect(find.byKey(ValueKey(key)).hitTestable(), findsOneWidget);
         }
         expect(tester.takeException(), isNull);

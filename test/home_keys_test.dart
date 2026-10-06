@@ -153,13 +153,43 @@ void main() {
       _app(
         () => opens++,
         key: (onPressed) => HomeMiniGamesKey(onPressed: onPressed),
-        size: const Size(510, 76),
+        size: const Size(250, 76),
       ),
     );
     expect(find.text('MINI GAMES'), findsOneWidget);
     await tester.tap(find.byType(HomeMiniGamesKey));
     await tester.pumpAndSettle();
     expect(opens, 1);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('the Level Builder key is a full button with its own name', (
+    tester,
+  ) async {
+    var opens = 0;
+    await tester.pumpWidget(
+      _app(
+        () => opens++,
+        key: (onPressed) => HomeLevelBuilderKey(onPressed: onPressed),
+        size: const Size(250, 76),
+      ),
+    );
+    expect(find.text('LEVEL BUILDER'), findsOneWidget);
+    expect(find.byType(LevelBuilderGlyph), findsOneWidget);
+    expect(
+      find.semantics.byLabel(
+        'Level Builder. Make your own levels, fly them and share them.',
+      ),
+      findsOneWidget,
+    );
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pumpAndSettle();
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pumpAndSettle();
+    expect(opens, 1);
+    await tester.tap(find.byType(HomeLevelBuilderKey));
+    await tester.pumpAndSettle();
+    expect(opens, 2);
     expect(tester.takeException(), isNull);
   });
 }

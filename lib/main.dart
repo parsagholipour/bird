@@ -16,6 +16,9 @@ import 'ui/upgrades_screen.dart';
 import 'ui/replay_screen.dart';
 import 'ui/settings_screen.dart';
 import 'ui/play_screen.dart';
+import 'ui/builder/built_flight_screen.dart';
+import 'ui/builder/builder_editor_screen.dart';
+import 'ui/builder/builder_home_screen.dart';
 import 'ui/coop_screen.dart';
 import 'ui/calibration_probe.dart';
 import 'ui/theme.dart';
@@ -93,6 +96,20 @@ final appRouter = GoRouter(
       builder: (context, state) => const SettingsScreen(),
     ),
     GoRoute(path: '/coop', builder: (context, state) => const CoopScreen()),
+    // The Level Builder: its shelf, and the editor of one level (`at` is a
+    // place on the route to show, such as where a test flight stopped).
+    GoRoute(
+      path: '/builder',
+      builder: (context, state) => const BuilderHomeScreen(),
+    ),
+    GoRoute(
+      path: '/builder/edit/:id',
+      builder: (context, state) => BuilderEditorScreen(
+        key: ValueKey(state.uri.toString()),
+        id: state.pathParameters['id']!,
+        at: int.tryParse(state.uri.queryParameters['at'] ?? ''),
+      ),
+    ),
     GoRoute(
       path: '/lab',
       builder: (context, state) => const CalibrationProbe(),
@@ -118,6 +135,17 @@ final appRouter = GoRouter(
         return null;
       },
       builder: (context, state) {
+        // A built level (`/play/push-up?built=u-…`, with `&test=1` for its
+        // creator's test flight) is loaded before it flies.
+        if (state.uri.queryParameters['built'] case final built?) {
+          final query = state.uri.queryParameters;
+          return BuiltFlightScreen(
+            key: ValueKey(state.uri.toString()),
+            id: built,
+            test: query['test'] == '1',
+            from: int.tryParse(query['from'] ?? ''),
+          );
+        }
         final level = Campaign.level(state.uri.queryParameters['level'] ?? '');
         return PlayScreen(
           key: ValueKey(state.uri.toString()),

@@ -482,6 +482,19 @@ class LevelRoute {
     );
   }
 
+  /// A built level's route (rules version 64): its hand-placed items are
+  /// laid by the simulation from the plan itself, so the route holds only
+  /// the [goal]: the finish line or, with a [boss], the boss's mark.
+  factory LevelRoute.built({required double goal, required bool boss}) =>
+      LevelRoute._(
+        passages: const [],
+        due: const [],
+        pieces: const [],
+        goal: goal,
+        boss: boss,
+        geysers: const [],
+      );
+
   /// World x of each ordinary passage's leading edge, in the order laid.
   final List<double> passages;
 

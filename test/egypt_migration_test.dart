@@ -190,7 +190,7 @@ void main() {
       final repo = SqliteProgressRepository(db);
       addTearDown(repo.close);
       final p = await repo.load();
-      expect(await _userVersion(db), 6);
+      expect(await _userVersion(db), 7);
       final c = p.campaign;
       // The Lantern Bazaar's two stars, the Caravan's one and the Spitter
       // King's three (with its postcard seen) moved with their levels.
@@ -304,7 +304,7 @@ void main() {
       db = ProgressDatabase(NativeDatabase(file));
       addTearDown(db.close);
       expect(await _runLevels(db), ['2-7', '2-8', '2-9', '2-9']);
-      expect(await _userVersion(db), 6);
+      expect(await _userVersion(db), 7);
     });
 
     test('a new save never meets the rename: 2-6 is Neferhoo\'s', () async {

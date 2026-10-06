@@ -155,6 +155,7 @@ GoRouter stubRouter() => GoRouter(
       '/birds',
       '/passport',
       '/records',
+      '/builder',
     ])
       GoRoute(
         path: path,
@@ -261,6 +262,7 @@ void main() {
             find.byKey(const ValueKey('campaign')),
             find.byKey(const ValueKey('endless')),
             find.byKey(const ValueKey('mini-games')),
+            find.byKey(const ValueKey('level-builder')),
             find.byKey(const ValueKey('daily-adventure')),
             find.text('Birds'),
             find.text('Passport'),
@@ -291,6 +293,7 @@ void main() {
       ('Campaign', find.byKey(const ValueKey('campaign'))),
       ('Endless', find.byKey(const ValueKey('endless'))),
       ('Mini games', find.byKey(const ValueKey('mini-games'))),
+      ('Level Builder', find.byKey(const ValueKey('level-builder'))),
       ('Adventure', find.byKey(const ValueKey('daily-adventure'))),
       ('Birds', pressable('Birds')),
       ('Passport', pressable('Passport')),
@@ -320,6 +323,7 @@ void main() {
       (find.byKey(const ValueKey('campaign')), '/campaign'),
       (find.byTooltip('Settings'), '/settings'),
       (find.byKey(const ValueKey('daily-adventure')), '/daily'),
+      (find.byKey(const ValueKey('level-builder')), '/builder'),
       (find.text('Birds'), '/birds'),
       (find.text('Passport'), '/passport'),
       (find.text('Records'), '/records'),

@@ -176,7 +176,7 @@ void main() {
       (await db.customSelect('PRAGMA user_version').getSingle()).read<int>(
         'user_version',
       ),
-      6, // schema 6: Egypt's guardian renumbered Arabia (2-6..2-8)
+      7, // schema 7: the level builder (6 renumbered Arabia, 2-6..2-8)
     );
     expect(p.recent.single.levelId, isNull);
     expect(p.campaign.records, isEmpty);

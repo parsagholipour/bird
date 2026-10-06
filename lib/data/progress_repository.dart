@@ -5,12 +5,14 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import '../domain/built_level.dart';
 import '../domain/campaign.dart';
 import '../domain/campaign_progress.dart';
 import '../domain/campaign_story.dart';
 import '../domain/game_rules.dart';
 import '../domain/tracking.dart';
 import '../domain/daily_adventure.dart';
+import 'built_level_repository.dart';
 
 part 'progress_repository.g.dart';
 
@@ -67,7 +69,60 @@ class LevelProgress extends Table {
   Set<Column> get primaryKey => {level};
 }
 
-@DriftDatabase(tables: [Runs, Preferences, LevelProgress])
+/// The levels players built by hand ([BuiltLevel]), in the canonical JSON
+/// of their [BuiltPlan]. Starter templates are not stored: they are code.
+@DataClassName('BuiltLevelRow')
+class BuiltLevels extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  IntColumn get mode => integer()();
+  TextColumn get json => text()();
+  TextColumn get fingerprint => text()();
+  IntColumn get revision => integer().withDefault(const Constant(1))();
+
+  /// 'created', 'remixed' or 'imported' ([BuiltOrigin]).
+  TextColumn get origin => text().withDefault(const Constant('created'))();
+
+  /// The template a remix was made from.
+  TextColumn get remixOf => text().nullable()();
+  IntColumn get clearedRevision => integer().nullable()();
+  BoolColumn get importedCleared =>
+      boolean().withDefault(const Constant(false))();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Every scored flight of a built level (a player's or a template), rated
+/// as it is saved. Kept apart from [Runs]: built flights count towards no
+/// record, wallet, daily adventure or passport, only their own level's
+/// bests and the lifetime workout totals. A deleted level keeps its
+/// flights, so the workouts done in it still count.
+@DataClassName('BuiltFlightRow')
+class BuiltFlights extends Table {
+  TextColumn get id => text()();
+  TextColumn get level => text()();
+  IntColumn get revision => integer()();
+  IntColumn get mode => integer()();
+  IntColumn get rating => integer()
+      .withDefault(const Constant(0))
+      // ignore: recursive_getters
+      .check(rating.isBetweenValues(0, 3))();
+  IntColumn get stars => integer().withDefault(const Constant(0))();
+  IntColumn get score => integer().withDefault(const Constant(0))();
+  IntColumn get repetitions => integer().withDefault(const Constant(0))();
+  IntColumn get flaps => integer().withDefault(const Constant(0))();
+  RealColumn get duration => real()();
+  TextColumn get reason => text()();
+  DateTimeColumn get finishedAt => dateTime()();
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@DriftDatabase(
+  tables: [Runs, Preferences, LevelProgress, BuiltLevels, BuiltFlights],
+)
 class ProgressDatabase extends _$ProgressDatabase {
   ProgressDatabase(super.executor);
   factory ProgressDatabase.onDevice() => ProgressDatabase(
@@ -79,7 +134,7 @@ class ProgressDatabase extends _$ProgressDatabase {
     }),
   );
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) => m.createAll(),
@@ -106,6 +161,11 @@ class ProgressDatabase extends _$ProgressDatabase {
       if (from < 6) {
         // Egypt's guardian took level 2-6: Ancient Arabia moved up by one.
         await renumberLevels();
+      }
+      if (from < 7) {
+        // The level builder.
+        await m.createTable(builtLevels);
+        await m.createTable(builtFlights);
       }
     },
     beforeOpen: (_) async {
@@ -291,9 +351,15 @@ class ProgressSnapshot {
     this.coop = const CoopProgress(),
     this.upgrades = const PowerUps(),
     this.starsSpent = 0,
+    this.builtWorkouts = const {},
     this._campaign,
   });
   final GameSettings settings;
+
+  /// Repetitions (push-ups, squats) and jumps done on built levels, by
+  /// mode. They count towards the lifetime workout totals, and to nothing
+  /// else: a built level's stars and scores stay in the builder.
+  final Map<PlayMode, int> builtWorkouts;
 
   /// The upgrade levels bought with stars, flown on every new flight.
   final PowerUps upgrades;
@@ -364,8 +430,14 @@ class ProgressSnapshot {
 
   /// Every scored flight, campaign levels included.
   int get flightsFlown => totalRuns + campaignFlights.runs;
-  int get totalRepetitions => pushUp.repetitions + trailPushUp.repetitions;
-  int get totalSquats => squat.repetitions + trailSquat.repetitions;
+  int get totalRepetitions =>
+      pushUp.repetitions +
+      trailPushUp.repetitions +
+      (builtWorkouts[PlayMode.pushUp] ?? 0);
+  int get totalSquats =>
+      squat.repetitions +
+      trailSquat.repetitions +
+      (builtWorkouts[PlayMode.squat] ?? 0);
   List<ModeRecord> get allRecords => [
     pushUp,
     jump,
@@ -405,6 +477,9 @@ class ProgressSnapshot {
 
 abstract interface class ProgressRepository {
   Future<ProgressSnapshot> load();
+
+  /// The levels players build, kept in the same save.
+  BuiltLevelStore get builtLevels;
 
   /// Saves a scored flight once per id. A campaign flight (with a
   /// [RunResult.levelId]) also folds into its level's record.
@@ -446,6 +521,11 @@ class SqliteProgressRepository implements ProgressRepository {
     : clock = clock ?? DateTime.now;
   final ProgressDatabase db;
   final DateTime Function() clock;
+  @override
+  late final BuiltLevelStore builtLevels = SqliteBuiltLevelStore(
+    db,
+    clock: clock,
+  );
   @override
   Future<ProgressSnapshot> load() => db.transaction(() async {
     final prefs = {
@@ -552,6 +632,7 @@ class SqliteProgressRepository implements ProgressRepository {
       ),
       upgrades: _upgrades(prefs),
       starsSpent: _starsSpent(prefs),
+      builtWorkouts: await builtLevels.workouts(),
       adventures: [
         for (var i = 6; i >= 0; i--)
           DailyAdventure.forDate(
@@ -914,6 +995,8 @@ class SqliteProgressRepository implements ProgressRepository {
     await db.delete(db.runs).go();
     await db.delete(db.preferences).go();
     await db.delete(db.levelProgress).go();
+    await db.delete(db.builtLevels).go();
+    await db.delete(db.builtFlights).go();
   });
   @override
   Future<void> close() => db.close();

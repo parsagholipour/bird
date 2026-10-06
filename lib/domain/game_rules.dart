@@ -3,6 +3,7 @@ import 'tracking.dart';
 import 'flight_course.dart';
 import 'bird_motion.dart';
 import 'boss_vanguard.dart';
+import 'built_plan.dart';
 import 'duel.dart';
 import 'finish_line.dart';
 import 'flight_path.dart';
@@ -21,6 +22,7 @@ import 'steam_geyser.dart';
 import 'tether.dart';
 import 'world_region.dart';
 export 'boss_vanguard.dart';
+export 'built_plan.dart';
 export 'duel.dart';
 export 'finish_line.dart';
 export 'flight_course.dart';
@@ -44,6 +46,7 @@ export 'world_region.dart';
 // their own files: extensions on FlightSimulation, which keep its hooks here
 // to a few lines.
 part 'alley_pigeon_rules.dart';
+part 'built_rules.dart';
 part 'king_coo_rules.dart';
 part 'neferhoo_rules.dart';
 part 'steam_rules.dart';
@@ -354,6 +357,7 @@ class RunResult {
     this.perfectPasses = 0,
     this.bird = 0,
     this.levelId,
+    this.levelName,
     int? gates,
   }) : gates = gates ?? score;
   final String id;
@@ -369,8 +373,12 @@ class RunResult {
   /// Which bird flew; cosmetic only.
   final int bird;
 
-  /// The campaign level flown, or null for an endless flight.
+  /// The campaign or built level flown, or null for an endless flight.
   final String? levelId;
+
+  /// A built level's name as it was flown ([BuiltPlan.name]), for the
+  /// session library. Null for every other flight.
+  final String? levelName;
 }
 
 /// Deterministic simulation, independent of Flame, Flutter and camera hardware.
@@ -411,7 +419,7 @@ class FlightSimulation {
       throw ArgumentError.value(coop, 'coop', 'A duel flies Star Trail');
     }
     if (plan.levelId != null &&
-        (rules.mode != PlayMode.touch ||
+        (!plan.flies(rules.mode) ||
             course != FlightCourse.starTrail ||
             rulesVersion < campaignRulesVersion)) {
       throw ArgumentError.value(
@@ -468,10 +476,11 @@ class FlightSimulation {
   /// makes Neferhoo wilder, with slanted letters and diving mummy bats
   /// ([wilderNeferhooRulesVersion]); 62 has two of King Coo's whistle
   /// squadron throw crusts ([squadThrowersRulesVersion]); 63 lets a duel's
-  /// rivals fly through each other ([passingRivalsRulesVersion]). Endless
+  /// rivals fly through each other ([passingRivalsRulesVersion]); 64 flies
+  /// levels players built by hand ([builtLevelsRulesVersion]). Endless
   /// and co-op flights fly at 50 exactly as at 43 until that Baron arrives;
   /// duels exactly as at 43.
-  static const currentRulesVersion = 63;
+  static const currentRulesVersion = 64;
   final int rulesVersion;
 
   /// Rules version 60: shot power, sprint, shield and magnet follow the
@@ -718,6 +727,21 @@ class FlightSimulation {
   /// Every other flight flies exactly as at 62.
   static const passingRivalsRulesVersion = 63;
 
+  /// Rules version 64: levels players build by hand ([BuiltPlan]), in every
+  /// solo mode: every gate, star, heart and enemy at its own place, laid
+  /// from the plan without a random (`built_rules.dart`). Reachable only
+  /// through a built plan, which refuses older rules; every other flight
+  /// flies exactly as at 63.
+  static const builtLevelsRulesVersion = 64;
+
+  /// The next of a built plan's items to lay, and whether its boss has
+  /// been called (`built_rules.dart`).
+  int _builtNext = 0;
+  bool _builtBossCalled = false;
+
+  /// The plan's factor on the course speed: 1 except on a built level.
+  late final double _courseScale = plan.speedScale(rules);
+
   /// Every schedule knob of this flight. See [FlightPlan].
   final FlightPlan plan;
 
@@ -950,7 +974,8 @@ class FlightSimulation {
   /// How near a bird must come to a heart to catch it
   /// ([fairHeartsRulesVersion]).
   double get heartReach =>
-      supportsBossStages && rulesVersion >= fairHeartsRulesVersion
+      supportsBossStages && rulesVersion >= fairHeartsRulesVersion ||
+          plan is BuiltPlan
       ? SkyHeart.touchRadius
       : SkyHeart.pickupRadius;
 
@@ -1321,7 +1346,7 @@ class FlightSimulation {
   double get _paceClock =>
       plan.paceClock(elapsed: elapsed, route: routeSeconds);
   double get speed => endless
-      ? rules.speedFor(0) * (isTrail ? .9 : 1) * paceMultiplier
+      ? rules.speedFor(0) * (isTrail ? .9 : 1) * paceMultiplier * _courseScale
       : isTrail
       ? rules.speedFor(gates) * .9
       : rules.speedFor(score);
@@ -1535,6 +1560,7 @@ class FlightSimulation {
         started = true;
         if (route case final route?) {
           _layRoute(route, viewportWidth);
+          if (plan case final BuiltPlan built) _layBuilt(built, viewportWidth);
           return;
         }
         // First passage is visible with enough approach time for the calibrated movement.
@@ -1627,6 +1653,9 @@ class FlightSimulation {
       }
       if (route case final route?) {
         _layRoute(route, viewportWidth);
+        if (plan case final BuiltPlan built) {
+          _layBuilt(built, viewportWidth, travel: scroll * step);
+        }
       } else if (boss == null &&
           !_rushHoldsSpawns &&
           !_galeHoldsSpawns &&
@@ -1750,7 +1779,7 @@ class FlightSimulation {
       if (collectsStars && phase == RunPhase.playing) {
         _advanceStars(scroll * step);
       }
-      if ((supportsHeartPickups || supportsBossStages) &&
+      if ((supportsHeartPickups || supportsBossStages || plan is BuiltPlan) &&
           phase == RunPhase.playing) {
         _advanceHearts(scroll * step);
       }

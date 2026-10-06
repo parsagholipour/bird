@@ -19,10 +19,12 @@ class ReplayTape {
     this.weaponDamage = BirdRock.baseDamage,
     this.upgrades = PowerUps.legacy,
     this.plan,
+    this.built,
     this.partner,
     this.coop = CoopMode.roped,
     List<List<dynamic>>? events,
-  }) : events = events ?? [];
+  }) : assert(plan == null || built == null),
+       events = events ?? [];
   static const version = FlightSimulation.currentRulesVersion;
   final int recordedVersion;
   final bool skipCountdown;
@@ -39,7 +41,12 @@ class ReplayTape {
   /// The campaign level's whole plan as it was flown, from rules version
   /// 41, so a level retuned later still replays exactly. Null for endless.
   final LevelPlan? plan;
-  String? get levelId => plan?.id;
+
+  /// The built level's whole plan as it was flown, from rules version 64,
+  /// so a level its creator edits later still replays exactly. Null unless
+  /// the flight was a built level's.
+  final BuiltPlan? built;
+  String? get levelId => plan?.id ?? built?.id;
 
   /// Player 2's bird on a co-op flight (rules version 42), flying with
   /// [bird] as [coop] says. Null for a solo flight.
@@ -62,7 +69,7 @@ class ReplayTape {
     skipCountdown: skipCountdown,
     weaponDamage: weaponDamage,
     upgrades: upgrades,
-    plan: plan ?? FlightPlan.endless,
+    plan: plan ?? built ?? FlightPlan.endless,
     coop: partner == null ? null : coop,
     random: Random(seed),
   );
@@ -85,6 +92,11 @@ class ReplayTape {
     if (recordedVersion >= 41 && plan != null) ...{
       'level': plan!.id,
       'plan': plan!.toJson(),
+    },
+    if (recordedVersion >= FlightSimulation.builtLevelsRulesVersion &&
+        built != null) ...{
+      'level': built!.id,
+      'built': built!.toJson(),
     },
     if (recordedVersion >= FlightSimulation.coopRulesVersion && partner != null)
       'partner': partner,
@@ -118,11 +130,25 @@ class ReplayTape {
     // A campaign flight carries its level's plan from rules version 41.
     final planJson = recordedVersion >= 41 ? json['plan'] : null;
     final level = recordedVersion >= 41 ? json['level'] : null;
+    // A built level's flight carries its plan from rules version 64.
+    final builtJson =
+        recordedVersion >= FlightSimulation.builtLevelsRulesVersion
+        ? json['built']
+        : null;
     if (planJson is! Map<String, dynamic>? ||
-        (planJson == null) != (level == null)) {
+        builtJson is! Map<String, dynamic>? ||
+        (planJson != null && builtJson != null) ||
+        (planJson == null && builtJson == null) != (level == null)) {
       throw const FormatException('Invalid level plan');
     }
     final plan = planJson == null ? null : LevelPlan.fromJson(planJson);
+    final built = builtJson == null ? null : BuiltPlan.fromJson(builtJson);
+    if (built != null &&
+        (built.id != level ||
+            json['mode'] != built.mode.name ||
+            json['course'] != FlightCourse.starTrail.name)) {
+      throw const FormatException('Invalid built level');
+    }
     // A co-op flight names player 2's bird from rules version 42.
     final partner = recordedVersion >= FlightSimulation.coopRulesVersion
         ? json['partner']
@@ -132,6 +158,7 @@ class ReplayTape {
             (partner < 0 ||
                 partner > 3 ||
                 plan != null ||
+                built != null ||
                 json['mode'] != PlayMode.touch.name))) {
       throw const FormatException('Invalid partner');
     }
@@ -164,6 +191,7 @@ class ReplayTape {
       weaponDamage: weaponDamage,
       upgrades: upgrades,
       plan: plan,
+      built: built,
       partner: partner,
       coop: coop == null ? CoopMode.roped : CoopMode.values.byName(coop),
       events: (json['events'] as List)
