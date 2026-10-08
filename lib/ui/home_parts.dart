@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
 import '../app_brand.dart';
 import '../game/star_art.dart';
+import '../l10n/l10n.dart';
+import 'fit_text.dart';
 import 'home_world.dart';
 import 'theme.dart';
 import 'ui_sounds.dart';
@@ -15,7 +17,7 @@ class HomeTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Semantics(
-    label: '${AppBrand.name}. Every letter lands.',
+    label: context.l10n.launchSemantics(AppBrand.name, context.l10n.motto),
     header: true,
     child: ExcludeSemantics(
       child: MediaQuery.withNoTextScaling(
@@ -35,7 +37,7 @@ class HomeTitle extends StatelessWidget {
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
                       child: _TitleWord(
-                        'BEAKBOUND',
+                        'BEAKBOUND', // l10n-ignore: the brand, in Latin always
                         size: 64,
                         color: SkyColors.yellow,
                       ),
@@ -49,8 +51,8 @@ class HomeTitle extends StatelessWidget {
                 end: .52,
                 slide: const Offset(0, 10),
                 curve: Curves.easeOutCubic,
-                child: Text(
-                  'Every letter lands.',
+                child: FitText(
+                  context.l10n.motto,
                   style: bodyText(16, weight: FontWeight.w800),
                 ),
               ),

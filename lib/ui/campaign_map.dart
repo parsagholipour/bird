@@ -14,6 +14,7 @@ import 'components.dart';
 import 'keyboard.dart' show KeyTap;
 import 'theme.dart';
 import 'ui_sounds.dart';
+import '../l10n/l10n.dart';
 
 /// Where a level stands on the map.
 enum CampaignNodeState { locked, open, cleared }
@@ -74,6 +75,8 @@ class CampaignMapStop {
     this.locked = false,
     this.comingSoon = false,
     this.postcard = false,
+    // The English twin; the screen passes the current language's words
+    // (campaignStops). l10n-ignore
     this.soonNote = 'Coming soon',
   });
   final WorldRegion region;
@@ -107,6 +110,13 @@ const _compactBelow = 560.0;
 /// The campaign world map: one stop per region, painted with that region's
 /// own scenery, joined by a dotted mail route that runs from stop to stop.
 /// It swipes a stop at a time and opens on [focusStop].
+///
+/// The map is a piece of the world, so it runs left to right in every
+/// language, Arabic too ([FlightDirection]): the route starts on the left,
+/// the first stop is page 0, the step keys keep west and east. Only its
+/// words take the language's direction ([LanguageDirection]), and the
+/// [leading] and [trailing] chrome swap corners in a right-to-left language,
+/// like every menu's header.
 ///
 /// Purely presentational: the screen supplies the stops and reacts to taps.
 /// With [reducedMotion] nothing bobs, glows, pulses or glides; changing
@@ -313,93 +323,97 @@ class _CampaignMapState extends State<CampaignMap>
       }
       final still = widget.reducedMotion;
       final n = widget.stops.length;
+      final l = context.l10n;
       return Stack(
         children: [
-          NotificationListener<ScrollNotification>(
-            onNotification: _onScroll,
-            child: SingleChildScrollView(
-              controller: controller,
-              scrollDirection: Axis.horizontal,
-              physics: const PageScrollPhysics(),
-              child: SizedBox(
-                width: n * size.width,
-                height: size.height,
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Positioned.fill(
-                      child: RepaintBoundary(
-                        child: CustomPaint(
-                          painter: MapSceneryPainter(
-                            regions: [for (final s in widget.stops) s.region],
-                            dims: [
-                              for (final s in widget.stops)
-                                s.locked ? 1.0 : 0.0,
-                            ],
-                            page: size,
-                            pixelRatio: ratio,
-                            scroll: controller!,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned.fill(
-                      child: RepaintBoundary(
-                        child: CustomPaint(
-                          painter: MapCloudPainter(
-                            page: size,
-                            stops: n,
-                            veils: [
-                              for (final s in widget.stops)
-                                s.locked ? 1.0 : 0.0,
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned.fill(
-                      child: RepaintBoundary(
-                        child: CustomPaint(
-                          painter: MapRoutePainter(layout.dots, scale: k),
-                        ),
-                      ),
-                    ),
-                    for (var i = 0; i < n; i++)
-                      Positioned(
-                        key: ValueKey('campaign-stop-$i'),
-                        left: i * size.width,
-                        top: 0,
-                        width: size.width,
-                        height: size.height,
-                        child: FittedBox(
-                          fit: BoxFit.fill,
-                          alignment: Alignment.topLeft,
-                          child: SizedBox.fromSize(
-                            size: size / k,
-                            child: _StopLayer(
-                              stop: widget.stops[i],
-                              spots: layout.spots[i],
-                              safe: safe / k,
-                              bird: widget.bird,
-                              clock: clock,
-                              still: still,
-                              bannerHidden: widget.chromeHidden,
-                              compactNames: size.width / k < _compactBelow,
-                              soonPoke: soonPoke,
-                              onLevel: widget.onLevel,
-                              onLockedLevel: widget.onLockedLevel,
-                              onPostcard: widget.onPostcard,
-                              // Enter flies on from the level in view; the
-                              // map turns to wherever the keys go.
-                              focusNext: i == page && !widget.chromeHidden,
-                              onFocused: () {
-                                if (i != page) _goTo(i);
-                              },
+          FlightDirection(
+            child: NotificationListener<ScrollNotification>(
+              onNotification: _onScroll,
+              child: SingleChildScrollView(
+                key: const ValueKey('campaign-map-pager'),
+                controller: controller,
+                scrollDirection: Axis.horizontal,
+                physics: const PageScrollPhysics(),
+                child: SizedBox(
+                  width: n * size.width,
+                  height: size.height,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Positioned.fill(
+                        child: RepaintBoundary(
+                          child: CustomPaint(
+                            painter: MapSceneryPainter(
+                              regions: [for (final s in widget.stops) s.region],
+                              dims: [
+                                for (final s in widget.stops)
+                                  s.locked ? 1.0 : 0.0,
+                              ],
+                              page: size,
+                              pixelRatio: ratio,
+                              scroll: controller!,
                             ),
                           ),
                         ),
                       ),
-                  ],
+                      Positioned.fill(
+                        child: RepaintBoundary(
+                          child: CustomPaint(
+                            painter: MapCloudPainter(
+                              page: size,
+                              stops: n,
+                              veils: [
+                                for (final s in widget.stops)
+                                  s.locked ? 1.0 : 0.0,
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Positioned.fill(
+                        child: RepaintBoundary(
+                          child: CustomPaint(
+                            painter: MapRoutePainter(layout.dots, scale: k),
+                          ),
+                        ),
+                      ),
+                      for (var i = 0; i < n; i++)
+                        Positioned(
+                          key: ValueKey('campaign-stop-$i'),
+                          left: i * size.width,
+                          top: 0,
+                          width: size.width,
+                          height: size.height,
+                          child: FittedBox(
+                            fit: BoxFit.fill,
+                            alignment: Alignment.topLeft,
+                            child: SizedBox.fromSize(
+                              size: size / k,
+                              child: _StopLayer(
+                                stop: widget.stops[i],
+                                spots: layout.spots[i],
+                                safe: safe / k,
+                                bird: widget.bird,
+                                clock: clock,
+                                still: still,
+                                bannerHidden: widget.chromeHidden,
+                                compactNames: size.width / k < _compactBelow,
+                                soonPoke: soonPoke,
+                                onLevel: widget.onLevel,
+                                onLockedLevel: widget.onLockedLevel,
+                                onPostcard: widget.onPostcard,
+                                // Enter flies on from the level in view; the
+                                // map turns to wherever the keys go.
+                                focusNext: i == page && !widget.chromeHidden,
+                                onFocused: () {
+                                  if (i != page) _goTo(i);
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -410,28 +424,39 @@ class _CampaignMapState extends State<CampaignMap>
             child: Stack(
               fit: StackFit.expand,
               children: [
+                // The back key and the star total are a menu's header: in a
+                // right-to-left language they swap corners.
                 if (widget.leading != null)
-                  Positioned(
-                    left: safe.left + 16,
+                  PositionedDirectional(
+                    start:
+                        (Directionality.of(context) == TextDirection.rtl
+                            ? safe.right
+                            : safe.left) +
+                        16,
                     top: safe.top + 12,
                     child: widget.leading!,
                   ),
                 if (widget.trailing != null)
-                  Positioned(
-                    right: safe.right + 16,
+                  PositionedDirectional(
+                    end:
+                        (Directionality.of(context) == TextDirection.rtl
+                            ? safe.left
+                            : safe.right) +
+                        16,
                     top: safe.top + 12,
                     child: widget.trailing!,
                   ),
                 // The step keys sit on the cloud banks in the bottom corners,
                 // clear of the levels, in the same sticker material as the
-                // back key.
+                // back key. They point along the route, west and east, in
+                // every language.
                 if (page > 0)
                   Positioned(
                     left: safe.left + 16,
                     bottom: safe.bottom + 14,
                     child: MapKey(
                       glyph: MapGlyph.previous,
-                      label: 'Previous stop',
+                      label: l.campaignMapPreviousStop,
                       reducedMotion: still,
                       onPressed: () => _goTo(page - 1),
                     ),
@@ -442,7 +467,7 @@ class _CampaignMapState extends State<CampaignMap>
                     bottom: safe.bottom + 14,
                     child: MapKey(
                       glyph: MapGlyph.next,
-                      label: 'Next stop',
+                      label: l.campaignMapNextStop,
                       reducedMotion: still,
                       onPressed: () => _goTo(page + 1),
                     ),
@@ -632,7 +657,7 @@ class _StopLayer extends StatelessWidget {
             child: Visibility(
               visible: !bannerHidden,
               maintainState: true,
-              child: _StopBanner(stop: stop),
+              child: LanguageDirection(child: _StopBanner(stop: stop)),
             ),
           ),
         ),
@@ -642,10 +667,12 @@ class _StopLayer extends StatelessWidget {
             right: safe.right,
             bottom: safe.bottom + 16,
             child: Center(
-              child: _SoonRibbon(
-                poke: soonPoke,
-                still: still,
-                text: stop.soonNote,
+              child: LanguageDirection(
+                child: _SoonRibbon(
+                  poke: soonPoke,
+                  still: still,
+                  text: stop.soonNote,
+                ),
               ),
             ),
           ),
@@ -694,13 +721,16 @@ class _StopBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Semantics(
     header: true,
-    label:
-        '${stop.title}. Chapter ${stop.chapter}, ${stop.route}.'
-        '${stop.comingSoon
-            ? ' Coming soon.'
-            : stop.locked
-            ? ' Locked.'
-            : ''}',
+    label: context.l10n.campaignMapStopSemantics(
+      stop.comingSoon
+          ? 'soon'
+          : stop.locked
+          ? 'locked'
+          : 'open',
+      context.l10n.regionName(stop.region),
+      stop.chapter,
+      stop.route,
+    ),
     excludeSemantics: true,
     child: CampaignTextScale.wrap(
       Column(
@@ -716,7 +746,10 @@ class _StopBanner extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(22, 5, 22, 10),
               child: Text(
-                'CHAPTER ${stop.chapter} · ${stop.route.toUpperCase()}',
+                context.l10n.campaignMapChapterBanner(
+                  stop.chapter,
+                  L10n.upper(stop.route),
+                ),
                 style: bodyText(
                   12,
                   weight: FontWeight.w900,
@@ -732,7 +765,7 @@ class _StopBanner extends StatelessWidget {
                 const MapPadlockCoin(),
                 const SizedBox(width: 8),
               ],
-              _Sticker(stop.title, size: 34),
+              _Sticker(context.l10n.regionName(stop.region), size: 34),
               if (stop.locked) const SizedBox(width: 48),
             ],
           ),
@@ -929,18 +962,36 @@ class _NodeSlotState extends State<_NodeSlot>
     widget.onLevel(node.id);
   }
 
-  String get _semantics {
-    final kind = node.isBoss
-        ? '${node.id}, ${node.name}, boss'
-        : node.isGuardian
-        ? 'Level ${node.id}, ${node.name}, guardian '
-              '${CampaignHeadwear.name(node.boss!)}'
-        : 'Level ${node.id}, ${node.name}';
+  String _semantics(AppLocalizations l) {
+    final kind = l.campaignMapNodeSemantics(
+      node.isBoss
+          ? 'boss'
+          : node.isGuardian
+          ? 'guardian'
+          : 'level',
+      node.id,
+      node.name,
+      node.boss == null ? '' : l.bossName(node.boss!),
+    );
     if (node.locked) {
-      return '$kind. Locked.${node.lockNote == null ? '' : ' ${node.lockNote}.'}';
+      final note = node.lockNote;
+      return note == null
+          ? l.campaignMapNodeLocked(kind)
+          : l.campaignMapNodeLockedNote(kind, note);
     }
-    final stars = '${node.stars} of 3 stars';
-    return node.isCurrent ? '$kind. Next up. $stars.' : '$kind. $stars.';
+    return node.isCurrent
+        ? l.campaignMapNodeNext(kind, node.stars)
+        : l.campaignMapNodeStars(kind, node.stars);
+  }
+
+  /// The language's own direction, for words on a map that runs left to
+  /// right ([LanguageDirection]).
+  static TextDirection _wordsDirection(BuildContext context) {
+    final locale = Localizations.maybeLocaleOf(context);
+    final rtl = locale != null
+        ? AppLanguage.forLocale(locale)?.isRtl ?? false
+        : L10n.language.value.isRtl;
+    return rtl ? TextDirection.rtl : TextDirection.ltr;
   }
 
   @override
@@ -987,7 +1038,8 @@ class _NodeSlotState extends State<_NodeSlot>
             Semantics(
               button: true,
               enabled: !node.locked,
-              label: _semantics,
+              label: _semantics(context.l10n),
+              textDirection: _wordsDirection(context),
               onTap: _tap,
               excludeSemantics: true,
               // A keyboard walks the open levels; a locked one only answers
@@ -1069,24 +1121,30 @@ class _NodeSlotState extends State<_NodeSlot>
             if (node.isCurrent && !node.isBoss && !node.isGuardian)
               Positioned(
                 top: box / 2 + r + 30,
-                child: IgnorePointer(child: _NameTag(node.name)),
+                child: IgnorePointer(
+                  child: LanguageDirection(child: _NameTag(node.name)),
+                ),
               ),
             if (node.isBoss)
               Positioned(
                 top: box / 2 + r - 12,
                 child: IgnorePointer(
-                  child: _BossName(name: node.name, locked: node.locked),
+                  child: LanguageDirection(
+                    child: _BossName(name: node.name, locked: node.locked),
+                  ),
                 ),
               ),
             if (node.isGuardian)
               Positioned(
                 top: box / 2 + reach + _GuardianPlaque.drop,
                 child: IgnorePointer(
-                  child: _GuardianPlaque(
-                    name: CampaignHeadwear.name(node.boss!),
-                    short: widget.compactNames,
-                    boss: node.boss!,
-                    locked: node.locked,
+                  child: LanguageDirection(
+                    child: _GuardianPlaque(
+                      name: context.l10n.bossName(node.boss!),
+                      short: widget.compactNames,
+                      boss: node.boss!,
+                      locked: node.locked,
+                    ),
                   ),
                 ),
               ),
@@ -1222,10 +1280,10 @@ class _GuardianPlaque extends StatelessWidget {
   /// 13 px at 1x, plus their padding.
   static double heightFor(double scale) => (24 * scale + 14).ceilToDouble();
 
-  /// The name as set: whole, or its last word on a narrow stop.
-  String get shown => short && name.length > 12 && name.contains(' ')
-      ? name.split(' ').last
-      : name;
+  /// The name as set: whole, or its short form on a narrow stop
+  /// ("Gargoyle").
+  String shownIn(AppLocalizations l) =>
+      short ? l.campaignMapGuardianShort(boss.name, name) : name;
 
   @override
   Widget build(BuildContext context) {
@@ -1235,7 +1293,8 @@ class _GuardianPlaque extends StatelessWidget {
         builder: (context) => ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: maxWidth),
           child: Container(
-            key: ValueKey('campaign-guardian-$name'),
+            // Keyed by the English name in every language.
+            key: ValueKey('campaign-guardian-${CampaignHeadwear.name(boss)}'),
             height: heightFor(CampaignTextScale.of(context)),
             padding: const EdgeInsets.fromLTRB(9, 3, 9, 3),
             decoration: BoxDecoration(
@@ -1258,7 +1317,7 @@ class _GuardianPlaque extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'GUARDIAN',
+                    context.l10n.campaignGuardian,
                     style: bodyText(
                       11,
                       color: tone,
@@ -1267,7 +1326,7 @@ class _GuardianPlaque extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    shown,
+                    shownIn(context.l10n),
                     maxLines: 1,
                     style: heading(
                       13,
@@ -1371,7 +1430,7 @@ class _PostcardMarker extends StatelessWidget {
           };
     return Semantics(
       button: true,
-      label: 'Chapter $chapter postcard',
+      label: context.l10n.campaignMapPostcardSemantics(chapter),
       excludeSemantics: true,
       onTap: onTap == null ? null : () => onTap!(chapter),
       child: KeyTap(

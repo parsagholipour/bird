@@ -6,7 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../domain/tracking.dart';
 import '../domain/jump_tracking.dart';
+import '../l10n/l10n.dart';
 import '../tracking/native_tracking_source.dart';
+
+/// Words that wait for the language they are shown in: the lab keeps what
+/// to say, and says it in the current language when it builds.
+typedef _Words = String Function(AppLocalizations l);
+
+/// A tracker's or the camera's English coaching line, shown localized.
+_Words _coaching(String english) =>
+    (l) => l.trackingFeedback(english);
 
 class CalibrationProbe extends StatefulWidget {
   const CalibrationProbe({super.key});
@@ -26,8 +35,10 @@ class _CalibrationProbeState extends State<CalibrationProbe>
   TrackingSample? sample;
   StreamSubscription<TrackingSample>? sub;
   StreamSubscription<TrackingIssue>? errors;
-  String message =
-      'Prop your phone low in landscape, facing you or beside you.';
+  _Words message = (l) => l.cameraLabIntro;
+
+  /// The English words, for the diagnostics log.
+  static final _english = lookupAppLocalizations(AppLanguage.en.locale);
   bool started = false, busy = false, front = true;
   double height = 0.5;
   int flaps = 0, reps = 0;
@@ -45,11 +56,16 @@ class _CalibrationProbeState extends State<CalibrationProbe>
         if (mode == PlayMode.pushUp) {
           body.add(s, source.nowMs);
           height = body.previewHeight;
-          message = body.feedback;
+          message = _coaching(body.feedback);
           if (body.result == null &&
               body.step == BodyCalibrationStep.position &&
               s.joints.length >= 33) {
-            final names = ['shoulder', 'elbow', 'wrist', 'hip'];
+            final names = <_Words>[
+              (l) => l.cameraLabJointShoulder,
+              (l) => l.cameraLabJointElbow,
+              (l) => l.cameraLabJointWrist,
+              (l) => l.cameraLabJointHip,
+            ];
             final ids = [11, 13, 15, 23];
             final side =
                 ids.where((i) => s.joints[i].confidence >= .3).length >=
@@ -61,7 +77,9 @@ class _CalibrationProbeState extends State<CalibrationProbe>
                 if (s.joints[ids[i] + side].confidence < .3) names[i],
             ];
             if (missing.isNotEmpty) {
-              message = 'Almost there · need a clearer ${missing.join(', ')}';
+              message = (l) => l.cameraLabAlmostThere(
+                missing.map((part) => part(l)).reduce(l.cameraLabJointList),
+              );
             }
           }
           if (body.result != null) {
@@ -70,18 +88,18 @@ class _CalibrationProbeState extends State<CalibrationProbe>
         } else if (mode == PlayMode.squat) {
           squat.add(s, source.nowMs);
           height = squat.previewHeight;
-          message = squat.feedback;
+          message = _coaching(squat.feedback);
           if (squat.result != null) {
             interpreter = SquatInterpreter(squat.result!);
           }
         } else {
           jump.add(s, source.nowMs);
-          message = jump.feedback;
+          message = _coaching(jump.feedback);
           if (jump.result != null) interpreter = JumpInterpreter(jump.result!);
         }
       } else {
         final input = interpreter!.add(s, source.nowMs);
-        message = input.feedback;
+        message = _coaching(input.feedback);
         if (input.valid) {
           if (mode.controlsHeight) height = input.height;
           reps = input.repetitions;
@@ -101,13 +119,14 @@ class _CalibrationProbeState extends State<CalibrationProbe>
         );
         source.recordDiagnostic(
           'PushUpBird pose: $diagnostic; '
-          '$message; step=${body.step.name}; cycles=${body.cycles}; '
+          '${message(_english)}; step=${body.step.name}; '
+          'cycles=${body.cycles}; '
           'height=${height.toStringAsFixed(2)}',
         );
       }
     });
     errors = source.issues.listen((e) {
-      if (mounted) setState(() => message = e.message);
+      if (mounted) setState(() => message = _coaching(e.message));
     });
     refresh = Timer.periodic(const Duration(milliseconds: 50), (_) {
       if (mode == PlayMode.jump) height = (height - 0.02).clamp(0.1, 1);
@@ -118,14 +137,11 @@ class _CalibrationProbeState extends State<CalibrationProbe>
   Future<void> start() async {
     setState(() {
       busy = true;
-      message = 'Starting camera…';
+      message = (l) => l.cameraLabStarting;
     });
     try {
       if (!await source.requestPermission()) {
-        setState(
-          () => message =
-              'Camera access is off. Allow it in app settings, then try again.',
-        );
+        setState(() => message = (l) => l.cameraLabDenied);
         return;
       }
       await source.stop();
@@ -139,7 +155,7 @@ class _CalibrationProbeState extends State<CalibrationProbe>
       await source.start(mode, frontCamera: front);
       setState(() => started = true);
     } catch (e) {
-      setState(() => message = 'Camera could not start: $e');
+      setState(() => message = (l) => l.cameraLabFailed('$e'));
     } finally {
       if (mounted) setState(() => busy = false);
     }
@@ -151,7 +167,7 @@ class _CalibrationProbeState extends State<CalibrationProbe>
       source.stop();
       setState(() {
         started = false;
-        message = 'Camera stopped. Tap Start to recalibrate.';
+        message = (l) => l.cameraLabStopped;
       });
     }
   }
@@ -165,6 +181,9 @@ class _CalibrationProbeState extends State<CalibrationProbe>
     source.dispose();
     super.dispose();
   }
+
+  /// The current language's words, for [build].
+  AppLocalizations get l => context.l10n;
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -194,7 +213,7 @@ class _CalibrationProbeState extends State<CalibrationProbe>
                       child: GestureDetector(
                         onTap: () => context.go('/'),
                         child: Text(
-                          'CAMERA LAB · Back to home',
+                          l.cameraLabBack,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -215,7 +234,7 @@ class _CalibrationProbeState extends State<CalibrationProbe>
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
-                          '$message${diagnostic.isEmpty || mode != PlayMode.pushUp ? '' : '\n$diagnostic'}',
+                          '${message(l)}${diagnostic.isEmpty || mode != PlayMode.pushUp ? '' : '\n$diagnostic'}',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -236,23 +255,23 @@ class _CalibrationProbeState extends State<CalibrationProbe>
                 children: [
                   Text(
                     interpreter != null
-                        ? '3. Move your bird!'
+                        ? l.cameraLabStepMove
                         : mode == PlayMode.squat
-                        ? 'Find your squat range'
+                        ? l.cameraLabStepSquat
                         : mode == PlayMode.jump
-                        ? 'Find your standing position'
+                        ? l.cameraLabStepJump
                         : body.step == BodyCalibrationStep.position
-                        ? '1. Show your arms & hip'
-                        : '2. Do two push-ups',
+                        ? l.cameraLabStepShow
+                        : l.cameraLabStepPushUps,
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     mode == PlayMode.pushUp
-                        ? 'Phone low, facing you or beside you.\nFacing it? Show both shoulders, an arm and hip.\nMove down and up twice at your own pace.'
+                        ? l.cameraLabPushUpHelp
                         : mode == PlayMode.squat
-                        ? 'Stand still, squat comfortably and hold briefly, then stand back up. Squat to descend; stand to rise.'
-                        : 'Stand facing the phone with your whole body and feet visible. Hold still, then make small jumps. One jump = one big boost.',
+                        ? l.cameraLabSquatHelp
+                        : l.cameraLabJumpHelp,
                     style: const TextStyle(fontSize: 12),
                   ),
                   const SizedBox(height: 8),
@@ -281,13 +300,22 @@ class _CalibrationProbeState extends State<CalibrationProbe>
                           child: Text(
                             interpreter == null
                                 ? (mode == PlayMode.pushUp
-                                      ? 'CALIBRATION\n${body.cycles} / 2 calibrated'
-                                      : 'CALIBRATION\n${((mode == PlayMode.squat ? squat.progress : jump.progress) * 100).round()}% calibrated')
-                                : 'CONTROL TEST\n${mode == PlayMode.pushUp
-                                      ? '$reps push-ups'
-                                      : mode == PlayMode.squat
-                                      ? '$reps squats'
-                                      : '$flaps jumps'}',
+                                      ? l.cameraLabCalibrationCount(
+                                          body.cycles,
+                                          2,
+                                        )
+                                      : l.cameraLabCalibrationPercent(
+                                          ((mode == PlayMode.squat
+                                                      ? squat.progress
+                                                      : jump.progress) *
+                                                  100)
+                                              .round(),
+                                        ))
+                                : mode == PlayMode.pushUp
+                                ? l.cameraLabTestPushUps(reps)
+                                : mode == PlayMode.squat
+                                ? l.cameraLabTestSquats(reps)
+                                : l.cameraLabTestJumps(flaps),
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -295,7 +323,10 @@ class _CalibrationProbeState extends State<CalibrationProbe>
                           right: 12,
                           bottom: 4,
                           child: Text(
-                            '${metrics.hz.toStringAsFixed(1)} Hz · ${metrics.p95.toStringAsFixed(0)} ms p95',
+                            l.cameraLabRate(
+                              metrics.hz.toStringAsFixed(1),
+                              metrics.p95.toStringAsFixed(0),
+                            ),
                             style: const TextStyle(fontSize: 12),
                           ),
                         ),
@@ -310,10 +341,10 @@ class _CalibrationProbeState extends State<CalibrationProbe>
                           onPressed: busy ? null : start,
                           child: Text(
                             busy
-                                ? 'Starting…'
+                                ? l.cameraLabStartingButton
                                 : started
-                                ? 'Recalibrate'
-                                : 'Start camera',
+                                ? l.cameraLabRecalibrate
+                                : l.cameraLabStartCamera,
                           ),
                         ),
                       ),
@@ -350,15 +381,17 @@ class _CalibrationProbeState extends State<CalibrationProbe>
                               started = false;
                               sample = null;
                               interpreter = null;
-                              message = 'Tap Start camera';
+                              message = (l) => l.cameraLabTapStart;
                             });
                           },
                     child: Text(
-                      'Try ${mode == PlayMode.pushUp
-                          ? 'Jump & Fly'
-                          : mode == PlayMode.jump
-                          ? 'Squat & Fly'
-                          : 'Push-Up Flight'}',
+                      l.cameraLabTry(
+                        l.playModeName(switch (mode) {
+                          PlayMode.pushUp => PlayMode.jump,
+                          PlayMode.jump => PlayMode.squat,
+                          _ => PlayMode.pushUp,
+                        }),
+                      ),
                     ),
                   ),
                 ],

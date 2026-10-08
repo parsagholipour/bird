@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 import '../domain/sky_boss.dart';
+import '../l10n/l10n.dart';
+import '../l10n/text/boss_text.dart';
 import '../ui/theme.dart';
 import 'boss_motion.dart';
 import 'dragon_kit.dart';
@@ -253,7 +255,8 @@ abstract final class BossStageHudArt {
     );
   }
 
-  static final Map<Object, TextPainter> _texts = {};
+  // (laid out again in a new language's fonts)
+  static final Map<Object, TextPainter> _texts = L10n.cache({});
 
   static TextPainter _text(
     String value,
@@ -271,18 +274,20 @@ abstract final class BossStageHudArt {
         weight: weight,
       ).copyWith(letterSpacing: size * spacing),
     ),
-    textDirection: TextDirection.ltr,
+    // Words run their language's way; the card stays where it is.
+    textDirection: L10n.textDirection,
     textAlign: TextAlign.center,
     maxLines: 2,
     ellipsis: '…',
   )..layout(maxWidth: maxWidth);
 
   /// What the full fight brings, from the rules' stage hint ("STRONGER ·
-  /// Triple shots, and his bats join in!"): the words after the dot, or
-  /// null.
+  /// Triple shots, and his bats join in!", in the current language): the
+  /// words after the dot, or null.
   static String? hintOf(SkyBoss boss) {
-    final hint = boss.stageHint;
-    if (hint == null) return null;
+    final english = boss.stageHint;
+    if (english == null) return null;
+    final hint = L10n.strings.bossHintText(english);
     final dot = hint.indexOf('·');
     final words = (dot < 0 ? hint : hint.substring(dot + 1)).trim();
     return words.isEmpty ? null : words;
@@ -335,7 +340,11 @@ abstract final class BossStageHudArt {
     // (The fade is quantised so the few faded words are laid out once.)
     final a = (fade * 12).round() / 12;
     final pad = 5 * u, icon = 7.4 * u, gap = 2.8 * u;
-    final title = _text('STRONGER!', 10 * u, _cream.withValues(alpha: a));
+    final title = _text(
+      L10n.strings.bossStronger,
+      10 * u,
+      _cream.withValues(alpha: a),
+    );
     final words = hintOf(boss);
     final hint = words == null
         ? null

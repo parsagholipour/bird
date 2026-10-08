@@ -28,6 +28,8 @@ enum BoxPrize {
   /// Whether it is sent after the rival rather than kept.
   bool get attack => index < heart.index;
 
+  /// The prize's English name. l10n-english-twin of the `duelPrize_*` keys:
+  /// screens show `l.duelPrizeName(prize)` (lib/l10n/text/coop_text.dart).
   String get title => switch (this) {
     batSwarm => 'Bat swarm',
     spitter => 'Spitter beetle',

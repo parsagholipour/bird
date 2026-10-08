@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 
 import '../domain/game_rules.dart';
+import '../l10n/l10n.dart';
 import 'boss_motion.dart';
 
 /// The Pirate Captain's tide telegraph: before every surge the line the sea
@@ -359,16 +360,18 @@ abstract final class PirateTideArt {
     final h = size.height;
     final title = TextPainter(
       text: TextSpan(
-        text: 'HIGH TIDE',
+        text: L10n.strings.bossPirateHighTide,
         style: TextStyle(
-          fontFamily: 'Fredoka',
+          fontFamily: L10n.fonts.heading,
+          fontFamilyFallback: L10n.fonts.headingFallback,
           fontWeight: FontWeight.w700,
           fontSize: h * .042,
           letterSpacing: h * .003,
           color: _cream.withValues(alpha: show),
         ),
       ),
-      textDirection: TextDirection.ltr,
+      // Words run their language's way; the tag stays where it is.
+      textDirection: L10n.textDirection,
     )..layout();
     final pad = h * .016, arrow = h * .03, gauge = h * .008;
     final plate = Rect.fromLTWH(

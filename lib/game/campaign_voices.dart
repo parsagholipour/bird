@@ -1,6 +1,7 @@
 import '../domain/campaign.dart';
 import '../domain/campaign_story.dart';
 import 'campaign_voice_clips.dart';
+import 'voice_packs.dart';
 
 /// The campaign's recorded voices: every line of the story scenes, each
 /// level's thank-you, and each bird's sprint calls, all in
@@ -15,6 +16,10 @@ import 'campaign_voice_clips.dart';
 /// scene still shows its text, paced by the text alone exactly as with
 /// Settings → Character voices off. Recording it later changes no code
 /// except the generated clip table.
+///
+/// In another language ([VoicePacks]) a clip plays that language's take
+/// when its voice pack has one, and the English take otherwise; the words
+/// on screen are that language's either way.
 abstract final class CampaignVoices {
   static const _folder = 'audio/story';
 
@@ -43,7 +48,8 @@ abstract final class CampaignVoices {
 
   /// How long [asset] plays, or null for a clip that is not recorded.
   static Duration? length(String asset) {
-    final ms = campaignVoiceClips[_name(asset)];
+    final ms =
+        VoicePacks.instance.storyMs(asset) ?? campaignVoiceClips[_name(asset)];
     return ms == null ? null : Duration(milliseconds: ms);
   }
 
@@ -87,5 +93,6 @@ abstract final class CampaignVoices {
       asset.substring(asset.lastIndexOf('/') + 1).replaceAll('.ogg', '');
 
   static String? _asset(String name) =>
-      campaignVoiceClips.containsKey(name) ? '$_folder/$name.ogg' : null;
+      VoicePacks.instance.storyAsset(name) ??
+      (campaignVoiceClips.containsKey(name) ? '$_folder/$name.ogg' : null);
 }

@@ -1,6 +1,9 @@
 import 'dart:math' as math;
 import 'package:flutter/painting.dart';
+import 'package:flutter/widgets.dart' show StringCharacters;
 import '../domain/game_rules.dart';
+import '../l10n/l10n.dart';
+import '../l10n/text/boss_text.dart';
 import '../ui/theme.dart';
 import 'boss_motion.dart';
 import 'pirate_hud_art.dart';
@@ -75,7 +78,8 @@ abstract final class PirateEncounterUi {
     if (opacity <= 0) return Size.zero;
     TextPainter make(TextStyle style) => TextPainter(
       text: TextSpan(text: value, style: style),
-      textDirection: TextDirection.ltr,
+      // Words run their language's way; where they sit stays the world's.
+      textDirection: L10n.textDirection,
     )..layout();
     final base = heading(size).copyWith(letterSpacing: spacing);
     final probe = make(base);
@@ -340,7 +344,7 @@ abstract final class PirateEncounterUi {
     final titleTop = h * .285, titleSize = h * .054;
     final title = _text(
       c,
-      'SAIL HO!',
+      L10n.strings.encounterOmenTitle_pirate,
       Offset(w * .5, titleTop),
       titleSize,
       ramp: const [Color(0xfffff6cc), gold, Color(0xffe0a233)],
@@ -393,7 +397,7 @@ abstract final class PirateEncounterUi {
     }
     _text(
       c,
-      'A ship rides in on the rising tide…',
+      L10n.strings.encounterOmenLine_pirate,
       Offset(w * .5, h * .372),
       h * .03,
       color: PirateHudArt.cream,
@@ -443,28 +447,31 @@ abstract final class PirateEncounterUi {
         ..maskFilter = MaskFilter.blur(BlurStyle.normal, h * .03),
     );
 
+    final l = L10n.strings;
+    final name = L10n.upper(l.bossName(boss.kind));
+    final epithet = l.bossTitleOf(boss);
     final nameSize = h * .07;
     final nameProbe = TextPainter(
       text: TextSpan(
-        text: boss.name.toUpperCase(),
+        text: name,
         style: heading(nameSize).copyWith(letterSpacing: .4),
       ),
-      textDirection: TextDirection.ltr,
+      textDirection: L10n.textDirection,
     )..layout();
     final titleSize = h * .029;
     final titleProbe = TextPainter(
       text: TextSpan(
-        text: boss.title,
+        text: epithet,
         style: heading(titleSize).copyWith(letterSpacing: 1.6),
       ),
-      textDirection: TextDirection.ltr,
+      textDirection: L10n.textDirection,
     )..layout();
     final lineSize = h * .035;
     final lineProbe = line == null
         ? null
         : (TextPainter(
             text: TextSpan(text: line, style: heading(lineSize)),
-            textDirection: TextDirection.ltr,
+            textDirection: L10n.textDirection,
           )..layout());
     final paperW = math.max(
       math.max(nameProbe.width + h * .17, titleProbe.width + h * .16),
@@ -591,7 +598,7 @@ abstract final class PirateEncounterUi {
     final tagY = top + h * .034;
     final tag = _text(
       c,
-      'ENCOUNTER ${boss.number.toString().padLeft(2, '0')}',
+      l.bossEncounterEyebrow(boss.number.toString().padLeft(2, '0')),
       Offset(cx, tagY),
       h * .026,
       color: crimsonDeep,
@@ -619,7 +626,7 @@ abstract final class PirateEncounterUi {
     }
     _text(
       c,
-      boss.name.toUpperCase(),
+      name,
       Offset(cx, top + h * .1),
       nameSize,
       color: _quill,
@@ -638,7 +645,7 @@ abstract final class PirateEncounterUi {
     );
     _text(
       c,
-      boss.title,
+      epithet,
       Offset(cx, top + bodyH - h * .008),
       titleSize,
       ramp: const [Color(0xfffff6cc), gold, Color(0xffe0a233)],
@@ -795,12 +802,34 @@ abstract final class PirateEncounterUi {
       );
     }
     c.restore();
-    // The letters grow as the roar builds.
-    const letters = ['A', 'R', 'R', 'R', '!'];
-    const grow = [.82, .94, 1.05, 1.17, 1.3];
-    const tilt = [-.16, -.08, .0, .09, .17];
-    const lift = [.06, .03, -.01, -.04, -.07];
-    final base = unit * .6 * pop;
+    // The letters grow as the roar builds (ARRR!, one letter at a time; a
+    // right-to-left language's joined letters roar as one word).
+    final roar = L10n.strings.bossPirateRoar;
+    final letters = L10n.textDirection == TextDirection.rtl
+        ? [roar]
+        : roar.characters.toList();
+    // The five letters' steps, spread over however many a language has.
+    double step(List<double> five, int i) {
+      if (letters.length == five.length) return five[i];
+      final pos = letters.length < 2 ? 2.0 : i * 4 / (letters.length - 1);
+      final lo = pos.floor().clamp(0, 4), hi = pos.ceil().clamp(0, 4);
+      return five[lo] + (five[hi] - five[lo]) * (pos - lo);
+    }
+
+    final grow = [
+      for (var i = 0; i < letters.length; i++)
+        step(const [.82, .94, 1.05, 1.17, 1.3], i),
+    ];
+    final tilt = [
+      for (var i = 0; i < letters.length; i++)
+        step(const [-.16, -.08, .0, .09, .17], i),
+    ];
+    final lift = [
+      for (var i = 0; i < letters.length; i++)
+        step(const [.06, .03, -.01, -.04, -.07], i),
+    ];
+    // (a longer shout is set smaller to stay in the bubble)
+    final base = unit * .6 * pop * math.min(1.0, 5 / math.max(1, roar.length));
     final painters = [
       for (var i = 0; i < letters.length; i++)
         TextPainter(
@@ -808,7 +837,7 @@ abstract final class PirateEncounterUi {
             text: letters[i],
             style: heading(base * grow[i]).copyWith(height: 1),
           ),
-          textDirection: TextDirection.ltr,
+          textDirection: L10n.textDirection,
         )..layout(),
     ];
     var total = 0.0;
@@ -1157,7 +1186,7 @@ abstract final class PirateEncounterUi {
     _coinShower(c, size, m, fade, y);
     final title = _text(
       c,
-      'SKY RECLAIMED',
+      L10n.strings.bossSkyReclaimed,
       Offset(w * .5, y),
       h * .08,
       ramp: const [Color(0xfffffbf0), Color(0xfffff0c4), Color(0xffffd878)],
@@ -1217,14 +1246,14 @@ abstract final class PirateEncounterUi {
       );
     }
     final line = sim.isTrail
-        ? '+${FlightSimulation.bossBonus} POINTS   ·   SHIELD RESTORED'
-        : '${boss.name.toUpperCase()} DEFEATED';
+        ? L10n.strings.bossVictoryPoints(FlightSimulation.bossBonus)
+        : L10n.strings.bossDefeated(boss.kind);
     final probe = TextPainter(
       text: TextSpan(
         text: line,
         style: heading(h * .03).copyWith(letterSpacing: 1),
       ),
-      textDirection: TextDirection.ltr,
+      textDirection: L10n.textDirection,
     )..layout();
     final ribbonY = rule + h * .048;
     _ribbon(c, Offset(w * .5, ribbonY), probe.width + h * .08, h * .054, fade);

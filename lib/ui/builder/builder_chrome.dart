@@ -13,9 +13,12 @@ import '../../domain/campaign_story.dart' show StoryMood;
 import '../../domain/game_rules.dart';
 import '../../domain/tracking.dart';
 import '../../game/star_art.dart';
+import '../../l10n/l10n.dart';
+import '../../l10n/text/builder_text.dart';
 import '../campaign_chrome.dart' show MapGlyph, MapKey;
 import '../campaign_region_still.dart';
 import '../control_glyphs.dart';
+import '../fit_text.dart';
 import '../match_hud.dart' show MatchPlate, matchInkEdge;
 import '../story_boss_art.dart';
 import '../theme.dart';
@@ -36,13 +39,10 @@ FlyControl builtControl(PlayMode mode) => switch (mode) {
   PlayMode.touch => FlyControl.tap,
 };
 
-/// A short name for [mode] on a chip: "Tap & Fly", "Push-ups".
-String builtModeName(PlayMode mode) => switch (mode) {
-  PlayMode.touch => 'Tap & Fly',
-  PlayMode.pushUp => 'Push-ups',
-  PlayMode.squat => 'Squats',
-  PlayMode.jump => 'Jumps',
-};
+/// A short name for [mode] on a chip: "Tap & Fly", "Push-ups", in [l]'s
+/// language (the app's, [L10n.strings], when none is given).
+String builtModeName(PlayMode mode, [AppLocalizations? l]) =>
+    (l ?? L10n.strings).builtModeShort(mode);
 
 /// The color a built level of [mode] wears: the mini games' own, and the
 /// sky's blue for Tap & Fly.
@@ -56,10 +56,10 @@ Color builtModeColor(PlayMode mode) => switch (mode) {
 /// The play route's mode segment for [mode] (ignored for built levels, but
 /// kept readable).
 String builtRouteMode(PlayMode mode) => switch (mode) {
-  PlayMode.pushUp => 'push-up',
-  PlayMode.squat => 'squat',
-  PlayMode.jump => 'jump',
-  PlayMode.touch => 'touch',
+  PlayMode.pushUp => 'push-up', // l10n-ignore: route path
+  PlayMode.squat => 'squat', // l10n-ignore: route path
+  PlayMode.jump => 'jump', // l10n-ignore: route path
+  PlayMode.touch => 'touch', // l10n-ignore: route path
 };
 
 /// Flies the built level [plan] for real, or as its creator's [test] flight
@@ -78,17 +78,10 @@ void flyBuilt(
   context.go('/play/${builtRouteMode(plan.mode)}?$query');
 }
 
-/// A boss finale's name.
-String bossName(BossKind kind) => switch (kind) {
-  BossKind.baronBat => 'Baron Bat',
-  BossKind.spitterBeetle => 'Spitter King',
-  BossKind.duskMoth => 'Dusk Empress',
-  BossKind.pirate => 'Pirate Captain',
-  BossKind.dragon => 'Ember Dragon',
-  BossKind.kingCoo => 'King Coo',
-  BossKind.searchlightGargoyle => 'Searchlight Gargoyle',
-  BossKind.neferhoo => 'Neferhoo',
-};
+/// A boss finale's name, in [l]'s language ([L10n.strings] by default):
+/// the shared `l.bossName`.
+String bossName(BossKind kind, [AppLocalizations? l]) =>
+    (l ?? L10n.strings).bossName(kind);
 
 /// The bosses a built level may end with.
 final finaleBosses = [
@@ -99,50 +92,92 @@ final finaleBosses = [
 // ---------------------------------------------------------------------------
 // A level's facts.
 
-/// "42 s" or "1 min 05 s": how long the level takes to its line.
-String builtLength(BuiltPlan plan) {
-  final seconds = BuiltReach.seconds(plan).round();
-  if (seconds < 60) return '$seconds s';
-  return '${seconds ~/ 60} min ${(seconds % 60).toString().padLeft(2, '0')} s';
-}
+/// "42 s" or "1 min 05 s": how long the level takes to its line, in [l]'s
+/// language ([L10n.strings] by default).
+String builtLength(BuiltPlan plan, [AppLocalizations? l]) =>
+    (l ?? L10n.strings).builtLength(BuiltReach.seconds(plan).round());
 
-/// "12 push-ups", "1 squat", or null for a level flown without them.
-String? builtReps(BuiltPlan plan) {
+/// "12 push-ups", "1 squat", or null for a level flown without them, in
+/// [l]'s language ([L10n.strings] by default).
+String? builtReps(BuiltPlan plan, [AppLocalizations? l]) {
   final reps = BuiltReach.reps(plan);
   if (reps == null) return null;
-  final word = plan.mode == PlayMode.squat ? 'squat' : 'push-up';
-  return '$reps $word${reps == 1 ? '' : 's'}';
+  return (l ?? L10n.strings).builtReps(plan.mode, reps);
 }
 
-/// A fresh name for a new level of [mode], not one of [taken].
-String newLevelName(PlayMode mode, Iterable<String> taken) {
-  final base = switch (mode) {
-    PlayMode.touch => 'My tap level',
-    PlayMode.pushUp => 'My push-up level',
-    PlayMode.squat => 'My squat level',
-    PlayMode.jump => 'My jump level',
-  };
+/// A fresh name for a new level of [mode], not one of [taken], in [l]'s
+/// language ([L10n.strings] by default). Once saved it is the player's own
+/// name, never translated again.
+String newLevelName(
+  PlayMode mode,
+  Iterable<String> taken, [
+  AppLocalizations? l,
+]) {
+  final words = l ?? L10n.strings;
+  // A translation that runs long still leaves room for a number.
+  final base = _fit(words.builtNewLevelName(mode), BuiltPlan.maxName - 3);
   final names = taken.toSet();
   if (!names.contains(base)) return base;
   for (var n = 2; ; n++) {
-    final name = '$base $n';
+    var head = base;
+    var name = words.builderNewLevelNumbered(head, n);
+    while (name.length > BuiltPlan.maxName && head.isNotEmpty) {
+      head = _fit(head, head.length - (name.length - BuiltPlan.maxName));
+      name = words.builderNewLevelNumbered(head, n);
+    }
     if (!names.contains(name)) return name;
   }
 }
 
-/// [name] with a suffix such as " remix", cut to fit [BuiltPlan.maxName].
-String suffixedName(String name, String suffix) {
-  final room = BuiltPlan.maxName - suffix.length;
-  final head = name.length <= room ? name : name.substring(0, room);
-  final result = '${head.trimRight()}$suffix';
-  return BuiltPlan.validName(result) ? result : 'My level$suffix';
+/// [text] cut (between characters) to at most [room] code units.
+String _fit(String text, int room) {
+  if (text.length <= room) return text;
+  var out = '';
+  for (final c in text.characters) {
+    if (out.length + c.length > room) break;
+    out += c;
+  }
+  return out.trimRight();
 }
 
-/// Copies [plan]'s share code to the clipboard.
-Future<void> copyShareCode(BuiltPlan plan, {required bool cleared}) =>
-    Clipboard.setData(
-      ClipboardData(text: BuiltCode.message(plan, cleared: cleared)),
-    );
+/// [name] with a suffix such as " remix", cut to fit [BuiltPlan.maxName]
+/// (the fallback name in [l]'s language, [L10n.strings] by default).
+String suffixedName(String name, String suffix, [AppLocalizations? l]) {
+  final room = BuiltPlan.maxName - suffix.length;
+  final head = _fit(name, room);
+  final result = '${head.trimRight()}$suffix';
+  return BuiltPlan.validName(result)
+      ? result
+      : '${(l ?? L10n.strings).builderFallbackName}$suffix';
+}
+
+/// The line the share key copies, in [l]'s language: a sentence a friend
+/// can read with the level's own name (never translated), ending with the
+/// share code ([BuiltCode.message] is its English twin).
+String shareMessage(
+  BuiltPlan plan, {
+  required bool cleared,
+  AppLocalizations? l,
+}) {
+  final words = l ?? L10n.strings;
+  return words.builderShareMessage(
+    words.playerText(plan.name),
+    words.playModeName(plan.mode),
+    words.playerText(BuiltCode.encode(plan, cleared: cleared)),
+  );
+}
+
+/// Copies [plan]'s share code to the clipboard, in [l]'s language
+/// ([L10n.strings] by default).
+Future<void> copyShareCode(
+  BuiltPlan plan, {
+  required bool cleared,
+  AppLocalizations? l,
+}) => Clipboard.setData(
+  ClipboardData(
+    text: shareMessage(plan, cleared: cleared, l: l),
+  ),
+);
 
 // ---------------------------------------------------------------------------
 // Keys.
@@ -374,10 +409,15 @@ class BuilderStepper extends StatelessWidget {
     this.lessIcon = Icons.remove_rounded,
     this.moreIcon = Icons.add_rounded,
     this.lead,
+    this.label,
   });
 
-  /// What is stepped, for the keys' spoken names.
+  /// What is stepped, for the keys' names: "two-star mark" makes
+  /// `two-star mark-less`.
   final String name;
+
+  /// What is stepped, as a screen reader says it ([name] when null).
+  final String? label;
   final String value;
   final VoidCallback? onLess, onMore;
   final IconData lessIcon, moreIcon;
@@ -386,40 +426,44 @@ class BuilderStepper extends StatelessWidget {
   final Widget? lead;
 
   @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      BuilderKey(
-        key: ValueKey('$name-less'),
-        tooltip: 'Less $name',
-        icon: lessIcon,
-        sound: 'ui_toggle',
-        onPressed: onLess,
-      ),
-      Expanded(
-        child: Semantics(
-          label: '$name $value',
-          excludeSemantics: true,
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (lead != null) ...[lead!, const SizedBox(width: 4)],
-                Text(value, style: heading(18, weight: FontWeight.w700)),
-              ],
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final spoken = label ?? name;
+    return Row(
+      children: [
+        BuilderKey(
+          key: ValueKey('$name-less'),
+          tooltip: l.builderLessSemantics(spoken),
+          icon: lessIcon,
+          sound: 'ui_toggle',
+          onPressed: onLess,
+        ),
+        Expanded(
+          child: Semantics(
+            label: l.builderValueSemantics(spoken, value),
+            excludeSemantics: true,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (lead != null) ...[lead!, const SizedBox(width: 4)],
+                  Text(value, style: heading(18, weight: FontWeight.w700)),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-      BuilderKey(
-        key: ValueKey('$name-more'),
-        tooltip: 'More $name',
-        icon: moreIcon,
-        sound: 'ui_toggle',
-        onPressed: onMore,
-      ),
-    ],
-  );
+        BuilderKey(
+          key: ValueKey('$name-more'),
+          tooltip: l.builderMoreSemantics(spoken),
+          icon: moreIcon,
+          sound: 'ui_toggle',
+          onPressed: onMore,
+        ),
+      ],
+    );
+  }
 }
 
 /// A small caption over a group of controls: "OPENING".
@@ -430,26 +474,32 @@ class BuilderCaption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(left: 2, bottom: 4),
+    padding: const EdgeInsetsDirectional.only(start: 2, bottom: 4),
     child: Row(
       children: [
         Text(
-          text.toUpperCase(),
+          L10n.upper(text),
           style: bodyText(
             11,
             color: SkyColors.muted,
             weight: FontWeight.w900,
           ).copyWith(letterSpacing: 1.1, height: 1),
         ),
-        const Spacer(),
+        const SizedBox(width: 8),
+        // A long note shrinks to the room left rather than past it.
         if (trailing != null)
-          Text(
-            trailing!,
-            style: bodyText(
-              11,
-              color: SkyColors.muted,
-              weight: FontWeight.w800,
-            ).copyWith(height: 1),
+          Expanded(
+            child: Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: FitText(
+                trailing!,
+                style: bodyText(
+                  11,
+                  color: SkyColors.muted,
+                  weight: FontWeight.w800,
+                ).copyWith(height: 1),
+              ),
+            ),
           ),
       ],
     ),
@@ -469,7 +519,7 @@ class BuilderStars extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Semantics(
-    label: '$earned of $of stars',
+    label: context.l10n.builderStarsSemantics(earned, of),
     excludeSemantics: true,
     child: CustomPaint(
       size: Size(size * (of + .2), size),
@@ -758,13 +808,13 @@ abstract final class BuilderToast {
 Future<T?> showBuilderSheet<T>(
   BuildContext context, {
   required WidgetBuilder builder,
-  String label = 'Close',
+  String? label,
 }) {
   final still = MediaQuery.disableAnimationsOf(context);
   return showGeneralDialog<T>(
     context: context,
     barrierDismissible: true,
-    barrierLabel: label,
+    barrierLabel: label ?? context.l10n.commonClose,
     barrierColor: const Color(0xff12333d).withValues(alpha: .78),
     transitionDuration: still
         ? Duration.zero
@@ -844,7 +894,7 @@ class BuilderSheetTitle extends StatelessWidget {
     required this.title,
     this.subtitle,
     this.onBack,
-    this.closeLabel = 'Close',
+    this.closeLabel,
     this.trailing,
   });
   final String title;
@@ -852,55 +902,62 @@ class BuilderSheetTitle extends StatelessWidget {
 
   /// A back key before the title, for a sheet's second step.
   final VoidCallback? onBack;
-  final String closeLabel;
+
+  /// The close key's spoken name ("Close" when null).
+  final String? closeLabel;
   final Widget? trailing;
 
   @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      if (onBack != null)
-        MapKey(glyph: MapGlyph.back, label: 'Back', onPressed: onBack!)
-      else
-        const SizedBox(width: MapKey.size),
-      const SizedBox(width: 12),
-      Expanded(
-        child: Column(
-          children: [
-            Semantics(
-              header: true,
-              child: Text(
-                title,
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                style: heading(
-                  30,
-                  color: SkyColors.cream,
-                  weight: FontWeight.w700,
-                ).copyWith(shadows: matchInkEdge(1.4)),
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return Row(
+      children: [
+        if (onBack != null)
+          MapKey(
+            glyph: MapGlyph.back,
+            label: l.builderBackSemantics,
+            onPressed: onBack!,
+          )
+        else
+          const SizedBox(width: MapKey.size),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            children: [
+              Semantics(
+                header: true,
+                child: FitText(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: heading(
+                    30,
+                    color: SkyColors.cream,
+                    weight: FontWeight.w700,
+                  ).copyWith(shadows: matchInkEdge(1.4)),
+                ),
               ),
-            ),
-            if (subtitle != null) ...[
-              const SizedBox(height: 4),
-              Text(
-                subtitle!,
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                style: bodyText(14, color: const Color(0xffd3ecea)),
-              ),
+              if (subtitle != null) ...[
+                const SizedBox(height: 4),
+                FitText(
+                  subtitle!,
+                  textAlign: TextAlign.center,
+                  style: bodyText(14, color: const Color(0xffd3ecea)),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
-      ),
-      const SizedBox(width: 12),
-      ?trailing,
-      if (trailing != null) const SizedBox(width: 10),
-      MapKey(
-        glyph: MapGlyph.close,
-        label: closeLabel,
-        onPressed: () => Navigator.of(context).pop(),
-      ),
-    ],
-  );
+        const SizedBox(width: 12),
+        ?trailing,
+        if (trailing != null) const SizedBox(width: 10),
+        MapKey(
+          glyph: MapGlyph.close,
+          label: closeLabel ?? l.commonClose,
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ],
+    );
+  }
 }
 
 /// A question with two answers on a sheet: "Delete this level?".
@@ -909,10 +966,11 @@ Future<bool> confirmBuilder(
   required String title,
   required String message,
   required String yes,
-  String no = 'Keep it',
+  String? no,
   IconData icon = Icons.delete_rounded,
   Color color = SkyColors.coral,
 }) async {
+  final keep = no ?? context.l10n.builderKeepIt;
   final answer = await showBuilderSheet<bool>(
     context,
     builder: (context) => Center(
@@ -955,8 +1013,8 @@ Future<bool> confirmBuilder(
                   Expanded(
                     child: BuilderKey(
                       key: const ValueKey('confirm-no'),
-                      tooltip: no,
-                      label: no,
+                      tooltip: keep,
+                      label: keep,
                       height: 52,
                       sound: 'ui_back',
                       onPressed: () => Navigator.of(context).pop(false),

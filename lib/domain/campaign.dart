@@ -2,6 +2,13 @@ import 'game_rules.dart';
 
 export 'campaign_ids.dart';
 
+// l10n-english-twin: the campaign's words below (route names, postcards,
+// level names, cargo, senders, hints) are the English twins of the ARB keys
+// `chapter_*` and `level_*` that the screens show through CampaignText
+// (lib/l10n/text/campaign_text.dart); the thank-you notes and boss lines are
+// the English captions of their voice clips (StoryCaptions). Keep them
+// word-for-word equal to the ARB (test/l10n_campaign_test.dart).
+
 /// One of the five mail routes, in boss order. Its levels fly its regions
 /// in turn, and the last level is the boss's lair.
 class CampaignChapter {

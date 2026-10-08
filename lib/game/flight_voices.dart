@@ -10,6 +10,7 @@ import 'flight_voice_clips.dart';
 import 'flight_voice_director.dart';
 import 'flight_voice_faces.dart';
 import 'regions/world_region.dart';
+import 'voice_packs.dart';
 
 export 'flight_voice_director.dart'
     show FlightVoiceLine, FlightVoiceMemory, FlightVoiceBank, VoiceClip;
@@ -69,7 +70,7 @@ class FlightVoices {
        _random = random ?? Random(),
        _clock = clock ?? _wallClock,
        director = FlightVoiceDirector(
-         bank: bank ?? recorded,
+         bank: bank ?? current,
          memory: (memory ?? FlightVoiceMemory())..flights += 1,
          campaign: level != null,
          talk: talk,
@@ -116,12 +117,14 @@ class FlightVoices {
     final age = _clock() - said.start;
     final clip = said.line.clip;
     if (age < 0 || age > clip.seconds + _settle) return null;
-    final curve = flightVoiceMouths[clip.name] ?? '';
+    // A voice pack's take brings its own face; English reads the tables.
+    final curve = clip.mouth ?? flightVoiceMouths[clip.name] ?? '';
     final frame = (age / .05).floor();
     return FlightSpeech(
       boss: _bosses[said.line.speaker],
       mood:
-          StoryMood.values.asNameMap()[flightVoiceMoods[clip.name]] ??
+          StoryMood.values.asNameMap()[clip.mood ??
+              flightVoiceMoods[clip.name]] ??
           StoryMood.plain,
       mouth: frame < curve.length ? curve.codeUnitAt(frame) - 48 : 0,
       age: age,
@@ -145,32 +148,56 @@ class FlightVoices {
   /// campaign plays as the boss arrives.
   static final recorded = FlightVoiceBank.of(
     flightVoiceClips,
-    extra: {
-      for (final bird in CampaignVoices.birds)
-        '$bird-sprint': [
-          for (final call in const ['woohoo', 'turbo', 'gravity', 'whee'])
-            ?_story('sprint-$bird-$call'),
-        ],
-      // The fifth line of each chapter boss's lair scene (the Spitter King's
-      // lair is 2-9 since Egypt's guardian took 2-6).
-      for (final chapter in Campaign.chapters)
-        '${bossKey(chapter.boss)}-card': [
-          ?_story('before-${chapter.bossLevel.id}-4'),
-        ],
-      // New York's two guardians say their name-card line (the 7th and 5th
-      // lines of their lair scenes). Those takes are not recorded yet: the
-      // pools stay empty and the card is silent until they are.
-      '${bossKey(BossKind.kingCoo)}-card': [?_story('before-3-2-6')],
-      '${bossKey(BossKind.searchlightGargoyle)}-card': [
-        ?_story('before-3-4-4'),
-      ],
-      // Egypt's guardian says his card line too: "Return to sender! This
-      // route has a courier.", line 7 of his lair scene `before-2-6`
-      // (`CampaignStory.guardianLines['2-6']`). Pending recording, so the
-      // pool is empty and the card is silent until the take is in.
-      '${bossKey(BossKind.neferhoo)}-card': [?_story('before-2-6-7')],
-    },
+    extra: _storyPools(_story),
   );
+
+  /// The lines a flight starting now draws from, in the voices' language
+  /// ([VoicePacks]): English's [recorded] lines; a voice pack's own lines,
+  /// and only those (its sprint calls and name cards from its own story
+  /// takes); or none.
+  static FlightVoiceBank get current {
+    final packs = VoicePacks.instance;
+    return switch (packs.flightSource) {
+      FlightVoiceSource.english => recorded,
+      FlightVoiceSource.silent => _silent,
+      FlightVoiceSource.pack =>
+        _packBanks[packs.pack!] ??= FlightVoiceBank.ofClips(
+          packs.pack!.flightClips,
+          extra: _storyPools(packs.pack!.storyClip),
+        ),
+    };
+  }
+
+  static final _silent = FlightVoiceBank(const {});
+  static final _packBanks = Expando<FlightVoiceBank>('voice pack bank');
+
+  /// The pools the flight fills from story takes, each take found by
+  /// [story] (null when it is not recorded).
+  static Map<String, List<VoiceClip>> _storyPools(
+    VoiceClip? Function(String name) story,
+  ) => {
+    for (final bird in CampaignVoices.birds)
+      '$bird-sprint': [
+        for (final call in const ['woohoo', 'turbo', 'gravity', 'whee'])
+          ?story('sprint-$bird-$call'),
+      ],
+    // The fifth line of each chapter boss's lair scene (the Spitter King's
+    // lair is 2-9 since Egypt's guardian took 2-6).
+    for (final chapter in Campaign.chapters)
+      '${bossKey(chapter.boss)}-card': [
+        ?story('before-${chapter.bossLevel.id}-4'),
+      ],
+    // New York's two guardians say their name-card line (the 7th and 5th
+    // lines of their lair scenes). Those takes are not recorded yet: the
+    // pools stay empty and the card is silent until they are.
+    '${bossKey(BossKind.kingCoo)}-card': [?story('before-3-2-6')],
+    '${bossKey(BossKind.searchlightGargoyle)}-card': [?story('before-3-4-4')],
+    // Egypt's guardian says his card line too: "Return to sender! This
+    // route has a courier.", line 7 of his lair scene `before-2-6`
+    // (`CampaignStory.guardianLines['2-6']`). Pending recording, so the
+    // pool is empty and the card is silent until the take is in.
+    '${bossKey(BossKind.neferhoo)}-card': [?story('before-2-6-7')],
+  };
 
   static VoiceClip? _story(String name) {
     final ms = campaignVoiceClips[name];

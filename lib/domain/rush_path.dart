@@ -7,6 +7,10 @@ import 'dart:math' as math;
 /// from behind, a skyfall drops meteors from above, an eruption blasts lava
 /// up from below and a swarm of bats streams in from ahead. Ring sprints
 /// outrun the fire and the lava and smash through the meteors and the swarm.
+///
+/// [title] and [escape] are English twins: screens show
+/// `AppLocalizations.rushName` / `rushEscape` (lib/l10n/text/flight_text.dart).
+// l10n-english-twin: rush_* keys.
 enum RushPathKind {
   wildfire('Wildfire', 'Outran the wildfire'),
   skyfall('Skyfall', 'Survived the skyfall'),

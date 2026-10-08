@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:games_services/games_services.dart' as gs;
 
+import '../l10n/l10n.dart';
 import 'builder_providers.dart';
 import 'cloud_logbook.dart';
 import 'passport_progress.dart';
@@ -560,10 +561,14 @@ class PlayGamesSync extends Notifier<PlayGamesStatus> {
     return code >= 26560 && code <= 26563;
   }
 
-  /// The saved game's line in Google's list: "38★ · 12 medals · at 3-2".
+  /// The saved game's line in Google's list: "38★ · 12 medals · at 3-2",
+  /// in the language the game speaks when it saves.
   static String _describe(ProgressSnapshot p) =>
-      '${p.campaign.totalStars}★ · ${p.earnedMedals} medals · '
-      'at ${p.campaign.current.id}';
+      L10n.strings.playGamesSaveDescription(
+        p.earnedMedals,
+        p.campaign.totalStars,
+        p.campaign.current.id,
+      );
 
   /// The sync's memory on this phone: the player the achievements went to
   /// and what was sent, and when the cloud was last saved.

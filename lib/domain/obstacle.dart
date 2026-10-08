@@ -1,6 +1,9 @@
 import 'dart:math' as math;
 import 'sky_door.dart';
 
+/// [title] is an English twin: screens show `AppLocalizations.obstacleName`
+/// (lib/l10n/text/flight_text.dart).
+// l10n-english-twin: obstacle_* keys.
 enum ObstacleKind {
   garden('Garden gate'),
   windLift('Wind lift'),

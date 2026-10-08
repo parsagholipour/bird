@@ -9,6 +9,8 @@
 /// of a cyberpunk megacity, a Chinese dusk, bright Brazil, a New York night,
 /// a teal dawn over an ancient Arabian city, golden Rome, a Mexican dusk and
 /// an ocean dawn that leads back to the jungle.
+// l10n-english-twin: the titles are the English twins of the region_* ARB
+// keys; screens show AppLocalizations.regionName (lib/l10n/text/).
 enum WorldRegion {
   jungle('Jungle'),
   antarctica('Antarctica'),

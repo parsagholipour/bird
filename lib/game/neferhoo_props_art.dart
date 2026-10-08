@@ -23,6 +23,8 @@ import 'dart:ui' as ui;
 import 'package:flutter/painting.dart';
 
 import '../domain/game_rules.dart';
+import '../l10n/l10n.dart';
+import '../l10n/text/boss_text.dart';
 import '../ui/match_hud.dart' show MatchLayout;
 import 'neferhoo_fx.dart';
 import 'neferhoo_kit.dart';
@@ -103,9 +105,12 @@ abstract final class NeferhooPropsArt {
   /// a lapis capsule in a gold rim, the words in pale gold), centred on
   /// [centre] (px; its top edge at [centre].dy - half its height) on a
   /// screen [h] high, at [alpha]. Returns its size.
+  /// [words] is the rules' line ([NeferhooBoss.neferhooHint], English); the
+  /// pill shows it in the current language.
   static Size hintPill(Canvas c, Offset centre, String words, double h, {double alpha = 1}) {
     final u = h / 360;
     final size = hintPillSize(words, h);
+    words = L10n.strings.bossHintText(words);
     if (alpha <= 0) return size;
     final r = RRect.fromRectAndRadius(Rect.fromCenter(center: centre, width: size.width, height: size.height), Radius.circular(size.height / 2));
     c.drawRRect(r.shift(Offset(0, 1.2 * u)), _fp(NeferhooPalette.ink, .3 * alpha));
@@ -124,10 +129,10 @@ abstract final class NeferhooPropsArt {
     final w = _pillWidths[key] ??= () {
       final tp = TextPainter(
         text: TextSpan(
-          text: words,
-          style: TextStyle(fontFamily: 'Fredoka', fontSize: 9 * u, fontWeight: FontWeight.w600, letterSpacing: .6 * u),
+          text: L10n.strings.bossHintText(words),
+          style: _face('Fredoka', size: 9 * u, weight: FontWeight.w600, spacing: .6 * u),
         ),
-        textDirection: TextDirection.ltr,
+        textDirection: L10n.textDirection,
       )..layout();
       final width = tp.width;
       tp.dispose();
@@ -136,7 +141,7 @@ abstract final class NeferhooPropsArt {
     return Size(w + 18 * u, 17 * u);
   }
 
-  static final _pillWidths = <String, double>{};
+  static final _pillWidths = L10n.cache(<String, double>{});
 
   /// Where the lane's or the loop's tag ([title], [sub]) goes for a band
   /// [top]..[bottom] (px) on a screen of [size], and how big it is: clear
@@ -162,13 +167,23 @@ Size _text(
   bool center = false,
   Color? outline,
   double outlineWidth = 0,
+  double? fit,
+  bool words = true,
 }) {
   // (alpha on a 1/32 ladder: a fade lays out at most 32 painters, then none)
   Color q(Color k) => k.withValues(alpha: (k.a * 32).round() / 32);
   color = q(color);
   if (outline != null) outline = q(outline);
+  // A long translation on a fixed plate is set smaller to [fit].
+  if (fit != null) {
+    final wide = _measure(s, size, font, weight, spacing).width;
+    if (wide > fit) {
+      spacing *= fit / wide;
+      size *= fit / wide;
+    }
+  }
   TextPainter tp(Paint? fg) {
-    final key = '$s|$size|$font|${weight.value}|$spacing|${fg == null ? color.toARGB32() : '${fg.color.toARGB32()}/${fg.strokeWidth}'}';
+    final key = '${L10n.locale}|$s|$size|$font|${weight.value}|$spacing|${fg == null ? color.toARGB32() : '${fg.color.toARGB32()}/${fg.strokeWidth}'}';
     final hit = _textCache.remove(key);
     if (hit != null) {
       _textCache[key] = hit;
@@ -177,16 +192,14 @@ Size _text(
     final made = TextPainter(
       text: TextSpan(
         text: s,
-        style: TextStyle(
-          fontFamily: font,
-          fontSize: size,
-          fontWeight: weight,
-          letterSpacing: spacing,
+        style: _face(font, size: size, weight: weight, spacing: spacing).copyWith(
           color: fg == null ? color : null,
           foreground: fg,
         ),
       ),
-      textDirection: TextDirection.ltr,
+      // Words run their language's way (where they sit stays the world's);
+      // a number (-25) reads left to right everywhere.
+      textDirection: words ? L10n.textDirection : TextDirection.ltr,
     )..layout();
     _textCache[key] = made;
     if (_textCache.length > 48) _textCache.remove(_textCache.keys.first)?.dispose();
@@ -209,6 +222,20 @@ Size _text(
 }
 
 final _textCache = <String, TextPainter>{};
+
+/// The design's [font] ('Fredoka' titles, 'Nunito' body) in the current
+/// language: its fonts and their fallbacks.
+TextStyle _face(String font, {required double size, required FontWeight weight, double spacing = 0}) {
+  final fonts = L10n.fonts;
+  final body = font == 'Nunito';
+  return TextStyle(
+    fontFamily: body ? fonts.body : fonts.heading,
+    fontFamilyFallback: body ? fonts.bodyFallback : fonts.headingFallback,
+    fontSize: size,
+    fontWeight: weight,
+    letterSpacing: spacing,
+  );
+}
 
 /// The props' extra colours (the shared palette is `NeferhooPalette`).
 abstract final class NeferhooPropInk {
@@ -694,8 +721,10 @@ abstract final class _LetterArt {
       c.drawRRect(RRect.fromRectAndRadius(Rect.fromCenter(center: const Offset(0, 2.7), width: 22, height: 2.9), const Radius.circular(.8)), _fp(NeferhooPropInk.stampRed, a));
       return;
     }
-    _Font.draw(c, 'RETURN', const Offset(0, -2.55), 3.9, NeferhooPropInk.stampRed, .85, a);
-    _Font.draw(c, 'TO SENDER', const Offset(0, 2.65), 3.9, NeferhooPropInk.stampRed, .85, a);
+    // The postmark is art (a 3.9 px block-letter stamp, English like a real
+    // postmark); the hint pill carries the words in every language.
+    _Font.draw(c, 'RETURN', const Offset(0, -2.55), 3.9, NeferhooPropInk.stampRed, .85, a); // l10n-ignore
+    _Font.draw(c, 'TO SENDER', const Offset(0, 2.65), 3.9, NeferhooPropInk.stampRed, .85, a); // l10n-ignore
   }
 }
 
@@ -1297,18 +1326,28 @@ abstract final class _LostArt {
 
 Size _measure(String s, double size, String font, FontWeight w, double spacing) => _measured.putIfAbsent('$s|$size|$font|${w.value}|$spacing', () {
   final tp = TextPainter(
-    text: TextSpan(text: s, style: TextStyle(fontFamily: font, fontSize: size, fontWeight: w, letterSpacing: spacing)),
-    textDirection: TextDirection.ltr,
+    text: TextSpan(text: s, style: _face(font, size: size, weight: w, spacing: spacing)),
+    textDirection: L10n.textDirection,
   )..layout();
   final measured = tp.size;
   tp.dispose();
   return measured;
 });
 
-final _measured = <String, Size>{};
+final _measured = L10n.cache(<String, Size>{});
 
 abstract final class _TagArt {
-  static final _cache = <String, (ui.Picture, Size)>{};
+  // (the recorded tags hold words: a language switch records them again)
+  static final _cache = () {
+    final cache = <String, (ui.Picture, Size)>{};
+    L10n.language.addListener(() {
+      for (final (pic, _) in cache.values) {
+        pic.dispose();
+      }
+      cache.clear();
+    });
+    return cache;
+  }();
 
   /// The steady-state tag recorded once at u = 1 (its text laid out once).
   static (ui.Picture, Size) get(String title, String sub, Color accent, String? icon) => _cache.putIfAbsent('$title|$sub|${accent.toARGB32()}|$icon', () {
@@ -1319,8 +1358,10 @@ abstract final class _TagArt {
 
   static Size _paint(Canvas c, Offset at, String title, String sub, double h, Color accent, double alpha, String? icon) {
     final u = h / 360;
-    final tw = _measure(title, 10.5 * u, 'Fredoka', FontWeight.w600, .6 * u).width;
-    final sw = _measure(sub, 9 * u, 'Nunito', FontWeight.w800, 0).width;
+    // (a long translation is set smaller to stay on the 124 px plaque)
+    final room = (124 - 33 - 8) * u;
+    final tw = math.min(room, _measure(title, 10.5 * u, 'Fredoka', FontWeight.w600, .6 * u).width);
+    final sw = math.min(room, _measure(sub, 9 * u, 'Nunito', FontWeight.w800, 0).width);
     final w = math.min(124 * u, 33 * u + math.max(tw, sw) + 8 * u), ph = 34 * u;
     final r = RRect.fromRectAndRadius(Rect.fromLTWH(at.dx, at.dy, w, ph), Radius.circular(10 * u));
     c.drawRRect(r.shift(Offset(0, 2 * u)), _fp(NeferhooPalette.ink, .32 * alpha));
@@ -1345,8 +1386,8 @@ abstract final class _TagArt {
     } else if (icon == 'ankh') {
       _paintAnkh(c, bc, 17 * u, 0);
     }
-    _text(c, title, Offset(at.dx + 33 * u, at.dy + 3.5 * u), 10.5 * u, const Color(0xfffff2c9).withValues(alpha: alpha), spacing: .6 * u);
-    _text(c, sub, Offset(at.dx + 33 * u, at.dy + 17.5 * u), 9 * u, Color.lerp(accent, const Color(0xffffffff), .6)!.withValues(alpha: alpha), font: 'Nunito', weight: FontWeight.w800);
+    _text(c, title, Offset(at.dx + 33 * u, at.dy + 3.5 * u), 10.5 * u, const Color(0xfffff2c9).withValues(alpha: alpha), spacing: .6 * u, fit: room);
+    _text(c, sub, Offset(at.dx + 33 * u, at.dy + 17.5 * u), 9 * u, Color.lerp(accent, const Color(0xffffffff), .6)!.withValues(alpha: alpha), font: 'Nunito', weight: FontWeight.w800, fit: room);
     return Size(w, ph);
   }
 }
@@ -1532,10 +1573,12 @@ void _paintMailLane(Canvas c, Size size, double laneY, double fromX, {double t =
   }
   c.restore();
   if (tag && t > .3) {
-    final label = fury ? 'EXPRESS POST' : 'MAIL CALL';
+    final l = L10n.strings;
+    final label = fury ? l.bossNeferhooExpressPost : l.bossNeferhooMailCall;
+    final sub = l.bossNeferhooShootBack;
     final accent = fury ? NeferhooPalette.turq : NeferhooPalette.carn;
-    final (_, ts) = _TagArt.get(label, 'Shoot them back!', accent, 'mail');
-    _paintTag(c, _tagAt((y - band) * h, (y + band) * h, size, ts * (h / 360), clear), label, 'Shoot them back!', h, accent, alpha: alpha * NeferhooKit.ramp(t, .3, .6), icon: 'mail');
+    final (_, ts) = _TagArt.get(label, sub, accent, 'mail');
+    _paintTag(c, _tagAt((y - band) * h, (y + band) * h, size, ts * (h / 360), clear), label, sub, h, accent, alpha: alpha * NeferhooKit.ramp(t, .3, .6), icon: 'mail');
   }
 }
 
@@ -1732,9 +1775,11 @@ void _paintAnkhTelegraph(Canvas c, Size size, double fromX, double yA, {double t
     if (fury) _plate(c, Offset((FlightSimulation.birdX + .19) * h, yy * h), .021 * h, k == 0 ? '2' : '1', true, a * e);
   }
   if (tag && t > .3) {
-    final label = fury ? 'TWO ANKHS' : 'THE ANKH';
-    final (_, ts) = _TagArt.get(label, 'It comes back!', NeferhooPalette.gold, 'ankh');
-    _paintTag(c, _tagAt(math.min(yA, yBack) * h - reach * h, math.max(yA, yBack) * h + reach * h, size, ts * (h / 360), clear), label, 'It comes back!', h, NeferhooPalette.gold, alpha: alpha * NeferhooKit.ramp(t, .3, .6), icon: 'ankh');
+    final l = L10n.strings;
+    final label = fury ? l.bossNeferhooTwoAnkhs : l.bossNeferhooAnkh;
+    final sub = l.bossNeferhooComesBack;
+    final (_, ts) = _TagArt.get(label, sub, NeferhooPalette.gold, 'ankh');
+    _paintTag(c, _tagAt(math.min(yA, yBack) * h - reach * h, math.max(yA, yBack) * h + reach * h, size, ts * (h / 360), clear), label, sub, h, NeferhooPalette.gold, alpha: alpha * NeferhooKit.ramp(t, .3, .6), icon: 'ankh');
   }
 }
 
@@ -1893,8 +1938,8 @@ void _paintReturnBurst(Canvas c, Offset at, double h, double t, {int damage = 25
   // over his wing (dark, so the gold number reads), never over his face
   c.translate(58, -42 - 14 * (reduced ? 0 : e));
   c.scale(pop);
-  _text(c, '-$damage', const Offset(1.5, 2.5), 26, NeferhooPalette.ink.withValues(alpha: .45 * al), center: true, outline: NeferhooPalette.ink.withValues(alpha: .45 * al), outlineWidth: 7);
-  _text(c, '-$damage', Offset.zero, 26, NeferhooPalette.goldHi.withValues(alpha: al), center: true, outline: NeferhooPalette.ink.withValues(alpha: al), outlineWidth: 7);
+  _text(c, '-$damage', const Offset(1.5, 2.5), 26, NeferhooPalette.ink.withValues(alpha: .45 * al), center: true, outline: NeferhooPalette.ink.withValues(alpha: .45 * al), outlineWidth: 7, words: false);
+  _text(c, '-$damage', Offset.zero, 26, NeferhooPalette.goldHi.withValues(alpha: al), center: true, outline: NeferhooPalette.ink.withValues(alpha: al), outlineWidth: 7, words: false);
   c.restore();
   c.restore();
 }

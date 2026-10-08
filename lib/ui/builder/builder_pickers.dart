@@ -12,6 +12,9 @@ import '../theme.dart';
 import '../ui_sounds.dart';
 import 'builder_chrome.dart';
 import 'builder_timeline.dart' show BuilderRouteStrip;
+import '../../l10n/l10n.dart';
+import '../../l10n/text/builder_shelf_text.dart';
+import '../fit_text.dart';
 
 /// The modes a level can be built for, in the order the picker shows them.
 const builtModes = [
@@ -25,7 +28,7 @@ const builtModes = [
 Future<(PlayMode, WorldRegion)?> showNewLevelSheet(BuildContext context) =>
     showBuilderSheet<(PlayMode, WorldRegion)>(
       context,
-      label: 'Close new level',
+      label: context.l10n.builderPickCloseNewLevel,
       builder: (context) => const _NewLevelSheet(),
     );
 
@@ -41,19 +44,20 @@ class _NewLevelSheetState extends State<_NewLevelSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final mode = this.mode;
     return Padding(
       padding: const EdgeInsets.fromLTRB(26, 20, 26, 16),
       child: Column(
         children: [
           BuilderSheetTitle(
-            title: mode == null ? 'What will it be?' : 'Where does it fly?',
+            title: mode == null
+                ? l.builderPickModeTitle
+                : l.builderPickRegionTitle,
             subtitle: mode == null
-                ? 'Pick how it’s flown (you can’t change it later). You test '
-                      'fly every level by touch.'
-                : '${builtModeName(mode)} · pick where it flies. You can '
-                      'change this later.',
-            closeLabel: 'Close new level',
+                ? l.builderPickModeSubtitle
+                : l.builderPickRegionSubtitle(builtModeName(mode)),
+            closeLabel: l.builderPickCloseNewLevel,
             onBack: mode == null
                 ? null
                 : () => setState(() => this.mode = null),
@@ -177,16 +181,17 @@ class _ModeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final color = builtModeColor(mode);
     final line = switch (mode) {
-      PlayMode.touch => 'Tap to flap. Gates, stars, enemies and a boss.',
-      PlayMode.pushUp => 'A high lane and a low one: every dip is a push-up.',
-      PlayMode.squat => 'A high lane and a low one: every dip is a squat.',
-      PlayMode.jump => 'Jump for lift. Gates anywhere in the sky.',
+      PlayMode.touch => l.builderPickTouchLine,
+      PlayMode.pushUp => l.builderPickPushUpLine,
+      PlayMode.squat => l.builderPickSquatLine,
+      PlayMode.jump => l.builderPickJumpLine,
     };
     return PressCard(
       key: ValueKey('new-mode-${mode.name}'),
-      label: '${mode.title}. $line',
+      label: l.builderPickModeSemantics(l.playModeName(mode), line),
       accent: color,
       onPressed: onPressed,
       child: Column(
@@ -224,7 +229,7 @@ class _ModeCard extends StatelessWidget {
                           const Icon(Icons.videocam_outlined, size: 13),
                           const SizedBox(width: 4),
                           Text(
-                            'Camera',
+                            l.builderPickCamera,
                             style: bodyText(11, weight: FontWeight.w900),
                           ),
                         ],
@@ -238,18 +243,16 @@ class _ModeCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(12, 6, 12, 14),
             child: Column(
               children: [
-                Text(
-                  mode.title,
+                FitText(
+                  l.playModeName(mode),
                   textAlign: TextAlign.center,
                   style: heading(22, weight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
                 SizedBox(
                   height: 36,
-                  child: Text(
+                  child: _CenteredLines(
                     line,
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
                     style: bodyText(12.5, color: SkyColors.muted),
                   ),
                 ),
@@ -260,6 +263,27 @@ class _ModeCard extends StatelessWidget {
       ),
     );
   }
+}
+
+/// A few centred lines at the top of their box that shrink together when a
+/// translation needs more lines than the box has room for, rather than
+/// lose their end.
+class _CenteredLines extends StatelessWidget {
+  const _CenteredLines(this.text, {required this.style});
+  final String text;
+  final TextStyle style;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, box) => FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.topCenter,
+      child: SizedBox(
+        width: box.maxWidth,
+        child: Text(text, textAlign: TextAlign.center, style: style),
+      ),
+    ),
+  );
 }
 
 /// Where a new level of [mode] flies if its maker has no other idea: its
@@ -333,7 +357,11 @@ class _RegionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => PressCard(
     key: ValueKey('region-${region.name}'),
-    label: suggested ? '${region.title}, suggested' : region.title,
+    label: suggested
+        ? context.l10n.builderPickSuggestedSemantics(
+            context.l10n.regionName(region),
+          )
+        : context.l10n.regionName(region),
     selected: selected,
     radius: 16,
     accent: selected || suggested ? SkyColors.gold : SkyColors.teal,
@@ -355,12 +383,12 @@ class _RegionCard extends StatelessWidget {
                 child: RegionThumb(region: region, radius: 0, outline: 0),
               ),
               if (suggested)
-                const Positioned(
-                  left: 6,
+                PositionedDirectional(
+                  start: 6,
                   top: 6,
                   child: BuilderBadge(
-                    'Suggested',
-                    key: ValueKey('region-suggested'),
+                    context.l10n.builderPickSuggested,
+                    key: const ValueKey('region-suggested'),
                     icon: Icons.thumb_up_alt_rounded,
                     color: SkyColors.yellow,
                   ),
@@ -376,7 +404,7 @@ class _RegionCard extends StatelessWidget {
               child: FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Text(
-                  region.title,
+                  context.l10n.regionName(region),
                   maxLines: 1,
                   style: heading(14, weight: FontWeight.w700),
                 ),
@@ -401,8 +429,9 @@ Future<LevelAction?> showLevelActionsSheet(
   required bool shareable,
 }) => showBuilderSheet<LevelAction>(
   context,
-  label: 'Close',
+  label: context.l10n.builderPickClose,
   builder: (context) {
+    final l = context.l10n;
     Widget action(
       LevelAction value,
       String label,
@@ -417,10 +446,7 @@ Future<LevelAction?> showLevelActionsSheet(
         accent: color,
         onPressed: () {
           if (muted) {
-            BuilderToast.warn(
-              context,
-              'Fix what’s marked in red before sharing: tap Fix it.',
-            );
+            BuilderToast.warn(context, l.builderShelfFixFirst);
             return;
           }
           Navigator.of(context).pop(value);
@@ -449,18 +475,19 @@ Future<LevelAction?> showLevelActionsSheet(
                       child: Icon(icon, size: 30, color: SkyColors.ink),
                     ),
                     const SizedBox(height: 10),
-                    Text(label, style: heading(20, weight: FontWeight.w700)),
+                    FitText(label, style: heading(20, weight: FontWeight.w700)),
                   ],
                 ),
               ),
               const SizedBox(height: 4),
-              Text(
-                muted ? 'Not yet: fix what’s marked in red first.' : line,
-                textAlign: TextAlign.center,
-                style: bodyText(
-                  12.5,
-                  color: muted ? SkyColors.coralDeep : SkyColors.muted,
-                  weight: muted ? FontWeight.w800 : FontWeight.w600,
+              Expanded(
+                child: _CenteredLines(
+                  muted ? l.builderPickNotYet : line,
+                  style: bodyText(
+                    12.5,
+                    color: muted ? SkyColors.coralDeep : SkyColors.muted,
+                    weight: muted ? FontWeight.w800 : FontWeight.w600,
+                  ),
                 ),
               ),
             ],
@@ -473,9 +500,12 @@ Future<LevelAction?> showLevelActionsSheet(
       child: Column(
         children: [
           BuilderSheetTitle(
-            title: level.plan.name,
-            subtitle:
-                '${builtModeName(level.plan.mode)} · ${level.plan.region.title}',
+            title: l.builtLevelName(level.plan),
+            closeLabel: l.builderPickClose,
+            subtitle: l.builderPickLevelSubtitle(
+              builtModeName(level.plan.mode),
+              l.regionName(level.plan.region),
+            ),
           ),
           const Spacer(),
           SizedBox(
@@ -486,8 +516,8 @@ Future<LevelAction?> showLevelActionsSheet(
                 const SizedBox(width: 60),
                 action(
                   LevelAction.share,
-                  'Share code',
-                  'Copy a code a friend can paste into their Beakbound.',
+                  l.builderPickShare,
+                  l.builderPickShareLine,
                   Icons.ios_share_rounded,
                   SkyColors.skyDeep,
                   muted: !shareable,
@@ -495,16 +525,16 @@ Future<LevelAction?> showLevelActionsSheet(
                 const SizedBox(width: 16),
                 action(
                   LevelAction.duplicate,
-                  'Duplicate',
-                  'Make a copy to try another idea.',
+                  l.builderPickDuplicate,
+                  l.builderPickDuplicateLine,
                   Icons.copy_all_rounded,
                   SkyColors.yellow,
                 ),
                 const SizedBox(width: 16),
                 action(
                   LevelAction.delete,
-                  'Delete',
-                  'Throw the level away. You’ll be asked first.',
+                  l.builderShelfDelete,
+                  l.builderPickDeleteLine,
                   Icons.delete_rounded,
                   SkyColors.coral,
                 ),
@@ -532,8 +562,9 @@ Future<ImportAnswer?> showImportSheet(
   BuiltLevel? yours,
 }) => showBuilderSheet<ImportAnswer>(
   context,
-  label: 'Cancel import',
+  label: context.l10n.builderPickCancelImport,
   builder: (context) {
+    final l = context.l10n;
     final plan = found.plan;
     final reps = builtReps(plan);
     Widget fact(IconData icon, String text) => Padding(
@@ -543,7 +574,7 @@ Future<ImportAnswer?> showImportSheet(
           Icon(icon, size: 18, color: SkyColors.muted),
           const SizedBox(width: 8),
           Expanded(
-            child: Text(text, style: bodyText(15, weight: FontWeight.w800)),
+            child: FitText(text, style: bodyText(15, weight: FontWeight.w800)),
           ),
         ],
       ),
@@ -552,10 +583,10 @@ Future<ImportAnswer?> showImportSheet(
       padding: const EdgeInsets.fromLTRB(26, 20, 26, 16),
       child: Column(
         children: [
-          const BuilderSheetTitle(
-            title: 'A level to fly!',
-            subtitle: 'Someone shared this level with you.',
-            closeLabel: 'Cancel import',
+          BuilderSheetTitle(
+            title: l.builderPickImportTitle,
+            subtitle: l.builderPickImportSubtitle,
+            closeLabel: l.builderPickCancelImport,
           ),
           const SizedBox(height: 14),
           Expanded(
@@ -584,11 +615,11 @@ Future<ImportAnswer?> showImportSheet(
                               ),
                             ),
                             if (found.cleared)
-                              const Positioned(
-                                right: 10,
+                              PositionedDirectional(
+                                end: 10,
                                 top: 10,
                                 child: BuilderBadge(
-                                  'Cleared by its maker',
+                                  l.builderPickClearedByMaker,
                                   icon: Icons.verified_rounded,
                                   color: SkyColors.mint,
                                 ),
@@ -609,35 +640,40 @@ Future<ImportAnswer?> showImportSheet(
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              '${plan.mode.title} · ${plan.region.title}',
+                              l.builderPickLevelSubtitle(
+                                l.playModeName(plan.mode),
+                                l.regionName(plan.region),
+                              ),
                               style: bodyText(14, color: SkyColors.muted),
                             ),
                             const SizedBox(height: 10),
                             fact(Icons.timer_rounded, builtLength(plan)),
                             fact(
                               Icons.star_rounded,
-                              '${plan.totalStars} stars to collect',
+                              l.builderPickStarsToCollect(plan.totalStars),
                             ),
                             if (reps != null)
                               fact(Icons.fitness_center_rounded, reps),
                             if (plan.boss != null)
                               fact(
                                 Icons.shield_rounded,
-                                'Ends with ${bossName(plan.boss!)}',
+                                l.builderPickEndsWith(
+                                  l.bossName(plan.boss!),
+                                  plan.boss!.name,
+                                ),
                               ),
                             if (!found.cleared)
                               fact(
                                 Icons.help_outline_rounded,
-                                'Its maker hasn’t flown it to the end yet.',
+                                l.builderPickNotFlown,
                               ),
                             const Spacer(),
-                            const BuilderCaption('The route'),
+                            BuilderCaption(l.builderPickRoute),
                             BuilderRouteStrip(plan: plan),
                             const SizedBox(height: 10),
                             if (yours != null) ...[
                               Text(
-                                'You already have this level: '
-                                '“${yours.plan.name}”.',
+                                l.builderPickAlreadyHave(yours.plan.name),
                                 style: bodyText(
                                   13.5,
                                   color: SkyColors.coralDeep,
@@ -652,8 +688,8 @@ Future<ImportAnswer?> showImportSheet(
                                   child: yours != null
                                       ? BuilderKey(
                                           key: const ValueKey('import-copy'),
-                                          tooltip: 'Import a copy',
-                                          label: 'Import a copy',
+                                          tooltip: l.builderPickImportCopy,
+                                          label: l.builderPickImportCopy,
                                           icon: Icons.copy_all_rounded,
                                           onPressed: () => Navigator.of(
                                             context,
@@ -661,8 +697,8 @@ Future<ImportAnswer?> showImportSheet(
                                         )
                                       : BuilderKey(
                                           key: const ValueKey('import-cancel'),
-                                          tooltip: 'Cancel',
-                                          label: 'Cancel',
+                                          tooltip: l.commonCancel,
+                                          label: l.commonCancel,
                                           sound: 'ui_back',
                                           onPressed: () =>
                                               Navigator.of(context).pop(),
@@ -673,8 +709,8 @@ Future<ImportAnswer?> showImportSheet(
                                   child: yours != null
                                       ? BuilderKey(
                                           key: const ValueKey('import-open'),
-                                          tooltip: 'Open yours',
-                                          label: 'Open yours',
+                                          tooltip: l.builderPickOpenYours,
+                                          label: l.builderPickOpenYours,
                                           icon: Icons.edit_rounded,
                                           color: SkyColors.mint,
                                           onPressed: () => Navigator.of(
@@ -683,8 +719,8 @@ Future<ImportAnswer?> showImportSheet(
                                         )
                                       : BuilderKey(
                                           key: const ValueKey('import-keep'),
-                                          tooltip: 'Import',
-                                          label: 'Import',
+                                          tooltip: l.builderPickImport,
+                                          label: l.builderPickImport,
                                           icon: Icons.download_rounded,
                                           color: SkyColors.mint,
                                           onPressed: () => Navigator.of(

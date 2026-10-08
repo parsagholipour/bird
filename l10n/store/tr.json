@@ -1,0 +1,463 @@
+{
+  "@note": "Turkish (tr) translation of l10n/store/en.json. English source of the Play Store listing and the Google Play Games texts. Translators copy this file to l10n/store/<slug>.json (slugs as AppLanguage: es_419, pt_br, id, fr, de, ja, ko, tr, zh_hant, ru, ar), translate every \"text\", keep every key, and stay within \"maxChars\" (Play Console counts characters). The owner pastes them into Play Console: Grow users > Store presence > Main store listing > translations, and Play Games Services > Achievements > (each) > translations. Nothing here ships in the app. check: python3 tool/l10n/check_store.py.",
+  "@status": "listing: DRAFT by the localization architect (no English listing existed in the repo); owner to approve before translation. achievements: copied from play-games-ws/UX-DECISION.md section 5 (names and descriptions as designed; descriptions 1-24 equal SkyStamp.goal in the app).",
+  "listing": {
+    "title": {
+      "text": "Beakbound",
+      "maxChars": 30,
+      "description": "App name on Google Play. A brand name: keep it as is unless a market needs a transliteration (owner decides).",
+      "keepEnglish": true
+    },
+    "shortDescription": {
+      "text": "Dokun ve kurye kuşunla dünyayı dolaş. Her mektup yerini bulur!",
+      "maxChars": 80,
+      "description": "Play Store short description, under the screenshots. Friendly, no ALL CAPS, no emoji, no \"free\"/\"best\"/\"#1\" (Play policy)."
+    },
+    "fullDescription": {
+      "text": "Beakbound, rengârenk ve çevrimdışı oynanan bir uçuş macerası. Gök Kulübü'nün en yeni kuryesi sensin: kanat çırpmak için dokun, kapıların arasından süzül, yıldız topla ve postayı dünyanın dört bir yanına ulaştır.\n\nKAMPANYADA UÇ\nBeş posta rotası bir gecede sessizliğe gömüldü. Yağmur ormanından karnaval havasındaki Brezilya'ya ve Aztek tapınaklarına, oradan Antik Roma'ya, Mısır'a ve Arabistan'a, sonra New York'un parlak ışıklarına seviye seviye uç. Her seviyede bir koli taşırsın ve her teslimat bir teşekkürle geri döner.\n\nBOSS'LARLA YÜZLEŞ\nBaron Yarasa, Tükürükçü Kral, Mumya Kurye Neferhoo, Kral Gugu ve Işıldaklı Gargoyl yolunu kesiyor. Hepsini pes ettirmek için ateş et, sprint at ve kaç.\n\nSONSUZ UÇ\nKapıların, boraların ve boss'ların ardı arkası kesilmeyen sonsuz parkurda en iyi puanının peşine düş.\n\nDAHA FAZLASI\n- Her birinin kendi sesi olan dört kuş\n- Topladığın yıldızlarla alınan geliştirmeler\n- Günlük bir Macera ve madalyalarla dolu bir Gök Pasaportu\n- Seviye Atölyesi: kendi rotalarını kur ve uç\n- Tek telefonda iki oyuncu için Birlikte Uç ve 1'e 1 düellolar\n- Kameranın önünde şınav, çömelme ya da zıplamayla uçulan mini oyunlar\n\nİSTEDİĞİN GİBİ OYNA\nHesap ya da internet gerekmez. Kameralı mini oyunlar tamamen telefonunda çalışır: video telefonundan hiç çıkmaz. İsteğe bağlı Google Play Oyunlar bulut kaydı ve başarılar.",
+      "maxChars": 4000,
+      "description": "Play Store full description. Section headers in capitals are fine. Keep the facts: offline, camera stays on the phone, optional Play Games."
+    },
+    "releaseNotes": {
+      "text": "Beakbound artık Türkçe konuşuyor: dili Ayarlar'dan seçebilirsin.",
+      "maxChars": 500,
+      "description": "\"What's new\" for the release that ships the translations."
+    }
+  },
+  "playGames": {
+    "displayName": {
+      "text": "Beakbound",
+      "maxChars": 50,
+      "description": "Play Games Services game name.",
+      "keepEnglish": true
+    },
+    "description": {
+      "text": "Bir kurye kuşuyla dünyayı dolaş: postayı ulaştır, boss'ları yen ve bütün madalyaları topla.",
+      "maxChars": 4000,
+      "description": "Play Games Services game description (Properties)."
+    }
+  },
+  "achievements": {
+    "frequentFlyerBronze": {
+      "name": {
+        "text": "Sık uçan yolcu · Bronz",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "10 puanlı uçuş bitir.",
+        "maxChars": 500
+      }
+    },
+    "frequentFlyerSilver": {
+      "name": {
+        "text": "Sık uçan yolcu · Gümüş",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "100 puanlı uçuş bitir.",
+        "maxChars": 500
+      }
+    },
+    "frequentFlyerGold": {
+      "name": {
+        "text": "Sık uçan yolcu · Altın",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "500 puanlı uçuş bitir.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotBronze": {
+      "name": {
+        "text": "Tam on ikiden · Bronz",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Nişan noktaları boyunca 25 kusursuz geçiş yap.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotSilver": {
+      "name": {
+        "text": "Tam on ikiden · Gümüş",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Nişan noktaları boyunca 200 kusursuz geçiş yap.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotGold": {
+      "name": {
+        "text": "Tam on ikiden · Altın",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Nişan noktaları boyunca 1.000 kusursuz geçiş yap.",
+        "maxChars": 500
+      }
+    },
+    "starChaserBronze": {
+      "name": {
+        "text": "Yıldız avcısı · Bronz",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "50 yıldız topla.",
+        "maxChars": 500
+      }
+    },
+    "starChaserSilver": {
+      "name": {
+        "text": "Yıldız avcısı · Gümüş",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "500 yıldız topla.",
+        "maxChars": 500
+      }
+    },
+    "starChaserGold": {
+      "name": {
+        "text": "Yıldız avcısı · Altın",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "5.000 yıldız topla.",
+        "maxChars": 500
+      }
+    },
+    "constellationBronze": {
+      "name": {
+        "text": "Takımyıldız · Bronz",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Hiç kesmeden tek seride 15 yıldız topla.",
+        "maxChars": 500
+      }
+    },
+    "constellationSilver": {
+      "name": {
+        "text": "Takımyıldız · Gümüş",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Hiç kesmeden tek seride 40 yıldız topla.",
+        "maxChars": 500
+      }
+    },
+    "constellationGold": {
+      "name": {
+        "text": "Takımyıldız · Altın",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Hiç kesmeden tek seride 80 yıldız topla.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainBronze": {
+      "name": {
+        "text": "Gök kaptanı · Bronz",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Tek bir sonsuz uçuşta 100 puan yap.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainSilver": {
+      "name": {
+        "text": "Gök kaptanı · Gümüş",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Tek bir sonsuz uçuşta 500 puan yap.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainGold": {
+      "name": {
+        "text": "Gök kaptanı · Altın",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Tek bir sonsuz uçuşta 2.000 puan yap.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerBronze": {
+      "name": {
+        "text": "Öncü · Bronz",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "5 sonsuz uçuşta en az 60 saniye uç.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerSilver": {
+      "name": {
+        "text": "Öncü · Gümüş",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "50 sonsuz uçuşta en az 60 saniye uç.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerGold": {
+      "name": {
+        "text": "Öncü · Altın",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "250 sonsuz uçuşta en az 60 saniye uç.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherBronze": {
+      "name": {
+        "text": "Hep birlikte · Bronz",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Puanlı uçuşlara iki farklı kuşla çık.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherSilver": {
+      "name": {
+        "text": "Hep birlikte · Gümüş",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Puanlı uçuşlara dört kuşla da çık.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherGold": {
+      "name": {
+        "text": "Hep birlikte · Altın",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Her kuşla 25 puanlı uçuş yap.",
+        "maxChars": 500
+      }
+    },
+    "allRounderBronze": {
+      "name": {
+        "text": "Her telden · Bronz",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Bir şınav, çömelme ya da zıplama mini oyununda uç.",
+        "maxChars": 500
+      }
+    },
+    "allRounderSilver": {
+      "name": {
+        "text": "Her telden · Gümüş",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Üç mini oyunun hepsinde uç: şınav, çömelme, zıplama.",
+        "maxChars": 500
+      }
+    },
+    "allRounderGold": {
+      "name": {
+        "text": "Her telden · Altın",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Her mini oyunda 10 puanlı uçuş yap.",
+        "maxChars": 500
+      }
+    },
+    "canopyBoss": {
+      "name": {
+        "text": "Ağaç Tepelerinden Posta",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Ağaç Tepeleri Rotası'nın sonundaki ininde Baron Yarasa'yı yen (1-8).",
+        "maxChars": 500
+      }
+    },
+    "neferhoo": {
+      "name": {
+        "text": "Göndericiye İade",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Mısır'ı koruyan Mumya Kurye Neferhoo'yu yen (2-6).",
+        "maxChars": 500
+      }
+    },
+    "roadBoss": {
+      "name": {
+        "text": "Yine Nane Çayı",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Antik Yol'un sonunda Tükürükçü Kral'ı yen (2-9).",
+        "maxChars": 500
+      }
+    },
+    "kingCoo": {
+      "name": {
+        "text": "Kırıntılar Temizlendi",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "New York'un muhafızı Kral Gugu'yu yen (3-2).",
+        "maxChars": 500
+      }
+    },
+    "gargoyle": {
+      "name": {
+        "text": "Spot Işığından Uzak",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Işıldaklı Gargoyl'u yen (3-4).",
+        "maxChars": 500
+      }
+    },
+    "goldCanopy": {
+      "name": {
+        "text": "Altın Ağaç Tepeleri",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Ağaç Tepeleri Rotası'nın her seviyesinde üç yıldız kazan.",
+        "maxChars": 500
+      }
+    },
+    "goldRoad": {
+      "name": {
+        "text": "Altın Yol",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Antik Yol'un her seviyesinde üç yıldız kazan.",
+        "maxChars": 500
+      }
+    },
+    "brightLights": {
+      "name": {
+        "text": "Büyük Şehrin Işıkları",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "New York'un her seviyesinde üç yıldız kazan.",
+        "maxChars": 500
+      }
+    },
+    "lamplighter": {
+      "name": {
+        "text": "Lambacı",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Sonsuz bir uçuşta Alacakaranlık İmparatoriçesi'ni yen.",
+        "maxChars": 500
+      }
+    },
+    "harbourBells": {
+      "name": {
+        "text": "Liman Çanları",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Sonsuz bir uçuşta Korsan Kaptan'ı yen.",
+        "maxChars": 500
+      }
+    },
+    "edgeOfTheMap": {
+      "name": {
+        "text": "Haritanın Ucu",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Sonsuz bir uçuşta Kor Ejderha'yı yen.",
+        "maxChars": 500
+      }
+    },
+    "twoOnOnePhone": {
+      "name": {
+        "text": "Bir Telefonda İki Kişi",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "İpli bir Birlikte Uç uçuşunu bitir.",
+        "maxChars": 500
+      }
+    },
+    "friendlyRivals": {
+      "name": {
+        "text": "Dost Rakipler",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "1'e 1 bir düello yap.",
+        "maxChars": 500
+      }
+    },
+    "routePlanner": {
+      "name": {
+        "text": "Rota Planlayıcı",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Seviye Atölyesi'nde bir seviye kur ve bitişe kadar uç.",
+        "maxChars": 500
+      }
+    },
+    "wholeKit": {
+      "name": {
+        "text": "Takım Taklavat",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "16 geliştirme seviyesinin hepsini satın al.",
+        "maxChars": 500
+      }
+    },
+    "penPal": {
+      "name": {
+        "text": "Mektup Arkadaşı",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Bir günün bütün Macera görevlerini bitirerek 10 günlük kartpostal damgala.",
+        "maxChars": 500
+      }
+    },
+    "nightMail": {
+      "name": {
+        "text": "Gece Postası",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Gece yarısıyla sabah 4 arasında bir puanlı uçuş bitir.",
+        "maxChars": 500
+      }
+    },
+    "specialDelivery": {
+      "name": {
+        "text": "Özel Teslimat",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Bir ara sokak güvercinini vur ve kaptığı yıldızı geri kazan.",
+        "maxChars": 500
+      }
+    }
+  },
+  "@achievementNote": "Keys are PlayAchievement values (lib/data/play_achievements.dart), in Play Console order. Names 1-24 follow the in-game \"Stamp · Medal\" pattern: translate the stamp and medal words as the game's ARB does (passport keys) so the two match."
+}

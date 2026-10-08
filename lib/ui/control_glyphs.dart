@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'theme.dart';
 
 /// The four ways to steer the bird.
+// l10n-ignore below: [label] is shown nowhere (screens name a way to fly
+// with AppLocalizations.playModeName).
 enum FlyControl {
-  pushUp('Push-ups', Color(0xffff9f8a)),
-  squat('Squats', SkyColors.mint),
-  jump('Jumps', SkyColors.yellow),
-  tap('Taps', SkyColors.lavender);
+  pushUp('Push-ups', Color(0xffff9f8a)), // l10n-ignore
+  squat('Squats', SkyColors.mint), // l10n-ignore
+  jump('Jumps', SkyColors.yellow), // l10n-ignore
+  tap('Taps', SkyColors.lavender); // l10n-ignore
 
   const FlyControl(this.label, this.color);
   final String label;

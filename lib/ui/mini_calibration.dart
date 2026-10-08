@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import 'components.dart' show BirdArt;
 import 'match_hud.dart' show MatchPlate, matchDigits, matchInkEdge;
 import 'theme.dart';
@@ -232,11 +233,12 @@ class _CameraBadgeState extends State<CameraBadge>
     } else if (!breathe) {
       pulse.value = 1;
     }
+    final l = context.l10n;
     final (lamp, label) = switch (widget.state) {
-      CameraState.starting => (SkyColors.yellow, 'WAKING'),
-      CameraState.live => (const Color(0xffff5a4e), 'LIVE'),
-      CameraState.ready => (const Color(0xff4fc97f), 'LOCKED ON'),
-      CameraState.offline => (const Color(0xff9aa9ae), 'OFFLINE'),
+      CameraState.starting => (SkyColors.yellow, l.cameraBadgeWaking),
+      CameraState.live => (const Color(0xffff5a4e), l.cameraBadgeLive),
+      CameraState.ready => (const Color(0xff4fc97f), l.cameraBadgeLockedOn),
+      CameraState.offline => (const Color(0xff9aa9ae), l.cameraBadgeOffline),
     };
     return MatchPlate(
       color: SkyColors.cream,

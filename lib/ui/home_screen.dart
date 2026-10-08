@@ -7,6 +7,8 @@ import '../data/progress_repository.dart';
 import '../domain/campaign_progress.dart';
 import '../domain/game_rules.dart';
 import '../domain/tracking.dart';
+import '../l10n/l10n.dart';
+import '../l10n/text/birds_text.dart';
 import 'campaign_chrome.dart' show MapGlyph, MapKey;
 import 'campaign_screen.dart' show campaignStarsInBuild;
 import 'components.dart';
@@ -56,10 +58,10 @@ class HomeScreen extends ConsumerWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('Your nest needs a moment.', style: heading(28)),
+                    Text(context.l10n.homeUnavailable, style: heading(28)),
                     const SizedBox(height: 16),
                     SkyButton(
-                      label: 'Try again',
+                      label: context.l10n.commonTryAgain,
                       onPressed: () => ref.invalidate(progressProvider),
                     ),
                   ],
@@ -77,19 +79,22 @@ class HomeScreen extends ConsumerWidget {
 
 /// The level the campaign continues with, as the Campaign key shows it, or
 /// null once every level this build can fly is cleared.
-String? _nextLevel(CampaignProgress campaign) {
+String? _nextLevel(AppLocalizations l, CampaignProgress campaign) {
   final level = campaign.current;
-  return campaign.cleared(level) ? null : '${level.id} · ${level.name}';
+  return campaign.cleared(level)
+      ? null
+      : l.homeLevelLabel(level.id, l.levelName(level));
 }
 
-String _greeting(ProgressSnapshot progress) {
-  final name = birdNames[progress.settings.bird];
+String _greeting(AppLocalizations l, ProgressSnapshot progress) {
+  final bird = progress.settings.bird;
+  final name = l.birdName(bird);
   // A campaign level counts as a first flight too.
-  if (progress.flightsFlown == 0) return 'Hi, I’m $name! Ready to fly?';
+  if (progress.flightsFlown == 0) return l.homeGreetingFirst(name);
   if (progress.today?.complete ?? false) {
-    return 'Adventure done! $name is proud.';
+    return l.homeGreetingDone(birdGender(bird), name);
   }
-  return '$name is ready. Are you?';
+  return l.homeGreetingReady(birdGender(bird), name);
 }
 
 class _HomeScene extends StatelessWidget {
@@ -98,6 +103,7 @@ class _HomeScene extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     // The canvas is a fixed layout, so very large system text is held to a
     // size the pills and buttons were drawn for.
     return MediaQuery.withClampedTextScaling(
@@ -125,7 +131,7 @@ class _HomeScene extends StatelessWidget {
                   key: const ValueKey('campaign'),
                   stars: progress.campaign.totalStars,
                   of: campaignStarsInBuild,
-                  next: _nextLevel(progress.campaign),
+                  next: _nextLevel(l, progress.campaign),
                   onPressed: () => context.go('/campaign'),
                 ),
               ),
@@ -197,7 +203,7 @@ class _HomeScene extends StatelessWidget {
                   begin: .62,
                   end: .9,
                   slide: const Offset(0, 12),
-                  child: _BirdGreeting(text: _greeting(progress)),
+                  child: _BirdGreeting(text: _greeting(l, progress)),
                 ),
               ),
             ),
@@ -251,7 +257,7 @@ class _HomeTools extends StatelessWidget {
       // The same round sticker key as every Back key in the menus.
       child: MapKey(
         glyph: MapGlyph.settings,
-        label: 'Settings',
+        label: context.l10n.homeSettings,
         onPressed: () => context.go('/settings'),
       ),
     ),
@@ -266,22 +272,24 @@ class _Dock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final completed = progress.today?.completedGoals ?? 0;
     final done = completed == 3;
     final items = [
       HomeDockItem(
         key: const ValueKey('daily-adventure'),
-        label: 'Adventure',
-        semanticLabel: 'Today’s adventure. $completed of 3 goals complete.',
+        label: l.homeDockAdventure,
+        semanticLabel: l.homeDockAdventureSemantics(completed),
         glow: HomeAdventureGlow(done: done),
         badge: HomeBadge(done ? '3/3' : '$completed/3', done: done),
         art: const MenuCollectibleArt(MenuCollectible.adventure),
         onTap: () => context.go('/daily'),
       ),
       HomeDockItem(
-        label: 'Birds',
-        semanticLabel:
-            'Birds. Flying with ${birdNames[progress.settings.bird]}.',
+        label: l.homeDockBirds,
+        semanticLabel: l.homeDockBirdsSemantics(
+          l.birdName(progress.settings.bird),
+        ),
         art: FittedBox(
           child: SizedBox(
             width: 100,
@@ -293,21 +301,23 @@ class _Dock extends StatelessWidget {
       ),
       HomeDockItem(
         key: const ValueKey('upgrades'),
-        label: 'Upgrades',
-        semanticLabel: 'Upgrades. ${progress.starWallet} stars to spend.',
+        label: l.homeDockUpgrades,
+        semanticLabel: l.homeDockUpgradesSemantics(progress.starWallet),
         badge: HomeBadge('${progress.starWallet}'),
         art: const FittedBox(child: MatchIcon(MatchSymbol.star, size: 64)),
         onTap: () => context.go('/upgrades'),
       ),
       HomeDockItem(
-        label: 'Passport',
-        semanticLabel:
-            'Passport. ${progress.earnedMedals} of $passportMedals medals.',
+        label: l.homeDockPassport,
+        semanticLabel: l.homeDockPassportSemantics(
+          progress.earnedMedals,
+          passportMedals,
+        ),
         art: const MenuCollectibleArt(MenuCollectible.passport),
         onTap: () => context.go('/passport'),
       ),
       HomeDockItem(
-        label: 'Records',
+        label: l.homeDockRecords,
         art: const MenuCollectibleArt(MenuCollectible.records),
         onTap: () => context.go('/records'),
       ),

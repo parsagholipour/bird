@@ -1,0 +1,2454 @@
+{
+ "language": "ru",
+ "terms": {
+  "brand.beakbound": {
+   "en": "Beakbound",
+   "target": "Beakbound",
+   "note": "Stays in Latin letters, never transliterated."
+  },
+  "brand.beak1-code": {
+   "en": "BEAK1.",
+   "target": "BEAK1.",
+   "note": "Technical token, unchanged."
+  },
+  "char.pip": {
+   "en": "Pip",
+   "target": "Пип",
+   "note": "Transliteration; masculine, declines (Пипа, Пипу), as Dickens's Pip in Russian."
+  },
+  "char.peaches": {
+   "en": "Peaches",
+   "target": "Пичес",
+   "note": "Transliteration; feminine, indeclinable. Peach jokes use «персик/персиковый». Stress Пи́чес."
+  },
+  "char.minty": {
+   "en": "Minty",
+   "target": "Минти",
+   "note": "Transliteration; masculine, indeclinable. Mint jokes use «мята/мятный» (Minty links it: «Мята — почти Минти!»)."
+  },
+  "char.orbit": {
+   "en": "Orbit",
+   "target": "Орбит",
+   "note": "Transliteration (stress О́рбит); feminine, indeclinable like Кармен. «орбита» stays an ordinary noun."
+  },
+  "char.postmaster-bill": {
+   "en": "Postmaster Bill",
+   "target": "почтмейстер Билл",
+   "note": "Title lowercase in running text (capital at sentence start); Билл declines (Билла, Биллу)."
+  },
+  "char.courier": {
+   "en": "courier",
+   "target": "курьер",
+   "note": "One word everywhere (story, flight, «Королевский курьер», «Курьер Пип»). Grammatically masculine, used generically for every bird; shared lines never make adjectives or past verbs agree with the speaker."
+  },
+  "char.narrator": {
+   "en": "the narrator",
+   "target": "рассказчик",
+   "note": "Never shown; captions address the player with ты, gender-neutral."
+  },
+  "boss.baron-bat": {
+   "en": "Baron Bat",
+   "target": "Барон Нетопырь",
+   "note": "«Нетопырь» = the old fairy-tale word for a bat: masculine, posh, rings like a title. Short «Барон». Ordinary enemy bats stay «летучие мыши»."
+  },
+  "boss.spitter-king": {
+   "en": "Spitter King",
+   "target": "Король Плевунов",
+   "note": "King of the spitter beetles («жуки-плевуны»), same «плевун» root. Bill: «Король»; birds: «Ваше Величество»."
+  },
+  "boss.dusk-empress": {
+   "en": "Dusk Empress",
+   "target": "Сумеречная Императрица",
+   "note": "Same «сумеречный» as her moths. Short «Императрица»."
+  },
+  "boss.pirate-captain": {
+   "en": "Pirate Captain",
+   "target": "Пиратский Капитан",
+   "note": "Short «Капитан»; he calls himself «Капитан» in the third person."
+  },
+  "boss.ember-dragon": {
+   "en": "Ember Dragon",
+   "target": "Тлеющий Дракон",
+   "note": "«Тлеющий» = smouldering like embers (old fire that still bites); embers = «тлеющие угли». Short «Дракон»."
+  },
+  "guardian.neferhoo": {
+   "en": "Neferhoo",
+   "target": "Неферху",
+   "note": "Transliteration of NEF-er-hoo; masculine, indeclinable."
+  },
+  "guardian.king-coo": {
+   "en": "King Coo",
+   "target": "Король Курлык",
+   "note": "Adapted: «курлык» is the Russian pigeon coo; К–К echoes King Kong. Card shout «КУРЛЫК!»."
+  },
+  "guardian.searchlight-gargoyle": {
+   "en": "Searchlight Gargoyle",
+   "target": "Прожекторная Горгулья",
+   "note": "Splits ПРОЖЕКТОРНАЯ / ГОРГУЛЬЯ. «Горгулья» is a feminine noun though he is male: lines avoid past tense/adjectives agreeing with it («Горгулья принимает предложение»)."
+  },
+  "npc.toucan-twins": {
+   "en": "the toucan twins",
+   "target": "туканы-близнецы",
+   "note": "Plural «мы»; giggly."
+  },
+  "npc.sloth-stargazer": {
+   "en": "the sloth stargazer",
+   "target": "ленивец-звездочёт",
+   "note": "Singular, masculine."
+  },
+  "npc.firefly-nursery": {
+   "en": "the firefly nursery",
+   "target": "ясли светлячков",
+   "note": "«Ясли» = crèche for babies (not a plant nursery); speaks as «мы»."
+  },
+  "npc.samba-macaws": {
+   "en": "the samba macaws",
+   "target": "ара из школы самбы",
+   "note": "«Ара» is indeclinable; Rio's samba schools."
+  },
+  "npc.drum-captain": {
+   "en": "the drum captain",
+   "target": "главный барабанщик",
+   "note": "Band leader, never the ship's «капитан»."
+  },
+  "npc.temple-cooks": {
+   "en": "the temple cooks",
+   "target": "храмовые повара"
+  },
+  "npc.dawn-keeper": {
+   "en": "the dawn keeper",
+   "target": "хранитель рассвета"
+  },
+  "npc.chariot-racers": {
+   "en": "the chariot racers",
+   "target": "гонщики на колесницах"
+  },
+  "npc.statue-carver": {
+   "en": "the statue carver",
+   "target": "скульптор"
+  },
+  "npc.fire-brigade": {
+   "en": "the fire brigade",
+   "target": "пожарная команда"
+  },
+  "npc.pyramid-astronomer": {
+   "en": "the pyramid astronomer",
+   "target": "астроном с пирамиды"
+  },
+  "npc.pyramid-caretaker": {
+   "en": "the pyramid caretaker",
+   "target": "смотрительница пирамиды",
+   "note": "Feminine."
+  },
+  "npc.lantern-sellers": {
+   "en": "the lantern sellers",
+   "target": "продавцы фонарей"
+  },
+  "npc.caravan-leader": {
+   "en": "the caravan leader",
+   "target": "глава каравана"
+  },
+  "npc.stage-manager": {
+   "en": "the stage manager",
+   "target": "директор театра",
+   "note": "Clearer for kids than «помреж»."
+  },
+  "npc.newsstand-pigeons": {
+   "en": "the newsstand pigeons",
+   "target": "голуби из газетного киоска"
+  },
+  "npc.night-cabbies": {
+   "en": "the night cabbies",
+   "target": "ночные таксисты",
+   "note": "Cargo: «таксисты ночной смены»."
+  },
+  "npc.tower-keeper": {
+   "en": "the tower keeper",
+   "target": "смотритель башни"
+  },
+  "npc.rooftop-painters": {
+   "en": "the rooftop painters",
+   "target": "художники на крышах"
+  },
+  "npc.accordion-player": {
+   "en": "the accordion player",
+   "target": "аккордеонист"
+  },
+  "npc.baker": {
+   "en": "the baker",
+   "target": "булочница",
+   "note": "Feminine; distinct from the volcano baker."
+  },
+  "npc.lighthouse-keeper": {
+   "en": "the lighthouse keeper",
+   "target": "смотритель маяка"
+  },
+  "npc.volcano-baker": {
+   "en": "the volcano baker",
+   "target": "пекарша с вулкана",
+   "note": "Feminine; distinct from the Paris «булочница»."
+  },
+  "npc.kite-flyers": {
+   "en": "the kite flyers",
+   "target": "любители воздушных змеев"
+  },
+  "npc.island-hermit": {
+   "en": "the island hermit",
+   "target": "отшельник с острова",
+   "note": "Masculine."
+  },
+  "npc.ferry-crew": {
+   "en": "the ferry crew",
+   "target": "команда парома"
+  },
+  "npc.gull-colony": {
+   "en": "the gull colony",
+   "target": "колония чаек"
+  },
+  "npc.storm-watch": {
+   "en": "the storm watch",
+   "target": "штормовой дозор",
+   "note": "Cargo: «моряки штормового дозора»."
+  },
+  "npc.penguin-choir": {
+   "en": "the penguin choir",
+   "target": "пингвиний хор"
+  },
+  "npc.polar-station": {
+   "en": "the polar station",
+   "target": "полярная станция"
+  },
+  "npc.noodle-chef": {
+   "en": "the noodle chef",
+   "target": "повар лапшичной"
+  },
+  "npc.rooftop-runners": {
+   "en": "the rooftop runners",
+   "target": "бегуны по крышам"
+  },
+  "npc.lantern-makers": {
+   "en": "the lantern makers",
+   "target": "мастера фонариков"
+  },
+  "npc.mountain-monks": {
+   "en": "the mountain monks",
+   "target": "горные монахи"
+  },
+  "npc.sphinx": {
+   "en": "the Sphinx",
+   "target": "Сфинкс",
+   "note": "Masculine; Peaches calls him «дядя Сфинкс»."
+  },
+  "npc.unit-7": {
+   "en": "Unit 7",
+   "target": "Блок-7",
+   "note": "Robot designation; thanks in robotic CAPITALS."
+  },
+  "npc.parrot": {
+   "en": "the Parrot",
+   "target": "Попугай",
+   "note": "Capitalised when the Captain addresses him; masculine."
+  },
+  "npc.baron-cousins": {
+   "en": "the Baron's cousins",
+   "target": "кузены Барона",
+   "note": "«Кузены!», «Родня!», «мои малютки»."
+  },
+  "title.postmaster": {
+   "en": "Postmaster",
+   "target": "почтмейстер",
+   "note": "Old-fashioned, friendly word for the head of a post office; works alone («Приказ почтмейстера»)."
+  },
+  "title.lord-of-the-storm": {
+   "en": "LORD OF THE STORM",
+   "target": "ПОВЕЛИТЕЛЬ БУРИ"
+  },
+  "title.the-storm-returns": {
+   "en": "THE STORM RETURNS",
+   "target": "БУРЯ ВОЗВРАЩАЕТСЯ"
+  },
+  "title.brewer-of-the-swarm": {
+   "en": "BREWER OF THE SWARM",
+   "target": "ЗЕЛЬЕВАР РОЯ",
+   "note": "«Зельевар» ties to his brew."
+  },
+  "title.keeper-of-the-twilight-veil": {
+   "en": "KEEPER OF THE TWILIGHT VEIL",
+   "target": "ХРАНИТЕЛЬНИЦА СУМЕРЕЧНОЙ ВУАЛИ"
+  },
+  "title.terror-of-the-high-tide": {
+   "en": "TERROR OF THE HIGH TIDE",
+   "target": "ГРОЗА ВЫСОКОГО ПРИЛИВА"
+  },
+  "title.sovereign-of-the-burning-sky": {
+   "en": "SOVEREIGN OF THE BURNING SKY",
+   "target": "ВЛАДЫКА ПЫЛАЮЩЕГО НЕБА"
+  },
+  "title.keeper-of-the-lost-letter": {
+   "en": "Keeper of the Lost Letter",
+   "target": "Хранитель потерянного письма",
+   "note": "Singular, echoed by the plural job title."
+  },
+  "title.keeper-of-lost-letters": {
+   "en": "Keeper of Lost Letters",
+   "target": "Хранитель потерянных писем"
+  },
+  "title.royal-courier": {
+   "en": "Royal Courier",
+   "target": "Королевский курьер",
+   "note": "Same «курьер» as char.courier (Pip's joke)."
+  },
+  "title.mummy-courier": {
+   "en": "the Mummy Courier",
+   "target": "курьер-мумия"
+  },
+  "title.commissioner-of-the-curb": {
+   "en": "Commissioner of the Curb",
+   "target": "БЛЮСТИТЕЛЬ БОРДЮРА",
+   "note": "Adapted: «блюститель порядка» (policeman) + curb (бордюр), Б–Б alliteration."
+  },
+  "title.commissioner": {
+   "en": "the Commissioner",
+   "target": "Комиссар",
+   "note": "Police commissioner; third person «Комиссар принимает предложение»."
+  },
+  "title.watchman-of-the-tallest-tower": {
+   "en": "Watchman of the Tallest Tower",
+   "target": "Страж самой высокой башни"
+  },
+  "title.ink-maker": {
+   "en": "ink-maker",
+   "target": "чернильщик",
+   "note": "Short job noun; «Королевский чернильщик!»."
+  },
+  "region.jungle": {
+   "en": "Jungle",
+   "target": "Джунгли"
+  },
+  "region.brazil": {
+   "en": "Brazil",
+   "target": "Бразилия"
+  },
+  "region.aztec": {
+   "en": "Aztec",
+   "target": "Земли ацтеков"
+  },
+  "region.ancient-rome": {
+   "en": "Ancient Rome",
+   "target": "Древний Рим",
+   "note": "Parallel with «Древняя Аравия»."
+  },
+  "region.egypt": {
+   "en": "Egypt",
+   "target": "Египет"
+  },
+  "region.ancient-arabia": {
+   "en": "Ancient Arabia",
+   "target": "Древняя Аравия"
+  },
+  "region.new-york": {
+   "en": "New York",
+   "target": "Нью-Йорк"
+  },
+  "region.paris": {
+   "en": "Paris",
+   "target": "Париж"
+  },
+  "region.mexico": {
+   "en": "Mexico",
+   "target": "Мексика"
+  },
+  "region.open-sea": {
+   "en": "Open Sea",
+   "target": "Открытое море"
+  },
+  "region.antarctica": {
+   "en": "Antarctica",
+   "target": "Антарктида"
+  },
+  "region.cyberpunk-city": {
+   "en": "Cyberpunk City",
+   "target": "Киберпанк-сити"
+  },
+  "region.china": {
+   "en": "China",
+   "target": "Китай"
+  },
+  "place.city-of-light": {
+   "en": "the City of Light",
+   "target": "Город света",
+   "note": "Established epithet of Paris (la Ville Lumière)."
+  },
+  "place.edge-of-the-map": {
+   "en": "the Edge of the Map",
+   "target": "Край карты",
+   "note": "«на краю карты» in speech; «Край карты» as a name/address."
+  },
+  "place.giza": {
+   "en": "Giza",
+   "target": "Гиза"
+  },
+  "place.nile": {
+   "en": "the Nile",
+   "target": "Нил"
+  },
+  "place.pyramid": {
+   "en": "the pyramid",
+   "target": "пирамида"
+  },
+  "place.colosseum": {
+   "en": "the Colosseum",
+   "target": "Колизей"
+  },
+  "place.sugarloaf-mountain": {
+   "en": "Sugarloaf Mountain",
+   "target": "гора Сахарная Голова",
+   "note": "The Russian name keeps the sugar (Pip's joke works)."
+  },
+  "place.eiffel-tower": {
+   "en": "the Eiffel Tower",
+   "target": "Эйфелева башня"
+  },
+  "place.theatre-marquee": {
+   "en": "the theatre marquee",
+   "target": "козырёк театра",
+   "note": "The lit canopy over the theatre door."
+  },
+  "place.tallest-tower": {
+   "en": "the tallest tower",
+   "target": "самая высокая башня",
+   "note": "«башня»; the ledge = «карниз»."
+  },
+  "place.canopy": {
+   "en": "the canopy",
+   "target": "кроны",
+   "note": "Forest canopy = «кроны деревьев»."
+  },
+  "place.bazaar": {
+   "en": "the bazaar",
+   "target": "базар"
+  },
+  "place.harbour": {
+   "en": "the harbour",
+   "target": "гавань",
+   "note": "«колокола гавани»."
+  },
+  "chapter.canopy-route": {
+   "en": "The Canopy Route",
+   "target": "Маршрут над кронами",
+   "note": "«маршрут» = story.mail-route."
+  },
+  "chapter.ancient-road": {
+   "en": "The Ancient Road",
+   "target": "Древняя дорога",
+   "note": "The King's «моя дорога»."
+  },
+  "chapter.lamplight-line": {
+   "en": "The Lamplight Line",
+   "target": "Фонарная линия",
+   "note": "Street lamps are «фонари»; Ф–Л sound, keeps the lamp image."
+  },
+  "chapter.tide-route": {
+   "en": "The Tide Route",
+   "target": "Приливный маршрут"
+  },
+  "chapter.edge-of-the-map": {
+   "en": "The Edge of the Map",
+   "target": "Край карты"
+  },
+  "level.1-1": {
+   "en": "First Delivery",
+   "target": "Первая доставка"
+  },
+  "level.1-2": {
+   "en": "Star Streak",
+   "target": "Звёздная серия",
+   "note": "Same «серия» as ui.streak."
+  },
+  "level.1-3": {
+   "en": "Bat Patrol",
+   "target": "Патруль летучих мышей"
+  },
+  "level.1-4": {
+   "en": "Carnival Skies",
+   "target": "Карнавальное небо"
+  },
+  "level.1-5": {
+   "en": "Express Post",
+   "target": "Экспресс-почта",
+   "note": "Same as Neferhoo's ЭКСПРЕСС-ПОЧТА."
+  },
+  "level.1-6": {
+   "en": "Temple Steps",
+   "target": "Ступени храма"
+  },
+  "level.1-7": {
+   "en": "Sunrise Roost",
+   "target": "Насест на рассвете"
+  },
+  "level.1-8": {
+   "en": "Baron Bat",
+   "target": "Барон Нетопырь"
+  },
+  "level.2-1": {
+   "en": "Beetle Road",
+   "target": "Жучиная дорога"
+  },
+  "level.2-2": {
+   "en": "Sealed Gates",
+   "target": "Запертые ворота"
+  },
+  "level.2-3": {
+   "en": "Wildfire Run",
+   "target": "Бегство от пожара"
+  },
+  "level.2-4": {
+   "en": "Nile Switchbacks",
+   "target": "Нильский серпантин",
+   "note": "Switchback = «серпантин» (zigzag mountain road)."
+  },
+  "level.2-5": {
+   "en": "Skyfall",
+   "target": "Небопад",
+   "note": "Same coinage as set-piece.skyfall."
+  },
+  "level.2-6": {
+   "en": "Return to Sender",
+   "target": "Вернуть отправителю"
+  },
+  "level.2-7": {
+   "en": "Lantern Bazaar",
+   "target": "Базар фонарей"
+  },
+  "level.2-8": {
+   "en": "The Long Caravan",
+   "target": "Долгий караван"
+  },
+  "level.2-9": {
+   "en": "Spitter King",
+   "target": "Король Плевунов"
+  },
+  "level.3-1": {
+   "en": "Moth Light",
+   "target": "Мотыльки на свет",
+   "note": "Adapted from «лететь, как мотылёк на свет»."
+  },
+  "level.3-2": {
+   "en": "Wheels in the Rain",
+   "target": "Колёса под дождём",
+   "note": "Film-title ring; keeps wheels + rain."
+  },
+  "level.3-3": {
+   "en": "Steam Alley",
+   "target": "Паровой переулок",
+   "note": "Bill says it aloud."
+  },
+  "level.3-4": {
+   "en": "Storm Warning",
+   "target": "Штормовое предупреждение",
+   "note": "Same words as the Gargoyle's arrival headline."
+  },
+  "level.3-5": {
+   "en": "Crystal Rooftops",
+   "target": "Хрустальные крыши"
+  },
+  "level.3-6": {
+   "en": "After the Gale",
+   "target": "После шквала"
+  },
+  "level.3-7": {
+   "en": "Midnight Express",
+   "target": "Полуночный экспресс",
+   "note": "Russian title of the film \"Midnight Express\" too."
+  },
+  "level.3-8": {
+   "en": "Dusk Empress",
+   "target": "Сумеречная Императрица"
+  },
+  "level.4-1": {
+   "en": "Harbour Lights",
+   "target": "Огни гавани"
+  },
+  "level.4-2": {
+   "en": "Volcano Pass",
+   "target": "Перевал вулканов"
+  },
+  "level.4-3": {
+   "en": "Down the Coast",
+   "target": "Вдоль побережья"
+  },
+  "level.4-4": {
+   "en": "Low Water",
+   "target": "Отлив"
+  },
+  "level.4-5": {
+   "en": "Spring Tide",
+   "target": "Большой прилив",
+   "note": "The highest (spring) tide, not the season."
+  },
+  "level.4-6": {
+   "en": "Broadside Bay",
+   "target": "Бухта бортового залпа",
+   "note": "Broadside = «бортовой залп»; Б–Б."
+  },
+  "level.4-7": {
+   "en": "Stormy Crossing",
+   "target": "Штормовая переправа"
+  },
+  "level.4-8": {
+   "en": "Pirate Captain",
+   "target": "Пиратский Капитан"
+  },
+  "level.5-1": {
+   "en": "Aurora Post",
+   "target": "Почта полярного сияния"
+  },
+  "level.5-2": {
+   "en": "Polar Night",
+   "target": "Полярная ночь"
+  },
+  "level.5-3": {
+   "en": "Neon Express",
+   "target": "Неоновый экспресс"
+  },
+  "level.5-4": {
+   "en": "Data Storm",
+   "target": "Буря данных"
+  },
+  "level.5-5": {
+   "en": "Skyline Sprint",
+   "target": "Рывок над крышами",
+   "note": "Same «Рывок» as the Sprint button."
+  },
+  "level.5-6": {
+   "en": "Lantern Festival",
+   "target": "Праздник фонарей",
+   "note": "Established name of the Lantern Festival."
+  },
+  "level.5-7": {
+   "en": "The Last Leg",
+   "target": "Финишная прямая",
+   "note": "Adapted: the Russian idiom for the last leg of a journey."
+  },
+  "level.5-8": {
+   "en": "Ember Dragon",
+   "target": "Тлеющий Дракон"
+  },
+  "level.starter-garden-hop": {
+   "en": "Garden Hop",
+   "target": "Прыжки по саду"
+  },
+  "level.starter-ten-push-ups": {
+   "en": "Ten Push-Ups",
+   "target": "Десять отжиманий"
+  },
+  "level.starter-stair-squats": {
+   "en": "Stair Squats",
+   "target": "Приседания-лесенка"
+  },
+  "level.starter-bounce-bay": {
+   "en": "Bounce Bay",
+   "target": "Бухта прыг-скок"
+  },
+  "level.starter-barons-bridge": {
+   "en": "Baron’s Bridge",
+   "target": "Мост Барона"
+  },
+  "cargo.1-1": {
+   "en": "A birthday card for the toucan twins",
+   "target": "Именинная открытка туканам-близнецам",
+   "note": "«Именинная» = birthday; fits the 40-char tag."
+  },
+  "cargo.1-2": {
+   "en": "Star charts for the sloth stargazer",
+   "target": "Звёздные карты ленивцу-звездочёту"
+  },
+  "cargo.1-3": {
+   "en": "Night-lights for the firefly nursery",
+   "target": "Ночники для яслей светлячков"
+  },
+  "cargo.1-4": {
+   "en": "Feather boas for the carnival parade",
+   "target": "Боа из перьев для карнавала"
+  },
+  "cargo.1-5": {
+   "en": "A rush invitation for the drum captain",
+   "target": "Срочное приглашение барабанщику"
+  },
+  "cargo.1-6": {
+   "en": "Cocoa beans for the temple cooks",
+   "target": "Какао-бобы для храмовых поваров"
+  },
+  "cargo.1-7": {
+   "en": "A sundial for the dawn keeper",
+   "target": "Солнечные часы хранителю рассвета"
+  },
+  "cargo.1-8": {
+   "en": "A final notice for Baron Bat",
+   "target": "Последнее предупреждение Барону"
+  },
+  "cargo.2-1": {
+   "en": "Laurel wreaths for the chariot racers",
+   "target": "Лавровые венки гонщикам колесниц"
+  },
+  "cargo.2-2": {
+   "en": "A new chisel for the statue carver",
+   "target": "Новое долото для скульптора"
+  },
+  "cargo.2-3": {
+   "en": "Water buckets for the fire brigade",
+   "target": "Вёдра воды для пожарной команды"
+  },
+  "cargo.2-4": {
+   "en": "A book of new riddles for the Sphinx",
+   "target": "Книга новых загадок для Сфинкса"
+  },
+  "cargo.2-5": {
+   "en": "A telescope for the pyramid astronomer",
+   "target": "Телескоп для астронома с пирамиды"
+  },
+  "cargo.2-6": {
+   "en": "A feather duster for the caretaker",
+   "target": "Метёлка из перьев смотрительнице"
+  },
+  "cargo.2-7": {
+   "en": "Lamp oil for the lantern sellers",
+   "target": "Масло для ламп продавцам фонарей"
+  },
+  "cargo.2-8": {
+   "en": "Water flasks for the long caravan",
+   "target": "Фляги с водой для долгого каравана"
+  },
+  "cargo.2-9": {
+   "en": "A stop-brewing order for the Spitter King",
+   "target": "Приказ «Не варить!» Королю Плевунов"
+  },
+  "cargo.3-1": {
+   "en": "Light bulbs for the theatre marquee",
+   "target": "Лампочки для козырька театра"
+  },
+  "cargo.3-2": {
+   "en": "Umbrellas for the newsstand pigeons",
+   "target": "Зонтики для голубей из киоска"
+  },
+  "cargo.3-3": {
+   "en": "Hot pretzels for the night-shift cabbies",
+   "target": "Горячие крендели ночным таксистам"
+  },
+  "cargo.3-4": {
+   "en": "A weather vane for the tallest tower",
+   "target": "Флюгер для самой высокой башни",
+   "note": "«Флюгер» has no homophone risk."
+  },
+  "cargo.3-5": {
+   "en": "Croissants for the rooftop painters",
+   "target": "Круассаны художникам на крышах"
+  },
+  "cargo.3-6": {
+   "en": "Sheet music for the accordion player",
+   "target": "Ноты для аккордеониста"
+  },
+  "cargo.3-7": {
+   "en": "A midnight love letter for the baker",
+   "target": "Полуночное любовное письмо булочнице"
+  },
+  "cargo.3-8": {
+   "en": "A wake-up call for the Dusk Empress",
+   "target": "Побудка для Сумеречной Императрицы",
+   "note": "«Побудка» = reveille: a wake-up and a warning."
+  },
+  "cargo.4-1": {
+   "en": "A new lens for the lighthouse keeper",
+   "target": "Новая линза смотрителю маяка"
+  },
+  "cargo.4-2": {
+   "en": "Oven mitts for the volcano baker",
+   "target": "Прихватки для пекарши с вулкана"
+  },
+  "cargo.4-3": {
+   "en": "Kite string for the beach festival",
+   "target": "Нить для змеев на пляжный праздник"
+  },
+  "cargo.4-4": {
+   "en": "A reply for the island hermit",
+   "target": "Ответ отшельнику с острова"
+  },
+  "cargo.4-5": {
+   "en": "A tide table for the ferry crew",
+   "target": "Таблица приливов для команды парома"
+  },
+  "cargo.4-6": {
+   "en": "Fish biscuits for the gull colony",
+   "target": "Рыбное печенье для колонии чаек"
+  },
+  "cargo.4-7": {
+   "en": "Dry socks for the storm-watch sailors",
+   "target": "Сухие носки штормовому дозору"
+  },
+  "cargo.4-8": {
+   "en": "A return-the-mail order for the Captain",
+   "target": "Приказ вернуть почту для Капитана"
+  },
+  "cargo.5-1": {
+   "en": "Woolly hats for the penguin choir",
+   "target": "Шерстяные шапки пингвиньему хору"
+  },
+  "cargo.5-2": {
+   "en": "Hot cocoa for the polar station",
+   "target": "Горячее какао для полярной станции"
+  },
+  "cargo.5-3": {
+   "en": "Spare fuses for the noodle bar sign",
+   "target": "Предохранители для вывески лапшичной"
+  },
+  "cargo.5-4": {
+   "en": "A paper letter for a curious robot",
+   "target": "Бумажное письмо любопытному роботу"
+  },
+  "cargo.5-5": {
+   "en": "Race tickets for the rooftop runners",
+   "target": "Билеты на забег бегунам по крышам"
+  },
+  "cargo.5-6": {
+   "en": "Paper lanterns for the festival",
+   "target": "Бумажные фонарики для праздника"
+  },
+  "cargo.5-7": {
+   "en": "Mountain tea for the monastery",
+   "target": "Горный чай для монастыря"
+  },
+  "cargo.5-8": {
+   "en": "The first letter ever sent to the Dragon",
+   "target": "Первое в жизни письмо Дракону"
+  },
+  "enemy.purple-bat": {
+   "en": "Purple bat",
+   "target": "фиолетовая летучая мышь",
+   "note": "Plain «летучая мышь» in lines (also the Baron's, swarm and mummy bats)."
+  },
+  "enemy.cave-bat": {
+   "en": "Cave bat",
+   "target": "пещерная летучая мышь"
+  },
+  "enemy.spitter-beetle": {
+   "en": "Spitter beetle",
+   "target": "жук-плевун",
+   "note": "Same «плевун» as the Spitter King."
+  },
+  "enemy.dusk-moth": {
+   "en": "Dusk moth",
+   "target": "сумеречный мотылёк",
+   "note": "Same «сумеречный» as the Empress."
+  },
+  "enemy.alley-pigeon": {
+   "en": "Alley Pigeon",
+   "target": "дворовый голубь",
+   "note": "King Coo's «банда звездохватов»."
+  },
+  "enemy.mummy-bat": {
+   "en": "Mummy bat",
+   "target": "летучая мышь-мумия",
+   "note": "«ЛЕТУЧИЕ МЫШИ-МУМИИ»; same bat word as the plain bats."
+  },
+  "enemy.squadron": {
+   "en": "King Coo's squadron",
+   "target": "эскадрилья Короля Курлыка"
+  },
+  "enemy.straggler": {
+   "en": "straggler",
+   "target": "беглец",
+   "note": "UI says «он вернётся» / «ВСЕ ПОЙМАНЫ!»."
+  },
+  "enemy.brood": {
+   "en": "the Spitter King's brood",
+   "target": "выводок Короля Плевунов",
+   "note": "«Ассистенты!», «мои скарабейчики»."
+  },
+  "enemy.empress-moths": {
+   "en": "the Dusk Empress's moths",
+   "target": "мотыльки Императрицы",
+   "note": "«мои красавицы», «мои милые»."
+  },
+  "enemy.swarm-bats": {
+   "en": "swarm bats",
+   "target": "стая летучих мышей",
+   "note": "Same «стая» as set-piece.swarm."
+  },
+  "attack.fireball": {
+   "en": "fireball",
+   "target": "огненный шар"
+  },
+  "attack.screech": {
+   "en": "sonic screech",
+   "target": "звуковой визг",
+   "note": "Bill's «визжит, да не кусает» uses the same root."
+  },
+  "attack.seed": {
+   "en": "seed",
+   "target": "семечка",
+   "note": "Plural «семечки»: spitting seeds is a familiar image."
+  },
+  "attack.fan": {
+   "en": "fan",
+   "target": "веер",
+   "note": "«веером по три»."
+  },
+  "attack.pollen": {
+   "en": "pollen",
+   "target": "пыльца"
+  },
+  "attack.veil": {
+   "en": "veil",
+   "target": "вуаль",
+   "note": "Birds call it «щит»."
+  },
+  "attack.cannon": {
+   "en": "cannon",
+   "target": "пушка",
+   "note": "Fuse = «фитиль», cannonball = «ядро»."
+  },
+  "attack.broadside": {
+   "en": "broadside",
+   "target": "бортовой залп"
+  },
+  "attack.dragon-breath": {
+   "en": "dragon's breath",
+   "target": "драконье дыхание"
+  },
+  "attack.embers": {
+   "en": "embers",
+   "target": "тлеющие угли",
+   "note": "Same root as «Тлеющий Дракон»."
+  },
+  "attack.crumb-bomb": {
+   "en": "crumb bomb",
+   "target": "бомба из крошек"
+  },
+  "attack.stale-crust": {
+   "en": "stale crust",
+   "target": "чёрствая корка"
+  },
+  "attack.puff": {
+   "en": "puff",
+   "target": "надувается",
+   "note": "Tag «НАДУЛСЯ»; sounds «ПУФ!», «ХЛОП!»."
+  },
+  "attack.beam": {
+   "en": "beam",
+   "target": "луч",
+   "note": "«ЗАМЕЧЕН!»"
+  },
+  "attack.lamp": {
+   "en": "lamp",
+   "target": "лампа",
+   "note": "The Gargoyle's chest lamp (city street lamps are «фонари»)."
+  },
+  "attack.stone-feathers": {
+   "en": "stone feathers",
+   "target": "каменные перья"
+  },
+  "attack.mail-call": {
+   "en": "mail call",
+   "target": "Вам почта!",
+   "note": "Adapted: the short Russian \"you've got mail\" shout."
+  },
+  "attack.ankh": {
+   "en": "ankh",
+   "target": "анх",
+   "note": "Standard Russian name of the symbol."
+  },
+  "attack.express-post": {
+   "en": "EXPRESS POST",
+   "target": "ЭКСПРЕСС-ПОЧТА",
+   "note": "Same as level 1-5."
+  },
+  "hazard.gate": {
+   "en": "gate",
+   "target": "ворота",
+   "note": "Plural-only noun; counts read «N ворот»; «проход/просвет» for the gap."
+  },
+  "hazard.garden-gate": {
+   "en": "Garden gate",
+   "target": "Садовая калитка"
+  },
+  "hazard.wind-lift": {
+   "en": "Wind lift",
+   "target": "Ветряной лифт"
+  },
+  "hazard.petal-shutters": {
+   "en": "Petal shutters",
+   "target": "Лепестковые ставни",
+   "note": "Bill: «лепестковые ворота»."
+  },
+  "hazard.switchback": {
+   "en": "Switchback",
+   "target": "серпантин",
+   "note": "Zigzag road: «вверх в один проход, вниз в другой»."
+  },
+  "hazard.lantern-drift": {
+   "en": "Lantern drift",
+   "target": "Плавучие фонарики"
+  },
+  "hazard.sun-wheels": {
+   "en": "Sun wheels",
+   "target": "Солнечные колёса"
+  },
+  "hazard.crystal-steps": {
+   "en": "Crystal steps",
+   "target": "Хрустальные ступени"
+  },
+  "hazard.stone-panel": {
+   "en": "stone panel",
+   "target": "каменная плита",
+   "note": "Builder: «каменная дверь»."
+  },
+  "hazard.steam-geyser": {
+   "en": "steam vent",
+   "target": "паровой люк",
+   "note": "NY steam comes from street manholes; «горячие» / «мягкие»."
+  },
+  "hazard.sea": {
+   "en": "the sea",
+   "target": "море",
+   "note": "«вода»; Bill: «море кусается»."
+  },
+  "hazard.tide": {
+   "en": "the tide",
+   "target": "прилив",
+   "note": "«ВЫСОКИЙ ПРИЛИВ», «ПРИЛИВ ИДЁТ»."
+  },
+  "hazard.tide-bell": {
+   "en": "the bell",
+   "target": "колокол"
+  },
+  "hazard.lava-plume": {
+   "en": "lava plume",
+   "target": "фонтан лавы"
+  },
+  "hazard.meteor": {
+   "en": "meteor",
+   "target": "метеор"
+  },
+  "hazard.debris": {
+   "en": "debris",
+   "target": "хлам",
+   "note": "«летучий хлам»."
+  },
+  "hazard.football": {
+   "en": "football",
+   "target": "футбольный мяч"
+  },
+  "hazard.warning-mark": {
+   "en": "!",
+   "target": "!",
+   "note": "The sign itself stays."
+  },
+  "hazard.rubble": {
+   "en": "rubble",
+   "target": "завал"
+  },
+  "set-piece.rush-path": {
+   "en": "rush",
+   "target": "погоня",
+   "note": "Short banner word; «УДРАЛИ!» fits it."
+  },
+  "set-piece.wildfire": {
+   "en": "Wildfire",
+   "target": "Пожар"
+  },
+  "set-piece.skyfall": {
+   "en": "Skyfall",
+   "target": "Небопад",
+   "note": "Coined like the English: the sky falling (meteors); avoids «звездопад», which would clash with collectible stars."
+  },
+  "set-piece.eruption": {
+   "en": "Eruption",
+   "target": "Извержение"
+  },
+  "set-piece.swarm": {
+   "en": "Swarm",
+   "target": "Стая"
+  },
+  "set-piece.gale": {
+   "en": "gale",
+   "target": "шквал"
+  },
+  "set-piece.finish-line": {
+   "en": "finish line",
+   "target": "финиш",
+   "note": "«финишная лента»."
+  },
+  "set-piece.run-up": {
+   "en": "run-up",
+   "target": "разбег"
+  },
+  "set-piece.vanguard": {
+   "en": "vanguard",
+   "target": "авангард",
+   "note": "Not shown."
+  },
+  "pickup.star": {
+   "en": "star",
+   "target": "звезда",
+   "note": "One word for pickup, rating and wallet."
+  },
+  "pickup.star-trio": {
+   "en": "star trio",
+   "target": "звёздное трио"
+  },
+  "pickup.heart": {
+   "en": "heart",
+   "target": "сердечко",
+   "note": "Life hearts; Peaches's love/heart double meaning works."
+  },
+  "pickup.shield": {
+   "en": "shield",
+   "target": "щит",
+   "note": "Birds also say «пузырь»."
+  },
+  "pickup.star-magnet": {
+   "en": "star magnet",
+   "target": "звёздный магнит",
+   "note": "Card: «Магнит»."
+  },
+  "pickup.sprint-ring": {
+   "en": "sprint ring",
+   "target": "золотое кольцо",
+   "note": "«кольцо рывка»; one ring word."
+  },
+  "pickup.mystery-box": {
+   "en": "mystery box",
+   "target": "коробка-сюрприз"
+  },
+  "pickup.bat-swarm": {
+   "en": "Bat swarm",
+   "target": "Стая мышей"
+  },
+  "pickup.meteor-shower": {
+   "en": "Meteor shower",
+   "target": "Метеоритный дождь"
+  },
+  "pickup.star-power": {
+   "en": "Star power",
+   "target": "Звёздная сила"
+  },
+  "power-up.shot-power": {
+   "en": "Shot power",
+   "target": "Сила броска"
+  },
+  "power-up.sprint": {
+   "en": "Sprint (upgrade)",
+   "target": "Рывок"
+  },
+  "power-up.shield": {
+   "en": "Shield (upgrade)",
+   "target": "Щит"
+  },
+  "power-up.magnet": {
+   "en": "Magnet (upgrade)",
+   "target": "Магнит"
+  },
+  "weapon.shoot": {
+   "en": "Shoot",
+   "target": "Выстрел",
+   "note": "Button noun; hint verbs «стреляй», «сбивай»."
+  },
+  "weapon.rock": {
+   "en": "rock",
+   "target": "камень",
+   "note": "«камушки» when cute; «Камней: ноль»."
+  },
+  "weapon.big-rock": {
+   "en": "big rock",
+   "target": "большой камень",
+   "note": "«заряженный выстрел»."
+  },
+  "weapon.ammo": {
+   "en": "ammo",
+   "target": "запас камней",
+   "note": "«Перезарядка…»."
+  },
+  "weapon.sprint": {
+   "en": "Sprint",
+   "target": "Рывок",
+   "note": "Same in button, hints and upgrades."
+  },
+  "weapon.ring-sprint": {
+   "en": "ring sprint",
+   "target": "рывок из кольца"
+  },
+  "weapon.smash": {
+   "en": "SMASH!",
+   "target": "БАБАХ!"
+  },
+  "mode.campaign": {
+   "en": "Campaign",
+   "target": "Кампания"
+  },
+  "mode.endless": {
+   "en": "Endless",
+   "target": "Бесконечный полёт",
+   "note": "Key label «Бесконечный»."
+  },
+  "mode.tap-and-fly": {
+   "en": "Tap & Fly",
+   "target": "Жми и лети",
+   "note": "Pattern shared with the other «… и лети»."
+  },
+  "mode.push-up-flight": {
+   "en": "Push-Up Flight",
+   "target": "Полёт на отжиманиях"
+  },
+  "mode.squat-and-fly": {
+   "en": "Squat & Fly",
+   "target": "Присядь и лети"
+  },
+  "mode.jump-and-fly": {
+   "en": "Jump & Fly",
+   "target": "Прыгай и лети"
+  },
+  "mode.mini-games": {
+   "en": "Mini games",
+   "target": "Мини-игры"
+  },
+  "mode.fly-together": {
+   "en": "Fly Together",
+   "target": "Летим вместе"
+  },
+  "mode.roped": {
+   "en": "Roped",
+   "target": "На верёвке"
+  },
+  "mode.no-rope": {
+   "en": "No rope",
+   "target": "Без верёвки"
+  },
+  "mode.duel": {
+   "en": "1 v 1",
+   "target": "1 на 1",
+   "note": "Noun «дуэль»."
+  },
+  "mode.level-builder": {
+   "en": "Level Builder",
+   "target": "Конструктор уровней"
+  },
+  "mode.daily-adventure": {
+   "en": "Adventure",
+   "target": "Приключение",
+   "note": "«Приключение дня»."
+  },
+  "mode.flight-school": {
+   "en": "Flight School",
+   "target": "Лётная школа"
+  },
+  "mode.practice": {
+   "en": "Practice",
+   "target": "Тренировка"
+  },
+  "mode.test-flight": {
+   "en": "test flight",
+   "target": "пробный полёт"
+  },
+  "mode.classic": {
+   "en": "Classic",
+   "target": "Классика"
+  },
+  "mode.world-tour": {
+   "en": "world tour",
+   "target": "кругосветка"
+  },
+  "ui.sky-club": {
+   "en": "Sky Club",
+   "target": "Небесный клуб",
+   "note": "Short «клуб»."
+  },
+  "ui.sky-club-post": {
+   "en": "Sky Club post",
+   "target": "почта Небесного клуба",
+   "note": "Door greeting «Почта Небесного клуба!»."
+  },
+  "ui.passport": {
+   "en": "passport",
+   "target": "паспорт",
+   "note": "«Небесный паспорт»."
+  },
+  "ui.passport-stamp": {
+   "en": "stamp (passport)",
+   "target": "штамп",
+   "note": "Ink stamp; postage stamps are «марки»."
+  },
+  "ui.medal": {
+   "en": "medal",
+   "target": "медаль"
+  },
+  "ui.bronze": {
+   "en": "Bronze",
+   "target": "Бронза"
+  },
+  "ui.silver": {
+   "en": "Silver",
+   "target": "Серебро"
+  },
+  "ui.gold": {
+   "en": "Gold",
+   "target": "Золото"
+  },
+  "ui.star-marks": {
+   "en": "star marks",
+   "target": "звёздные отметки",
+   "note": "«отметка» on the star track."
+  },
+  "ui.star-rating": {
+   "en": "stars (level rating)",
+   "target": "звёзды"
+  },
+  "ui.streak": {
+   "en": "streak",
+   "target": "серия"
+  },
+  "ui.multiplier": {
+   "en": "multiplier",
+   "target": "множитель"
+  },
+  "ui.perfect-pass": {
+   "en": "perfect pass",
+   "target": "идеальный пролёт",
+   "note": "«ИДЕАЛЬНО!»."
+  },
+  "ui.aiming-mark": {
+   "en": "aiming mark",
+   "target": "прицельная метка"
+  },
+  "ui.score": {
+   "en": "score",
+   "target": "очки"
+  },
+  "ui.best": {
+   "en": "best",
+   "target": "лучший результат"
+  },
+  "ui.record": {
+   "en": "record",
+   "target": "рекорд"
+  },
+  "ui.records-screen": {
+   "en": "Records",
+   "target": "Рекорды"
+  },
+  "ui.saved-session": {
+   "en": "saved session",
+   "target": "сохранённый полёт"
+  },
+  "ui.replay": {
+   "en": "replay",
+   "target": "повтор"
+  },
+  "ui.flight-highlights": {
+   "en": "Flight highlights",
+   "target": "Лучшие моменты полёта"
+  },
+  "ui.flight": {
+   "en": "flight",
+   "target": "полёт"
+  },
+  "ui.scored-flight": {
+   "en": "scored flight",
+   "target": "зачётный полёт"
+  },
+  "ui.upgrades": {
+   "en": "Upgrades",
+   "target": "Улучшения"
+  },
+  "ui.star-wallet": {
+   "en": "stars to spend",
+   "target": "звёзды на трату",
+   "note": "«ТВОИ ЗВЁЗДЫ»."
+  },
+  "ui.collection": {
+   "en": "Birds",
+   "target": "Птицы",
+   "note": "«лётный экипаж»."
+  },
+  "ui.trail-sunshine-bubbles": {
+   "en": "Sunshine bubbles",
+   "target": "Солнечные пузырьки"
+  },
+  "ui.trail-peach-hearts": {
+   "en": "Peach hearts",
+   "target": "Персиковые сердечки"
+  },
+  "ui.trail-mint-leaves": {
+   "en": "Mint leaves",
+   "target": "Мятные листики"
+  },
+  "ui.trail-stardust-sparkles": {
+   "en": "Stardust sparkles",
+   "target": "Звёздная пыльца"
+  },
+  "ui.character-voices": {
+   "en": "Character voices",
+   "target": "Голоса персонажей"
+  },
+  "ui.sky-club-soundtrack": {
+   "en": "Sky Club soundtrack",
+   "target": "Музыка Небесного клуба"
+  },
+  "ui.reduced-motion": {
+   "en": "Reduced motion",
+   "target": "Меньше анимации"
+  },
+  "ui.campaign-map": {
+   "en": "map",
+   "target": "карта"
+  },
+  "ui.stop": {
+   "en": "stop",
+   "target": "остановка",
+   "note": "«Следующая остановка»."
+  },
+  "ui.chapter": {
+   "en": "chapter",
+   "target": "глава"
+  },
+  "ui.level": {
+   "en": "level",
+   "target": "уровень"
+  },
+  "ui.level-card": {
+   "en": "level card",
+   "target": "карточка уровня"
+  },
+  "ui.special-delivery": {
+   "en": "SPECIAL DELIVERY",
+   "target": "ОСОБАЯ ДОСТАВКА"
+  },
+  "ui.hint": {
+   "en": "TIP",
+   "target": "СОВЕТ"
+  },
+  "ui.thank-you-note": {
+   "en": "thank-you note",
+   "target": "благодарственная записка"
+  },
+  "ui.postcard": {
+   "en": "postcard",
+   "target": "открытка",
+   "note": "«Дорогой курьер,» agrees with the noun «курьер», fine for any bird; «P.S.»."
+  },
+  "ui.lair": {
+   "en": "lair",
+   "target": "логово"
+  },
+  "ui.guardian": {
+   "en": "GUARDIAN",
+   "target": "СТРАЖ",
+   "note": "Masculine noun used generically; Bill says «страж»."
+  },
+  "ui.boss": {
+   "en": "boss",
+   "target": "босс"
+  },
+  "ui.encounter": {
+   "en": "ENCOUNTER 01",
+   "target": "ВСТРЕЧА 01"
+  },
+  "ui.name-card": {
+   "en": "name card",
+   "target": "именная карточка"
+  },
+  "ui.stronger": {
+   "en": "STRONGER",
+   "target": "СИЛЬНЕЕ"
+  },
+  "ui.fury": {
+   "en": "FURY",
+   "target": "ЯРОСТЬ"
+  },
+  "ui.sky-reclaimed": {
+   "en": "SKY RECLAIMED",
+   "target": "НЕБО ОСВОБОЖДЕНО"
+  },
+  "ui.guardian-down": {
+   "en": "GUARDIAN DOWN!",
+   "target": "СТРАЖ ПОВЕРЖЕН!"
+  },
+  "ui.victory": {
+   "en": "Victory!",
+   "target": "Победа!"
+  },
+  "ui.delivered": {
+   "en": "Delivered!",
+   "target": "Доставлено!",
+   "note": "Neuter impersonal: no agreement."
+  },
+  "ui.try-again": {
+   "en": "Try again!",
+   "target": "Ещё разок!"
+  },
+  "ui.bonk": {
+   "en": "Bonk!",
+   "target": "Бамс!",
+   "note": "Cartoon bump; the Empress's moths say the softer «Тюк»."
+  },
+  "ui.splash": {
+   "en": "Splash!",
+   "target": "Плюх!"
+  },
+  "ui.route-flown": {
+   "en": "ROUTE FLOWN",
+   "target": "ПРОЙДЕНО МАРШРУТА"
+  },
+  "ui.coming-soon": {
+   "en": "Coming soon",
+   "target": "Скоро"
+  },
+  "ui.unlock": {
+   "en": "unlock",
+   "target": "открыть",
+   "note": "«ЗАКРЫТО»."
+  },
+  "ui.story-key": {
+   "en": "Story",
+   "target": "История",
+   "note": "«Пропустить», «Дальше»."
+  },
+  "ui.to-be-continued": {
+   "en": "To be continued…",
+   "target": "Продолжение следует…",
+   "note": "Exact caption for the scene player."
+  },
+  "ui.pause": {
+   "en": "Take a breather.",
+   "target": "Передохни.",
+   "note": "«Заново», «Летим дальше», «Карта»."
+  },
+  "ui.flap": {
+   "en": "Flap",
+   "target": "Взмах",
+   "note": "«Жми, чтобы взмахнуть»."
+  },
+  "ui.fly": {
+   "en": "Fly!",
+   "target": "Летим!"
+  },
+  "ui.workout": {
+   "en": "workout",
+   "target": "зарядка",
+   "note": "Light word, keeps mini games casual (practice is «тренировка»)."
+  },
+  "ui.calibration": {
+   "en": "calibration",
+   "target": "калибровка"
+  },
+  "ui.camera-lab": {
+   "en": "Camera & tracking lab",
+   "target": "Лаборатория камеры и трекинга"
+  },
+  "ui.play-games": {
+   "en": "Play Games",
+   "target": "Google Play Игры",
+   "note": "Google's own Russian product name."
+  },
+  "ui.achievements": {
+   "en": "achievements",
+   "target": "достижения"
+  },
+  "ui.share-code": {
+   "en": "share code",
+   "target": "код уровня"
+  },
+  "ui.remix": {
+   "en": "Remix",
+   "target": "Ремикс"
+  },
+  "ui.starter-levels": {
+   "en": "Starter levels",
+   "target": "Стартовые уровни"
+  },
+  "ui.start-zone": {
+   "en": "START ZONE",
+   "target": "СТАРТОВАЯ ЗОНА"
+  },
+  "ui.gate-family": {
+   "en": "gate family",
+   "target": "вид ворот"
+  },
+  "ui.boss-finale": {
+   "en": "Boss finale",
+   "target": "Финал с боссом"
+  },
+  "ui.cleared-by-you": {
+   "en": "Cleared by you",
+   "target": "Пройден тобой"
+  },
+  "ui.pace": {
+   "en": "Pace",
+   "target": "Темп",
+   "note": "Спокойный, Ровный, Бодрый."
+  },
+  "ui.lane": {
+   "en": "lane",
+   "target": "полоса",
+   "note": "«свободная полоса»."
+  },
+  "ui.player": {
+   "en": "Player 1",
+   "target": "Игрок 1",
+   "note": "И1 / И2."
+  },
+  "ui.team-score": {
+   "en": "TEAM SCORE",
+   "target": "СЧЁТ КОМАНДЫ"
+  },
+  "ui.rematch": {
+   "en": "Rematch",
+   "target": "Реванш"
+  },
+  "ui.rank-first-wings": {
+   "en": "First wings",
+   "target": "Первые крылья"
+  },
+  "ui.rank-cloud-explorer": {
+   "en": "Cloud explorer",
+   "target": "Исследователь облаков"
+  },
+  "ui.home-greeting": {
+   "en": "Hi, I’m $name! Ready to fly?",
+   "target": "Привет, я $name! Летим?",
+   "note": "Avoids «готов/готова»."
+  },
+  "achievement.frequent-flyer": {
+   "en": "Frequent flyer",
+   "target": "Частый летун"
+  },
+  "achievement.on-the-dot": {
+   "en": "On the dot",
+   "target": "В яблочко",
+   "note": "Idiom of precision."
+  },
+  "achievement.star-chaser": {
+   "en": "Star chaser",
+   "target": "Ловец звёзд"
+  },
+  "achievement.constellation": {
+   "en": "Constellation",
+   "target": "Созвездие"
+  },
+  "achievement.sky-captain": {
+   "en": "Sky captain",
+   "target": "Капитан неба"
+  },
+  "achievement.trailblazer": {
+   "en": "Trailblazer",
+   "target": "Первопроходец"
+  },
+  "achievement.flock-together": {
+   "en": "Flock together",
+   "target": "Одной стаей",
+   "note": "Adapted flock/together phrase."
+  },
+  "achievement.all-rounder": {
+   "en": "All-rounder",
+   "target": "Мастер на все крылья",
+   "note": "Twist of «мастер на все руки»."
+  },
+  "achievement.mail-through-the-canopy": {
+   "en": "Mail Through the Canopy",
+   "target": "Почта сквозь кроны"
+  },
+  "achievement.return-to-sender": {
+   "en": "Return to Sender",
+   "target": "Вернуть отправителю"
+  },
+  "achievement.mint-tea-again": {
+   "en": "Mint Tea Again",
+   "target": "Снова мятный чай"
+  },
+  "achievement.crumbs-cleared": {
+   "en": "Crumbs Cleared",
+   "target": "Ни крошки",
+   "note": "Adapted: crumbs swept away."
+  },
+  "achievement.out-of-the-spotlight": {
+   "en": "Out of the Spotlight",
+   "target": "Без софитов",
+   "note": "Adapted: out of his light and off the stage."
+  },
+  "achievement.gold-canopy": {
+   "en": "Gold Canopy",
+   "target": "Золотые кроны"
+  },
+  "achievement.gold-road": {
+   "en": "Gold Road",
+   "target": "Золотая дорога"
+  },
+  "achievement.bright-lights": {
+   "en": "Bright Lights",
+   "target": "Огни большого города",
+   "note": "Echoes the Chaplin title known in Russian."
+  },
+  "achievement.lamplighter": {
+   "en": "Lamplighter",
+   "target": "Фонарщик"
+  },
+  "achievement.harbour-bells": {
+   "en": "Harbour Bells",
+   "target": "Колокола гавани"
+  },
+  "achievement.edge-of-the-map": {
+   "en": "Edge of the Map",
+   "target": "Край карты"
+  },
+  "achievement.two-on-one-phone": {
+   "en": "Two on One Phone",
+   "target": "Двое на одном телефоне"
+  },
+  "achievement.friendly-rivals": {
+   "en": "Friendly Rivals",
+   "target": "Друзья-соперники"
+  },
+  "achievement.route-planner": {
+   "en": "Route Planner",
+   "target": "Прокладчик маршрутов"
+  },
+  "achievement.the-whole-kit": {
+   "en": "The Whole Kit",
+   "target": "Полный комплект"
+  },
+  "achievement.pen-pal": {
+   "en": "Pen Pal",
+   "target": "Друг по переписке"
+  },
+  "achievement.night-mail": {
+   "en": "Night Mail",
+   "target": "Ночная почта"
+  },
+  "achievement.special-delivery": {
+   "en": "Special Delivery",
+   "target": "Особая доставка"
+  },
+  "achievement.goal-spread-your-wings": {
+   "en": "Spread your wings",
+   "target": "Расправь крылья"
+  },
+  "achievement.goal-open-horizons": {
+   "en": "Open horizons",
+   "target": "Новые горизонты"
+  },
+  "achievement.goal-pocketful-of-stars": {
+   "en": "Pocketful of stars",
+   "target": "Полный карман звёзд"
+  },
+  "achievement.goal-keep-the-sparkle": {
+   "en": "Keep the sparkle",
+   "target": "Сияй без перерыва"
+  },
+  "achievement.goal-right-on-the-mark": {
+   "en": "Right on the mark",
+   "target": "Точно в цель"
+  },
+  "achievement.goal-the-whole-journey": {
+   "en": "The whole journey",
+   "target": "Весь путь"
+  },
+  "achievement.card-sunrise-delivery": {
+   "en": "Sunrise delivery",
+   "target": "Рассветная доставка"
+  },
+  "achievement.card-peach-picnic": {
+   "en": "Peach picnic",
+   "target": "Персиковый пикник"
+  },
+  "achievement.card-moonlit-mail": {
+   "en": "Moonlit mail",
+   "target": "Лунная почта"
+  },
+  "achievement.card-cloud-parade": {
+   "en": "Cloud parade",
+   "target": "Парад облаков"
+  },
+  "achievement.card-twilight-treasure": {
+   "en": "Twilight treasure",
+   "target": "Сумеречный клад"
+  },
+  "achievement.card-garden-party": {
+   "en": "Garden party",
+   "target": "Праздник в саду"
+  },
+  "story.flame-seal": {
+   "en": "flame seal",
+   "target": "огненная печать",
+   "note": "«печать в виде пламени»; «Два маршрута, две печати»."
+  },
+  "story.warm-letter": {
+   "en": "a warm letter",
+   "target": "тёплое письмо",
+   "note": "Both meanings (warm and kind) work in Russian."
+  },
+  "story.night-mail": {
+   "en": "the night mail",
+   "target": "ночная почта"
+  },
+  "story.morning-post": {
+   "en": "the morning post",
+   "target": "утренняя почта"
+  },
+  "story.mail-route": {
+   "en": "route",
+   "target": "маршрут",
+   "note": "One word in chapters, boss and Bill lines, HUD."
+  },
+  "story.route-six": {
+   "en": "Route six",
+   "target": "Шестой маршрут"
+  },
+  "story.beacon": {
+   "en": "our beacon",
+   "target": "наш маяк"
+  },
+  "story.lost-letter": {
+   "en": "the lost letter",
+   "target": "потерянное письмо"
+  },
+  "story.the-books": {
+   "en": "the books",
+   "target": "журналы",
+   "note": "«Я дважды проверил журналы»."
+  },
+  "story.pigeonholes": {
+   "en": "pigeonholes",
+   "target": "почтовая голубятня",
+   "note": "Adapted pun: the sorting shelves as a dovecote that has never housed a pigeon."
+  },
+  "story.bread-cart": {
+   "en": "the bread cart",
+   "target": "хлебная тележка"
+  },
+  "story.bagel": {
+   "en": "a hot bagel a day",
+   "target": "горячий бублик в день",
+   "note": "«Бублик» is the familiar Russian ring bread."
+  },
+  "story.landing-light": {
+   "en": "landing light",
+   "target": "посадочный огонь"
+  },
+  "story.brew": {
+   "en": "the brew",
+   "target": "варево",
+   "note": "«в варево!»."
+  },
+  "story.perfect-ink": {
+   "en": "the perfect ink",
+   "target": "идеальные чернила"
+  },
+  "story.mint-tea": {
+   "en": "mint tea",
+   "target": "мятный чай"
+  },
+  "story.letter-phrases": {
+   "en": "“Dear Grandma”, “Wish you were here”",
+   "target": "«Дорогая бабушка», «Целую, обнимаю»",
+   "note": "Russian stock letter phrases; flight recipe: «Выздоравливай», «С любовью»."
+  },
+  "story.postage-stamp": {
+   "en": "stamps",
+   "target": "марки",
+   "note": "Postage stamps; never «штамп»."
+  },
+  "story.stamp-album": {
+   "en": "stamp album",
+   "target": "альбом с марками"
+  },
+  "story.penny-black": {
+   "en": "penny black",
+   "target": "Чёрный пенни",
+   "note": "Established philatelic name."
+  },
+  "story.envelopes": {
+   "en": "the envelopes",
+   "target": "конверты"
+  },
+  "story.beauty-sleep": {
+   "en": "beauty sleep",
+   "target": "сон для красоты",
+   "note": "Used the same way in every line."
+  },
+  "story.dusk-delivery": {
+   "en": "deliver at dusk",
+   "target": "доставлять в сумерках"
+  },
+  "story.lamps": {
+   "en": "the lamps",
+   "target": "фонари",
+   "note": "Street lamps; no near-homophone in the takes."
+  },
+  "story.lampshades": {
+   "en": "lampshades",
+   "target": "абажуры",
+   "note": "The Empress: «Абажуры…»."
+  },
+  "story.harbour-bells": {
+   "en": "harbour bells",
+   "target": "колокола гавани"
+  },
+  "story.club-rule": {
+   "en": "Club rule",
+   "target": "Правило клуба"
+  },
+  "story.final-notice": {
+   "en": "final notice",
+   "target": "последнее предупреждение"
+  },
+  "story.wake-up-call": {
+   "en": "wake-up call",
+   "target": "побудка"
+  },
+  "story.first-letter": {
+   "en": "the first letter ever sent to the Dragon",
+   "target": "первое в жизни письмо Дракону"
+  },
+  "story.dotted-i": {
+   "en": "He dotted his “i” with a tiny bat.",
+   "target": "А вместо точки — крохотная летучая мышка.",
+   "note": "Adapted: Cyrillic has no dotted i, so the bat replaces the full stop of his signature."
+  },
+  "story.mailbag": {
+   "en": "mailbag",
+   "target": "почтовый мешок",
+   "note": "«мешок с почтой»."
+  },
+  "story.satchel": {
+   "en": "satchel",
+   "target": "сумка"
+  },
+  "story.pharaohs-post": {
+   "en": "the Pharaoh's post",
+   "target": "почта фараона"
+  },
+  "story.mask": {
+   "en": "golden courier mask",
+   "target": "золотая курьерская маска"
+  },
+  "story.wrappings": {
+   "en": "wrappings",
+   "target": "бинты"
+  },
+  "story.headwear": {
+   "en": "headwear",
+   "target": "головной убор",
+   "note": "корона, корона-колба, диадема, шляпа, фуражка."
+  },
+  "story.kindling": {
+   "en": "kindling",
+   "target": "растопка"
+  },
+  "story.rush-hour": {
+   "en": "rush hour",
+   "target": "час пик",
+   "note": "«Его отбой — наш час пик»."
+  },
+  "story.weather-vane": {
+   "en": "weather vane",
+   "target": "флюгер"
+  },
+  "motto.every-letter-lands": {
+   "en": "Every letter lands.",
+   "target": "Каждое письмо долетит.",
+   "note": "\"Долетит\" = arrives by flying all the way (arriving + a bird landing); works as a question: «Каждое письмо правда долетит?»."
+  },
+  "motto.every-letter-delivered": {
+   "en": "Every letter delivered",
+   "target": "Каждое письмо доставлено"
+  },
+  "address.rookie": {
+   "en": "rookie",
+   "target": "новичок",
+   "note": "Generic noun, fits every bird."
+  },
+  "address.little-courier": {
+   "en": "little courier",
+   "target": "курьерчик",
+   "note": "Diminutive: posh condescension with no adjective agreement."
+  },
+  "address.darling": {
+   "en": "darling",
+   "target": "дорогуша",
+   "note": "Common-gender theatrical endearment (Gargoyle, Baron)."
+  },
+  "address.postie": {
+   "en": "postie",
+   "target": "почтарь",
+   "note": "Colloquial old word for a postman."
+  },
+  "address.sprat": {
+   "en": "sprat",
+   "target": "килька",
+   "note": "Literally a sprat; a common small-fry put-down."
+  },
+  "address.skylubber": {
+   "en": "skylubber",
+   "target": "небесная крыса",
+   "note": "Twist of «сухопутная крыса» (landlubber)."
+  },
+  "address.matey": {
+   "en": "matey",
+   "target": "дружище",
+   "note": "Common gender."
+  },
+  "address.lad": {
+   "en": "lad",
+   "target": "салага",
+   "note": "Sailors' word for a greenhorn; common gender, no \"boy\"."
+  },
+  "address.feathers": {
+   "en": "feathers",
+   "target": "пёрышко",
+   "note": "Neuter, fits any bird."
+  },
+  "address.little-spark": {
+   "en": "little spark",
+   "target": "искорка"
+  },
+  "address.hatchling": {
+   "en": "hatchling",
+   "target": "птенец"
+  },
+  "address.small-one": {
+   "en": "small one",
+   "target": "кроха",
+   "note": "Common gender; «вестник» (messenger), «птичка» (little bird)."
+  },
+  "address.little-one": {
+   "en": "little one",
+   "target": "малютка",
+   "note": "Common gender; «странник», «ночная птица»."
+  },
+  "address.fledgling": {
+   "en": "fledgling",
+   "target": "желторотик",
+   "note": "Fussy old man's word for a greenhorn."
+  },
+  "address.old-courier": {
+   "en": "old courier",
+   "target": "старый курьер"
+  },
+  "address.stoneface": {
+   "en": "Stoneface",
+   "target": "Каменное Лицо",
+   "note": "From «с каменным лицом» (poker face) + stone."
+  },
+  "address.commissioner": {
+   "en": "Commissioner",
+   "target": "Комиссар"
+  },
+  "address.your-majesty": {
+   "en": "Your Majesty",
+   "target": "Ваше Величество",
+   "note": "«Его Величество жук»."
+  },
+  "address.your-lordship": {
+   "en": "Your Lordship",
+   "target": "Ваша Светлость"
+  },
+  "address.her-highness": {
+   "en": "Her Highness",
+   "target": "Её Высочество"
+  },
+  "address.sir": {
+   "en": "sir",
+   "target": "сударь",
+   "note": "Polite old-fashioned address, with вы."
+  },
+  "address.mister": {
+   "en": "Mister",
+   "target": "дядя",
+   "note": "Childlike Russian politeness: «дядя Сфинкс», «дяденька»."
+  },
+  "address.partner": {
+   "en": "partner",
+   "target": "напарник",
+   "note": "Minty to enemies: «приятель», «дружок»."
+  },
+  "address.peaches-pet-names": {
+   "en": "sweetie",
+   "target": "зайка",
+   "note": "Varied, never repeated: солнышко, пончик, лапочка, булочка, пупсик, ягодка, конфетка, милашка…"
+  },
+  "address.bossy": {
+   "en": "bossy",
+   "target": "начальничек",
+   "note": "Cheeky diminutive of «начальник»."
+  },
+  "address.minions": {
+   "en": "Cousins! / my lovelies / my little scarabs / me hearties",
+   "target": "Кузены! / мои милые / мои скарабейчики / Свистать всех наверх!",
+   "note": "Each boss's own register."
+  },
+  "phrase.baron-bat-line": {
+   "en": "This route is my roost now, little courier!",
+   "target": "Этот маршрут теперь мой насест, курьерчик!"
+  },
+  "phrase.spitter-king-line": {
+   "en": "Every letter on my road goes in the brew!",
+   "target": "Каждое письмо на моей дороге — в варево!"
+  },
+  "phrase.dusk-empress-line": {
+   "en": "Hush now. The night mail is sleeping.",
+   "target": "Тише, тише. Ночная почта сладко спит."
+  },
+  "phrase.pirate-captain-line": {
+   "en": "Arr! Every mailbag on these waves be mine!",
+   "target": "Арр! Все почтовые мешки на этих волнах — мои!"
+  },
+  "phrase.ember-dragon-line": {
+   "en": "The sky is mine. Your letters are kindling.",
+   "target": "Это небо — моё. Твои письма — лишь растопка."
+  },
+  "phrase.neferhoo-line": {
+   "en": "Return to sender! This route has a courier.",
+   "target": "Вернуть отправителю! У этого маршрута уже есть курьер."
+  },
+  "phrase.king-coo-line": {
+   "en": "Nobody flies till the bread cart is found!",
+   "target": "Никто не летает, пока не найдётся хлебная тележка!"
+  },
+  "phrase.searchlight-gargoyle-line": {
+   "en": "Hold still! Nobody ever stays in the light.",
+   "target": "Замри! Никто никогда не задерживается в луче."
+  },
+  "phrase.return-to-sender": {
+   "en": "Return to sender!",
+   "target": "Вернуть отправителю!",
+   "note": "The usual Russian wording of the postal formula; identical in every use."
+  },
+  "phrase.signed-sealed-delivered": {
+   "en": "Signed, sealed, delivered!",
+   "target": "Подписано, запечатано, доставлено!",
+   "note": "Minty: «Подписано, запечатано, умчано!»."
+  },
+  "phrase.small-bird-big-sky": {
+   "en": "Small bird. Big sky.",
+   "target": "Птичка мала. Небо велико.",
+   "note": "Pip's riff: «Птичка мала — план велик!»."
+  },
+  "phrase.peaches-tagline": {
+   "en": "Rosy cheeks, curly crest, all heart.",
+   "target": "Румяные щёчки, кудрявый хохолок, большое сердце."
+  },
+  "phrase.minty-tagline": {
+   "en": "Tiny hummer. Fresh sprig. Full speed.",
+   "target": "Крошка-колибри. Свежая мята. Полный вперёд."
+  },
+  "phrase.orbit-tagline": {
+   "en": "A dreamy owl who flies by starlight.",
+   "target": "Мечтательная сова, что летает при свете звёзд.",
+   "note": "Bill: «Лети при свете звёзд, новичок»."
+  },
+  "phrase.sprint-woohoo": {
+   "en": "Woo-hooo!",
+   "target": "Ю-ху-у!"
+  },
+  "phrase.sprint-turbo-feathers": {
+   "en": "Turbo feathers!",
+   "target": "Турбо-пёрышки!"
+  },
+  "phrase.sprint-bye-bye-gravity": {
+   "en": "Bye-bye, gravity!",
+   "target": "Пока-пока, гравитация!"
+  },
+  "phrase.sprint-wheee": {
+   "en": "Wheeee!",
+   "target": "Уи-и-и-и!"
+  },
+  "phrase.keep-your-beak-up": {
+   "en": "Keep your beak up.",
+   "target": "Выше клюв!",
+   "note": "Twist of «Выше нос!»."
+  },
+  "phrase.all-screech": {
+   "en": "He’s all screech",
+   "target": "Визжит, да не кусает",
+   "note": "Twist of «лает, да не кусает»."
+  },
+  "phrase.no-flame-seal": {
+   "en": "No flame seal on this guardian.",
+   "target": "Огненной печати у этого стража нет."
+  },
+  "phrase.halt": {
+   "en": "HALT!",
+   "target": "СТОЯТЬ!"
+  },
+  "phrase.mister-nice-bat": {
+   "en": "No more Mister Nice Bat!",
+   "target": "Добрый Нетопырь кончился!",
+   "note": "Adapted \"no more Mr Nice Guy\"."
+  },
+  "phrase.at-your-disservice": {
+   "en": "at your disservice",
+   "target": "ваш непокорный слуга",
+   "note": "Twist of «ваш покорный слуга»."
+  },
+  "phrase.mind-the-gap": {
+   "en": "Mind the gap",
+   "target": "Осторожно, двери закрываются",
+   "note": "The Moscow metro warning."
+  },
+  "phrase.sticks-and-stones": {
+   "en": "Sticks and stones?",
+   "target": "Слова — не камни? А камни у меня с собой!",
+   "note": "Adapted; keeps the stone joke."
+  },
+  "phrase.rock-beats-shot": {
+   "en": "Rock beats shot!",
+   "target": "Камень бьёт выстрел!",
+   "note": "Rock-paper-scissors wording («камень бьёт ножницы»)."
+  },
+  "phrase.pirate-speak": {
+   "en": "Arr!",
+   "target": "Арр!",
+   "note": "Йо-хо-хо!, Полундра!, Стоп машина!, Тысяча каракатиц!, Свистать всех наверх!, Парус на горизонте!"
+  },
+  "phrase.strike-the-colours": {
+   "en": "strike the colours",
+   "target": "спустить флаг"
+  },
+  "phrase.nobody-looks-up": {
+   "en": "Nobody looks up.",
+   "target": "Никто не смотрит вверх.",
+   "note": "Payoff «Каждый курьер будет смотреть вверх!»."
+  },
+  "phrase.accepts": {
+   "en": "The Commissioner accepts.",
+   "target": "Комиссар принимает предложение.",
+   "note": "Gargoyle: «Горгулья принимает предложение.» (present tense, no gender clash)."
+  },
+  "phrase.bonk-bonk": {
+   "en": "Bonk. Bonk.",
+   "target": "Тюк. Тюк.",
+   "note": "Soft bump of a moth on a lamp."
+  },
+  "phrase.hush": {
+   "en": "Hush now.",
+   "target": "Тише.",
+   "note": "«Тсс.»"
+  },
+  "phrase.welcome-to-the-club": {
+   "en": "Welcome to the club",
+   "target": "Добро пожаловать в клуб",
+   "note": "Same idiom in Russian."
+  },
+  "ui.omen-baron": {
+   "en": "A SHADOW APPROACHES",
+   "target": "НАДВИГАЕТСЯ ТЕНЬ"
+  },
+  "ui.omen-baron-returns": {
+   "en": "THE BARON RETURNS",
+   "target": "БАРОН ВЕРНУЛСЯ"
+  },
+  "ui.omen-spitter": {
+   "en": "SOMETHING IS BREWING",
+   "target": "ЧТО-ТО ЗАВАРИВАЕТСЯ",
+   "note": "«Заваривается» = brewing and \"something's up\"."
+  },
+  "ui.omen-empress": {
+   "en": "TWILIGHT TAKES WING",
+   "target": "СУМЕРКИ РАСПРАВЛЯЮТ КРЫЛЬЯ"
+  },
+  "ui.omen-pirate": {
+   "en": "SAIL HO!",
+   "target": "ПАРУС НА ГОРИЗОНТЕ!"
+  },
+  "ui.omen-dragon": {
+   "en": "THE SKY CATCHES FIRE",
+   "target": "НЕБО ВСПЫХИВАЕТ"
+  },
+  "ui.omen-king-coo": {
+   "en": "THE CURB IS CLOSED",
+   "target": "БОРДЮР ПЕРЕКРЫТ"
+  },
+  "ui.omen-gargoyle": {
+   "en": "STORM WARNING",
+   "target": "ШТОРМОВОЕ ПРЕДУПРЕЖДЕНИЕ",
+   "note": "Same words as level 3-4."
+  },
+  "ui.omen-neferhoo": {
+   "en": "THE PYRAMID STIRS",
+   "target": "ПИРАМИДА ПРОСЫПАЕТСЯ"
+  },
+  "story.letter": {
+   "en": "letter",
+   "target": "письмо",
+   "note": "Same word as in the motto."
+  },
+  "story.mail-and-post": {
+   "en": "the mail / the post",
+   "target": "почта",
+   "note": "One word for both; «почтальон» for postman."
+  },
+  "story.parcel": {
+   "en": "parcel",
+   "target": "посылка"
+  },
+  "story.delivery": {
+   "en": "delivery",
+   "target": "доставка",
+   "note": "доставить / доставлено."
+  },
+  "story.salutation": {
+   "en": "Dear Dragon.",
+   "target": "Дорогой Дракон.",
+   "note": "«Дорогой курьер,» agrees with the noun, fits any bird."
+  },
+  "ui.pickups": {
+   "en": "pickups (general word)",
+   "target": "бонусы",
+   "note": "Settings and generic UI; concrete lists name «звёзды и сердечки». UI translator (reports/ui-ru.md)."
+  },
+  "ui.tap-verb": {
+   "en": "tap (verb)",
+   "target": "жми / нажми",
+   "note": "«Жми» in flight hints and modes («Жми и лети»); «нажми» in menus and the builder. UI translator (reports/ui-ru.md)."
+  },
+  "ui.test-fly": {
+   "en": "test fly (Level Builder)",
+   "target": "испытать",
+   "note": "Key «ИСПЫТАТЬ», «Испытай уровень до финиша»; the flight itself is «пробный полёт» (mode.test-flight). UI translator (reports/ui-ru.md)."
+  },
+  "ui.level-builder-key": {
+   "en": "LEVEL BUILDER (home key)",
+   "target": "КОНСТРУКТОР",
+   "note": "Short form on the home key and buttons; screen title «Конструктор уровней». UI translator (reports/ui-ru.md)."
+  },
+  "ui.gate-look": {
+   "en": "look (gate art variant)",
+   "target": "облик",
+   "note": "Kept apart from «вид ворот» (gate family). UI translator (reports/ui-ru.md)."
+  },
+  "ui.paste-code": {
+   "en": "Paste code",
+   "target": "Вставить код",
+   "note": "UI translator (reports/ui-ru.md)."
+  },
+  "ui.fix-it": {
+   "en": "Fix it / Needs work",
+   "target": "Исправить / Нужно доделать",
+   "note": "Problems count as «недочёт/недочёта/недочётов». UI translator (reports/ui-ru.md)."
+  },
+  "ui.nice-shot": {
+   "en": "NICE SHOT!",
+   "target": "МЕТКО!",
+   "note": "UI translator (reports/ui-ru.md)."
+  },
+  "ui.escaped": {
+   "en": "ESCAPED! / WEATHERED! / FLAWLESS!",
+   "target": "УДРАЛИ! / ВЫСТОЯЛИ! / ЧИСТАЯ РАБОТА!",
+   "note": "Plural «мы» forms: no gender agreement with the bird. UI translator (reports/ui-ru.md)."
+  },
+  "ui.hp": {
+   "en": "HP (health points)",
+   "target": "ОЗ / ЗДОРОВЬЕ",
+   "note": "«ОЗ» (очки здоровья) beside the big number; «ЗДОРОВЬЕ» in labels. UI translator (reports/ui-ru.md)."
+  },
+  "ui.stamped": {
+   "en": "STAMPED / POSTCARD STAMPED!",
+   "target": "ЗАВЕРЕНО / ШТАМП ПОСТАВЛЕН!",
+   "note": "Passport postmark word and the daily-card pill. UI translator (reports/ui-ru.md)."
+  },
+  "ui.spotted": {
+   "en": "SPOTTED! (Gargoyle beam tag)",
+   "target": "ЗАСЕКЛИ!",
+   "note": "UI shout over any bird: impersonal plural, no gender (replaces «ЗАМЕЧЕН!» from attack.beam on the tag). UI translator (reports/ui-ru.md)."
+  },
+  "ui.boss-bar-defeated": {
+   "en": "DEFEATED (boss health bar)",
+   "target": "ПОБЕДА",
+   "note": "Neutral: «ПОВЕРЖЕН/ПОВЕРЖЕНА» would need the boss's gender; the banner has one branch per boss and agrees. UI translator (reports/ui-ru.md)."
+  },
+  "ui.common-keys": {
+   "en": "Retry / Next, Continue / Home / Map",
+   "target": "Заново / Дальше / Домой / Карта",
+   "note": "UI translator (reports/ui-ru.md)."
+  },
+  "ui.new-tag": {
+   "en": "NEW (tag)",
+   "target": "НОВОЕ",
+   "note": "Neutral sticker word; level card tag is «НОВОЕ» too. A new bird in screen-reader text is «новичок». UI translator (reports/ui-ru.md)."
+  },
+  "ui.key-space": {
+   "en": "Space (keyboard key)",
+   "target": "пробел",
+   "note": "UI translator (reports/ui-ru.md)."
+  },
+  "ui.neferhoo-roar": {
+   "en": "HOO POO POO (Neferhoo's arrival)",
+   "target": "УУП УП УП",
+   "note": "The hoopoe's call in Russian is «уп-уп-уп». UI translator (reports/ui-ru.md)."
+  },
+  "ui.duel-fight": {
+   "en": "Fight! (duel start)",
+   "target": "В бой!",
+   "note": "UI translator (reports/ui-ru.md)."
+  },
+  "ui.copilot": {
+   "en": "YOUR CO-PILOT",
+   "target": "ТВОЙ НАПАРНИК",
+   "note": "Same «напарник» as address.partner. UI translator (reports/ui-ru.md)."
+  },
+  "ui.cloud-save": {
+   "en": "cloud save",
+   "target": "облачное сохранение",
+   "note": "Play Games strip; «Облако и достижения». UI translator (reports/ui-ru.md)."
+  },
+  "ui.gate-counts": {
+   "en": "N gates (counts)",
+   "target": "N ворот / пролети сквозь ворота N раз",
+   "note": "«Ворота» is plural-only: short labels use «ворот» (1 → «ворота»); goal sentences count passes («N раз»); the old Classic score unit is «препятствие/-я/-й». UI translator (reports/ui-ru.md)."
+  },
+  "ui.short.dusk-empress": {
+   "en": "Dusk Empress (20-char boss name field)",
+   "target": "Императрица Сумерек",
+   "note": "Only boss_duskMoth_name (budget 20); everywhere else «Сумеречная Императрица». Builder key: «Сумеречная». UI translator (reports/ui-ru.md)."
+  },
+  "ui.short.searchlight-gargoyle": {
+   "en": "Searchlight Gargoyle (20-char boss name field)",
+   "target": "Горгулья-прожектор",
+   "note": "Only boss_searchlightGargoyle_name (budget 20); the name card, banner and story keep «Прожекторная Горгулья». UI translator (reports/ui-ru.md)."
+  },
+  "ui.short.push-up-flight": {
+   "en": "Push-Up Flight (mode name, 18 chars)",
+   "target": "Отжимайся и лети",
+   "note": "Fits the «… и лети» pattern; «Полёт на отжиманиях» is 19. UI translator (reports/ui-ru.md)."
+  },
+  "ui.short.all-rounder": {
+   "en": "All-rounder (passport stamp, 18 chars)",
+   "target": "Мастер всех мастей",
+   "note": "«Мастер на все крылья» is 20; used in the passport and the 3 Play achievements. UI translator (reports/ui-ru.md)."
+  },
+  "ui.short.crystal-steps": {
+   "en": "Crystal steps (builder gate family, 18 chars)",
+   "target": "Ступени хрусталя",
+   "note": "«Хрустальные ступени» (Bill's line) is 19. UI translator (reports/ui-ru.md)."
+  },
+  "ui.short.stair-squats": {
+   "en": "Stair Squats (starter level, 16 chars)",
+   "target": "Лесенка-присядка",
+   "note": "«Приседания-лесенка» is 18. UI translator (reports/ui-ru.md)."
+  },
+  "ui.short.cloud-explorer": {
+   "en": "Cloud explorer (rank, 14 chars)",
+   "target": "Облакопроходец",
+   "note": "«Исследователь облаков» is 21. UI translator (reports/ui-ru.md)."
+  },
+  "ui.short.meteor-shower": {
+   "en": "Meteor shower (duel prize, 16 chars)",
+   "target": "Дождь метеоров",
+   "note": "«Метеоритный дождь» is 17. UI translator (reports/ui-ru.md)."
+  },
+  "ui.short.purple-bat": {
+   "en": "Purple bat (builder enemy, 22 chars)",
+   "target": "Летучая мышь",
+   "note": "«Фиолетовая летучая мышь» is 23. UI translator (reports/ui-ru.md)."
+  }
+ }
+}

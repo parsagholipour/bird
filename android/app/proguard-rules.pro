@@ -11,3 +11,11 @@
 # class but omitted from tasks-vision. This app never invokes either API.
 -dontwarn com.google.mediapipe.proto.CalculatorProfileProto$CalculatorProfile
 -dontwarn com.google.mediapipe.proto.GraphTemplateProto$CalculatorGraphTemplate
+
+# Flutter adds these itself only while it shrinks the build; with deferred
+# components (the voice packs) app/build.gradle.kts turns R8 on instead.
+# packages/flutter_tools/gradle/flutter_proguard_rules.pro:
+-dontwarn io.flutter.plugin.**
+-dontwarn android.**
+-if class * implements io.flutter.embedding.engine.plugins.FlutterPlugin
+-keep,allowshrinking,allowobfuscation class <1>

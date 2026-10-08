@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../domain/game_rules.dart';
+import '../../l10n/l10n.dart';
 import '../theme.dart';
 import 'builder_chrome.dart';
 
@@ -14,7 +15,7 @@ Future<String?> showBuilderNameDialog(BuildContext context, String name) {
   return showGeneralDialog<String>(
     context: context,
     barrierDismissible: true,
-    barrierLabel: 'Cancel rename',
+    barrierLabel: context.l10n.builderShelfRenameCancelSemantics,
     barrierColor: const Color(0xff12333d).withValues(alpha: .6),
     transitionDuration: still
         ? Duration.zero
@@ -64,6 +65,7 @@ class _NameDialogState extends State<_NameDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final padding = MediaQuery.paddingOf(context);
     return Align(
       alignment: Alignment.topCenter,
@@ -96,7 +98,7 @@ class _NameDialogState extends State<_NameDialog> {
                   Row(
                     children: [
                       Text(
-                        'Name your level',
+                        l.builderShelfRenameTitle,
                         style: heading(17, weight: FontWeight.w700),
                       ),
                       const Spacer(),
@@ -104,7 +106,7 @@ class _NameDialogState extends State<_NameDialog> {
                         listenable: text,
                         builder: (context, _) => Text(
                           _name.isEmpty
-                              ? 'A name needs a letter or two'
+                              ? l.builderShelfRenameEmpty
                               : '${text.text.length} / ${BuiltPlan.maxName}',
                           style: bodyText(
                             12,
@@ -166,7 +168,7 @@ class _NameDialogState extends State<_NameDialog> {
                       const SizedBox(width: 10),
                       BuilderKey(
                         key: const ValueKey('name-cancel'),
-                        tooltip: 'Cancel',
+                        tooltip: l.commonCancel,
                         icon: Icons.close_rounded,
                         sound: 'ui_back',
                         onPressed: () => Navigator.of(context).pop(),
@@ -176,8 +178,8 @@ class _NameDialogState extends State<_NameDialog> {
                         listenable: text,
                         builder: (context, _) => BuilderKey(
                           key: const ValueKey('name-save'),
-                          tooltip: 'Save name',
-                          label: 'Save',
+                          tooltip: l.builderShelfRenameSaveSemantics,
+                          label: l.builderShelfRenameSave,
                           icon: Icons.check_rounded,
                           color: SkyColors.mint,
                           onPressed: _valid ? _save : null,

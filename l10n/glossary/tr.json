@@ -1,0 +1,2419 @@
+{
+ "language": "tr",
+ "terms": {
+  "brand.beakbound": {
+   "en": "Beakbound",
+   "target": "Beakbound",
+   "note": "Latin letters, never translated. Suffixes with an apostrophe: Beakbound'u."
+  },
+  "brand.beak1-code": {
+   "en": "BEAK1.",
+   "target": "BEAK1.",
+   "note": "Technical token, unchanged."
+  },
+  "char.pip": {
+   "en": "Pip",
+   "target": "Pip",
+   "note": "Name kept. Suffixes after an apostrophe: Pip'in, Pip'e."
+  },
+  "char.peaches": {
+   "en": "Peaches",
+   "target": "Peaches",
+   "note": "Name kept (said \"Piçız\"); suffixes follow the sound: Peaches'in, Peaches'e. Her own peach puns use \"şeftali\"."
+  },
+  "char.minty": {
+   "en": "Minty",
+   "target": "Minty",
+   "note": "Name kept: Minty'nin, Minty'ye. The mint flavour is \"nane\" (never the name)."
+  },
+  "char.orbit": {
+   "en": "Orbit",
+   "target": "Orbit",
+   "note": "Name kept: Orbit'in, Orbit'e."
+  },
+  "char.postmaster-bill": {
+   "en": "Postmaster Bill",
+   "target": "Postacıbaşı Bill",
+   "note": "\"Postacıbaşı\" = head postman, a warm old-fashioned title that also works alone (\"Postacıbaşının emri\"). Bill'in, Bill'e."
+  },
+  "char.courier": {
+   "en": "courier",
+   "target": "kurye",
+   "note": "Epicene, fits all four birds; \"Kurye Pip\", \"Kraliyet Kuryesi\". \"postacı\" is kept for \"postman\"/\"postie\"."
+  },
+  "char.narrator": {
+   "en": "the narrator",
+   "target": "anlatıcı",
+   "note": "Never named on screen; captions use sen (\"İlk günün.\")."
+  },
+  "boss.baron-bat": {
+   "en": "Baron Bat",
+   "target": "Baron Yarasa",
+   "note": "Order as in \"Kont Drakula\"; short form and address \"Baron\" (Baron'un)."
+  },
+  "boss.spitter-king": {
+   "en": "Spitter King",
+   "target": "Tükürükçü Kral",
+   "note": "\"tükürükçü\" = the one who spits, same word as the beetles; Bill and the birds say \"Kral\"."
+  },
+  "boss.dusk-empress": {
+   "en": "Dusk Empress",
+   "target": "Alacakaranlık İmparatoriçesi",
+   "note": "\"alacakaranlık\" = dusk/twilight, same word as her moths; short form and address \"İmparatoriçe\". UI: the boss-name keys have a 20-character budget (28 needed), so every UI place (name card, health bar context, level 3-8 name, thank-you signer, defeat banner, store) uses \"Akşam İmparatoriçesi\" (bar name \"İMPARATORİÇE\", builder key \"Akşam\"). Voice keeps the full name (story before-3-1-2, flight pip-boss-empress-01): owner to decide whether to align."
+  },
+  "boss.pirate-captain": {
+   "en": "Pirate Captain",
+   "target": "Korsan Kaptan",
+   "note": "Short form and address \"Kaptan\"; he calls himself \"Kaptan\" (Kaptan'ın)."
+  },
+  "boss.ember-dragon": {
+   "en": "Ember Dragon",
+   "target": "Kor Ejderha",
+   "note": "\"kor\" = glowing ember, same root as \"korlar\" (attack.embers); short form and address \"Ejderha\"."
+  },
+  "guardian.neferhoo": {
+   "en": "Neferhoo",
+   "target": "Neferhoo",
+   "note": "Name kept: Neferhoo'nun, Neferhoo'ya."
+  },
+  "guardian.king-coo": {
+   "en": "King Coo",
+   "target": "Kral Gugu",
+   "note": "\"gu gu\" is how Turkish writes a pigeon's coo; short, card-friendly, King Kong rhythm. His card shout \"COO!\" = \"GUU!\"."
+  },
+  "guardian.searchlight-gargoyle": {
+   "en": "Searchlight Gargoyle",
+   "target": "Işıldaklı Gargoyl",
+   "note": "\"ışıldak\" = searchlight; splits as small IŞILDAKLI over big GARGOYL. Short form \"Gargoyl\" (\"Gargoyl kabul ediyor.\")."
+  },
+  "npc.toucan-twins": {
+   "en": "the toucan twins",
+   "target": "tukan ikizler",
+   "note": "Cargo: \"Tukan ikizlere\"."
+  },
+  "npc.sloth-stargazer": {
+   "en": "the sloth stargazer",
+   "target": "yıldız gözlemcisi tembel hayvan",
+   "note": "\"tembel hayvan\" = sloth; the cargo tag shortens to \"Tembel hayvana\"."
+  },
+  "npc.firefly-nursery": {
+   "en": "the firefly nursery",
+   "target": "ateş böceği kreşi",
+   "note": "\"kreş\" = nursery for small children."
+  },
+  "npc.samba-macaws": {
+   "en": "the samba macaws",
+   "target": "samba papağanları",
+   "note": "Macaw = ara papağanı; \"papağan\" is enough and kid-clear."
+  },
+  "npc.drum-captain": {
+   "en": "the drum captain",
+   "target": "davul şefi",
+   "note": "Band-leader word, never \"kaptan\" (that is the pirate)."
+  },
+  "npc.temple-cooks": {
+   "en": "the temple cooks",
+   "target": "tapınak aşçıları"
+  },
+  "npc.dawn-keeper": {
+   "en": "the dawn keeper",
+   "target": "şafak bekçisi"
+  },
+  "npc.chariot-racers": {
+   "en": "the chariot racers",
+   "target": "araba yarışçıları",
+   "note": "Roman chariot racing is \"araba yarışı\" in Turkish; short for the tag."
+  },
+  "npc.statue-carver": {
+   "en": "the statue carver",
+   "target": "heykeltıraş"
+  },
+  "npc.fire-brigade": {
+   "en": "the fire brigade",
+   "target": "itfaiye ekibi"
+  },
+  "npc.pyramid-astronomer": {
+   "en": "the pyramid astronomer",
+   "target": "piramit gökbilimcisi"
+  },
+  "npc.pyramid-caretaker": {
+   "en": "the pyramid caretaker",
+   "target": "piramit bakıcısı",
+   "note": "Feminine by the voice only (Turkish has no gender)."
+  },
+  "npc.lantern-sellers": {
+   "en": "the lantern sellers",
+   "target": "fenerciler"
+  },
+  "npc.caravan-leader": {
+   "en": "the caravan leader",
+   "target": "kervanbaşı",
+   "note": "The exact Turkish word for a caravan leader."
+  },
+  "npc.stage-manager": {
+   "en": "the stage manager",
+   "target": "sahne amiri",
+   "note": "Theatre term."
+  },
+  "npc.newsstand-pigeons": {
+   "en": "the newsstand pigeons",
+   "target": "gazete bayii güvercinleri"
+  },
+  "npc.night-cabbies": {
+   "en": "the night cabbies",
+   "target": "gece taksicileri",
+   "note": "Cargo says \"gece taksicilerine\"."
+  },
+  "npc.tower-keeper": {
+   "en": "the tower keeper",
+   "target": "kule bekçisi"
+  },
+  "npc.rooftop-painters": {
+   "en": "the rooftop painters",
+   "target": "çatı ressamları"
+  },
+  "npc.accordion-player": {
+   "en": "the accordion player",
+   "target": "akordeoncu"
+  },
+  "npc.baker": {
+   "en": "the baker",
+   "target": "fırıncı",
+   "note": "The Paris baker (3-7); the 4-2 one is \"yanardağ fırıncısı\"."
+  },
+  "npc.lighthouse-keeper": {
+   "en": "the lighthouse keeper",
+   "target": "fener bekçisi"
+  },
+  "npc.volcano-baker": {
+   "en": "the volcano baker",
+   "target": "yanardağ fırıncısı"
+  },
+  "npc.kite-flyers": {
+   "en": "the kite flyers",
+   "target": "uçurtmacılar"
+  },
+  "npc.island-hermit": {
+   "en": "the island hermit",
+   "target": "ada münzevisi",
+   "note": "\"münzevi\" = hermit."
+  },
+  "npc.ferry-crew": {
+   "en": "the ferry crew",
+   "target": "feribot mürettebatı",
+   "note": "\"tayfa\" is kept for the pirate crew."
+  },
+  "npc.gull-colony": {
+   "en": "the gull colony",
+   "target": "martı kolonisi"
+  },
+  "npc.storm-watch": {
+   "en": "the storm watch",
+   "target": "fırtına nöbetçileri",
+   "note": "Cargo: \"fırtına nöbetçilerine\"."
+  },
+  "npc.penguin-choir": {
+   "en": "the penguin choir",
+   "target": "penguen korosu"
+  },
+  "npc.polar-station": {
+   "en": "the polar station",
+   "target": "kutup istasyonu"
+  },
+  "npc.noodle-chef": {
+   "en": "the noodle chef",
+   "target": "erişte ustası",
+   "note": "Noodles = \"erişte\" (native word); the bar is \"erişteci\"."
+  },
+  "npc.rooftop-runners": {
+   "en": "the rooftop runners",
+   "target": "çatı koşucuları"
+  },
+  "npc.lantern-makers": {
+   "en": "the lantern makers",
+   "target": "fener ustaları"
+  },
+  "npc.mountain-monks": {
+   "en": "the mountain monks",
+   "target": "dağ keşişleri"
+  },
+  "npc.sphinx": {
+   "en": "the Sphinx",
+   "target": "Sfenks",
+   "note": "Turkish name of the Sphinx (Sfenks'e, Sfenks'in); Peaches: \"Sfenks Bey\"."
+  },
+  "npc.unit-7": {
+   "en": "Unit 7",
+   "target": "Birim 7",
+   "note": "\"birim\" = unit; reads as a robot designation."
+  },
+  "npc.parrot": {
+   "en": "the Parrot",
+   "target": "Papağan",
+   "note": "Capitalised when the Captain addresses it as a name."
+  },
+  "npc.baron-cousins": {
+   "en": "the Baron's cousins",
+   "target": "Baron'un kuzenleri",
+   "note": "Family words: kuzenler, akrabalar."
+  },
+  "title.postmaster": {
+   "en": "Postmaster",
+   "target": "Postacıbaşı",
+   "note": "Head postman, old-fashioned and warm; also alone (\"Postacıbaşının emri\")."
+  },
+  "title.lord-of-the-storm": {
+   "en": "LORD OF THE STORM",
+   "target": "FIRTINANIN EFENDİSİ"
+  },
+  "title.the-storm-returns": {
+   "en": "THE STORM RETURNS",
+   "target": "FIRTINA GERİ DÖNDÜ",
+   "note": "Echoes \"fırtına\"."
+  },
+  "title.brewer-of-the-swarm": {
+   "en": "BREWER OF THE SWARM",
+   "target": "SÜRÜNÜN İKSİRCİSİ",
+   "note": "\"iksir\" = his brew."
+  },
+  "title.keeper-of-the-twilight-veil": {
+   "en": "KEEPER OF THE TWILIGHT VEIL",
+   "target": "ALACAKARANLIK TÜLÜNÜN BEKÇİSİ",
+   "note": "\"tül\" = her silk veil, same word as the fight hints."
+  },
+  "title.terror-of-the-high-tide": {
+   "en": "TERROR OF THE HIGH TIDE",
+   "target": "KABARAN SULARIN DEHŞETİ",
+   "note": "High tide = \"kabaran sular\" (clearer for kids than \"met\")."
+  },
+  "title.sovereign-of-the-burning-sky": {
+   "en": "SOVEREIGN OF THE BURNING SKY",
+   "target": "YANAN GÖKLERİN HÜKÜMDARI"
+  },
+  "title.keeper-of-the-lost-letter": {
+   "en": "Keeper of the Lost Letter",
+   "target": "Kayıp Mektubun Bekçisi",
+   "note": "Singular: the one lost letter."
+  },
+  "title.keeper-of-lost-letters": {
+   "en": "Keeper of Lost Letters",
+   "target": "Kayıp Mektuplar Bekçisi",
+   "note": "Plural job title; echoes his card epithet."
+  },
+  "title.royal-courier": {
+   "en": "Royal Courier",
+   "target": "Kraliyet Kuryesi",
+   "note": "Same \"kurye\" as the courier, for Pip's \"Ben sadece kuryeyim. Kurye Pip.\""
+  },
+  "title.mummy-courier": {
+   "en": "the Mummy Courier",
+   "target": "Mumya Kurye"
+  },
+  "title.commissioner-of-the-curb": {
+   "en": "Commissioner of the Curb",
+   "target": "KALDIRIM KOMİSERİ",
+   "note": "\"kaldırım\" = the curb where pigeons peck; K-K alliteration."
+  },
+  "title.commissioner": {
+   "en": "the Commissioner",
+   "target": "Komiser",
+   "note": "Third person: \"Komiser kabul ediyor.\"; addressed as \"Komiserim\" (the natural Turkish address to a police chief)."
+  },
+  "title.watchman-of-the-tallest-tower": {
+   "en": "Watchman of the Tallest Tower",
+   "target": "EN YÜKSEK KULENİN NÖBETÇİSİ"
+  },
+  "title.ink-maker": {
+   "en": "ink-maker",
+   "target": "mürekkepçi",
+   "note": "\"Kraliyet mürekkepçisi!\""
+  },
+  "region.jungle": {
+   "en": "Jungle",
+   "target": "Yağmur Ormanı",
+   "note": "Map label; in speech simply \"orman\" (\"ormanda\")."
+  },
+  "region.brazil": {
+   "en": "Brazil",
+   "target": "Brezilya"
+  },
+  "region.aztec": {
+   "en": "Aztec",
+   "target": "Aztek",
+   "note": "\"Aztek tapınağı\" in speech."
+  },
+  "region.ancient-rome": {
+   "en": "Ancient Rome",
+   "target": "Antik Roma",
+   "note": "Parallel with Antik Arabistan."
+  },
+  "region.egypt": {
+   "en": "Egypt",
+   "target": "Mısır"
+  },
+  "region.ancient-arabia": {
+   "en": "Ancient Arabia",
+   "target": "Antik Arabistan",
+   "note": "Storybook Arabia, parallel with Antik Roma."
+  },
+  "region.new-york": {
+   "en": "New York",
+   "target": "New York",
+   "note": "New York'ta."
+  },
+  "region.paris": {
+   "en": "Paris",
+   "target": "Paris"
+  },
+  "region.mexico": {
+   "en": "Mexico",
+   "target": "Meksika"
+  },
+  "region.open-sea": {
+   "en": "Open Sea",
+   "target": "Açık Deniz"
+  },
+  "region.antarctica": {
+   "en": "Antarctica",
+   "target": "Antarktika"
+  },
+  "region.cyberpunk-city": {
+   "en": "Cyberpunk City",
+   "target": "Siberpunk Şehri",
+   "note": "Turkish spelling of the genre; Bill says \"neon şehir\"."
+  },
+  "region.china": {
+   "en": "China",
+   "target": "Çin"
+  },
+  "place.city-of-light": {
+   "en": "the City of Light",
+   "target": "Işıklar Şehri",
+   "note": "The established Turkish epithet of Paris."
+  },
+  "place.edge-of-the-map": {
+   "en": "the Edge of the Map",
+   "target": "Haritanın Ucu",
+   "note": "Lowercase in running speech: \"haritanın ucunda\"."
+  },
+  "place.giza": {
+   "en": "Giza",
+   "target": "Gize",
+   "note": "Turkish exonym; envelope: \"Alıcı: Sfenks, Gize.\""
+  },
+  "place.nile": {
+   "en": "the Nile",
+   "target": "Nil"
+  },
+  "place.pyramid": {
+   "en": "the pyramid",
+   "target": "piramit"
+  },
+  "place.colosseum": {
+   "en": "the Colosseum",
+   "target": "Kolezyum"
+  },
+  "place.sugarloaf-mountain": {
+   "en": "Sugarloaf Mountain",
+   "target": "Şeker Somunu Dağı",
+   "note": "Literal rendering of Pão de Açúcar; keeps \"şeker\" so Pip's sugar joke works."
+  },
+  "place.eiffel-tower": {
+   "en": "the Eiffel Tower",
+   "target": "Eyfel Kulesi"
+  },
+  "place.theatre-marquee": {
+   "en": "the theatre marquee",
+   "target": "tiyatro tentesi",
+   "note": "The lit awning over the theatre door; King Coo: \"Tentenin altındaymış.\""
+  },
+  "place.tallest-tower": {
+   "en": "the tallest tower",
+   "target": "en yüksek kule"
+  },
+  "place.canopy": {
+   "en": "the canopy",
+   "target": "ağaç tepeleri",
+   "note": "The roof of leaves; same words as the chapter."
+  },
+  "place.bazaar": {
+   "en": "the bazaar",
+   "target": "çarşı"
+  },
+  "place.harbour": {
+   "en": "the harbour",
+   "target": "liman"
+  },
+  "chapter.canopy-route": {
+   "en": "The Canopy Route",
+   "target": "Ağaç Tepeleri Rotası",
+   "note": "\"rota\" is the mail-route word everywhere."
+  },
+  "chapter.ancient-road": {
+   "en": "The Ancient Road",
+   "target": "Antik Yol",
+   "note": "The King's \"yolum\" (my road) reuses \"yol\"."
+  },
+  "chapter.lamplight-line": {
+   "en": "The Lamplight Line",
+   "target": "Lamba Işığı Hattı",
+   "note": "\"hat\" = a transport/delivery line; keeps the lamp image (the L-L alliteration does not carry over)."
+  },
+  "chapter.tide-route": {
+   "en": "The Tide Route",
+   "target": "Gelgit Rotası",
+   "note": "Bill says it aloud."
+  },
+  "chapter.edge-of-the-map": {
+   "en": "The Edge of the Map",
+   "target": "Haritanın Ucu",
+   "note": "Same words as the place and the achievement."
+  },
+  "level.1-1": {
+   "en": "First Delivery",
+   "target": "İlk Teslimat"
+  },
+  "level.1-2": {
+   "en": "Star Streak",
+   "target": "Yıldız Serisi",
+   "note": "\"seri\" = streak (ui.streak)."
+  },
+  "level.1-3": {
+   "en": "Bat Patrol",
+   "target": "Yarasa Devriyesi"
+  },
+  "level.1-4": {
+   "en": "Carnival Skies",
+   "target": "Karnaval Gökleri"
+  },
+  "level.1-5": {
+   "en": "Express Post",
+   "target": "Ekspres Posta",
+   "note": "Same words as Neferhoo's \"EKSPRES POSTA!\"."
+  },
+  "level.1-6": {
+   "en": "Temple Steps",
+   "target": "Tapınak Basamakları"
+  },
+  "level.1-7": {
+   "en": "Sunrise Roost",
+   "target": "Gün Doğumu Tüneği"
+  },
+  "level.1-8": {
+   "en": "Baron Bat",
+   "target": "Baron Yarasa"
+  },
+  "level.2-1": {
+   "en": "Beetle Road",
+   "target": "Böcek Yolu"
+  },
+  "level.2-2": {
+   "en": "Sealed Gates",
+   "target": "Mühürlü Kapılar",
+   "note": "\"kapı\" = gate."
+  },
+  "level.2-3": {
+   "en": "Wildfire Run",
+   "target": "Yangından Kaçış",
+   "note": "Wildfire = \"Yangın\"."
+  },
+  "level.2-4": {
+   "en": "Nile Switchbacks",
+   "target": "Nil Zikzakları",
+   "note": "Switchback = \"zikzak\"."
+  },
+  "level.2-5": {
+   "en": "Skyfall",
+   "target": "Gök Çöküşü",
+   "note": "Coined like Skyfall: the sky falling down; shouted as \"Gök çöküyor!\"."
+  },
+  "level.2-6": {
+   "en": "Return to Sender",
+   "target": "Göndericiye İade",
+   "note": "The official postal formula, as his catchphrase."
+  },
+  "level.2-7": {
+   "en": "Lantern Bazaar",
+   "target": "Fener Çarşısı"
+  },
+  "level.2-8": {
+   "en": "The Long Caravan",
+   "target": "Uzun Kervan"
+  },
+  "level.2-9": {
+   "en": "Spitter King",
+   "target": "Tükürükçü Kral"
+  },
+  "level.3-1": {
+   "en": "Moth Light",
+   "target": "Güve Işığı",
+   "note": "Moths drawn to light; short."
+  },
+  "level.3-2": {
+   "en": "Wheels in the Rain",
+   "target": "Yağmurda Tekerlekler",
+   "note": "Film-title ring (cf. \"Yağmur Altında\"); keeps wheels + rain."
+  },
+  "level.3-3": {
+   "en": "Steam Alley",
+   "target": "Buhar Sokağı",
+   "note": "Bill says it aloud."
+  },
+  "level.3-4": {
+   "en": "Storm Warning",
+   "target": "Fırtına Uyarısı",
+   "note": "Same words as the Gargoyle's headline."
+  },
+  "level.3-5": {
+   "en": "Crystal Rooftops",
+   "target": "Kristal Çatılar"
+  },
+  "level.3-6": {
+   "en": "After the Gale",
+   "target": "Boradan Sonra",
+   "note": "Gale = \"bora\"."
+  },
+  "level.3-7": {
+   "en": "Midnight Express",
+   "target": "Gece Yarısı Postası",
+   "note": "Adapted: NOT \"Geceyarısı Ekspresi\", a film title that is notorious and painful in Turkey; midnight + post keeps the idea."
+  },
+  "level.3-8": {
+   "en": "Dusk Empress",
+   "target": "Alacakaranlık İmparatoriçesi"
+  },
+  "level.4-1": {
+   "en": "Harbour Lights",
+   "target": "Liman Işıkları"
+  },
+  "level.4-2": {
+   "en": "Volcano Pass",
+   "target": "Yanardağ Geçidi"
+  },
+  "level.4-3": {
+   "en": "Down the Coast",
+   "target": "Kıyı Boyunca"
+  },
+  "level.4-4": {
+   "en": "Low Water",
+   "target": "Çekilen Sular",
+   "note": "Low water = the receding sea; pairs with 4-5."
+  },
+  "level.4-5": {
+   "en": "Spring Tide",
+   "target": "Kabaran Sular",
+   "note": "Nautical highest tide (not spring the season) = the swelling sea; pairs with 4-4 and \"KABARAN SULARIN DEHŞETİ\"."
+  },
+  "level.4-6": {
+   "en": "Broadside Bay",
+   "target": "Borda Koyu",
+   "note": "\"borda ateşi\" = broadside (attack.broadside); B-B alliteration kept."
+  },
+  "level.4-7": {
+   "en": "Stormy Crossing",
+   "target": "Fırtınalı Geçiş"
+  },
+  "level.4-8": {
+   "en": "Pirate Captain",
+   "target": "Korsan Kaptan"
+  },
+  "level.5-1": {
+   "en": "Aurora Post",
+   "target": "Aurora Postası"
+  },
+  "level.5-2": {
+   "en": "Polar Night",
+   "target": "Kutup Gecesi"
+  },
+  "level.5-3": {
+   "en": "Neon Express",
+   "target": "Neon Ekspres"
+  },
+  "level.5-4": {
+   "en": "Data Storm",
+   "target": "Veri Fırtınası"
+  },
+  "level.5-5": {
+   "en": "Skyline Sprint",
+   "target": "Silüet Sprinti",
+   "note": "\"silüet\" = city skyline; same \"sprint\" as the button."
+  },
+  "level.5-6": {
+   "en": "Lantern Festival",
+   "target": "Fener Festivali",
+   "note": "The usual Turkish name of the Lantern Festival."
+  },
+  "level.5-7": {
+   "en": "The Last Leg",
+   "target": "Son Etap",
+   "note": "Turkish idiom for the last stage of a journey."
+  },
+  "level.5-8": {
+   "en": "Ember Dragon",
+   "target": "Kor Ejderha"
+  },
+  "level.starter-garden-hop": {
+   "en": "Garden Hop",
+   "target": "Bahçede Hoplama"
+  },
+  "level.starter-ten-push-ups": {
+   "en": "Ten Push-Ups",
+   "target": "On Şınav"
+  },
+  "level.starter-stair-squats": {
+   "en": "Stair Squats",
+   "target": "Merdivende Çömel",
+   "note": "Squat = \"çömelme\" as in \"Çömel ve Uç\". UI 2026-10-07: was \"Merdiven Çömelmeleri\". \"Merdiven Çömelmeleri\" (20) does not fit the 16-character starter card. Not spoken."
+  },
+  "level.starter-bounce-bay": {
+   "en": "Bounce Bay",
+   "target": "Zıp Zıp Koyu"
+  },
+  "level.starter-barons-bridge": {
+   "en": "Baron’s Bridge",
+   "target": "Baron'un Köprüsü"
+  },
+  "cargo.1-1": {
+   "en": "A birthday card for the toucan twins",
+   "target": "Tukan ikizlere doğum günü kartı"
+  },
+  "cargo.1-2": {
+   "en": "Star charts for the sloth stargazer",
+   "target": "Tembel hayvana yıldız haritaları",
+   "note": "Shortened from \"yıldız gözlemcisi tembel hayvana\" for the 40-character tag."
+  },
+  "cargo.1-3": {
+   "en": "Night-lights for the firefly nursery",
+   "target": "Ateş böceği kreşine gece lambaları"
+  },
+  "cargo.1-4": {
+   "en": "Feather boas for the carnival parade",
+   "target": "Karnaval geçidine tüylü şallar",
+   "note": "Feather boas = \"tüylü şal\"."
+  },
+  "cargo.1-5": {
+   "en": "A rush invitation for the drum captain",
+   "target": "Davul şefine acil davetiye"
+  },
+  "cargo.1-6": {
+   "en": "Cocoa beans for the temple cooks",
+   "target": "Tapınak aşçılarına kakao çekirdekleri"
+  },
+  "cargo.1-7": {
+   "en": "A sundial for the dawn keeper",
+   "target": "Şafak bekçisine güneş saati"
+  },
+  "cargo.1-8": {
+   "en": "A final notice for Baron Bat",
+   "target": "Baron Yarasa'ya son ihtar",
+   "note": "\"son ihtar\" = the official final notice."
+  },
+  "cargo.2-1": {
+   "en": "Laurel wreaths for the chariot racers",
+   "target": "Araba yarışçılarına defne tacı"
+  },
+  "cargo.2-2": {
+   "en": "A new chisel for the statue carver",
+   "target": "Heykeltıraşa yeni bir keski"
+  },
+  "cargo.2-3": {
+   "en": "Water buckets for the fire brigade",
+   "target": "İtfaiye ekibine su kovaları"
+  },
+  "cargo.2-4": {
+   "en": "A book of new riddles for the Sphinx",
+   "target": "Sfenks'e yeni bilmeceler kitabı"
+  },
+  "cargo.2-5": {
+   "en": "A telescope for the pyramid astronomer",
+   "target": "Piramit gökbilimcisine teleskop"
+  },
+  "cargo.2-6": {
+   "en": "A feather duster for the caretaker",
+   "target": "Piramit bakıcısına tüy süpürge",
+   "note": "Feather duster = \"tüy süpürge\"."
+  },
+  "cargo.2-7": {
+   "en": "Lamp oil for the lantern sellers",
+   "target": "Fenercilere lamba yağı"
+  },
+  "cargo.2-8": {
+   "en": "Water flasks for the long caravan",
+   "target": "Uzun kervana su mataraları"
+  },
+  "cargo.2-9": {
+   "en": "A stop-brewing order for the Spitter King",
+   "target": "Tükürükçü Kral'a kaynatma yasağı",
+   "note": "A stop-brewing order = a boiling ban."
+  },
+  "cargo.3-1": {
+   "en": "Light bulbs for the theatre marquee",
+   "target": "Tiyatro tentesine ampuller"
+  },
+  "cargo.3-2": {
+   "en": "Umbrellas for the newsstand pigeons",
+   "target": "Bayi güvercinlerine şemsiyeler",
+   "note": "Short form of \"gazete bayii güvercinleri\"."
+  },
+  "cargo.3-3": {
+   "en": "Hot pretzels for the night-shift cabbies",
+   "target": "Gece taksicilerine sıcak pretzel",
+   "note": "\"pretzel\" is known in Turkey; \"simit\" is taken by King Coo's bagel."
+  },
+  "cargo.3-4": {
+   "en": "A weather vane for the tallest tower",
+   "target": "En yüksek kuleye rüzgâr gülü",
+   "note": "Weather vane = \"rüzgâr gülü\"."
+  },
+  "cargo.3-5": {
+   "en": "Croissants for the rooftop painters",
+   "target": "Çatı ressamlarına kruvasanlar"
+  },
+  "cargo.3-6": {
+   "en": "Sheet music for the accordion player",
+   "target": "Akordeoncuya nota kâğıtları"
+  },
+  "cargo.3-7": {
+   "en": "A midnight love letter for the baker",
+   "target": "Fırıncıya gece yarısı aşk mektubu"
+  },
+  "cargo.3-8": {
+   "en": "A wake-up call for the Dusk Empress",
+   "target": "İmparatoriçeye uyandırma servisi",
+   "note": "\"uyandırma servisi\" = a hotel wake-up call (literal) and, jokingly, a warning."
+  },
+  "cargo.4-1": {
+   "en": "A new lens for the lighthouse keeper",
+   "target": "Fener bekçisine yeni mercek"
+  },
+  "cargo.4-2": {
+   "en": "Oven mitts for the volcano baker",
+   "target": "Yanardağ fırıncısına fırın eldiveni"
+  },
+  "cargo.4-3": {
+   "en": "Kite string for the beach festival",
+   "target": "Plaj festivaline uçurtma ipi"
+  },
+  "cargo.4-4": {
+   "en": "A reply for the island hermit",
+   "target": "Ada münzevisine bir cevap"
+  },
+  "cargo.4-5": {
+   "en": "A tide table for the ferry crew",
+   "target": "Feribot mürettebatına gelgit cetveli",
+   "note": "Tide table = \"gelgit cetveli\"."
+  },
+  "cargo.4-6": {
+   "en": "Fish biscuits for the gull colony",
+   "target": "Martı kolonisine balıklı bisküvi"
+  },
+  "cargo.4-7": {
+   "en": "Dry socks for the storm-watch sailors",
+   "target": "Fırtına nöbetçilerine kuru çorap"
+  },
+  "cargo.4-8": {
+   "en": "A return-the-mail order for the Captain",
+   "target": "Kaptan'a posta iade emri"
+  },
+  "cargo.5-1": {
+   "en": "Woolly hats for the penguin choir",
+   "target": "Penguen korosuna yün bereler"
+  },
+  "cargo.5-2": {
+   "en": "Hot cocoa for the polar station",
+   "target": "Kutup istasyonuna sıcak kakao"
+  },
+  "cargo.5-3": {
+   "en": "Spare fuses for the noodle bar sign",
+   "target": "Erişteci tabelasına yedek sigorta"
+  },
+  "cargo.5-4": {
+   "en": "A paper letter for a curious robot",
+   "target": "Meraklı bir robota kâğıt mektup"
+  },
+  "cargo.5-5": {
+   "en": "Race tickets for the rooftop runners",
+   "target": "Çatı koşucularına yarış biletleri"
+  },
+  "cargo.5-6": {
+   "en": "Paper lanterns for the festival",
+   "target": "Festivale kâğıt fenerler"
+  },
+  "cargo.5-7": {
+   "en": "Mountain tea for the monastery",
+   "target": "Manastıra dağ çayı"
+  },
+  "cargo.5-8": {
+   "en": "The first letter ever sent to the Dragon",
+   "target": "Ejderhaya gönderilen ilk mektup"
+  },
+  "enemy.purple-bat": {
+   "en": "Purple bat",
+   "target": "Mor yarasa",
+   "note": "\"yarasa\" for every bat."
+  },
+  "enemy.cave-bat": {
+   "en": "Cave bat",
+   "target": "Mağara yarasası"
+  },
+  "enemy.spitter-beetle": {
+   "en": "Spitter beetle",
+   "target": "Tükürükçü böcek",
+   "note": "Same \"tükürükçü\" as the King."
+  },
+  "enemy.dusk-moth": {
+   "en": "Dusk moth",
+   "target": "Alacakaranlık güvesi",
+   "note": "Same \"alacakaranlık\" as the Empress. \"güve\" is the plain moth word (\"gece kelebeği\" avoided: it has an adult slang sense)."
+  },
+  "enemy.alley-pigeon": {
+   "en": "Alley Pigeon",
+   "target": "Ara sokak güvercini"
+  },
+  "enemy.mummy-bat": {
+   "en": "Mummy bat",
+   "target": "Mumya yarasa"
+  },
+  "enemy.squadron": {
+   "en": "King Coo's squadron",
+   "target": "Kral Gugu'nun filosu",
+   "note": "\"filo\" also for \"SQUAD\"."
+  },
+  "enemy.straggler": {
+   "en": "straggler",
+   "target": "kaçak",
+   "note": "UI says \"geri döner\" (comes back), as for the ankh."
+  },
+  "enemy.brood": {
+   "en": "the Spitter King's brood",
+   "target": "Tükürükçü Kral'ın yavruları",
+   "note": "He calls them \"minik böceklerim\" (\"bok böceği\", the dung-beetle word for scarab, is avoided)."
+  },
+  "enemy.empress-moths": {
+   "en": "the Dusk Empress's moths",
+   "target": "İmparatoriçenin güveleri",
+   "note": "She calls them \"güzellerim\", \"tatlılarım\"."
+  },
+  "enemy.swarm-bats": {
+   "en": "swarm bats",
+   "target": "sürü yarasaları",
+   "note": "Same \"sürü\" as the Swarm rush."
+  },
+  "attack.fireball": {
+   "en": "fireball",
+   "target": "ateş topu"
+  },
+  "attack.screech": {
+   "en": "sonic screech",
+   "target": "sonik çığlık",
+   "note": "Same \"çığlık\" as Bill's \"Çığlık atan yarasa ısırmaz\"."
+  },
+  "attack.seed": {
+   "en": "seed",
+   "target": "tohum"
+  },
+  "attack.fan": {
+   "en": "fan",
+   "target": "yelpaze",
+   "note": "\"üçlü yelpaze\" = fan of three."
+  },
+  "attack.pollen": {
+   "en": "pollen",
+   "target": "polen"
+  },
+  "attack.veil": {
+   "en": "veil",
+   "target": "tül",
+   "note": "Birds call it \"kalkan\"."
+  },
+  "attack.cannon": {
+   "en": "cannon",
+   "target": "top"
+  },
+  "attack.broadside": {
+   "en": "broadside",
+   "target": "borda ateşi"
+  },
+  "attack.dragon-breath": {
+   "en": "dragon's breath",
+   "target": "ejderha nefesi"
+  },
+  "attack.embers": {
+   "en": "embers",
+   "target": "korlar",
+   "note": "Same root as \"Kor Ejderha\"."
+  },
+  "attack.crumb-bomb": {
+   "en": "crumb bomb",
+   "target": "kırıntı bombası"
+  },
+  "attack.stale-crust": {
+   "en": "stale crust",
+   "target": "bayat ekmek kabuğu",
+   "note": "Short: \"bayat kabuk\"."
+  },
+  "attack.puff": {
+   "en": "puff",
+   "target": "kabarma",
+   "note": "Sounds: PUF! / PAT!"
+  },
+  "attack.beam": {
+   "en": "beam",
+   "target": "ışık huzmesi"
+  },
+  "attack.lamp": {
+   "en": "lamp",
+   "target": "lamba"
+  },
+  "attack.stone-feathers": {
+   "en": "stone feathers",
+   "target": "taş tüyler"
+  },
+  "attack.mail-call": {
+   "en": "mail call",
+   "target": "Postanız var!",
+   "note": "A fussy postman's announcement, used as his battle cry and tag."
+  },
+  "attack.ankh": {
+   "en": "ankh",
+   "target": "ankh",
+   "note": "The Egyptian \"hayat anahtarı\"; suffixes after an apostrophe (ankh'tan)."
+  },
+  "attack.express-post": {
+   "en": "EXPRESS POST",
+   "target": "EKSPRES POSTA",
+   "note": "Same words as level 1-5."
+  },
+  "hazard.gate": {
+   "en": "gate",
+   "target": "kapı",
+   "note": "Its hole is \"boşluk\"."
+  },
+  "hazard.garden-gate": {
+   "en": "Garden gate",
+   "target": "Bahçe kapısı"
+  },
+  "hazard.wind-lift": {
+   "en": "Wind lift",
+   "target": "Rüzgâr asansörü"
+  },
+  "hazard.petal-shutters": {
+   "en": "Petal shutters",
+   "target": "Çiçek kepenkleri",
+   "note": "Bill says \"çiçek kapıları\": \"çiçek\" in both."
+  },
+  "hazard.switchback": {
+   "en": "Switchback",
+   "target": "Zikzak",
+   "note": "\"bir boşluk yukarı, bir boşluk aşağı\"."
+  },
+  "hazard.lantern-drift": {
+   "en": "Lantern drift",
+   "target": "Süzülen fenerler"
+  },
+  "hazard.sun-wheels": {
+   "en": "Sun wheels",
+   "target": "Güneş çarkları"
+  },
+  "hazard.crystal-steps": {
+   "en": "Crystal steps",
+   "target": "Kristal basamaklar"
+  },
+  "hazard.stone-panel": {
+   "en": "stone panel",
+   "target": "taş levha",
+   "note": "\"taş\" also in stone door/wall."
+  },
+  "hazard.steam-geyser": {
+   "en": "steam vent",
+   "target": "buhar deliği",
+   "note": "Hot = \"sıcak\", soft = \"yumuşak\"; hop = \"üstünden atla\", ride = \"üstüne bin\"."
+  },
+  "hazard.sea": {
+   "en": "the sea",
+   "target": "deniz",
+   "note": "\"su\" for the water."
+  },
+  "hazard.tide": {
+   "en": "the tide",
+   "target": "gelgit",
+   "note": "The surge is \"sular kabarıyor\"; HIGH TIDE = \"KABARAN SULAR\"."
+  },
+  "hazard.tide-bell": {
+   "en": "the bell",
+   "target": "çan"
+  },
+  "hazard.lava-plume": {
+   "en": "lava plume",
+   "target": "lav fışkırması"
+  },
+  "hazard.meteor": {
+   "en": "meteor",
+   "target": "göktaşı"
+  },
+  "hazard.debris": {
+   "en": "debris",
+   "target": "çerçöp",
+   "note": "Flying junk."
+  },
+  "hazard.football": {
+   "en": "football",
+   "target": "futbol topu"
+  },
+  "hazard.warning-mark": {
+   "en": "!",
+   "target": "!",
+   "note": "The sign itself stays."
+  },
+  "hazard.rubble": {
+   "en": "rubble",
+   "target": "moloz"
+  },
+  "set-piece.rush-path": {
+   "en": "rush",
+   "target": "akın",
+   "note": "A sudden rush of danger; HUD \"AKIN ×2!\"."
+  },
+  "set-piece.wildfire": {
+   "en": "Wildfire",
+   "target": "Yangın",
+   "note": "Banner \"YANGIN!\"."
+  },
+  "set-piece.skyfall": {
+   "en": "Skyfall",
+   "target": "Gök Çöküşü",
+   "note": "Banner \"GÖK ÇÖKÜŞÜ!\"; spoken \"Gök çöküyor!\"."
+  },
+  "set-piece.eruption": {
+   "en": "Eruption",
+   "target": "Püskürme",
+   "note": "Volcanic eruption."
+  },
+  "set-piece.swarm": {
+   "en": "Swarm",
+   "target": "Sürü",
+   "note": "A swarm of bats: \"yarasa sürüsü\"."
+  },
+  "set-piece.gale": {
+   "en": "gale",
+   "target": "bora",
+   "note": "A sudden storm wind; distinct from \"fırtına\" (storm)."
+  },
+  "set-piece.finish-line": {
+   "en": "finish line",
+   "target": "bitiş çizgisi",
+   "note": "Sign \"BİTİŞ\"."
+  },
+  "set-piece.run-up": {
+   "en": "run-up",
+   "target": "ısınma uçuşu"
+  },
+  "set-piece.vanguard": {
+   "en": "vanguard",
+   "target": "öncü birlik"
+  },
+  "pickup.star": {
+   "en": "star",
+   "target": "yıldız"
+  },
+  "pickup.star-trio": {
+   "en": "star trio",
+   "target": "yıldız üçlüsü"
+  },
+  "pickup.heart": {
+   "en": "heart",
+   "target": "kalp",
+   "note": "Keeps the love/courage double meaning."
+  },
+  "pickup.shield": {
+   "en": "shield",
+   "target": "kalkan",
+   "note": "Birds may say \"baloncuk\" (bubble)."
+  },
+  "pickup.star-magnet": {
+   "en": "star magnet",
+   "target": "yıldız mıknatısı",
+   "note": "Short \"mıknatıs\"."
+  },
+  "pickup.sprint-ring": {
+   "en": "sprint ring",
+   "target": "sprint halkası",
+   "note": "\"altın halkalar\", \"halkalar\"."
+  },
+  "pickup.mystery-box": {
+   "en": "mystery box",
+   "target": "sürpriz kutu"
+  },
+  "pickup.bat-swarm": {
+   "en": "Bat swarm",
+   "target": "Yarasa sürüsü"
+  },
+  "pickup.meteor-shower": {
+   "en": "Meteor shower",
+   "target": "Göktaşı yağmuru"
+  },
+  "pickup.star-power": {
+   "en": "Star power",
+   "target": "Yıldız gücü"
+  },
+  "power-up.shot-power": {
+   "en": "Shot power",
+   "target": "Atış gücü"
+  },
+  "power-up.sprint": {
+   "en": "Sprint (upgrade)",
+   "target": "Sprint"
+  },
+  "power-up.shield": {
+   "en": "Shield (upgrade)",
+   "target": "Kalkan"
+  },
+  "power-up.magnet": {
+   "en": "Magnet (upgrade)",
+   "target": "Mıknatıs"
+  },
+  "weapon.shoot": {
+   "en": "Shoot",
+   "target": "Ateş",
+   "note": "Button label; in sentences \"vur\" / \"ateş et\" (\"Tohumları vurup düşür\", \"sen de ateş et!\")."
+  },
+  "weapon.rock": {
+   "en": "rock",
+   "target": "taş",
+   "note": "\"Taş atışı yener!\""
+  },
+  "weapon.big-rock": {
+   "en": "big rock",
+   "target": "büyük taş"
+  },
+  "weapon.ammo": {
+   "en": "ammo",
+   "target": "cephane",
+   "note": "The birds say \"taş\"."
+  },
+  "weapon.sprint": {
+   "en": "Sprint",
+   "target": "Sprint",
+   "note": "Sports loanword in everyday use (\"sprint atmak\")."
+  },
+  "weapon.ring-sprint": {
+   "en": "ring sprint",
+   "target": "halka sprinti"
+  },
+  "weapon.smash": {
+   "en": "SMASH!",
+   "target": "ÇAT!"
+  },
+  "mode.campaign": {
+   "en": "Campaign",
+   "target": "Kampanya"
+  },
+  "mode.endless": {
+   "en": "Endless",
+   "target": "Sonsuz",
+   "note": "\"sonsuz uçuş\", \"sonsuz gökyüzü\"."
+  },
+  "mode.tap-and-fly": {
+   "en": "Tap & Fly",
+   "target": "Dokun ve Uç"
+  },
+  "mode.push-up-flight": {
+   "en": "Push-Up Flight",
+   "target": "Şınav Uçuşu"
+  },
+  "mode.squat-and-fly": {
+   "en": "Squat & Fly",
+   "target": "Çömel ve Uç"
+  },
+  "mode.jump-and-fly": {
+   "en": "Jump & Fly",
+   "target": "Zıpla ve Uç"
+  },
+  "mode.mini-games": {
+   "en": "Mini games",
+   "target": "Mini oyunlar"
+  },
+  "mode.fly-together": {
+   "en": "Fly Together",
+   "target": "Birlikte Uç"
+  },
+  "mode.roped": {
+   "en": "Roped",
+   "target": "İpli"
+  },
+  "mode.no-rope": {
+   "en": "No rope",
+   "target": "İpsiz"
+  },
+  "mode.duel": {
+   "en": "1 v 1",
+   "target": "1'e 1",
+   "note": "Read \"bire bir\"; the noun is \"düello\"."
+  },
+  "mode.level-builder": {
+   "en": "Level Builder",
+   "target": "Seviye Atölyesi"
+  },
+  "mode.daily-adventure": {
+   "en": "Adventure",
+   "target": "Macera",
+   "note": "\"Bugünün küçük macerası.\""
+  },
+  "mode.flight-school": {
+   "en": "Flight School",
+   "target": "Uçuş Okulu"
+  },
+  "mode.practice": {
+   "en": "Practice",
+   "target": "Antrenman"
+  },
+  "mode.test-flight": {
+   "en": "test flight",
+   "target": "deneme uçuşu"
+  },
+  "mode.classic": {
+   "en": "Classic",
+   "target": "Klasik"
+  },
+  "mode.world-tour": {
+   "en": "world tour",
+   "target": "dünya turu"
+  },
+  "ui.sky-club": {
+   "en": "Sky Club",
+   "target": "Gök Kulübü",
+   "note": "Short form \"kulüp\"."
+  },
+  "ui.sky-club-post": {
+   "en": "Sky Club post",
+   "target": "Gök Kulübü Postası",
+   "note": "Also the door greeting \"Gök Kulübü Postası!\"."
+  },
+  "ui.passport": {
+   "en": "passport",
+   "target": "pasaport",
+   "note": "\"Gök pasaportun.\""
+  },
+  "ui.passport-stamp": {
+   "en": "stamp (passport)",
+   "target": "damga",
+   "note": "Ink/visa stamp; the Captain's postage stamps are \"pul\" (two words, as in Turkish)."
+  },
+  "ui.medal": {
+   "en": "medal",
+   "target": "madalya"
+  },
+  "ui.bronze": {
+   "en": "Bronze",
+   "target": "Bronz"
+  },
+  "ui.silver": {
+   "en": "Silver",
+   "target": "Gümüş"
+  },
+  "ui.gold": {
+   "en": "Gold",
+   "target": "Altın"
+  },
+  "ui.star-marks": {
+   "en": "star marks",
+   "target": "yıldız çentikleri",
+   "note": "\"çentik\" = notch on the bar; Pip: \"İlk çentik yandı!\"."
+  },
+  "ui.star-rating": {
+   "en": "stars (level rating)",
+   "target": "yıldız"
+  },
+  "ui.streak": {
+   "en": "streak",
+   "target": "seri"
+  },
+  "ui.multiplier": {
+   "en": "multiplier",
+   "target": "çarpan"
+  },
+  "ui.perfect-pass": {
+   "en": "perfect pass",
+   "target": "kusursuz geçiş"
+  },
+  "ui.aiming-mark": {
+   "en": "aiming mark",
+   "target": "nişan noktası"
+  },
+  "ui.score": {
+   "en": "score",
+   "target": "puan"
+  },
+  "ui.best": {
+   "en": "best",
+   "target": "en iyi",
+   "note": "\"YENİ EN İYİ!\"; distinct from \"rekor\"."
+  },
+  "ui.record": {
+   "en": "record",
+   "target": "rekor"
+  },
+  "ui.records-screen": {
+   "en": "Records",
+   "target": "Rekorlar"
+  },
+  "ui.saved-session": {
+   "en": "saved session",
+   "target": "kayıtlı oturum"
+  },
+  "ui.replay": {
+   "en": "replay",
+   "target": "tekrar",
+   "note": "\"Tekrarı izle\"."
+  },
+  "ui.flight-highlights": {
+   "en": "Flight highlights",
+   "target": "Öne çıkan anlar"
+  },
+  "ui.flight": {
+   "en": "flight",
+   "target": "uçuş",
+   "note": "One play session = one \"uçuş\"."
+  },
+  "ui.scored-flight": {
+   "en": "scored flight",
+   "target": "puanlı uçuş"
+  },
+  "ui.upgrades": {
+   "en": "Upgrades",
+   "target": "Geliştirmeler",
+   "note": "Home shelf label (11 characters): \"Geliştirme\"."
+  },
+  "ui.star-wallet": {
+   "en": "stars to spend",
+   "target": "harcanacak yıldızlar"
+  },
+  "ui.collection": {
+   "en": "Birds",
+   "target": "Kuşlar",
+   "note": "\"uçuş ekibin\" for \"flight crew\"."
+  },
+  "ui.trail-sunshine-bubbles": {
+   "en": "Sunshine bubbles",
+   "target": "Güneş baloncukları"
+  },
+  "ui.trail-peach-hearts": {
+   "en": "Peach hearts",
+   "target": "Şeftali kalpler"
+  },
+  "ui.trail-mint-leaves": {
+   "en": "Mint leaves",
+   "target": "Nane yaprakları"
+  },
+  "ui.trail-stardust-sparkles": {
+   "en": "Stardust sparkles",
+   "target": "Yıldız tozu pırıltısı",
+   "note": "UI 2026-10-07: was \"Yıldız tozu pırıltıları\". Singular to fit the 22-character chip. Not spoken."
+  },
+  "ui.character-voices": {
+   "en": "Character voices",
+   "target": "Karakter sesleri"
+  },
+  "ui.sky-club-soundtrack": {
+   "en": "Sky Club soundtrack",
+   "target": "Gök Kulübü müzikleri"
+  },
+  "ui.reduced-motion": {
+   "en": "Reduced motion",
+   "target": "Hareketi azalt"
+  },
+  "ui.campaign-map": {
+   "en": "map",
+   "target": "harita"
+  },
+  "ui.stop": {
+   "en": "stop",
+   "target": "durak",
+   "note": "\"Sıradaki durak: Paris\"."
+  },
+  "ui.chapter": {
+   "en": "chapter",
+   "target": "bölüm",
+   "note": "\"seviye\" is the level."
+  },
+  "ui.level": {
+   "en": "level",
+   "target": "seviye",
+   "note": "\"Seviye 1-1\"."
+  },
+  "ui.level-card": {
+   "en": "level card",
+   "target": "seviye kartı"
+  },
+  "ui.special-delivery": {
+   "en": "SPECIAL DELIVERY",
+   "target": "ÖZEL TESLİMAT",
+   "note": "Same words in the achievement and the voice lines."
+  },
+  "ui.hint": {
+   "en": "TIP",
+   "target": "İPUCU"
+  },
+  "ui.thank-you-note": {
+   "en": "thank-you note",
+   "target": "teşekkür notu"
+  },
+  "ui.postcard": {
+   "en": "postcard",
+   "target": "kartpostal",
+   "note": "\"Sevgili kurye,\" / \"Not:\" for P.S."
+  },
+  "ui.lair": {
+   "en": "lair",
+   "target": "in",
+   "note": "A den (\"İni şu dağların ardında.\")."
+  },
+  "ui.guardian": {
+   "en": "GUARDIAN",
+   "target": "MUHAFIZ"
+  },
+  "ui.boss": {
+   "en": "boss",
+   "target": "boss",
+   "note": "Turkish gaming loanword (\"boss savaşı\")."
+  },
+  "ui.encounter": {
+   "en": "ENCOUNTER 01",
+   "target": "KARŞILAŞMA 01"
+  },
+  "ui.name-card": {
+   "en": "name card",
+   "target": "isim kartı"
+  },
+  "ui.stronger": {
+   "en": "STRONGER",
+   "target": "GÜÇLENDİ"
+  },
+  "ui.fury": {
+   "en": "FURY",
+   "target": "ÖFKE"
+  },
+  "ui.sky-reclaimed": {
+   "en": "SKY RECLAIMED",
+   "target": "GÖK GERİ ALINDI",
+   "note": "UI 2026-10-07: was \"GÖKYÜZÜ GERİ ALINDI\". \"GÖKYÜZÜ GERİ ALINDI\" (19) does not fit 18. Not spoken."
+  },
+  "ui.guardian-down": {
+   "en": "GUARDIAN DOWN!",
+   "target": "MUHAFIZ DÜŞTÜ!"
+  },
+  "ui.victory": {
+   "en": "Victory!",
+   "target": "Zafer!"
+  },
+  "ui.delivered": {
+   "en": "Delivered!",
+   "target": "Teslim edildi!",
+   "note": "No agreement needed."
+  },
+  "ui.try-again": {
+   "en": "Try again!",
+   "target": "Tekrar dene!"
+  },
+  "ui.bonk": {
+   "en": "Bonk!",
+   "target": "Küt!",
+   "note": "Turkish cartoon bump; also the Empress's \"Küt. Küt.\""
+  },
+  "ui.splash": {
+   "en": "Splash!",
+   "target": "Cup!",
+   "note": "Turkish sound of falling into water."
+  },
+  "ui.route-flown": {
+   "en": "ROUTE FLOWN",
+   "target": "UÇULAN ROTA"
+  },
+  "ui.coming-soon": {
+   "en": "Coming soon",
+   "target": "Çok yakında"
+  },
+  "ui.unlock": {
+   "en": "unlock",
+   "target": "kilidi aç"
+  },
+  "ui.story-key": {
+   "en": "Story",
+   "target": "Hikâye"
+  },
+  "ui.to-be-continued": {
+   "en": "To be continued…",
+   "target": "Devam edecek…",
+   "note": "Exact caption used by the narrator: \"Devam edecek… Sıradaki durak: Paris, Işıklar Şehri.\""
+  },
+  "ui.pause": {
+   "en": "Take a breather.",
+   "target": "Biraz soluklan."
+  },
+  "ui.flap": {
+   "en": "Flap",
+   "target": "Kanat çırp"
+  },
+  "ui.fly": {
+   "en": "Fly!",
+   "target": "Uç!"
+  },
+  "ui.workout": {
+   "en": "workout",
+   "target": "egzersiz"
+  },
+  "ui.calibration": {
+   "en": "calibration",
+   "target": "kalibrasyon"
+  },
+  "ui.camera-lab": {
+   "en": "Camera & tracking lab",
+   "target": "Kamera ve takip testi",
+   "note": "UI 2026-10-07: was \"Kamera ve takip laboratuvarı\". \"laboratuvarı\" does not fit the 24-character Settings key; the lab screen says \"KAMERA TESTİ\". Not spoken."
+  },
+  "ui.play-games": {
+   "en": "Play Games",
+   "target": "Play Oyunlar",
+   "note": "Google's Turkish product name is \"Google Play Oyunlar\". UI 2026-10-07: was \"Play Games\". Google's own Turkish name, as the UI key asks (\"Play Oyunlar'a bağlan\"). Not spoken."
+  },
+  "ui.achievements": {
+   "en": "achievements",
+   "target": "başarılar",
+   "note": "Google Play's Turkish term."
+  },
+  "ui.share-code": {
+   "en": "share code",
+   "target": "paylaşım kodu"
+  },
+  "ui.remix": {
+   "en": "Remix",
+   "target": "Remiks"
+  },
+  "ui.starter-levels": {
+   "en": "Starter levels",
+   "target": "Başlangıç seviyeleri"
+  },
+  "ui.start-zone": {
+   "en": "START ZONE",
+   "target": "BAŞLANGIÇ ALANI"
+  },
+  "ui.gate-family": {
+   "en": "gate family",
+   "target": "kapı türü"
+  },
+  "ui.boss-finale": {
+   "en": "Boss finale",
+   "target": "Boss finali"
+  },
+  "ui.cleared-by-you": {
+   "en": "Cleared by you",
+   "target": "Sen bitirdin"
+  },
+  "ui.pace": {
+   "en": "Pace",
+   "target": "Tempo",
+   "note": "Rahat, Dengeli, Hızlı."
+  },
+  "ui.lane": {
+   "en": "lane",
+   "target": "şerit",
+   "note": "\"açık şerit\", \"ateş şeridi\"."
+  },
+  "ui.player": {
+   "en": "Player 1",
+   "target": "Oyuncu 1",
+   "note": "O1 / O2 as short forms."
+  },
+  "ui.team-score": {
+   "en": "TEAM SCORE",
+   "target": "TAKIM PUANI"
+  },
+  "ui.rematch": {
+   "en": "Rematch",
+   "target": "Rövanş"
+  },
+  "ui.rank-first-wings": {
+   "en": "First wings",
+   "target": "İlk kanatlar"
+  },
+  "ui.rank-cloud-explorer": {
+   "en": "Cloud explorer",
+   "target": "Bulut kâşifi"
+  },
+  "ui.home-greeting": {
+   "en": "Hi, I’m $name! Ready to fly?",
+   "target": "Merhaba, ben $name! Uçmaya hazır mısın?",
+   "note": "No gender issue in Turkish."
+  },
+  "achievement.frequent-flyer": {
+   "en": "Frequent flyer",
+   "target": "Sık uçan yolcu"
+  },
+  "achievement.on-the-dot": {
+   "en": "On the dot",
+   "target": "Tam on ikiden",
+   "note": "Turkish idiom of precision (\"tam on ikiden vurmak\")."
+  },
+  "achievement.star-chaser": {
+   "en": "Star chaser",
+   "target": "Yıldız avcısı"
+  },
+  "achievement.constellation": {
+   "en": "Constellation",
+   "target": "Takımyıldız"
+  },
+  "achievement.sky-captain": {
+   "en": "Sky captain",
+   "target": "Gök kaptanı"
+  },
+  "achievement.trailblazer": {
+   "en": "Trailblazer",
+   "target": "Öncü"
+  },
+  "achievement.flock-together": {
+   "en": "Flock together",
+   "target": "Hep birlikte"
+  },
+  "achievement.all-rounder": {
+   "en": "All-rounder",
+   "target": "Her telden",
+   "note": "Idiom \"her telden çalmak\" = good at everything."
+  },
+  "achievement.mail-through-the-canopy": {
+   "en": "Mail Through the Canopy",
+   "target": "Ağaç Tepelerinden Posta"
+  },
+  "achievement.return-to-sender": {
+   "en": "Return to Sender",
+   "target": "Göndericiye İade"
+  },
+  "achievement.mint-tea-again": {
+   "en": "Mint Tea Again",
+   "target": "Yine Nane Çayı"
+  },
+  "achievement.crumbs-cleared": {
+   "en": "Crumbs Cleared",
+   "target": "Kırıntılar Temizlendi",
+   "note": "K-K alliteration kept."
+  },
+  "achievement.out-of-the-spotlight": {
+   "en": "Out of the Spotlight",
+   "target": "Spot Işığından Uzak",
+   "note": "Both his searchlight and a ham losing the spotlight."
+  },
+  "achievement.gold-canopy": {
+   "en": "Gold Canopy",
+   "target": "Altın Ağaç Tepeleri"
+  },
+  "achievement.gold-road": {
+   "en": "Gold Road",
+   "target": "Altın Yol"
+  },
+  "achievement.bright-lights": {
+   "en": "Bright Lights",
+   "target": "Büyük Şehrin Işıkları"
+  },
+  "achievement.lamplighter": {
+   "en": "Lamplighter",
+   "target": "Lambacı",
+   "note": "The old job of lighting street lamps."
+  },
+  "achievement.harbour-bells": {
+   "en": "Harbour Bells",
+   "target": "Liman Çanları"
+  },
+  "achievement.edge-of-the-map": {
+   "en": "Edge of the Map",
+   "target": "Haritanın Ucu"
+  },
+  "achievement.two-on-one-phone": {
+   "en": "Two on One Phone",
+   "target": "Bir Telefonda İki Kişi"
+  },
+  "achievement.friendly-rivals": {
+   "en": "Friendly Rivals",
+   "target": "Dost Rakipler"
+  },
+  "achievement.route-planner": {
+   "en": "Route Planner",
+   "target": "Rota Planlayıcı"
+  },
+  "achievement.the-whole-kit": {
+   "en": "The Whole Kit",
+   "target": "Takım Taklavat",
+   "note": "Idiom: the whole lot."
+  },
+  "achievement.pen-pal": {
+   "en": "Pen Pal",
+   "target": "Mektup Arkadaşı"
+  },
+  "achievement.night-mail": {
+   "en": "Night Mail",
+   "target": "Gece Postası"
+  },
+  "achievement.special-delivery": {
+   "en": "Special Delivery",
+   "target": "Özel Teslimat"
+  },
+  "achievement.goal-spread-your-wings": {
+   "en": "Spread your wings",
+   "target": "Kanatlarını aç"
+  },
+  "achievement.goal-open-horizons": {
+   "en": "Open horizons",
+   "target": "Açık ufuklar"
+  },
+  "achievement.goal-pocketful-of-stars": {
+   "en": "Pocketful of stars",
+   "target": "Cep dolusu yıldız"
+  },
+  "achievement.goal-keep-the-sparkle": {
+   "en": "Keep the sparkle",
+   "target": "Işıltıyı koru"
+  },
+  "achievement.goal-right-on-the-mark": {
+   "en": "Right on the mark",
+   "target": "Tam isabet"
+  },
+  "achievement.goal-the-whole-journey": {
+   "en": "The whole journey",
+   "target": "Yolun tamamı"
+  },
+  "achievement.card-sunrise-delivery": {
+   "en": "Sunrise delivery",
+   "target": "Şafak teslimatı"
+  },
+  "achievement.card-peach-picnic": {
+   "en": "Peach picnic",
+   "target": "Şeftali pikniği"
+  },
+  "achievement.card-moonlit-mail": {
+   "en": "Moonlit mail",
+   "target": "Mehtaplı mektup",
+   "note": "M-M alliteration."
+  },
+  "achievement.card-cloud-parade": {
+   "en": "Cloud parade",
+   "target": "Bulut geçidi"
+  },
+  "achievement.card-twilight-treasure": {
+   "en": "Twilight treasure",
+   "target": "Alacakaranlık hazinesi"
+  },
+  "achievement.card-garden-party": {
+   "en": "Garden party",
+   "target": "Bahçe partisi"
+  },
+  "story.flame-seal": {
+   "en": "flame seal",
+   "target": "alev mührü",
+   "note": "\"alev mühürlü\" (with a flame seal); alone \"mühür\"."
+  },
+  "story.warm-letter": {
+   "en": "a warm letter",
+   "target": "sıcacık bir mektup",
+   "note": "\"sıcak\" is both warm and kind, as in English."
+  },
+  "story.night-mail": {
+   "en": "the night mail",
+   "target": "gece postası"
+  },
+  "story.morning-post": {
+   "en": "the morning post",
+   "target": "sabah postası"
+  },
+  "story.mail-route": {
+   "en": "route",
+   "target": "rota",
+   "note": "One word everywhere (\"posta rotası\")."
+  },
+  "story.route-six": {
+   "en": "Route six",
+   "target": "Altıncı rota"
+  },
+  "story.beacon": {
+   "en": "our beacon",
+   "target": "işaret ateşimiz",
+   "note": "\"Gel, işaret ateşimizin bekçisi ol.\""
+  },
+  "story.lost-letter": {
+   "en": "the lost letter",
+   "target": "kayıp mektup"
+  },
+  "story.the-books": {
+   "en": "the books",
+   "target": "kayıt defterleri"
+  },
+  "story.pigeonholes": {
+   "en": "pigeonholes",
+   "target": "posta güvercini",
+   "note": "Adapted pun: \"Postanemizde bugüne dek tek bir posta güvercini olmadı.\" (a post office that never had a carrier pigeon)."
+  },
+  "story.bread-cart": {
+   "en": "the bread cart",
+   "target": "simit arabası",
+   "note": "Localised: the Turkish street bread cart, so it pairs with the simit pay."
+  },
+  "story.bagel": {
+   "en": "a hot bagel a day",
+   "target": "günde bir sıcak simit",
+   "note": "Localised: simit is the Turkish bagel, warmer and funnier for Turkish kids."
+  },
+  "story.landing-light": {
+   "en": "landing light",
+   "target": "iniş ışığı"
+  },
+  "story.brew": {
+   "en": "the brew",
+   "target": "iksir",
+   "note": "\"iksirim\", \"iksire girer\"."
+  },
+  "story.perfect-ink": {
+   "en": "the perfect ink",
+   "target": "kusursuz mürekkep"
+  },
+  "story.mint-tea": {
+   "en": "mint tea",
+   "target": "nane çayı",
+   "note": "Minty's name has no link to \"nane\"; his joke becomes \"Tıpkı benim gibi ferah!\"."
+  },
+  "story.letter-phrases": {
+   "en": "“Dear Grandma”, “Wish you were here”",
+   "target": "“Canım Babaanneciğim”, “Keşke burada olsaydın”",
+   "note": "Turkish letter opener and postcard cliché; flight recipe adds “Geçmiş olsun” and “Sevgilerle”."
+  },
+  "story.postage-stamp": {
+   "en": "stamps",
+   "target": "pul"
+  },
+  "story.stamp-album": {
+   "en": "stamp album",
+   "target": "pul albümü"
+  },
+  "story.penny-black": {
+   "en": "penny black",
+   "target": "Penny Black",
+   "note": "Philatelic name kept."
+  },
+  "story.envelopes": {
+   "en": "the envelopes",
+   "target": "zarflar"
+  },
+  "story.beauty-sleep": {
+   "en": "beauty sleep",
+   "target": "güzellik uykusu",
+   "note": "Same idiom in Turkish."
+  },
+  "story.dusk-delivery": {
+   "en": "deliver at dusk",
+   "target": "alacakaranlıkta teslimat",
+   "note": "\"Alacakaranlık! Ne kadar medeni.\""
+  },
+  "story.lamps": {
+   "en": "the lamps",
+   "target": "lambalar",
+   "note": "No near-homophone problem in Turkish."
+  },
+  "story.lampshades": {
+   "en": "lampshades",
+   "target": "abajurlar",
+   "note": "Her \"Shades…\" = \"Abajurlar…\"."
+  },
+  "story.harbour-bells": {
+   "en": "harbour bells",
+   "target": "liman çanları"
+  },
+  "story.club-rule": {
+   "en": "Club rule",
+   "target": "Kulüp kuralı"
+  },
+  "story.final-notice": {
+   "en": "final notice",
+   "target": "son ihtar"
+  },
+  "story.wake-up-call": {
+   "en": "wake-up call",
+   "target": "uyandırma servisi"
+  },
+  "story.first-letter": {
+   "en": "the first letter ever sent to the Dragon",
+   "target": "Ejderhaya gönderilen ilk mektup"
+  },
+  "story.dotted-i": {
+   "en": "He dotted his “i” with a tiny bat.",
+   "target": "“i” harfinin noktasına minik bir yarasa çizdi.",
+   "note": "Turkish has the dotted i, so the joke works as is."
+  },
+  "story.mailbag": {
+   "en": "mailbag",
+   "target": "posta çantası"
+  },
+  "story.satchel": {
+   "en": "satchel",
+   "target": "çanta"
+  },
+  "story.pharaohs-post": {
+   "en": "the Pharaoh's post",
+   "target": "Firavun'un postası"
+  },
+  "story.mask": {
+   "en": "golden courier mask",
+   "target": "altın kurye maskesi",
+   "note": "\"Maskem!\""
+  },
+  "story.wrappings": {
+   "en": "wrappings",
+   "target": "sargılar"
+  },
+  "story.headwear": {
+   "en": "headwear",
+   "target": "başlık",
+   "note": "Each item plainly: taç, şişe taç, kep, şapka."
+  },
+  "story.kindling": {
+   "en": "kindling",
+   "target": "çıra",
+   "note": "\"Mektupların çıra olur.\""
+  },
+  "story.rush-hour": {
+   "en": "rush hour",
+   "target": "koşturma saati",
+   "note": "\"Onun yatma saati, bizim koşturma saatimiz.\""
+  },
+  "story.weather-vane": {
+   "en": "weather vane",
+   "target": "rüzgâr gülü"
+  },
+  "motto.every-letter-lands": {
+   "en": "Every letter lands.",
+   "target": "Her mektup yerini bulur.",
+   "note": "\"yerini bulmak\" = to reach the place it belongs (also said of a well-aimed shot or a welcome gift). Dragon: \"Her mektup gerçekten yerini bulur mu?\"; Minty: \"…benimki HIZLA bulur!\""
+  },
+  "motto.every-letter-delivered": {
+   "en": "Every letter delivered",
+   "target": "Her mektup teslim edildi",
+   "note": "Echoes the motto with \"teslim\". UI 2026-10-07: was \"Her mektup teslim\". Full sentence on the Home campaign key (homeCampaignDone). Not spoken."
+  },
+  "address.rookie": {
+   "en": "rookie",
+   "target": "çaylak",
+   "note": "Affectionate, epicene."
+  },
+  "address.little-courier": {
+   "en": "little courier",
+   "target": "küçük kurye"
+  },
+  "address.darling": {
+   "en": "darling",
+   "target": "şekerim",
+   "note": "Gargoyle and Peaches; the posh Baron says \"azizim\" instead (old-fashioned aristocratic \"my dear\")."
+  },
+  "address.postie": {
+   "en": "postie",
+   "target": "postacı"
+  },
+  "address.sprat": {
+   "en": "sprat",
+   "target": "hamsi",
+   "note": "The iconic tiny Black Sea fish."
+  },
+  "address.skylubber": {
+   "en": "skylubber",
+   "target": "gök faresi",
+   "note": "From the pirate insult \"kara faresi\" (landlubber)."
+  },
+  "address.matey": {
+   "en": "matey",
+   "target": "ahbap"
+  },
+  "address.lad": {
+   "en": "lad",
+   "target": "evlat",
+   "note": "Gender-neutral (\"child\"), gruff and natural."
+  },
+  "address.feathers": {
+   "en": "feathers",
+   "target": "tüylü"
+  },
+  "address.little-spark": {
+   "en": "little spark",
+   "target": "küçük kıvılcım"
+  },
+  "address.hatchling": {
+   "en": "hatchling",
+   "target": "civciv"
+  },
+  "address.small-one": {
+   "en": "small one",
+   "target": "ufaklık"
+  },
+  "address.little-one": {
+   "en": "little one",
+   "target": "küçüğüm"
+  },
+  "address.fledgling": {
+   "en": "fledgling",
+   "target": "çömez",
+   "note": "A fussy old official's word for a novice, with siz."
+  },
+  "address.old-courier": {
+   "en": "old courier",
+   "target": "yaşlı kurye"
+  },
+  "address.stoneface": {
+   "en": "Stoneface",
+   "target": "Taş Surat",
+   "note": "Common Turkish nickname for a stony face."
+  },
+  "address.commissioner": {
+   "en": "Commissioner",
+   "target": "Komiserim",
+   "note": "The natural Turkish address to a police chief."
+  },
+  "address.your-majesty": {
+   "en": "Your Majesty",
+   "target": "Majesteleri"
+  },
+  "address.your-lordship": {
+   "en": "Your Lordship",
+   "target": "Ekselansları"
+  },
+  "address.her-highness": {
+   "en": "Her Highness",
+   "target": "Haşmetmeapları",
+   "note": "Pip's grand, old-fashioned title for the Empress."
+  },
+  "address.sir": {
+   "en": "sir",
+   "target": "efendim"
+  },
+  "address.mister": {
+   "en": "Mister",
+   "target": "Bey",
+   "note": "After the name: \"Sfenks Bey\"; alone \"beyefendi\"."
+  },
+  "address.partner": {
+   "en": "partner",
+   "target": "ortak"
+  },
+  "address.peaches-pet-names": {
+   "en": "sweetie",
+   "target": "şekerim",
+   "note": "Set used, never repeated in a row: şekerim, tatlım, canım, cicim, bal küpüm, lokumum, bal böceğim, pamuk şekerim, kuzucuğum (all gender-neutral)."
+  },
+  "address.bossy": {
+   "en": "bossy",
+   "target": "patroncuk"
+  },
+  "address.minions": {
+   "en": "Cousins! / my lovelies / my little scarabs / me hearties",
+   "target": "Kuzenler! / güzellerim / minik böceklerim / tayfa",
+   "note": "Plural address in each boss's own voice."
+  },
+  "phrase.baron-bat-line": {
+   "en": "This route is my roost now, little courier!",
+   "target": "Bu rota artık benim tüneğim, küçük kurye!"
+  },
+  "phrase.spitter-king-line": {
+   "en": "Every letter on my road goes in the brew!",
+   "target": "Yolumdaki her mektup iksire girer!"
+  },
+  "phrase.dusk-empress-line": {
+   "en": "Hush now. The night mail is sleeping.",
+   "target": "Sus şimdi. Gece postası uyuyor."
+  },
+  "phrase.pirate-captain-line": {
+   "en": "Arr! Every mailbag on these waves be mine!",
+   "target": "Arrr! Bu dalgalardaki her posta çantası benimdir!",
+   "note": "\"-dir\" gives the old-salt ring of \"be mine\"."
+  },
+  "phrase.ember-dragon-line": {
+   "en": "The sky is mine. Your letters are kindling.",
+   "target": "Gökyüzü benim. Mektupların çıra olur."
+  },
+  "phrase.neferhoo-line": {
+   "en": "Return to sender! This route has a courier.",
+   "target": "Göndericiye iade! Bu rotanın kuryesi var."
+  },
+  "phrase.king-coo-line": {
+   "en": "Nobody flies till the bread cart is found!",
+   "target": "Simit arabası bulunana dek kimse uçmayacak!"
+  },
+  "phrase.searchlight-gargoyle-line": {
+   "en": "Hold still! Nobody ever stays in the light.",
+   "target": "Kıpırdama! Hiç kimse ışıkta kalmıyor."
+  },
+  "phrase.return-to-sender": {
+   "en": "Return to sender!",
+   "target": "Göndericiye iade!",
+   "note": "The Turkish post's formula for returned mail."
+  },
+  "phrase.signed-sealed-delivered": {
+   "en": "Signed, sealed, delivered!",
+   "target": "İmzalandı, mühürlendi, teslim edildi!",
+   "note": "Three beats; Minty swaps the last: \"…vınnn!\"."
+  },
+  "phrase.small-bird-big-sky": {
+   "en": "Small bird. Big sky.",
+   "target": "Küçük kuş. Koca gök.",
+   "note": "Riffs: \"Küçük kuş, koca plan!\"."
+  },
+  "phrase.peaches-tagline": {
+   "en": "Rosy cheeks, curly crest, all heart.",
+   "target": "Al yanaklar, kıvırcık tepe, kocaman yürek."
+  },
+  "phrase.minty-tagline": {
+   "en": "Tiny hummer. Fresh sprig. Full speed.",
+   "target": "Minik sinekkuşu. Taze nane. Tam gaz."
+  },
+  "phrase.orbit-tagline": {
+   "en": "A dreamy owl who flies by starlight.",
+   "target": "Yıldız ışığında uçan hayalperest bir baykuş.",
+   "note": "Bill: \"Yıldız ışığında uç, çaylak.\""
+  },
+  "phrase.sprint-woohoo": {
+   "en": "Woo-hooo!",
+   "target": "Yuhuuu!"
+  },
+  "phrase.sprint-turbo-feathers": {
+   "en": "Turbo feathers!",
+   "target": "Turbo tüyler!"
+  },
+  "phrase.sprint-bye-bye-gravity": {
+   "en": "Bye-bye, gravity!",
+   "target": "Güle güle, yerçekimi!",
+   "note": "\"güle güle\" is what you say to the one leaving."
+  },
+  "phrase.sprint-wheee": {
+   "en": "Wheeee!",
+   "target": "Yupiii!"
+  },
+  "phrase.keep-your-beak-up": {
+   "en": "Keep your beak up.",
+   "target": "Gaganı dik tut.",
+   "note": "From \"başını dik tut\" (keep your head up)."
+  },
+  "phrase.all-screech": {
+   "en": "He’s all screech",
+   "target": "Çığlık atan yarasa ısırmaz",
+   "note": "From the proverb \"Havlayan köpek ısırmaz\" (barking dogs don't bite)."
+  },
+  "phrase.no-flame-seal": {
+   "en": "No flame seal on this guardian.",
+   "target": "Bu muhafızda alev mührü yok."
+  },
+  "phrase.halt": {
+   "en": "HALT!",
+   "target": "DUR!"
+  },
+  "phrase.mister-nice-bat": {
+   "en": "No more Mister Nice Bat!",
+   "target": "İyi yarasalık bitti!",
+   "note": "From \"İyi çocukluk bitti!\"."
+  },
+  "phrase.at-your-disservice": {
+   "en": "at your disservice",
+   "target": "hizmetsizliğinizde",
+   "note": "Mirror of \"hizmetinizde\" (at your service): \"Baron Yarasa, hizmetsizliğinizde.\""
+  },
+  "phrase.mind-the-gap": {
+   "en": "Mind the gap",
+   "target": "Boşluğa dikkat",
+   "note": "The İstanbul metro announcement."
+  },
+  "phrase.sticks-and-stones": {
+   "en": "Sticks and stones?",
+   "target": "Laf uçar, taş kalır",
+   "note": "Twist of \"Söz uçar, yazı kalır\" keeping the stone joke."
+  },
+  "phrase.rock-beats-shot": {
+   "en": "Rock beats shot!",
+   "target": "Taş atışı yener!",
+   "note": "Rock-paper-scissors is \"taş-kâğıt-makas\" in Turkish too."
+  },
+  "phrase.pirate-speak": {
+   "en": "Arr!",
+   "target": "Arrr!",
+   "note": "Turkish stage-pirate kit: \"Arrr!\", \"Ahoy!\", \"Dur bakalım!\", \"Hay gemimin direği!\", \"tayfa\", \"be\", \"-dir\" endings."
+  },
+  "phrase.strike-the-colours": {
+   "en": "strike the colours",
+   "target": "sancağı indir"
+  },
+  "phrase.nobody-looks-up": {
+   "en": "Nobody looks up.",
+   "target": "Kimse yukarı bakmıyor.",
+   "note": "Payoff: \"Her kurye yukarı bakacak!\""
+  },
+  "phrase.accepts": {
+   "en": "The Commissioner accepts.",
+   "target": "Komiser kabul ediyor.",
+   "note": "Also \"Gargoyl kabul ediyor.\""
+  },
+  "phrase.bonk-bonk": {
+   "en": "Bonk. Bonk.",
+   "target": "Küt. Küt."
+  },
+  "phrase.hush": {
+   "en": "Hush now.",
+   "target": "Sus şimdi.",
+   "note": "Also \"Şşş.\""
+  },
+  "phrase.welcome-to-the-club": {
+   "en": "Welcome to the club",
+   "target": "Kulübe hoş geldin",
+   "note": "Same idiom in Turkish; Bill to the Gargoyle with siz: \"Kulübe hoş geldiniz\"."
+  },
+  "ui.omen-baron": {
+   "en": "A SHADOW APPROACHES",
+   "target": "BİR GÖLGE YAKLAŞIYOR"
+  },
+  "ui.omen-baron-returns": {
+   "en": "THE BARON RETURNS",
+   "target": "BARON GERİ DÖNDÜ"
+  },
+  "ui.omen-spitter": {
+   "en": "SOMETHING IS BREWING",
+   "target": "BİR ŞEYLER KAYNIYOR",
+   "note": "\"kaynamak\" = to boil/brew and \"something is cooking\"."
+  },
+  "ui.omen-empress": {
+   "en": "TWILIGHT TAKES WING",
+   "target": "ALACAKARANLIK KANATLANIYOR"
+  },
+  "ui.omen-pirate": {
+   "en": "SAIL HO!",
+   "target": "UFUKTA YELKEN!"
+  },
+  "ui.omen-dragon": {
+   "en": "THE SKY CATCHES FIRE",
+   "target": "GÖKYÜZÜ ALEV ALIYOR"
+  },
+  "ui.omen-king-coo": {
+   "en": "THE CURB IS CLOSED",
+   "target": "KALDIRIM KAPANDI",
+   "note": "Same \"kaldırım\" as his title."
+  },
+  "ui.omen-gargoyle": {
+   "en": "STORM WARNING",
+   "target": "FIRTINA UYARISI",
+   "note": "Same words as level 3-4."
+  },
+  "ui.omen-neferhoo": {
+   "en": "THE PYRAMID STIRS",
+   "target": "PİRAMİT KIPIRDANIYOR"
+  },
+  "story.letter": {
+   "en": "letter",
+   "target": "mektup"
+  },
+  "story.mail-and-post": {
+   "en": "the mail / the post",
+   "target": "posta",
+   "note": "One word for both."
+  },
+  "story.parcel": {
+   "en": "parcel",
+   "target": "koli",
+   "note": "Postal parcel."
+  },
+  "story.delivery": {
+   "en": "delivery",
+   "target": "teslimat",
+   "note": "Verb \"teslim etmek\", result \"Teslim edildi!\"."
+  },
+  "story.salutation": {
+   "en": "Dear Dragon.",
+   "target": "Sevgili Ejderha.",
+   "note": "Postcards: \"Sevgili kurye,\". \"Sevgili\" has no gender."
+  },
+  "ui.home": {
+   "en": "Home (button)",
+   "target": "Ana menü",
+   "note": "Every \"Home\" key and \"back home\" label (\"Ana menüye dön\")."
+  },
+  "ui.switch-on-off": {
+   "en": "ON / OFF (Settings switch)",
+   "target": "VAR / YOK",
+   "note": "4-character budget: \"KAPALI\" does not fit; \"AÇIK/KAPALI\" if the budget grows to 6."
+  },
+  "ui.shoot-key": {
+   "en": "the Shoot key in sentences",
+   "target": "Ateş tuşu",
+   "note": "\"Ateş tuşuna dokun\", \"Ateş'i basılı tut\" (apostrophe after the key name)."
+  },
+  "ui.seconds-unit": {
+   "en": "s (seconds)",
+   "target": "sn",
+   "note": "\"{n} sn\"; compact HUD forms \"12sn\"; \"s\" only in replayMagnet (14 characters)."
+  },
+  "ui.minutes-unit": {
+   "en": "min",
+   "target": "dk",
+   "note": "\"1 dk 05 sn\"."
+  },
+  "ui.percent": {
+   "en": "55 %",
+   "target": "%55",
+   "note": "Turkish puts the sign first: \"%{percent}\"."
+  },
+  "ui.health-points": {
+   "en": "HP / health",
+   "target": "CAN (tags) / sağlık (screen reader)",
+   "note": "\"{hp} CAN\", \"{boss}: 300 üzerinden 120 sağlık\"."
+  },
+  "ui.out-of": {
+   "en": "{a} of {b} (screen reader)",
+   "target": "{b} üzerinden {a}",
+   "note": "Avoids a suffix on the number: \"3 üzerinden 2 yıldız\"."
+  },
+  "ui.level-builder-short": {
+   "en": "Builder (small key)",
+   "target": "Atölye",
+   "note": "Short form of \"Seviye Atölyesi\"; the editor is \"düzenleyici\"."
+  },
+  "ui.test-fly": {
+   "en": "test fly (verb)",
+   "target": "uçup dene",
+   "note": "Key \"UÇUP DENE\"; noun \"deneme uçuşu\"."
+  },
+  "ui.remix-verb": {
+   "en": "Remix (key)",
+   "target": "Remiksle",
+   "note": "Suffix word for names: \"remiks\"; copies: \"kopya\"."
+  },
+  "ui.star-wallet-pill": {
+   "en": "YOUR STARS (wallet pill)",
+   "target": "KUMBARAN",
+   "note": "\"your piggy bank\", 12-character two-line pill."
+  },
+  "ui.to-medal": {
+   "en": "TO BRONZE / SILVER / GOLD",
+   "target": "BRONZA / GÜMÜŞE / ALTINA",
+   "note": "Dative of the medal words on the passport bar."
+  },
+  "ui.settings-title": {
+   "en": "Make yourself at home.",
+   "target": "Kendini evinde hisset."
+  },
+  "ui.needs-a-moment": {
+   "en": "… needs a moment.",
+   "target": "… biraz zaman istiyor.",
+   "note": "Load-error headings: \"Harita biraz zaman istiyor.\", \"Yuvan biraz zaman istiyor.\""
+  },
+  "ui.vs": {
+   "en": "VS (duel badge)",
+   "target": "VS",
+   "note": "Caption \"Pip – Minty\"; result \"Pip, Minty'yi yendi\" (select on Minty for the buffer y)."
+  },
+  "ui.daily-card": {
+   "en": "Daily card",
+   "target": "Günlük kart"
+  },
+  "ui.new-tag": {
+   "en": "NEW (level card tag)",
+   "target": "YENİ",
+   "note": "Level card tags: \"YENİ\" (NEW) and \"İPUCU\" (TIP)."
+  }
+ }
+}

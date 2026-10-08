@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../domain/replay_highlights.dart';
+import '../l10n/l10n.dart';
+import '../l10n/text/replay_text.dart';
 import 'campaign_chrome.dart' show MapGlyph, MapKey;
+import 'fit_text.dart';
 import 'theme.dart';
 
 Future<ReplayHighlight?> showReplayHighlights(
@@ -27,16 +30,21 @@ Future<ReplayHighlight?> showReplayHighlights(
         children: [
           Row(
             children: [
-              Expanded(child: Text('Flight highlights', style: heading(26))),
+              Expanded(
+                child: FitText(
+                  context.l10n.replayHighlights,
+                  style: heading(26),
+                ),
+              ),
               MapKey(
                 glyph: MapGlyph.close,
-                label: 'Close highlights',
+                label: context.l10n.replayHighlightsCloseSemantics,
                 onPressed: () => Navigator.pop(context),
               ),
             ],
           ),
           Text(
-            'Pick a moment. Watch from just before it happened.',
+            context.l10n.replayHighlightsHint,
             style: bodyText(13, color: SkyColors.muted),
           ),
           const SizedBox(height: 12),
@@ -87,9 +95,12 @@ Future<ReplayHighlight?> showReplayHighlights(
                       ],
                     ),
                   ),
-                  title: Text(moment.title, style: heading(18)),
+                  title: Text(
+                    context.l10n.momentTitle(moment),
+                    style: heading(18),
+                  ),
                   subtitle: Text(
-                    moment.detail,
+                    context.l10n.momentDetail(moment),
                     style: bodyText(12, color: SkyColors.muted),
                   ),
                   trailing: const Icon(

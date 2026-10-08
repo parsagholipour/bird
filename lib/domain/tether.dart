@@ -67,6 +67,9 @@ enum CoopMode {
   /// one is knocked out ([Duel]).
   duel;
 
+  /// An English twin: screens show `AppLocalizations.coopModeName`
+  /// (lib/l10n/text/coop_text.dart).
+  // l10n-english-twin: coopMode_* keys.
   String get title => switch (this) {
     roped => 'Roped',
     free => 'No rope',

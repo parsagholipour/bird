@@ -8,9 +8,13 @@ import '../domain/tracking.dart';
 import '../domain/flight_course.dart';
 import '../domain/tether.dart';
 import '../game/star_art.dart';
+import '../l10n/l10n.dart';
+import '../l10n/text/date_text.dart';
+import '../l10n/text/replay_text.dart';
 import 'campaign_screen.dart' show campaignStarsInBuild;
 import 'components.dart';
 import 'control_glyphs.dart';
+import 'fit_text.dart';
 import 'match_hud.dart' show MatchPlate;
 import 'mini_chrome.dart';
 import 'mini_games.dart' show miniGameModes;
@@ -35,6 +39,7 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
   @override
   Widget build(BuildContext context) {
     final p = ref.watch(progressProvider).asData?.value;
+    final l = context.l10n;
     return Scaffold(
       body: SkyBackdrop(
         child: SceneLayout(
@@ -43,13 +48,13 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
             child: Column(
               children: [
                 MiniHeader(
-                  title: 'Your little victories.',
+                  title: l.recordsTitle,
                   size: 34,
                   onBack: () => context.go('/'),
                   trailing: [
                     MiniPillKey(
                       icon: Icons.video_library_rounded,
-                      label: 'Saved sessions',
+                      label: l.replaySavedSessions,
                       onPressed: () => context.go('/sessions'),
                     ),
                   ],
@@ -61,9 +66,9 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
                       : Row(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Expanded(flex: 11, child: _bests(p)),
+                            Expanded(flex: 11, child: _bests(l, p)),
                             const SizedBox(width: 20),
-                            Expanded(flex: 10, child: _recent(p)),
+                            Expanded(flex: 10, child: _recent(l, p)),
                           ],
                         ),
                 ),
@@ -75,7 +80,7 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
     );
   }
 
-  Widget _bests(ProgressSnapshot p) => MiniCard(
+  Widget _bests(AppLocalizations l, ProgressSnapshot p) => MiniCard(
     accent: SkyColors.yellow,
     padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
     child: Column(
@@ -89,22 +94,24 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
               size: 32,
             ),
             const SizedBox(width: 10),
-            Text(
-              'Your star points to beat',
-              style: heading(22, weight: FontWeight.w700),
+            Expanded(
+              child: FitText(
+                l.recordsBestsTitle,
+                style: heading(22, weight: FontWeight.w700),
+              ),
             ),
           ],
         ),
         const SizedBox(height: 8),
         // The main game leads; the mini games keep their own, smaller
         // bests.
-        _section('Main game'),
+        _section(l.recordsSectionMain),
         Row(
           children: [
             Expanded(
               child: _BestTile(
                 key: const ValueKey('record-endless'),
-                name: 'Endless · Tap & Fly',
+                name: l.recordsEndless,
                 best: p.record(PlayMode.touch, course).best,
                 color: SkyColors.yellow,
                 badge: const _StarCoin(size: 34),
@@ -114,7 +121,7 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
             Expanded(
               child: _BestTile(
                 key: const ValueKey('record-campaign'),
-                name: 'Campaign stars',
+                name: l.recordsCampaignStars,
                 best: p.campaign.totalStars,
                 of: campaignStarsInBuild,
                 color: SkyColors.mint,
@@ -128,14 +135,14 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
           ],
         ),
         const SizedBox(height: 8),
-        _section('Mini games'),
+        _section(l.recordsSectionMini),
         Row(
           children: [
             for (final mode in miniGameModes) ...[
               if (mode != miniGameModes.first) const SizedBox(width: 8),
               Expanded(
                 child: _BestTile(
-                  name: mode.title,
+                  name: l.playModeName(mode),
                   best: p.record(mode, course).best,
                   color: miniColor(mode),
                   badge: ControlGlyph(_control(mode), size: 28),
@@ -154,7 +161,7 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
               if (mode != CoopMode.values.first) const SizedBox(width: 8),
               Expanded(
                 child: _BestTile(
-                  name: 'Fly Together · ${mode.title}',
+                  name: l.flyTogetherName(mode),
                   best: p.coop.record(mode).best,
                   color: mode == CoopMode.roped
                       ? SkyColors.mint
@@ -179,20 +186,20 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
         // Lifetime totals, as a row of small plates.
         FittedBox(
           fit: BoxFit.scaleDown,
-          alignment: Alignment.centerLeft,
+          alignment: AlignmentDirectional.centerStart,
           child: Row(
             children: [
               for (final (i, (value, label)) in [
-                (p.totalRuns, 'scored flights'),
-                (p.totalObstacles, 'gates'),
+                (p.totalRuns, l.recordsTotalFlights),
+                (p.totalObstacles, l.recordsTotalGates),
                 if (p.coop.flights > p.coop.duels)
-                  (p.coop.flights - p.coop.duels, 'together'),
-                if (p.coop.duels > 0) (p.coop.duels, 'duels'),
-                (p.totalRepetitions, 'push-ups'),
-                (p.totalSquats, 'squats'),
+                  (p.coop.flights - p.coop.duels, l.recordsTotalTogether),
+                if (p.coop.duels > 0) (p.coop.duels, l.recordsTotalDuels),
+                (p.totalRepetitions, l.recordsTotalPushUps),
+                (p.totalSquats, l.recordsTotalSquats),
               ].indexed) ...[
                 if (i > 0) const SizedBox(width: 8),
-                _Total(value: value, label: label),
+                _Total(value: l.formatCount(value), label: label(value)),
               ],
             ],
           ),
@@ -202,7 +209,7 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
     ),
   );
 
-  Widget _recent(ProgressSnapshot p) => MiniCard(
+  Widget _recent(AppLocalizations l, ProgressSnapshot p) => MiniCard(
     accent: SkyColors.lavender,
     padding: const EdgeInsets.fromLTRB(14, 12, 14, 0),
     child: Column(
@@ -216,7 +223,12 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
               size: 32,
             ),
             const SizedBox(width: 10),
-            Text('Recent flights', style: heading(22, weight: FontWeight.w700)),
+            Expanded(
+              child: FitText(
+                l.recordsRecentTitle,
+                style: heading(22, weight: FontWeight.w700),
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 10),
@@ -227,10 +239,15 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const BirdArt(size: 110, bob: false),
-                      Text('A big sky. A clean slate.', style: heading(20)),
+                      Text(
+                        l.recordsEmptyTitle,
+                        style: heading(20),
+                        textAlign: TextAlign.center,
+                      ),
                       const SizedBox(height: 8),
                       Text(
-                        'Your first scored flight starts the story.',
+                        l.recordsEmptyBody,
+                        textAlign: TextAlign.center,
                         style: bodyText(13, color: SkyColors.muted),
                       ),
                     ],
@@ -249,9 +266,9 @@ class _RecordsScreenState extends ConsumerState<RecordsScreen> {
 
   /// A small heading over a group of bests.
   Widget _section(String title) => Padding(
-    padding: const EdgeInsets.only(left: 2, bottom: 5),
+    padding: const EdgeInsetsDirectional.only(start: 2, bottom: 5),
     child: Text(
-      title.toUpperCase(),
+      title,
       style: bodyText(
         11,
         weight: FontWeight.w900,
@@ -304,10 +321,8 @@ class _BestTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
+              FitText(
                 name,
-                maxLines: compact ? 2 : 1,
-                overflow: TextOverflow.ellipsis,
                 style: bodyText(
                   compact ? 11 : 13,
                   weight: FontWeight.w900,
@@ -343,7 +358,9 @@ class _BestTile extends StatelessWidget {
 /// A lifetime total on a small plate: the number, then what it counts.
 class _Total extends StatelessWidget {
   const _Total({required this.value, required this.label});
-  final int value;
+
+  /// The count, its thousands grouped the language's way.
+  final String value;
   final String label;
 
   @override
@@ -377,6 +394,9 @@ class _FlightSlip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final r = run;
+    final l = context.l10n;
+    final date = l.dayMonthDigits(r.finishedAt);
+    final seconds = r.durationSeconds.round();
     return Container(
       padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
       decoration: BoxDecoration(
@@ -396,11 +416,13 @@ class _FlightSlip extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  r.mode.title,
+                  l.playModeName(r.mode),
                   style: bodyText(15, weight: FontWeight.w900),
                 ),
                 Text(
-                  '${r.course == FlightCourse.classic ? 'Classic · ' : ''}${r.finishedAt.day}/${r.finishedAt.month} · ${r.durationSeconds.round()} sec',
+                  r.course == FlightCourse.classic
+                      ? l.recordsSlipDetailClassic(date, seconds)
+                      : l.recordsSlipDetail(date, seconds),
                   style: bodyText(12, color: SkyColors.muted),
                 ),
               ],

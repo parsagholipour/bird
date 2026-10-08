@@ -1,0 +1,463 @@
+{
+  "@note": "Arabic (ar) translation of l10n/store/en.json. Achievements 1-24 are rendered from the stamp keys of lib/l10n/arb/app_ar.arb (\"{stamp} · {medal}\" and stamp_*_goal), so the game and Play Console agree. Western digits; grouped numbers as intl formats them for ar (\"1,000\").",
+  "@status": "listing: DRAFT by the localization architect (no English listing existed in the repo); owner to approve before translation. achievements: copied from play-games-ws/UX-DECISION.md section 5 (names and descriptions as designed; descriptions 1-24 equal SkyStamp.goal in the app).",
+  "listing": {
+    "title": {
+      "text": "Beakbound",
+      "maxChars": 30,
+      "description": "App name on Google Play. A brand name: keep it as is unless a market needs a transliteration (owner decides).",
+      "keepEnglish": true
+    },
+    "shortDescription": {
+      "text": "انقر لتطير بطائر ساعي بريد حول العالم. كل رسالة تصل!",
+      "maxChars": 80,
+      "description": "Play Store short description, under the screenshots. Friendly, no ALL CAPS, no emoji, no \"free\"/\"best\"/\"#1\" (Play policy)."
+    },
+    "fullDescription": {
+      "text": "لعبة Beakbound مغامرة طيران مشرقة تعمل دون إنترنت. أنت أحدث ساعي بريد في نادي السماء: انقر لترفرف، وتنقّل بين البوابات، واجمع النجوم، وأوصل البريد حول العالم.\n\nحلّق في الحملة\nخمسة خطوط بريد صمتت في ليلة واحدة. طِر مرحلة بعد مرحلة من الأدغال إلى كرنفال البرازيل ومعابد الأزتيك، ثم إلى روما القديمة ومصر وبلاد العرب القديمة، وصولًا إلى أضواء نيويورك الساطعة. في كل مرحلة طرد ينتظرك، وكل توصيلة تعود إليك ببطاقة شكر.\n\nواجه الزعماء\nالبارون وطواط، والملك البصّاق، ونِفِرهو ساعي البريد المومياء، والملك كوكو، والغرغول الكشّاف يقفون في طريقك. ارمِ وانطلق وتفادَ لتعيدهم من حيث أتوا.\n\nطِر بلا نهاية\nطارد أفضل نتيجة لك في الطيران بلا نهاية، حيث لا تتوقف البوابات والرياح العاتية والزعماء عن المجيء.\n\nالمزيد لتفعله\n- أربعة طيور لتجمعها، لكل منها صوته الخاص\n- تطويرات تشتريها بالنجوم التي تجمعها\n- مغامرة يومية وجواز سماء مليء بالميداليات\n- صانع المراحل: اصنع خطوطك الخاصة وطِر فيها\n- «نطير معًا» ومبارزات 1 ضد 1 للاعبَين على هاتف واحد\n- ألعاب صغيرة تطير فيها بتمارين الضغط أو القرفصاء أو القفز أمام الكاميرا\n\nالعب على طريقتك\nلا تحتاج إلى حساب ولا إلى إنترنت. ألعاب الكاميرا الصغيرة تعمل بالكامل على هاتفك: الفيديو لا يغادره أبدًا. حفظ سحابي وإنجازات اختيارية عبر ألعاب Google Play.",
+      "maxChars": 4000,
+      "description": "Play Store full description. Section headers in capitals are fine. Keep the facts: offline, camera stays on the phone, optional Play Games."
+    },
+    "releaseNotes": {
+      "text": "أصبحت Beakbound تتكلم لغتك: اخترها من الإعدادات.",
+      "maxChars": 500,
+      "description": "\"What's new\" for the release that ships the translations."
+    }
+  },
+  "playGames": {
+    "displayName": {
+      "text": "Beakbound",
+      "maxChars": 50,
+      "description": "Play Games Services game name.",
+      "keepEnglish": true
+    },
+    "description": {
+      "text": "طِر بطائر ساعي بريد حول العالم: أوصل البريد، واهزم الزعماء، واجمع كل الميداليات.",
+      "maxChars": 4000,
+      "description": "Play Games Services game description (Properties)."
+    }
+  },
+  "achievements": {
+    "frequentFlyerBronze": {
+      "name": {
+        "text": "المسافر الدائم · برونزية",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "أنهِ 10 رحلات محسوبة.",
+        "maxChars": 500
+      }
+    },
+    "frequentFlyerSilver": {
+      "name": {
+        "text": "المسافر الدائم · فضية",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "أنهِ 100 رحلة محسوبة.",
+        "maxChars": 500
+      }
+    },
+    "frequentFlyerGold": {
+      "name": {
+        "text": "المسافر الدائم · ذهبية",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "أنهِ 500 رحلة محسوبة.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotBronze": {
+      "name": {
+        "text": "في الصميم · برونزية",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "اعبر عبورًا مثاليًا 25 مرة على علامات التصويب.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotSilver": {
+      "name": {
+        "text": "في الصميم · فضية",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "اعبر عبورًا مثاليًا 200 مرة على علامات التصويب.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotGold": {
+      "name": {
+        "text": "في الصميم · ذهبية",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "اعبر عبورًا مثاليًا 1,000 مرة على علامات التصويب.",
+        "maxChars": 500
+      }
+    },
+    "starChaserBronze": {
+      "name": {
+        "text": "صيّاد النجوم · برونزية",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "اجمع 50 نجمة.",
+        "maxChars": 500
+      }
+    },
+    "starChaserSilver": {
+      "name": {
+        "text": "صيّاد النجوم · فضية",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "اجمع 500 نجمة.",
+        "maxChars": 500
+      }
+    },
+    "starChaserGold": {
+      "name": {
+        "text": "صيّاد النجوم · ذهبية",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "اجمع 5,000 نجمة.",
+        "maxChars": 500
+      }
+    },
+    "constellationBronze": {
+      "name": {
+        "text": "كوكبة · برونزية",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "اجمع 15 نجمة في سلسلة واحدة دون انقطاع.",
+        "maxChars": 500
+      }
+    },
+    "constellationSilver": {
+      "name": {
+        "text": "كوكبة · فضية",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "اجمع 40 نجمة في سلسلة واحدة دون انقطاع.",
+        "maxChars": 500
+      }
+    },
+    "constellationGold": {
+      "name": {
+        "text": "كوكبة · ذهبية",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "اجمع 80 نجمة في سلسلة واحدة دون انقطاع.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainBronze": {
+      "name": {
+        "text": "قائد السماء · برونزية",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "سجّل 100 نقطة في رحلة واحدة بلا نهاية.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainSilver": {
+      "name": {
+        "text": "قائد السماء · فضية",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "سجّل 500 نقطة في رحلة واحدة بلا نهاية.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainGold": {
+      "name": {
+        "text": "قائد السماء · ذهبية",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "سجّل 2,000 نقطة في رحلة واحدة بلا نهاية.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerBronze": {
+      "name": {
+        "text": "رائد الدروب · برونزية",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "طِر 60 ثانية على الأقل في 5 رحلات بلا نهاية.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerSilver": {
+      "name": {
+        "text": "رائد الدروب · فضية",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "طِر 60 ثانية على الأقل في 50 رحلة بلا نهاية.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerGold": {
+      "name": {
+        "text": "رائد الدروب · ذهبية",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "طِر 60 ثانية على الأقل في 250 رحلة بلا نهاية.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherBronze": {
+      "name": {
+        "text": "الطيور على أشكالها · برونزية",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "خذ طائرين مختلفين في رحلات محسوبة.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherSilver": {
+      "name": {
+        "text": "الطيور على أشكالها · فضية",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "خذ الطيور الأربعة في رحلات محسوبة.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherGold": {
+      "name": {
+        "text": "الطيور على أشكالها · ذهبية",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "طِر 25 رحلة محسوبة مع كل طائر.",
+        "maxChars": 500
+      }
+    },
+    "allRounderBronze": {
+      "name": {
+        "text": "متعدد المواهب · برونزية",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "طِر في لعبة صغيرة بالضغط أو القرفصاء أو القفز.",
+        "maxChars": 500
+      }
+    },
+    "allRounderSilver": {
+      "name": {
+        "text": "متعدد المواهب · فضية",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "طِر في الألعاب الصغيرة الثلاث: الضغط والقرفصاء والقفز.",
+        "maxChars": 500
+      }
+    },
+    "allRounderGold": {
+      "name": {
+        "text": "متعدد المواهب · ذهبية",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "طِر 10 رحلات محسوبة في كل لعبة صغيرة.",
+        "maxChars": 500
+      }
+    },
+    "canopyBoss": {
+      "name": {
+        "text": "بريد عبر قمم الأشجار",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "اهزم البارون وطواط في عرينه عند نهاية خط قمم الأشجار (1-8).",
+        "maxChars": 500
+      }
+    },
+    "neferhoo": {
+      "name": {
+        "text": "يُعاد إلى المُرسِل",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "اهزم نِفِرهو، ساعي البريد المومياء الذي يحرس مصر (2-6).",
+        "maxChars": 500
+      }
+    },
+    "roadBoss": {
+      "name": {
+        "text": "شاي بالنعناع مجددًا",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "اهزم الملك البصّاق عند نهاية الطريق القديم (2-9).",
+        "maxChars": 500
+      }
+    },
+    "kingCoo": {
+      "name": {
+        "text": "كنسنا الفتات",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "اهزم الملك كوكو، حارس نيويورك (3-2).",
+        "maxChars": 500
+      }
+    },
+    "gargoyle": {
+      "name": {
+        "text": "بعيدًا عن الأضواء",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "اهزم الغرغول الكشّاف (3-4).",
+        "maxChars": 500
+      }
+    },
+    "goldCanopy": {
+      "name": {
+        "text": "قمم الأشجار الذهبية",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "احصل على ثلاث نجوم في كل مراحل خط قمم الأشجار.",
+        "maxChars": 500
+      }
+    },
+    "goldRoad": {
+      "name": {
+        "text": "الطريق الذهبي",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "احصل على ثلاث نجوم في كل مراحل الطريق القديم.",
+        "maxChars": 500
+      }
+    },
+    "brightLights": {
+      "name": {
+        "text": "أضواء المدينة",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "احصل على ثلاث نجوم في كل مراحل نيويورك.",
+        "maxChars": 500
+      }
+    },
+    "lamplighter": {
+      "name": {
+        "text": "مُشعل المصابيح",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "اهزم إمبراطورة الغسق في رحلة بلا نهاية.",
+        "maxChars": 500
+      }
+    },
+    "harbourBells": {
+      "name": {
+        "text": "أجراس الميناء",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "اهزم قبطان القراصنة في رحلة بلا نهاية.",
+        "maxChars": 500
+      }
+    },
+    "edgeOfTheMap": {
+      "name": {
+        "text": "حافة الخريطة",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "اهزم تنين الجمر في رحلة بلا نهاية.",
+        "maxChars": 500
+      }
+    },
+    "twoOnOnePhone": {
+      "name": {
+        "text": "اثنان على هاتف واحد",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "أنهِ رحلة «نطير معًا» بالحبل.",
+        "maxChars": 500
+      }
+    },
+    "friendlyRivals": {
+      "name": {
+        "text": "خصمان صديقان",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "خُض مبارزة 1 ضد 1.",
+        "maxChars": 500
+      }
+    },
+    "routePlanner": {
+      "name": {
+        "text": "مخطِّط الخطوط",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "اصنع مرحلة في «صانع المراحل» وطِر فيها حتى النهاية.",
+        "maxChars": 500
+      }
+    },
+    "wholeKit": {
+      "name": {
+        "text": "العُدّة كاملة",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "اشترِ مستويات التطوير الـ16 كلها.",
+        "maxChars": 500
+      }
+    },
+    "penPal": {
+      "name": {
+        "text": "صديق المراسلة",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "اختم 10 بطاقات يومية بإنهاء كل أهداف مغامرة اليوم.",
+        "maxChars": 500
+      }
+    },
+    "nightMail": {
+      "name": {
+        "text": "بريد الليل",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "أنهِ رحلة محسوبة بين منتصف الليل والساعة 4 فجرًا.",
+        "maxChars": 500
+      }
+    },
+    "specialDelivery": {
+      "name": {
+        "text": "توصيل خاص",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "أصِب حمامة الأزقّة واستعِد النجمة التي خطفتها.",
+        "maxChars": 500
+      }
+    }
+  },
+  "@achievementNote": "Keys are PlayAchievement values (lib/data/play_achievements.dart), in Play Console order. Names 1-24 follow the in-game \"Stamp · Medal\" pattern: translate the stamp and medal words as the game's ARB does (passport keys) so the two match."
+}

@@ -2,6 +2,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../domain/flight_course.dart';
 import '../game/star_art.dart';
+import '../l10n/l10n.dart';
+import '../l10n/text/flight_text.dart';
 import 'components.dart';
 import 'theme.dart';
 
@@ -19,11 +21,7 @@ class CoursePreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Semantics(
-    label: switch (course) {
-      FlightCourse.classic => 'Classic: fly through the gaps.',
-      FlightCourse.starTrail =>
-        'Endless: collect stars with three hearts and a shield.',
-    },
+    label: context.l10n.coursePreviewSemantics(course),
     excludeSemantics: true,
     child: SizedBox(
       width: 355,

@@ -1,0 +1,15 @@
+# gen-l10n: `flutter gen-l10n` (also run by `flutter pub get`, run and build,
+# since pubspec has `generate: true`). See l10n-ws/MASTER-PLAN.md.
+arb-dir: lib/l10n/arb
+template-arb-file: app_en.arb
+output-dir: lib/l10n/generated
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+preferred-supported-locales: [en]
+# AppLocalizations.of(context) is non-null; context.l10n also falls back to
+# the global strings where a test's bare MaterialApp has no delegate.
+nullable-getter: false
+# Every key in the template needs an "@key" with a description for
+# translators.
+required-resource-attributes: true
+format: true

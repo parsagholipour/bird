@@ -3,6 +3,8 @@ import 'dart:ui' as ui;
 import 'package:flutter/painting.dart';
 import '../domain/campaign.dart';
 import '../domain/game_rules.dart';
+import '../l10n/l10n.dart';
+import '../l10n/text/boss_text.dart';
 import '../ui/theme.dart';
 import 'baron_screech_art.dart';
 import 'baron_storm_art.dart';
@@ -1993,27 +1995,28 @@ abstract final class BossEncounterArt {
       } else {
         _nameCard(c, size, boss, m, line: bossLine(sim));
       }
+      final l = L10n.strings;
       caption = boss.age > 3.5
           ? boss.isMoth
-                ? 'DODGE THE FANS  ·  FIRE WHEN THE VEIL DROPS'
+                ? l.encounterCaption_duskMoth
                 : boss.isPirate
-                ? 'DODGE THE CANNON  ·  STAY OUT OF THE WATER'
+                ? l.encounterCaption_pirate
                 : boss.isDragon
-                ? 'DODGE THE FIREBALLS  ·  ESCAPE THE BREATH'
+                ? l.encounterCaption_dragon
                 : boss.isKingCoo
-                ? 'LEAVE THE RINGS  ·  SHOOT HIS CHEST WHEN IT PUFFS'
+                ? l.encounterCaption_kingCoo
                 : boss.isGargoyle
-                ? 'STAY OUT OF THE LIGHT  ·  SHOOT THE LAMP WHEN IT OPENS'
+                ? l.encounterCaption_searchlightGargoyle
                 : boss.isNeferhoo
                 ? NeferhooEncounterArt.caption
                 : boss.screeches
-                ? 'WHEN HE SCREECHES  ·  FLY TO THE GAP'
-                : 'GET READY  ·  FLAP, DODGE, FIRE'
-          : 'Your bird is coasting safely';
+                ? l.encounterCaption_screech
+                : l.encounterCaption_default
+          : l.encounterCoasting;
       if (boss.age > 3.5) captionColor = _gold;
     } else if (m.defeated && m.death > 1.55) {
       _victory(c, size, sim, m);
-      caption = 'Back to the open sky';
+      caption = L10n.strings.encounterOpenSky;
       captionColor = _ice;
     }
     // Captions sit inside the letterbox like film subtitles, always legible.
@@ -2049,23 +2052,24 @@ abstract final class BossEncounterArt {
           stops: const [.08, .32, .68, .92],
         ).createShader(band),
     );
+    final l = L10n.strings;
     final title = _text(
       c,
       boss.isMoth
-          ? 'TWILIGHT TAKES WING'
+          ? l.encounterOmenTitle_duskMoth
           : boss.isSpitter
-          ? 'SOMETHING IS BREWING'
+          ? l.encounterOmenTitle_spitterBeetle
           : boss.isDragon
-          ? 'THE SKY CATCHES FIRE'
+          ? l.encounterOmenTitle_dragon
           : boss.isKingCoo
-          ? 'THE CURB IS CLOSED'
+          ? l.encounterOmenTitle_kingCoo
           : boss.isGargoyle
-          ? 'STORM WARNING'
+          ? l.encounterOmenTitle_searchlightGargoyle
           : boss.isNeferhoo
           ? NeferhooEncounterArt.omenTitle
           : boss.screeches
-          ? 'THE BARON RETURNS'
-          : 'A SHADOW APPROACHES',
+          ? l.encounterOmenTitle_baronReturns
+          : l.encounterOmenTitle_default,
       Offset(w * .5, h * .29),
       h * .045,
       _gold,
@@ -2096,20 +2100,20 @@ abstract final class BossEncounterArt {
     _text(
       c,
       boss.isMoth
-          ? 'A silken veil gathers in the dusk…'
+          ? l.encounterOmenLine_duskMoth
           : boss.isSpitter
-          ? 'The air is starting to fizz…'
+          ? l.encounterOmenLine_spitterBeetle
           : boss.isDragon
-          ? 'Great wings beat above the clouds…'
+          ? l.encounterOmenLine_dragon
           : boss.isKingCoo
-          ? 'Somebody is very cross about the bread cart…'
+          ? l.encounterOmenLine_kingCoo
           : boss.isGargoyle
-          ? 'Something on the ledge is watching…'
+          ? l.encounterOmenLine_searchlightGargoyle
           : boss.isNeferhoo
           ? NeferhooEncounterArt.omenLine
           : boss.screeches
-          ? 'He is back, and he is much louder…'
-          : 'The sky belongs to someone else…',
+          ? l.encounterOmenLine_baronReturns
+          : l.encounterOmenLine_default,
       Offset(w * .5, h * .372),
       h * .028,
       BossRig.cream,
@@ -2127,30 +2131,23 @@ abstract final class BossEncounterArt {
       return null;
     }
     // A guardian's line belongs to its level, not to a chapter.
-    final level = Campaign.level(sim.levelId!);
-    if (level != null && level.boss == boss.kind) {
-      final line = Campaign.bossLine(level);
-      if (line != null) return '“$line”';
-    }
-    for (final chapter in Campaign.chapters) {
-      if (chapter.boss == boss.kind) return '“${chapter.bossLine}”';
-    }
-    return null;
+    final l = L10n.strings;
+    final line = l.bossLineFor(boss.kind, level: Campaign.level(sim.levelId!));
+    return line == null ? null : l.bossQuotedLine(line);
   }
 
   /// The small gold word above a boss's name on its entrance card: the
   /// numbered encounter for a chapter boss, GUARDIAN for a campaign-only
   /// mini-boss (one word everywhere: the level card's ribbon, the result and
   /// this card all say GUARDIAN, never ENCOUNTER 06 or MINI-BOSS).
-  static String nameCardEyebrow(SkyBoss boss) => boss.isMiniBoss
-      ? 'GUARDIAN'
-      : 'ENCOUNTER ${boss.number.toString().padLeft(2, '0')}';
+  static String nameCardEyebrow(SkyBoss boss) =>
+      L10n.strings.bossEyebrow(boss);
 
   /// The big title of the victory card: `GUARDIAN DOWN!` for every
   /// campaign-only guardian (King Coo and the Searchlight Gargoyle, the same
   /// words as the result screen), `SKY RECLAIMED` for a chapter's boss.
   static String victoryTitle(SkyBoss boss) =>
-      boss.isMiniBoss ? 'GUARDIAN DOWN!' : 'SKY RECLAIMED';
+      L10n.strings.bossVictoryTitle(boss);
 
   /// [line] is a campaign boss's line, set under the epithet; the card
   /// fades it in and out with the rest.
@@ -2206,7 +2203,7 @@ abstract final class BossEncounterArt {
     );
     final name = _text(
       c,
-      boss.name.toUpperCase(),
+      L10n.upper(L10n.strings.bossName(boss.kind)),
       Offset(x, top + h * .075),
       h * (boss.kind == BossKind.baronBat ? .091 : .08),
       BossRig.cream,
@@ -2216,7 +2213,7 @@ abstract final class BossEncounterArt {
     final titleTop = top + h * .075 + name.height * .96;
     final title = _text(
       c,
-      boss.title,
+      L10n.strings.bossTitleOf(boss),
       Offset(x + h * .003, titleTop),
       h * .026,
       _gold,
@@ -2331,8 +2328,8 @@ abstract final class BossEncounterArt {
     _text(
       c,
       sim.isTrail
-          ? '+${FlightSimulation.bossBonus} POINTS   ·   SHIELD RESTORED'
-          : '${boss.name.toUpperCase()} DEFEATED',
+          ? L10n.strings.bossVictoryPoints(FlightSimulation.bossBonus)
+          : L10n.strings.bossDefeated(boss.kind),
       Offset(w * .5, rule + h * .025),
       h * .03,
       _gold,
@@ -2390,7 +2387,9 @@ abstract final class BossEncounterArt {
               ..strokeJoin = StrokeJoin.round,
           ),
         ),
-        textDirection: TextDirection.ltr,
+        // Words run their language's way; where they sit stays the
+        // world's (left to right).
+        textDirection: L10n.textDirection,
       )..layout();
       stroke.paint(c, place(stroke));
     }
@@ -2410,7 +2409,7 @@ abstract final class BossEncounterArt {
               : null,
         ),
       ),
-      textDirection: TextDirection.ltr,
+      textDirection: L10n.textDirection,
     )..layout();
     painter.paint(c, place(painter));
     return painter.size;

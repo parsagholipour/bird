@@ -26,6 +26,9 @@ import 'stage_key.dart';
 import 'mini_chrome.dart';
 import 'theme.dart';
 import 'ui_sounds.dart';
+import '../l10n/l10n.dart';
+import '../l10n/text/birds_text.dart';
+import '../l10n/text/coop_text.dart';
 
 /// Fly Together: two players on one phone fly endlessly with their birds
 /// roped together ([Tether]). Player 1 taps the left half of the sky and has
@@ -320,6 +323,7 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
   // ---------------------------------------------------------------- setup --
 
   Widget _setup(ProgressSnapshot progress) {
+    final l = context.l10n;
     final picked = picks;
     final chosen = mode ?? CoopMode.roped;
     final best = progress.coop.record(chosen).best;
@@ -330,23 +334,12 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
     // badge sits.
     const gap = 104.0;
     final (lead, body) = switch (chosen) {
-      CoopMode.roped => (
-        'Your birds share one rope.',
-        'Flap together to climb high: a bird flapping alone lifts both, but '
-            'only a little. Sprint to drag your partner along.',
-      ),
-      CoopMode.free => (
-        'No rope:',
-        'each bird flies on its own and only bumps into the other. Hearts, '
-            'shield and score are still shared.',
-      ),
-      CoopMode.duel => (
-        'Fight!',
-        'Each bird has its own hearts. Grab mystery boxes: some send bats, a '
-            'spitter or meteors at your rival, others bring a heart, a shield '
-            'or star power. Last bird flying wins.',
-      ),
+      CoopMode.roped => (l.coopRopedLead, l.coopRopedBody),
+      CoopMode.free => (l.coopFreeLead, l.coopFreeBody),
+      CoopMode.duel => (l.duelLead, l.duelBody),
     };
+    // The mode's name as the tags write it: "ROPED", "1 V 1".
+    final modeCaps = L10n.upper(l.coopModeName(chosen));
     // Locked birds have to be bought on the crew screen before they fly.
     final unlocked =
         ref.read(progressProvider).asData?.value.unlockedBirds ?? const {1, 2};
@@ -368,11 +361,11 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
       child: Column(
         children: [
           MiniHeader(
-            title: 'Fly Together',
+            title: l.coopTitle,
             onBack: leave,
-            leading: const [
+            leading: [
               MiniTag(
-                'TWO PLAYERS · ONE PHONE',
+                l.coopPlayersTag,
                 icon: Icons.people_alt_rounded,
                 color: SkyColors.mint,
               ),
@@ -380,9 +373,12 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
             trailing: [
               MiniTag(
                 chosen.team
-                    ? '${chosen.title.toUpperCase()}'
-                          '${best > 0 ? ' BEST $best' : ': NO BEST YET'}'
-                    : '1 V 1${duels > 0 ? ' · $duels DUELS' : ': FIRST DUEL'}',
+                    ? best > 0
+                          ? l.coopBestTag(modeCaps, best)
+                          : l.coopNoBestTag(modeCaps)
+                    : duels > 0
+                    ? l.duelCountTag(modeCaps, duels)
+                    : l.duelFirstTag(modeCaps),
                 key: const ValueKey('coop-best'),
                 icon: chosen.team
                     ? Icons.emoji_events_rounded
@@ -395,65 +391,69 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
           Expanded(
             child: picked == null
                 ? const Center(child: CircularProgressIndicator())
-                : Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(child: card(0, picked.$1)),
-                          const SizedBox(width: gap),
-                          Expanded(child: card(1, picked.$2)),
-                        ],
-                      ),
-                      // The rope is tied to rings on the cards' inner
-                      // frames, so it paints over both of them; without it
-                      // the cut ends hang loose, and rivals face off.
-                      Positioned.fill(
-                        child: IgnorePointer(
-                          child: AnimatedSwitcher(
-                            duration: reducedMotion
-                                ? Duration.zero
-                                : const Duration(milliseconds: 260),
-                            switchInCurve: Curves.easeOutBack,
-                            transitionBuilder: (child, animation) =>
-                                FadeTransition(
-                                  opacity: animation,
-                                  child: ScaleTransition(
-                                    scale: Tween(
-                                      begin: .85,
-                                      end: 1.0,
-                                    ).animate(animation),
-                                    child: child,
-                                  ),
-                                ),
-                            child: Stack(
-                              key: ValueKey(chosen),
-                              fit: StackFit.expand,
-                              children: [
-                                CoopTether(
-                                  mode: chosen,
-                                  gap: gap,
-                                  reducedMotion: reducedMotion,
-                                  rope: CustomPaint(
-                                    painter: _RopePainter(
-                                      reducedMotion: reducedMotion,
+                // Player 1 taps the left half and player 2 the right, in
+                // every language, so their cards keep those sides.
+                : FlightDirection(
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(child: card(0, picked.$1)),
+                            const SizedBox(width: gap),
+                            Expanded(child: card(1, picked.$2)),
+                          ],
+                        ),
+                        // The rope is tied to rings on the cards' inner
+                        // frames, so it paints over both of them; without it
+                        // the cut ends hang loose, and rivals face off.
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: AnimatedSwitcher(
+                              duration: reducedMotion
+                                  ? Duration.zero
+                                  : const Duration(milliseconds: 260),
+                              switchInCurve: Curves.easeOutBack,
+                              transitionBuilder: (child, animation) =>
+                                  FadeTransition(
+                                    opacity: animation,
+                                    child: ScaleTransition(
+                                      scale: Tween(
+                                        begin: .85,
+                                        end: 1.0,
+                                      ).animate(animation),
+                                      child: child,
                                     ),
                                   ),
-                                ),
-                                if (chosen == CoopMode.duel)
-                                  const Align(
-                                    alignment: Alignment(0, -.24),
-                                    child: SizedBox.square(
-                                      dimension: 92,
-                                      child: _Versus(),
+                              child: Stack(
+                                key: ValueKey(chosen),
+                                fit: StackFit.expand,
+                                children: [
+                                  CoopTether(
+                                    mode: chosen,
+                                    gap: gap,
+                                    reducedMotion: reducedMotion,
+                                    rope: CustomPaint(
+                                      painter: _RopePainter(
+                                        reducedMotion: reducedMotion,
+                                      ),
                                     ),
                                   ),
-                              ],
+                                  if (chosen == CoopMode.duel)
+                                    const Align(
+                                      alignment: Alignment(0, -.24),
+                                      child: SizedBox.square(
+                                        dimension: 92,
+                                        child: _Versus(),
+                                      ),
+                                    ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
           ),
           const SizedBox(height: 12),
@@ -482,7 +482,7 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
                   width: 224,
                   child: CoopStartKey(
                     key: const ValueKey('coop-start'),
-                    label: chosen.team ? 'Fly together' : 'Fight!',
+                    label: chosen.team ? l.coopStart : l.duelStart,
                     icon: chosen.team
                         ? Icons.flight_takeoff_rounded
                         : Icons.sports_mma_rounded,
@@ -510,8 +510,7 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
       children: [
         LayoutBuilder(
           builder: (context, constraints) => Semantics(
-            label:
-                'Player 1 taps the left half to flap, player 2 the right half',
+            label: context.l10n.coopFlightSemantics,
             child: Listener(
               key: const ValueKey('coop-flight'),
               behavior: HitTestBehavior.opaque,
@@ -523,15 +522,19 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
               // Flame's game widget would take the focus and keep every
               // key from this screen, so it never gets it.
               child: ExcludeFocus(
-                child: GameWidget(game: game!, autofocus: false),
+                child: FlightDirection(
+                  child: GameWidget(game: game!, autofocus: false),
+                ),
               ),
             ),
           ),
         ),
+        // The halves of the sky and the HUD's corners belong to the players
+        // (player 1 left), in every language.
         if (sim.phase == RunPhase.countdown && sim.countdown > 0)
-          const _SideHints(),
+          const FlightDirection(child: _SideHints()),
         if (flight.stage == PlayStage.flying)
-          SceneLayout(child: _hud(flight, sim)),
+          SceneLayout(child: FlightDirection(child: _hud(flight, sim))),
       ],
     );
   }
@@ -597,13 +600,14 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
   }
 
   Widget _hud(PlayController flight, FlightSimulation sim) {
+    final l = context.l10n;
     const edge = MatchLayout.edge, gap = MatchLayout.gap;
     const bottom = edge + 6, shot = 92.0, sprint = 76.0;
     final reducedMotion = flight.reducedMotion;
     final paused = sim.phase == RunPhase.paused;
     final pause = MatchAction(
       symbol: MatchSymbol.pause,
-      label: 'Pause flight',
+      label: l.coopPauseSemantics,
       onPressed: () {
         UiSounds.effect(context, 'pause');
         flight.pause();
@@ -631,7 +635,7 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
       final left = player == 0;
       final shootButton = MatchShotButton(
         key: ValueKey('coop-shoot-$player'),
-        label: 'Player ${player + 1} shoot',
+        label: l.coopShootSemantics(player + 1),
         reserve: sim.ammo,
         charge: sim.shotCharge,
         spend: sim.charging && !sim.outOfAmmo ? sim.shotCost : 0,
@@ -648,7 +652,7 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
       );
       final sprintButton = MatchSprintButton(
         key: ValueKey('coop-sprint-$player'),
-        label: 'Player ${player + 1} sprint',
+        label: l.coopSprintSemantics(player + 1),
         recharge: 1 - sim.sprintCooldownRemaining / sim.sprintCooldown,
         burst: sim.sprintRemaining / sim.sprintSeconds,
         secondsLeft: sim.sprintCooldownRemaining.ceil(),
@@ -667,7 +671,7 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
           children: [
             IgnorePointer(
               child: Pill(
-                'P${player + 1}',
+                l.coopPlayerTag(player),
                 color: TetherArt.players[player],
                 foreground: SkyColors.white,
               ),
@@ -736,11 +740,14 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
                             ? sim.magnetRemaining / sim.magnetDuration
                             : sim.magnetCharge / sim.magnetGates,
                         text: sim.magnetActive
-                            ? '${sim.magnetRemaining.ceil()}s'
+                            ? l.coopSecondsShort(sim.magnetRemaining.ceil())
                             : null,
                         label: sim.magnetActive
-                            ? 'Star magnet: ${sim.magnetRemaining.ceil()} seconds remaining'
-                            : 'Magnet charging: ${sim.magnetCharge} of ${sim.magnetGates} perfect gates',
+                            ? l.coopMagnetSemantics(sim.magnetRemaining.ceil())
+                            : l.coopMagnetChargingSemantics(
+                                sim.magnetCharge,
+                                sim.magnetGates,
+                              ),
                         color: SkyColors.purple,
                         active: sim.magnetActive,
                         segments: sim.magnetActive ? 0 : sim.magnetGates,
@@ -775,11 +782,13 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(switch (flight.coopMode) {
-                    CoopMode.roped => 'Rope on. Ready, steady…',
-                    CoopMode.free => 'Ready, steady…',
-                    CoopMode.duel => 'Ready to duel…',
-                  }, style: heading(28)),
+                  LanguageDirection(
+                    child: Text(switch (flight.coopMode) {
+                      CoopMode.roped => l.coopCountdownRoped,
+                      CoopMode.free => l.coopCountdownFree,
+                      CoopMode.duel => l.duelCountdown,
+                    }, style: heading(28)),
+                  ),
                   const SizedBox(height: 12),
                   MatchPulse(
                     value: sim.countdown.ceil().clamp(1, sim.countdownSeconds),
@@ -799,31 +808,30 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
                     ),
                   ),
                   const SizedBox(height: 14),
-                  Text(
-                    switch (flight.coopMode) {
-                      CoopMode.roped =>
-                        'Flap together to climb high.\n'
-                            'Sprint to drag your partner along!',
-                      CoopMode.free =>
-                        'Each bird flies on its own.\n'
-                            'Share the hearts, beat the gates!',
-                      CoopMode.duel =>
-                        'Grab the mystery boxes!\n'
-                            'Last bird flying wins.',
-                    },
-                    style: bodyText(16, color: SkyColors.muted),
-                    textAlign: TextAlign.center,
+                  LanguageDirection(
+                    child: Text(
+                      switch (flight.coopMode) {
+                        CoopMode.roped => l.coopCountdownRopedHint,
+                        CoopMode.free => l.coopCountdownFreeHint,
+                        CoopMode.duel => l.duelCountdownHint,
+                      },
+                      style: bodyText(16, color: SkyColors.muted),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ],
               ),
             ),
           ),
+        // The pause card is a menu: it reads the language's way.
         if (paused)
-          CoopPauseCard(
-            birds: picks!,
-            onFinish: flight.endFlight,
-            onResume: () => flight.resume(),
-            reducedMotion: reducedMotion,
+          LanguageDirection(
+            child: CoopPauseCard(
+              birds: picks!,
+              onFinish: flight.endFlight,
+              onResume: () => flight.resume(),
+              reducedMotion: reducedMotion,
+            ),
           ),
       ],
     );
@@ -846,7 +854,7 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
               : CrossAxisAlignment.end,
           children: [
             Pill(
-              'PLAYER ${player + 1}',
+              context.l10n.coopPlayerCaps(player + 1),
               color: TetherArt.players[player],
               foreground: SkyColors.white,
             ),
@@ -868,10 +876,13 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
                 child: MatchMeter(
                   symbol: MatchSymbol.star,
                   value: sim.starPowerRemaining / Duel.starPowerSeconds,
-                  text: '${sim.starPowerRemaining.ceil()}s',
-                  label:
-                      'Player ${player + 1} star power: '
-                      '${sim.starPowerRemaining.ceil()} seconds left',
+                  text: context.l10n.coopSecondsShort(
+                    sim.starPowerRemaining.ceil(),
+                  ),
+                  label: context.l10n.duelStarPowerSemantics(
+                    player + 1,
+                    sim.starPowerRemaining.ceil(),
+                  ),
                   color: SkyColors.gold,
                 ),
               ),
@@ -908,7 +919,7 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
       flaps: (sim.lead.flaps, sim.partner?.flaps ?? 0),
       keys: _actions(flight),
       reducedMotion: settings.reducedMotion,
-      status: coopStatus(flight),
+      status: coopStatus(context.l10n, flight),
     );
   }
 
@@ -918,14 +929,14 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
     StageKey(
       key: const ValueKey('coop-home'),
       height: 76,
-      label: 'Home',
+      label: context.l10n.coopHome,
       icon: Icons.home_rounded,
       onPressed: leave,
     ),
     StageKey(
       key: const ValueKey('coop-change'),
       height: 76,
-      label: 'Change birds',
+      label: context.l10n.coopChangeBirds,
       icon: Icons.swap_horiz_rounded,
       onPressed: changeBirds,
     ),
@@ -933,10 +944,10 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
       key: const ValueKey('coop-save'),
       height: 76,
       label: flight.sessionSaved
-          ? 'Saved'
+          ? context.l10n.coopSaved
           : flight.sessionSaving
-          ? 'Saving…'
-          : 'Save session',
+          ? context.l10n.coopSaving
+          : context.l10n.coopSaveSession,
       icon: flight.sessionSaved ? Icons.check_rounded : Icons.save_alt_rounded,
       busy: flight.sessionSaving,
       onPressed: flight.canSaveSession && !flight.sessionSaved
@@ -945,7 +956,7 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
     ),
     StageKey(
       key: const ValueKey('coop-retry'),
-      label: flight.duel ? 'Rematch' : 'Fly again',
+      label: flight.duel ? context.l10n.duelRematch : context.l10n.coopFlyAgain,
       icon: flight.duel ? Icons.sports_mma_rounded : Icons.replay_rounded,
       hero: true,
       autofocus: true,
@@ -961,18 +972,21 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
     final birds = [first, second];
     final winner = sim.duelWinner;
     final [one, two] = duelWins;
+    final l = context.l10n;
     return CoopDuelStage(
       birds: picks!,
       winner: winner,
       title: switch (winner) {
-        final player? => 'Player ${player + 1} wins!',
-        null when result.reason == EndReason.collision => 'A draw!',
-        null => 'Duel stopped',
+        final player? => l.duelWinner(player + 1),
+        null when result.reason == EndReason.collision => l.duelDraw,
+        null => l.duelStopped,
       },
       caption: winner == null
-          ? '${birdNames[first]} vs ${birdNames[second]}'
-          : '${birdNames[birds[winner]]} beat '
-                '${birdNames[birds[1 - winner]]}',
+          ? l.duelVersusCaption(l.birdName(first), l.birdName(second))
+          : l.duelBeatCaption(
+              l.birdName(birds[winner]),
+              l.birdName(birds[1 - winner]),
+            ),
       wins: (one, two),
       stopped: winner == null && result.reason != EndReason.collision,
       durationSeconds: result.durationSeconds,
@@ -982,7 +996,7 @@ class _CoopScreenState extends ConsumerState<CoopScreen>
       ],
       keys: _actions(flight),
       reducedMotion: settings.reducedMotion,
-      status: coopStatus(flight),
+      status: coopStatus(context.l10n, flight),
     );
   }
 }
@@ -1009,15 +1023,20 @@ class _PrizeBanner extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 6),
-        Text(
-          prize.attack
-              ? '${prize.title} at P${2 - player}!'
-              : '${prize.title}!',
-          style: heading(
-            18,
-            color: SkyColors.white,
-            weight: FontWeight.w700,
-          ).copyWith(shadows: matchInkEdge(1.2)),
+        LanguageDirection(
+          child: Text(
+            prize.attack
+                ? context.l10n.duelPrizeAttack(
+                    context.l10n.duelPrizeName(prize),
+                    2 - player,
+                  )
+                : context.l10n.duelPrizeHelp(context.l10n.duelPrizeName(prize)),
+            style: heading(
+              18,
+              color: SkyColors.white,
+              weight: FontWeight.w700,
+            ).copyWith(shadows: matchInkEdge(1.2)),
+          ),
         ),
       ],
     ),
@@ -1062,7 +1081,7 @@ class _PlayerCard extends StatelessWidget {
               left: mirrored ? null : 0,
               right: mirrored ? 0 : null,
               child: CoopRibbon(
-                label: 'PLAYER ${player + 1}',
+                label: context.l10n.coopPlayerCaps(player + 1),
                 color: color,
                 mirrored: mirrored,
               ),
@@ -1072,7 +1091,9 @@ class _PlayerCard extends StatelessWidget {
               left: mirrored ? 10 : null,
               right: mirrored ? null : 10,
               child: CoopHint(
-                text: 'Tap the ${mirrored ? 'right' : 'left'} half',
+                text: mirrored
+                    ? context.l10n.coopTapRightHalf
+                    : context.l10n.coopTapLeftHalf,
               ),
             ),
             Positioned.fill(
@@ -1097,7 +1118,10 @@ class _PlayerCard extends StatelessWidget {
               selected: i == bird,
               color: color,
               reducedMotion: reducedMotion,
-              label: 'Player ${player + 1}: ${birdNames[i]}',
+              label: context.l10n.coopPickSemantics(
+                player + 1,
+                context.l10n.birdName(i),
+              ),
               onTap: () {
                 UiSounds.effect(context, 'ui_toggle');
                 onPick(i);
@@ -1158,7 +1182,7 @@ class _PlayerBird extends StatelessWidget {
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
-              birdNames[bird],
+              context.l10n.birdName(bird),
               maxLines: 1,
               style: heading(30, weight: FontWeight.w700).copyWith(
                 height: 1.05,
@@ -1179,15 +1203,18 @@ class _PlayerBird extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          Text(
-            birdDescriptions[bird],
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            textAlign: mirrored ? TextAlign.right : TextAlign.left,
-            style: bodyText(
-              12.5,
-              color: SkyColors.ink.withValues(alpha: .82),
-            ).copyWith(height: 1.2),
+          // The card keeps its sides; the words read their own way.
+          LanguageDirection(
+            child: Text(
+              context.l10n.birdDescription(bird),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              textAlign: mirrored ? TextAlign.right : TextAlign.left,
+              style: bodyText(
+                12.5,
+                color: SkyColors.ink.withValues(alpha: .82),
+              ).copyWith(height: 1.2),
+            ),
           ),
         ],
       ),
@@ -1268,6 +1295,22 @@ class _RopePainter extends CustomPainter {
 class _SideHints extends StatelessWidget {
   const _SideHints();
 
+  /// The hint's words; a key line may draw the arrow keys as ← ↑ →, which
+  /// the language's own fonts may lack.
+  static TextStyle _hintStyle(bool keys) {
+    final style = heading(
+      keys ? 18 : 22,
+      color: SkyColors.white,
+      weight: FontWeight.w700,
+    );
+    return style.copyWith(
+      fontFamilyFallback: keys
+          ? [...?style.fontFamilyFallback, LanguageFonts.keySymbols]
+          : null,
+      shadows: const [Shadow(color: SkyColors.ink, offset: Offset(0, 2))],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final keys = keyboardInUse;
@@ -1283,23 +1326,14 @@ class _SideHints extends StatelessWidget {
                 // On a keyboard each player is told their keys (see _key).
                 child: Text(
                   !keys
-                      ? 'P${player + 1} · tap this side'
+                      ? context.l10n.coopSideHint(player + 1)
                       : player == 0
-                      ? 'P1 · W flap · D shoot · A sprint'
-                      : 'P2 · Up flap · Right shoot · Left sprint',
+                      ? context.l10n.coopKeysP1
+                      : context.l10n.coopKeysP2,
                   maxLines: 1,
                   softWrap: false,
                   overflow: TextOverflow.fade,
-                  style:
-                      heading(
-                        keys ? 18 : 22,
-                        color: SkyColors.white,
-                        weight: FontWeight.w700,
-                      ).copyWith(
-                        shadows: const [
-                          Shadow(color: SkyColors.ink, offset: Offset(0, 2)),
-                        ],
-                      ),
+                  style: _hintStyle(keys),
                 ),
               ),
             ),
@@ -1344,9 +1378,9 @@ class _ModeToggle extends StatelessWidget {
               button: true,
               selected: choice == mode,
               label: switch (choice) {
-                CoopMode.roped => 'Roped: the birds share a rope',
-                CoopMode.free => 'No rope: each bird flies on its own',
-                CoopMode.duel => '1 v 1: the birds fight each other',
+                CoopMode.roped => context.l10n.coopRopedSemantics,
+                CoopMode.free => context.l10n.coopFreeSemantics,
+                CoopMode.duel => context.l10n.duelModeSemantics,
               },
               excludeSemantics: true,
               child: InkWell(
@@ -1382,7 +1416,7 @@ class _ModeToggle extends StatelessWidget {
                             FittedBox(
                               fit: BoxFit.scaleDown,
                               child: Text(
-                                choice.title,
+                                context.l10n.coopModeName(choice),
                                 maxLines: 1,
                                 style: bodyText(
                                   14,

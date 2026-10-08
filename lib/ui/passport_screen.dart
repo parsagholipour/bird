@@ -5,7 +5,10 @@ import 'package:go_router/go_router.dart';
 import '../data/providers.dart';
 import '../data/passport_progress.dart';
 import '../domain/sky_passport.dart';
+import '../l10n/l10n.dart';
+import '../l10n/text/passport_text.dart';
 import 'components.dart';
+import 'fit_text.dart';
 import 'mini_chrome.dart';
 import 'theme.dart';
 
@@ -17,6 +20,7 @@ class PassportScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final progress = ref.watch(progressProvider).asData?.value;
+    final l = context.l10n;
     return Scaffold(
       body: SkyBackdrop(
         child: SceneLayout(
@@ -26,17 +30,20 @@ class PassportScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 MiniHeader(
-                  title: 'Your sky passport.',
+                  title: l.passportTitle,
                   size: 34,
                   onBack: () => context.go('/'),
                   trailing: [
                     MiniPillKey(
                       icon: Icons.wb_sunny_rounded,
-                      label: 'Daily card',
+                      label: l.passportDailyCard,
                       onPressed: () => context.go('/daily'),
                     ),
                     MiniTag(
-                      '${progress?.earnedMedals ?? 0} / $passportMedals MEDALS',
+                      l.passportMedalsTag(
+                        progress?.earnedMedals ?? 0,
+                        passportMedals,
+                      ),
                       icon: Icons.workspace_premium_rounded,
                       color: SkyColors.yellow,
                     ),
@@ -44,9 +51,9 @@ class PassportScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 4),
                 Padding(
-                  padding: const EdgeInsets.only(left: 64),
-                  child: Text(
-                    'Small adventures. Lasting souvenirs. Bronze, silver and gold for every stamp.',
+                  padding: const EdgeInsetsDirectional.only(start: 64),
+                  child: FitText(
+                    l.passportIntro,
                     style: bodyText(15, weight: FontWeight.w800),
                   ),
                 ),
@@ -105,8 +112,11 @@ class _StampCard extends StatelessWidget {
   final StampProgress progress;
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final stamp = progress.stamp;
     final medal = progress.medal;
+    final name = l.stampName(stamp);
+    final goal = l.stampProgressGoal(progress);
     final icon = switch (stamp) {
       SkyStamp.frequentFlyer => Icons.flight_takeoff_rounded,
       SkyStamp.onTheDot => Icons.center_focus_strong_rounded,
@@ -123,12 +133,20 @@ class _StampCard extends StatelessWidget {
       SkyColors.coral,
       SkyColors.lavender,
     ][stamp.index % 4];
-    final held = medal == null ? 'No medal yet' : '${medal.label} medal';
+    final held = medal == null
+        ? l.passportNoMedal
+        : l.passportMedalHeld(medal.name);
     return Semantics(
       label: progress.complete
-          ? '${stamp.title}. Gold medal. ${progress.goal}'
-          : '${stamp.title}. $held. Next, ${progress.aim.label}: '
-                '${progress.goal} ${progress.current} of ${progress.target}.',
+          ? l.passportStampDoneSemantics(name, goal)
+          : l.passportStampSemantics(
+              name,
+              held,
+              l.medalName(progress.aim),
+              goal,
+              progress.current,
+              progress.target,
+            ),
       excludeSemantics: true,
       child: CustomPaint(
         painter: _StampPainter(
@@ -156,29 +174,22 @@ class _StampCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 7),
                   Expanded(
-                    child: Text(
-                      stamp.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    child: FitText(
+                      name,
                       style: heading(16.5, weight: FontWeight.w700),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 5),
-              Text(
-                progress.goal,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: bodyText(11.5, color: SkyColors.muted),
-              ),
+              FitParagraph(goal, style: bodyText(11.5, color: SkyColors.muted)),
               const Spacer(),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   for (final m in StampMedal.values)
                     Padding(
-                      padding: const EdgeInsets.only(right: 3),
+                      padding: const EdgeInsetsDirectional.only(end: 3),
                       child: _Medal(
                         m,
                         won: medal != null && m.index <= medal.index,
@@ -192,7 +203,7 @@ class _StampCard extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 2),
                       child: Text(
-                        'TO ${progress.aim.label.toUpperCase()}',
+                        l.passportToMedal(progress.aim.name),
                         style: bodyText(
                           10.5,
                           color: SkyColors.muted,
@@ -215,7 +226,7 @@ class _StampCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      progress.tally,
+                      l.stampTally(progress),
                       style: bodyText(11, weight: FontWeight.w900),
                     ),
                   ],
@@ -368,7 +379,7 @@ class _Postmark extends StatelessWidget {
             const Icon(Icons.check_rounded, size: 13, color: _tealInk),
             const SizedBox(width: 2),
             Text(
-              'STAMPED',
+              context.l10n.passportStamped,
               style: bodyText(
                 10.5,
                 color: _tealInk,

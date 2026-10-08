@@ -13,9 +13,11 @@ import 'campaign_map_art.dart';
 import 'campaign_region_still.dart';
 import 'campaign_text_scale.dart';
 import 'delivery_art.dart';
+import 'fit_text.dart';
 import 'match_hud.dart' show MatchIcon, MatchSymbol;
 import 'stage_key.dart';
 import 'theme.dart';
+import '../l10n/l10n.dart';
 
 /// The card that opens over the map when a level is tapped: the level's
 /// number and name, its region, what the courier is delivering there (on a
@@ -31,6 +33,9 @@ import 'theme.dart';
 ///
 /// The map's own ribbon already names the chapter above the card, so the card
 /// leaves that out.
+///
+/// In a right-to-left language the card mirrors: the picture moves to the
+/// right, and the close, story and Fly keys to the left, over the details.
 ///
 /// It is composed at [size] and scales as one piece to fit its box, like the
 /// postcard, so it reads the same on every phone. Its text follows the system
@@ -71,25 +76,38 @@ class LevelIntroCard extends StatelessWidget {
   /// The Fly key hangs this far below the card, on a key this tall.
   static const _hang = 26.0, _keyHeight = 74.0;
 
-  /// The goal for each star, from one to three.
-  static List<String> goals(CampaignLevel level) => [
-    level.isBoss
-        ? 'Beat ${CampaignHeadwear.name(level.boss!)}'
-        : 'Reach the finish',
-    'Collect ${level.marks.two} stars',
-    'Collect ${level.marks.three} stars',
-  ];
+  /// The goal for each star, from one to three, in [l]'s language (the
+  /// current one when null).
+  static List<String> goals(CampaignLevel level, [AppLocalizations? l]) {
+    final words = l ?? L10n.strings;
+    return [
+      level.isBoss
+          ? words.levelIntroGoalBeat(
+              words.bossName(level.boss!),
+              level.boss!.name,
+            )
+          : words.levelIntroGoalFinish,
+      words.levelIntroGoalCollect(level.marks.two),
+      words.levelIntroGoalCollect(level.marks.three),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
     final design = sizeFor(CampaignTextScale.of(context));
+    final l = context.l10n;
+    final name = l.levelName(level), region = l.regionName(level.region);
     return Semantics(
       container: true,
       explicitChildNodes: true,
-      label:
-          'Level ${level.id}, ${level.name}. ${level.region.title}.'
-          '${level.isGuardian ? ' Guardian level: '
-                    '${CampaignHeadwear.name(level.boss!)}.' : ''}',
+      label: level.isGuardian
+          ? l.levelIntroGuardianSemantics(
+              level.id,
+              name,
+              region,
+              l.bossName(level.boss!),
+            )
+          : l.levelIntroSemantics(level.id, name, region),
       child: AspectRatio(
         aspectRatio: design.width / design.height,
         child: FittedBox(
@@ -99,10 +117,10 @@ class LevelIntroCard extends StatelessWidget {
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  Positioned(
-                    left: 0,
+                  PositionedDirectional(
+                    start: 0,
                     top: 10,
-                    right: 10,
+                    end: 10,
                     bottom: _hang,
                     child: _Card(
                       level: level,
@@ -112,13 +130,13 @@ class LevelIntroCard extends StatelessWidget {
                   ),
                   // The Fly key hangs off the card's lower edge, like the
                   // postcard's Continue.
-                  Positioned(
-                    right: 34,
+                  PositionedDirectional(
+                    end: 34,
                     bottom: 0,
                     width: 204,
                     child: StageKey(
                       key: const ValueKey('level-intro-fly'),
-                      label: 'Fly!',
+                      label: l.levelIntroFly,
                       icon: Icons.play_arrow_rounded,
                       hero: true,
                       autofocus: true,
@@ -126,15 +144,15 @@ class LevelIntroCard extends StatelessWidget {
                       onPressed: onFly,
                     ),
                   ),
-                  Positioned(
-                    right: 0,
+                  PositionedDirectional(
+                    end: 0,
                     top: 0,
                     child: _CloseKey(onPressed: onClose),
                   ),
                   // The story key hangs under the close key, a size smaller.
                   if (onStory != null)
-                    Positioned(
-                      right: (_CloseKey.size - _StoryKey.target) / 2,
+                    PositionedDirectional(
+                      end: (_CloseKey.size - _StoryKey.target) / 2,
                       top: _CloseKey.size + 1,
                       child: _StoryKey(onPressed: onStory!),
                     ),
@@ -205,7 +223,7 @@ class _Card extends StatelessWidget {
                 const SizedBox(width: 16),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.only(top: 2, right: 6),
+                    padding: const EdgeInsetsDirectional.only(top: 2, end: 6),
                     child: _Details(level: level, record: record, story: story),
                   ),
                 ),
@@ -266,7 +284,10 @@ class _Picture extends StatelessWidget {
           child: Center(
             child: FittedBox(
               fit: BoxFit.scaleDown,
-              child: _Lettering(level.region.title, size: 22),
+              child: _Lettering(
+                context.l10n.regionName(level.region),
+                size: 22,
+              ),
             ),
           ),
         ),
@@ -329,8 +350,10 @@ class _CargoTag extends StatelessWidget {
         ? SkyColors.coralDeep
         : DeliveryArt.bossInk(boss);
     // The parcel tag is a label at a fixed size; its words are read aloud.
+    final l = context.l10n;
+    final cargo = l.levelCargo(level);
     return Semantics(
-      label: 'Special delivery: ${level.delivery.cargo}.',
+      label: l.levelIntroCargoSemantics(cargo),
       excludeSemantics: true,
       child: MediaQuery.withNoTextScaling(
         child: Transform.rotate(
@@ -350,8 +373,8 @@ class _CargoTag extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'SPECIAL DELIVERY',
+                    FitText(
+                      l.levelIntroSpecialDelivery,
                       style: bodyText(
                         8.5,
                         color: print,
@@ -360,7 +383,7 @@ class _CargoTag extends StatelessWidget {
                     ),
                     const SizedBox(height: 1),
                     DeliveryScript(
-                      level.delivery.cargo,
+                      cargo,
                       textKey: const ValueKey('level-intro-cargo'),
                       maxLines: 2,
                       style: DeliveryArt.hand(14).copyWith(height: 1.1),
@@ -480,11 +503,13 @@ class _Details extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final goals = LevelIntroCard.goals(level);
+    final l = context.l10n;
+    final goals = LevelIntroCard.goals(level, l);
     final next = record.bestStars < 3 ? record.bestStars : -1;
     final length = level.isBoss
-        ? 'A ${level.length.round()} s run-up first'
-        : 'About ${level.length.round()} s to the finish';
+        ? l.levelIntroRunUp(level.length.round())
+        : l.levelIntroLength(level.length.round());
+    final hint = l.levelHint(level);
     // The close key sits over the card's corner, so the header stops short.
     const keyRoom = 34.0;
     return Stack(
@@ -500,7 +525,7 @@ class _Details extends StatelessWidget {
             children: [
               if (level.isChapterBoss)
                 Padding(
-                  padding: const EdgeInsets.only(right: keyRoom - 4),
+                  padding: const EdgeInsetsDirectional.only(end: keyRoom - 4),
                   child: _BossBand(
                     level: level,
                     cleared: record.cleared,
@@ -509,7 +534,7 @@ class _Details extends StatelessWidget {
                 )
               else
                 Padding(
-                  padding: const EdgeInsets.only(right: keyRoom),
+                  padding: const EdgeInsetsDirectional.only(end: keyRoom),
                   child: _Header(
                     level: level,
                     cleared: record.cleared,
@@ -517,11 +542,11 @@ class _Details extends StatelessWidget {
                   ),
                 ),
               const Spacer(),
-              if (level.hint != null)
+              if (hint != null)
                 _ClearOfKey(
                   room: story ? _StoryKey.room : 0,
                   oneLine: 42 + 20 * (CampaignTextScale.of(context) - 1),
-                  child: _Tip(level.hint!, isNew: level.hintIsNew),
+                  child: _Tip(hint, isNew: level.hintIsNew),
                 )
               else
                 _Controls(level),
@@ -536,8 +561,8 @@ class _Details extends StatelessWidget {
             ],
           ),
         ),
-        Positioned(
-          left: 0,
+        PositionedDirectional(
+          start: 0,
           bottom: 0,
           height: _bestRow,
           // Beside the Fly key, which hangs over the card's lower right.
@@ -574,9 +599,9 @@ class _Header extends StatelessWidget {
           children: [
             FittedBox(
               fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
+              alignment: AlignmentDirectional.centerStart,
               child: Text(
-                level.name,
+                context.l10n.levelName(level),
                 maxLines: 1,
                 style: heading(33, weight: FontWeight.w700),
               ),
@@ -593,7 +618,12 @@ class _Header extends StatelessWidget {
                       runSpacing: 3,
                       children: [
                         _GuardianRibbon(boss: level.boss!),
-                        _Pill(icon: Icons.flag_rounded, text: length),
+                        // A longer translation shrinks to the header's width.
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: AlignmentDirectional.centerStart,
+                          child: _Pill(icon: Icons.flag_rounded, text: length),
+                        ),
                       ],
                     )
                   : Row(
@@ -603,7 +633,7 @@ class _Header extends StatelessWidget {
                         Flexible(
                           child: FittedBox(
                             fit: BoxFit.scaleDown,
-                            alignment: Alignment.centerLeft,
+                            alignment: AlignmentDirectional.centerStart,
                             child: _Pill(
                               icon: Icons.flag_rounded,
                               text: length,
@@ -613,7 +643,12 @@ class _Header extends StatelessWidget {
                       ],
                     )
             else
-              _Pill(icon: Icons.flag_rounded, text: length),
+              // A longer translation shrinks to the header's width.
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: AlignmentDirectional.centerStart,
+                child: _Pill(icon: Icons.flag_rounded, text: length),
+              ),
           ],
         ),
       ),
@@ -650,7 +685,7 @@ class _GuardianRibbon extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.fromLTRB(shieldWidth - 3, 3, 17, 4),
               child: Text(
-                'GUARDIAN',
+                context.l10n.campaignGuardian,
                 style: bodyText(
                   12,
                   color: ink ? SkyColors.ink : SkyColors.cream,
@@ -777,8 +812,8 @@ class _BossBand extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            const _Tag(
-                              'BOSS FIGHT',
+                            _Tag(
+                              context.l10n.levelIntroBossFight,
                               color: SkyColors.ink,
                               icon: Icons.star_rounded,
                               iconColor: SkyColors.yellow,
@@ -789,7 +824,7 @@ class _BossBand extends StatelessWidget {
                               // rather than cutting the run-up short.
                               child: FittedBox(
                                 fit: BoxFit.scaleDown,
-                                alignment: Alignment.centerLeft,
+                                alignment: AlignmentDirectional.centerStart,
                                 child: Text(
                                   length,
                                   maxLines: 1,
@@ -815,8 +850,12 @@ class _BossBand extends StatelessWidget {
                         const SizedBox(height: 2),
                         FittedBox(
                           fit: BoxFit.scaleDown,
-                          alignment: Alignment.centerLeft,
-                          child: _Lettering(level.name, size: 32, halo: false),
+                          alignment: AlignmentDirectional.centerStart,
+                          child: _Lettering(
+                            context.l10n.levelName(level),
+                            size: 32,
+                            halo: false,
+                          ),
                         ),
                       ],
                     ),
@@ -881,7 +920,7 @@ class _Pill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.fromLTRB(6, 2, 11, 2),
+    padding: const EdgeInsetsDirectional.fromSTEB(6, 2, 11, 2),
     decoration: BoxDecoration(
       color: SkyColors.white.withValues(alpha: .8),
       borderRadius: BorderRadius.circular(999),
@@ -970,7 +1009,7 @@ class _Tip extends StatelessWidget {
   Widget build(BuildContext context) {
     final edge = isNew ? SkyColors.gold : SkyColors.teal;
     return Container(
-      padding: const EdgeInsets.fromLTRB(8, 6, 10, 6),
+      padding: const EdgeInsetsDirectional.fromSTEB(8, 6, 10, 6),
       decoration: BoxDecoration(
         color: isNew ? const Color(0xfffff0c4) : const Color(0xffdcf0ea),
         borderRadius: BorderRadius.circular(16),
@@ -980,38 +1019,48 @@ class _Tip extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (isNew)
-            const _Tag('NEW', icon: Icons.auto_awesome_rounded)
+            _Tag(context.l10n.levelIntroNew, icon: Icons.auto_awesome_rounded)
           else
-            const _Tag(
-              'TIP',
+            _Tag(
+              context.l10n.levelIntroTip,
               color: SkyColors.teal,
               icon: Icons.lightbulb_rounded,
             ),
           const SizedBox(width: 9),
           Expanded(
             child: LayoutBuilder(
-              builder: (context, box) => Align(
-                alignment: Alignment.centerLeft,
-                child: SizedBox(
-                  width: DeliveryArt.balancedWidth(
-                    context,
-                    text,
-                    _style,
-                    box.maxWidth,
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 1.5),
-                    child: Text(
+              builder: (context, box) {
+                // A larger text size gets a third line before it gets an
+                // ellipsis; a longer translation sets a little smaller.
+                final lines = CampaignTextScale.of(context) > 1.1 ? 3 : 2;
+                final style = DeliveryArt.fitted(
+                  context,
+                  text,
+                  _style,
+                  box.maxWidth,
+                  lines,
+                );
+                return Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: SizedBox(
+                    width: DeliveryArt.balancedWidth(
+                      context,
                       text,
-                      // A larger text size gets a third line before it gets
-                      // an ellipsis.
-                      maxLines: CampaignTextScale.of(context) > 1.1 ? 3 : 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: _style,
+                      style,
+                      box.maxWidth,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 1.5),
+                      child: Text(
+                        text,
+                        maxLines: lines,
+                        overflow: TextOverflow.ellipsis,
+                        style: style,
+                      ),
                     ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ),
         ],
@@ -1033,15 +1082,24 @@ class _Best extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final (icon, color, text) = record.cleared
         ? (
             Icons.emoji_events_rounded,
             SkyColors.yellow,
-            'Best: ${record.bestCollected} stars',
+            l.levelIntroBest(record.bestCollected),
           )
         : record.plays > 0
-        ? (Icons.local_post_office_rounded, SkyColors.mint, 'Not delivered yet')
-        : (Icons.flight_takeoff_rounded, SkyColors.sky, 'First flight');
+        ? (
+            Icons.local_post_office_rounded,
+            SkyColors.mint,
+            l.levelIntroNotDelivered,
+          )
+        : (
+            Icons.flight_takeoff_rounded,
+            SkyColors.sky,
+            l.levelIntroFirstFlight,
+          );
     return Row(
       children: [
         Container(
@@ -1058,7 +1116,7 @@ class _Best extends StatelessWidget {
         Flexible(
           child: FittedBox(
             fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             child: Text(text, style: bodyText(14.5, weight: FontWeight.w900)),
           ),
         ),
@@ -1075,20 +1133,27 @@ class _Controls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final controls = [
-      (MatchSymbol.wing, 'Flap'),
-      if (level.plan.shoot) (MatchSymbol.shot, 'Shoot'),
-      if (level.plan.sprint) (MatchSymbol.sprint, 'Sprint'),
+      (MatchSymbol.wing, l.levelIntroControlFlap),
+      if (level.plan.shoot) (MatchSymbol.shot, l.levelIntroControlShoot),
+      if (level.plan.sprint) (MatchSymbol.sprint, l.levelIntroControlSprint),
     ];
+    final offered = switch ((level.plan.shoot, level.plan.sprint)) {
+      (false, false) => 'flap',
+      (true, false) => 'shoot',
+      (false, true) => 'sprint',
+      (true, true) => 'all',
+    };
     return Semantics(
-      label: 'Controls: ${controls.map((c) => c.$2).join(', ')}.',
+      label: l.levelIntroControlsSemantics(offered),
       excludeSemantics: true,
       child: Row(
         children: [
           for (final (i, (symbol, label)) in controls.indexed) ...[
             if (i > 0) const SizedBox(width: 8),
             Container(
-              padding: const EdgeInsets.fromLTRB(4, 3, 12, 3),
+              padding: const EdgeInsetsDirectional.fromSTEB(4, 3, 12, 3),
               decoration: BoxDecoration(
                 color: SkyColors.white.withValues(alpha: .8),
                 borderRadius: BorderRadius.circular(999),
@@ -1126,16 +1191,19 @@ class _Goal extends StatelessWidget {
   final String text;
   final bool earned, next;
 
+  /// [stars] as the goal's semantics key selects it.
+  String get _count => const ['one', 'two', 'three'][stars - 1];
+
   @override
   Widget build(BuildContext context) => Semantics(
-    label:
-        '${const ['One star', 'Two stars', 'Three stars'][stars - 1]}: '
-        '$text.${earned ? ' Earned.' : ''}',
+    label: earned
+        ? context.l10n.levelIntroGoalEarnedSemantics(_count, text)
+        : context.l10n.levelIntroGoalSemantics(_count, text),
     excludeSemantics: true,
     child: Container(
       height: 27 * CampaignTextScale.of(context),
       margin: EdgeInsets.only(top: stars == 1 ? 0 : 3),
-      padding: const EdgeInsets.fromLTRB(10, 0, 5, 0),
+      padding: const EdgeInsetsDirectional.fromSTEB(10, 0, 5, 0),
       decoration: BoxDecoration(
         color: earned ? const Color(0xffd3ecd9) : const Color(0xfff4e9d3),
         borderRadius: BorderRadius.circular(14),
@@ -1157,7 +1225,7 @@ class _Goal extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(text, style: bodyText(15, weight: FontWeight.w900)),
+            child: FitText(text, style: bodyText(15, weight: FontWeight.w900)),
           ),
           Container(
             width: 20,
@@ -1201,7 +1269,7 @@ class _Tag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    padding: EdgeInsets.fromLTRB(icon == null ? 7 : 5, 1, 7, 2),
+    padding: EdgeInsetsDirectional.fromSTEB(icon == null ? 7 : 5, 1, 7, 2),
     decoration: BoxDecoration(
       color: color,
       borderRadius: BorderRadius.circular(8),
@@ -1300,7 +1368,7 @@ class _CloseKey extends StatelessWidget {
       ),
       child: IconButton(
         key: const ValueKey('level-intro-close'),
-        tooltip: 'Close',
+        tooltip: context.l10n.commonClose,
         onPressed: onPressed,
         icon: const Icon(Icons.close_rounded, color: SkyColors.ink, size: 26),
         style: IconButton.styleFrom(minimumSize: const Size(size, size)),
@@ -1343,7 +1411,7 @@ class _StoryKey extends StatelessWidget {
         ),
         IconButton(
           key: const ValueKey('level-intro-story'),
-          tooltip: 'Story',
+          tooltip: context.l10n.levelIntroStory,
           onPressed: onPressed,
           icon: const CustomPaint(
             size: Size(26, 24),
@@ -1411,12 +1479,17 @@ class _SpeechPainter extends CustomPainter {
 }
 
 /// What a locked level says when tapped, instead of opening its card: the
-/// level that unlocks it, or that its chapter is not in this build yet.
-String lockedNudge(CampaignLevel level) {
-  if (!Campaign.playable(level)) return 'Coming soon';
+/// level that unlocks it, or that its chapter is not in this build yet. In
+/// [l]'s language, the current one when null.
+String lockedNudge(CampaignLevel level, [AppLocalizations? l]) {
+  final words = l ?? L10n.strings;
+  if (!Campaign.playable(level)) return words.campaignComingSoon;
   final before = Campaign.before(level);
-  if (before == null) return 'Coming soon';
+  if (before == null) return words.campaignComingSoon;
   return before.isBoss
-      ? 'Beat ${CampaignHeadwear.name(before.boss!)} to unlock'
-      : 'Finish ${before.id} to unlock';
+      ? words.campaignLockedBeat(
+          words.bossName(before.boss!),
+          before.boss!.name,
+        )
+      : words.campaignLockedFinish(before.id);
 }

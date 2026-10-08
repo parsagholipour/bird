@@ -2,9 +2,12 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:flutter/painting.dart';
+import 'package:flutter/widgets.dart' show StringCharacters;
 
 import '../domain/game_rules.dart' show FlightSimulation;
 import '../domain/sky_boss.dart';
+import '../l10n/l10n.dart';
+import '../l10n/text/boss_text.dart';
 import '../ui/theme.dart';
 import 'boss_motion.dart';
 import 'king_coo_hud_art.dart';
@@ -32,10 +35,13 @@ abstract final class KingCooEncounterUi {
 
   /// His line on the card when the caller has none to give (the campaign's own
   /// quote arrives through `line:`, already in quotation marks).
-  static const entranceLine = '“Nobody flies till the bread cart is found!”';
+  static String get entranceLine {
+    final l = L10n.strings;
+    return l.bossQuotedLine(l.guardianLine(BossKind.kingCoo) ?? '');
+  }
 
   /// The word on the card's ribbon, the same everywhere a guardian is named.
-  static const ribbonWord = 'GUARDIAN';
+  static String get ribbonWord => L10n.strings.bossGuardianEyebrow;
 
   /// When the card lands: the arrival timeline's card beat, .2 s after the
   /// COO!.
@@ -451,19 +457,23 @@ abstract final class KingCooEncounterUi {
         ? boss.x * h - 2.62 * h * SkyBoss.radius - h * .016 - left
         : 1e6;
     final built = _cardBuilt;
-    final name = boss.name.toUpperCase();
+    final l = L10n.strings;
+    final name = L10n.upper(l.bossName(boss.kind));
+    final title = l.bossTitleOf(boss);
     if (built != null &&
         built.size == size &&
         built.room == room.round() &&
         built.word == name &&
-        built.title == boss.title) {
+        built.title == title &&
+        built.locale == L10n.locale) {
       return built;
     }
-    return _cardBuilt = _Card(size, room, name, boss.title);
+    return _cardBuilt = _Card(size, room, name, title);
   }
 
-  // Laid-out text, kept between frames and bounded.
-  static final Map<Object, TextPainter> _texts = {};
+  // Laid-out text, kept between frames and bounded (and laid out again in
+  // a new language's fonts).
+  static final Map<Object, TextPainter> _texts = L10n.cache({});
 
   static TextPainter _text(
     Object key,
@@ -476,6 +486,7 @@ abstract final class KingCooEncounterUi {
     bool italic = false,
     double? width,
     int maxLines = 1,
+    bool words = true,
     bool body = false,
     FontWeight? weight,
   }) {
@@ -521,7 +532,9 @@ abstract final class KingCooEncounterUi {
             );
       p = _texts[id] = TextPainter(
         text: TextSpan(text: value, style: style),
-        textDirection: TextDirection.ltr,
+        // Words run their language's way (the card stays where it is); a
+        // multiplier (×2) reads left to right everywhere.
+        textDirection: words ? L10n.textDirection : TextDirection.ltr,
         textAlign: width == null ? TextAlign.start : TextAlign.center,
         maxLines: maxLines,
         ellipsis: width == null ? null : '…',
@@ -910,7 +923,7 @@ abstract final class KingCooEncounterUi {
     if (wordAlpha > 0) {
       final fill = _text(
         'coo',
-        'COO!',
+        L10n.strings.bossKingCooShout,
         h * .085,
         color: KingCooPalette.gold,
         alpha: wordAlpha,
@@ -919,7 +932,7 @@ abstract final class KingCooEncounterUi {
       );
       final edge = _text(
         'cooEdge',
-        'COO!',
+        L10n.strings.bossKingCooShout,
         h * .085,
         stroke: h * .017,
         alpha: wordAlpha,
@@ -1052,6 +1065,7 @@ abstract final class KingCooEncounterUi {
         color: KingCooPalette.gold,
         alpha: fade,
         weight: FontWeight.w700,
+        words: false,
       );
       final edge = _text(
         'x2Edge',
@@ -1060,6 +1074,7 @@ abstract final class KingCooEncounterUi {
         stroke: h * .012,
         alpha: fade,
         weight: FontWeight.w700,
+        words: false,
       );
       c.save();
       c.translate(at.dx, at.dy - h * .1 - lift);
@@ -1214,7 +1229,7 @@ abstract final class KingCooEncounterUi {
     c.drawPath(inner, KingCooHudFx.solid(KingCooPalette.cream, fade));
     final word = _text(
       'pop',
-      'POP!',
+      L10n.strings.bossKingCooPop,
       h * .062,
       color: KingCooPalette.sirenRed,
       alpha: fade,
@@ -1222,7 +1237,7 @@ abstract final class KingCooEncounterUi {
     );
     final edge = _text(
       'popEdge',
-      'POP!',
+      L10n.strings.bossKingCooPop,
       h * .062,
       stroke: h * .012,
       alpha: fade,
@@ -1361,7 +1376,7 @@ abstract final class KingCooEncounterUi {
       final life = 1 - _ramp(k, .36, .6);
       final fill = _text(
         'poof',
-        'POOF!',
+        L10n.strings.bossKingCooPoof,
         h * .07,
         color: KingCooPalette.cream,
         alpha: life,
@@ -1369,7 +1384,7 @@ abstract final class KingCooEncounterUi {
       );
       final edge = _text(
         'poofEdge',
-        'POOF!',
+        L10n.strings.bossKingCooPoof,
         h * .07,
         stroke: h * .014,
         alpha: life,
@@ -1945,7 +1960,8 @@ abstract final class KingCooEncounterUi {
 /// and the boss's room.
 class _Card {
   _Card(this.size, double room, this.word, this.title)
-    : room = room.round() {
+    : room = room.round(),
+      locale = L10n.locale {
     final h = size.height, w = size.width;
     double wanted(double f) {
       final n = KingCooEncounterUi._text(
@@ -1981,14 +1997,24 @@ class _Card {
     );
     nameW = probe.width;
     nameH = probe.height;
-    glyphs = [for (var i = 0; i < word.length; i++) word[i]];
+    // Stamped letter by letter (whole characters); a right-to-left
+    // language's joined letters stamp as one word.
+    glyphs = L10n.textDirection == TextDirection.rtl
+        ? [word]
+        : word.characters.toList();
     final xs = <double>[], ws = <double>[];
-    for (var i = 0; i < word.length; i++) {
+    var at = 0;
+    for (final glyph in glyphs) {
       final boxes = probe.getBoxesForSelection(
-        TextSelection(baseOffset: i, extentOffset: i + 1),
+        TextSelection(baseOffset: at, extentOffset: at + glyph.length),
       );
+      at += glyph.length;
       xs.add(boxes.isEmpty ? 0.0 : boxes.first.left);
-      ws.add(boxes.isEmpty ? 0.0 : boxes.first.right - boxes.first.left);
+      ws.add(
+        boxes.isEmpty
+            ? 0.0
+            : boxes.last.right - boxes.first.left,
+      );
     }
     glyphX = xs;
     glyphW = ws;
@@ -2085,6 +2111,9 @@ class _Card {
   final Size size;
   final int room;
   final String word, title;
+
+  /// The language the card was laid out in.
+  final Locale locale;
 
   /// How much smaller than full size the plate had to be to fit.
   late final double f, hf;

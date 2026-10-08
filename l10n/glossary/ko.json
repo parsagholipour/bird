@@ -1,0 +1,2539 @@
+{
+ "language": "ko",
+ "terms": {
+  "brand.beakbound": {
+   "en": "Beakbound",
+   "target": "Beakbound",
+   "note": "브랜드: 라틴 문자 그대로 (로고는 BEAKBOUND)."
+  },
+  "brand.beak1-code": {
+   "en": "BEAK1.",
+   "target": "BEAK1.",
+   "note": "기술 토큰: 그대로 둔다."
+  },
+  "char.pip": {
+   "en": "Pip",
+   "target": "핍",
+   "note": "이름 음역. 남성. 플레이어에게 반말, 보스에게 해요체. \"신참 배달부 핍\"."
+  },
+  "char.peaches": {
+   "en": "Peaches",
+   "target": "피치스",
+   "note": "이름 음역. 여성. 애칭(귀염둥이, 꿀단지, 솜사탕…)을 매번 다르게."
+  },
+  "char.minty": {
+   "en": "Minty",
+   "target": "민티",
+   "note": "이름 음역. 남성. 짧고 건방진 반말. '민트'(박하) 말장난은 이름과 연결해 유지."
+  },
+  "char.orbit": {
+   "en": "Orbit",
+   "target": "오빗",
+   "note": "이름 음역(오르빗보다 자연스러운 외래어 표기 감각). 여성. 느리고 나긋한 반말, 말줄임표."
+  },
+  "char.postmaster-bill": {
+   "en": "Postmaster Bill",
+   "target": "우체국장 빌",
+   "note": "자기소개 \"난 우체국장 빌이다\". 줄임 \"빌 국장\". 배달부는 \"국장님\"이라 부르고, 새들은 비행 중 \"빌 국장님\"이라고 인용. 신참에게 반말, 보스에게 해요체."
+  },
+  "char.courier": {
+   "en": "courier",
+   "target": "배달부",
+   "note": "성별 없는 단어. 모든 곳에서 동일: 왕실 배달부, 배달부 핍, 꼬마 배달부, 미라 배달부."
+  },
+  "char.narrator": {
+   "en": "the narrator",
+   "target": "내레이터",
+   "note": "화면에 이름 없음. 잔잔한 동화체 해요체, 대명사 없이 말함(\"첫 출근 날이에요\")."
+  },
+  "boss.baron-bat": {
+   "en": "Baron Bat",
+   "target": "박쥐 남작",
+   "note": "귀족 작위+박쥐. 줄임 \"남작\", 호칭 \"남작님\". 하오체로 거만하게 말하고 자신을 \"이 몸\"이라 부름."
+  },
+  "boss.spitter-king": {
+   "en": "Spitter King",
+   "target": "퉤퉤 왕",
+   "note": "'침 뱉는 자'를 아이들이 웃을 의성어로. enemy.spitter-beetle(퉤퉤 딱정벌레)와 같은 단어. 줄임 \"왕\", 호칭 \"폐하\". 들뜬 반말 미친 과학자."
+  },
+  "boss.dusk-empress": {
+   "en": "Dusk Empress",
+   "target": "황혼 여제",
+   "note": "'황혼'은 황혼 나방과 같은 단어. 줄임 \"여제\", 호칭 \"여제님\"; 핍의 Her Highness는 \"여제 폐하\". 속삭이는 자장가 반말, 왕실의 '우리'는 \"짐\"."
+  },
+  "boss.pirate-captain": {
+   "en": "Pirate Captain",
+   "target": "해적 선장",
+   "note": "줄임/호칭 \"선장\", \"선장님\". 스스로 \"이 선장님\". 거친 뱃사람 반말(~다, 이 녀석아, ~구먼), 감탄사 \"요호!\"."
+  },
+  "boss.ember-dragon": {
+   "en": "Ember Dragon",
+   "target": "불씨 드래곤",
+   "note": "Ember=불씨(attack.embers와 같은 어근). 아이들에게 익숙한 '드래곤'. 줄임/호칭 \"드래곤\". 느리고 장엄한 고풍 반말(~느냐, ~거라, ~로다)."
+  },
+  "guardian.neferhoo": {
+   "en": "Neferhoo",
+   "target": "네페르후",
+   "note": "이름 음역(NEF-er-hoo). 까다로운 노관리 하오체(~하오, ~시오, ~이오)."
+  },
+  "guardian.king-coo": {
+   "en": "King Coo",
+   "target": "킹구구",
+   "note": "비둘기 울음 '구구'+킹(킹콩의 메아리). 카드 외침 COO! → \"구구!\". 직함 \"서장\", 자신을 3인칭 \"본 서장\"으로 지칭."
+  },
+  "guardian.searchlight-gargoyle": {
+   "en": "Searchlight Gargoyle",
+   "target": "탐조등 가고일",
+   "note": "카드 분할: 작은 \"탐조등\" / 큰 \"가고일\". 줄임 \"가고일\". 노배우 하게체(~하게, ~하네, ~세), \"그대\"."
+  },
+  "npc.toucan-twins": {
+   "en": "the toucan twins",
+   "target": "큰부리새 쌍둥이",
+   "note": "복수, 깔깔대는 아이들 해요체."
+  },
+  "npc.sloth-stargazer": {
+   "en": "the sloth stargazer",
+   "target": "별 보는 나무늘보",
+   "note": "단수, 느리고 졸린 말투."
+  },
+  "npc.firefly-nursery": {
+   "en": "the firefly nursery",
+   "target": "반딧불이 어린이집",
+   "note": "'어린이집' = 아이 돌보는 곳(식물원 아님). 부드러운 해요체."
+  },
+  "npc.samba-macaws": {
+   "en": "the samba macaws",
+   "target": "삼바 앵무새들",
+   "note": "복수, 신난 말투."
+  },
+  "npc.drum-captain": {
+   "en": "the drum captain",
+   "target": "드럼 대장",
+   "note": "해적 선장과 다른 단어(대장). 화려한 말투."
+  },
+  "npc.temple-cooks": {
+   "en": "the temple cooks",
+   "target": "신전 요리사들",
+   "note": "복수, 껄껄 웃는 말투."
+  },
+  "npc.dawn-keeper": {
+   "en": "the dawn keeper",
+   "target": "새벽지기",
+   "note": "'~지기'(지키는 사람). 단수, 차분하고 지혜롭게."
+  },
+  "npc.chariot-racers": {
+   "en": "the chariot racers",
+   "target": "마차 경주 선수들",
+   "note": "아이에게 '전차'는 탱크로 들리므로 '마차'. 복수."
+  },
+  "npc.statue-carver": {
+   "en": "the statue carver",
+   "target": "석상 조각가",
+   "note": "단수. 감사 인사 속 \"코\"는 석상의 코."
+  },
+  "npc.fire-brigade": {
+   "en": "the fire brigade",
+   "target": "소방대",
+   "note": "단체가 한 목소리로."
+  },
+  "npc.pyramid-astronomer": {
+   "en": "the pyramid astronomer",
+   "target": "피라미드 천문학자",
+   "note": "단수."
+  },
+  "npc.pyramid-caretaker": {
+   "en": "the pyramid caretaker",
+   "target": "피라미드 관리인",
+   "note": "단수, 여성. 줄임 \"관리인\"."
+  },
+  "npc.lantern-sellers": {
+   "en": "the lantern sellers",
+   "target": "등불 장수들",
+   "note": "복수."
+  },
+  "npc.caravan-leader": {
+   "en": "the caravan leader",
+   "target": "카라반 대장",
+   "note": "단수, 건조한 유머."
+  },
+  "npc.stage-manager": {
+   "en": "the stage manager",
+   "target": "무대 감독",
+   "note": "단수."
+  },
+  "npc.newsstand-pigeons": {
+   "en": "the newsstand pigeons",
+   "target": "가판대 비둘기들",
+   "note": "복수."
+  },
+  "npc.night-cabbies": {
+   "en": "the night cabbies",
+   "target": "야간 택시 기사들",
+   "note": "화물 표기(\"야간 택시 기사들\")와 서명이 같음."
+  },
+  "npc.tower-keeper": {
+   "en": "the tower keeper",
+   "target": "탑지기",
+   "note": "단수, 노인."
+  },
+  "npc.rooftop-painters": {
+   "en": "the rooftop painters",
+   "target": "지붕 위 화가들",
+   "note": "복수. \"Magnifique\"는 프랑스어 그대로(맛깔)."
+  },
+  "npc.accordion-player": {
+   "en": "the accordion player",
+   "target": "아코디언 연주자",
+   "note": "단수."
+  },
+  "npc.baker": {
+   "en": "the baker",
+   "target": "제빵사",
+   "note": "파리의 제빵사(여성). 화산 제빵사와 구별."
+  },
+  "npc.lighthouse-keeper": {
+   "en": "the lighthouse keeper",
+   "target": "등대지기",
+   "note": "단수."
+  },
+  "npc.volcano-baker": {
+   "en": "the volcano baker",
+   "target": "화산 제빵사",
+   "note": "단수, 여성 목소리."
+  },
+  "npc.kite-flyers": {
+   "en": "the kite flyers",
+   "target": "연 날리는 친구들",
+   "note": "복수. 해변 축제 = \"해변 축제\"."
+  },
+  "npc.island-hermit": {
+   "en": "the island hermit",
+   "target": "외딴섬 은둔자",
+   "note": "단수, 남성."
+  },
+  "npc.ferry-crew": {
+   "en": "the ferry crew",
+   "target": "여객선 선원들",
+   "note": "단체."
+  },
+  "npc.gull-colony": {
+   "en": "the gull colony",
+   "target": "갈매기 마을",
+   "note": "단체(\"구백 마리 저녁밥\")."
+  },
+  "npc.storm-watch": {
+   "en": "the storm watch",
+   "target": "폭풍 감시대",
+   "note": "화물은 \"폭풍 감시 선원들\"과 같은 사람들."
+  },
+  "npc.penguin-choir": {
+   "en": "the penguin choir",
+   "target": "펭귄 합창단",
+   "note": "복수."
+  },
+  "npc.polar-station": {
+   "en": "the polar station",
+   "target": "극지 기지",
+   "note": "장소가 대원을 대표."
+  },
+  "npc.noodle-chef": {
+   "en": "the noodle chef",
+   "target": "국숫집 주방장",
+   "note": "단수, 남성. 가게 = \"국숫집\"."
+  },
+  "npc.rooftop-runners": {
+   "en": "the rooftop runners",
+   "target": "옥상 달리기 팀",
+   "note": "복수."
+  },
+  "npc.lantern-makers": {
+   "en": "the lantern makers",
+   "target": "등불 장인들",
+   "note": "복수. 축제 = \"등불 축제\"."
+  },
+  "npc.mountain-monks": {
+   "en": "the mountain monks",
+   "target": "산사 스님들",
+   "note": "복수. 수도원 = \"산사\"."
+  },
+  "npc.sphinx": {
+   "en": "the Sphinx",
+   "target": "스핑크스",
+   "note": "남성 취급. 피치스는 \"스핑크스 아저씨\"."
+  },
+  "npc.unit-7": {
+   "en": "Unit 7",
+   "target": "7호기",
+   "note": "로봇 일련번호(음성에서는 \"칠 호기\"). 감사 인사는 딱딱한 로봇 말투(대문자 대신 끊어 말하기)."
+  },
+  "npc.parrot": {
+   "en": "the Parrot",
+   "target": "앵무새",
+   "note": "선장이 이름처럼 부름(\"앵무새야!\"). 수컷."
+  },
+  "npc.baron-cousins": {
+   "en": "the Baron's cousins",
+   "target": "남작의 사촌들",
+   "note": "호출: \"사촌들!\", \"친척들!\"."
+  },
+  "title.postmaster": {
+   "en": "Postmaster",
+   "target": "우체국장",
+   "note": "이름 뒤에 붙일 때 \"국장\"(빌 국장), 단독/명령 인용은 \"국장님 명령\"."
+  },
+  "title.lord-of-the-storm": {
+   "en": "LORD OF THE STORM",
+   "target": "폭풍의 군주",
+   "note": "카드 문구."
+  },
+  "title.the-storm-returns": {
+   "en": "THE STORM RETURNS",
+   "target": "폭풍의 귀환",
+   "note": "'폭풍'을 반복."
+  },
+  "title.brewer-of-the-swarm": {
+   "en": "BREWER OF THE SWARM",
+   "target": "벌레 떼의 양조가",
+   "note": "'양조'가 물약(brew)과 연결."
+  },
+  "title.keeper-of-the-twilight-veil": {
+   "en": "KEEPER OF THE TWILIGHT VEIL",
+   "target": "황혼 베일의 수호자",
+   "note": "'베일'은 attack.veil과 같은 단어."
+  },
+  "title.terror-of-the-high-tide": {
+   "en": "TERROR OF THE HIGH TIDE",
+   "target": "밀물의 공포",
+   "note": "'밀물' = hazard.tide."
+  },
+  "title.sovereign-of-the-burning-sky": {
+   "en": "SOVEREIGN OF THE BURNING SKY",
+   "target": "불타는 하늘의 제왕",
+   "note": "남작의 '군주'와 겹치지 않게 '제왕'."
+  },
+  "title.keeper-of-the-lost-letter": {
+   "en": "Keeper of the Lost Letter",
+   "target": "잃어버린 편지의 지킴이",
+   "note": "단수(그 한 통). 직업명과 메아리."
+  },
+  "title.keeper-of-lost-letters": {
+   "en": "Keeper of Lost Letters",
+   "target": "잃어버린 편지 지킴이",
+   "note": "빌이 제안하는 직업. 카드 별칭과 같은 단어로 보답감."
+  },
+  "title.royal-courier": {
+   "en": "Royal Courier",
+   "target": "왕실 배달부",
+   "note": "char.courier와 같은 '배달부'(핍의 농담 유지)."
+  },
+  "title.mummy-courier": {
+   "en": "the Mummy Courier",
+   "target": "미라 배달부",
+   "note": "미라+배달부."
+  },
+  "title.commissioner-of-the-curb": {
+   "en": "Commissioner of the Curb",
+   "target": "길모퉁이 서장",
+   "note": "'curb' 말장난 대신 그의 \"같은 모퉁이\" 이야기와 연결된 거창한 직함."
+  },
+  "title.commissioner": {
+   "en": "the Commissioner",
+   "target": "서장",
+   "note": "경찰서장. 3인칭 자기 지칭 \"본 서장\", 호칭 \"서장님\", 구인 광고 \"서장 구함\"."
+  },
+  "title.watchman-of-the-tallest-tower": {
+   "en": "Watchman of the Tallest Tower",
+   "target": "가장 높은 탑의 파수꾼",
+   "note": "카드 문구."
+  },
+  "title.ink-maker": {
+   "en": "ink-maker",
+   "target": "잉크 장인",
+   "note": "\"왕실 잉크 장인\"."
+  },
+  "region.jungle": {
+   "en": "Jungle",
+   "target": "정글"
+  },
+  "region.brazil": {
+   "en": "Brazil",
+   "target": "브라질"
+  },
+  "region.aztec": {
+   "en": "Aztec",
+   "target": "아즈텍"
+  },
+  "region.ancient-rome": {
+   "en": "Ancient Rome",
+   "target": "고대 로마"
+  },
+  "region.egypt": {
+   "en": "Egypt",
+   "target": "이집트"
+  },
+  "region.ancient-arabia": {
+   "en": "Ancient Arabia",
+   "target": "고대 아라비아"
+  },
+  "region.new-york": {
+   "en": "New York",
+   "target": "뉴욕"
+  },
+  "region.paris": {
+   "en": "Paris",
+   "target": "파리"
+  },
+  "region.mexico": {
+   "en": "Mexico",
+   "target": "멕시코"
+  },
+  "region.open-sea": {
+   "en": "Open Sea",
+   "target": "먼바다",
+   "note": "육지에서 먼 바다."
+  },
+  "region.antarctica": {
+   "en": "Antarctica",
+   "target": "남극"
+  },
+  "region.cyberpunk-city": {
+   "en": "Cyberpunk City",
+   "target": "사이버펑크 시티",
+   "note": "빌은 \"네온 도시\"라고도 부름."
+  },
+  "region.china": {
+   "en": "China",
+   "target": "중국"
+  },
+  "place.city-of-light": {
+   "en": "the City of Light",
+   "target": "빛의 도시",
+   "note": "파리의 별칭."
+  },
+  "place.edge-of-the-map": {
+   "en": "the Edge of the Map",
+   "target": "지도의 끝",
+   "note": "5장, 업적과 같은 말."
+  },
+  "place.giza": {
+   "en": "Giza",
+   "target": "기자",
+   "note": "주소: \"기자, 스핑크스 앞\"."
+  },
+  "place.nile": {
+   "en": "the Nile",
+   "target": "나일강"
+  },
+  "place.pyramid": {
+   "en": "the pyramid",
+   "target": "피라미드"
+  },
+  "place.colosseum": {
+   "en": "the Colosseum",
+   "target": "콜로세움"
+  },
+  "place.sugarloaf-mountain": {
+   "en": "Sugarloaf Mountain",
+   "target": "설탕빵산",
+   "note": "Pão de Açúcar의 뜻풀이 이름. 핍의 '설탕' 농담 유지."
+  },
+  "place.eiffel-tower": {
+   "en": "the Eiffel Tower",
+   "target": "에펠탑"
+  },
+  "place.theatre-marquee": {
+   "en": "the theatre marquee",
+   "target": "극장 차양",
+   "note": "극장 입구의 조명 달린 차양. 화물과 킹구구 결말에서 같은 단어."
+  },
+  "place.tallest-tower": {
+   "en": "the tallest tower",
+   "target": "가장 높은 탑",
+   "note": "줄임 \"탑\", \"난간\"."
+  },
+  "place.canopy": {
+   "en": "the canopy",
+   "target": "숲 지붕",
+   "note": "우거진 나무 꼭대기. 1장 이름과 같은 단어."
+  },
+  "place.bazaar": {
+   "en": "the bazaar",
+   "target": "시장",
+   "note": "등불 시장."
+  },
+  "place.harbour": {
+   "en": "the harbour",
+   "target": "항구",
+   "note": "\"항구의 종\"."
+  },
+  "chapter.canopy-route": {
+   "en": "The Canopy Route",
+   "target": "숲 지붕 항로",
+   "note": "'항로' = story.mail-route."
+  },
+  "chapter.ancient-road": {
+   "en": "The Ancient Road",
+   "target": "고대의 길",
+   "note": "퉤퉤 왕의 \"내 길\"과 같은 '길'."
+  },
+  "chapter.lamplight-line": {
+   "en": "The Lamplight Line",
+   "target": "등불 노선",
+   "note": "'노선'(교통·배달 라인), 등불 이미지 유지."
+  },
+  "chapter.tide-route": {
+   "en": "The Tide Route",
+   "target": "밀물 항로",
+   "note": "'밀물' = hazard.tide."
+  },
+  "chapter.edge-of-the-map": {
+   "en": "The Edge of the Map",
+   "target": "지도의 끝"
+  },
+  "level.1-1": {
+   "en": "First Delivery",
+   "target": "첫 배달"
+  },
+  "level.1-2": {
+   "en": "Star Streak",
+   "target": "별 콤보",
+   "note": "ui.streak의 '콤보'."
+  },
+  "level.1-3": {
+   "en": "Bat Patrol",
+   "target": "박쥐 순찰대"
+  },
+  "level.1-4": {
+   "en": "Carnival Skies",
+   "target": "카니발 하늘"
+  },
+  "level.1-5": {
+   "en": "Express Post",
+   "target": "빠른우편",
+   "note": "한국 우체국의 실제 서비스명. 네페르후의 EXPRESS POST와 같은 말."
+  },
+  "level.1-6": {
+   "en": "Temple Steps",
+   "target": "신전 계단"
+  },
+  "level.1-7": {
+   "en": "Sunrise Roost",
+   "target": "해돋이 횃대",
+   "note": "박쥐·새가 쉬는 곳."
+  },
+  "level.1-8": {
+   "en": "Baron Bat",
+   "target": "박쥐 남작"
+  },
+  "level.2-1": {
+   "en": "Beetle Road",
+   "target": "딱정벌레 길",
+   "note": "'길' = 고대의 길."
+  },
+  "level.2-2": {
+   "en": "Sealed Gates",
+   "target": "막힌 관문",
+   "note": "불꽃 봉인과 무관, 돌로 막힘."
+  },
+  "level.2-3": {
+   "en": "Wildfire Run",
+   "target": "산불 질주",
+   "note": "set-piece.wildfire '산불'."
+  },
+  "level.2-4": {
+   "en": "Nile Switchbacks",
+   "target": "나일 지그재그",
+   "note": "hazard.switchback '지그재그'."
+  },
+  "level.2-5": {
+   "en": "Skyfall",
+   "target": "하늘사태",
+   "note": "눈사태·산사태처럼 만든 말: 하늘이 무너져 내림(운석)."
+  },
+  "level.2-6": {
+   "en": "Return to Sender",
+   "target": "보낸 이에게 반송",
+   "note": "phrase.return-to-sender와 동일."
+  },
+  "level.2-7": {
+   "en": "Lantern Bazaar",
+   "target": "등불 시장"
+  },
+  "level.2-8": {
+   "en": "The Long Caravan",
+   "target": "기나긴 카라반",
+   "note": "화물 \"기나긴 카라반에 물통\"과 같은 구절."
+  },
+  "level.2-9": {
+   "en": "Spitter King",
+   "target": "퉤퉤 왕"
+  },
+  "level.3-1": {
+   "en": "Moth Light",
+   "target": "나방과 불빛",
+   "note": "'불나방'(불빛에 몰려드는 나방) 이미지."
+  },
+  "level.3-2": {
+   "en": "Wheels in the Rain",
+   "target": "빗속의 바퀴",
+   "note": "노래·영화 제목 같은 울림(빗속의 여인)."
+  },
+  "level.3-3": {
+   "en": "Steam Alley",
+   "target": "증기 골목",
+   "note": "빌이 소리 내어 말함."
+  },
+  "level.3-4": {
+   "en": "Storm Warning",
+   "target": "폭풍 경보",
+   "note": "가고일 등장 문구와 동일."
+  },
+  "level.3-5": {
+   "en": "Crystal Rooftops",
+   "target": "수정 지붕"
+  },
+  "level.3-6": {
+   "en": "After the Gale",
+   "target": "강풍이 지나고",
+   "note": "set-piece.gale '강풍'."
+  },
+  "level.3-7": {
+   "en": "Midnight Express",
+   "target": "한밤의 특급",
+   "note": "한밤 + 특급(열차/우편)."
+  },
+  "level.3-8": {
+   "en": "Dusk Empress",
+   "target": "황혼 여제"
+  },
+  "level.4-1": {
+   "en": "Harbour Lights",
+   "target": "항구의 불빛"
+  },
+  "level.4-2": {
+   "en": "Volcano Pass",
+   "target": "화산 고개"
+  },
+  "level.4-3": {
+   "en": "Down the Coast",
+   "target": "해안을 따라"
+  },
+  "level.4-4": {
+   "en": "Low Water",
+   "target": "썰물",
+   "note": "바다 물이 빠진 때."
+  },
+  "level.4-5": {
+   "en": "Spring Tide",
+   "target": "큰 밀물",
+   "note": "사리(spring tide)를 아이가 아는 말로. 계절 '봄' 아님."
+  },
+  "level.4-6": {
+   "en": "Broadside Bay",
+   "target": "포격의 만",
+   "note": "broadside = 일제 포격."
+  },
+  "level.4-7": {
+   "en": "Stormy Crossing",
+   "target": "폭풍 속 항해"
+  },
+  "level.4-8": {
+   "en": "Pirate Captain",
+   "target": "해적 선장"
+  },
+  "level.5-1": {
+   "en": "Aurora Post",
+   "target": "오로라 우체국"
+  },
+  "level.5-2": {
+   "en": "Polar Night",
+   "target": "극지의 밤",
+   "note": "해가 뜨지 않는 극야."
+  },
+  "level.5-3": {
+   "en": "Neon Express",
+   "target": "네온 특급"
+  },
+  "level.5-4": {
+   "en": "Data Storm",
+   "target": "데이터 폭풍"
+  },
+  "level.5-5": {
+   "en": "Skyline Sprint",
+   "target": "스카이라인 대시",
+   "note": "weapon.sprint '대시'."
+  },
+  "level.5-6": {
+   "en": "Lantern Festival",
+   "target": "등불 축제"
+  },
+  "level.5-7": {
+   "en": "The Last Leg",
+   "target": "마지막 고비",
+   "note": "'마지막 구간/막바지' 관용 표현."
+  },
+  "level.5-8": {
+   "en": "Ember Dragon",
+   "target": "불씨 드래곤"
+  },
+  "level.starter-garden-hop": {
+   "en": "Garden Hop",
+   "target": "정원 깡충"
+  },
+  "level.starter-ten-push-ups": {
+   "en": "Ten Push-Ups",
+   "target": "팔굽혀펴기 열 번",
+   "note": "숫자 10 유지(라벨에서는 10회도 가능)."
+  },
+  "level.starter-stair-squats": {
+   "en": "Stair Squats",
+   "target": "계단 스쿼트"
+  },
+  "level.starter-bounce-bay": {
+   "en": "Bounce Bay",
+   "target": "통통 바닷가"
+  },
+  "level.starter-barons-bridge": {
+   "en": "Baron’s Bridge",
+   "target": "남작의 다리"
+  },
+  "cargo.1-1": {
+   "en": "A birthday card for the toucan twins",
+   "target": "큰부리새 쌍둥이에게 생일 카드"
+  },
+  "cargo.1-2": {
+   "en": "Star charts for the sloth stargazer",
+   "target": "별 보는 나무늘보에게 별자리 지도"
+  },
+  "cargo.1-3": {
+   "en": "Night-lights for the firefly nursery",
+   "target": "반딧불이 어린이집에 수면등",
+   "note": "night-light = 수면등."
+  },
+  "cargo.1-4": {
+   "en": "Feather boas for the carnival parade",
+   "target": "카니발 행진용 깃털 목도리",
+   "note": "feather boa = 깃털 목도리."
+  },
+  "cargo.1-5": {
+   "en": "A rush invitation for the drum captain",
+   "target": "드럼 대장에게 급한 초대장"
+  },
+  "cargo.1-6": {
+   "en": "Cocoa beans for the temple cooks",
+   "target": "신전 요리사들에게 카카오 콩"
+  },
+  "cargo.1-7": {
+   "en": "A sundial for the dawn keeper",
+   "target": "새벽지기에게 해시계"
+  },
+  "cargo.1-8": {
+   "en": "A final notice for Baron Bat",
+   "target": "박쥐 남작에게 최종 통지서",
+   "note": "final notice = 최종 통지서."
+  },
+  "cargo.2-1": {
+   "en": "Laurel wreaths for the chariot racers",
+   "target": "마차 경주 선수들에게 월계관"
+  },
+  "cargo.2-2": {
+   "en": "A new chisel for the statue carver",
+   "target": "석상 조각가에게 새 끌"
+  },
+  "cargo.2-3": {
+   "en": "Water buckets for the fire brigade",
+   "target": "소방대에 물 양동이"
+  },
+  "cargo.2-4": {
+   "en": "A book of new riddles for the Sphinx",
+   "target": "스핑크스에게 새 수수께끼 책"
+  },
+  "cargo.2-5": {
+   "en": "A telescope for the pyramid astronomer",
+   "target": "피라미드 천문학자에게 망원경"
+  },
+  "cargo.2-6": {
+   "en": "A feather duster for the caretaker",
+   "target": "관리인에게 깃털 먼지떨이"
+  },
+  "cargo.2-7": {
+   "en": "Lamp oil for the lantern sellers",
+   "target": "등불 장수들에게 등잔 기름"
+  },
+  "cargo.2-8": {
+   "en": "Water flasks for the long caravan",
+   "target": "기나긴 카라반에 물통"
+  },
+  "cargo.2-9": {
+   "en": "A stop-brewing order for the Spitter King",
+   "target": "퉤퉤 왕에게 끓이기 금지 명령"
+  },
+  "cargo.3-1": {
+   "en": "Light bulbs for the theatre marquee",
+   "target": "극장 차양에 전구"
+  },
+  "cargo.3-2": {
+   "en": "Umbrellas for the newsstand pigeons",
+   "target": "가판대 비둘기들에게 우산"
+  },
+  "cargo.3-3": {
+   "en": "Hot pretzels for the night-shift cabbies",
+   "target": "야간 택시 기사들에게 따끈한 프레첼"
+  },
+  "cargo.3-4": {
+   "en": "A weather vane for the tallest tower",
+   "target": "가장 높은 탑에 풍향계"
+  },
+  "cargo.3-5": {
+   "en": "Croissants for the rooftop painters",
+   "target": "지붕 위 화가들에게 크루아상"
+  },
+  "cargo.3-6": {
+   "en": "Sheet music for the accordion player",
+   "target": "아코디언 연주자에게 악보"
+  },
+  "cargo.3-7": {
+   "en": "A midnight love letter for the baker",
+   "target": "제빵사에게 한밤의 연애편지"
+  },
+  "cargo.3-8": {
+   "en": "A wake-up call for the Dusk Empress",
+   "target": "황혼 여제에게 모닝콜",
+   "note": "wake-up call = 모닝콜(깨우는 전화이자 정신 번쩍 들게 하는 경고)."
+  },
+  "cargo.4-1": {
+   "en": "A new lens for the lighthouse keeper",
+   "target": "등대지기에게 새 렌즈"
+  },
+  "cargo.4-2": {
+   "en": "Oven mitts for the volcano baker",
+   "target": "화산 제빵사에게 오븐 장갑"
+  },
+  "cargo.4-3": {
+   "en": "Kite string for the beach festival",
+   "target": "해변 축제에 연줄"
+  },
+  "cargo.4-4": {
+   "en": "A reply for the island hermit",
+   "target": "외딴섬 은둔자에게 답장"
+  },
+  "cargo.4-5": {
+   "en": "A tide table for the ferry crew",
+   "target": "여객선 선원들에게 물때표",
+   "note": "tide table = 물때표."
+  },
+  "cargo.4-6": {
+   "en": "Fish biscuits for the gull colony",
+   "target": "갈매기 마을에 생선 비스킷"
+  },
+  "cargo.4-7": {
+   "en": "Dry socks for the storm-watch sailors",
+   "target": "폭풍 감시 선원들에게 마른 양말"
+  },
+  "cargo.4-8": {
+   "en": "A return-the-mail order for the Captain",
+   "target": "선장에게 우편물 반환 명령"
+  },
+  "cargo.5-1": {
+   "en": "Woolly hats for the penguin choir",
+   "target": "펭귄 합창단에게 털모자"
+  },
+  "cargo.5-2": {
+   "en": "Hot cocoa for the polar station",
+   "target": "극지 기지에 따뜻한 코코아"
+  },
+  "cargo.5-3": {
+   "en": "Spare fuses for the noodle bar sign",
+   "target": "국숫집 간판에 예비 퓨즈"
+  },
+  "cargo.5-4": {
+   "en": "A paper letter for a curious robot",
+   "target": "호기심 많은 로봇에게 종이 편지"
+  },
+  "cargo.5-5": {
+   "en": "Race tickets for the rooftop runners",
+   "target": "옥상 달리기 팀에게 경주 티켓"
+  },
+  "cargo.5-6": {
+   "en": "Paper lanterns for the festival",
+   "target": "축제에 종이 등불"
+  },
+  "cargo.5-7": {
+   "en": "Mountain tea for the monastery",
+   "target": "산사에 고산차",
+   "note": "mountain tea = 고산차."
+  },
+  "cargo.5-8": {
+   "en": "The first letter ever sent to the Dragon",
+   "target": "드래곤이 처음 받는 편지",
+   "note": "생애 첫 편지."
+  },
+  "enemy.purple-bat": {
+   "en": "Purple bat",
+   "target": "보라 박쥐",
+   "note": "일반 '박쥐'는 남작의 박쥐, 박쥐 떼, 미라 박쥐에도 같은 단어."
+  },
+  "enemy.cave-bat": {
+   "en": "Cave bat",
+   "target": "동굴 박쥐"
+  },
+  "enemy.spitter-beetle": {
+   "en": "Spitter beetle",
+   "target": "퉤퉤 딱정벌레",
+   "note": "줄임 \"딱정벌레\". 왕과 같은 '퉤퉤'."
+  },
+  "enemy.dusk-moth": {
+   "en": "Dusk moth",
+   "target": "황혼 나방",
+   "note": "줄임 \"나방\"."
+  },
+  "enemy.alley-pigeon": {
+   "en": "Alley Pigeon",
+   "target": "골목 비둘기",
+   "note": "빌: \"별 훔치는 일당\"."
+  },
+  "enemy.mummy-bat": {
+   "en": "Mummy bat",
+   "target": "미라 박쥐"
+  },
+  "enemy.squadron": {
+   "en": "King Coo's squadron",
+   "target": "킹구구 비행대",
+   "note": "\"비행대 해산\" 등 같은 단어."
+  },
+  "enemy.straggler": {
+   "en": "straggler",
+   "target": "낙오병",
+   "note": "UI는 \"또 온다\", \"모두 잡았다!\"."
+  },
+  "enemy.brood": {
+   "en": "the Spitter King's brood",
+   "target": "퉤퉤 왕의 새끼들",
+   "note": "왕은 \"조수들!\", \"내 꼬마 풍뎅이들\"이라 부름."
+  },
+  "enemy.empress-moths": {
+   "en": "the Dusk Empress's moths",
+   "target": "황혼 여제의 나방들"
+  },
+  "enemy.swarm-bats": {
+   "en": "swarm bats",
+   "target": "박쥐 떼",
+   "note": "set-piece.swarm과 같은 '떼'."
+  },
+  "attack.fireball": {
+   "en": "fireball",
+   "target": "불덩이"
+  },
+  "attack.screech": {
+   "en": "sonic screech",
+   "target": "초음파 괴성",
+   "note": "빌의 \"괴성만 요란하지\"와 같은 '괴성'."
+  },
+  "attack.seed": {
+   "en": "seed",
+   "target": "씨앗"
+  },
+  "attack.fan": {
+   "en": "fan",
+   "target": "부채꼴",
+   "note": "\"세 발짜리 부채꼴\". 팬(admirer) 아님."
+  },
+  "attack.pollen": {
+   "en": "pollen",
+   "target": "꽃가루",
+   "note": "여제는 \"가루\"라고도 함."
+  },
+  "attack.veil": {
+   "en": "veil",
+   "target": "베일",
+   "note": "새들은 \"보호막\"이라 부름; \"베일이 걷히면 쏴!\"."
+  },
+  "attack.cannon": {
+   "en": "cannon",
+   "target": "대포",
+   "note": "대포알, 심지."
+  },
+  "attack.broadside": {
+   "en": "broadside",
+   "target": "일제 포격"
+  },
+  "attack.dragon-breath": {
+   "en": "dragon's breath",
+   "target": "드래곤의 숨결",
+   "note": "'심장'은 약점(체력 하트 아님)."
+  },
+  "attack.embers": {
+   "en": "embers",
+   "target": "불씨",
+   "note": "드래곤 이름과 같은 어근."
+  },
+  "attack.crumb-bomb": {
+   "en": "crumb bomb",
+   "target": "빵가루 폭탄"
+  },
+  "attack.stale-crust": {
+   "en": "stale crust",
+   "target": "딱딱한 빵 껍질"
+  },
+  "attack.puff": {
+   "en": "puff",
+   "target": "가슴 부풀리기",
+   "note": "효과음 POP! → \"펑!\", POOF! → \"푸슉!\"."
+  },
+  "attack.beam": {
+   "en": "beam",
+   "target": "빛줄기",
+   "note": "걸리면 \"발각!\"."
+  },
+  "attack.lamp": {
+   "en": "lamp",
+   "target": "가슴 등",
+   "note": "여제 이야기의 '가로등'과 구별. 덧창 = \"덧문\"."
+  },
+  "attack.stone-feathers": {
+   "en": "stone feathers",
+   "target": "돌 깃털"
+  },
+  "attack.mail-call": {
+   "en": "mail call",
+   "target": "편지 왔소",
+   "note": "우편이 도착했을 때의 외침을 네페르후의 하오체로. 태그와 대사 동일."
+  },
+  "attack.ankh": {
+   "en": "ankh",
+   "target": "앙크",
+   "note": "황금 앙크, 두 개의 앙크."
+  },
+  "attack.express-post": {
+   "en": "EXPRESS POST",
+   "target": "빠른우편",
+   "note": "level.1-5와 동일. 외침 \"빠른우편이다!\"."
+  },
+  "hazard.gate": {
+   "en": "gate",
+   "target": "관문",
+   "note": "틈 = \"틈\", 퍼펙트 관문."
+  },
+  "hazard.garden-gate": {
+   "en": "Garden gate",
+   "target": "정원 관문"
+  },
+  "hazard.wind-lift": {
+   "en": "Wind lift",
+   "target": "바람 관문",
+   "note": "바람에 오르내리는 틈."
+  },
+  "hazard.petal-shutters": {
+   "en": "Petal shutters",
+   "target": "꽃잎 덧문",
+   "note": "빌은 \"꽃잎 관문\"이라 부름(꽃잎 유지)."
+  },
+  "hazard.switchback": {
+   "en": "Switchback",
+   "target": "지그재그",
+   "note": "\"한 번은 위로, 한 번은 아래로\"."
+  },
+  "hazard.lantern-drift": {
+   "en": "Lantern drift",
+   "target": "떠도는 등불"
+  },
+  "hazard.sun-wheels": {
+   "en": "Sun wheels",
+   "target": "태양 바퀴"
+  },
+  "hazard.crystal-steps": {
+   "en": "Crystal steps",
+   "target": "수정 계단"
+  },
+  "hazard.stone-panel": {
+   "en": "stone panel",
+   "target": "돌판",
+   "note": "빌더 이름 \"돌문\". 같은 '돌'."
+  },
+  "hazard.steam-geyser": {
+   "en": "steam vent",
+   "target": "증기 구멍",
+   "note": "뜨거운 것은 뛰어넘고, 부드러운 것은 타고 오른다."
+  },
+  "hazard.sea": {
+   "en": "the sea",
+   "target": "바다",
+   "note": "\"물\"도 같은 위험."
+  },
+  "hazard.tide": {
+   "en": "the tide",
+   "target": "밀물",
+   "note": "배너 \"밀물이 온다!\", \"만조\"."
+  },
+  "hazard.tide-bell": {
+   "en": "the bell",
+   "target": "종",
+   "note": "항구의 종."
+  },
+  "hazard.lava-plume": {
+   "en": "lava plume",
+   "target": "용암 기둥"
+  },
+  "hazard.meteor": {
+   "en": "meteor",
+   "target": "운석"
+  },
+  "hazard.debris": {
+   "en": "debris",
+   "target": "잡동사니",
+   "note": "날아오는 잡동사니."
+  },
+  "hazard.football": {
+   "en": "football",
+   "target": "축구공"
+  },
+  "hazard.warning-mark": {
+   "en": "!",
+   "target": "!",
+   "note": "기호 그대로. \"느낌표를 봐\"."
+  },
+  "hazard.rubble": {
+   "en": "rubble",
+   "target": "돌무더기"
+  },
+  "set-piece.rush-path": {
+   "en": "rush",
+   "target": "러시",
+   "note": "HUD \"러시 ×2!\"."
+  },
+  "set-piece.wildfire": {
+   "en": "Wildfire",
+   "target": "산불",
+   "note": "배너 \"산불!\"."
+  },
+  "set-piece.skyfall": {
+   "en": "Skyfall",
+   "target": "하늘사태",
+   "note": "만든 말(눈사태·산사태처럼). 2-5 레벨명과 동일."
+  },
+  "set-piece.eruption": {
+   "en": "Eruption",
+   "target": "분화",
+   "note": "화산 분화."
+  },
+  "set-piece.swarm": {
+   "en": "Swarm",
+   "target": "박쥐 떼",
+   "note": "배너 \"박쥐 떼!\"."
+  },
+  "set-piece.gale": {
+   "en": "gale",
+   "target": "강풍",
+   "note": "배너 \"강풍!\", \"강풍을 견뎠다\"."
+  },
+  "set-piece.finish-line": {
+   "en": "finish line",
+   "target": "결승선",
+   "note": "표지판 \"골인\"."
+  },
+  "set-piece.run-up": {
+   "en": "run-up",
+   "target": "진입 비행"
+  },
+  "set-piece.vanguard": {
+   "en": "vanguard",
+   "target": "선발대",
+   "note": "배너는 무리 이름을 보여 줌."
+  },
+  "pickup.star": {
+   "en": "star",
+   "target": "별",
+   "note": "수집·평가·화폐 모두 같은 '별'."
+  },
+  "pickup.star-trio": {
+   "en": "star trio",
+   "target": "별 삼총사"
+  },
+  "pickup.heart": {
+   "en": "heart",
+   "target": "하트",
+   "note": "피치스의 사랑 말장난 유지."
+  },
+  "pickup.shield": {
+   "en": "shield",
+   "target": "보호막",
+   "note": "새들은 \"방울\"이라고도 함."
+  },
+  "pickup.star-magnet": {
+   "en": "star magnet",
+   "target": "별 자석",
+   "note": "줄임 \"자석\"."
+  },
+  "pickup.sprint-ring": {
+   "en": "sprint ring",
+   "target": "대시 링",
+   "note": "\"황금 링\", \"링\" 모두 같은 물건."
+  },
+  "pickup.mystery-box": {
+   "en": "mystery box",
+   "target": "깜짝 상자"
+  },
+  "pickup.bat-swarm": {
+   "en": "Bat swarm",
+   "target": "박쥐 떼"
+  },
+  "pickup.meteor-shower": {
+   "en": "Meteor shower",
+   "target": "유성우"
+  },
+  "pickup.star-power": {
+   "en": "Star power",
+   "target": "별의 힘"
+  },
+  "power-up.shot-power": {
+   "en": "Shot power",
+   "target": "던지기 위력"
+  },
+  "power-up.sprint": {
+   "en": "Sprint (upgrade)",
+   "target": "대시"
+  },
+  "power-up.shield": {
+   "en": "Shield (upgrade)",
+   "target": "보호막"
+  },
+  "power-up.magnet": {
+   "en": "Magnet (upgrade)",
+   "target": "자석"
+  },
+  "weapon.shoot": {
+   "en": "Shoot",
+   "target": "발사",
+   "note": "버튼명. 동사는 \"쏘다\"(돌멩이를 쏴)."
+  },
+  "weapon.rock": {
+   "en": "rock",
+   "target": "돌멩이",
+   "note": "드래곤은 \"조약돌\"."
+  },
+  "weapon.big-rock": {
+   "en": "big rock",
+   "target": "큰 돌멩이",
+   "note": "충전 발사."
+  },
+  "weapon.ammo": {
+   "en": "ammo",
+   "target": "탄약",
+   "note": "새들은 \"돌멩이\"라고 말함."
+  },
+  "weapon.sprint": {
+   "en": "Sprint",
+   "target": "대시",
+   "note": "버튼·힌트·업그레이드 동일. 한국 게임에서 익숙한 짧은 말."
+  },
+  "weapon.ring-sprint": {
+   "en": "ring sprint",
+   "target": "링 대시"
+  },
+  "weapon.smash": {
+   "en": "SMASH!",
+   "target": "박살!"
+  },
+  "mode.campaign": {
+   "en": "Campaign",
+   "target": "캠페인"
+  },
+  "mode.endless": {
+   "en": "Endless",
+   "target": "무한 비행"
+  },
+  "mode.tap-and-fly": {
+   "en": "Tap & Fly",
+   "target": "탭 & 비행",
+   "note": "\"스쿼트 & 비행\", \"점프 & 비행\"과 같은 틀."
+  },
+  "mode.push-up-flight": {
+   "en": "Push-Up Flight",
+   "target": "팔굽혀펴기 비행",
+   "note": "사이드 미니 게임."
+  },
+  "mode.squat-and-fly": {
+   "en": "Squat & Fly",
+   "target": "스쿼트 & 비행"
+  },
+  "mode.jump-and-fly": {
+   "en": "Jump & Fly",
+   "target": "점프 & 비행"
+  },
+  "mode.mini-games": {
+   "en": "Mini games",
+   "target": "미니 게임",
+   "note": "운동 앱처럼 들리지 않게."
+  },
+  "mode.fly-together": {
+   "en": "Fly Together",
+   "target": "함께 날기"
+  },
+  "mode.roped": {
+   "en": "Roped",
+   "target": "로프 연결"
+  },
+  "mode.no-rope": {
+   "en": "No rope",
+   "target": "로프 없음"
+  },
+  "mode.duel": {
+   "en": "1 v 1",
+   "target": "1 대 1",
+   "note": "명사 \"대결\"."
+  },
+  "mode.level-builder": {
+   "en": "Level Builder",
+   "target": "레벨 만들기",
+   "note": "줄임 \"만들기\"."
+  },
+  "mode.daily-adventure": {
+   "en": "Adventure",
+   "target": "모험",
+   "note": "\"오늘의 작은 모험\"."
+  },
+  "mode.flight-school": {
+   "en": "Flight School",
+   "target": "비행 학교"
+  },
+  "mode.practice": {
+   "en": "Practice",
+   "target": "연습"
+  },
+  "mode.test-flight": {
+   "en": "test flight",
+   "target": "시험 비행"
+  },
+  "mode.classic": {
+   "en": "Classic",
+   "target": "클래식"
+  },
+  "mode.world-tour": {
+   "en": "world tour",
+   "target": "세계 일주"
+  },
+  "ui.sky-club": {
+   "en": "Sky Club",
+   "target": "하늘 클럽",
+   "note": "줄임 \"클럽\"."
+  },
+  "ui.sky-club-post": {
+   "en": "Sky Club post",
+   "target": "하늘 클럽 우체국",
+   "note": "문 앞 인사는 \"하늘 클럽 우편이요!\"(우편배달부가 문 앞에서 외치는 말). 내레이터와 빌의 장소 이름은 \"하늘 클럽 우체국\"."
+  },
+  "ui.passport": {
+   "en": "passport",
+   "target": "여권",
+   "note": "하늘 여권."
+  },
+  "ui.passport-stamp": {
+   "en": "stamp (passport)",
+   "target": "도장",
+   "note": "여권 도장. 해적의 '우표'와 다른 단어."
+  },
+  "ui.medal": {
+   "en": "medal",
+   "target": "메달"
+  },
+  "ui.bronze": {
+   "en": "Bronze",
+   "target": "동"
+  },
+  "ui.silver": {
+   "en": "Silver",
+   "target": "은"
+  },
+  "ui.gold": {
+   "en": "Gold",
+   "target": "금",
+   "note": "황금 링, 황금 숲 지붕."
+  },
+  "ui.star-marks": {
+   "en": "star marks",
+   "target": "별 눈금",
+   "note": "막대의 눈금(★★/★★★)."
+  },
+  "ui.star-rating": {
+   "en": "stars (level rating)",
+   "target": "별",
+   "note": "별 두 개, 별 세 개."
+  },
+  "ui.streak": {
+   "en": "streak",
+   "target": "콤보",
+   "note": "끊김 없이 별을 연달아 모으기. 1-2 레벨명과 같은 말."
+  },
+  "ui.multiplier": {
+   "en": "multiplier",
+   "target": "배율",
+   "note": "× 기호 유지."
+  },
+  "ui.perfect-pass": {
+   "en": "perfect pass",
+   "target": "퍼펙트 통과",
+   "note": "퍼펙트 관문."
+  },
+  "ui.aiming-mark": {
+   "en": "aiming mark",
+   "target": "조준점"
+  },
+  "ui.score": {
+   "en": "score",
+   "target": "점수"
+  },
+  "ui.best": {
+   "en": "best",
+   "target": "최고 기록",
+   "note": "\"새 최고 기록!\"."
+  },
+  "ui.record": {
+   "en": "record",
+   "target": "신기록",
+   "note": "무한 비행 최고 점수 경신."
+  },
+  "ui.records-screen": {
+   "en": "Records",
+   "target": "기록실"
+  },
+  "ui.saved-session": {
+   "en": "saved session",
+   "target": "저장된 비행"
+  },
+  "ui.replay": {
+   "en": "replay",
+   "target": "다시 보기"
+  },
+  "ui.flight-highlights": {
+   "en": "Flight highlights",
+   "target": "비행 하이라이트"
+  },
+  "ui.flight": {
+   "en": "flight",
+   "target": "비행",
+   "note": "한 번의 플레이. '게임'이 아님."
+  },
+  "ui.scored-flight": {
+   "en": "scored flight",
+   "target": "기록 비행"
+  },
+  "ui.upgrades": {
+   "en": "Upgrades",
+   "target": "업그레이드"
+  },
+  "ui.star-wallet": {
+   "en": "stars to spend",
+   "target": "쓸 수 있는 별"
+  },
+  "ui.collection": {
+   "en": "Birds",
+   "target": "새 친구들",
+   "note": "\"비행 동료를 만나 봐\"."
+  },
+  "ui.trail-sunshine-bubbles": {
+   "en": "Sunshine bubbles",
+   "target": "햇살 방울"
+  },
+  "ui.trail-peach-hearts": {
+   "en": "Peach hearts",
+   "target": "복숭아 하트"
+  },
+  "ui.trail-mint-leaves": {
+   "en": "Mint leaves",
+   "target": "민트 잎"
+  },
+  "ui.trail-stardust-sparkles": {
+   "en": "Stardust sparkles",
+   "target": "별가루 반짝이"
+  },
+  "ui.character-voices": {
+   "en": "Character voices",
+   "target": "캐릭터 음성"
+  },
+  "ui.sky-club-soundtrack": {
+   "en": "Sky Club soundtrack",
+   "target": "하늘 클럽 사운드트랙"
+  },
+  "ui.reduced-motion": {
+   "en": "Reduced motion",
+   "target": "동작 줄이기"
+  },
+  "ui.campaign-map": {
+   "en": "map",
+   "target": "지도"
+  },
+  "ui.stop": {
+   "en": "stop",
+   "target": "목적지",
+   "note": "\"다음 목적지: 파리\"."
+  },
+  "ui.chapter": {
+   "en": "chapter",
+   "target": "장",
+   "note": "\"제1장 · 숲 지붕 항로\"."
+  },
+  "ui.level": {
+   "en": "level",
+   "target": "레벨"
+  },
+  "ui.level-card": {
+   "en": "level card",
+   "target": "레벨 카드"
+  },
+  "ui.special-delivery": {
+   "en": "SPECIAL DELIVERY",
+   "target": "특별 배달",
+   "note": "업적과 대사에서도 같은 말."
+  },
+  "ui.hint": {
+   "en": "TIP",
+   "target": "팁",
+   "note": "\"빌 국장님 팁\"."
+  },
+  "ui.thank-you-note": {
+   "en": "thank-you note",
+   "target": "감사 쪽지"
+  },
+  "ui.postcard": {
+   "en": "postcard",
+   "target": "엽서",
+   "note": "\"배달부에게,\", \"추신\"."
+  },
+  "ui.lair": {
+   "en": "lair",
+   "target": "소굴"
+  },
+  "ui.guardian": {
+   "en": "GUARDIAN",
+   "target": "수호자"
+  },
+  "ui.boss": {
+   "en": "boss",
+   "target": "보스"
+  },
+  "ui.encounter": {
+   "en": "ENCOUNTER 01",
+   "target": "조우 01"
+  },
+  "ui.name-card": {
+   "en": "name card",
+   "target": "이름 카드"
+  },
+  "ui.stronger": {
+   "en": "STRONGER",
+   "target": "강화"
+  },
+  "ui.fury": {
+   "en": "FURY",
+   "target": "분노"
+  },
+  "ui.sky-reclaimed": {
+   "en": "SKY RECLAIMED",
+   "target": "하늘 탈환"
+  },
+  "ui.guardian-down": {
+   "en": "GUARDIAN DOWN!",
+   "target": "수호자 격파!"
+  },
+  "ui.victory": {
+   "en": "Victory!",
+   "target": "승리!"
+  },
+  "ui.delivered": {
+   "en": "Delivered!",
+   "target": "배달 완료!",
+   "note": "새들도 외침."
+  },
+  "ui.try-again": {
+   "en": "Try again!",
+   "target": "다시 해 보자!"
+  },
+  "ui.bonk": {
+   "en": "Bonk!",
+   "target": "콩!",
+   "note": "만화식 부딪힘 소리. 여제의 \"콩. 콩.\"과 같은 소리."
+  },
+  "ui.splash": {
+   "en": "Splash!",
+   "target": "풍덩!"
+  },
+  "ui.route-flown": {
+   "en": "ROUTE FLOWN",
+   "target": "비행한 항로"
+  },
+  "ui.coming-soon": {
+   "en": "Coming soon",
+   "target": "곧 공개"
+  },
+  "ui.unlock": {
+   "en": "unlock",
+   "target": "잠금 해제"
+  },
+  "ui.story-key": {
+   "en": "Story",
+   "target": "이야기",
+   "note": "건너뛰기, 다음 대사."
+  },
+  "ui.to-be-continued": {
+   "en": "To be continued…",
+   "target": "다음 편에 계속…",
+   "note": "내레이터 대사와 정확히 같은 문구(UI 아키텍트에게 전달)."
+  },
+  "ui.pause": {
+   "en": "Take a breather.",
+   "target": "잠깐 숨 돌리자.",
+   "note": "버튼: 지도, 다시, 계속 날기."
+  },
+  "ui.flap": {
+   "en": "Flap",
+   "target": "날갯짓",
+   "note": "\"탭해서 날갯짓\"."
+  },
+  "ui.fly": {
+   "en": "Fly!",
+   "target": "날자!"
+  },
+  "ui.workout": {
+   "en": "workout",
+   "target": "운동 기록",
+   "note": "가볍게."
+  },
+  "ui.calibration": {
+   "en": "calibration",
+   "target": "보정"
+  },
+  "ui.camera-lab": {
+   "en": "Camera & tracking lab",
+   "target": "카메라 & 동작 인식 실험실"
+  },
+  "ui.play-games": {
+   "en": "Play Games",
+   "target": "Google Play 게임즈",
+   "note": "Google의 한국어 표기."
+  },
+  "ui.achievements": {
+   "en": "achievements",
+   "target": "업적",
+   "note": "Google Play 한국어 용어."
+  },
+  "ui.share-code": {
+   "en": "share code",
+   "target": "공유 코드"
+  },
+  "ui.remix": {
+   "en": "Remix",
+   "target": "리믹스"
+  },
+  "ui.starter-levels": {
+   "en": "Starter levels",
+   "target": "기본 레벨"
+  },
+  "ui.start-zone": {
+   "en": "START ZONE",
+   "target": "출발 구역"
+  },
+  "ui.gate-family": {
+   "en": "gate family",
+   "target": "관문 종류"
+  },
+  "ui.boss-finale": {
+   "en": "Boss finale",
+   "target": "보스 피날레"
+  },
+  "ui.cleared-by-you": {
+   "en": "Cleared by you",
+   "target": "직접 클리어"
+  },
+  "ui.pace": {
+   "en": "Pace",
+   "target": "속도",
+   "note": "느긋하게 / 꾸준하게 / 빠르게."
+  },
+  "ui.lane": {
+   "en": "lane",
+   "target": "길",
+   "note": "열린 길, 불길. (팔굽혀펴기 위/아래 레인은 UI에서 \"레인\"도 가능)"
+  },
+  "ui.player": {
+   "en": "Player 1",
+   "target": "플레이어 1",
+   "note": "P1/P2 유지."
+  },
+  "ui.team-score": {
+   "en": "TEAM SCORE",
+   "target": "팀 점수"
+  },
+  "ui.rematch": {
+   "en": "Rematch",
+   "target": "재대결"
+  },
+  "ui.rank-first-wings": {
+   "en": "First wings",
+   "target": "첫 날개"
+  },
+  "ui.rank-cloud-explorer": {
+   "en": "Cloud explorer",
+   "target": "구름 탐험가"
+  },
+  "ui.home-greeting": {
+   "en": "Hi, I’m $name! Ready to fly?",
+   "target": "안녕, 나는 $name! 날아 볼까?",
+   "note": "성별 없는 반말."
+  },
+  "achievement.frequent-flyer": {
+   "en": "Frequent flyer",
+   "target": "단골 비행사"
+  },
+  "achievement.on-the-dot": {
+   "en": "On the dot",
+   "target": "백발백중",
+   "note": "정확함의 관용어."
+  },
+  "achievement.star-chaser": {
+   "en": "Star chaser",
+   "target": "별 사냥꾼"
+  },
+  "achievement.constellation": {
+   "en": "Constellation",
+   "target": "별자리"
+  },
+  "achievement.sky-captain": {
+   "en": "Sky captain",
+   "target": "하늘의 기장",
+   "note": "해적 선장과 다른 단어."
+  },
+  "achievement.trailblazer": {
+   "en": "Trailblazer",
+   "target": "개척자"
+  },
+  "achievement.flock-together": {
+   "en": "Flock together",
+   "target": "끼리끼리 훨훨",
+   "note": "'유유상종'의 쉬운 말 + 날기."
+  },
+  "achievement.all-rounder": {
+   "en": "All-rounder",
+   "target": "만능 재주꾼"
+  },
+  "achievement.mail-through-the-canopy": {
+   "en": "Mail Through the Canopy",
+   "target": "숲 지붕 너머로 우편을"
+  },
+  "achievement.return-to-sender": {
+   "en": "Return to Sender",
+   "target": "보낸 이에게 반송"
+  },
+  "achievement.mint-tea-again": {
+   "en": "Mint Tea Again",
+   "target": "또 민트차"
+  },
+  "achievement.crumbs-cleared": {
+   "en": "Crumbs Cleared",
+   "target": "빵가루 대청소"
+  },
+  "achievement.out-of-the-spotlight": {
+   "en": "Out of the Spotlight",
+   "target": "스포트라이트 밖으로",
+   "note": "탐조등 탈출 + 무대 조명 밖."
+  },
+  "achievement.gold-canopy": {
+   "en": "Gold Canopy",
+   "target": "황금 숲 지붕"
+  },
+  "achievement.gold-road": {
+   "en": "Gold Road",
+   "target": "황금 길"
+  },
+  "achievement.bright-lights": {
+   "en": "Bright Lights",
+   "target": "대도시의 불빛"
+  },
+  "achievement.lamplighter": {
+   "en": "Lamplighter",
+   "target": "등불지기",
+   "note": "가로등 켜는 사람."
+  },
+  "achievement.harbour-bells": {
+   "en": "Harbour Bells",
+   "target": "항구의 종"
+  },
+  "achievement.edge-of-the-map": {
+   "en": "Edge of the Map",
+   "target": "지도의 끝"
+  },
+  "achievement.two-on-one-phone": {
+   "en": "Two on One Phone",
+   "target": "폰 하나에 둘이서"
+  },
+  "achievement.friendly-rivals": {
+   "en": "Friendly Rivals",
+   "target": "사이좋은 라이벌"
+  },
+  "achievement.route-planner": {
+   "en": "Route Planner",
+   "target": "항로 설계사"
+  },
+  "achievement.the-whole-kit": {
+   "en": "The Whole Kit",
+   "target": "풀세트 완성",
+   "note": "'전부 다'의 관용 표현."
+  },
+  "achievement.pen-pal": {
+   "en": "Pen Pal",
+   "target": "펜팔"
+  },
+  "achievement.night-mail": {
+   "en": "Night Mail",
+   "target": "야간 우편"
+  },
+  "achievement.special-delivery": {
+   "en": "Special Delivery",
+   "target": "특별 배달"
+  },
+  "achievement.goal-spread-your-wings": {
+   "en": "Spread your wings",
+   "target": "날개를 활짝"
+  },
+  "achievement.goal-open-horizons": {
+   "en": "Open horizons",
+   "target": "탁 트인 지평선"
+  },
+  "achievement.goal-pocketful-of-stars": {
+   "en": "Pocketful of stars",
+   "target": "주머니 가득 별"
+  },
+  "achievement.goal-keep-the-sparkle": {
+   "en": "Keep the sparkle",
+   "target": "반짝임을 이어 가"
+  },
+  "achievement.goal-right-on-the-mark": {
+   "en": "Right on the mark",
+   "target": "딱 한가운데"
+  },
+  "achievement.goal-the-whole-journey": {
+   "en": "The whole journey",
+   "target": "머나먼 여정"
+  },
+  "achievement.card-sunrise-delivery": {
+   "en": "Sunrise delivery",
+   "target": "해돋이 배달"
+  },
+  "achievement.card-peach-picnic": {
+   "en": "Peach picnic",
+   "target": "복숭아 소풍"
+  },
+  "achievement.card-moonlit-mail": {
+   "en": "Moonlit mail",
+   "target": "달빛 우편"
+  },
+  "achievement.card-cloud-parade": {
+   "en": "Cloud parade",
+   "target": "구름 퍼레이드"
+  },
+  "achievement.card-twilight-treasure": {
+   "en": "Twilight treasure",
+   "target": "황혼의 보물"
+  },
+  "achievement.card-garden-party": {
+   "en": "Garden party",
+   "target": "정원 파티"
+  },
+  "story.flame-seal": {
+   "en": "flame seal",
+   "target": "불꽃 봉인",
+   "note": "밀랍 봉인. \"불꽃 모양 봉인\", \"두 항로, 두 봉인\"."
+  },
+  "story.warm-letter": {
+   "en": "a warm letter",
+   "target": "따뜻한 편지",
+   "note": "한국어도 '따뜻한'이 온도와 다정함 두 뜻을 모두 가짐."
+  },
+  "story.night-mail": {
+   "en": "the night mail",
+   "target": "야간 우편"
+  },
+  "story.morning-post": {
+   "en": "the morning post",
+   "target": "아침 우편"
+  },
+  "story.mail-route": {
+   "en": "route",
+   "target": "항로",
+   "note": "클럽의 우편 항로. 장 이름, 보스 대사, HUD 모두 같은 말. 다섯 항로, 여섯 번째 항로."
+  },
+  "story.route-six": {
+   "en": "Route six",
+   "target": "여섯 번째 항로"
+  },
+  "story.beacon": {
+   "en": "our beacon",
+   "target": "봉화",
+   "note": "길을 밝히는 불. \"우리 봉화를 지켜 주세요\"."
+  },
+  "story.lost-letter": {
+   "en": "the lost letter",
+   "target": "잃어버린 편지"
+  },
+  "story.the-books": {
+   "en": "the books",
+   "target": "장부"
+  },
+  "story.pigeonholes": {
+   "en": "pigeonholes",
+   "target": "우편 분류함",
+   "note": "말장난 대체: \"편지 하면 비둘기인데, 우리 클럽엔 비둘기가 한 마리도 없었지\"(전서구 이미지)."
+  },
+  "story.bread-cart": {
+   "en": "the bread cart",
+   "target": "빵 수레"
+  },
+  "story.bagel": {
+   "en": "a hot bagel a day",
+   "target": "매일 따끈한 베이글 하나",
+   "note": "급여."
+  },
+  "story.landing-light": {
+   "en": "landing light",
+   "target": "착륙등"
+  },
+  "story.brew": {
+   "en": "the brew",
+   "target": "물약",
+   "note": "끓이는 중 = \"보글보글\"."
+  },
+  "story.perfect-ink": {
+   "en": "the perfect ink",
+   "target": "완벽한 잉크",
+   "note": "바래지 않는 잉크."
+  },
+  "story.mint-tea": {
+   "en": "mint tea",
+   "target": "민트차",
+   "note": "민티 이름과 연결(\"내 이름에서 따온 거나 마찬가지\")."
+  },
+  "story.letter-phrases": {
+   "en": "“Dear Grandma”, “Wish you were here”",
+   "target": "“할머니께”, “보고 싶어요”",
+   "note": "편지 상투어로 대체: “할머니께”, “보고 싶어요”, “얼른 나아”, “사랑을 담아”."
+  },
+  "story.postage-stamp": {
+   "en": "stamps",
+   "target": "우표",
+   "note": "여권 '도장'과 다른 단어. 우표 수집가."
+  },
+  "story.stamp-album": {
+   "en": "stamp album",
+   "target": "우표 앨범"
+  },
+  "story.penny-black": {
+   "en": "penny black",
+   "target": "페니 블랙",
+   "note": "세계 최초의 우표."
+  },
+  "story.envelopes": {
+   "en": "the envelopes",
+   "target": "봉투"
+  },
+  "story.beauty-sleep": {
+   "en": "beauty sleep",
+   "target": "미용 수면",
+   "note": "남작의 거창한 표현(‘미인은 잠꾸러기’). 모든 대사에서 같은 말."
+  },
+  "story.dusk-delivery": {
+   "en": "deliver at dusk",
+   "target": "해 질 녘 배달"
+  },
+  "story.lamps": {
+   "en": "the lamps",
+   "target": "가로등",
+   "note": "TTS에서 혼동되는 동음어 없음."
+  },
+  "story.lampshades": {
+   "en": "lampshades",
+   "target": "전등갓",
+   "note": "여제는 \"전등갓…\"이라고 되뇜."
+  },
+  "story.harbour-bells": {
+   "en": "harbour bells",
+   "target": "항구의 종"
+  },
+  "story.club-rule": {
+   "en": "Club rule",
+   "target": "클럽 규칙"
+  },
+  "story.final-notice": {
+   "en": "final notice",
+   "target": "최종 통지서"
+  },
+  "story.wake-up-call": {
+   "en": "wake-up call",
+   "target": "모닝콜"
+  },
+  "story.first-letter": {
+   "en": "the first letter ever sent to the Dragon",
+   "target": "드래곤이 처음 받는 편지"
+  },
+  "story.dotted-i": {
+   "en": "He dotted his “i” with a tiny bat.",
+   "target": "마침표를 꼬마 박쥐로 찍었지",
+   "note": "한글에는 i의 점이 없으므로 '점'을 마침표로 옮김."
+  },
+  "story.mailbag": {
+   "en": "mailbag",
+   "target": "우편 가방"
+  },
+  "story.satchel": {
+   "en": "satchel",
+   "target": "배달 가방"
+  },
+  "story.pharaohs-post": {
+   "en": "the Pharaoh's post",
+   "target": "파라오의 우편"
+  },
+  "story.mask": {
+   "en": "golden courier mask",
+   "target": "황금 배달부 가면",
+   "note": "줄임 \"가면\", \"내 가면!\"."
+  },
+  "story.wrappings": {
+   "en": "wrappings",
+   "target": "붕대"
+  },
+  "story.headwear": {
+   "en": "headwear",
+   "target": "왕관",
+   "note": "남작 왕관, 퉤퉤 왕의 플라스크 왕관, 여제의 왕관(비행 중엔 티아라), 선장 모자, 킹구구 경찰 모자."
+  },
+  "story.kindling": {
+   "en": "kindling",
+   "target": "불쏘시개"
+  },
+  "story.rush-hour": {
+   "en": "rush hour",
+   "target": "제일 바쁜 시간",
+   "note": "\"그분 잘 시간이 우리 제일 바쁜 시간이지\"."
+  },
+  "story.weather-vane": {
+   "en": "weather vane",
+   "target": "풍향계"
+  },
+  "motto.every-letter-lands": {
+   "en": "Every letter lands.",
+   "target": "모든 편지는 꼭 닿는다.",
+   "note": "한 번 정하고 그대로 반복. 질문형(드래곤): \"모든 편지가 정말 닿느냐?\". '닿다' = 도착하다 + 새가 내려앉다."
+  },
+  "motto.every-letter-delivered": {
+   "en": "Every letter delivered",
+   "target": "모든 편지, 배달 완료",
+   "note": "표어의 메아리."
+  },
+  "address.rookie": {
+   "en": "rookie",
+   "target": "신참",
+   "note": "빌이 늘 부르는 말, 성별 없음. 핍: \"신참 배달부 핍\"."
+  },
+  "address.little-courier": {
+   "en": "little courier",
+   "target": "꼬마 배달부",
+   "note": "남작의 거만한 호칭."
+  },
+  "address.darling": {
+   "en": "darling",
+   "target": "그대",
+   "note": "가고일·남작의 연극적 호칭(성별 없음). 피치스는 자기 애칭을 따로 씀."
+  },
+  "address.postie": {
+   "en": "postie",
+   "target": "배달꾼",
+   "note": "선장의 막말 호칭."
+  },
+  "address.sprat": {
+   "en": "sprat",
+   "target": "멸치",
+   "note": "작고 마른 것을 놀리는 말."
+  },
+  "address.skylubber": {
+   "en": "skylubber",
+   "target": "하늘 촌뜨기",
+   "note": "'뭍사람' 놀림을 하늘로."
+  },
+  "address.matey": {
+   "en": "matey",
+   "target": "이 친구",
+   "note": "해적식 \"친구\". 선원들은 \"얘들아\"."
+  },
+  "address.lad": {
+   "en": "lad",
+   "target": "꼬맹이",
+   "note": "성별 없는 놀림 호칭."
+  },
+  "address.feathers": {
+   "en": "feathers",
+   "target": "깃털 녀석"
+  },
+  "address.little-spark": {
+   "en": "little spark",
+   "target": "작은 불티",
+   "note": "불 이미지 유지."
+  },
+  "address.hatchling": {
+   "en": "hatchling",
+   "target": "햇병아리",
+   "note": "갓 깬 새끼이자 풋내기."
+  },
+  "address.small-one": {
+   "en": "small one",
+   "target": "꼬마",
+   "note": "전령, 작은 새."
+  },
+  "address.little-one": {
+   "en": "little one",
+   "target": "아가",
+   "note": "자장가 같은 호칭. \"작은 나그네\", \"밤새\"."
+  },
+  "address.fledgling": {
+   "en": "fledgling",
+   "target": "풋내기"
+  },
+  "address.old-courier": {
+   "en": "old courier",
+   "target": "옛 배달부님",
+   "note": "오빗의 다정한 작별 인사."
+  },
+  "address.stoneface": {
+   "en": "Stoneface",
+   "target": "돌양반",
+   "note": "빌의 다정한 별명(돌+양반)."
+  },
+  "address.commissioner": {
+   "en": "Commissioner",
+   "target": "서장님"
+  },
+  "address.your-majesty": {
+   "en": "Your Majesty",
+   "target": "폐하",
+   "note": "핍: \"딱정벌레 폐하\"."
+  },
+  "address.your-lordship": {
+   "en": "Your Lordship",
+   "target": "남작 각하"
+  },
+  "address.her-highness": {
+   "en": "Her Highness",
+   "target": "여제 폐하"
+  },
+  "address.sir": {
+   "en": "sir",
+   "target": "나리",
+   "note": "배달부의 공손한 호칭. 노인 네페르후에겐 \"어르신\", 킹구구에겐 \"서장님\"."
+  },
+  "address.mister": {
+   "en": "Mister",
+   "target": "아저씨",
+   "note": "스핑크스 아저씨, 네페르후 아저씨."
+  },
+  "address.partner": {
+   "en": "partner",
+   "target": "짝꿍",
+   "note": "핍·민티가 플레이어를. 민티는 적에게 \"친구\", 스스로 \"에이스\"."
+  },
+  "address.peaches-pet-names": {
+   "en": "sweetie",
+   "target": "귀염둥이",
+   "note": "다양하게: 귀염둥이, 꿀단지, 솜사탕, 별사탕, 젤리곰, 꿀떡이, 마시멜로, 예쁜이, 아기새, 내 사랑, 단짝, 병아리."
+  },
+  "address.bossy": {
+   "en": "bossy",
+   "target": "대장 나리",
+   "note": "보스를 놀리는 말."
+  },
+  "address.minions": {
+   "en": "Cousins! / my lovelies / my little scarabs / me hearties",
+   "target": "사촌들! / 내 예쁜이들 / 내 꼬마 풍뎅이들 / 얘들아",
+   "note": "남작 \"사촌들!, 친척들!\", 여제 \"내 예쁜이들\", 왕 \"조수들!\", 선장 \"전원 갑판으로!\"."
+  },
+  "phrase.baron-bat-line": {
+   "en": "This route is my roost now, little courier!",
+   "target": "이 항로는 이제 내 보금자리요, 꼬마 배달부!",
+   "note": "카드·자막·음성 동일(하오체)."
+  },
+  "phrase.spitter-king-line": {
+   "en": "Every letter on my road goes in the brew!",
+   "target": "내 길 위의 편지는 몽땅 물약 속으로!",
+   "note": "카드·자막·음성 동일."
+  },
+  "phrase.dusk-empress-line": {
+   "en": "Hush now. The night mail is sleeping.",
+   "target": "쉿, 조용히. 야간 우편은 잠들었단다.",
+   "note": "카드·자막·음성 동일."
+  },
+  "phrase.pirate-captain-line": {
+   "en": "Arr! Every mailbag on these waves be mine!",
+   "target": "요호! 이 바다의 우편 가방은 몽땅 내 거다!",
+   "note": "카드·자막·음성 동일."
+  },
+  "phrase.ember-dragon-line": {
+   "en": "The sky is mine. Your letters are kindling.",
+   "target": "하늘은 나의 것. 네 편지는 불쏘시개다.",
+   "note": "카드·자막·음성 동일."
+  },
+  "phrase.neferhoo-line": {
+   "en": "Return to sender! This route has a courier.",
+   "target": "보낸 이에게 반송! 이 항로엔 배달부가 있소.",
+   "note": "카드·자막·음성 동일."
+  },
+  "phrase.king-coo-line": {
+   "en": "Nobody flies till the bread cart is found!",
+   "target": "빵 수레를 찾을 때까지 아무도 못 난다!",
+   "note": "카드·자막(녹음 대기)."
+  },
+  "phrase.searchlight-gargoyle-line": {
+   "en": "Hold still! Nobody ever stays in the light.",
+   "target": "가만있게! 아무도 빛 속에 머물질 않아.",
+   "note": "카드·자막(녹음 대기)."
+  },
+  "phrase.return-to-sender": {
+   "en": "Return to sender!",
+   "target": "보낸 이에게 반송!",
+   "note": "반송 우편 도장 문구. 소품 두 줄: 보낸 이에게 / 반송. 모든 곳에서 동일."
+  },
+  "phrase.signed-sealed-delivered": {
+   "en": "Signed, sealed, delivered!",
+   "target": "서명, 봉인, 배달 완료!",
+   "note": "세 박자. 민티: \"서명, 봉인, 슝!\"."
+  },
+  "phrase.small-bird-big-sky": {
+   "en": "Small bird. Big sky.",
+   "target": "작은 새. 넓은 하늘.",
+   "note": "핍의 변주: \"작은 새, 큰 계획!\"."
+  },
+  "phrase.peaches-tagline": {
+   "en": "Rosy cheeks, curly crest, all heart.",
+   "target": "발그레한 볼, 곱슬 볏, 마음은 한가득."
+  },
+  "phrase.minty-tagline": {
+   "en": "Tiny hummer. Fresh sprig. Full speed.",
+   "target": "꼬마 벌새. 상큼한 민트. 전속력."
+  },
+  "phrase.orbit-tagline": {
+   "en": "A dreamy owl who flies by starlight.",
+   "target": "별빛 따라 나는 꿈꾸는 부엉이.",
+   "note": "빌: \"별빛 따라 날아라, 신참\"."
+  },
+  "phrase.sprint-woohoo": {
+   "en": "Woo-hooo!",
+   "target": "야호!",
+   "note": "네 새 공통, 성별 없음."
+  },
+  "phrase.sprint-turbo-feathers": {
+   "en": "Turbo feathers!",
+   "target": "터보 깃털 가동!",
+   "note": "터보 엔진처럼 깃털 가동."
+  },
+  "phrase.sprint-bye-bye-gravity": {
+   "en": "Bye-bye, gravity!",
+   "target": "중력아, 안녕!"
+  },
+  "phrase.sprint-wheee": {
+   "en": "Wheeee!",
+   "target": "우와아아아!",
+   "note": "신나는 속도의 환호."
+  },
+  "phrase.keep-your-beak-up": {
+   "en": "Keep your beak up.",
+   "target": "부리 들고 힘내.",
+   "note": "'고개 들어'를 부리로."
+  },
+  "phrase.all-screech": {
+   "en": "He’s all screech",
+   "target": "괴성만 요란하지",
+   "note": "'빈 수레가 요란하다'의 박쥐판."
+  },
+  "phrase.no-flame-seal": {
+   "en": "No flame seal on this guardian.",
+   "target": "이 수호자한텐 불꽃 봉인이 없군.",
+   "note": "두 번 모두 같은 말."
+  },
+  "phrase.halt": {
+   "en": "HALT!",
+   "target": "정지!",
+   "note": "경찰·경비의 정지 명령. 두 수호자 공통."
+  },
+  "phrase.mister-nice-bat": {
+   "en": "No more Mister Nice Bat!",
+   "target": "착한 박쥐 노릇은 이제 끝이오!",
+   "note": "'착한 척은 끝'을 박쥐로."
+  },
+  "phrase.at-your-disservice": {
+   "en": "at your disservice",
+   "target": "기꺼이 방해해 드리지",
+   "note": "\"기꺼이 도와드리지\"를 뒤집음."
+  },
+  "phrase.mind-the-gap": {
+   "en": "Mind the gap",
+   "target": "발 빠짐 주의",
+   "note": "한국 지하철 안내 문구."
+  },
+  "phrase.sticks-and-stones": {
+   "en": "Sticks and stones?",
+   "target": "말로 겁주기? 난 돌멩이를 챙겨 왔지!",
+   "note": "말은 안 아프다는 뜻 + 진짜 돌멩이 농담."
+  },
+  "phrase.rock-beats-shot": {
+   "en": "Rock beats shot!",
+   "target": "돌멩이가 탄환을 이긴다!",
+   "note": "가위바위보 틀."
+  },
+  "phrase.pirate-speak": {
+   "en": "Arr!",
+   "target": "요호!",
+   "note": "해적 말투: 요호!, 어이!, 이 녀석아, ~구먼, ~란 말이다, 내 배, 이 선장님. 아이가 알아듣게."
+  },
+  "phrase.strike-the-colours": {
+   "en": "strike the colours",
+   "target": "깃발을 내려라",
+   "note": "항복의 표시."
+  },
+  "phrase.nobody-looks-up": {
+   "en": "Nobody looks up.",
+   "target": "아무도 올려다보지 않아.",
+   "note": "보답: \"모든 배달부가 올려다볼 거예요!\"."
+  },
+  "phrase.accepts": {
+   "en": "The Commissioner accepts.",
+   "target": "본 서장, 수락한다.",
+   "note": "3인칭: \"…본 가고일, 수락하네.\""
+  },
+  "phrase.bonk-bonk": {
+   "en": "Bonk. Bonk.",
+   "target": "콩. 콩."
+  },
+  "phrase.hush": {
+   "en": "Hush now.",
+   "target": "쉿, 조용히."
+  },
+  "phrase.welcome-to-the-club": {
+   "en": "Welcome to the club",
+   "target": "클럽에 온 걸 환영해요",
+   "note": "문자 그대로 클럽 가입."
+  },
+  "ui.omen-baron": {
+   "en": "A SHADOW APPROACHES",
+   "target": "그림자가 다가온다"
+  },
+  "ui.omen-baron-returns": {
+   "en": "THE BARON RETURNS",
+   "target": "남작의 귀환"
+  },
+  "ui.omen-spitter": {
+   "en": "SOMETHING IS BREWING",
+   "target": "뭔가 끓고 있다",
+   "note": "물약 말장난."
+  },
+  "ui.omen-empress": {
+   "en": "TWILIGHT TAKES WING",
+   "target": "황혼이 날개를 편다"
+  },
+  "ui.omen-pirate": {
+   "en": "SAIL HO!",
+   "target": "돛이 보인다!"
+  },
+  "ui.omen-dragon": {
+   "en": "THE SKY CATCHES FIRE",
+   "target": "하늘에 불이 붙는다"
+  },
+  "ui.omen-king-coo": {
+   "en": "THE CURB IS CLOSED",
+   "target": "길모퉁이 봉쇄",
+   "note": "직함의 '길모퉁이'."
+  },
+  "ui.omen-gargoyle": {
+   "en": "STORM WARNING",
+   "target": "폭풍 경보",
+   "note": "3-4 레벨명과 동일."
+  },
+  "ui.omen-neferhoo": {
+   "en": "THE PYRAMID STIRS",
+   "target": "피라미드가 꿈틀댄다"
+  },
+  "story.letter": {
+   "en": "letter",
+   "target": "편지",
+   "note": "우편의 편지. 글자(i) 농담은 마침표로 옮김."
+  },
+  "story.mail-and-post": {
+   "en": "the mail / the post",
+   "target": "우편",
+   "note": "우편/우편물. 고정어: 하늘 클럽 우체국, 야간 우편, 아침 우편, 우편 가방, 파라오의 우편."
+  },
+  "story.parcel": {
+   "en": "parcel",
+   "target": "소포"
+  },
+  "story.delivery": {
+   "en": "delivery",
+   "target": "배달",
+   "note": "배달하다 / 배달 / 배달 완료."
+  },
+  "story.salutation": {
+   "en": "Dear Dragon.",
+   "target": "드래곤에게.",
+   "note": "한국 편지 첫머리 \"~에게\". 엽서는 \"배달부에게,\"."
+  },
+  "ui.new-tag": {
+   "en": "NEW (tag)",
+   "target": "신규",
+   "note": "레벨 카드 힌트, 새 엽서·메달, 새 친구 태그. UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.medal-bronze": {
+   "en": "Bronze (medal)",
+   "target": "동메달",
+   "note": "여권 메달·Play 업적 이름 \"단골 비행사 · 동메달\". ui.bronze(동)+메달. UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.medal-silver": {
+   "en": "Silver (medal)",
+   "target": "은메달",
+   "note": "UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.medal-gold": {
+   "en": "Gold (medal)",
+   "target": "금메달",
+   "note": "UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.play-games-short": {
+   "en": "Play Games (short label)",
+   "target": "Play 게임즈",
+   "note": "16칸 예산 때문에 \"Google\" 생략. 원래 표기는 ui.play-games. UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.save-session": {
+   "en": "Save session (button)",
+   "target": "다시 보기 저장",
+   "note": "영상+움직임을 저장하는 버튼. 저장된 목록은 ui.saved-session \"저장된 비행\". UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.camera-lab-short": {
+   "en": "Camera & tracking lab (settings key)",
+   "target": "카메라·동작 인식 실험실",
+   "note": "24칸 예산 때문에 &를 가운뎃점으로. UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.ready-steady": {
+   "en": "Ready, steady…",
+   "target": "제자리에, 준비…",
+   "note": "카운트다운 제목. 민티의 경주 출발 대사와 같은 말. UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.nice-shot": {
+   "en": "NICE SHOT!",
+   "target": "명중!",
+   "note": "UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.scorched": {
+   "en": "SCORCHED!",
+   "target": "앗 뜨거!",
+   "note": "드래곤 불에 닿았을 때. UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.flawless": {
+   "en": "FLAWLESS!",
+   "target": "무결점!",
+   "note": "러시·강풍을 한 대도 안 맞고 통과. UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.escaped": {
+   "en": "ESCAPED!",
+   "target": "탈출!",
+   "note": "UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.weathered": {
+   "en": "WEATHERED!",
+   "target": "버텼다!",
+   "note": "강풍 배너. set-piece.gale \"강풍을 견뎠다\". UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.boss-fight": {
+   "en": "BOSS FIGHT",
+   "target": "보스전",
+   "note": "UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.hp": {
+   "en": "HP",
+   "target": "체력",
+   "note": "좁은 곳(8칸)은 \"HP\" 그대로. UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.max": {
+   "en": "MAX",
+   "target": "최대",
+   "note": "UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.copilot": {
+   "en": "YOUR CO-PILOT",
+   "target": "나의 짝꿍",
+   "note": "address.partner \"짝꿍\". UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.daily-card": {
+   "en": "Daily card",
+   "target": "오늘의 카드",
+   "note": "UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.workouts-detail": {
+   "en": "Workouts · 2 players (home)",
+   "target": "몸으로 날기 · 2인",
+   "note": "피트니스 앱처럼 들리지 않게. UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.fix-it": {
+   "en": "Fix it (builder)",
+   "target": "고치기",
+   "note": "UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.needs-work": {
+   "en": "Needs work (builder badge)",
+   "target": "손볼 곳 있음",
+   "note": "UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.from-a-friend": {
+   "en": "From a friend (builder badge)",
+   "target": "친구가 보냄",
+   "note": "UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.paste-code": {
+   "en": "Paste code",
+   "target": "코드 붙여넣기",
+   "note": "UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.remix-suffix": {
+   "en": "remix (name suffix)",
+   "target": "리믹스",
+   "note": "\"정원 깡충 리믹스\". 복제는 \"사본\". UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.builder-motion": {
+   "en": "Still / Gentle / Lively",
+   "target": "고정 / 살랑 / 출렁",
+   "note": "관문 움직임. 흔들림 속도는 빠름 / 보통 / 느림. UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.postcard-address": {
+   "en": "The courier / Sky Club post / Up in the sky",
+   "target": "배달부님께 / 하늘 클럽 우체국 / 저 높은 하늘 위",
+   "note": "엽서 주소 세 줄. UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.greetings-from": {
+   "en": "Greetings from",
+   "target": "안녕! 여기는",
+   "note": "엽서 그림 면 리본(\"안녕! 여기는 / 아즈텍\"). UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.pirate-roar": {
+   "en": "ARRR!",
+   "target": "요호호!",
+   "note": "phrase.pirate-speak \"요호!\"를 늘림. UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.neferhoo-hoo": {
+   "en": "HOO POO POO",
+   "target": "후 투 투",
+   "note": "후투티(hoopoe) 울음 \"후-투-투\". UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.vs": {
+   "en": "VS",
+   "target": "VS",
+   "note": "1 대 1 배지. 이름 사이에는 \"핍 대 민티\". UI 번역(2026-10-07)에서 추가."
+  },
+  "ui.p1": {
+   "en": "P1 / P2",
+   "target": "P1 / P2",
+   "note": "ui.player 메모대로 그대로. UI 번역(2026-10-07)에서 추가."
+  }
+ }
+}

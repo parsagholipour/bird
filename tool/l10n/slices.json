@@ -1,0 +1,156 @@
+{
+  "@note": "The extraction partition (l10n-ws/MASTER-PLAN.md, 'Slices'): six disjoint sets of lib/ files, one per builder. find_strings.py --slice S1 lists what is left in a slice; --slices checks every file with candidates belongs to exactly one slice. Files the architect converted (r0) are in 'done'.",
+  "done": [
+    "lib/ui/settings_screen.dart",
+    "lib/ui/language_picker.dart",
+    "lib/domain/world_region.dart",
+    "lib/main.dart"
+  ],
+  "slices": {
+    "S1": {
+      "title": "Campaign & story",
+      "files": [
+        "lib/domain/campaign.dart",
+        "lib/domain/campaign_story.dart",
+        "lib/ui/story_scene.dart",
+        "lib/ui/story_speech.dart",
+        "lib/ui/story_to_be_continued.dart",
+        "lib/ui/campaign_screen.dart",
+        "lib/ui/campaign_map.dart",
+        "lib/ui/campaign_chrome.dart",
+        "lib/ui/campaign_postcard.dart",
+        "lib/ui/campaign_keepsake_art.dart",
+        "lib/ui/level_intro.dart",
+        "lib/ui/delivery_art.dart",
+        "lib/ui/launch_screen.dart",
+        "lib/ui/home_parts.dart",
+        "lib/app_brand.dart"
+      ]
+    },
+    "S2": {
+      "title": "Flight, HUD & flight results",
+      "files": [
+        "lib/ui/play_screen.dart",
+        "lib/game/play_controller.dart",
+        "lib/ui/match_hud.dart",
+        "lib/ui/level_hud.dart",
+        "lib/ui/jump_glide_hud.dart",
+        "lib/ui/record_chase.dart",
+        "lib/ui/flight_score.dart",
+        "lib/ui/pause_card.dart",
+        "lib/ui/control_glyphs.dart",
+        "lib/ui/stage_key.dart",
+        "lib/ui/game_over_stage.dart",
+        "lib/ui/mini_results.dart",
+        "lib/ui/course_preview.dart",
+        "lib/domain/game_rules.dart",
+        "lib/domain/flight_course.dart",
+        "lib/domain/rush_path.dart",
+        "lib/domain/obstacle.dart",
+        "lib/domain/steam_geyser.dart",
+        "lib/domain/tether.dart",
+        "lib/game/bird_game.dart",
+        "lib/ui/level_result.dart"
+      ]
+    },
+    "S3": {
+      "title": "Bosses & flight canvas art",
+      "files": [
+        "lib/domain/sky_boss.dart",
+        "lib/domain/neferhoo.dart",
+        "lib/domain/boss_vanguard.dart",
+        "lib/game/boss_encounter_art.dart",
+        "lib/game/neferhoo_props_art.dart",
+        "lib/game/neferhoo_staging_art.dart",
+        "lib/game/neferhoo_encounter_art.dart",
+        "lib/game/neferhoo_encounter_ui.dart",
+        "lib/game/rush_art.dart",
+        "lib/game/pirate_encounter_ui.dart",
+        "lib/game/pirate_tide_art.dart",
+        "lib/game/boss_vanguard_art.dart",
+        "lib/game/king_coo_encounter_ui.dart",
+        "lib/game/king_coo_squad_art.dart",
+        "lib/game/king_coo_hud_art.dart",
+        "lib/game/gargoyle_beam_art.dart",
+        "lib/game/gargoyle_encounter_ui.dart",
+        "lib/game/gargoyle_hud_art.dart",
+        "lib/game/boss_health_bar_art.dart",
+        "lib/game/boss_stage_hud_art.dart",
+        "lib/game/dragon_breath_art.dart",
+        "lib/game/dragon_encounter_ui.dart",
+        "lib/game/dragon_hud_art.dart",
+        "lib/game/baron_screech_art.dart",
+        "lib/game/arrival_art.dart",
+        "lib/game/finish_gate_art.dart",
+        "lib/game/straggler_art.dart",
+        "lib/game/tether_art.dart",
+        "lib/game/duel_art.dart"
+      ]
+    },
+    "S4": {
+      "title": "Level Builder editor, built flights & results",
+      "files": [
+        "lib/ui/builder/builder_inspector.dart",
+        "lib/ui/builder/builder_editor_screen.dart",
+        "lib/ui/builder/builder_settings_sheet.dart",
+        "lib/ui/builder/builder_chrome.dart",
+        "lib/ui/builder/builder_canvas.dart",
+        "lib/ui/builder/builder_palette.dart",
+        "lib/ui/builder/builder_timeline.dart",
+        "lib/domain/built_reach.dart",
+        "lib/domain/built_code.dart",
+        "lib/data/built_level_repository.dart",
+        "lib/ui/builder/built_result_stage.dart",
+        "lib/ui/builder/built_flight_cues.dart",
+        "lib/ui/builder/built_flight_screen.dart"
+      ]
+    },
+    "S5": {
+      "title": "Level Builder shelf, co-op & duel, camera mini games & tracking",
+      "files": [
+        "lib/ui/coop_screen.dart",
+        "lib/ui/coop_results.dart",
+        "lib/ui/coop_setup.dart",
+        "lib/domain/duel.dart",
+        "lib/ui/builder/builder_home_screen.dart",
+        "lib/ui/builder/builder_pickers.dart",
+        "lib/ui/builder/builder_name_dialog.dart",
+        "lib/domain/built_templates.dart",
+        "lib/ui/calibration_probe.dart",
+        "lib/ui/mini_calibration.dart",
+        "lib/ui/mini_setup.dart",
+        "lib/domain/tracking.dart",
+        "lib/domain/squat_tracking.dart",
+        "lib/domain/jump_tracking.dart",
+        "lib/tracking/native_tracking_source.dart"
+      ]
+    },
+    "S6": {
+      "title": "Menus, collection, passport, daily, records & replays",
+      "files": [
+        "lib/ui/home_screen.dart",
+        "lib/ui/home_keys.dart",
+        "lib/ui/collection_screen.dart",
+        "lib/ui/upgrades_screen.dart",
+        "lib/domain/power_ups.dart",
+        "lib/ui/records_screen.dart",
+        "lib/ui/passport_screen.dart",
+        "lib/domain/sky_passport.dart",
+        "lib/ui/daily_adventure_screen.dart",
+        "lib/domain/daily_adventure.dart",
+        "lib/data/progress_repository.dart",
+        "lib/data/play_games.dart",
+        "lib/data/cloud_logbook.dart",
+        "lib/ui/components.dart",
+        "lib/ui/mini_chrome.dart",
+        "lib/ui/mini_games.dart",
+        "lib/ui/mode_picker_art.dart",
+        "lib/ui/star_wallet.dart",
+        "lib/game/bird_trail.dart",
+        "lib/ui/replay_screen.dart",
+        "lib/ui/replay_highlights.dart",
+        "lib/domain/replay_highlights.dart"
+      ]
+    }
+  }
+}

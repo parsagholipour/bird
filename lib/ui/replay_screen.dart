@@ -25,152 +25,185 @@ import 'campaign_map_art.dart' show MapStarsPainter;
 import 'components.dart';
 import 'keyboard.dart' show BackKeyTarget;
 import 'replay_highlights.dart';
+import '../l10n/l10n.dart';
+import '../l10n/text/date_text.dart';
+import '../l10n/text/replay_text.dart';
 
 enum ReplayView { corner, background, gameplay }
+
+/// What the camera window says instead of video, if anything.
+enum _VideoNote { none, paused, unavailable }
 
 class SessionLibraryScreen extends ConsumerWidget {
   const SessionLibraryScreen({super.key});
   @override
-  Widget build(BuildContext context, WidgetRef ref) => Scaffold(
-    appBar: AppBar(
-      leading: BackKeyTarget(
-        onBack: () => context.go('/records'),
-        child: IconButton(
-          tooltip: 'Back to Records',
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/records'),
-        ),
-      ),
-      title: const Text('Saved sessions'),
-    ),
-    body: ref
-        .watch(sessionsProvider)
-        .when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, _) => Center(
-            child: TextButton(
-              onPressed: () => ref.invalidate(sessionsProvider),
-              child: const Text('Could not load sessions. Retry'),
-            ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    return Scaffold(
+      appBar: AppBar(
+        leading: BackKeyTarget(
+          onBack: () => context.go('/records'),
+          child: IconButton(
+            tooltip: l.replayBackToRecordsSemantics,
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => context.go('/records'),
           ),
-          data: (sessions) => sessions.isEmpty
-              ? SafeArea(
-                  child: Center(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(16),
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 420),
-                        child: Panel(
-                          color: SkyColors.cream,
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const BirdArt(size: 48, bob: false),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Your flights belong here',
-                                style: heading(24),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Save a session after a flight to watch it here.',
-                                style: bodyText(15),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 16),
-                              SkyButton(
-                                label: 'Choose a flight',
-                                onPressed: () => context.go('/'),
-                              ),
-                            ],
+        ),
+        title: Text(l.replaySavedSessions),
+      ),
+      body: ref
+          .watch(sessionsProvider)
+          .when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (_, _) => Center(
+              child: TextButton(
+                onPressed: () => ref.invalidate(sessionsProvider),
+                child: Text(l.replaySessionsLoadFailed),
+              ),
+            ),
+            data: (sessions) => sessions.isEmpty
+                ? SafeArea(
+                    child: Center(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(16),
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 420),
+                          child: Panel(
+                            color: SkyColors.cream,
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const BirdArt(size: 48, bob: false),
+                                const SizedBox(height: 8),
+                                Text(
+                                  l.replayEmptyTitle,
+                                  style: heading(24),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  l.replayEmptyBody,
+                                  style: bodyText(15),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 16),
+                                SkyButton(
+                                  label: l.replayEmptyButton,
+                                  onPressed: () => context.go('/'),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                )
-              : ListView.builder(
-                  itemCount: sessions.length,
-                  itemBuilder: (context, i) {
-                    final run = sessions[i];
-                    return ListTile(
-                      leading: const Icon(Icons.play_circle_outline),
-                      title: Text(sessionTitle(run)),
-                      subtitle: Text(
-                        '${run.finishedAt.toLocal().toString().substring(0, 16)} · ${run.durationSeconds.round()} sec · ${run.score} ${run.course.scoreUnit}',
-                      ),
-                      onTap: () => context.go('/replay/${run.id}'),
-                      trailing: IconButton(
-                        tooltip: 'Delete session',
-                        icon: const Icon(Icons.delete_outline),
-                        onPressed: () async {
-                          final delete = await showDialog<bool>(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text('Delete this session?'),
-                              content: const Text(
-                                'The camera video and replay will be removed. Your scores stay in Records.',
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.pop(context, false),
-                                  child: const Text('Cancel'),
-                                ),
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, true),
-                                  child: const Text('Delete'),
-                                ),
-                              ],
-                            ),
-                          );
-                          if (delete == true) {
-                            try {
-                              await ref
-                                  .read(sessionRepositoryProvider)
-                                  .delete(run.id);
-                              ref.invalidate(sessionsProvider);
-                            } catch (_) {
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Could not delete session. Try again.',
-                                    ),
+                  )
+                : ListView.builder(
+                    itemCount: sessions.length,
+                    itemBuilder: (context, i) {
+                      final run = sessions[i];
+                      return ListTile(
+                        leading: const Icon(Icons.play_circle_outline),
+                        title: Text(sessionTitle(run, l)),
+                        subtitle: Text(sessionDetail(run, l)),
+                        onTap: () => context.go('/replay/${run.id}'),
+                        trailing: IconButton(
+                          tooltip: l.replayDeleteSemantics,
+                          icon: const Icon(Icons.delete_outline),
+                          onPressed: () async {
+                            final delete = await showDialog<bool>(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: Text(l.replayDeleteTitle),
+                                content: Text(l.replayDeleteBody),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, false),
+                                    child: Text(l.commonCancel),
                                   ),
-                                );
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, true),
+                                    child: Text(l.commonDelete),
+                                  ),
+                                ],
+                              ),
+                            );
+                            if (delete == true) {
+                              try {
+                                await ref
+                                    .read(sessionRepositoryProvider)
+                                    .delete(run.id);
+                                ref.invalidate(sessionsProvider);
+                              } catch (_) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(l.replayDeleteFailed),
+                                    ),
+                                  );
+                                }
                               }
                             }
-                          }
-                        },
-                      ),
-                    );
-                  },
-                ),
-        ),
-  );
+                          },
+                        ),
+                      );
+                    },
+                  ),
+          ),
+    );
+  }
 }
 
 /// A saved session's name in the library: the level for a campaign flight
-/// ("1-3 · Bat Patrol"), otherwise the mode and course.
-String sessionTitle(RunResult run) {
-  if (run.levelName case final name?) return '$name · ${run.mode.title}';
+/// ("1-3 · Bat Patrol"), otherwise the mode and course; in [l]'s language
+/// (the current one by default).
+String sessionTitle(RunResult run, [AppLocalizations? l]) {
+  l ??= L10n.strings;
+  final mode = l.playModeName(run.mode);
+  // A built level keeps the name its maker typed.
+  if (run.levelName case final name?) return l.replaySessionBuilt(name, mode);
   final level = run.levelId == null ? null : Campaign.level(run.levelId!);
-  if (level != null) return '${level.id} · ${level.name}';
-  if (run.levelId != null) return 'Level ${run.levelId}';
+  if (level != null) return l.homeLevelLabel(level.id, l.levelName(level));
+  if (run.levelId != null) return l.replaySessionUnknownLevel(run.levelId!);
   // A co-op flight's id ends with its mode, such as "-coop-free".
   if (run.id.contains('-coop')) {
     final mode = CoopMode.values.firstWhere(
       (mode) => run.id.endsWith('-coop-${mode.name}'),
       orElse: () => CoopMode.roped,
     );
-    return 'Fly Together · ${mode.title}';
+    return l.flyTogetherName(mode);
   }
-  return '${run.mode.title}'
-      '${run.course != FlightCourse.classic ? ' · ${run.course.title}' : ''}'
-      '${run.practice ? ' · Practice' : ''}';
+  final endless = run.course != FlightCourse.classic;
+  return switch ((endless, run.practice)) {
+    (true, true) => l.replaySessionEndlessPractice(mode),
+    (true, false) => l.replaySessionEndless(mode),
+    (false, true) => l.replaySessionPractice(mode),
+    (false, false) => mode,
+  };
+}
+
+/// A saved session's line under its name: when, how long, its score.
+String sessionDetail(RunResult run, AppLocalizations l) {
+  final date = l.dateTimeDigits(run.finishedAt.toLocal());
+  final seconds = run.durationSeconds.round();
+  return switch (run.course) {
+    FlightCourse.classic => l.replaySessionGates(run.score, date, seconds),
+    FlightCourse.starTrail => l.replaySessionStars(run.score, date, seconds),
+  };
+}
+
+/// The replay's hearts and clock under the score: "3 hearts · 1:05", or
+/// both duel birds' hearts.
+String _heartsLine(AppLocalizations l, FlightSimulation sim) {
+  final clock = sim.timed
+      ? l.replayClockSeconds(sim.remainingSeconds.ceil())
+      : sim.clockLabel;
+  return sim.duel
+      ? l.replayDuelHearts(sim.lead.hearts, sim.partner!.hearts, clock)
+      : l.replayHearts(sim.hearts, clock);
 }
 
 /// The hearts and shields a replay sounds out: both of a duel's birds.
@@ -220,8 +253,8 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
   /// to the end shows its settled frame.
   double? _celebration;
   int _corner = 0;
-  String? _error;
-  String _videoMessage = '';
+  bool _error = false;
+  _VideoNote _videoNote = _VideoNote.none;
   List<ReplayHighlight>? _highlights;
   bool get _scoreHudOnRight => _player!.simulation.boss != null;
 
@@ -258,7 +291,7 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
       unawaited(_indexHighlights(session.tape));
       await _syncVideo(force: true);
     } catch (_) {
-      if (mounted) setState(() => _error = 'This session could not be opened.');
+      if (mounted) setState(() => _error = true);
     }
   }
 
@@ -415,13 +448,11 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
           (_view == ReplayView.gameplay && !(_cameraSound && clip.hasAudio))) {
         await _video?.setVolume(0);
         await _video?.pause();
-        _videoMessage = clip == null
-            ? 'Camera was paused during this part of the session'
-            : '';
+        _videoNote = clip == null ? _VideoNote.paused : _VideoNote.none;
         return;
       }
       if (_failedClips.contains(clip.path)) {
-        _videoMessage = 'Camera clip unavailable · Gameplay still plays';
+        _videoNote = _VideoNote.unavailable;
         return;
       }
       if (_clip != clip) {
@@ -463,10 +494,10 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
       } else {
         await video.pause();
       }
-      _videoMessage = '';
+      _videoNote = _VideoNote.none;
     } catch (_) {
       if (_clip != null) _failedClips.add(_clip!.path);
-      _videoMessage = 'Camera clip unavailable · Gameplay still plays';
+      _videoNote = _VideoNote.unavailable;
       try {
         if (!_closed) await _video?.pause();
       } catch (_) {}
@@ -546,7 +577,7 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
     final video = _video;
     if (video == null ||
         !video.value.isInitialized ||
-        _videoMessage.isNotEmpty ||
+        _videoNote != _VideoNote.none ||
         _activeClip() != _clip) {
       return ColoredBox(
         color: SkyColors.night,
@@ -554,7 +585,11 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
           child: Padding(
             padding: const EdgeInsets.all(10),
             child: Text(
-              _videoMessage.isEmpty ? 'Loading camera…' : _videoMessage,
+              switch (_videoNote) {
+                _VideoNote.none => context.l10n.replayCameraLoading,
+                _VideoNote.paused => context.l10n.replayCameraPaused,
+                _VideoNote.unavailable => context.l10n.replayCameraUnavailable,
+              },
               textAlign: TextAlign.center,
               style: const TextStyle(color: Colors.white, fontSize: 12),
             ),
@@ -581,6 +616,7 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
 
   Widget _playback() {
     final theme = Theme.of(context);
+    final l = context.l10n;
     return Theme(
       data: theme.copyWith(
         colorScheme: const ColorScheme.dark(
@@ -609,7 +645,9 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                       // Flame's game widget would take the focus and keep
                       // every key from the replay's controls.
                       ExcludeFocus(
-                        child: GameWidget(game: _game!, autofocus: false),
+                        child: FlightDirection(
+                          child: GameWidget(game: _game!, autofocus: false),
+                        ),
                       ),
                       if (_view == ReplayView.corner)
                         Align(
@@ -644,12 +682,12 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
             ),
           ),
           if (_player!.simulation.phase == RunPhase.paused)
-            const IgnorePointer(
+            IgnorePointer(
               child: Center(
                 child: Card(
                   child: Padding(
-                    padding: EdgeInsets.all(12),
-                    child: Text('Taking a breather'),
+                    padding: const EdgeInsets.all(12),
+                    child: Text(l.replayPaused),
                   ),
                 ),
               ),
@@ -659,8 +697,8 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
           Semantics(
             button: true,
             label: _controlsVisible
-                ? 'Hide replay controls'
-                : 'Show replay controls',
+                ? l.replayHideControlsSemantics
+                : l.replayShowControlsSemantics,
             onTap: _toggleControls,
             child: GestureDetector(
               key: const ValueKey('replay-tap-surface'),
@@ -688,15 +726,17 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                     children: [
                       MapKey(
                         glyph: MapGlyph.back,
-                        label: 'Back to saved sessions',
+                        label: l.replayBackToSavedSemantics,
                         onPressed: () => context.go('/sessions'),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           _session!.result.levelId == null
-                              ? 'REPLAY'
-                              : 'REPLAY · ${sessionTitle(_session!.result)}',
+                              ? l.replayTitle
+                              : l.replayTitleSession(
+                                  sessionTitle(_session!.result, l),
+                                ),
                           style: const TextStyle(color: Colors.white),
                         ),
                       ),
@@ -709,7 +749,9 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
               left: 0,
               right: 0,
               bottom: 0,
-              child: _playbackControls(),
+              // A media timeline runs left to right in every language,
+              // like the flight it plays.
+              child: FlightDirection(child: _playbackControls(l)),
             ),
           ],
           if (!_player!.simulation.bossCutscene)
@@ -721,7 +763,7 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                 child: Center(
                   widthFactor: 1,
                   child: Semantics(
-                    label: 'Score: ${_player!.simulation.score}',
+                    label: l.replayScoreSemantics(_player!.simulation.score),
                     excludeSemantics: true,
                     child: Container(
                       key: const ValueKey('replay-score'),
@@ -738,7 +780,7 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            _player!.simulation.course.scoreLabel,
+                            l.replayScoreLabel(_player!.simulation.course),
                             style: bodyText(11, color: Colors.white),
                           ),
                           Text(
@@ -761,12 +803,14 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                             ),
                           if (_player!.simulation.isTrail)
                             Text(
-                              '${_player!.simulation.duel ? 'P1 ${_player!.simulation.lead.hearts} · P2 ${_player!.simulation.partner!.hearts}' : _player!.simulation.hearts} hearts · ${_player!.simulation.clockLabel}',
+                              _heartsLine(l, _player!.simulation),
                               style: bodyText(11, color: Colors.white),
                             ),
                           if (_player!.simulation.magnetActive)
                             Text(
-                              'Magnet · ${_player!.simulation.magnetRemaining.ceil()}s',
+                              l.replayMagnet(
+                                _player!.simulation.magnetRemaining.ceil(),
+                              ),
                               style: bodyText(11, color: SkyColors.lavender),
                             ),
                           if (_player!.simulation.supportsJumpGlide)
@@ -786,7 +830,7 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
     );
   }
 
-  Widget _playbackControls() => Material(
+  Widget _playbackControls(AppLocalizations l) => Material(
     key: const ValueKey('replay-controls'),
     color: Colors.transparent,
     child: DecoratedBox(
@@ -840,22 +884,24 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        tooltip: _playing ? 'Pause replay' : 'Play replay',
+                        tooltip: _playing
+                            ? l.replayPauseSemantics
+                            : l.replayPlaySemantics,
                         onPressed: () => _setPlaying(!_playing),
                         icon: Icon(_playing ? Icons.pause : Icons.play_arrow),
                       ),
                       IconButton(
-                        tooltip: 'Restart replay',
+                        tooltip: l.replayRestartSemantics,
                         onPressed: () => _seek(0),
                         icon: const Icon(Icons.replay),
                       ),
                       IconButton(
-                        tooltip: 'Back 5 seconds',
+                        tooltip: l.replayBack5Semantics,
                         onPressed: () => _seek(_position - 5000),
                         icon: const Icon(Icons.replay_5),
                       ),
                       IconButton(
-                        tooltip: 'Forward 5 seconds',
+                        tooltip: l.replayForward5Semantics,
                         onPressed: () => _seek(_position + 5000),
                         icon: const Icon(Icons.forward_5),
                       ),
@@ -866,7 +912,8 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                             .map(
                               (s) => DropdownMenuItem(
                                 value: s,
-                                child: Text('${s}x'),
+                                // A playback speed: digits and an x.
+                                child: Text('${s}x'), // l10n-ignore
                               ),
                             )
                             .toList(),
@@ -880,10 +927,10 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                       ),
                       IconButton(
                         tooltip: _highlights == null
-                            ? 'Finding flight highlights'
+                            ? l.replayHighlightsFinding
                             : _highlights!.isEmpty
-                            ? 'No flight highlights available'
-                            : 'Flight highlights',
+                            ? l.replayHighlightsNone
+                            : l.replayHighlights,
                         onPressed: _highlights?.isNotEmpty == true
                             ? _showHighlights
                             : null,
@@ -899,18 +946,18 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                         underline: const SizedBox(),
                         items: [
                           if (_session!.clips.isNotEmpty)
-                            const DropdownMenuItem(
+                            DropdownMenuItem(
                               value: ReplayView.corner,
-                              child: Text('Corner camera'),
+                              child: Text(l.replayViewCorner),
                             ),
                           if (_session!.clips.isNotEmpty)
-                            const DropdownMenuItem(
+                            DropdownMenuItem(
                               value: ReplayView.background,
-                              child: Text('Camera background'),
+                              child: Text(l.replayViewBackground),
                             ),
-                          const DropdownMenuItem(
+                          DropdownMenuItem(
                             value: ReplayView.gameplay,
-                            child: Text('Gameplay only'),
+                            child: Text(l.replayViewGameplay),
                           ),
                         ],
                         onChanged: (view) {
@@ -924,7 +971,7 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                       ),
                       if (_view == ReplayView.corner)
                         IconButton(
-                          tooltip: 'Move camera corner',
+                          tooltip: l.replayMoveCornerSemantics,
                           onPressed: () =>
                               setState(() => _corner = (_corner + 1) % 4),
                           icon: const Icon(Icons.picture_in_picture_alt),
@@ -932,8 +979,8 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                       if (_hasCameraAudio)
                         IconButton(
                           tooltip: _cameraSound
-                              ? 'Mute recorded audio'
-                              : 'Enable recorded audio',
+                              ? l.replayMuteRecordedSemantics
+                              : l.replayUnmuteRecordedSemantics,
                           onPressed: () {
                             setState(() => _cameraSound = !_cameraSound);
                             unawaited(_syncVideo());
@@ -942,8 +989,8 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                         ),
                       IconButton(
                         tooltip: _sound
-                            ? 'Mute game sound'
-                            : 'Enable game sound',
+                            ? l.replayMuteGameSemantics
+                            : l.replayUnmuteGameSemantics,
                         onPressed: () {
                           setState(() => _sound = !_sound);
                           _configureAudio();
@@ -951,7 +998,7 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
                         icon: Icon(_sound ? Icons.volume_up : Icons.volume_off),
                       ),
                       IconButton(
-                        tooltip: 'Hide controls / full screen',
+                        tooltip: l.replayFullScreenSemantics,
                         onPressed: _toggleControls,
                         icon: const Icon(Icons.fullscreen),
                       ),
@@ -970,15 +1017,18 @@ class _ReplayScreenState extends ConsumerState<ReplayScreen>
   Widget build(BuildContext context) => Scaffold(
     backgroundColor: Colors.black,
     body: SafeArea(
-      child: _error != null
+      child: _error
           ? Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(_error!, style: const TextStyle(color: Colors.white)),
+                  Text(
+                    context.l10n.replayOpenFailed,
+                    style: const TextStyle(color: Colors.white),
+                  ),
                   TextButton(
                     onPressed: () => context.go('/sessions'),
-                    child: const Text('Back to sessions'),
+                    child: Text(context.l10n.replayBackToSessions),
                   ),
                 ],
               ),

@@ -3,9 +3,9 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../data/progress_repository.dart' show birdNames;
 import '../domain/campaign_story.dart';
 import '../game/campaign_voices.dart';
+import '../l10n/l10n.dart';
 import 'campaign_keepsake_art.dart' show CampaignHeadwear;
 import 'story_backdrop.dart';
 import 'story_cast_art.dart';
@@ -34,6 +34,13 @@ import 'ui_sounds.dart';
 /// line, with the part not yet written left clear, so the words never jump
 /// between rows as they arrive. A cue (key `story-cue`) shows once the line
 /// is whole and a tap will move on.
+///
+/// The words are the current language's captions ([captions], else
+/// [L10n.captions]): each line's caption by its voice clip, in the bird's
+/// own wording where a language has one, else English. What the scene
+/// does with a line (a letter's paper, the "To be continued…" card, a
+/// boss's gesture) is decided on the English line, so it is the same in
+/// every language.
 class StoryScenePlayer extends StatefulWidget {
   const StoryScenePlayer({
     super.key,
@@ -42,6 +49,7 @@ class StoryScenePlayer extends StatefulWidget {
     required this.onDone,
     this.reducedMotion = false,
     this.voices = false,
+    this.captions,
   });
   final StoryScene scene;
 
@@ -55,14 +63,26 @@ class StoryScenePlayer extends StatefulWidget {
   /// itself out at the pace of its voice.
   final bool voices;
 
-  /// The name shown over [line], or null for a caption.
-  static String? speakerName(StoryScene scene, StoryLine line, int bird) =>
-      switch (line.speaker) {
-        StorySpeaker.courier => birdNames[bird],
-        StorySpeaker.postmaster => CampaignStory.postmaster,
-        StorySpeaker.boss => CampaignHeadwear.name(scene.boss!),
-        StorySpeaker.caption => null,
-      };
+  /// The words the lines are shown in; the current language's
+  /// ([L10n.captions]) when null.
+  final StoryCaptions? captions;
+
+  /// The name shown over [line], or null for a caption, in [l]'s language
+  /// (the current one when null).
+  static String? speakerName(
+    StoryScene scene,
+    StoryLine line,
+    int bird, [
+    AppLocalizations? l,
+  ]) {
+    final words = l ?? L10n.strings;
+    return switch (line.speaker) {
+      StorySpeaker.courier => words.birdName(bird),
+      StorySpeaker.postmaster => words.postmasterName,
+      StorySpeaker.boss => words.bossName(scene.boss!),
+      StorySpeaker.caption => null,
+    };
+  }
 
   /// The colour of the name tag under [line]'s speaker: each bird's own,
   /// Bill's cap blue, a boss's stamp colour.
@@ -127,6 +147,13 @@ class _StoryScenePlayerState extends State<StoryScenePlayer>
   StoryScene get _scene => widget.scene;
   StoryLine get _line => _scene.lines[_index];
 
+  /// The current line's words as the player reads them: its caption.
+  String get _words => (widget.captions ?? L10n.captions).line(
+    _scene,
+    _index,
+    bird: widget.bird,
+  );
+
   /// The first line somebody says: the cast comes on with it, after any
   /// caption that sets the place.
   late final int _curtain = math.max(
@@ -190,7 +217,7 @@ class _StoryScenePlayerState extends State<StoryScenePlayer>
     _write.duration = Duration(
       milliseconds: spoken != null
           ? (spoken.inMilliseconds * .9).round().clamp(260, 8000)
-          : (_line.text.length * 26).clamp(260, 1700),
+          : (_words.length * 26).clamp(260, 1700),
     );
     _write.forward(from: 0);
     _turn.forward(from: 0);
@@ -250,7 +277,7 @@ class _StoryScenePlayerState extends State<StoryScenePlayer>
     final line = _line;
     final turn = Curves.easeOutCubic.transform(_turn.value);
     final writing = _write.value < 1;
-    final written = (line.text.length * _write.value).round();
+    final written = (_words.length * _write.value).round();
     final seconds = still ? 0.0 : _seconds.value;
     final before = _speakerAt(_from);
     return [
@@ -305,8 +332,9 @@ class _StoryScenePlayerState extends State<StoryScenePlayer>
 
   @override
   Widget build(BuildContext context) {
-    final scene = _scene, line = _line;
-    final name = StoryScenePlayer.speakerName(scene, line, widget.bird);
+    final scene = _scene, line = _line, words = _words;
+    final l = context.l10n;
+    final name = StoryScenePlayer.speakerName(scene, line, widget.bird, l);
     final last = _index + 1 >= scene.lines.length;
     final still = _still;
     final safe = MediaQuery.paddingOf(context);
@@ -362,7 +390,9 @@ class _StoryScenePlayerState extends State<StoryScenePlayer>
                         Positioned.fill(
                           child: Semantics(
                             button: true,
-                            label: last ? 'Finish' : 'Next line',
+                            label: last
+                                ? l.storyFinishSemantics
+                                : l.storyNextLineSemantics,
                             onTap: _advance,
                             excludeSemantics: true,
                             child: GestureDetector(
@@ -383,18 +413,20 @@ class _StoryScenePlayerState extends State<StoryScenePlayer>
                               // its own end card in the panel's place.
                               child: ToBeContinued.matches(line)
                                   ? ToBeContinued(
-                                      text: line.text,
+                                      text: words,
                                       write: _write,
                                       step: _index + 1,
                                       of: scene.lines.length,
                                       bob: still ? null : _seconds,
                                     )
                                   : StorySpeech(
-                                      text: line.text,
+                                      text: words,
+                                      // Paper or plate: the English line
+                                      // decides, in every language.
                                       voice: StoryVoice.of(name, line.text),
                                       label: name == null
-                                          ? line.text
-                                          : '$name: ${line.text}',
+                                          ? words
+                                          : l.storyLineSemantics(name, words),
                                       write: _write,
                                       step: _index + 1,
                                       of: scene.lines.length,

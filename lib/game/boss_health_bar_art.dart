@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 import '../domain/game_rules.dart';
+import '../l10n/l10n.dart';
+import '../l10n/text/boss_text.dart';
 import '../ui/theme.dart';
 import 'boss_stage_hud_art.dart';
 import 'dragon_hud_art.dart';
@@ -280,8 +282,8 @@ abstract final class BossHealthBarArt {
     );
 
     final name = l.name(
-      // The full name overflows the name field.
-      gargoyle ? GargoyleHudArt.label : boss.name.toUpperCase(),
+      // (the Gargoyle's full name overflows the name field: "GARGOYLE")
+      L10n.strings.bossBarName(boss.kind),
       defeated ? _mint : _cream,
       // Carved lettering on the pirate's plank.
       shadows: pirate || dragon || king || gargoyle
@@ -924,19 +926,20 @@ abstract final class BossHealthBarArt {
 
     // Short state tags sit in the emptied part of the track.
     final furyAge = boss.age - boss.enragedAt;
+    final words = L10n.strings;
     final tag = defeated
-        ? ('DEFEATED', _mint, 1.0)
+        ? (words.bossBarDefeated, _mint, 1.0)
         : arriving
-        ? ('INCOMING', _cream, 1.0)
+        ? (words.bossBarIncoming, _cream, 1.0)
         : fury && furyAge >= 0 && furyAge < furyTagSeconds
         ? (
-            'FURY',
+            words.bossBarFury,
             boss.isNeferhoo ? NeferhooHudArt.numbers.fury : _emberText,
             ((furyTagSeconds - furyAge) / _tagFade).clamp(0.0, 1.0),
           )
         // The Ember Dragon's heart lies open while it breathes.
         : boss.coreExposed && !dragon
-        ? ('HEART ×2', _cream, 1.0)
+        ? (words.bossBarHeartDouble, _cream, 1.0)
         : null;
     if (tag != null) {
       final (text, color, alpha) = tag;
@@ -945,6 +948,7 @@ abstract final class BossHealthBarArt {
         7.4 * u,
         color.withValues(alpha: alpha),
         spacing: .9 * u,
+        direction: L10n.textDirection,
       );
       final room = Rect.fromLTRB(
         math.max(right, chipHp > hp ? edge(chipHp) : right) + 3 * u,
@@ -1203,6 +1207,9 @@ abstract final class BossHealthBarArt {
     double spacing = 0,
     double maxWidth = double.infinity,
     List<Shadow>? shadows,
+    // Numbers read left to right in every language; words ([L10n]'s
+    // direction) run their language's way, the plate keeping its layout.
+    TextDirection direction = TextDirection.ltr,
   }) => TextPainter(
     text: TextSpan(
       text: value,
@@ -1211,7 +1218,7 @@ abstract final class BossHealthBarArt {
         color: color,
       ).copyWith(letterSpacing: spacing, shadows: shadows),
     ),
-    textDirection: TextDirection.ltr,
+    textDirection: direction,
     maxLines: 1,
     ellipsis: '…',
   )..layout(maxWidth: maxWidth);
@@ -1249,13 +1256,25 @@ class _Layout {
   late final Offset crest;
   late final double crestRadius, nameLeft, nameWidth, hpRight;
 
-  TextPainter name(String value, Color color, {List<Shadow>? shadows}) =>
-      BossHealthBarArt._painter(
-        value,
-        10 * u,
-        color,
-        spacing: .5 * u,
-        maxWidth: nameWidth,
-        shadows: shadows,
-      );
+  /// The name in its field: a name longer than the field (a translation)
+  /// is set smaller rather than cut (the scale is found once per name).
+  TextPainter name(String value, Color color, {List<Shadow>? shadows}) {
+    final k = _nameScales[(value, u)] ??= () {
+      final probe = BossHealthBarArt._painter(value, 10 * u, color, spacing: .5 * u, direction: L10n.textDirection);
+      final wide = probe.width;
+      probe.dispose();
+      return wide > nameWidth ? (nameWidth / wide * 100).floorToDouble() / 100 : 1.0;
+    }();
+    return BossHealthBarArt._painter(
+      value,
+      10 * u * k,
+      color,
+      spacing: .5 * u * k,
+      maxWidth: nameWidth,
+      shadows: shadows,
+      direction: L10n.textDirection,
+    );
+  }
+
+  static final _nameScales = L10n.cache(<(String, double), double>{});
 }

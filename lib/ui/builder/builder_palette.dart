@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../domain/game_rules.dart';
 import '../../game/star_art.dart';
+import '../../l10n/l10n.dart';
 import '../theme.dart';
 import 'builder_art.dart';
 import 'builder_chrome.dart';
@@ -13,30 +14,35 @@ class BuilderPalette extends StatelessWidget {
   const BuilderPalette({super.key, required this.controller});
   final BuilderController controller;
 
-  static String name(BuilderTool tool) => switch (tool) {
-    BuilderTool.select => 'Select',
-    BuilderTool.gate => 'Gate',
-    BuilderTool.star => 'Star',
-    BuilderTool.trio => 'Trio',
-    BuilderTool.heart => 'Heart',
-    BuilderTool.enemy => 'Enemy',
-    BuilderTool.finish => 'Finish',
-  };
+  /// [tool]'s label, in [l]'s language ([L10n.strings] by default).
+  static String name(BuilderTool tool, [AppLocalizations? l]) {
+    final words = l ?? L10n.strings;
+    return switch (tool) {
+      BuilderTool.select => words.builderTool_select,
+      BuilderTool.gate => words.builderTool_gate,
+      BuilderTool.star => words.builderTool_star,
+      BuilderTool.trio => words.builderTool_trio,
+      BuilderTool.heart => words.builderTool_heart,
+      BuilderTool.enemy => words.builderTool_enemy,
+      BuilderTool.finish => words.builderTool_finish,
+    };
+  }
 
-  static String _hint(BuilderTool tool) => switch (tool) {
-    BuilderTool.select => 'Select: tap something to change it, drag to move it',
-    BuilderTool.gate => 'Gate: tap the sky to place a gate',
-    BuilderTool.star => 'Star: tap the sky to place a star',
-    BuilderTool.trio => 'Star trio: tap the sky to place three stars',
-    BuilderTool.heart => 'Heart: tap the sky to place a heart',
-    BuilderTool.enemy => 'Enemy: tap the sky to place an enemy',
-    BuilderTool.finish => 'Finish: tap the sky to move the finish line',
+  static String _hint(AppLocalizations l, BuilderTool tool) => switch (tool) {
+    BuilderTool.select => l.builderToolHint_select,
+    BuilderTool.gate => l.builderToolHint_gate,
+    BuilderTool.star => l.builderToolHint_star,
+    BuilderTool.trio => l.builderToolHint_trio,
+    BuilderTool.heart => l.builderToolHint_heart,
+    BuilderTool.enemy => l.builderToolHint_enemy,
+    BuilderTool.finish => l.builderToolHint_finish,
   };
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: controller,
     builder: (context, _) {
+      final l = context.l10n;
       final tools = controller.tools;
       final boss = controller.plan.boss != null;
       return Column(
@@ -46,13 +52,15 @@ class BuilderPalette extends StatelessWidget {
             BuilderKey(
               key: ValueKey('tool-${tool.name}'),
               tooltip: tool == BuilderTool.finish && boss
-                  ? 'Boss mark: tap the sky to move where the boss waits'
-                  : _hint(tool),
+                  ? l.builderToolHint_boss
+                  : _hint(l, tool),
               width: 80,
               height: 48,
               labelSize: 11,
               gap: 3,
-              label: tool == BuilderTool.finish && boss ? 'Boss' : name(tool),
+              label: tool == BuilderTool.finish && boss
+                  ? l.builderTool_boss
+                  : name(tool, l),
               selected: controller.tool == tool,
               sound: 'ui_toggle',
               art: SizedBox(
@@ -69,10 +77,8 @@ class BuilderPalette extends StatelessWidget {
               // A starter level's tools answer, but only to say how to
               // change it.
               muted: controller.readOnly,
-              onMuted: () => BuilderToast.warn(
-                context,
-                'Starter levels stay as they are: remix it to change it.',
-              ),
+              onMuted: () =>
+                  BuilderToast.warn(context, l.builderStarterToolsToast),
               onPressed: () => controller.pick(tool),
             ),
         ],

@@ -15,6 +15,9 @@ import 'builder_art.dart';
 import 'builder_chrome.dart';
 import 'builder_controller.dart';
 import 'builder_pickers.dart' show PressCard;
+import '../../l10n/l10n.dart';
+import '../../l10n/text/builder_text.dart';
+import '../fit_text.dart';
 
 /// The panel on the right: with nothing selected, the level at a glance;
 /// with a gate or anything else selected, everything about it that can be
@@ -83,17 +86,8 @@ class _Header extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                title,
-                maxLines: 1,
-                style: heading(19, weight: FontWeight.w700),
-              ),
-              Text(
-                subtitle,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: bodyText(11.5, color: SkyColors.muted),
-              ),
+              FitText(title, style: heading(19, weight: FontWeight.w700)),
+              FitText(subtitle, style: bodyText(11.5, color: SkyColors.muted)),
             ],
           ),
         ),
@@ -108,40 +102,43 @@ class _Footer extends StatelessWidget {
   final BuilderController controller;
 
   @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
-    decoration: const BoxDecoration(
-      color: Color(0xfffff1d6),
-      border: Border(top: BorderSide(color: SkyColors.ink, width: 2)),
-    ),
-    child: Row(
-      children: [
-        Expanded(
-          child: BuilderKey(
-            key: const ValueKey('inspector-duplicate'),
-            tooltip: 'Duplicate',
-            label: 'Copy',
-            icon: Icons.copy_all_rounded,
-            labelSize: 14,
-            onPressed: controller.duplicateSelected,
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
+      decoration: const BoxDecoration(
+        color: Color(0xfffff1d6),
+        border: Border(top: BorderSide(color: SkyColors.ink, width: 2)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: BuilderKey(
+              key: const ValueKey('inspector-duplicate'),
+              tooltip: l.builderDuplicateSemantics,
+              label: l.builderCopy,
+              icon: Icons.copy_all_rounded,
+              labelSize: 14,
+              onPressed: controller.duplicateSelected,
+            ),
           ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: BuilderKey(
-            key: const ValueKey('inspector-delete'),
-            tooltip: 'Delete',
-            label: 'Delete',
-            icon: Icons.delete_rounded,
-            labelSize: 14,
-            color: SkyColors.coral,
-            sound: 'ui_back',
-            onPressed: controller.deleteSelected,
+          const SizedBox(width: 8),
+          Expanded(
+            child: BuilderKey(
+              key: const ValueKey('inspector-delete'),
+              tooltip: l.builderDeleteSemantics,
+              label: l.builderDelete,
+              icon: Icons.delete_rounded,
+              labelSize: 14,
+              color: SkyColors.coral,
+              sound: 'ui_back',
+              onPressed: controller.deleteSelected,
+            ),
           ),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 }
 
 /// A scrolling column of groups that shows plainly when there is more: a
@@ -292,7 +289,7 @@ class _MoreBelow extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          'More below',
+          context.l10n.builderMoreBelow,
           style: bodyText(11.5, weight: FontWeight.w900).copyWith(height: 1),
         ),
         const Icon(
@@ -320,10 +317,15 @@ class _StepRow extends StatelessWidget {
     this.moreIcon = Icons.add_rounded,
     this.lessTip,
     this.moreTip,
+    this.alongRoute = false,
   });
 
   /// What is stepped, for the keys' names: "height" makes `height-less`.
   final String name;
+
+  /// The keys step along the route, which runs left to right in every
+  /// language as the sky does: earlier on the left, later on the right.
+  final bool alongRoute;
   final String caption, value;
   final String? hint, lessTip, moreTip;
   final Widget? picture;
@@ -337,60 +339,77 @@ class _StepRow extends StatelessWidget {
       color: SkyColors.muted,
       weight: FontWeight.w900,
     ).copyWith(height: 1.05);
-    return Row(
-      children: [
-        BuilderKey(
-          key: ValueKey('$name-less'),
-          tooltip: lessTip ?? 'Less $name',
-          icon: lessIcon,
-          sound: 'ui_toggle',
-          onPressed: onLess,
-        ),
-        Expanded(
-          child: Semantics(
-            label: '$caption $value${hint == null ? '' : ', $hint'}',
-            excludeSemantics: true,
-            child: SizedBox(
-              height: MapKey.size,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        caption.toUpperCase(),
-                        style: small.copyWith(letterSpacing: .9),
-                      ),
-                      picture ??
-                          Text(
-                            value,
-                            style: heading(
-                              20,
-                              weight: FontWeight.w700,
-                            ).copyWith(height: 1.12),
-                          ),
-                      if (hint != null)
-                        Text(
-                          hint!,
-                          style: small.copyWith(fontWeight: FontWeight.w800),
-                        ),
-                    ],
-                  ),
+    final l = context.l10n;
+    final less = BuilderKey(
+      key: ValueKey('$name-less'),
+      tooltip: lessTip ?? l.builderLessSemantics(caption),
+      icon: lessIcon,
+      sound: 'ui_toggle',
+      onPressed: onLess,
+    );
+    final more = BuilderKey(
+      key: ValueKey('$name-more'),
+      tooltip: moreTip ?? l.builderMoreSemantics(caption),
+      icon: moreIcon,
+      sound: 'ui_toggle',
+      onPressed: onMore,
+    );
+    final Widget middle = Semantics(
+      label: hint == null
+          ? l.builderStepSemantics(caption, value)
+          : l.builderStepHintSemantics(caption, value, hint!),
+      excludeSemantics: true,
+      child: SizedBox(
+        height: MapKey.size,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  L10n.upper(caption),
+                  style: small.copyWith(letterSpacing: .9),
                 ),
-              ),
+                picture ??
+                    Text(
+                      value,
+                      style: heading(
+                        20,
+                        weight: FontWeight.w700,
+                      ).copyWith(height: 1.12),
+                    ),
+                if (hint != null)
+                  Text(
+                    hint!,
+                    style: small.copyWith(fontWeight: FontWeight.w800),
+                  ),
+              ],
             ),
           ),
         ),
-        BuilderKey(
-          key: ValueKey('$name-more'),
-          tooltip: moreTip ?? 'More $name',
-          icon: moreIcon,
-          sound: 'ui_toggle',
-          onPressed: onMore,
-        ),
-      ],
+      ),
+    );
+    if (!alongRoute) {
+      return Row(
+        children: [
+          less,
+          Expanded(child: middle),
+          more,
+        ],
+      );
+    }
+    // The keys keep the route's order (earlier on the left, as in the
+    // sky); the words between them keep the language's own direction.
+    return FlightDirection(
+      child: Row(
+        children: [
+          less,
+          Expanded(child: LanguageDirection(child: middle)),
+          more,
+        ],
+      ),
     );
   }
 }
@@ -413,26 +432,21 @@ class _Group extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 2, bottom: 4),
+          padding: const EdgeInsetsDirectional.only(start: 2, bottom: 4),
           child: Row(
             children: [
               Text(
-                caption.toUpperCase(),
+                L10n.upper(caption),
                 style: style.copyWith(letterSpacing: 1.1),
               ),
               if (trailing != null) ...[
                 const SizedBox(width: 8),
-                // A long note shrinks to the room left rather than past it.
+                // A long note shrinks to the room left rather than past it,
+                // or takes a second line when that would make it too small.
                 Expanded(
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        trailing!,
-                        style: style.copyWith(fontWeight: FontWeight.w800),
-                      ),
-                    ),
+                  child: _Trailing(
+                    trailing!,
+                    style: style.copyWith(fontWeight: FontWeight.w800),
                   ),
                 ),
               ],
@@ -445,17 +459,55 @@ class _Group extends StatelessWidget {
   }
 }
 
+/// A group's note beside its caption, at the line's end: one line,
+/// shrunk a little if need be, or two lines when one would have to shrink
+/// past [_shrink] (a long translation).
+class _Trailing extends StatelessWidget {
+  const _Trailing(this.text, {required this.style});
+  final String text;
+  final TextStyle style;
+
+  static const _shrink = .8;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, box) {
+      final painter = TextPainter(
+        text: TextSpan(text: text, style: style),
+        textDirection: Directionality.of(context),
+        textScaler: MediaQuery.textScalerOf(context),
+        maxLines: 1,
+      )..layout();
+      final width = painter.width;
+      painter.dispose();
+      if (width * _shrink <= box.maxWidth) {
+        return Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: FitText(text, style: style),
+        );
+      }
+      return Text(
+        text,
+        maxLines: 2,
+        textAlign: TextAlign.end,
+        style: style.copyWith(height: 1.1),
+      );
+    },
+  );
+}
+
 /// Height as a share of the sky from the bottom: "55 %".
-String _height(int y) => '${((BuiltPlan.unit - y) / 10).round()} %';
+String _height(AppLocalizations l, int y) =>
+    l.builderPercent(((BuiltPlan.unit - y) / 10).round());
 
 /// The route position as seconds from the start: "12.4 s".
-String _along(BuiltPlan plan, int x) =>
-    '${BuiltReach.secondsTo(plan, x).toStringAsFixed(1)} s';
+String _along(AppLocalizations l, BuiltPlan plan, int x) =>
+    l.builtSeconds(BuiltReach.secondsTo(plan, x), digits: 1);
 
 /// A length of route as seconds of flight: "2.2 s".
-String _seconds(BuiltPlan plan, int length) {
+String _seconds(AppLocalizations l, BuiltPlan plan, int length) {
   final s = length / BuiltPlan.unit / BuiltReach.cruise(plan);
-  return '${s.toStringAsFixed(s < 10 ? 1 : 0)} s';
+  return l.builtSeconds(s, digits: s < 10 ? 1 : 0);
 }
 
 /// Moves [item] along the route by [dx], never into the start zone.
@@ -511,6 +563,7 @@ class _GateInspector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final mode = controller.mode;
     final plan = controller.plan;
     final safe = BuiltPlan.safeGap(mode, gate.y, gate.amp);
@@ -540,27 +593,27 @@ class _GateInspector extends StatelessWidget {
             children: [
               if (mode.controlsHeight)
                 _Group(
-                  'Lane',
-                  trailing: mode == PlayMode.squat
-                      ? 'top or bottom of the squat'
-                      : 'top or bottom of the push-up',
+                  l.builderLane,
+                  trailing: l.builderLaneHint(l.builtMovement(mode)),
                   child: BuilderChoice<int>(
                     values: const [BuiltPlan.highLane, BuiltPlan.lowLane],
                     selected: gate.y,
-                    label: (y) => y == BuiltPlan.highLane ? 'Top' : 'Bottom',
+                    label: (y) => y == BuiltPlan.highLane
+                        ? l.builderLaneTop
+                        : l.builderLaneBottom,
                     onSelected: (y) => _set(gate.copyWith(y: y)),
                   ),
                 )
               else
                 _StepRow(
                   name: 'height',
-                  caption: 'Height',
-                  value: _height(gate.y),
-                  hint: 'of the sky',
+                  caption: l.builderHeight,
+                  value: _height(l, gate.y),
+                  hint: l.builderHeightHint,
                   lessIcon: Icons.arrow_downward_rounded,
                   moreIcon: Icons.arrow_upward_rounded,
-                  lessTip: 'Lower',
-                  moreTip: 'Higher',
+                  lessTip: l.builderLowerSemantics,
+                  moreTip: l.builderHigherSemantics,
                   onLess: gate.y >= BuiltPlan.maxGateY
                       ? null
                       : () => _set(
@@ -584,11 +637,11 @@ class _GateInspector extends StatelessWidget {
                 ),
               _StepRow(
                 name: 'opening',
-                caption: 'Opening',
-                value: '${(gate.gap / 10).round()} %',
-                hint: 'at least ${(safe / 10).round()} %',
-                lessTip: 'Narrower',
-                moreTip: 'Wider',
+                caption: l.builderOpening,
+                value: l.builderPercent((gate.gap / 10).round()),
+                hint: l.builderOpeningHint((safe / 10).round()),
+                lessTip: l.builderNarrowerSemantics,
+                moreTip: l.builderWiderSemantics,
                 onLess: gate.gap <= safe
                     ? null
                     : () => _set(
@@ -603,20 +656,21 @@ class _GateInspector extends StatelessWidget {
                       ),
               ),
               _Group(
-                'Motion',
-                trailing: garden ? 'garden gates stand still' : null,
+                l.builderMotion,
+                trailing: garden ? l.builderMotionGardenHint : null,
                 child: BuilderChoice<int>(
                   values: const [0, 1, 2],
                   selected: motion,
                   labelSize: 12.5,
                   spacing: 4,
-                  label: (m) => const ['Still', 'Gentle', 'Lively'][m],
+                  label: (m) => [
+                    l.builderMotionStill,
+                    l.builderMotionGentle,
+                    l.builderMotionLively,
+                  ][m],
                   enabled: (m) => m == 0 || !garden,
-                  onDisabled: (_) => BuilderToast.warn(
-                    context,
-                    'Garden gates stand still: pick another family to '
-                    'make it move.',
-                  ),
+                  onDisabled: (_) =>
+                      BuilderToast.warn(context, l.builderMotionGardenToast),
                   onSelected: (m) => _set(
                     gate.copyWith(
                       amp: m == 0
@@ -630,15 +684,15 @@ class _GateInspector extends StatelessWidget {
               ),
               if (gate.moving) ...[
                 _Group(
-                  'Sway',
-                  trailing: 'one sway: ${_seconds(plan, gate.cycle)}',
+                  l.builderSway,
+                  trailing: l.builderSwayHint(_seconds(l, plan, gate.cycle)),
                   child: BuilderChoice<int>(
                     values: _cycles,
                     selected: cycle,
                     label: (c) => switch (_cycles.indexOf(c)) {
-                      0 => 'Fast',
-                      1 => 'Medium',
-                      _ => 'Slow',
+                      0 => l.builderSwayFast,
+                      1 => l.builderSwayMedium,
+                      _ => l.builderSwaySlow,
                     },
                     labelSize: 12.5,
                     spacing: 4,
@@ -647,17 +701,17 @@ class _GateInspector extends StatelessWidget {
                 ),
                 _StepRow(
                   name: 'phase',
-                  caption: 'As you arrive',
-                  value: '${(gate.phase / 45).round() + 1} of 8',
-                  hint: 'where it is in its sway',
+                  caption: l.builderPhase,
+                  value: l.builderPhaseValue((gate.phase / 45).round() + 1, 8),
+                  hint: l.builderPhaseHint,
                   picture: CustomPaint(
                     size: const Size(64, 22),
                     painter: _SwayPainter(gate.phase),
                   ),
                   lessIcon: Icons.rotate_left_rounded,
                   moreIcon: Icons.rotate_right_rounded,
-                  lessTip: 'Earlier in its sway',
-                  moreTip: 'Later in its sway',
+                  lessTip: l.builderPhaseEarlierSemantics,
+                  moreTip: l.builderPhaseLaterSemantics,
                   onLess: () =>
                       _set(gate.copyWith(phase: (gate.phase + 315) % 360)),
                   onMore: () =>
@@ -665,7 +719,7 @@ class _GateInspector extends StatelessWidget {
                 ),
               ],
               _Group(
-                'Look',
+                l.builderLook,
                 child: Row(
                   children: [
                     for (var look = 0; look < BuiltGate.looks; look++) ...[
@@ -673,7 +727,7 @@ class _GateInspector extends StatelessWidget {
                       Expanded(
                         child: BuilderKey(
                           key: ValueKey('gate-look-$look'),
-                          tooltip: 'Look ${look + 1}',
+                          tooltip: l.builderLookSemantics(look + 1),
                           selected: gate.look == look,
                           sound: 'ui_toggle',
                           art: SizedBox(
@@ -696,30 +750,31 @@ class _GateInspector extends StatelessWidget {
               ),
               if (mode == PlayMode.touch && garden)
                 _Group(
-                  'Stone door',
-                  trailing: 'shoot it open',
+                  l.builderDoor,
+                  trailing: l.builderDoorHint,
                   child: BuilderChoice<bool>(
                     values: const [false, true],
                     selected: gate.door,
-                    label: (on) => on ? 'Stone door' : 'No door',
+                    label: (on) => on ? l.builderDoor : l.builderDoorNone,
                     labelSize: 13,
                     enabled: (on) => !on || plan.shoot,
                     onDisabled: (_) => BuilderToast.warn(
                       context,
-                      'Turn Shoot on in the level’s settings to use doors.',
+                      l.builderDoorNeedsShootToast,
                     ),
                     onSelected: (on) => _set(gate.copyWith(door: on)),
                   ),
                 ),
               _StepRow(
                 name: 'place',
-                caption: 'Place',
-                value: _along(plan, gate.x),
-                hint: 'from the start',
+                caption: l.builderPlace,
+                value: _along(l, plan, gate.x),
+                hint: l.builderPlaceHint,
                 lessIcon: Icons.arrow_back_rounded,
                 moreIcon: Icons.arrow_forward_rounded,
-                lessTip: 'Earlier',
-                moreTip: 'Later',
+                lessTip: l.builderEarlierSemantics,
+                moreTip: l.builderLaterSemantics,
+                alongRoute: true,
                 onLess: gate.x <= BuiltPlan.firstX
                     ? null
                     : () =>
@@ -764,11 +819,13 @@ class _FamilyButtonState extends State<_FamilyButton> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final still = MediaQuery.disableAnimationsOf(context);
     final sink = pressed && !still ? 2.0 : 0.0;
+    final family = l.gateFamilyName(widget.kind);
     return Semantics(
       button: true,
-      label: 'Gate family: ${widget.kind.title}. Change',
+      label: l.builderFamilySemantics(family),
       excludeSemantics: true,
       onTap: _press,
       child: Material(
@@ -825,10 +882,8 @@ class _FamilyButtonState extends State<_FamilyButton> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        widget.kind.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      FitText(
+                        family,
                         style: heading(17.5, weight: FontWeight.w700),
                       ),
                       const SizedBox(height: 3),
@@ -862,12 +917,14 @@ class _FamilyButtonState extends State<_FamilyButton> {
                                 color: SkyColors.ink,
                               ),
                               const SizedBox(width: 3),
-                              Text(
-                                'Change family',
-                                style: bodyText(
-                                  11.5,
-                                  weight: FontWeight.w900,
-                                ).copyWith(height: 1),
+                              Flexible(
+                                child: FitText(
+                                  l.builderChangeFamily,
+                                  style: bodyText(
+                                    11.5,
+                                    weight: FontWeight.w900,
+                                  ).copyWith(height: 1),
+                                ),
                               ),
                             ],
                           ),
@@ -984,13 +1041,14 @@ class _ItemInspector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final plan = controller.plan;
     final (title, line) = switch (item) {
-      BuiltStar() => ('Star', 'One star to collect'),
-      BuiltTrio() => ('Star trio', 'All three pay a bonus'),
-      BuiltHeart() => ('Heart', 'One heart back'),
-      BuiltEnemy enemy => ('Enemy', _enemyName(enemy.kind)),
-      BuiltGate() => ('Gate', ''),
+      BuiltStar() => (l.builderItemStar, l.builderItemStarDetail),
+      BuiltTrio() => (l.builderItemTrio, l.builderItemTrioDetail),
+      BuiltHeart() => (l.builderItemHeart, l.builderItemHeartDetail),
+      BuiltEnemy enemy => (l.builderItemEnemy, l.builtEnemyName(enemy.kind)),
+      BuiltGate() => (l.builderItemGate, ''),
     };
     final y = item.y;
     return Column(
@@ -1009,14 +1067,14 @@ class _ItemInspector extends StatelessWidget {
             children: [
               if (item case final BuiltEnemy enemy)
                 _Group(
-                  'Kind',
+                  l.builderEnemyKind,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       for (final kind in enemyKinds)
                         BuilderKey(
                           key: ValueKey('enemy-${kind.name}'),
-                          tooltip: _enemyName(kind),
+                          tooltip: l.builtEnemyName(kind),
                           width: 48,
                           height: 48,
                           selected: kind == enemy.kind,
@@ -1034,13 +1092,13 @@ class _ItemInspector extends StatelessWidget {
                 ),
               _StepRow(
                 name: 'height',
-                caption: 'Height',
-                value: _height(y),
-                hint: 'of the sky',
+                caption: l.builderHeight,
+                value: _height(l, y),
+                hint: l.builderHeightHint,
                 lessIcon: Icons.arrow_downward_rounded,
                 moreIcon: Icons.arrow_upward_rounded,
-                lessTip: 'Lower',
-                moreTip: 'Higher',
+                lessTip: l.builderLowerSemantics,
+                moreTip: l.builderHigherSemantics,
                 onLess: y >= BuiltPlan.maxItemY
                     ? null
                     : () => controller.updateSelected(
@@ -1058,13 +1116,14 @@ class _ItemInspector extends StatelessWidget {
               ),
               _StepRow(
                 name: 'place',
-                caption: 'Place',
-                value: _along(plan, item.x),
-                hint: 'from the start',
+                caption: l.builderPlace,
+                value: _along(l, plan, item.x),
+                hint: l.builderPlaceHint,
                 lessIcon: Icons.arrow_back_rounded,
                 moreIcon: Icons.arrow_forward_rounded,
-                lessTip: 'Earlier',
-                moreTip: 'Later',
+                lessTip: l.builderEarlierSemantics,
+                moreTip: l.builderLaterSemantics,
+                alongRoute: true,
                 onLess: item.left <= BuiltPlan.firstX
                     ? null
                     : () =>
@@ -1075,10 +1134,9 @@ class _ItemInspector extends StatelessWidget {
               if (controller.mode.controlsHeight && item is! BuiltEnemy)
                 _Note(
                   icon: Icons.lightbulb_rounded,
-                  text:
-                      'The bird flies the top and bottom of each '
-                      '${controller.mode == PlayMode.squat ? 'squat' : 'push-up'}: '
-                      'put pickups on or between the yellow lines.',
+                  text: l.builderPickupLanesNote(
+                    l.builtMovement(controller.mode),
+                  ),
                 ),
             ],
           ),
@@ -1097,15 +1155,6 @@ const enemyKinds = [
   EnemyKind.duskMoth,
 ];
 
-String _enemyName(EnemyKind kind) => switch (kind) {
-  EnemyKind.simpleBat => 'Purple bat',
-  EnemyKind.caveBat => 'Cave bat',
-  EnemyKind.spitterBeetle => 'Spitter beetle',
-  EnemyKind.duskMoth => 'Dusk moth',
-  EnemyKind.alleyPigeon => 'Alley pigeon',
-  EnemyKind.mummyBat => 'Mummy bat',
-};
-
 /// The level at a glance, when nothing is selected.
 class _LevelSummary extends StatelessWidget {
   const _LevelSummary({required this.controller});
@@ -1113,32 +1162,62 @@ class _LevelSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final plan = controller.plan;
     final level = controller.level;
-    final reps = builtReps(plan);
+    final reps = builtReps(plan, l);
     final marks = plan.marks;
+    final factLabel = bodyText(
+      13,
+      color: SkyColors.muted,
+      weight: FontWeight.w800,
+    );
+    final factValue = heading(15, weight: FontWeight.w700);
+    Widget factRow(IconData icon, String label, Widget? value) => Row(
+      children: [
+        Icon(icon, size: 18, color: SkyColors.muted),
+        const SizedBox(width: 8),
+        Expanded(child: Text(label, style: factLabel)),
+        ?value,
+      ],
+    );
     Widget fact(IconData icon, String label, Object value) => Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Icon(icon, size: 18, color: SkyColors.muted),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              label,
-              style: bodyText(
-                13,
-                color: SkyColors.muted,
-                weight: FontWeight.w800,
-              ),
+      child: value is Widget
+          ? factRow(icon, label, value)
+          : LayoutBuilder(
+              builder: (context, box) {
+                final words = '$value';
+                double width(String text, TextStyle style) {
+                  final painter = TextPainter(
+                    text: TextSpan(text: text, style: style),
+                    textDirection: Directionality.of(context),
+                    textScaler: MediaQuery.textScalerOf(context),
+                    maxLines: 1,
+                  )..layout();
+                  final w = painter.width;
+                  painter.dispose();
+                  return w;
+                }
+
+                if (26 +
+                        width(label, factLabel) +
+                        8 +
+                        width(words, factValue) <=
+                    box.maxWidth) {
+                  return factRow(icon, label, Text(words, style: factValue));
+                }
+                // A long value (a boss's whole name in some languages)
+                // takes its own lines under the label rather than overflow.
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    factRow(icon, label, null),
+                    Text(words, style: factValue, textAlign: TextAlign.end),
+                  ],
+                );
+              },
             ),
-          ),
-          if (value is Widget)
-            value
-          else
-            Text('$value', style: heading(15, weight: FontWeight.w700)),
-        ],
-      ),
     );
     final mark = heading(15, weight: FontWeight.w700);
     return Column(
@@ -1158,14 +1237,15 @@ class _LevelSummary extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'This level',
+                    FitText(
+                      l.builderSummaryTitle,
                       style: heading(19, weight: FontWeight.w700),
                     ),
-                    Text(
-                      '${builtModeName(plan.mode)} · ${plan.region.title}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    FitText(
+                      l.builderModeRegion(
+                        builtModeName(plan.mode, l),
+                        l.regionName(plan.region),
+                      ),
                       style: bodyText(11.5, color: SkyColors.muted),
                     ),
                   ],
@@ -1179,11 +1259,19 @@ class _LevelSummary extends StatelessWidget {
             children: [
               Column(
                 children: [
-                  fact(Icons.timer_rounded, 'Length', builtLength(plan)),
-                  fact(Icons.star_rounded, 'Stars', '${plan.totalStars}'),
+                  fact(
+                    Icons.timer_rounded,
+                    l.builderFactLength,
+                    builtLength(plan, l),
+                  ),
+                  fact(
+                    Icons.star_rounded,
+                    l.builderFactStars,
+                    '${plan.totalStars}',
+                  ),
                   fact(
                     Icons.military_tech_rounded,
-                    'Marks',
+                    l.builderFactMarks,
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -1195,45 +1283,50 @@ class _LevelSummary extends StatelessWidget {
                     ),
                   ),
                   if (reps != null)
-                    fact(Icons.fitness_center_rounded, 'Workout', reps),
-                  fact(Icons.speed_rounded, 'Pace', switch (plan.pace) {
-                    BuiltPace.relaxed => 'Relaxed',
-                    BuiltPace.steady => 'Steady',
-                    BuiltPace.brisk => 'Brisk',
-                  }),
+                    fact(
+                      Icons.fitness_center_rounded,
+                      l.builderFactWorkout,
+                      reps,
+                    ),
+                  fact(
+                    Icons.speed_rounded,
+                    l.builderFactPace,
+                    l.builtPaceName(plan.pace),
+                  ),
                   if (plan.boss != null)
-                    fact(Icons.shield_rounded, 'Boss', bossName(plan.boss!)),
+                    fact(
+                      Icons.shield_rounded,
+                      l.builderFactBoss,
+                      l.bossName(plan.boss!),
+                    ),
                 ],
               ),
               if (controller.readOnly)
-                const _Note(
+                _Note(
                   icon: Icons.auto_fix_high_rounded,
-                  text:
-                      'A starter level to fly as it is, or remix into a '
-                      'level of your own.',
+                  text: l.builderSummaryStarterNote,
                 )
               else if (level.cleared)
-                const _Note(
+                _Note(
                   icon: Icons.verified_rounded,
                   color: SkyColors.mint,
-                  text: 'Cleared by you: you flew it to the end.',
+                  text: l.builderSummaryClearedNote,
                 )
               else
                 _Note(
                   icon: Icons.flag_rounded,
                   text: plan.boss == null
-                      ? 'Test fly it all the way to the finish to mark it '
-                            'cleared.'
-                      : 'Test fly it, beat ${bossName(plan.boss!)} and cross '
-                            'the line to mark it cleared.',
+                      ? l.builderSummaryClearNote
+                      : l.builderSummaryClearBossNote(
+                          l.bossName(plan.boss!),
+                          plan.boss!.name,
+                        ),
                 ),
               if (!controller.readOnly)
-                const _Note(
+                _Note(
                   icon: Icons.touch_app_rounded,
                   color: SkyColors.cream,
-                  text:
-                      'Pick a tool on the left, then tap the sky. Tap a '
-                      'thing to change it; drag it to move it.',
+                  text: l.builderSummaryHowTo,
                 ),
             ],
           ),
@@ -1275,16 +1368,10 @@ class _Note extends StatelessWidget {
   );
 }
 
-/// What each gate family does, for its card.
-String familyLine(ObstacleKind kind) => switch (kind) {
-  ObstacleKind.garden => 'Stands still. Can hold a stone door.',
-  ObstacleKind.windLift => 'The opening rises and falls.',
-  ObstacleKind.petalGate => 'The opening narrows and widens.',
-  ObstacleKind.switchback => 'Two openings that slide apart.',
-  ObstacleKind.lanternDrift => 'Hanging lanterns that bob.',
-  ObstacleKind.sunWheels => 'Wheels that close in and back.',
-  ObstacleKind.crystalSteps => 'Three steps in a ripple.',
-};
+/// What each gate family does, for its card, in [l]'s language
+/// ([L10n.strings] by default).
+String familyLine(ObstacleKind kind, [AppLocalizations? l]) =>
+    (l ?? L10n.strings).gateFamilyDetail(kind);
 
 /// The seven gate families as cards, drawn in [region] as the flight draws
 /// them, a moving family with a faint second pose. Returns the one picked.
@@ -1294,15 +1381,15 @@ Future<ObstacleKind?> showFamilySheet(
   required ObstacleKind selected,
 }) => showBuilderSheet<ObstacleKind>(
   context,
-  label: 'Close gate families',
+  label: context.l10n.builderFamiliesCloseSemantics,
   builder: (context) => Padding(
     padding: const EdgeInsets.fromLTRB(26, 18, 26, 16),
     child: Column(
       children: [
-        const BuilderSheetTitle(
-          title: 'Gate family',
-          subtitle: 'How the gate looks and moves.',
-          closeLabel: 'Close gate families',
+        BuilderSheetTitle(
+          title: context.l10n.builderFamiliesTitle,
+          subtitle: context.l10n.builderFamiliesSubtitle,
+          closeLabel: context.l10n.builderFamiliesCloseSemantics,
         ),
         const SizedBox(height: 12),
         for (final row in const [
@@ -1331,7 +1418,10 @@ Future<ObstacleKind?> showFamilySheet(
                         ? const SizedBox()
                         : PressCard(
                             key: ValueKey('family-${kind.name}'),
-                            label: '${kind.title}. ${familyLine(kind)}',
+                            label: context.l10n.builderFamilyCardSemantics(
+                              context.l10n.gateFamilyName(kind),
+                              context.l10n.gateFamilyDetail(kind),
+                            ),
                             selected: kind == selected,
                             radius: 18,
                             accent: kind == selected
@@ -1386,7 +1476,7 @@ Future<ObstacleKind?> showFamilySheet(
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          kind.title,
+                                          context.l10n.gateFamilyName(kind),
                                           style: heading(
                                             17,
                                             weight: FontWeight.w700,
@@ -1394,7 +1484,7 @@ Future<ObstacleKind?> showFamilySheet(
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
-                                          familyLine(kind),
+                                          context.l10n.gateFamilyDetail(kind),
                                           style: bodyText(
                                             12.5,
                                             color: SkyColors.muted,

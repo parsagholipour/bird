@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import 'campaign_keepsake_art.dart'
     show CampaignAirmailPainter, CampaignPaperPainter;
 import 'delivery_art.dart' show DeliveryArt;
@@ -36,6 +37,10 @@ enum StoryVoice {
 /// between rows as they arrive. It is set in the largest size that keeps it
 /// to two rows, so the panel never changes height and never cuts a line
 /// short. The cue (key `story-cue`) shows once the line is whole.
+///
+/// English keeps to 15 px or more; the two smaller sizes are there for a
+/// translation that runs longer (German, Russian), so it still fits before
+/// anything is cut.
 class StorySpeech extends StatelessWidget {
   const StorySpeech({
     super.key,
@@ -66,7 +71,7 @@ class StorySpeech extends StatelessWidget {
   static const height = 92.0;
 
   /// The sizes a line is tried in, largest first.
-  static const sizes = [18.0, 17.0, 16.0, 15.0];
+  static const sizes = [18.0, 17.0, 16.0, 15.0, 14.0, 13.0];
   static const _rows = 2;
   static const _padding = EdgeInsets.fromLTRB(24, 19, 24, 27);
 
@@ -105,7 +110,7 @@ class StorySpeech extends StatelessWidget {
     for (final size in sizes) {
       final painter = TextPainter(
         text: TextSpan(text: text, style: style(voice, size)),
-        textDirection: TextDirection.ltr,
+        textDirection: L10n.textDirection,
       )..layout(maxWidth: width);
       final rows = painter.computeLineMetrics().length;
       painter.dispose();
@@ -137,7 +142,7 @@ class StorySpeech extends StatelessWidget {
                     final look = style(voice, size);
                     return Align(
                       alignment: voice == StoryVoice.spoken
-                          ? Alignment.topLeft
+                          ? AlignmentDirectional.topStart
                           : Alignment.center,
                       // A line that wraps splits evenly, so no word is left
                       // alone on its second row.
@@ -560,7 +565,7 @@ class StoryNameTag extends StatelessWidget {
   static double widthOf(String name) {
     final painter = TextPainter(
       text: TextSpan(text: name, style: _style(SkyColors.ink)),
-      textDirection: TextDirection.ltr,
+      textDirection: L10n.textDirection,
     )..layout();
     final width = painter.width + 26;
     painter.dispose();
@@ -631,9 +636,10 @@ class _StorySkipKeyState extends State<StorySkipKey> {
         focused &&
         FocusManager.instance.highlightMode == FocusHighlightMode.traditional;
     const pill = BorderRadius.all(Radius.circular(StorySkipKey.height / 2));
+    final skip = context.l10n.storySkip;
     return Semantics(
       button: true,
-      label: 'Skip',
+      label: skip,
       onTap: _press,
       excludeSemantics: true,
       child: MediaQuery.withNoTextScaling(
@@ -673,16 +679,19 @@ class _StorySkipKeyState extends State<StorySkipKey> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          'Skip',
+                          skip,
                           style: heading(
                             19,
                             weight: FontWeight.w700,
                           ).copyWith(height: 1),
                         ),
                         const SizedBox(width: 7),
-                        const CustomPaint(
-                          size: Size(22, 18),
-                          painter: _SkipGlyphPainter(),
+                        CustomPaint(
+                          size: const Size(22, 18),
+                          painter: _SkipGlyphPainter(
+                            rtl:
+                                Directionality.of(context) == TextDirection.rtl,
+                          ),
                         ),
                       ],
                     ),
@@ -697,12 +706,18 @@ class _StorySkipKeyState extends State<StorySkipKey> {
   }
 }
 
-/// Two chunky chevrons: fast forward, in the map keys' stroke.
+/// Two chunky chevrons: fast forward, in the map keys' stroke. They point
+/// the way the words run: left in a right-to-left language.
 class _SkipGlyphPainter extends CustomPainter {
-  const _SkipGlyphPainter();
+  const _SkipGlyphPainter({this.rtl = false});
+  final bool rtl;
 
   @override
   void paint(Canvas canvas, Size size) {
+    if (rtl) {
+      canvas.translate(size.width, 0);
+      canvas.scale(-1, 1);
+    }
     final h = size.height;
     final path = Path();
     for (final x in [3.0, 12.0]) {
@@ -723,5 +738,5 @@ class _SkipGlyphPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_SkipGlyphPainter old) => false;
+  bool shouldRepaint(_SkipGlyphPainter old) => old.rtl != rtl;
 }

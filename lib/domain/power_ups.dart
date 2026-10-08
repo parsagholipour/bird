@@ -1,3 +1,7 @@
+// l10n-english-twin: titles, blurbs and stat labels are the twins of the
+// power_* keys; screens word them with UpgradesText
+// (lib/l10n/text/upgrades_text.dart).
+
 /// The four upgrades bought with collected stars (rules version 60).
 ///
 /// Each runs from level 0 to [PowerUp.maxLevel]. Shot power, sprint and
@@ -34,29 +38,64 @@ enum PowerUp {
     magnet => 'Fly perfectly through gates to earn it. It pulls stars to you.',
   };
 
-  /// What [level] gives, as short label and value pairs.
-  List<(String, String)> stats(int level) {
+  /// What [level] gives, as short label and value pairs: the English twin
+  /// of [statValues] (logs and tests; screens word [statValues]).
+  List<(String, String)> stats(int level) => [
+    for (final (stat, value) in statValues(level))
+      (stat.label, stat.english(value)),
+  ];
+
+  /// What [level] gives: each stat and its value (a percent, seconds, a
+  /// count or a multiple, as [PowerStat.unit] says).
+  List<(PowerStat, num)> statValues(int level) {
     final l = level.clamp(0, maxLevel);
-    String s(double seconds) =>
-        '${seconds == seconds.roundToDouble() ? seconds.toInt() : seconds} s';
     return switch (this) {
-      shot => [('Max charge', '${(ShotPower.maxCharge(l) * 100).round()}%')],
+      shot => [(PowerStat.maxCharge, (ShotPower.maxCharge(l) * 100).round())],
       sprint => [
-        ('Burst length', s(SprintPower.seconds(l))),
-        ('Cooldown', s(SprintPower.cooldown(l))),
+        (PowerStat.burstLength, SprintPower.seconds(l)),
+        (PowerStat.cooldown, SprintPower.cooldown(l)),
       ],
       shield => [
-        ('Stars to refill', '${ShieldPower.stars(l)}'),
-        ('Safe time after it breaks', s(ShieldPower.cover(l))),
+        (PowerStat.starsToRefill, ShieldPower.stars(l)),
+        (PowerStat.safeTime, ShieldPower.cover(l)),
       ],
       // Reach is measured against a star's plain pickup radius.
       magnet => [
-        ('Perfect gates needed', '${MagnetPower.gates(l)}'),
-        ('Lasts', s(MagnetPower.seconds(l))),
-        ('Reach', '${(MagnetPower.radius(l) / .085).toStringAsFixed(1)}×'),
+        (PowerStat.perfectGates, MagnetPower.gates(l)),
+        (PowerStat.lasts, MagnetPower.seconds(l)),
+        (PowerStat.reach, MagnetPower.radius(l) / .085),
       ],
     };
   }
+}
+
+/// How a [PowerStat]'s value reads.
+enum PowerStatUnit { percent, seconds, count, times }
+
+/// One stat row of an upgrade, with its English label (the twin of the
+/// `power_stat_*` keys).
+enum PowerStat {
+  maxCharge('Max charge', PowerStatUnit.percent),
+  burstLength('Burst length', PowerStatUnit.seconds),
+  cooldown('Cooldown', PowerStatUnit.seconds),
+  starsToRefill('Stars to refill', PowerStatUnit.count),
+  safeTime('Safe time after it breaks', PowerStatUnit.seconds),
+  perfectGates('Perfect gates needed', PowerStatUnit.count),
+  lasts('Lasts', PowerStatUnit.seconds),
+  reach('Reach', PowerStatUnit.times);
+
+  const PowerStat(this.label, this.unit);
+  final String label;
+  final PowerStatUnit unit;
+
+  /// [value] as the English screen showed it: "85%", "1.2 s", "9", "2.4×".
+  String english(num value) => switch (unit) {
+    PowerStatUnit.percent => '$value%',
+    PowerStatUnit.seconds =>
+      '${value == value.roundToDouble() ? value.toInt() : value} s',
+    PowerStatUnit.count => '$value',
+    PowerStatUnit.times => '${value.toStringAsFixed(1)}×',
+  };
 }
 
 /// How far a held shot may charge: enough at level 0 to see the rock grow

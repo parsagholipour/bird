@@ -1,3 +1,5 @@
+// l10n-english-twin: [BossVanguard.titleOf] is the English twin of the
+// vanguard_*_title ARB keys (lib/l10n/text/boss_text.dart).
 import 'sky_boss.dart';
 import 'sky_enemy.dart';
 

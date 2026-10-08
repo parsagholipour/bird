@@ -1,0 +1,463 @@
+{
+  "@note": "German (de) translation of l10n/store/en.json. English source of the Play Store listing and the Google Play Games texts. Translators copy this file to l10n/store/<slug>.json (slugs as AppLanguage: es_419, pt_br, id, fr, de, ja, ko, tr, zh_hant, ru, ar), translate every \"text\", keep every key, and stay within \"maxChars\" (Play Console counts characters). The owner pastes them into Play Console: Grow users > Store presence > Main store listing > translations, and Play Games Services > Achievements > (each) > translations. Nothing here ships in the app. check: python3 tool/l10n/check_store.py.",
+  "@status": "listing: DRAFT by the localization architect (no English listing existed in the repo); owner to approve before translation. achievements: copied from play-games-ws/UX-DECISION.md section 5 (names and descriptions as designed; descriptions 1-24 equal SkyStamp.goal in the app).",
+  "listing": {
+    "title": {
+      "text": "Beakbound",
+      "maxChars": 30,
+      "description": "App name on Google Play. A brand name: keep it as is unless a market needs a transliteration (owner decides).",
+      "keepEnglish": true
+    },
+    "shortDescription": {
+      "text": "Flieg als Kuriervogel um die Welt: Tipp zum Flattern. Jeder Brief kommt an!",
+      "maxChars": 80,
+      "description": "Play Store short description, under the screenshots. Friendly, no ALL CAPS, no emoji, no \"free\"/\"best\"/\"#1\" (Play policy)."
+    },
+    "fullDescription": {
+      "text": "Beakbound ist ein buntes Flugabenteuer, das auch offline läuft. Du bist der neueste Kurier im Himmelsclub: Tipp zum Flattern, schlängel dich durch Tore, sammle Sterne und bring die Post rund um die Welt.\n\nFLIEG DIE KAMPAGNE\nÜber Nacht sind fünf Postrouten verstummt. Flieg Level für Level vom Dschungel ins Karnevals-Brasilien und zu den Tempeln der Azteken, weiter ins antike Rom, nach Ägypten und Arabien und hinein in die hellen Lichter von New York. In jedem Level wartet ein Paket, und jede Zustellung bringt ein Dankeschön.\n\nSTELL DICH DEN BOSSEN\nBaron Fledermaus, der Spuckkönig, Neferhoo der Mumienkurier, König Gurr und der Scheinwerfer-Wasserspeier stellen sich dir in den Weg. Schieß, sprinte und weich aus, um sie in die Flucht zu schlagen.\n\nFLIEG ENDLOS\nJag deinen Rekord auf der endlosen Strecke, wo Tore, Stürme und Bosse immer wiederkommen.\n\nNOCH MEHR ZU TUN\n- Vier Vögel zum Sammeln, jeder mit eigener Stimme\n- Upgrades, die du mit gesammelten Sternen kaufst\n- Ein tägliches Abenteuer und ein Himmelspass voller Medaillen\n- Der Level-Baukasten: Bau deine eigenen Routen und flieg sie\n- Zusammen fliegen und Duelle 1 gegen 1 für zwei Spieler an einem Handy\n- Minispiele, in denen du mit Liegestützen, Kniebeugen oder Sprüngen vor der Kamera fliegst\n\nSPIEL, WIE DU WILLST\nKein Konto und kein Internet nötig. Die Kamera-Minispiele laufen komplett auf deinem Handy: Das Video verlässt es nie. Optional: Cloud-Speicher und Erfolge mit Google Play Spiele.",
+      "maxChars": 4000,
+      "description": "Play Store full description. Section headers in capitals are fine. Keep the facts: offline, camera stays on the phone, optional Play Games."
+    },
+    "releaseNotes": {
+      "text": "Beakbound spricht jetzt deine Sprache: Wähl sie in den Einstellungen.",
+      "maxChars": 500,
+      "description": "\"What's new\" for the release that ships the translations."
+    }
+  },
+  "playGames": {
+    "displayName": {
+      "text": "Beakbound",
+      "maxChars": 50,
+      "description": "Play Games Services game name.",
+      "keepEnglish": true
+    },
+    "description": {
+      "text": "Flieg als Kuriervogel um die Welt: Stell die Post zu, besiege die Bosse und sammle jede Medaille.",
+      "maxChars": 4000,
+      "description": "Play Games Services game description (Properties)."
+    }
+  },
+  "achievements": {
+    "frequentFlyerBronze": {
+      "name": {
+        "text": "Vielflieger · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Schließ 10 gewertete Flüge ab.",
+        "maxChars": 500
+      }
+    },
+    "frequentFlyerSilver": {
+      "name": {
+        "text": "Vielflieger · Silber",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Schließ 100 gewertete Flüge ab.",
+        "maxChars": 500
+      }
+    },
+    "frequentFlyerGold": {
+      "name": {
+        "text": "Vielflieger · Gold",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Schließ 500 gewertete Flüge ab.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotBronze": {
+      "name": {
+        "text": "Auf den Punkt · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Flieg 25 perfekte Durchflüge entlang der Zielmarken.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotSilver": {
+      "name": {
+        "text": "Auf den Punkt · Silber",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Flieg 200 perfekte Durchflüge entlang der Zielmarken.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotGold": {
+      "name": {
+        "text": "Auf den Punkt · Gold",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Flieg 1.000 perfekte Durchflüge entlang der Zielmarken.",
+        "maxChars": 500
+      }
+    },
+    "starChaserBronze": {
+      "name": {
+        "text": "Sternenjäger · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Sammle 50 Sterne.",
+        "maxChars": 500
+      }
+    },
+    "starChaserSilver": {
+      "name": {
+        "text": "Sternenjäger · Silber",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Sammle 500 Sterne.",
+        "maxChars": 500
+      }
+    },
+    "starChaserGold": {
+      "name": {
+        "text": "Sternenjäger · Gold",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Sammle 5.000 Sterne.",
+        "maxChars": 500
+      }
+    },
+    "constellationBronze": {
+      "name": {
+        "text": "Sternbild · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Sammle 15 Sterne in einer ununterbrochenen Serie.",
+        "maxChars": 500
+      }
+    },
+    "constellationSilver": {
+      "name": {
+        "text": "Sternbild · Silber",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Sammle 40 Sterne in einer ununterbrochenen Serie.",
+        "maxChars": 500
+      }
+    },
+    "constellationGold": {
+      "name": {
+        "text": "Sternbild · Gold",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Sammle 80 Sterne in einer ununterbrochenen Serie.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainBronze": {
+      "name": {
+        "text": "Himmelskapitän · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Erziele 100 Punkte in einem Endlosflug.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainSilver": {
+      "name": {
+        "text": "Himmelskapitän · Silber",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Erziele 500 Punkte in einem Endlosflug.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainGold": {
+      "name": {
+        "text": "Himmelskapitän · Gold",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Erziele 2.000 Punkte in einem Endlosflug.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerBronze": {
+      "name": {
+        "text": "Wegbereiter · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Flieg in 5 Endlosflügen mindestens 60 Sekunden.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerSilver": {
+      "name": {
+        "text": "Wegbereiter · Silber",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Flieg in 50 Endlosflügen mindestens 60 Sekunden.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerGold": {
+      "name": {
+        "text": "Wegbereiter · Gold",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Flieg in 250 Endlosflügen mindestens 60 Sekunden.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherBronze": {
+      "name": {
+        "text": "Bunter Schwarm · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Flieg gewertete Flüge mit zwei verschiedenen Vögeln.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherSilver": {
+      "name": {
+        "text": "Bunter Schwarm · Silber",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Flieg gewertete Flüge mit allen vier Vögeln.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherGold": {
+      "name": {
+        "text": "Bunter Schwarm · Gold",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Flieg 25 gewertete Flüge mit jedem Vogel.",
+        "maxChars": 500
+      }
+    },
+    "allRounderBronze": {
+      "name": {
+        "text": "Alleskönner · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Flieg ein Liegestütz-, Kniebeugen- oder Sprung-Minispiel.",
+        "maxChars": 500
+      }
+    },
+    "allRounderSilver": {
+      "name": {
+        "text": "Alleskönner · Silber",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Flieg alle drei Minispiele: Liegestütz, Kniebeuge, Sprung.",
+        "maxChars": 500
+      }
+    },
+    "allRounderGold": {
+      "name": {
+        "text": "Alleskönner · Gold",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Flieg 10 gewertete Flüge in jedem Minispiel.",
+        "maxChars": 500
+      }
+    },
+    "canopyBoss": {
+      "name": {
+        "text": "Post durchs Blätterdach",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Besiege Baron Fledermaus in seinem Versteck am Ende der Blätterdach-Route (1-8).",
+        "maxChars": 500
+      }
+    },
+    "neferhoo": {
+      "name": {
+        "text": "Zurück an den Absender",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Besiege Neferhoo, den Mumienkurier, der Ägypten bewacht (2-6).",
+        "maxChars": 500
+      }
+    },
+    "roadBoss": {
+      "name": {
+        "text": "Schon wieder Minztee",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Besiege den Spuckkönig am Ende der Alten Straße (2-9).",
+        "maxChars": 500
+      }
+    },
+    "kingCoo": {
+      "name": {
+        "text": "Krümel-Kehraus",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Besiege König Gurr, den Wächter von New York (3-2).",
+        "maxChars": 500
+      }
+    },
+    "gargoyle": {
+      "name": {
+        "text": "Raus aus dem Rampenlicht",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Besiege den Scheinwerfer-Wasserspeier (3-4).",
+        "maxChars": 500
+      }
+    },
+    "goldCanopy": {
+      "name": {
+        "text": "Goldenes Blätterdach",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Hol drei Sterne in jedem Level der Blätterdach-Route.",
+        "maxChars": 500
+      }
+    },
+    "goldRoad": {
+      "name": {
+        "text": "Goldene Straße",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Hol drei Sterne in jedem Level der Alten Straße.",
+        "maxChars": 500
+      }
+    },
+    "brightLights": {
+      "name": {
+        "text": "Lichter der Großstadt",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Hol drei Sterne in jedem Level in New York.",
+        "maxChars": 500
+      }
+    },
+    "lamplighter": {
+      "name": {
+        "text": "Laternenanzünder",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Besiege die Dämmerkaiserin in einem Endlosflug.",
+        "maxChars": 500
+      }
+    },
+    "harbourBells": {
+      "name": {
+        "text": "Hafenglocken",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Besiege den Piratenkapitän in einem Endlosflug.",
+        "maxChars": 500
+      }
+    },
+    "edgeOfTheMap": {
+      "name": {
+        "text": "Rand der Karte",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Besiege den Glutdrachen in einem Endlosflug.",
+        "maxChars": 500
+      }
+    },
+    "twoOnOnePhone": {
+      "name": {
+        "text": "Zwei an einem Handy",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Schließ einen Flug „Zusammen fliegen“ am Seil ab.",
+        "maxChars": 500
+      }
+    },
+    "friendlyRivals": {
+      "name": {
+        "text": "Freundliche Rivalen",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Flieg ein Duell 1 gegen 1.",
+        "maxChars": 500
+      }
+    },
+    "routePlanner": {
+      "name": {
+        "text": "Routenplaner",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Bau ein Level im Level-Baukasten und flieg es bis ins Ziel.",
+        "maxChars": 500
+      }
+    },
+    "wholeKit": {
+      "name": {
+        "text": "Das volle Programm",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Kauf alle 16 Upgrade-Stufen.",
+        "maxChars": 500
+      }
+    },
+    "penPal": {
+      "name": {
+        "text": "Brieffreund",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Stempel 10 Tagespostkarten, indem du alle Ziele eines Tagesabenteuers schaffst.",
+        "maxChars": 500
+      }
+    },
+    "nightMail": {
+      "name": {
+        "text": "Nachtpost",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Schließ einen gewerteten Flug zwischen Mitternacht und 4 Uhr morgens ab.",
+        "maxChars": 500
+      }
+    },
+    "specialDelivery": {
+      "name": {
+        "text": "Sonderzustellung",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Schieß eine Gassentaube ab und hol dir den Stern zurück, den sie geklaut hat.",
+        "maxChars": 500
+      }
+    }
+  },
+  "@achievementNote": "Keys are PlayAchievement values (lib/data/play_achievements.dart), in Play Console order. Names 1-24 follow the in-game \"Stamp · Medal\" pattern: translate the stamp and medal words as the game's ARB does (passport keys) so the two match."
+}

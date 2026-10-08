@@ -4,13 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
 import '../../domain/game_rules.dart';
-import '../../domain/tracking.dart';
 import '../mini_chrome.dart' show MiniCard;
 import '../theme.dart';
 import 'builder_chrome.dart';
 import 'builder_controller.dart';
 import 'builder_name_dialog.dart';
 import 'builder_pickers.dart' show PressCard;
+import '../../l10n/l10n.dart';
+import '../../l10n/text/builder_text.dart';
 
 /// The level's settings over the editor: its name, region and pace, the
 /// star marks, and for Tap & Fly the Shoot and Sprint controls and a boss
@@ -20,7 +21,7 @@ Future<void> showBuilderSettings(
   BuilderController controller,
 ) => showBuilderSheet<void>(
   context,
-  label: 'Close settings',
+  label: context.l10n.builderSettingsCloseSemantics,
   builder: (context) => _SettingsSheet(controller: controller),
 );
 
@@ -32,15 +33,16 @@ class _SettingsSheet extends StatelessWidget {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: controller,
     builder: (context, _) {
+      final l = context.l10n;
       final plan = controller.plan;
       return Padding(
         padding: const EdgeInsets.fromLTRB(26, 18, 26, 16),
         child: Column(
           children: [
             BuilderSheetTitle(
-              title: 'Level settings',
-              subtitle: '${plan.mode.title} · changes save as you make them',
-              closeLabel: 'Close settings',
+              title: l.builderSettingsTitle,
+              subtitle: l.builderSettingsSubtitle(l.playModeName(plan.mode)),
+              closeLabel: l.builderSettingsCloseSemantics,
             ),
             const SizedBox(height: 12),
             Expanded(
@@ -75,14 +77,16 @@ class _Left extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final plan = controller.plan;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const BuilderCaption('Name'),
+        BuilderCaption(l.builderSettingsName),
         Row(
           children: [
             Expanded(
+              // The player's own name for the level: never translated.
               child: Text(
                 plan.name,
                 maxLines: 1,
@@ -93,8 +97,8 @@ class _Left extends StatelessWidget {
             const SizedBox(width: 10),
             BuilderKey(
               key: const ValueKey('settings-rename'),
-              tooltip: 'Rename',
-              label: 'Rename',
+              tooltip: l.builderRenameSemantics,
+              label: l.builderRename,
               icon: Icons.edit_rounded,
               onPressed: () async {
                 final name = await showBuilderNameDialog(context, plan.name);
@@ -105,20 +109,19 @@ class _Left extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         BuilderCaption(
-          'Region',
-          trailing: '${WorldRegion.values.length} places · swipe for more',
+          l.builderSettingsRegion,
+          trailing: l.builderSettingsRegionHint(WorldRegion.values.length),
         ),
         _RegionStrip(controller: controller),
         const SizedBox(height: 6),
-        const BuilderCaption('Pace', trailing: 'how fast the sky scrolls'),
+        BuilderCaption(
+          l.builderSettingsPace,
+          trailing: l.builderSettingsPaceHint,
+        ),
         BuilderChoice<BuiltPace>(
           values: BuiltPace.values,
           selected: plan.pace,
-          label: (pace) => switch (pace) {
-            BuiltPace.relaxed => 'Relaxed',
-            BuiltPace.steady => 'Steady',
-            BuiltPace.brisk => 'Brisk',
-          },
+          label: l.builtPaceName,
           onSelected: (pace) => controller.settings(pace: pace),
         ),
       ],
@@ -132,6 +135,7 @@ class _Right extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final plan = controller.plan;
     final marks = plan.marks;
     final stars = plan.totalStars;
@@ -146,14 +150,15 @@ class _Right extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         BuilderCaption(
-          'Star marks',
-          trailing: '$stars star${stars == 1 ? '' : 's'} placed',
+          l.builderSettingsMarks,
+          trailing: l.builderSettingsMarksHint(stars),
         ),
         Row(
           children: [
             Expanded(
               child: BuilderStepper(
-                name: 'two-star mark',
+                name: 'two-star mark', // l10n-ignore: key id
+                label: l.builderMarkTwoSemantics,
                 value: '${marks.two}',
                 lead: const BuilderStars(earned: 2, of: 2, size: 15),
                 onLess: marks.two <= 1
@@ -170,7 +175,8 @@ class _Right extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               child: BuilderStepper(
-                name: 'three-star mark',
+                name: 'three-star mark', // l10n-ignore: key id
+                label: l.builderMarkThreeSemantics,
                 value: '${marks.three}',
                 lead: const BuilderStars(earned: 3, of: 3, size: 13),
                 onLess: marks.three <= 1
@@ -190,7 +196,7 @@ class _Right extends StatelessWidget {
         BuilderChoice<bool>(
           values: const [true, false],
           selected: auto,
-          label: (on) => on ? 'Auto: follow the stars' : 'Set by hand',
+          label: (on) => on ? l.builderMarksAuto : l.builderMarksByHand,
           labelSize: 13,
           onSelected: (on) => on
               ? controller.settings(autoMarks: true)
@@ -198,14 +204,14 @@ class _Right extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         if (plan.touch) ...[
-          const BuilderCaption('Controls'),
+          BuilderCaption(l.builderSettingsControls),
           Row(
             children: [
               Expanded(
                 child: BuilderKey(
                   key: const ValueKey('settings-shoot'),
-                  tooltip: 'Shoot ${plan.shoot ? 'on' : 'off'}',
-                  label: 'Shoot ${plan.shoot ? 'on' : 'off'}',
+                  tooltip: plan.shoot ? l.builderShootOn : l.builderShootOff,
+                  label: plan.shoot ? l.builderShootOn : l.builderShootOff,
                   icon: plan.shoot
                       ? Icons.check_box_rounded
                       : Icons.check_box_outline_blank_rounded,
@@ -218,8 +224,8 @@ class _Right extends StatelessWidget {
               Expanded(
                 child: BuilderKey(
                   key: const ValueKey('settings-sprint'),
-                  tooltip: 'Sprint ${plan.sprint ? 'on' : 'off'}',
-                  label: 'Sprint ${plan.sprint ? 'on' : 'off'}',
+                  tooltip: plan.sprint ? l.builderSprintOn : l.builderSprintOff,
+                  label: plan.sprint ? l.builderSprintOn : l.builderSprintOff,
                   icon: plan.sprint
                       ? Icons.check_box_rounded
                       : Icons.check_box_outline_blank_rounded,
@@ -231,7 +237,10 @@ class _Right extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          const BuilderCaption('Boss finale', trailing: 'waits at the end'),
+          BuilderCaption(
+            l.builderSettingsBoss,
+            trailing: l.builderSettingsBossHint,
+          ),
           SizedBox(
             height: 66,
             child: Row(
@@ -245,9 +254,11 @@ class _Right extends StatelessWidget {
                     child: BuilderKey(
                       key: ValueKey('settings-boss-${boss?.name ?? 'none'}'),
                       tooltip: boss == null
-                          ? 'No boss: a finish line'
-                          : bossName(boss),
-                      label: boss == null ? 'None' : _short(boss),
+                          ? l.builderNoBossSemantics
+                          : l.bossName(boss),
+                      label: boss == null
+                          ? l.builderNoBoss
+                          : l.builtBossShort(boss),
                       vertical: true,
                       labelSize: 10.5,
                       height: 62,
@@ -280,27 +291,14 @@ class _Right extends StatelessWidget {
             ),
             child: Text(
               plan.mode.controlsHeight
-                  ? 'The bird flies two lanes: the top and the bottom of each '
-                        '${plan.mode == PlayMode.squat ? 'squat' : 'push-up'}. '
-                        'A slower player meets the same level at a gentler '
-                        'speed. No shooting, sprinting or bosses here.'
-                  : 'Each jump lifts the bird; it glides in between. No '
-                        'shooting, sprinting or bosses here.',
+                  ? l.builderSettingsLanesNote(l.builtMovement(plan.mode))
+                  : l.builderSettingsJumpNote,
               style: bodyText(13.5),
             ),
           ),
       ],
     );
   }
-
-  static String _short(BossKind boss) => switch (boss) {
-    BossKind.baronBat => 'Baron',
-    BossKind.spitterBeetle => 'Spitter',
-    BossKind.duskMoth => 'Empress',
-    BossKind.pirate => 'Pirate',
-    BossKind.dragon => 'Dragon',
-    _ => bossName(boss),
-  };
 }
 
 /// The regions as a strip of postcards that scrolls sideways, opening with
@@ -377,9 +375,13 @@ class _RegionStripState extends State<_RegionStrip> {
             },
             child: ShaderMask(
               blendMode: BlendMode.dstIn,
+              // The strip runs the reading way: in a right-to-left language
+              // its first card is on the right, and so is its "before" fade.
               shaderCallback: (rect) {
                 final w = math.max(rect.width, fade * 2 + 1);
                 return LinearGradient(
+                  begin: AlignmentDirectional.centerStart,
+                  end: AlignmentDirectional.centerEnd,
                   colors: [
                     Color(_before ? 0x00000000 : 0xff000000),
                     const Color(0xff000000),
@@ -387,7 +389,7 @@ class _RegionStripState extends State<_RegionStrip> {
                     Color(_after ? 0x00000000 : 0xff000000),
                   ],
                   stops: [0, fade / w, 1 - fade / w, 1],
-                ).createShader(rect);
+                ).createShader(rect, textDirection: Directionality.of(context));
               },
               child: RawScrollbar(
                 controller: _scroll,
@@ -412,7 +414,7 @@ class _RegionStripState extends State<_RegionStrip> {
                       width: _card,
                       child: PressCard(
                         key: ValueKey('settings-region-${region.name}'),
-                        label: region.title,
+                        label: context.l10n.regionName(region),
                         selected: picked,
                         radius: 14,
                         accent: picked ? SkyColors.gold : SkyColors.teal,
@@ -445,7 +447,7 @@ class _RegionStripState extends State<_RegionStrip> {
                               child: FittedBox(
                                 fit: BoxFit.scaleDown,
                                 child: Text(
-                                  region.title,
+                                  context.l10n.regionName(region),
                                   style: heading(13, weight: FontWeight.w700),
                                 ),
                               ),

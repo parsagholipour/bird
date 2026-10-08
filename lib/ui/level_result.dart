@@ -13,6 +13,9 @@ import '../game/campaign_voices.dart';
 import '../game/finish_celebration_art.dart' show CourierSeat;
 import '../game/play_controller.dart';
 import '../game/star_art.dart';
+import '../l10n/l10n.dart';
+import '../l10n/text/flight_text.dart';
+import '../l10n/text/passport_text.dart';
 import 'components.dart';
 import 'campaign_map_art.dart' show MapGuardianPainter, MapNodeLook;
 import 'campaign_text_scale.dart';
@@ -93,30 +96,37 @@ class LevelResultStage extends StatefulWidget {
   /// The word that drops in over the courier: "Victory!" for a chapter's
   /// boss, "Guardian down!" for a mini-boss that guarded a level before it,
   /// "Delivered!" for any other finish, "Try again!" when the flight ended
-  /// short of the finish.
-  static String wordFor(CampaignLevel level, {required bool complete}) =>
-      !complete
-      ? 'Try again!'
-      : level.isChapterBoss
-      ? 'Victory!'
-      : level.isGuardian
-      ? 'Guardian down!'
-      : 'Delivered!';
+  /// short of the finish. In [l]'s words (the current language's when
+  /// null).
+  static String wordFor(
+    CampaignLevel level, {
+    required bool complete,
+    AppLocalizations? l,
+  }) {
+    l ??= L10n.strings;
+    return !complete
+        ? l.levelResultTryAgain
+        : level.isChapterBoss
+        ? l.levelResultVictory
+        : level.isGuardian
+        ? l.levelResultGuardianDown
+        : l.levelResultDelivered;
+  }
 
   /// The news strip for a finish whose next level is in this chapter but not in
   /// this build: "Paris is coming soon!" after 3-4, where Next is hidden.
   /// Null when there is nothing to say: a next level that can be flown (its
   /// own strip says it is open), another chapter, or no next level.
-  static String? comingSoonNews(CampaignLevel level) {
+  static String? comingSoonNews(CampaignLevel level, {AppLocalizations? l}) {
     final next = Campaign.after(level);
     if (!Campaign.playable(level) ||
         next == null ||
         next.chapter != level.chapter) {
       return null;
     }
-    return Campaign.playable(next)
-        ? null
-        : '${next.region.title} is coming soon!';
+    if (Campaign.playable(next)) return null;
+    l ??= L10n.strings;
+    return l.levelResultComingSoon(l.regionName(next.region));
   }
 
   /// Where the courier of a finished level sits on a [screen] whose safe
@@ -237,7 +247,11 @@ class _LevelResultStageState extends State<LevelResultStage>
     final newScore = beat && r.score > before.bestScore;
     final armed = _intro.value >= LevelResultStage.armAt || _intro.isCompleted;
     final fade = _calm ? _intro.value.clamp(0.0, 1.0) : 1.0;
-    final word = LevelResultStage.wordFor(level, complete: c.levelComplete);
+    final word = LevelResultStage.wordFor(
+      level,
+      complete: c.levelComplete,
+      l: context.l10n,
+    );
     // A finished flight's courier sits over on its cloud, to leave room for
     // the thank-you note beside it.
     final aside = c.levelComplete ? _noteRoom : 0.0;
@@ -438,7 +452,7 @@ class _LevelResultStageState extends State<LevelResultStage>
   }
 
   Widget _title(String word) {
-    final letters = word.split('');
+    final letters = dropLetters(word);
     return Semantics(
       header: true,
       label: word,
@@ -452,8 +466,11 @@ class _LevelResultStageState extends State<LevelResultStage>
             ),
             child: FittedBox(
               fit: BoxFit.scaleDown,
+              // The letters keep their order whichever way the language
+              // runs.
               child: Row(
                 mainAxisSize: MainAxisSize.min,
+                textDirection: letters.length > 1 ? TextDirection.ltr : null,
                 children: [
                   for (final (i, letter) in letters.indexed)
                     _letter(letter, i, letters.length),
@@ -531,7 +548,16 @@ class _LevelResultStageState extends State<LevelResultStage>
                   ),
                 ),
                 const SizedBox(width: 9),
-                Text(level.name, style: bodyText(18, weight: FontWeight.w900)),
+                // A long name shrinks to the plate rather than spill off it.
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      context.l10n.levelName(level),
+                      style: bodyText(18, weight: FontWeight.w900),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -604,7 +630,7 @@ class _LevelResultStageState extends State<LevelResultStage>
   /// The level's three stars, the middle one raised, each popping in with
   /// a burst when earned; stars not earned wait as empty sockets.
   Widget _stars(int earned) => Semantics(
-    label: '$earned of 3 stars',
+    label: context.l10n.levelResultStarsSemantics(earned),
     excludeSemantics: true,
     child: CustomPaint(
       painter: _BigStarsPainter(
@@ -748,8 +774,9 @@ class _LevelResultStageState extends State<LevelResultStage>
     final land = math.sin(_span(.68, .78) * math.pi);
     final stamp = _span(.72, .9, Curves.elasticOut);
     final swap = 1 - _span(.72, .78);
+    final l = context.l10n;
     Widget bestNote(int best) => Text(
-      best > 0 ? 'Best $best' : 'No best yet',
+      best > 0 ? l.levelResultBest(best) : l.levelResultNoBest,
       style: bodyText(13.5, color: SkyColors.muted, weight: FontWeight.w800),
     );
     // The best beside the count: a tag, or the ribbon of a new one. A first
@@ -771,12 +798,18 @@ class _LevelResultStageState extends State<LevelResultStage>
             Icon(icon, size: 17, color: SkyColors.gold),
             const SizedBox(width: 4),
           ],
-          Text(
-            text,
-            style: bodyText(
-              14,
-              color: SkyColors.muted,
-              weight: FontWeight.w900,
+          // A longer tag shrinks to the room beside the count.
+          Flexible(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                text,
+                style: bodyText(
+                  14,
+                  color: SkyColors.muted,
+                  weight: FontWeight.w900,
+                ),
+              ),
             ),
           ),
         ],
@@ -787,14 +820,14 @@ class _LevelResultStageState extends State<LevelResultStage>
     final bestTag = !done && bestStars == 0
         ? const SizedBox.shrink()
         : first
-        ? tag(Icons.auto_awesome_rounded, 'First clear!')
+        ? tag(Icons.auto_awesome_rounded, l.levelResultFirstClear)
         : tag(
             bestStars > 0 ? Icons.emoji_events_rounded : null,
             newStars
-                ? 'Best ${before.bestCollected}'
+                ? l.levelResultBest(before.bestCollected)
                 : bestStars > 0
-                ? 'Best $bestStars'
-                : 'No best yet',
+                ? l.levelResultBest(bestStars)
+                : l.levelResultNoBest,
           );
     return Row(
       children: [
@@ -808,7 +841,7 @@ class _LevelResultStageState extends State<LevelResultStage>
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('STARS COLLECTED', style: _label),
+                    Text(l.flightResultStarsCollected, style: _label),
                     Transform.scale(
                       scale: 1 + .08 * land,
                       child: Row(
@@ -839,7 +872,7 @@ class _LevelResultStageState extends State<LevelResultStage>
                             scale: stamp,
                             child: Transform.rotate(
                               angle: -.04,
-                              child: const StageRibbon('NEW BEST!'),
+                              child: StageRibbon(l.levelResultNewBest),
                             ),
                           ),
                       ],
@@ -883,7 +916,7 @@ class _LevelResultStageState extends State<LevelResultStage>
                           children: [
                             Opacity(
                               opacity: newScore ? swap : 1,
-                              child: Text('SCORE', style: _label),
+                              child: Text(l.levelResultScore, style: _label),
                             ),
                             if (newScore && stamp > 0)
                               OverflowBox(
@@ -893,7 +926,7 @@ class _LevelResultStageState extends State<LevelResultStage>
                                   scale: stamp,
                                   child: Transform.rotate(
                                     angle: -.04,
-                                    child: const StageRibbon('NEW BEST!'),
+                                    child: StageRibbon(l.levelResultNewBest),
                                   ),
                                 ),
                               ),
@@ -922,7 +955,7 @@ class _LevelResultStageState extends State<LevelResultStage>
   /// The level's three goals as tags under their stars, each ticked as its
   /// star lands, or saying how many stars are left to go.
   Widget _goals(RunResult r, int stars) {
-    final goals = LevelIntroCard.goals(level);
+    final goals = LevelIntroCard.goals(level, context.l10n);
     final marks = [null, level.marks.two, level.marks.three];
     return Opacity(
       opacity: _span(.24, .44),
@@ -932,7 +965,9 @@ class _LevelResultStageState extends State<LevelResultStage>
           for (var i = 0; i < 3; i++) ...[
             if (i > 0) const SizedBox(width: _pitch - _goalWidth),
             Semantics(
-              label: '${goals[i]}.${stars > i ? ' Done.' : ''}',
+              label: stars > i
+                  ? context.l10n.levelResultGoalDoneSemantics(goals[i])
+                  : context.l10n.levelResultGoalSemantics(goals[i]),
               excludeSemantics: true,
               child: _goal(
                 i,
@@ -958,22 +993,23 @@ class _LevelResultStageState extends State<LevelResultStage>
   }) {
     final at = LevelResultStage.starsAt[i] + .06;
     final met = earned && (_calm || _intro.value >= at);
+    final l = context.l10n;
     final title = mark == null
         ? (level.isChapterBoss
-              ? 'Boss'
+              ? l.levelResultGoalBoss
               : level.isGuardian
-              ? 'Guardian'
-              : 'Finish')
+              ? l.levelResultGoalGuardian
+              : l.levelResultGoalFinish)
         : '$mark';
     final hint = met
-        ? 'Done'
+        ? l.levelResultGoalDone
         : earned
         ? ''
         : mark == null
-        ? 'Not yet'
+        ? l.levelResultGoalNotYet
         : left! > 0
-        ? '$left to go'
-        : 'Finish first';
+        ? l.levelResultGoalToGo(left)
+        : l.levelResultGoalFinishFirst;
     final tone = met ? _teal : SkyColors.muted;
     // The tick lands with a little pop.
     final pop = _calm ? 0.0 : math.sin(_span(at, at + .08) * math.pi);
@@ -1051,6 +1087,7 @@ class _LevelResultStageState extends State<LevelResultStage>
   List<Widget> _status(RunResult r) {
     final c = widget.controller;
     final p = widget.progress;
+    final l = context.l10n;
     Widget strip(
       IconData icon,
       Color badge,
@@ -1135,7 +1172,7 @@ class _LevelResultStageState extends State<LevelResultStage>
         (widget.initialDailyKey != p.today?.dayKey ||
             !widget.initialDailyComplete);
     final next = _next;
-    final soon = LevelResultStage.comingSoonNews(level);
+    final soon = LevelResultStage.comingSoonNews(level, l: l);
     final news = <Widget>[
       if (c.saved && c.levelComplete)
         if (level == Campaign.chapterOf(level).bossLevel &&
@@ -1143,13 +1180,13 @@ class _LevelResultStageState extends State<LevelResultStage>
           strip(
             Icons.local_post_office_outlined,
             SkyColors.lavender,
-            'A postcard is waiting on the map!',
+            l.levelResultPostcardWaiting,
           )
         else if (next != null && !widget.before.cleared && !widget.nextWasOpen)
           strip(
             Icons.lock_open_rounded,
             SkyColors.mint,
-            '${next.id} ${next.name} is open!',
+            l.levelResultLevelOpen(next.id, l.levelName(next)),
           )
         else if (next == null && soon != null)
           // Next is hidden: the rest of the chapter is not in this build.
@@ -1164,13 +1201,13 @@ class _LevelResultStageState extends State<LevelResultStage>
         strip(
           Icons.local_post_office_outlined,
           SkyColors.mint,
-          'Today’s postcard stamped!',
+          l.flightResultDailyStamped,
         )
       else if (newStamps.isNotEmpty)
         strip(
           Icons.workspace_premium_rounded,
           SkyColors.yellow,
-          newStamps.first.medalTitle,
+          l.stampMedalTitle(newStamps.first),
         ),
     ];
     return [
@@ -1192,7 +1229,7 @@ class _LevelResultStageState extends State<LevelResultStage>
               color: SkyColors.coralDeep,
             ),
             label: Text(
-              c.saveError,
+              l.flightNote(c.saveError),
               style: bodyText(
                 13.5,
                 weight: FontWeight.w900,
@@ -1204,7 +1241,7 @@ class _LevelResultStageState extends State<LevelResultStage>
       else if (!c.saved)
         quiet(
           Icons.hourglass_top_rounded,
-          'Saving your flight…',
+          l.flightResultSaving,
           SkyColors.muted,
         )
       else ...[
@@ -1215,7 +1252,7 @@ class _LevelResultStageState extends State<LevelResultStage>
               strip(
                 Icons.error_outline_rounded,
                 SkyColors.coral,
-                c.sessionError,
+                l.flightNote(c.sessionError),
                 fill: const Color(0xffffe6df),
                 edge: SkyColors.coralDeep.withValues(alpha: .6),
               ),
@@ -1223,7 +1260,7 @@ class _LevelResultStageState extends State<LevelResultStage>
               strip(
                 Icons.flag_rounded,
                 SkyColors.sky,
-                'Reach the finish to earn stars.',
+                l.levelResultReachFinish,
                 fill: _inset,
               ),
             ...news,
@@ -1237,8 +1274,8 @@ class _LevelResultStageState extends State<LevelResultStage>
                 ? Icons.video_library_outlined
                 : Icons.check_circle_outline_rounded,
             c.sessionSaved
-                ? 'Session saved · Watch in Records'
-                : 'Saved on this phone',
+                ? l.flightResultSessionSaved
+                : l.flightResultSavedOnPhone,
             c.sessionSaved ? _teal : SkyColors.muted,
           ),
       ],
@@ -1252,6 +1289,7 @@ class _LevelResultStageState extends State<LevelResultStage>
 
   Widget _actions(RunResult r) {
     final c = widget.controller;
+    final l = context.l10n;
     Widget pop(double at, Widget child) {
       final k = _span(at, at + .2, Curves.easeOutBack);
       return Opacity(
@@ -1269,7 +1307,7 @@ class _LevelResultStageState extends State<LevelResultStage>
     final ready = _calm ? 0.0 : _span(.86, 1);
     final map = StageKey(
       key: const ValueKey('level-result-map'),
-      label: 'Map',
+      label: l.commonMap,
       icon: Icons.map_rounded,
       hero: next == null && c.levelComplete,
       autofocus: next == null && c.levelComplete,
@@ -1279,7 +1317,7 @@ class _LevelResultStageState extends State<LevelResultStage>
     );
     final retry = StageKey(
       key: const ValueKey('level-result-retry'),
-      label: 'Retry',
+      label: l.commonRetry,
       icon: Icons.replay_rounded,
       hero: !c.levelComplete,
       autofocus: !c.levelComplete,
@@ -1291,12 +1329,12 @@ class _LevelResultStageState extends State<LevelResultStage>
       key: const ValueKey('save-or-watch-session'),
       height: _keyHeight,
       label: c.sessionSaved
-          ? 'Watch replay'
+          ? l.flightResultWatchReplay
           : c.preparingReplay
-          ? 'Preparing…'
+          ? l.flightResultPreparing
           : c.sessionSaving
-          ? 'Saving…'
-          : 'Save session',
+          ? l.flightResultSavingShort
+          : l.flightResultSaveSession,
       icon: c.sessionSaved
           ? Icons.play_circle_outline_rounded
           : Icons.save_alt_rounded,
@@ -1313,7 +1351,7 @@ class _LevelResultStageState extends State<LevelResultStage>
         ? (
             StageKey(
               key: const ValueKey('level-result-next'),
-              label: 'Next',
+              label: l.commonNext,
               icon: Icons.arrow_forward_rounded,
               hero: true,
               autofocus: true,

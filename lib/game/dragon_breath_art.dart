@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/painting.dart';
 
 import '../domain/game_rules.dart';
+import '../l10n/l10n.dart';
 import '../ui/theme.dart';
 import 'boss_motion.dart';
 import 'dragon_kit.dart';
@@ -395,7 +396,8 @@ abstract final class DragonBreathArt {
     c.drawPath(inner, DragonKit.fill(DragonPalette.flameYellow, alpha));
   }
 
-  static final _painters = <String, TextPainter>{};
+  // (laid out again in a new language's fonts)
+  static final _painters = L10n.cache(<String, TextPainter>{});
 
   static TextPainter _text(String value, double size, Color color) =>
       _painters.putIfAbsent(
@@ -408,7 +410,8 @@ abstract final class DragonBreathArt {
               color: color,
             ).copyWith(letterSpacing: size * .06),
           ),
-          textDirection: TextDirection.ltr,
+          // Words run their language's way; the tag stays where it is.
+          textDirection: L10n.textDirection,
         )..layout(),
       );
 
@@ -433,10 +436,11 @@ abstract final class DragonBreathArt {
     bool inhale,
   ) {
     final lane = boss.breathLane;
+    final l = L10n.strings;
     final label = switch (lane) {
-      BreathLane.high => 'FLY LOW',
-      BreathLane.middle => 'CLIMB OR DIVE',
-      BreathLane.low => 'FLY HIGH',
+      BreathLane.high => l.bossDodgeFlyLow,
+      BreathLane.middle => l.bossDodgeClimbOrDive,
+      BreathLane.low => l.bossDodgeFlyHigh,
     };
     final pad = h * .016;
     final arrow = h * .04;

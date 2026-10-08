@@ -425,7 +425,7 @@ class FlightSimulation {
       throw ArgumentError.value(
         coop,
         'coop',
-        'A duel flies the endless course',
+        'A duel flies the endless course', // l10n-ignore
       );
     }
     if (plan.levelId != null &&
@@ -435,7 +435,7 @@ class FlightSimulation {
       throw ArgumentError.value(
         plan.levelId,
         'plan',
-        'Needs a touch flight on the endless course',
+        'Needs a touch flight on the endless course', // l10n-ignore
       );
     }
     // A plan that uses rules 43's additions must not fly under older rules,
@@ -444,6 +444,7 @@ class FlightSimulation {
       throw ArgumentError.value(
         rulesVersion,
         'rulesVersion',
+        // l10n-ignore
         'Level ${plan.levelId} needs rules version ${plan.minRulesVersion}',
       );
     }
@@ -1494,10 +1495,11 @@ class FlightSimulation {
     return (x: birdScreenX + mouth.x + lead, y: birdY + mouth.y);
   }
 
+  // l10n-ignore: never shown (no screen reads it).
   String get regionName => switch ((elapsed / 20).floor() % 3) {
-    0 => 'Sunrise Isles',
-    1 => 'Peach Horizon',
-    _ => 'Twilight Garden',
+    0 => 'Sunrise Isles', // l10n-ignore
+    1 => 'Peach Horizon', // l10n-ignore
+    _ => 'Twilight Garden', // l10n-ignore
   };
   double _lastValidMs = double.negativeInfinity;
   double _lastValidReceivedMs = double.negativeInfinity;
@@ -1505,7 +1507,9 @@ class FlightSimulation {
   double _spawnIn = 0, _previousCenter = .5;
   double _lastSampleMs = double.negativeInfinity;
   bool _inputValid = false, started = false;
-  String trackingFeedback = 'Find your position';
+  // The English twin of FlightNote.findPosition (play_controller.dart):
+  // screens word it through AppLocalizations.flightNote.
+  String trackingFeedback = 'Find your position'; // l10n-ignore
   int _index = 0, _repBaseline = 0;
   final List<ObstacleKind> _patterns = [];
   int _patternTier = -1;

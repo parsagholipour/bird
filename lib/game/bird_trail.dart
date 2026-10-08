@@ -5,6 +5,8 @@ import '../ui/theme.dart';
 
 /// The same cosmetic marks are used in flight and in the crew preview.
 abstract final class BirdTrail {
+  // l10n-english-twin: the names are the twins of the bird_N_trail keys;
+  // screens show BirdsText.birdTrailName (lib/l10n/text/birds_text.dart).
   static const names = [
     'Sunshine bubbles',
     'Peach hearts',

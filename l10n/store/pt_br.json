@@ -1,0 +1,463 @@
+{
+  "@note": "Brazilian Portuguese (pt_br) translation of l10n/store/en.json. English source of the Play Store listing and the Google Play Games texts. Translators copy this file to l10n/store/<slug>.json (slugs as AppLanguage: es_419, pt_br, id, fr, de, ja, ko, tr, zh_hant, ru, ar), translate every \"text\", keep every key, and stay within \"maxChars\" (Play Console counts characters). The owner pastes them into Play Console: Grow users > Store presence > Main store listing > translations, and Play Games Services > Achievements > (each) > translations. Nothing here ships in the app. check: python3 tool/l10n/check_store.py.",
+  "@status": "listing: DRAFT by the localization architect (no English listing existed in the repo); owner to approve before translation. achievements: copied from play-games-ws/UX-DECISION.md section 5 (names and descriptions as designed; descriptions 1-24 equal SkyStamp.goal in the app).",
+  "listing": {
+    "title": {
+      "text": "Beakbound",
+      "maxChars": 30,
+      "description": "App name on Google Play. A brand name: keep it as is unless a market needs a transliteration (owner decides).",
+      "keepEnglish": true
+    },
+    "shortDescription": {
+      "text": "Toque para voar com um pássaro carteiro pelo mundo. Toda carta chega!",
+      "maxChars": 80,
+      "description": "Play Store short description, under the screenshots. Friendly, no ALL CAPS, no emoji, no \"free\"/\"best\"/\"#1\" (Play policy)."
+    },
+    "fullDescription": {
+      "text": "Beakbound é uma aventura de voo colorida que funciona sem internet. Você é o carteiro mais novo do Clube do Céu: toque para bater as asas, passe pelos portais, colete estrelas e entregue a correspondência pelo mundo todo.\n\nVOE NA CAMPANHA\nCinco rotas do correio ficaram em silêncio da noite para o dia. Voe fase por fase, da selva ao Brasil do Carnaval e aos templos astecas, passando pela Roma Antiga, pelo Egito e pela Arábia, até as luzes de Nova York. Cada fase leva um pacote, e cada entrega volta com um bilhete de agradecimento.\n\nENFRENTE OS CHEFÕES\nO Barão Morcego, o Rei Cuspidor, Neferhoo, o Carteiro Múmia, o Rei Pruu e a Gárgula do Holofote estão no caminho. Atire, use o Turbo e desvie para mandar todos eles embora.\n\nVOO INFINITO\nBata seu recorde no percurso infinito, onde portais, ventanias e chefões não param de chegar.\n\nMUITO MAIS\n- Quatro pássaros para colecionar, cada um com sua própria voz\n- Melhorias compradas com as estrelas que você coleta\n- Uma Aventura diária e um Passaporte do Céu cheio de medalhas\n- O Criador de Fases: monte suas próprias rotas e voe nelas\n- Voem Juntos e duelos 1 contra 1 para dois jogadores no mesmo celular\n- Minijogos em que você voa com flexões, agachamentos ou pulos na frente da câmera\n\nDO SEU JEITO\nNão precisa de conta nem de internet. Os minijogos com câmera rodam inteiramente no seu celular: o vídeo nunca sai dele. Salvamento na nuvem e conquistas opcionais com o Google Play Games.",
+      "maxChars": 4000,
+      "description": "Play Store full description. Section headers in capitals are fine. Keep the facts: offline, camera stays on the phone, optional Play Games."
+    },
+    "releaseNotes": {
+      "text": "Agora o Beakbound fala a sua língua: escolha o idioma em Configurações.",
+      "maxChars": 500,
+      "description": "\"What's new\" for the release that ships the translations."
+    }
+  },
+  "playGames": {
+    "displayName": {
+      "text": "Beakbound",
+      "maxChars": 50,
+      "description": "Play Games Services game name.",
+      "keepEnglish": true
+    },
+    "description": {
+      "text": "Voe com um pássaro carteiro pelo mundo: entregue a correspondência, derrote os chefões e ganhe todas as medalhas.",
+      "maxChars": 4000,
+      "description": "Play Games Services game description (Properties)."
+    }
+  },
+  "achievements": {
+    "frequentFlyerBronze": {
+      "name": {
+        "text": "Viajante frequente · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Conclua 10 voos valendo pontos.",
+        "maxChars": 500
+      }
+    },
+    "frequentFlyerSilver": {
+      "name": {
+        "text": "Viajante frequente · Prata",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Conclua 100 voos valendo pontos.",
+        "maxChars": 500
+      }
+    },
+    "frequentFlyerGold": {
+      "name": {
+        "text": "Viajante frequente · Ouro",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Conclua 500 voos valendo pontos.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotBronze": {
+      "name": {
+        "text": "Na mosca · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Faça 25 passagens perfeitas pelas miras.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotSilver": {
+      "name": {
+        "text": "Na mosca · Prata",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Faça 200 passagens perfeitas pelas miras.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotGold": {
+      "name": {
+        "text": "Na mosca · Ouro",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Faça 1.000 passagens perfeitas pelas miras.",
+        "maxChars": 500
+      }
+    },
+    "starChaserBronze": {
+      "name": {
+        "text": "Caça-estrelas · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Colete 50 estrelas.",
+        "maxChars": 500
+      }
+    },
+    "starChaserSilver": {
+      "name": {
+        "text": "Caça-estrelas · Prata",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Colete 500 estrelas.",
+        "maxChars": 500
+      }
+    },
+    "starChaserGold": {
+      "name": {
+        "text": "Caça-estrelas · Ouro",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Colete 5.000 estrelas.",
+        "maxChars": 500
+      }
+    },
+    "constellationBronze": {
+      "name": {
+        "text": "Constelação · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Colete 15 estrelas numa só sequência.",
+        "maxChars": 500
+      }
+    },
+    "constellationSilver": {
+      "name": {
+        "text": "Constelação · Prata",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Colete 40 estrelas numa só sequência.",
+        "maxChars": 500
+      }
+    },
+    "constellationGold": {
+      "name": {
+        "text": "Constelação · Ouro",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Colete 80 estrelas numa só sequência.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainBronze": {
+      "name": {
+        "text": "Capitão do céu · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Marque 100 pontos num só voo infinito.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainSilver": {
+      "name": {
+        "text": "Capitão do céu · Prata",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Marque 500 pontos num só voo infinito.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainGold": {
+      "name": {
+        "text": "Capitão do céu · Ouro",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Marque 2.000 pontos num só voo infinito.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerBronze": {
+      "name": {
+        "text": "Desbravador · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Voe pelo menos 60 segundos em 5 voos infinitos.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerSilver": {
+      "name": {
+        "text": "Desbravador · Prata",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Voe pelo menos 60 segundos em 50 voos infinitos.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerGold": {
+      "name": {
+        "text": "Desbravador · Ouro",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Voe pelo menos 60 segundos em 250 voos infinitos.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherBronze": {
+      "name": {
+        "text": "Voando em bando · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Leve dois pássaros diferentes em voos valendo pontos.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherSilver": {
+      "name": {
+        "text": "Voando em bando · Prata",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Leve os quatro pássaros em voos valendo pontos.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherGold": {
+      "name": {
+        "text": "Voando em bando · Ouro",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Faça 25 voos valendo pontos com cada pássaro.",
+        "maxChars": 500
+      }
+    },
+    "allRounderBronze": {
+      "name": {
+        "text": "Faz-tudo · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Voe num minijogo de flexão, agachamento ou pulo.",
+        "maxChars": 500
+      }
+    },
+    "allRounderSilver": {
+      "name": {
+        "text": "Faz-tudo · Prata",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Voe nos três minijogos: flexão, agachamento, pulo.",
+        "maxChars": 500
+      }
+    },
+    "allRounderGold": {
+      "name": {
+        "text": "Faz-tudo · Ouro",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Faça 10 voos valendo pontos em cada minijogo.",
+        "maxChars": 500
+      }
+    },
+    "canopyBoss": {
+      "name": {
+        "text": "Correio pelas Copas",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Derrote o Barão Morcego no covil dele, no fim da Rota das Copas (1-8).",
+        "maxChars": 500
+      }
+    },
+    "neferhoo": {
+      "name": {
+        "text": "Devolver ao Remetente",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Derrote Neferhoo, o Carteiro Múmia que guarda o Egito (2-6).",
+        "maxChars": 500
+      }
+    },
+    "roadBoss": {
+      "name": {
+        "text": "Chá de Menta de Novo",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Derrote o Rei Cuspidor no fim da Estrada Antiga (2-9).",
+        "maxChars": 500
+      }
+    },
+    "kingCoo": {
+      "name": {
+        "text": "Migalhas Varridas",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Derrote o Rei Pruu, o guardião de Nova York (3-2).",
+        "maxChars": 500
+      }
+    },
+    "gargoyle": {
+      "name": {
+        "text": "Fora dos Holofotes",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Derrote a Gárgula do Holofote (3-4).",
+        "maxChars": 500
+      }
+    },
+    "goldCanopy": {
+      "name": {
+        "text": "Copas de Ouro",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Ganhe três estrelas em todas as fases da Rota das Copas.",
+        "maxChars": 500
+      }
+    },
+    "goldRoad": {
+      "name": {
+        "text": "Estrada de Ouro",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Ganhe três estrelas em todas as fases da Estrada Antiga.",
+        "maxChars": 500
+      }
+    },
+    "brightLights": {
+      "name": {
+        "text": "Luzes da Cidade Grande",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Ganhe três estrelas em todas as fases de Nova York.",
+        "maxChars": 500
+      }
+    },
+    "lamplighter": {
+      "name": {
+        "text": "Acendedor de Lampiões",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Derrote a Imperatriz do Crepúsculo num voo infinito.",
+        "maxChars": 500
+      }
+    },
+    "harbourBells": {
+      "name": {
+        "text": "Sinos do Porto",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Derrote o Capitão Pirata num voo infinito.",
+        "maxChars": 500
+      }
+    },
+    "edgeOfTheMap": {
+      "name": {
+        "text": "Beira do Mapa",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Derrote o Dragão das Brasas num voo infinito.",
+        "maxChars": 500
+      }
+    },
+    "twoOnOnePhone": {
+      "name": {
+        "text": "Dois num Celular",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Conclua um voo de Voem Juntos na corda.",
+        "maxChars": 500
+      }
+    },
+    "friendlyRivals": {
+      "name": {
+        "text": "Rivais Amigos",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Voe num duelo 1 contra 1.",
+        "maxChars": 500
+      }
+    },
+    "routePlanner": {
+      "name": {
+        "text": "Planejador de Rotas",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Crie uma fase no Criador de Fases e voe nela até a chegada.",
+        "maxChars": 500
+      }
+    },
+    "wholeKit": {
+      "name": {
+        "text": "O Pacote Completo",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Compre todos os 16 níveis de melhoria.",
+        "maxChars": 500
+      }
+    },
+    "penPal": {
+      "name": {
+        "text": "Amigo por Carta",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Carimbe 10 postais diários cumprindo todas as metas da Aventura de um dia.",
+        "maxChars": 500
+      }
+    },
+    "nightMail": {
+      "name": {
+        "text": "Correio Noturno",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Conclua um voo valendo pontos entre meia-noite e 4 da manhã.",
+        "maxChars": 500
+      }
+    },
+    "specialDelivery": {
+      "name": {
+        "text": "Entrega Especial",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Acerte um pombo de beco e recupere a estrela que ele roubou.",
+        "maxChars": 500
+      }
+    }
+  },
+  "@achievementNote": "Keys are PlayAchievement values (lib/data/play_achievements.dart), in Play Console order. Names 1-24 follow the in-game \"Stamp · Medal\" pattern: translate the stamp and medal words as the game's ARB does (passport keys) so the two match."
+}

@@ -1,9 +1,12 @@
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/painting.dart';
+import 'package:flutter/widgets.dart' show StringCharacters;
 
 import '../domain/game_rules.dart' show FlightSimulation;
 import '../domain/sky_boss.dart';
+import '../l10n/l10n.dart';
+import '../l10n/text/boss_text.dart';
 import '../ui/theme.dart';
 import 'boss_motion.dart';
 import 'dragon_hud_art.dart' show DragonHudFx;
@@ -448,14 +451,16 @@ abstract final class DragonEncounterUi {
         built.size == size &&
         built.number == boss.number &&
         built.name == boss.name &&
-        built.room == room.round()) {
+        built.room == room.round() &&
+        built.locale == L10n.locale) {
       return built;
     }
     return _cardBuilt = _Card(size, boss, room);
   }
 
-  // Laid-out text, kept between frames and bounded.
-  static final Map<Object, TextPainter> _texts = {};
+  // Laid-out text, kept between frames and bounded (and laid out again in
+  // a new language's fonts).
+  static final Map<Object, TextPainter> _texts = L10n.cache({});
 
   static TextPainter _text(
     Object key,
@@ -468,6 +473,7 @@ abstract final class DragonEncounterUi {
     bool italic = false,
     double? width,
     int maxLines = 1,
+    bool words = true,
   }) {
     final bucket = (alpha.clamp(0.0, 1.0) * 8).round();
     final id = (
@@ -501,7 +507,9 @@ abstract final class DragonEncounterUi {
                     ..color = _p.withValues(alpha: bucket / 8),
                 ),
         ),
-        textDirection: TextDirection.ltr,
+        // Words run their language's way (the card stays where it is); a
+        // multiplier (×2) reads left to right everywhere.
+        textDirection: words ? L10n.textDirection : TextDirection.ltr,
         textAlign: width == null ? TextAlign.start : TextAlign.center,
         maxLines: maxLines,
         ellipsis: width == null ? null : '…',
@@ -1599,8 +1607,16 @@ abstract final class DragonEncounterUi {
         size2,
         color: DragonPalette.flameCore,
         alpha: fade,
+        words: false,
       );
-      final line = _text('x2', '×2', size2, stroke: h * .011, alpha: fade);
+      final line = _text(
+        'x2',
+        '×2',
+        size2,
+        stroke: h * .011,
+        alpha: fade,
+        words: false,
+      );
       final at2 = at + Offset(0, -h * .1 - lift);
       c.save();
       c.translate(at2.dx, at2.dy);
@@ -2375,11 +2391,13 @@ class _Card {
   _Card(this.size, SkyBoss boss, double room)
     : number = boss.number,
       name = boss.name,
-      room = room.round() {
+      room = room.round(),
+      locale = L10n.locale {
     final h = size.height, w = size.width;
-    final word = boss.name.toUpperCase();
-    _eyebrow = 'ENCOUNTER ${boss.number.toString().padLeft(2, '0')}';
-    _title = boss.title;
+    final l = L10n.strings;
+    final word = L10n.upper(l.bossName(boss.kind));
+    _eyebrow = l.bossEyebrow(boss);
+    _title = l.bossTitleOf(boss);
     // Lay it out at full size; if the plate would reach the dragon's muzzle,
     // lay it out again smaller.
     double wanted(double f) {
@@ -2413,22 +2431,21 @@ class _Card {
     );
     nameW = probe.width;
     nameH = probe.height;
-    glyphs = [for (var i = 0; i < word.length; i++) word[i]];
-    glyphX = [
-      for (var i = 0; i < word.length; i++)
-        probe
-                .getBoxesForSelection(
-                  TextSelection(baseOffset: i, extentOffset: i + 1),
-                )
-                .isEmpty
-            ? 0.0
-            : probe
-                  .getBoxesForSelection(
-                    TextSelection(baseOffset: i, extentOffset: i + 1),
-                  )
-                  .first
-                  .left,
-    ];
+    // Lit letter by letter (whole characters); a right-to-left language's
+    // joined letters light as one word.
+    glyphs = L10n.textDirection == TextDirection.rtl
+        ? [word]
+        : word.characters.toList();
+    final xs = <double>[];
+    var at = 0;
+    for (final glyph in glyphs) {
+      final boxes = probe.getBoxesForSelection(
+        TextSelection(baseOffset: at, extentOffset: at + glyph.length),
+      );
+      at += glyph.length;
+      xs.add(boxes.isEmpty ? 0.0 : boxes.first.left);
+    }
+    glyphX = xs;
     outline = DragonEncounterUi._text(
       'outline',
       word,
@@ -2499,6 +2516,9 @@ class _Card {
   final Size size;
   final int number, room;
   final String name;
+
+  /// The language the card was laid out in.
+  final Locale locale;
 
   /// How much smaller than full size the plate had to be to fit.
   late final double f;

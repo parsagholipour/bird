@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 
 import 'match_hud.dart';
 import 'stage_key.dart';
@@ -98,7 +99,7 @@ class PauseCard extends StatelessWidget {
                   offset: Offset(0, 18 * (1 - t)),
                   child: Transform.scale(
                     scale: .94 + .06 * t,
-                    child: _card(width),
+                    child: _card(context, width),
                   ),
                 ),
               ),
@@ -109,7 +110,8 @@ class PauseCard extends StatelessWidget {
     ],
   );
 
-  Widget _card(double width) {
+  Widget _card(BuildContext context, double width) {
+    final l = context.l10n;
     // One leaving key gets room for a longer label such as Finish flight.
     final actionWidth = actions.length == 1 ? 128.0 : 100.0;
     return Stack(
@@ -129,7 +131,7 @@ class PauseCard extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('Take a breather.', style: heading(38)),
+                Text(l.flightPauseTitle, style: heading(38)),
                 const SizedBox(height: 6),
                 Text(
                   subtitle,
@@ -159,7 +161,7 @@ class PauseCard extends StatelessWidget {
                     if (actions.isNotEmpty) const SizedBox(width: 18),
                     Expanded(
                       child: StageKey(
-                        label: 'Keep flying',
+                        label: l.flightPauseKeepFlying,
                         icon: Icons.play_arrow_rounded,
                         hero: true,
                         sound: 'resume',

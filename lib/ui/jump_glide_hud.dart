@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../domain/game_rules.dart';
+import '../l10n/l10n.dart';
 import 'match_hud.dart';
 import 'theme.dart';
 
@@ -23,10 +24,11 @@ class JumpGlideHud extends StatelessWidget {
             (simulation.smoothJumpDescent
                 ? FlightSimulation.glideEaseOutSeconds
                 : .75);
-    final time = '${remaining.toStringAsFixed(1)}s';
+    final l = context.l10n;
+    final time = l.flightSeconds(remaining.toStringAsFixed(1));
     if (compact) {
       return Text(
-        active ? 'Glide · $time' : 'Jump to glide',
+        active ? l.hudGlideCompact(time) : l.hudJumpToGlide,
         style: bodyText(11, color: SkyColors.mint),
       );
     }
@@ -41,11 +43,13 @@ class JumpGlideHud extends StatelessWidget {
           symbol: MatchSymbol.wing,
           value: active ? remaining / FlightSimulation.maxGlideSeconds : 0,
           active: active,
-          text: active ? time : 'Jump',
+          text: active ? time : l.hudJump,
           color: low ? SkyColors.coralDeep : SkyColors.teal,
           label: active
-              ? '${low ? 'Glide ending' : 'Glide'}, $time remaining'
-              : 'Jump to charge a 3-second glide',
+              ? low
+                    ? l.hudGlideEndingSemantics(time)
+                    : l.hudGlideSemantics(time)
+              : l.hudJumpChargeSemantics,
         ),
       ),
     );

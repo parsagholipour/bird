@@ -1,6 +1,9 @@
 import 'dart:math' as math;
 import 'tracking.dart';
 
+// l10n-english-twin: the coaching lines here are English twins; screens show
+// them through `l.trackingFeedback(...)` (lib/l10n/text/tracking_text.dart).
+
 /// Standing and squatting share a grounded stance. Hip height, measured from
 /// the ankles, ignores hand gestures and a forward bend at the waist.
 class SquatObservation {

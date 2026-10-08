@@ -1,0 +1,463 @@
+{
+  "@note": "French (fr) translation of l10n/store/en.json; built by ui/fr/build_store.py. Achievement names 1-24 = \"{stamp} · {medal}\" and descriptions = the stamp goals of app_fr.arb.",
+  "@status": "Translated from the English DRAFT listing (owner approval pending): re-translate if the English changes.",
+  "listing": {
+    "title": {
+      "text": "Beakbound",
+      "maxChars": 30,
+      "description": "App name on Google Play. A brand name: keep it as is unless a market needs a transliteration (owner decides).",
+      "keepEnglish": true
+    },
+    "shortDescription": {
+      "text": "Tape et vole en oiseau facteur autour du monde. Chaque lettre arrive à bon port.",
+      "maxChars": 80,
+      "description": "Play Store short description, under the screenshots. Friendly, no ALL CAPS, no emoji, no \"free\"/\"best\"/\"#1\" (Play policy)."
+    },
+    "fullDescription": {
+      "text": "Beakbound est une aventure aérienne pleine de couleurs, jouable hors ligne. Tu es le tout nouveau facteur du Club du Ciel : tape pour battre des ailes, faufile-toi entre les portes, attrape des étoiles et livre le courrier dans le monde entier.\n\nVOLE DANS LA CAMPAGNE\nCinq routes postales se sont tues pendant la nuit. Vole de niveau en niveau, de la jungle au Brésil du carnaval et aux temples aztèques, puis jusqu’à la Rome antique, l’Égypte et l’Arabie, et sous les lumières de New York. Chaque niveau transporte un colis, et chaque livraison te vaut un mot de remerciement.\n\nAFFRONTE LES BOSS\nLe Baron Chauve-Souris, le Roi Cracheur, Neferhoo le Facteur momie, le Roi Roucou et la Gargouille aux Projecteurs te barrent la route. Tire, sprinte et esquive pour les renvoyer d’où ils viennent.\n\nVOLE À L’INFINI\nBats ton record sur le parcours infini, où portes, bourrasques et boss ne s’arrêtent jamais.\n\nET AUSSI\n- Quatre oiseaux à collectionner, chacun avec sa propre voix\n- Des améliorations achetées avec les étoiles que tu récoltes\n- Une Aventure quotidienne et un passeport du ciel plein de médailles\n- Le Créateur de niveaux : invente tes propres routes et vole dessus\n- Volons ensemble et duels en 1 contre 1, à deux sur un seul téléphone\n- Des mini-jeux où l’on vole avec des pompes, des squats ou des sauts devant la caméra\n\nJOUE À TA FAÇON\nPas de compte, pas besoin d’internet. Les mini-jeux avec caméra fonctionnent entièrement sur ton téléphone : la vidéo n’en sort jamais. Sauvegarde cloud et succès Google Play Jeux en option.",
+      "maxChars": 4000,
+      "description": "Play Store full description. Section headers in capitals are fine. Keep the facts: offline, camera stays on the phone, optional Play Games."
+    },
+    "releaseNotes": {
+      "text": "Beakbound parle maintenant ta langue : choisis-la dans les Réglages.",
+      "maxChars": 500,
+      "description": "\"What's new\" for the release that ships the translations."
+    }
+  },
+  "playGames": {
+    "displayName": {
+      "text": "Beakbound",
+      "maxChars": 50,
+      "description": "Play Games Services game name.",
+      "keepEnglish": true
+    },
+    "description": {
+      "text": "Fais voler un oiseau facteur autour du monde : livre le courrier, bats les boss et collectionne toutes les médailles.",
+      "maxChars": 4000,
+      "description": "Play Games Services game description (Properties)."
+    }
+  },
+  "achievements": {
+    "frequentFlyerBronze": {
+      "name": {
+        "text": "Grand voyageur · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Termine 10 vols comptabilisés.",
+        "maxChars": 500
+      }
+    },
+    "frequentFlyerSilver": {
+      "name": {
+        "text": "Grand voyageur · Argent",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Termine 100 vols comptabilisés.",
+        "maxChars": 500
+      }
+    },
+    "frequentFlyerGold": {
+      "name": {
+        "text": "Grand voyageur · Or",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Termine 500 vols comptabilisés.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotBronze": {
+      "name": {
+        "text": "Pile au centre · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Réussis 25 passages parfaits le long des mires.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotSilver": {
+      "name": {
+        "text": "Pile au centre · Argent",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Réussis 200 passages parfaits le long des mires.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotGold": {
+      "name": {
+        "text": "Pile au centre · Or",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Réussis 1 000 passages parfaits le long des mires.",
+        "maxChars": 500
+      }
+    },
+    "starChaserBronze": {
+      "name": {
+        "text": "Chasseur d’étoiles · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Attrape 50 étoiles.",
+        "maxChars": 500
+      }
+    },
+    "starChaserSilver": {
+      "name": {
+        "text": "Chasseur d’étoiles · Argent",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Attrape 500 étoiles.",
+        "maxChars": 500
+      }
+    },
+    "starChaserGold": {
+      "name": {
+        "text": "Chasseur d’étoiles · Or",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Attrape 5 000 étoiles.",
+        "maxChars": 500
+      }
+    },
+    "constellationBronze": {
+      "name": {
+        "text": "Constellation · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Attrape 15 étoiles en une seule série.",
+        "maxChars": 500
+      }
+    },
+    "constellationSilver": {
+      "name": {
+        "text": "Constellation · Argent",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Attrape 40 étoiles en une seule série.",
+        "maxChars": 500
+      }
+    },
+    "constellationGold": {
+      "name": {
+        "text": "Constellation · Or",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Attrape 80 étoiles en une seule série.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainBronze": {
+      "name": {
+        "text": "Capitaine du ciel · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Marque 100 points en un seul vol infini.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainSilver": {
+      "name": {
+        "text": "Capitaine du ciel · Argent",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Marque 500 points en un seul vol infini.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainGold": {
+      "name": {
+        "text": "Capitaine du ciel · Or",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Marque 2 000 points en un seul vol infini.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerBronze": {
+      "name": {
+        "text": "Pionnier · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Vole au moins 60 secondes lors de 5 vols infinis.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerSilver": {
+      "name": {
+        "text": "Pionnier · Argent",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Vole au moins 60 secondes lors de 50 vols infinis.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerGold": {
+      "name": {
+        "text": "Pionnier · Or",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Vole au moins 60 secondes lors de 250 vols infinis.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherBronze": {
+      "name": {
+        "text": "Toute la volée · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Emmène deux oiseaux différents en vols comptabilisés.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherSilver": {
+      "name": {
+        "text": "Toute la volée · Argent",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Emmène les quatre oiseaux en vols comptabilisés.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherGold": {
+      "name": {
+        "text": "Toute la volée · Or",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Fais 25 vols comptabilisés avec chaque oiseau.",
+        "maxChars": 500
+      }
+    },
+    "allRounderBronze": {
+      "name": {
+        "text": "Touche-à-tout · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Joue à un mini-jeu de pompes, squats ou sauts.",
+        "maxChars": 500
+      }
+    },
+    "allRounderSilver": {
+      "name": {
+        "text": "Touche-à-tout · Argent",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Joue aux trois mini-jeux : pompes, squats, sauts.",
+        "maxChars": 500
+      }
+    },
+    "allRounderGold": {
+      "name": {
+        "text": "Touche-à-tout · Or",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Fais 10 vols comptabilisés dans chaque mini-jeu.",
+        "maxChars": 500
+      }
+    },
+    "canopyBoss": {
+      "name": {
+        "text": "Courrier par la canopée",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Bats le Baron Chauve-Souris dans son repaire, au bout de la Route de la Canopée (1-8).",
+        "maxChars": 500
+      }
+    },
+    "neferhoo": {
+      "name": {
+        "text": "Retour à l’envoyeur",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Bats Neferhoo, le Facteur momie qui garde l’Égypte (2-6).",
+        "maxChars": 500
+      }
+    },
+    "roadBoss": {
+      "name": {
+        "text": "Encore du thé à la menthe",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Bats le Roi Cracheur au bout de la Voie antique (2-9).",
+        "maxChars": 500
+      }
+    },
+    "kingCoo": {
+      "name": {
+        "text": "Miettes balayées",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Bats le Roi Roucou, le gardien de New York (3-2).",
+        "maxChars": 500
+      }
+    },
+    "gargoyle": {
+      "name": {
+        "text": "Hors des projecteurs",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Bats la Gargouille aux Projecteurs (3-4).",
+        "maxChars": 500
+      }
+    },
+    "goldCanopy": {
+      "name": {
+        "text": "Canopée d’or",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Obtiens trois étoiles à chaque niveau de la Route de la Canopée.",
+        "maxChars": 500
+      }
+    },
+    "goldRoad": {
+      "name": {
+        "text": "Voie d’or",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Obtiens trois étoiles à chaque niveau de la Voie antique.",
+        "maxChars": 500
+      }
+    },
+    "brightLights": {
+      "name": {
+        "text": "Les Lumières de la ville",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Obtiens trois étoiles à chaque niveau de New York.",
+        "maxChars": 500
+      }
+    },
+    "lamplighter": {
+      "name": {
+        "text": "L’Allumeur de réverbères",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Bats l’Impératrice du Crépuscule lors d’un vol infini.",
+        "maxChars": 500
+      }
+    },
+    "harbourBells": {
+      "name": {
+        "text": "Cloches du port",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Bats le Capitaine Pirate lors d’un vol infini.",
+        "maxChars": 500
+      }
+    },
+    "edgeOfTheMap": {
+      "name": {
+        "text": "Le Bout de la carte",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Bats le Dragon des Braises lors d’un vol infini.",
+        "maxChars": 500
+      }
+    },
+    "twoOnOnePhone": {
+      "name": {
+        "text": "Deux sur un téléphone",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Termine un vol encordé dans Volons ensemble.",
+        "maxChars": 500
+      }
+    },
+    "friendlyRivals": {
+      "name": {
+        "text": "Rivaux amicaux",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Joue un duel en 1 contre 1.",
+        "maxChars": 500
+      }
+    },
+    "routePlanner": {
+      "name": {
+        "text": "Planificateur de routes",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Crée un niveau dans le Créateur de niveaux et vole jusqu’à son arrivée.",
+        "maxChars": 500
+      }
+    },
+    "wholeKit": {
+      "name": {
+        "text": "La totale",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Achète les 16 niveaux d’amélioration.",
+        "maxChars": 500
+      }
+    },
+    "penPal": {
+      "name": {
+        "text": "Correspondant",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Tamponne 10 cartes postales du jour en réussissant tous les objectifs d’une Aventure.",
+        "maxChars": 500
+      }
+    },
+    "nightMail": {
+      "name": {
+        "text": "Courrier de nuit",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Termine un vol comptabilisé entre minuit et 4 h du matin.",
+        "maxChars": 500
+      }
+    },
+    "specialDelivery": {
+      "name": {
+        "text": "Livraison spéciale",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Abats un pigeon des ruelles et récupère l’étoile qu’il a chipée.",
+        "maxChars": 500
+      }
+    }
+  },
+  "@achievementNote": "Keys are PlayAchievement values (lib/data/play_achievements.dart), in Play Console order. Names 1-24 follow the in-game \"Stamp · Medal\" pattern: translate the stamp and medal words as the game's ARB does (passport keys) so the two match."
+}

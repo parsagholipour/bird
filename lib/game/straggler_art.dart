@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 
 import '../domain/game_rules.dart';
+import '../l10n/l10n.dart';
 import '../ui/theme.dart';
 import 'boss_health_bar_art.dart';
 import 'boss_motion.dart';
@@ -117,10 +118,11 @@ abstract final class StragglerArt {
     final q = (a * 12).round() / 12;
     final label = done
         ? _text(
-            'ALL CAUGHT!',
+            L10n.strings.bossStragglersCaught,
             9.5 * u,
             _mint.withValues(alpha: q),
             spacing: .4 * u,
+            words: true,
           )
         : _text('×${guard.owed}', 10.5 * u, _cream.withValues(alpha: q));
     final h = 16 * u, icon = 15.5 * u;
@@ -234,13 +236,16 @@ abstract final class StragglerArt {
   static void strayBadge(Canvas c, Offset center, double radius) =>
       badge(c, center + Offset(-.35 * radius, -1.62 * radius), radius * .44);
 
-  static final Map<Object, TextPainter> _texts = {};
+  // (laid out again in a new language's fonts)
+  static final Map<Object, TextPainter> _texts = L10n.cache({});
 
+  /// [words] run their language's way; a count (×3) reads left to right.
   static TextPainter _text(
     String value,
     double size,
     Color color, {
     double spacing = 0,
+    bool words = false,
   }) => _texts[(value, size, color, spacing)] ??= TextPainter(
     text: TextSpan(
       text: value,
@@ -250,7 +255,7 @@ abstract final class StragglerArt {
         weight: FontWeight.w700,
       ).copyWith(letterSpacing: spacing),
     ),
-    textDirection: TextDirection.ltr,
+    textDirection: words ? L10n.textDirection : TextDirection.ltr,
     maxLines: 1,
   )..layout();
 

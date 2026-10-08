@@ -11,6 +11,8 @@ import '../domain/campaign.dart';
 import '../domain/campaign_progress.dart';
 import '../domain/campaign_story.dart';
 import '../domain/world_region.dart';
+import '../l10n/l10n.dart';
+import '../l10n/language_providers.dart' show storyCaptionsProvider;
 import 'campaign_chrome.dart';
 import 'campaign_map.dart';
 import 'campaign_postcard.dart';
@@ -68,6 +70,7 @@ class _CampaignScreenState extends ConsumerState<CampaignScreen> {
   int _nudgeId = 0;
 
   CampaignProgress? _stopsFrom;
+  String? _stopsIn;
   List<CampaignMapStop> _stops = const [];
 
   @override
@@ -86,12 +89,18 @@ class _CampaignScreenState extends ConsumerState<CampaignScreen> {
     super.dispose();
   }
 
-  /// The stops, rebuilt only when the progress changes, so the map keeps
-  /// its layout between frames.
-  List<CampaignMapStop> _stopsOf(CampaignProgress progress) {
-    if (identical(progress, _stopsFrom)) return _stops;
+  /// The stops, rebuilt only when the progress or the language changes, so
+  /// the map keeps its layout between frames.
+  List<CampaignMapStop> _stopsOf(
+    CampaignProgress progress,
+    AppLocalizations l,
+  ) {
+    if (identical(progress, _stopsFrom) && l.localeName == _stopsIn) {
+      return _stops;
+    }
     _stopsFrom = progress;
-    return _stops = campaignStops(progress);
+    _stopsIn = l.localeName;
+    return _stops = campaignStops(progress, l);
   }
 
   /// The first chapter whose postcard has not been seen yet.
@@ -125,7 +134,7 @@ class _CampaignScreenState extends ConsumerState<CampaignScreen> {
       return;
     }
     setState(() {
-      _nudge = lockedNudge(level);
+      _nudge = lockedNudge(level, context.l10n);
       _nudgeId++;
     });
     _nudgeTimer = Timer(_Nudge.life, () {
@@ -250,6 +259,10 @@ class _CampaignScreenState extends ConsumerState<CampaignScreen> {
 
   Widget _map(BuildContext context, ProgressSnapshot progress) {
     final campaign = progress.campaign;
+    final l = context.l10n;
+    // The story's words: the current language's captions once they have
+    // loaded (L10n.captions follows them), English until then.
+    ref.watch(storyCaptionsProvider);
     final still =
         progress.settings.reducedMotion ||
         MediaQuery.disableAnimationsOf(context);
@@ -276,7 +289,7 @@ class _CampaignScreenState extends ConsumerState<CampaignScreen> {
             child: ExcludeFocus(
               excluding: covered,
               child: CampaignMap(
-                stops: _stopsOf(campaign),
+                stops: _stopsOf(campaign, l),
                 bird: progress.settings.bird,
                 reducedMotion: still,
                 chromeHidden: covered,
@@ -286,7 +299,7 @@ class _CampaignScreenState extends ConsumerState<CampaignScreen> {
                 onPostcard: (chapter) => setState(() => _revisit = chapter),
                 leading: MapKey(
                   glyph: MapGlyph.back,
-                  label: 'Back home',
+                  label: l.commonBackHome,
                   reducedMotion: still,
                   onPressed: () => context.go('/'),
                 ),
@@ -373,57 +386,63 @@ class _Unavailable extends StatelessWidget {
   final VoidCallback onRetry, onHome;
 
   @override
-  Widget build(BuildContext context) => SkyBackdrop(
-    child: SafeArea(
-      child: Stack(
-        children: [
-          Positioned(
-            left: 16,
-            top: 12,
-            child: MapKey(
-              glyph: MapGlyph.back,
-              label: 'Back home',
-              onPressed: onHome,
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return SkyBackdrop(
+      child: SafeArea(
+        child: Stack(
+          children: [
+            PositionedDirectional(
+              start: 16,
+              top: 12,
+              child: MapKey(
+                glyph: MapGlyph.back,
+                label: l.commonBackHome,
+                onPressed: onHome,
+              ),
             ),
-          ),
-          Center(
-            child: failed
-                ? Panel(
-                    padding: const EdgeInsets.fromLTRB(28, 18, 28, 22),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(
-                          width: 120,
-                          height: 68,
-                          child: CustomPaint(painter: _LostMapPainter()),
-                        ),
-                        const SizedBox(height: 10),
-                        Text('The map needs a moment.', style: heading(26)),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SkyButton(
-                              key: const ValueKey('campaign-home'),
-                              label: 'Home',
-                              icon: Icons.home_rounded,
-                              color: SkyColors.skyDeep,
-                              onPressed: onHome,
-                            ),
-                            const SizedBox(width: 12),
-                            SkyButton(label: 'Try again', onPressed: onRetry),
-                          ],
-                        ),
-                      ],
-                    ),
-                  )
-                : const _Opening(),
-          ),
-        ],
+            Center(
+              child: failed
+                  ? Panel(
+                      padding: const EdgeInsets.fromLTRB(28, 18, 28, 22),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const SizedBox(
+                            width: 120,
+                            height: 68,
+                            child: CustomPaint(painter: _LostMapPainter()),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(l.campaignMapUnavailable, style: heading(26)),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SkyButton(
+                                key: const ValueKey('campaign-home'),
+                                label: l.commonHome,
+                                icon: Icons.home_rounded,
+                                color: SkyColors.skyDeep,
+                                onPressed: onHome,
+                              ),
+                              const SizedBox(width: 12),
+                              SkyButton(
+                                label: l.commonTryAgain,
+                                onPressed: onRetry,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    )
+                  : const _Opening(),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 /// The wait for the save: a round plate with a spinner, which holds still
@@ -510,8 +529,13 @@ class _LostMapPainter extends CustomPainter {
 /// level. A getter, not a constant, so a build that opens New York counts it.
 int get campaignStarsInBuild => Campaign.playableLevels.length * 3;
 
-/// The map's stops from the saved progress, one per region in trip order.
-List<CampaignMapStop> campaignStops(CampaignProgress progress) {
+/// The map's stops from the saved progress, one per region in trip order,
+/// worded in [l]'s language (the current one when null).
+List<CampaignMapStop> campaignStops(
+  CampaignProgress progress, [
+  AppLocalizations? l,
+]) {
+  final words = l ?? L10n.strings;
   final current = progress.current;
   return [
     for (final chapter in Campaign.chapters)
@@ -522,7 +546,7 @@ List<CampaignMapStop> campaignStops(CampaignProgress progress) {
               if (level.region == region)
                 CampaignMapNode(
                   id: level.id,
-                  name: level.name,
+                  name: words.levelName(level),
                   state: progress.cleared(level)
                       ? CampaignNodeState.cleared
                       : progress.unlocked(level)
@@ -538,17 +562,17 @@ List<CampaignMapStop> campaignStops(CampaignProgress progress) {
                       ? null
                       : level.boss,
                   guardian: level.isGuardian && Campaign.playable(level),
-                  lockNote: _lockNote(progress, level),
+                  lockNote: _lockNote(progress, level, words),
                 ),
           ];
           return CampaignMapStop(
             region: region,
             chapter: chapter.number,
-            route: chapter.route,
+            route: words.chapterRoute(chapter),
             nodes: nodes,
             locked: nodes.every((node) => node.locked),
             comingSoon: Campaign.comingSoon(region),
-            soonNote: _soonNote(chapter, region),
+            soonNote: _soonNote(chapter, region, words),
             postcard:
                 region == chapter.regions.last &&
                 progress.chapterComplete(chapter),
@@ -560,21 +584,29 @@ List<CampaignMapStop> campaignStops(CampaignProgress progress) {
 /// What unlocks [level] when it is locked in this build, for the screen reader
 /// ("Beat King Coo to unlock"); null when it is open, beaten, or not in this
 /// build (its stop's Coming soon ribbon says that).
-String? _lockNote(CampaignProgress progress, CampaignLevel level) =>
+String? _lockNote(
+  CampaignProgress progress,
+  CampaignLevel level,
+  AppLocalizations l,
+) =>
     Campaign.playable(level) &&
         !progress.cleared(level) &&
         !progress.unlocked(level)
-    ? lockedNudge(level)
+    ? lockedNudge(level, l)
     : null;
 
 /// What the Coming soon ribbon across [region]'s clouds says: "Coming soon",
 /// or, in a chapter the build has partly opened, the stop's own name, as in
 /// "Paris — coming soon".
-String _soonNote(CampaignChapter chapter, WorldRegion region) =>
+String _soonNote(
+  CampaignChapter chapter,
+  WorldRegion region,
+  AppLocalizations l,
+) =>
     Campaign.comingSoon(region) &&
         Campaign.playableLevels.any((level) => level.chapter == chapter.number)
-    ? '${region.title} — coming soon'
-    : 'Coming soon';
+    ? l.campaignStopComingSoon(l.regionName(region))
+    : l.campaignComingSoon;
 
 /// A short message over the map's foot when a locked level is tapped: the
 /// map's yellow notice ribbon, which pops in and fades before the screen
@@ -667,7 +699,9 @@ class _IntroLayer extends StatelessWidget {
       children: [
         Semantics(
           button: true,
-          label: 'Close ${level.name}',
+          label: context.l10n.campaignCloseLevelSemantics(
+            context.l10n.levelName(level),
+          ),
           onTap: onClose,
           excludeSemantics: true,
           child: GestureDetector(
@@ -722,7 +756,7 @@ class _PostcardLayer extends StatelessWidget {
           bird: bird,
           action: SkyButton(
             key: const ValueKey('campaign-postcard-continue'),
-            label: 'Continue',
+            label: context.l10n.commonContinue,
             autofocus: true,
             onPressed: onContinue,
           ),

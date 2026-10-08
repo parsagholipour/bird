@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 
 import '../domain/game_rules.dart';
+import '../l10n/l10n.dart';
+import '../l10n/text/coop_text.dart';
 import '../ui/theme.dart';
 
 /// The rope between a co-op flight's two birds and the player tags over
@@ -349,7 +351,8 @@ abstract final class TetherArt {
   }
 
   /// The player tags' lettering, laid out once per size.
-  static final _labels = <(int, double), TextPainter>{};
+  // (keyed by player, not words: a language switch empties it)
+  static final _labels = L10n.cache(<(int, double), TextPainter>{});
 
   static TextPainter _label(int player, double h) {
     if (_labels.length > 8) {
@@ -362,16 +365,17 @@ abstract final class TetherArt {
       (player, h),
       () => TextPainter(
         text: TextSpan(
-          text: 'P${player + 1}',
+          text: L10n.strings.coopPlayerTag(player),
           style: TextStyle(
-            fontFamily: 'Fredoka',
+            fontFamily: L10n.fonts.heading,
+            fontFamilyFallback: L10n.fonts.headingFallback,
             fontWeight: FontWeight.w700,
             fontSize: h * .028,
             height: 1,
             color: SkyColors.white,
           ),
         ),
-        textDirection: TextDirection.ltr,
+        textDirection: L10n.textDirection,
       )..layout(),
     );
   }

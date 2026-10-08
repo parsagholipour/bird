@@ -209,11 +209,11 @@ void main() {
                 as BoxDecoration)
             .boxShadow!;
     expect(shadowsOf('Sky Club soundtrack'), hasLength(1));
-    for (var i = 0; i < 2; i++) {
+    for (var i = 0; i < 3; i++) {
       await tester.sendKeyEvent(LogicalKeyboardKey.tab);
       await tester.pumpAndSettle();
     }
-    // Back button, then the first row.
+    // Back button, the language key, then the first row.
     expect(shadowsOf('Sky Club soundtrack'), hasLength(3));
     await _snap(tester, 'focus-row-800x360', 2);
     for (var i = 0; i < 4; i++) {

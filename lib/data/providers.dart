@@ -10,6 +10,7 @@ import '../tracking/native_tracking_source.dart';
 import '../domain/campaign.dart';
 import '../domain/campaign_story.dart';
 import '../domain/game_rules.dart';
+import '../l10n/app_language.dart';
 
 final appClockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
 
@@ -86,6 +87,12 @@ class ProgressController extends AsyncNotifier<ProgressSnapshot> {
 
   Future<void> setting(SettingKey key, bool value) async {
     await _repo.setSetting(key, value);
+    await refresh();
+  }
+
+  /// Saves the language chosen in Settings; null follows the device.
+  Future<void> setLanguage(AppLanguage? language) async {
+    await _repo.setLanguage(language);
     await refresh();
   }
 

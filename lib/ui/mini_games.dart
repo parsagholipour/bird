@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../domain/tracking.dart';
+import '../l10n/l10n.dart';
 import 'campaign_chrome.dart' show MapGlyph, MapKey;
 import 'mode_picker_art.dart';
 import 'theme.dart';
@@ -52,7 +53,7 @@ Future<PlayMode?> showMiniGames(BuildContext context) => showDialog<PlayMode>(
                             Semantics(
                               header: true,
                               child: Text(
-                                'Mini games',
+                                context.l10n.homeMiniGamesPickerTitle,
                                 textAlign: TextAlign.center,
                                 style:
                                     heading(
@@ -71,7 +72,7 @@ Future<PlayMode?> showMiniGames(BuildContext context) => showDialog<PlayMode>(
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              'Move to fly, or share the phone with a friend.',
+                              context.l10n.homeMiniGamesPickerIntro,
                               textAlign: TextAlign.center,
                               style: bodyText(
                                 13,
@@ -83,7 +84,7 @@ Future<PlayMode?> showMiniGames(BuildContext context) => showDialog<PlayMode>(
                       ),
                       MapKey(
                         glyph: MapGlyph.close,
-                        label: 'Close mini games',
+                        label: context.l10n.homeMiniGamesCloseSemantics,
                         onPressed: () => Navigator.pop(context),
                       ),
                     ],
@@ -178,12 +179,13 @@ class _ModeCardState extends State<_ModeCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final mode = widget.mode;
     final (color, description) = switch (mode) {
-      PlayMode.pushUp => (SkyColors.yellow, 'Lower to dip.\nPush up to soar.'),
-      PlayMode.squat => (SkyColors.coral, 'Squat low.\nStand to soar.'),
-      PlayMode.jump => (SkyColors.lavender, 'Jump for lift.\nGlide for stars.'),
-      null => (SkyColors.skyDeep, 'Two players, one phone.\nTeam up or duel.'),
+      PlayMode.pushUp => (SkyColors.yellow, l.homeMiniGamesPushUpCard),
+      PlayMode.squat => (SkyColors.coral, l.homeMiniGamesSquatCard),
+      PlayMode.jump => (SkyColors.lavender, l.homeMiniGamesJumpCard),
+      null => (SkyColors.skyDeep, l.homeMiniGamesCoopCard),
       // Tap & Fly is the main game's Endless, never a mini game.
       PlayMode.touch => throw ArgumentError.value(mode, 'mode'),
     };
@@ -265,9 +267,9 @@ class _ModeCardState extends State<_ModeCard> {
                             painter: ModePickerArt(mode: mode, color: color),
                           ),
                         ),
-                        Positioned(
+                        PositionedDirectional(
                           top: 9,
-                          left: 9,
+                          start: 9,
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 7,
@@ -288,7 +290,9 @@ class _ModeCardState extends State<_ModeCard> {
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  mode == null ? '2 players' : 'Camera',
+                                  mode == null
+                                      ? l.homeMiniGamesPlayers
+                                      : l.homeMiniGamesCamera,
                                   style: bodyText(10, weight: FontWeight.w900),
                                 ),
                               ],
@@ -310,7 +314,9 @@ class _ModeCardState extends State<_ModeCard> {
                           ),
                           child: Center(
                             child: Text(
-                              mode?.title ?? 'Fly Together',
+                              mode == null
+                                  ? l.homeMiniGamesCoop
+                                  : l.playModeName(mode),
                               textAlign: TextAlign.center,
                               style: heading(20, weight: FontWeight.w700),
                             ),

@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/painting.dart';
 
 import '../domain/game_rules.dart';
+import '../l10n/l10n.dart';
 import 'boss_ammo_art.dart';
 import 'boss_health_bar_art.dart';
 import 'boss_motion.dart';
@@ -232,7 +233,7 @@ abstract final class GargoyleEncounterArt {
   /// the rig's gradients, the body's paths and the beam's shaders are built
   /// once, off screen, while the storm's caption is up (a first frame of the
   /// body alone costs 46 ms in the debug JIT).
-  static Size? _warmed;
+  static (Size, Locale)? _warmed;
 
   /// Builds every shader, glow, laid-out text and cached path the encounter
   /// needs, once, for a screen of [size] (the name card's and the plate's
@@ -240,8 +241,10 @@ abstract final class GargoyleEncounterArt {
   /// the arrival's first second; calling it again for the same size does
   /// nothing (and it heals itself if the kit's caches were emptied).
   static void prewarm([Size size = const Size(640, 360)]) {
-    if (_warmed == size && GargoyleKit.built.isNotEmpty) return;
-    _warmed = size;
+    // Per language too: the card's and the beam tag's words change with it.
+    final key = (size, L10n.locale);
+    if (_warmed == key && GargoyleKit.built.isNotEmpty) return;
+    _warmed = key;
     GargoyleBodyArt.prewarm();
     final rec = ui.PictureRecorder();
     final c = Canvas(rec);

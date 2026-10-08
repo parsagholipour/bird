@@ -6,6 +6,10 @@ import 'tracking.dart';
 /// as they are or to remix into a level of your own. They are read-only
 /// and kept in code; their flights' bests are saved like any built level's.
 /// Retuning one's route bumps its [revision], so old bests start afresh.
+///
+/// l10n-english-twin: the starter names are the English twins of the
+/// `starter_<id>_name` keys; screens show `l.builtLevelName(plan)`
+/// (lib/l10n/text/builder_shelf_text.dart, test/l10n_s5_test.dart).
 abstract final class BuiltTemplates {
   static final List<BuiltLevel> all = List.unmodifiable([
     _level(_gardenHop(), revision: 1),

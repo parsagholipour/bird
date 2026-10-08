@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import '../theme.dart';
 
 /// The cues a creator's test flight wears in flight, so it never passes
@@ -35,7 +36,7 @@ class TestFlightTag extends StatelessWidget {
         const Icon(Icons.construction_rounded, size: 17, color: SkyColors.ink),
         const SizedBox(width: 5),
         Text(
-          'TEST FLIGHT',
+          context.l10n.builtResultTestFlight,
           style: heading(
             15,
             weight: FontWeight.w700,

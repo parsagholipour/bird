@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/painting.dart';
 
 import '../domain/game_rules.dart';
+import '../l10n/l10n.dart';
 import 'boss_motion.dart';
 import 'enemy_designs/mummy_bat.dart';
 import 'neferhoo_boss_rig.dart';
@@ -82,11 +83,11 @@ abstract final class NeferhooEncounterArt {
 
   /// The arrival's omen (the shared warning band): its title and its line
   /// (design §7: the arrival banner).
-  static const omenTitle = 'THE PYRAMID STIRS';
-  static const omenLine = 'The pyramid’s dust is stirring…';
+  static String get omenTitle => L10n.strings.encounterOmenTitle_neferhoo;
+  static String get omenLine => L10n.strings.encounterOmenLine_neferhoo;
 
   /// The letterbox caption once he has arrived.
-  static const caption = 'GET READY  ·  SHOOT HIS LETTERS BACK';
+  static String get caption => L10n.strings.encounterCaption_neferhoo;
 
   /// A cinematic boss's arrival (`SkyBoss.arrivalDuration` of a cinematic
   /// boss): control returns, the fight's clock starts.
@@ -167,9 +168,19 @@ abstract final class NeferhooEncounterArt {
 
   // ----------------------------------------------------------- prewarm --
 
-  static bool _warm = false;
+  static bool _warmed = false;
+  static Locale? _warmLocale;
 
-  /// Whether [prewarm] has run in this app session.
+  /// Warm for the language the cards' words were laid out in: a switch
+  /// empties their caches ([NeferhooStaging]), so the next countdown
+  /// prewarms again.
+  static bool get _warm => _warmed && _warmLocale == L10n.locale;
+  static set _warm(bool warm) {
+    _warmed = warm;
+    _warmLocale = L10n.locale;
+  }
+
+  /// Whether [prewarm] has run in this app session (in this language).
   static bool get warm => _warm;
 
   /// Forgets that the caches are warm (a test that expects the next flight
@@ -606,7 +617,8 @@ abstract final class NeferhooEncounterArt {
   static void _roar(Canvas c, double t, Offset at, double u, NeferhooPose pose, double k, bool reduced) {
     if (t < SkyBoss.roarAt || t > SkyBoss.roarAt + .95) return;
     final beak = rigPoint(NeferhooLayout.beakTip, at, u, pose) + Offset(-2 * k, -6 * k);
-    const words = ['HOO', 'POO', 'POO'];
+    final l = L10n.strings;
+    final words = [l.bossNeferhooHoo, l.bossNeferhooPoo, l.bossNeferhooPoo];
     const spots = [Offset(-10, 16), Offset(-36, 40), Offset(-62, 22)];
     for (var i = 0; i < 3; i++) {
       final s = syllables[i];

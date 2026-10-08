@@ -1,0 +1,463 @@
+{
+  "@note": "English source of the Play Store listing and the Google Play Games texts. Translators copy this file to l10n/store/<slug>.json (slugs as AppLanguage: es_419, pt_br, id, fr, de, ja, ko, tr, zh_hant, ru, ar), translate every \"text\", keep every key, and stay within \"maxChars\" (Play Console counts characters). The owner pastes them into Play Console: Grow users > Store presence > Main store listing > translations, and Play Games Services > Achievements > (each) > translations. Nothing here ships in the app. check: python3 tool/l10n/check_store.py.",
+  "@status": "Japanese (ja) translation of the English draft listing and the Play Games texts, 2026-10-07 (UI translator). Achievement names 1-24 = passport stamp + medal as in app_ja.arb (\"{stamp} · {medal}\").",
+  "listing": {
+    "title": {
+      "text": "Beakbound",
+      "maxChars": 30,
+      "description": "App name on Google Play. A brand name: keep it as is unless a market needs a transliteration (owner decides).",
+      "keepEnglish": true
+    },
+    "shortDescription": {
+      "text": "配達人の小鳥をタップで飛ばして、世界一周の旅へ。手紙は必ず届く！",
+      "maxChars": 80,
+      "description": "Play Store short description, under the screenshots. Friendly, no ALL CAPS, no emoji, no \"free\"/\"best\"/\"#1\" (Play policy)."
+    },
+    "fullDescription": {
+      "text": "Beakboundは、オフラインで遊べる明るい空の冒険ゲーム。きみはスカイクラブのいちばん新しい配達人。タップではばたき、ゲートをすりぬけ、星を集めて、世界中に郵便を届けよう。\n\nキャンペーンを飛ぼう\nある夜、5つの配達ルートがぱったり止まってしまった。ジャングルからカーニバルのブラジル、アステカの神殿へ。そして古代ローマ、エジプト、アラビアをこえて、ニューヨークのまばゆい街あかりまで、レベルをひとつずつ飛んでいこう。どのレベルにも小包があり、届けるたびにお礼のカードが返ってくるよ。\n\nボスに立ち向かおう\nコウモリ男爵、ペッペ王、ミイラ配達人ネフェルフー、キング・ポッポ、サーチライト・ガーゴイルが行く手をはばむ。ショット、ダッシュ、回避で追い返そう。\n\nエンドレスを飛ぼう\nゲートも突風もボスも次々にやってくるエンドレスコースで、ベストスコアをめざそう。\n\nほかにも盛りだくさん\n- 集められる4羽の鳥。それぞれ自分の声でしゃべるよ\n- 集めた星で買えるアップグレード\n- 毎日のアドベンチャーと、メダルがいっぱいの空のパスポート\n- レベルビルダー：自分だけのルートを作って飛ぼう\n- スマホ1台で2人で遊べる「いっしょに飛ぼう」と1対1の対戦\n- カメラの前で腕立て、スクワット、ジャンプをして飛ぶミニゲーム\n\n好きなように遊べる\nアカウントもインターネットも必要なし。カメラのミニゲームはすべてスマホの中で動き、映像が外に出ることはありません。Google Play ゲームのクラウドセーブと実績にも対応（使うかどうかは自由）。",
+      "maxChars": 4000,
+      "description": "Play Store full description. Section headers in capitals are fine. Keep the facts: offline, camera stays on the phone, optional Play Games."
+    },
+    "releaseNotes": {
+      "text": "Beakboundが日本語に対応！言語は設定から選べます。",
+      "maxChars": 500,
+      "description": "\"What's new\" for the release that ships the translations."
+    }
+  },
+  "playGames": {
+    "displayName": {
+      "text": "Beakbound",
+      "maxChars": 50,
+      "description": "Play Games Services game name.",
+      "keepEnglish": true
+    },
+    "description": {
+      "text": "配達人の小鳥を飛ばして世界をめぐろう。郵便を届けて、ボスをたおして、メダルをぜんぶ集めよう。",
+      "maxChars": 4000,
+      "description": "Play Games Services game description (Properties)."
+    }
+  },
+  "achievements": {
+    "frequentFlyerBronze": {
+      "name": {
+        "text": "常連フライヤー · 銅",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "記録に残るフライトを10回終える。",
+        "maxChars": 500
+      }
+    },
+    "frequentFlyerSilver": {
+      "name": {
+        "text": "常連フライヤー · 銀",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "記録に残るフライトを100回終える。",
+        "maxChars": 500
+      }
+    },
+    "frequentFlyerGold": {
+      "name": {
+        "text": "常連フライヤー · 金",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "記録に残るフライトを500回終える。",
+        "maxChars": 500
+      }
+    },
+    "onTheDotBronze": {
+      "name": {
+        "text": "ど真ん中 · 銅",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "ねらいマークにそって25回パーフェクト通過する。",
+        "maxChars": 500
+      }
+    },
+    "onTheDotSilver": {
+      "name": {
+        "text": "ど真ん中 · 銀",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "ねらいマークにそって200回パーフェクト通過する。",
+        "maxChars": 500
+      }
+    },
+    "onTheDotGold": {
+      "name": {
+        "text": "ど真ん中 · 金",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "ねらいマークにそって1,000回パーフェクト通過する。",
+        "maxChars": 500
+      }
+    },
+    "starChaserBronze": {
+      "name": {
+        "text": "星を追う者 · 銅",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "星を50個集める。",
+        "maxChars": 500
+      }
+    },
+    "starChaserSilver": {
+      "name": {
+        "text": "星を追う者 · 銀",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "星を500個集める。",
+        "maxChars": 500
+      }
+    },
+    "starChaserGold": {
+      "name": {
+        "text": "星を追う者 · 金",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "星を5,000個集める。",
+        "maxChars": 500
+      }
+    },
+    "constellationBronze": {
+      "name": {
+        "text": "星座 · 銅",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "1回の星つなぎで星を15個集める。",
+        "maxChars": 500
+      }
+    },
+    "constellationSilver": {
+      "name": {
+        "text": "星座 · 銀",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "1回の星つなぎで星を40個集める。",
+        "maxChars": 500
+      }
+    },
+    "constellationGold": {
+      "name": {
+        "text": "星座 · 金",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "1回の星つなぎで星を80個集める。",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainBronze": {
+      "name": {
+        "text": "空のキャプテン · 銅",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "1回のエンドレスフライトで100点取る。",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainSilver": {
+      "name": {
+        "text": "空のキャプテン · 銀",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "1回のエンドレスフライトで500点取る。",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainGold": {
+      "name": {
+        "text": "空のキャプテン · 金",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "1回のエンドレスフライトで2,000点取る。",
+        "maxChars": 500
+      }
+    },
+    "trailblazerBronze": {
+      "name": {
+        "text": "道を切りひらく者 · 銅",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "5回のエンドレスフライトで、60秒以上飛ぶ。",
+        "maxChars": 500
+      }
+    },
+    "trailblazerSilver": {
+      "name": {
+        "text": "道を切りひらく者 · 銀",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "50回のエンドレスフライトで、60秒以上飛ぶ。",
+        "maxChars": 500
+      }
+    },
+    "trailblazerGold": {
+      "name": {
+        "text": "道を切りひらく者 · 金",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "250回のエンドレスフライトで、60秒以上飛ぶ。",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherBronze": {
+      "name": {
+        "text": "類は友を呼ぶ · 銅",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "ちがう鳥2羽で、記録に残るフライトをする。",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherSilver": {
+      "name": {
+        "text": "類は友を呼ぶ · 銀",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "4羽すべてで、記録に残るフライトをする。",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherGold": {
+      "name": {
+        "text": "類は友を呼ぶ · 金",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "どの鳥とも、記録に残るフライトを25回する。",
+        "maxChars": 500
+      }
+    },
+    "allRounderBronze": {
+      "name": {
+        "text": "なんでも屋 · 銅",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "腕立て・スクワット・ジャンプのどれかのミニゲームで飛ぶ。",
+        "maxChars": 500
+      }
+    },
+    "allRounderSilver": {
+      "name": {
+        "text": "なんでも屋 · 銀",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "3つのミニゲームをすべて飛ぶ：腕立て、スクワット、ジャンプ。",
+        "maxChars": 500
+      }
+    },
+    "allRounderGold": {
+      "name": {
+        "text": "なんでも屋 · 金",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "どのミニゲームでも、記録に残るフライトを10回する。",
+        "maxChars": 500
+      }
+    },
+    "canopyBoss": {
+      "name": {
+        "text": "こずえの郵便",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "こずえルートの終点のすみかで、コウモリ男爵をたおす（1-8）。",
+        "maxChars": 500
+      }
+    },
+    "neferhoo": {
+      "name": {
+        "text": "差出人に返送",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "エジプトを守るミイラ配達人、ネフェルフーをたおす（2-6）。",
+        "maxChars": 500
+      }
+    },
+    "roadBoss": {
+      "name": {
+        "text": "またミントティー",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "いにしえの道の終点で、ペッペ王をたおす（2-9）。",
+        "maxChars": 500
+      }
+    },
+    "kingCoo": {
+      "name": {
+        "text": "パンくず一掃",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "ニューヨークのガーディアン、キング・ポッポをたおす（3-2）。",
+        "maxChars": 500
+      }
+    },
+    "gargoyle": {
+      "name": {
+        "text": "スポットライトの外へ",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "サーチライト・ガーゴイルをたおす（3-4）。",
+        "maxChars": 500
+      }
+    },
+    "goldCanopy": {
+      "name": {
+        "text": "金のこずえ",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "こずえルートの全レベルで星3つを取る。",
+        "maxChars": 500
+      }
+    },
+    "goldRoad": {
+      "name": {
+        "text": "金の道",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "いにしえの道の全レベルで星3つを取る。",
+        "maxChars": 500
+      }
+    },
+    "brightLights": {
+      "name": {
+        "text": "大都会のあかり",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "ニューヨークの全レベルで星3つを取る。",
+        "maxChars": 500
+      }
+    },
+    "lamplighter": {
+      "name": {
+        "text": "ランプ点灯係",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "エンドレスフライトで、たそがれ女帝をたおす。",
+        "maxChars": 500
+      }
+    },
+    "harbourBells": {
+      "name": {
+        "text": "港の鐘",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "エンドレスフライトで、海賊船長をたおす。",
+        "maxChars": 500
+      }
+    },
+    "edgeOfTheMap": {
+      "name": {
+        "text": "地図の果て",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "エンドレスフライトで、残り火ドラゴンをたおす。",
+        "maxChars": 500
+      }
+    },
+    "twoOnOnePhone": {
+      "name": {
+        "text": "スマホ一台でふたり",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "「いっしょに飛ぼう」のロープありフライトを最後まで飛ぶ。",
+        "maxChars": 500
+      }
+    },
+    "friendlyRivals": {
+      "name": {
+        "text": "なかよしライバル",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "1対1の対戦をする。",
+        "maxChars": 500
+      }
+    },
+    "routePlanner": {
+      "name": {
+        "text": "ルートの設計士",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "レベルビルダーでレベルを作り、ゴールまで飛ぶ。",
+        "maxChars": 500
+      }
+    },
+    "wholeKit": {
+      "name": {
+        "text": "ぜんぶそろった",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "アップグレードを全16レベル買う。",
+        "maxChars": 500
+      }
+    },
+    "penPal": {
+      "name": {
+        "text": "ペンフレンド",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "1日のアドベンチャーの目標をすべてクリアして、絵はがきに10回スタンプを押す。",
+        "maxChars": 500
+      }
+    },
+    "nightMail": {
+      "name": {
+        "text": "夜の郵便",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "真夜中から午前4時までのあいだに、記録に残るフライトを終える。",
+        "maxChars": 500
+      }
+    },
+    "specialDelivery": {
+      "name": {
+        "text": "特別便",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "路地裏バトを撃って、横取りされた星を取りもどす。",
+        "maxChars": 500
+      }
+    }
+  },
+  "@achievementNote": "Keys are PlayAchievement values (lib/data/play_achievements.dart), in Play Console order. Names 1-24 follow the in-game \"Stamp · Medal\" pattern: translate the stamp and medal words as the game's ARB does (passport keys) so the two match."
+}

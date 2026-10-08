@@ -6,6 +6,7 @@ import 'package:flutter/painting.dart';
 import '../domain/game_rules.dart' show FlightSimulation;
 import '../domain/sky_boss.dart';
 import '../domain/sky_enemy.dart' show SkyEnemy;
+import '../l10n/l10n.dart';
 import '../ui/theme.dart' show heading;
 import 'boss_motion.dart';
 import 'enemy_designs/alley_pigeon.dart';
@@ -25,7 +26,7 @@ final class LaneBand {
 
   @override
   String toString() =>
-      'LaneBand(${top.toStringAsFixed(3)}..${bottom.toStringAsFixed(3)})';
+      'LaneBand(${top.toStringAsFixed(3)}..${bottom.toStringAsFixed(3)})'; // l10n-ignore
 }
 
 /// What a squadron plan says about the sky, as the rules play it: the heights
@@ -856,16 +857,19 @@ abstract final class KingCooSquadArt {
   /// What the tag says for a [shape] (the HUD's `cooHint` says the same).
   /// No colour is named: the lane is open sky and the tag works for a player
   /// who cannot tell green from red.
-  static String labelOf(SquadShape shape) =>
-      shape == SquadShape.v ? 'OPEN LANE = GO' : 'USE THE GAP';
+  static String labelOf(SquadShape shape) => shape == SquadShape.v
+      ? L10n.strings.bossSquadOpenLane
+      : L10n.strings.bossSquadUseGap;
 
   /// What comes next, on the pips' line (fury calls two squadrons).
-  static String nextOf(SquadShape shape) =>
-      shape == SquadShape.v ? 'THEN: V' : 'THEN: GAP';
+  static String nextOf(SquadShape shape) => shape == SquadShape.v
+      ? L10n.strings.bossSquadThenV
+      : L10n.strings.bossSquadThenGap;
 
-  static const cancelLabel = 'SQUAD CANCELLED';
+  static String get cancelLabel => L10n.strings.bossSquadCancelled;
 
-  static final _labels = <String, TextPainter>{};
+  // (laid out again in a new language's fonts)
+  static final _labels = L10n.cache(<String, TextPainter>{});
 
   static TextPainter _text(String value, double size, Color color) {
     final key = '$value|${size.toStringAsFixed(1)}|${color.toARGB32()}';
@@ -877,7 +881,8 @@ abstract final class KingCooSquadArt {
         text: value,
         style: heading(size, color: color).copyWith(letterSpacing: size * .05),
       ),
-      textDirection: TextDirection.ltr,
+      // Words run their language's way; the tag stays where it is.
+      textDirection: L10n.textDirection,
     )..layout();
   }
 

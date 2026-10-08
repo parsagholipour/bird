@@ -4,6 +4,7 @@ import 'package:flame/game.dart';
 import 'package:flutter/widgets.dart' show MediaQuery;
 import '../domain/game_rules.dart';
 import '../domain/bird_motion.dart';
+import '../l10n/l10n.dart';
 import '../ui/theme.dart';
 import 'regions/region_burst.dart';
 import 'sky_scenery.dart';
@@ -1025,40 +1026,52 @@ class BirdGame extends FlameGame {
       if (event.kind != FlightEventKind.star && major != event) {
         continue;
       }
+      // The canvas has no BuildContext: the words come from the global
+      // strings (lib/l10n/l10n.dart), read each frame, so a language switch
+      // shows at once.
+      final l = L10n.strings;
       final label = switch (event.kind) {
         FlightEventKind.star => '+${event.value}',
-        FlightEventKind.heart => '+1 LIFE!',
-        FlightEventKind.starTrio => 'STAR TRIO +${event.value}!',
+        FlightEventKind.heart => l.calloutLife,
+        FlightEventKind.starTrio => l.calloutStarTrio(event.value),
         FlightEventKind.enemyHit =>
-          event.value > 0 ? 'NICE SHOT +${event.value}!' : 'NICE SHOT!',
+          event.value > 0
+              ? l.calloutNiceShotPoints(event.value)
+              : l.calloutNiceShot,
         FlightEventKind.enemyRammed =>
-          event.value > 0 ? 'SMASH +${event.value}!' : 'SMASH!',
+          event.value > 0 ? l.calloutSmashPoints(event.value) : l.calloutSmash,
         FlightEventKind.bossDefeated =>
-          event.value > 0 ? 'BOSS DOWN +${event.value}!' : 'BOSS DOWN!',
-        FlightEventKind.streak => '${event.value}× STAR POWER!',
+          event.value > 0
+              ? l.calloutBossDownPoints(event.value)
+              : l.calloutBossDown,
+        FlightEventKind.streak => l.calloutStarPower(event.value),
         FlightEventKind.perfect =>
-          event.value > 1 ? 'PERFECT ×${event.value}' : 'PERFECT!',
-        FlightEventKind.shieldReady => 'SHIELD READY',
-        FlightEventKind.shieldUsed => 'SHIELD SAVE!',
-        FlightEventKind.hit => 'KEEP FLYING!',
-        FlightEventKind.milestone => '${event.value} GATES!',
-        FlightEventKind.finalStretch => '10 SECONDS LEFT',
-        FlightEventKind.magnet => 'STAR MAGNET!',
+          event.value > 1
+              ? l.calloutPerfectChain(event.value)
+              : l.calloutPerfect,
+        FlightEventKind.shieldReady => l.calloutShieldReady,
+        FlightEventKind.shieldUsed => l.calloutShieldSave,
+        FlightEventKind.hit => l.calloutKeepFlying,
+        FlightEventKind.milestone => l.calloutGates(event.value),
+        FlightEventKind.finalStretch => l.calloutFinalStretch(10),
+        FlightEventKind.magnet => l.calloutStarMagnet,
         FlightEventKind.sprintRing =>
-          event.value > 1 ? 'RUSH ×${event.value}!' : 'SPRINT RING!',
+          event.value > 1
+              ? l.calloutRushChain(event.value)
+              : l.calloutSprintRing,
         FlightEventKind.smashed =>
           event.value > 1
-              ? 'SMASH ×${event.value}!'
-              : 'SMASH +${Rush.smashPoints}!',
+              ? l.calloutSmashChain(event.value)
+              : l.calloutSmashPoints(Rush.smashPoints),
         FlightEventKind.meteorSmashed =>
           event.value > 1
-              ? 'SMASH ×${event.value}!'
-              : 'METEOR +${Rush.meteorPoints}!',
+              ? l.calloutSmashChain(event.value)
+              : l.calloutMeteorPoints(Rush.meteorPoints),
         FlightEventKind.swarmSmashed =>
           event.value > 1
-              ? 'SMASH ×${event.value}!'
-              : 'BAT +${Rush.batPoints}!',
-        FlightEventKind.scorched => 'SCORCHED!',
+              ? l.calloutSmashChain(event.value)
+              : l.calloutBatPoints(Rush.batPoints),
+        FlightEventKind.scorched => l.calloutScorched,
         FlightEventKind.allRings ||
         FlightEventKind.rushWarning ||
         FlightEventKind.rushEscaped ||
@@ -1069,7 +1082,8 @@ class BirdGame extends FlameGame {
         text: TextSpan(
           text: label,
           style: TextStyle(
-            fontFamily: 'Fredoka',
+            fontFamily: L10n.fonts.heading,
+            fontFamilyFallback: L10n.fonts.headingFallback,
             fontWeight: FontWeight.w600,
             fontSize: h * (event.kind == FlightEventKind.star ? .045 : .038),
             color: (dark ? SkyColors.cream : SkyColors.ink).withValues(
@@ -1086,7 +1100,9 @@ class BirdGame extends FlameGame {
             ],
           ),
         ),
-        textDirection: TextDirection.ltr,
+        // Words run their language's way; where they sit stays the
+        // world's (left to right).
+        textDirection: L10n.textDirection,
       )..layout();
       final rise = reducedMotion ? 0.0 : t * h * .06;
       final labelY = event.kind == FlightEventKind.star

@@ -4,6 +4,8 @@ import 'package:flutter/painting.dart';
 
 import '../domain/campaign.dart';
 import '../domain/game_rules.dart';
+import '../l10n/l10n.dart';
+import '../l10n/text/boss_text.dart';
 import 'boss_motion.dart';
 import 'neferhoo_hud_art.dart';
 import 'neferhoo_kit.dart';
@@ -32,15 +34,23 @@ import 'neferhoo_staging_art.dart';
 abstract final class NeferhooEncounterUi {
   /// The ribbon's word: GUARDIAN everywhere a campaign guardian is named
   /// (`BossEncounterArt.nameCardEyebrow`), never MINI-BOSS.
-  static const ribbonWord = 'GUARDIAN';
-  static const name = 'NEFERHOO';
-  static const epithet = Neferhoo.title;
+  static String get ribbonWord => L10n.strings.bossGuardianEyebrow;
+  static String get name =>
+      L10n.upper(L10n.strings.bossName(BossKind.neferhoo));
+  static String get epithet => L10n.strings.boss_neferhoo_title;
 
-  /// His own entrance line, the card's when the flight has no level.
-  static const line = '“Return to sender! This route has a courier.”';
+  /// His own entrance line (his level's, in quotation marks), the card's
+  /// when the flight has no level.
+  static String get line {
+    final l = L10n.strings;
+    return l.bossQuotedLine(
+      l.guardianLine(BossKind.neferhoo) ?? '',
+    );
+  }
 
   /// The victory card's words.
-  static const victoryTitle = 'GUARDIAN DOWN!', victoryLine = 'THE LOST LETTER IS FOUND';
+  static String get victoryTitle => L10n.strings.bossGuardianDown;
+  static String get victoryLine => L10n.strings.bossNeferhooFound;
 
   /// The card's clock (boss age): it lands from [landAt], holds, and has
   /// left by [goneBy].
@@ -123,13 +133,14 @@ abstract final class NeferhooEncounterUi {
     double t = 1,
     double age = 9,
     double exit = 0,
-    String ribbon = ribbonWord,
+    String? ribbon,
     String? line,
     double birdY = .5,
     bool reduced = false,
   }) {
     final h = size.height, u = h / 360;
     if (t <= 0 || exit >= 1) return;
+    ribbon ??= ribbonWord;
     final rest = cardRect(size);
     final cx = rest.center.dx, cy = rest.center.dy;
     // It lands: slides in from the left and above, overshoots, settles.
@@ -152,10 +163,11 @@ abstract final class NeferhooEncounterUi {
     if (layered) {
       c.saveLayer(card.inflate(34 * u), Paint()..color = Color.fromRGBO(255, 255, 255, a));
     }
+    final words = ribbon;
     c.drawPicture(
       NeferhooStaging.picture(
-        ('card-plate', (u * 100).round(), ribbon),
-        (p) => _plate(p, u, cardW, cardH, ribbon: ribbon),
+        ('card-plate', (u * 100).round(), words),
+        (p) => _plate(p, u, cardW, cardH, ribbon: words),
       ),
     );
     // The name, with a gold-leaf shadow under the lapis ink.
@@ -167,6 +179,7 @@ abstract final class NeferhooEncounterUi {
       NeferhooPalette.goldShade.withValues(alpha: .7),
       center: true,
       spacing: 1.6 * u,
+      fit: (cardW - 56) * u,
     );
     NeferhooStaging.text(
       c,
@@ -178,6 +191,7 @@ abstract final class NeferhooEncounterUi {
       spacing: 1.6 * u,
       outline: const Color(0xff0e1748),
       outlineWidth: .6 * u,
+      fit: (cardW - 56) * u,
     );
     final ep = NeferhooStaging.text(
       c,
@@ -187,6 +201,8 @@ abstract final class NeferhooEncounterUi {
       const Color(0xff8f2f2f),
       center: true,
       spacing: 1.5 * u,
+      // (the diamonds either side stay on the papyrus)
+      fit: (cardW - 64) * u,
     );
     _diamonds(c, Offset(0, card.top + 60.4 * u), ep.width, u);
     // The gold's glint: a bright slash crosses the rim once, after landing.
@@ -304,6 +320,7 @@ abstract final class NeferhooEncounterUi {
       NeferhooPalette.goldShade.withValues(alpha: .7),
       center: true,
       spacing: 1.2 * u,
+      fit: (w - 36) * u,
     );
     NeferhooStaging.text(
       c,
@@ -315,6 +332,7 @@ abstract final class NeferhooEncounterUi {
       spacing: 1.2 * u,
       outline: const Color(0xff0e1748),
       outlineWidth: .6 * u,
+      fit: (w - 36) * u,
     );
     final sub = NeferhooStaging.text(
       c,
@@ -324,6 +342,7 @@ abstract final class NeferhooEncounterUi {
       const Color(0xff8f2f2f),
       center: true,
       spacing: 1.6 * u,
+      fit: (w - 64) * u,
     );
     _diamonds(c, Offset(0, rect.top + 53.6 * u), sub.width, u);
     final g = NeferhooStaging.ramp(age, .25, .85);
@@ -519,12 +538,13 @@ abstract final class NeferhooEncounterUi {
   /// its [words] need.
   static void _ribbon(Canvas c, double u, Rect rect, String words) {
     final size = 10.5 * u, spacing = (words == ribbonWord ? 3 : 2) * u;
+    final fonts = L10n.fonts;
     final probe = TextPainter(
       text: TextSpan(
         text: words,
-        style: TextStyle(fontFamily: 'Fredoka', fontSize: size, fontWeight: FontWeight.w600, letterSpacing: spacing),
+        style: TextStyle(fontFamily: fonts.heading, fontFamilyFallback: fonts.headingFallback, fontSize: size, fontWeight: FontWeight.w600, letterSpacing: spacing),
       ),
-      textDirection: TextDirection.ltr,
+      textDirection: L10n.textDirection,
     )..layout();
     final half = math.max(66.0 * u, probe.width / 2 + 24 * u);
     final cx = -6 * u, top = rect.top - 9 * u;
@@ -550,7 +570,7 @@ abstract final class NeferhooEncounterUi {
         ..lineTo(r - 1 * u, b - 2.2 * u),
       NeferhooStaging.line(NeferhooPalette.goldLit, .7 * u, .9),
     );
-    final style = TextStyle(fontFamily: 'Fredoka', fontSize: size, fontWeight: FontWeight.w600, letterSpacing: spacing);
+    final style = TextStyle(fontFamily: fonts.heading, fontFamilyFallback: fonts.headingFallback, fontSize: size, fontWeight: FontWeight.w600, letterSpacing: spacing);
     final edge = TextPainter(
       text: TextSpan(
         text: words,
@@ -562,11 +582,11 @@ abstract final class NeferhooEncounterUi {
             ..color = NeferhooPalette.lapisDeep,
         ),
       ),
-      textDirection: TextDirection.ltr,
+      textDirection: L10n.textDirection,
     )..layout();
     final word = TextPainter(
       text: TextSpan(text: words, style: style.copyWith(color: NeferhooStaging.creamText)),
-      textDirection: TextDirection.ltr,
+      textDirection: L10n.textDirection,
     )..layout();
     final at = Offset(cx + 6 * u - word.width / 2, t + 2.6 * u);
     edge.paint(c, at);

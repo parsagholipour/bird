@@ -2,6 +2,11 @@
 /// [starTrail] is the endless course every new flight flies. Classic remains
 /// so older sessions still load. Sky Courier and Cloud Cruise names map here
 /// so saved journals from those retired modes still open.
+///
+/// Its words are English twins: screens show `AppLocalizations.courseTitle`
+/// and friends (lib/l10n/text/flight_text.dart), kept equal by
+/// test/l10n_flight_test.dart. [subtitle] is shown nowhere.
+// l10n-english-twin: course_* keys.
 enum FlightCourse {
   classic,
   starTrail;

@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 
 import '../domain/game_rules.dart';
+import '../l10n/l10n.dart';
 import '../ui/theme.dart';
 import 'baron_storm_art.dart';
 import 'baron_storm_pose.dart';
@@ -741,7 +742,8 @@ abstract final class BaronScreechArt {
     );
   }
 
-  static final _painters = <String, TextPainter>{};
+  // (laid out again in a new language's fonts)
+  static final _painters = L10n.cache(<String, TextPainter>{});
 
   static TextPainter _label(String value, double size) => _painters.putIfAbsent(
     '$value|${size.toStringAsFixed(1)}',
@@ -750,7 +752,8 @@ abstract final class BaronScreechArt {
         text: value,
         style: heading(size, color: _text).copyWith(letterSpacing: size * .06),
       ),
-      textDirection: TextDirection.ltr,
+      // Words run their language's way; the tag stays where it is.
+      textDirection: L10n.textDirection,
     )..layout(),
   );
 
@@ -766,7 +769,9 @@ abstract final class BaronScreechArt {
     double t,
   ) {
     final (top, bottom) = boss.screechOpening;
-    final label = warning ? 'FLY TO THE GAP' : 'HOLD THE GAP';
+    final label = warning
+        ? L10n.strings.bossScreechFlyToGap
+        : L10n.strings.bossScreechHoldGap;
     final pad = h * .016, icon = h * .026;
     // Clear of the bird's column, like the dragon's tag.
     final room = (FlightSimulation.birdX - .085) * h - h * .03;

@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 
 import '../domain/sky_boss.dart';
+import '../l10n/l10n.dart';
 import '../ui/theme.dart';
 import 'boss_motion.dart';
 import 'gargoyle_kit.dart';
@@ -33,11 +34,12 @@ abstract final class GargoyleHudArt {
   static const cream = Color(0xfffff2c9);
 
   /// The name the bar shows: the full name overflows the 84 px field.
-  static const label = 'GARGOYLE';
+  static String get label => L10n.strings.boss_searchlightGargoyle_barName;
 
   /// The tags' words (the lamp's hint, laid out once).
-  static const lampWords = 'LAMP OPEN', shootWords = ' · SHOOT!';
-  static const spottedWords = 'SPOTTED!';
+  static String get lampWords => L10n.strings.bossGargoyleLampOpen;
+  static String get shootWords => ' · ${L10n.strings.bossGargoyleShoot}';
+  static String get spottedWords => L10n.strings.bossSpotted;
 
   /// How long the SPOTTED! tag shows after a beam catches the bird, and how
   /// long the fury mark's crack burns white-hot before it cools to an ember.
@@ -86,7 +88,8 @@ abstract final class GargoyleHudArt {
 
   // ------------------------------------------------------ text, laid once --
 
-  static final Map<Object, TextPainter> _texts = {};
+  // (keyed by role, not words: a language switch empties it)
+  static final Map<Object, TextPainter> _texts = L10n.cache({});
 
   /// How many laid-out text painters are kept (tests: bounded, nothing is laid
   /// out per frame).
@@ -99,7 +102,8 @@ abstract final class GargoyleHudArt {
       if (_texts.length >= 16) _texts.clear();
       p = _texts[id] = TextPainter(
         text: TextSpan(children: spans, style: heading(size, color: cream).copyWith(letterSpacing: spacing)),
-        textDirection: TextDirection.ltr,
+        // Words run their language's way; the tag stays where it is.
+        textDirection: L10n.textDirection,
       )..layout();
     }
     return p;
@@ -858,8 +862,7 @@ abstract final class GargoyleHudArt {
       _solid(GargoylePalette.lampAmber, .8 * fade),
     );
     c.drawRRect(body.deflate(.35 * u), _stroke(GargoylePalette.arcCore, 1.3 * u, (.55 + .45 * beat) * fade));
-    final size = 11.5 * u;
-    final words = _text(
+    TextPainter spotted(double size) => _text(
       'spotted',
       [
         _span(
@@ -872,6 +875,10 @@ abstract final class GargoyleHudArt {
       size,
       spacing: size * .05,
     );
+    var words = spotted(11.5 * u);
+    // A long translation is set smaller to stay on the tag.
+    final room = pill.width - 8 * u;
+    if (words.width > room) words = spotted((11.5 * u * room / words.width * 10).floorToDouble() / 10);
     words.paint(c, Offset(pill.center.dx - words.width / 2, pill.center.dy - words.height / 2 - .1 * u));
     c.restore();
   }

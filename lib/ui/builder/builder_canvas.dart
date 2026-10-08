@@ -7,9 +7,10 @@ import 'package:flutter/services.dart' show HapticFeedback;
 import '../../domain/built_draft.dart';
 import '../../domain/built_reach.dart';
 import '../../domain/game_rules.dart';
-import '../../domain/tracking.dart';
 import '../../game/regions/region_scene.dart' show SceneFrame;
 import '../../game/regions/world_backdrop.dart';
+import '../../l10n/l10n.dart';
+import '../../l10n/text/builder_text.dart';
 import '../campaign_region_still.dart';
 import '../match_hud.dart' show MatchPlate;
 import '../theme.dart';
@@ -152,10 +153,7 @@ class _BuilderCanvasState extends State<BuilderCanvas>
 
   void _refuse() {
     UiSounds.effect(context, ShopCues.denied);
-    BuilderToast.warn(
-      context,
-      'Keep the start zone clear: place things right of the dashed line.',
-    );
+    BuilderToast.warn(context, context.l10n.builderStartZoneToast);
     if (!_still) _deny.forward(from: 0);
   }
 
@@ -274,11 +272,13 @@ class _BuilderCanvasState extends State<BuilderCanvas>
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: c,
     builder: (context, _) {
+      final l = context.l10n;
       final plan = c.plan;
       final still = _still;
       return Semantics(
-        label:
-            'Level sky. ${c.readOnly ? 'Tap something to look at it.' : 'Tap to place, drag to move or to scroll.'}',
+        label: c.readOnly
+            ? l.builderSkyReadOnlySemantics
+            : l.builderSkySemantics,
         child: DecoratedBox(
           position: DecorationPosition.foreground,
           decoration: BoxDecoration(
@@ -324,6 +324,7 @@ class _BuilderCanvasState extends State<BuilderCanvas>
                         ),
                       CustomPaint(
                         painter: BuilderCanvasPainter(
+                          words: l,
                           draft: c.draft,
                           plan: plan,
                           scroll: c.scroll,
@@ -338,6 +339,8 @@ class _BuilderCanvasState extends State<BuilderCanvas>
                         ),
                       ),
                       // First steps, out of the way while a finger is down.
+                      // They are words over the sky, read the language's
+                      // way.
                       if (!c.readOnly)
                         IgnorePointer(
                           child: AnimatedOpacity(
@@ -345,7 +348,9 @@ class _BuilderCanvasState extends State<BuilderCanvas>
                             duration: still
                                 ? Duration.zero
                                 : const Duration(milliseconds: 140),
-                            child: _Coach(controller: c),
+                            child: LanguageDirection(
+                              child: _Coach(controller: c),
+                            ),
                           ),
                         ),
                     ],
@@ -372,6 +377,7 @@ class _Coach extends StatelessWidget {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: controller,
     builder: (context, _) {
+      final l = context.l10n;
       final count = controller.plan.items.length;
       if (count == 0) {
         return Align(
@@ -384,7 +390,7 @@ class _Coach extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Build your level',
+                  l.builderCoachTitle,
                   style: heading(19, weight: FontWeight.w700),
                 ),
                 const SizedBox(height: 8),
@@ -394,7 +400,7 @@ class _Coach extends StatelessWidget {
                   children: [
                     _CoachStep(
                       number: 1,
-                      text: 'Pick a tool on the left',
+                      text: l.builderCoachPickTool,
                       picture: SizedBox(
                         width: 26,
                         height: 32,
@@ -407,21 +413,21 @@ class _Coach extends StatelessWidget {
                       ),
                     ),
                     const _CoachArrow(),
-                    const _CoachStep(
+                    _CoachStep(
                       number: 2,
-                      text: 'Tap the sky to place it',
-                      picture: Icon(
+                      text: l.builderCoachTapSky,
+                      picture: const Icon(
                         Icons.touch_app_rounded,
                         size: 26,
                         color: SkyColors.ink,
                       ),
                     ),
                     const _CoachArrow(),
-                    const _CoachStep(
+                    _CoachStep(
                       number: 3,
-                      text: 'Test fly it!',
+                      text: l.builderCoachTestFly,
                       color: SkyColors.mint,
-                      picture: Icon(
+                      picture: const Icon(
                         Icons.play_arrow_rounded,
                         size: 30,
                         color: SkyColors.ink,
@@ -431,7 +437,7 @@ class _Coach extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Drag a thing to move it · drag the sky to scroll',
+                  l.builderCoachDrag,
                   style: bodyText(
                     12,
                     color: SkyColors.muted,
@@ -461,7 +467,7 @@ class _Coach extends StatelessWidget {
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  'Drag it to move it · drag the sky to scroll',
+                  l.builderTipDrag,
                   style: bodyText(12.5, weight: FontWeight.w900),
                 ),
               ],
@@ -507,8 +513,8 @@ class _CoachStep extends StatelessWidget {
               ),
               child: Center(child: picture),
             ),
-            Positioned(
-              left: -6,
+            PositionedDirectional(
+              start: -6,
               top: -4,
               child: Container(
                 width: 20,
@@ -535,7 +541,7 @@ class _CoachStep extends StatelessWidget {
         Text(
           text,
           textAlign: TextAlign.center,
-          maxLines: 2,
+          maxLines: 3,
           style: bodyText(12.5, weight: FontWeight.w900).copyWith(height: 1.1),
         ),
       ],
@@ -590,6 +596,7 @@ class BuilderSceneryPainter extends CustomPainter {
 /// seconds.
 class BuilderCanvasPainter extends CustomPainter {
   BuilderCanvasPainter({
+    required this.words,
     required this.draft,
     required this.plan,
     required this.scroll,
@@ -602,6 +609,9 @@ class BuilderCanvasPainter extends CustomPainter {
     this.popKey,
     this.deny,
   }) : super(repaint: Listenable.merge([pop, deny]));
+
+  /// The language its tags are written in.
+  final AppLocalizations words;
   final BuiltDraft draft;
   final BuiltPlan plan;
   final double scroll;
@@ -809,18 +819,18 @@ class BuilderCanvasPainter extends CustomPainter {
   void _laneLabels(Canvas canvas, Size size, double Function(double) sx) {
     if (!plan.mode.controlsHeight) return;
     final h = size.height;
-    final word = plan.mode == PlayMode.squat ? 'SQUAT' : 'PUSH-UP';
+    final movement = words.builtMovement(plan.mode);
     final full = sx(BuiltPlan.firstX / BuiltPlan.unit) > 170;
     _tag(
       canvas,
-      full ? 'TOP OF THE $word' : 'TOP',
+      full ? words.builderCanvasTopOf(movement) : words.builderCanvasTop,
       Offset(8, h * .15 + 6),
       color: SkyColors.yellow,
       size: 10,
     );
     _tag(
       canvas,
-      full ? 'BOTTOM OF THE $word' : 'BOTTOM',
+      full ? words.builderCanvasBottomOf(movement) : words.builderCanvasBottom,
       Offset(8, h * .85 - 24),
       color: SkyColors.yellow,
       size: 10,
@@ -871,10 +881,17 @@ class BuilderCanvasPainter extends CustomPainter {
     if (bird > -h * .2) {
       BuilderArt.ghostBird(canvas, h, Offset(bird, h * .5), this.bird);
     }
-    if (end > 110) {
+    // The full tag where the zone has room for it, the short one where it
+    // does not, none on a sliver.
+    final room = math.min(end, size.width) - 24;
+    final tag = [
+      if (end > 200) words.builderCanvasStartZoneFull,
+      if (end > 110) words.builderCanvasStartZone,
+    ].where((text) => _tagWidth(text) <= room).firstOrNull;
+    if (tag != null) {
       _tag(
         canvas,
-        end > 200 ? 'START ZONE · KEEP CLEAR' : 'START ZONE',
+        tag,
         Offset(math.min(end, size.width) - 12, 12),
         color: SkyColors.cream,
         alignRight: true,
@@ -935,7 +952,7 @@ class BuilderCanvasPainter extends CustomPainter {
     final seconds = BuiltReach.secondsTo(plan, item.x);
     _tag(
       canvas,
-      '${seconds.toStringAsFixed(1)} s',
+      words.builtSeconds(seconds, digits: 1),
       Offset(bounds.center.dx, item is BuiltGate ? h - 52 : bounds.bottom + 6),
       color: SkyColors.yellow,
       centred: true,
@@ -1006,7 +1023,7 @@ class BuilderCanvasPainter extends CustomPainter {
           ..color = SkyColors.cream
           ..strokeWidth = 3,
       );
-      _tag(canvas, 'FINISH HERE', Offset(x, 30), centred: true);
+      _tag(canvas, words.builderCanvasFinishHere, Offset(x, 30), centred: true);
       return;
     }
     final item = p.item;
@@ -1131,7 +1148,7 @@ class BuilderCanvasPainter extends CustomPainter {
       final major = s % 5 == 0;
       if (major) {
         canvas.drawLine(Offset(x, h - band), Offset(x, h), tick);
-        _label(canvas, '$s s', Offset(x + 4, h - band + 4));
+        _label(canvas, words.builtSeconds(s), Offset(x + 4, h - band + 4));
       } else {
         canvas.drawLine(Offset(x, h - band), Offset(x, h - band + 5), tick);
       }
@@ -1149,7 +1166,7 @@ class BuilderCanvasPainter extends CustomPainter {
           weight: FontWeight.w900,
         ).copyWith(height: 1),
       ),
-      textDirection: TextDirection.ltr,
+      textDirection: L10n.textDirection,
     )..layout();
     painter.paint(canvas, at);
     painter.dispose();
@@ -1180,6 +1197,20 @@ class BuilderCanvasPainter extends CustomPainter {
     painter.dispose();
   }
 
+  /// How wide [_tag] draws [text] at [size].
+  static double _tagWidth(String text, {double size = 11}) {
+    final painter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: bodyText(size, weight: FontWeight.w900).copyWith(height: 1),
+      ),
+      textDirection: L10n.textDirection,
+    )..layout();
+    final width = painter.width + 12;
+    painter.dispose();
+    return width;
+  }
+
   /// A small cream (or [color]) plate with ink lettering.
   static void _tag(
     Canvas canvas,
@@ -1195,7 +1226,7 @@ class BuilderCanvasPainter extends CustomPainter {
         text: text,
         style: bodyText(size, weight: FontWeight.w900).copyWith(height: 1),
       ),
-      textDirection: TextDirection.ltr,
+      textDirection: L10n.textDirection,
     )..layout();
     final width = painter.width + 12, height = painter.height + 8;
     final left = centred
@@ -1225,6 +1256,7 @@ class BuilderCanvasPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(BuilderCanvasPainter old) =>
+      !identical(old.words, words) ||
       !identical(old.draft, draft) ||
       old.scroll != scroll ||
       old.selected != selected ||

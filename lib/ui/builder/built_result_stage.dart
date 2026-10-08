@@ -9,9 +9,14 @@ import '../../domain/game_rules.dart';
 import '../../domain/tracking.dart';
 import '../../game/play_controller.dart';
 import '../../game/star_art.dart';
+import '../../l10n/l10n.dart';
+import '../../l10n/text/builder_shelf_text.dart';
+import '../../l10n/text/builder_text.dart';
+import '../../l10n/text/flight_text.dart';
 import '../campaign_text_scale.dart';
 import '../components.dart';
 import '../control_glyphs.dart';
+import '../fit_text.dart';
 import '../game_over_stage.dart' show StageBirdPainter;
 import '../match_hud.dart' show MatchIcon, MatchSymbol;
 import '../stage_key.dart';
@@ -56,13 +61,20 @@ class BuiltResultStage extends StatefulWidget {
   static const armAt = .55;
   static const starsAt = [.34, .46, .58];
 
-  /// The word over the bird.
-  static String wordFor({required bool finished, required bool bumped}) =>
-      finished
-      ? 'Cleared!'
-      : bumped
-      ? 'Bonk!'
-      : 'Landed';
+  /// The word over the bird, in [l]'s language ([L10n.strings] by
+  /// default).
+  static String wordFor({
+    required bool finished,
+    required bool bumped,
+    AppLocalizations? l,
+  }) {
+    final words = l ?? L10n.strings;
+    return finished
+        ? words.builtResultCleared
+        : bumped
+        ? words.builtResultBonk
+        : words.builtResultLanded;
+  }
 
   /// Where on the level's whole route (thousandths) [controller]'s flight
   /// got to: a test from a place started at [BuiltFlight.from], which the
@@ -153,7 +165,11 @@ class _BuiltResultStageState extends State<BuiltResultStage>
   Widget _stage(BuildContext context) {
     final bumped = _run.reason == EndReason.collision;
     final armed = _intro.value >= BuiltResultStage.armAt || _intro.isCompleted;
-    final word = BuiltResultStage.wordFor(finished: _finished, bumped: bumped);
+    final word = BuiltResultStage.wordFor(
+      finished: _finished,
+      bumped: bumped,
+      l: context.l10n,
+    );
     // A finish's courier sits where the celebrating bird lands, as on the
     // campaign's result.
     final aside = _finished ? _seatShift : 0.0;
@@ -283,9 +299,11 @@ class _BuiltResultStageState extends State<BuiltResultStage>
   }
 
   /// The word, each letter dropping in and landing with a squash at its
-  /// own jaunty angle, as on the campaign's result.
+  /// own jaunty angle, as on the campaign's result. A right-to-left word
+  /// (Arabic) joins its letters, so it drops in whole.
   Widget _title(String word) {
-    final letters = word.split('');
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    final letters = rtl ? [word] : word.characters.toList();
     return Semantics(
       key: const ValueKey('built-result-word'),
       header: true,
@@ -388,7 +406,9 @@ class _BuiltResultStageState extends State<BuiltResultStage>
               mainAxisSize: MainAxisSize.min,
               children: [
                 _Chip(
-                  _test ? 'TEST FLIGHT' : builtModeName(_plan.mode),
+                  _test
+                      ? context.l10n.builtResultTestFlight
+                      : builtModeName(_plan.mode, context.l10n),
                   icon: _test
                       ? Icons.construction_rounded
                       : Icons.dashboard_customize_rounded,
@@ -401,9 +421,11 @@ class _BuiltResultStageState extends State<BuiltResultStage>
                         )!,
                 ),
                 const SizedBox(width: 9),
+                // The level's own name: the player's words for their own
+                // level, never translated.
                 Flexible(
                   child: Text(
-                    widget.flight.level.plan.name,
+                    context.l10n.builtLevelName(widget.flight.level.plan),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: bodyText(18, weight: FontWeight.w900),
@@ -461,7 +483,7 @@ class _BuiltResultStageState extends State<BuiltResultStage>
                   width: 400,
                   height: _crown,
                   child: Semantics(
-                    label: '$_rating of 3 level stars',
+                    label: context.l10n.builtResultRatingSemantics(_rating),
                     excludeSemantics: true,
                     child: CustomPaint(
                       painter: _CrownPainter(
@@ -481,12 +503,12 @@ class _BuiltResultStageState extends State<BuiltResultStage>
             // A test wears its tab on the card's shoulder, clear of the
             // stars.
             if (_test)
-              const Positioned(
+              Positioned(
                 left: 16,
                 top: _crown / 2 - 13,
                 child: _Chip(
-                  'TEST',
-                  key: ValueKey('built-result-test-tab'),
+                  context.l10n.builtResultTestTab,
+                  key: const ValueKey('built-result-test-tab'),
                   icon: Icons.construction_rounded,
                   color: SkyColors.lavender,
                   size: 14,
@@ -547,32 +569,44 @@ class _BuiltResultStageState extends State<BuiltResultStage>
   );
 
   /// The finish (or the boss) and the two marks as tags under their stars,
-  /// each ticked as its star lands, or saying how many stars are left.
+  /// each ticked as its star lands, or saying how many stars are left. They
+  /// stand under the stars in the stars' order, left to right as the
+  /// stars fill, in every language.
   Widget _goals() {
+    final l = context.l10n;
     final marks = [null, _plan.marks.two, _plan.marks.three];
-    final first = _plan.boss == null ? 'Finish' : 'Boss';
+    final first = _plan.boss == null
+        ? l.builtResultGoalFinish
+        : l.builtResultGoalBoss;
     return Opacity(
       opacity: _span(.24, .44),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          for (var i = 0; i < 3; i++) ...[
-            if (i > 0) const SizedBox(width: _pitch - _goalWidth),
-            Semantics(
-              label: i == 0
-                  ? '$first.${_rating > 0 ? ' Done.' : ''}'
-                  : 'Collect ${marks[i]} stars.${_rating > i ? ' Done.' : ''}',
-              excludeSemantics: true,
-              child: _goal(
-                i,
-                title: marks[i] == null ? first : '${marks[i]}',
-                star: marks[i] != null,
-                earned: _rating > i,
-                left: marks[i] == null ? null : marks[i]! - _run.stars,
+      child: FlightDirection(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            for (var i = 0; i < 3; i++) ...[
+              if (i > 0) const SizedBox(width: _pitch - _goalWidth),
+              Semantics(
+                label: switch ((marks[i], _rating > i)) {
+                  (null, false) => l.builtResultGoalSemantics(first),
+                  (null, true) => l.builtResultGoalDoneSemantics(first),
+                  (final n?, false) => l.builtResultMarkSemantics(n),
+                  (final n?, true) => l.builtResultMarkDoneSemantics(n),
+                },
+                excludeSemantics: true,
+                child: LanguageDirection(
+                  child: _goal(
+                    i,
+                    title: marks[i] == null ? first : '${marks[i]}',
+                    star: marks[i] != null,
+                    earned: _rating > i,
+                    left: marks[i] == null ? null : marks[i]! - _run.stars,
+                  ),
+                ),
               ),
-            ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -584,17 +618,18 @@ class _BuiltResultStageState extends State<BuiltResultStage>
     required bool earned,
     required int? left,
   }) {
+    final l = context.l10n;
     final at = BuiltResultStage.starsAt[i] + .06;
     final met = earned && (_calm || _intro.value >= at);
     final hint = met
-        ? 'Done'
+        ? l.builtResultDone
         : earned
         ? ''
         : left == null
-        ? 'Not yet'
+        ? l.builtResultNotYet
         : left > 0
-        ? '$left to go'
-        : 'Finish first';
+        ? l.builtResultToGo(left)
+        : l.builtResultFinishFirst;
     final tone = met ? _teal : SkyColors.muted;
     final pop = _calm ? 0.0 : math.sin(_span(at, at + .08) * math.pi);
     final scale = CampaignTextScale.of(context);
@@ -673,6 +708,7 @@ class _BuiltResultStageState extends State<BuiltResultStage>
   /// stamped there), and a panel with the flight's other number: the score,
   /// the workout, or how far a short flight got.
   Widget _scores() {
+    final l = context.l10n;
     final r = _run;
     final beat = _beat;
     final before = widget.before;
@@ -685,21 +721,24 @@ class _BuiltResultStageState extends State<BuiltResultStage>
     // Beside the count: a creator's clear, a first clear, the best, or a
     // test's reminder that nothing is kept.
     final String? ribbon = _clearedByYou
-        ? 'CLEARED BY YOU'
+        ? l.builtResultClearedByYou
         : newStars
-        ? 'NEW BEST!'
+        ? l.builtResultNewBest
         : null;
     final Widget side = _test
         ? (_clearedByYou
               ? const SizedBox.shrink()
-              : _tag(Icons.construction_rounded, 'Practice'))
+              : _tag(Icons.construction_rounded, l.builtResultPractice))
         : !_finished
         ? (before != null && before.cleared
-              ? _tag(Icons.emoji_events_rounded, 'Best ${before.collected}')
+              ? _tag(
+                  Icons.emoji_events_rounded,
+                  l.builtResultBest(before.collected),
+                )
               : const SizedBox.shrink())
         : beat == null
-        ? _tag(Icons.auto_awesome_rounded, 'First clear!')
-        : _tag(Icons.emoji_events_rounded, 'Best ${beat.collected}');
+        ? _tag(Icons.auto_awesome_rounded, l.builtResultFirstClear)
+        : _tag(Icons.emoji_events_rounded, l.builtResultBest(beat.collected));
     return Row(
       children: [
         Expanded(
@@ -711,7 +750,7 @@ class _BuiltResultStageState extends State<BuiltResultStage>
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('STARS COLLECTED', style: _label),
+                    Text(l.builtResultStarsCollected, style: _label),
                     Transform.scale(
                       scale: 1 + .08 * land,
                       child: Row(
@@ -727,7 +766,7 @@ class _BuiltResultStageState extends State<BuiltResultStage>
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            '/$total',
+                            '/$total', // l10n-ignore: a count
                             style: heading(
                               22,
                               color: SkyColors.muted,
@@ -810,6 +849,7 @@ class _BuiltResultStageState extends State<BuiltResultStage>
   /// The panel beside the stars: a camera level's workout, a Tap & Fly
   /// finish's score, or how far a Tap & Fly flight got.
   Widget _panel(double count, {required double stamp, required double swap}) {
+    final l = context.l10n;
     final r = _run;
     final level = widget.flight.level;
     final reached = BuiltReach.secondsTo(
@@ -823,38 +863,43 @@ class _BuiltResultStageState extends State<BuiltResultStage>
     final String? note;
     IconData? icon;
     double? meter;
+    final squats = _plan.mode == PlayMode.squat;
     switch (_plan.mode) {
       case PlayMode.pushUp || PlayMode.squat:
-        final word = _plan.mode == PlayMode.squat ? 'squats' : 'push-ups';
         // A test's finger does no push-ups: it shows what the level asks.
         if (_test) {
-          label = 'ASKS FOR';
-          value = '${BuiltReach.reps(level.plan) ?? 0}';
-          note = '$word on camera';
+          final asks = BuiltReach.reps(level.plan) ?? 0;
+          label = l.builtResultAsksFor;
+          value = '$asks';
+          note = squats
+              ? l.builtResultSquatsOnCamera(asks)
+              : l.builtResultPushUpsOnCamera(asks);
         } else {
-          label = 'WORKOUT';
+          label = l.builtResultWorkout;
           value = '${(r.repetitions * count).round()}';
-          note = word;
+          note = squats
+              ? l.builtResultSquats(r.repetitions)
+              : l.builtResultPushUps(r.repetitions);
         }
       case PlayMode.jump:
-        label = 'WORKOUT';
+        label = l.builtResultWorkout;
         value = '${(r.flaps * count).round()}';
-        note = 'jumps';
+        note = l.builtResultJumps(r.flaps);
       case PlayMode.touch when !_finished:
-        label = 'GOT TO';
-        value = '${reached.round()} s';
-        note = 'of ${length.round()} s';
+        label = l.builtResultGotTo;
+        value = l.builtSeconds(reached.round());
+        note = l.builtResultOfLength(l.builtSeconds(length.round()));
         icon = Icons.flag_rounded;
         meter = length <= 0 ? 0 : (reached / length).clamp(0.0, 1.0) * count;
       case PlayMode.touch:
-        label = 'SCORE';
+        label = l.builtResultScore;
         value = '${(r.score * count).round()}';
         final best = widget.before?.score ?? 0;
         note = _test
-            ? 'Not kept'
+            ? l.builtResultNotKept
             : best > 0
-            ? 'Best ${math.max(best, r.score)}'
-            : 'No best yet';
+            ? l.builtResultBest(math.max(best, r.score))
+            : l.builtResultNoBest;
     }
     return Container(
       key: const ValueKey('built-result-panel'),
@@ -883,7 +928,7 @@ class _BuiltResultStageState extends State<BuiltResultStage>
                   children: [
                     Opacity(
                       opacity: newScore ? swap : 1,
-                      child: Text(label, style: _label),
+                      child: FitText(label, style: _label),
                     ),
                     if (newScore && stamp > 0)
                       OverflowBox(
@@ -893,7 +938,7 @@ class _BuiltResultStageState extends State<BuiltResultStage>
                           scale: stamp,
                           child: Transform.rotate(
                             angle: -.04,
-                            child: const StageRibbon('NEW BEST!'),
+                            child: StageRibbon(l.builtResultNewBest),
                           ),
                         ),
                       ),
@@ -918,9 +963,8 @@ class _BuiltResultStageState extends State<BuiltResultStage>
                 _meter(meter),
                 const SizedBox(height: 2),
               ],
-              Text(
+              FitText(
                 note,
-                maxLines: 1,
                 style: bodyText(
                   13.5,
                   color: SkyColors.muted,
@@ -957,13 +1001,16 @@ class _BuiltResultStageState extends State<BuiltResultStage>
   /// What the flight means: a creator's clear and what a test keeps, how
   /// far a short flight got, or the save's news.
   List<Widget> _status() {
+    final l = context.l10n;
     final c = widget.controller;
     final level = widget.flight.level;
-    final reached = BuiltReach.secondsTo(
-      level.plan,
-      BuiltResultStage.reached(c, widget.flight),
-    ).round();
-    final length = BuiltReach.seconds(level.plan).round();
+    final reached = l.builtSeconds(
+      BuiltReach.secondsTo(
+        level.plan,
+        BuiltResultStage.reached(c, widget.flight),
+      ).round(),
+    );
+    final length = l.builtSeconds(BuiltReach.seconds(level.plan).round());
     final from = widget.flight.from;
     final camera = _plan.mode != PlayMode.touch;
     if (_test) {
@@ -972,22 +1019,23 @@ class _BuiltResultStageState extends State<BuiltResultStage>
           _strip(
             Icons.verified_rounded,
             SkyColors.mint,
-            'Cleared by you · ready to share!',
+            l.builtResultClearedStrip,
             key: const ValueKey('built-result-cleared-by-you'),
           )
         else if (_finished && from != null)
           _strip(
             Icons.construction_rounded,
             SkyColors.lavender,
-            'Flown from ${BuiltReach.secondsTo(level.plan, from).round()} s. '
-            'Fly it all to clear it.',
+            l.builtResultFlownFrom(
+              l.builtSeconds(BuiltReach.secondsTo(level.plan, from).round()),
+            ),
             fill: _lilacFill,
           )
         else if (_finished)
           _strip(
             Icons.construction_rounded,
             SkyColors.lavender,
-            'Test flight · nothing is saved',
+            l.builtResultTestNothingSaved,
             fill: _lilacFill,
           )
         else
@@ -995,8 +1043,8 @@ class _BuiltResultStageState extends State<BuiltResultStage>
             Icons.construction_rounded,
             SkyColors.lavender,
             camera
-                ? 'Test flight · got to $reached s of $length s'
-                : 'Test flight · nothing is saved',
+                ? l.builtResultTestGotTo(reached, length)
+                : l.builtResultTestNothingSaved,
             fill: _lilacFill,
           ),
       ];
@@ -1007,8 +1055,8 @@ class _BuiltResultStageState extends State<BuiltResultStage>
           Icons.flag_rounded,
           SkyColors.sky,
           camera
-              ? 'Got to $reached s of $length s. Reach the finish for stars.'
-              : 'Reach the finish to earn stars.',
+              ? l.builtResultGotToFinish(reached, length)
+              : l.builtResultReachFinish,
           fill: _inset,
         ),
       if (c.saveError.isNotEmpty)
@@ -1029,7 +1077,7 @@ class _BuiltResultStageState extends State<BuiltResultStage>
               color: SkyColors.coralDeep,
             ),
             label: Text(
-              c.saveError,
+              l.flightNote(c.saveError),
               style: bodyText(
                 13.5,
                 weight: FontWeight.w900,
@@ -1043,7 +1091,7 @@ class _BuiltResultStageState extends State<BuiltResultStage>
           c.saved
               ? Icons.check_circle_outline_rounded
               : Icons.hourglass_top_rounded,
-          c.saved ? 'Saved on this phone' : 'Saving your flight…',
+          c.saved ? l.builtResultSaved : l.builtResultSaving,
         ),
     ];
   }
@@ -1127,6 +1175,7 @@ class _BuiltResultStageState extends State<BuiltResultStage>
   static const _keyHeight = 76.0;
 
   Widget _actions() {
+    final l = context.l10n;
     final c = widget.controller;
     final r = _run;
     final flight = widget.flight;
@@ -1152,14 +1201,14 @@ class _BuiltResultStageState extends State<BuiltResultStage>
     final editLeads = flight.test && _finished;
     final builder = StageKey(
       key: const ValueKey('built-result-builder'),
-      label: 'Builder',
+      label: l.builtResultBuilder,
       icon: Icons.dashboard_customize_rounded,
       height: _keyHeight,
       onPressed: () => widget.onLeave('/builder'),
     );
     final edit = StageKey(
       key: const ValueKey('built-result-edit'),
-      label: editLeads ? 'Edit level' : 'Edit',
+      label: editLeads ? l.builtResultEditLevel : l.builtResultEdit,
       icon: Icons.edit_rounded,
       hero: editLeads,
       autofocus: editLeads,
@@ -1171,7 +1220,7 @@ class _BuiltResultStageState extends State<BuiltResultStage>
     );
     final retry = StageKey(
       key: const ValueKey('built-result-retry'),
-      label: _finished ? 'Fly again' : 'Retry',
+      label: _finished ? l.builtResultFlyAgain : l.commonRetry,
       icon: Icons.replay_rounded,
       hero: !editLeads,
       autofocus: !editLeads,
@@ -1183,12 +1232,12 @@ class _BuiltResultStageState extends State<BuiltResultStage>
       key: const ValueKey('save-or-watch-session'),
       height: _keyHeight,
       label: c.sessionSaved
-          ? 'Watch replay'
+          ? l.builtResultWatchReplay
           : c.preparingReplay
-          ? 'Preparing…'
+          ? l.builtResultPreparing
           : c.sessionSaving
-          ? 'Saving…'
-          : 'Save session',
+          ? l.builtResultSessionSaving
+          : l.builtResultSaveSession,
       icon: c.sessionSaved
           ? Icons.play_circle_outline_rounded
           : Icons.save_alt_rounded,

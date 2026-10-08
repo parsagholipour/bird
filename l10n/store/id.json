@@ -1,0 +1,462 @@
+{
+  "@note": "Indonesian (id) translation of l10n/store/en.json: Play Store listing, Play Games texts and achievements. Achievement names use the in-game passport words (app_id.arb stamp_*_name + passportMedal_*, pattern \"{stamp} · {medal}\"); descriptions equal the stamp goals with Indonesian digit grouping (1.000).",
+  "@status": "Translated 2026-10-07 from the English DRAFT listing (pending owner approval).",
+  "listing": {
+    "title": {
+      "text": "Beakbound",
+      "maxChars": 30,
+      "description": "App name on Google Play. A brand name: keep it as is unless a market needs a transliteration (owner decides).",
+      "keepEnglish": true
+    },
+    "shortDescription": {
+      "text": "Ketuk untuk menerbangkan burung kurir keliling dunia. Setiap surat pasti sampai!",
+      "maxChars": 80,
+      "description": "Play Store short description, under the screenshots. Friendly, no ALL CAPS, no emoji, no \"free\"/\"best\"/\"#1\" (Play policy)."
+    },
+    "fullDescription": {
+      "text": "Beakbound adalah petualangan terbang yang ceria dan bisa dimainkan offline. Kamu kurir terbaru Klub Langit: ketuk untuk mengepak, meliuk melewati gerbang, kumpulkan bintang, dan antarkan surat ke seluruh dunia.\n\nTERBANGI KAMPANYE\nLima rute pos mendadak sunyi dalam semalam. Terbanglah level demi level dari hutan rimba ke karnaval Brasil dan kuil-kuil Aztek, lalu ke Roma Kuno, Mesir, dan Arab, hingga gemerlap kota New York. Setiap level membawa kiriman, dan setiap kiriman dibalas dengan ucapan terima kasih.\n\nHADAPI PARA BOS\nBaron Kelelawar, Raja Peludah, Neferhoo si Kurir Mumi, Raja Kurkur, dan Gargoyle Lampu Sorot menghadang jalanmu. Tembak, melesat, dan menghindar sampai mereka angkat kaki.\n\nTERBANG TANPA BATAS\nKejar skor terbaikmu di lintasan tanpa batas, tempat gerbang, angin ribut, dan para bos terus berdatangan.\n\nMASIH BANYAK LAGI\n- Empat burung untuk dikoleksi, masing-masing dengan suaranya sendiri\n- Peningkatan yang dibeli dengan bintang yang kamu kumpulkan\n- Petualangan harian dan Paspor Langit penuh medali\n- Pembuat Level: buat rutemu sendiri dan terbangi\n- Terbang Bersama dan duel 1 lawan 1 untuk dua pemain di satu ponsel\n- Gim mini: terbang dengan push-up, squat, atau lompatan di depan kamera\n\nMAIN SESUKAMU\nTanpa akun dan tanpa internet. Gim mini kamera berjalan sepenuhnya di ponselmu: video tak pernah keluar dari ponsel. Simpanan cloud dan pencapaian Google Play Game bersifat opsional.",
+      "maxChars": 4000,
+      "description": "Play Store full description. Section headers in capitals are fine. Keep the facts: offline, camera stays on the phone, optional Play Games."
+    },
+    "releaseNotes": {
+      "text": "Beakbound kini hadir dalam bahasa Indonesia: pilih bahasanya di Pengaturan.",
+      "maxChars": 500,
+      "description": "\"What's new\" for the release that ships the translations."
+    }
+  },
+  "playGames": {
+    "displayName": {
+      "text": "Beakbound",
+      "maxChars": 50,
+      "description": "Play Games Services game name.",
+      "keepEnglish": true
+    },
+    "description": {
+      "text": "Terbangkan burung kurir keliling dunia: antarkan surat, kalahkan para bos, dan kumpulkan semua medali.",
+      "maxChars": 4000,
+      "description": "Play Games Services game description (Properties)."
+    }
+  },
+  "achievements": {
+    "frequentFlyerBronze": {
+      "name": {
+        "text": "Penerbang setia · Perunggu",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Selesaikan 10 penerbangan berskor.",
+        "maxChars": 500
+      }
+    },
+    "frequentFlyerSilver": {
+      "name": {
+        "text": "Penerbang setia · Perak",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Selesaikan 100 penerbangan berskor.",
+        "maxChars": 500
+      }
+    },
+    "frequentFlyerGold": {
+      "name": {
+        "text": "Penerbang setia · Emas",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Selesaikan 500 penerbangan berskor.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotBronze": {
+      "name": {
+        "text": "Tepat sasaran · Perunggu",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Lakukan 25 lintasan sempurna lewat titik bidik.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotSilver": {
+      "name": {
+        "text": "Tepat sasaran · Perak",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Lakukan 200 lintasan sempurna lewat titik bidik.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotGold": {
+      "name": {
+        "text": "Tepat sasaran · Emas",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Lakukan 1.000 lintasan sempurna lewat titik bidik.",
+        "maxChars": 500
+      }
+    },
+    "starChaserBronze": {
+      "name": {
+        "text": "Pemburu bintang · Perunggu",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Kumpulkan 50 bintang.",
+        "maxChars": 500
+      }
+    },
+    "starChaserSilver": {
+      "name": {
+        "text": "Pemburu bintang · Perak",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Kumpulkan 500 bintang.",
+        "maxChars": 500
+      }
+    },
+    "starChaserGold": {
+      "name": {
+        "text": "Pemburu bintang · Emas",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Kumpulkan 5.000 bintang.",
+        "maxChars": 500
+      }
+    },
+    "constellationBronze": {
+      "name": {
+        "text": "Rasi bintang · Perunggu",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Kumpulkan 15 bintang dalam satu rantai tanpa putus.",
+        "maxChars": 500
+      }
+    },
+    "constellationSilver": {
+      "name": {
+        "text": "Rasi bintang · Perak",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Kumpulkan 40 bintang dalam satu rantai tanpa putus.",
+        "maxChars": 500
+      }
+    },
+    "constellationGold": {
+      "name": {
+        "text": "Rasi bintang · Emas",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Kumpulkan 80 bintang dalam satu rantai tanpa putus.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainBronze": {
+      "name": {
+        "text": "Kapten langit · Perunggu",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Raih 100 poin dalam satu penerbangan Tanpa Batas.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainSilver": {
+      "name": {
+        "text": "Kapten langit · Perak",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Raih 500 poin dalam satu penerbangan Tanpa Batas.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainGold": {
+      "name": {
+        "text": "Kapten langit · Emas",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Raih 2.000 poin dalam satu penerbangan Tanpa Batas.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerBronze": {
+      "name": {
+        "text": "Perintis · Perunggu",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Terbang minimal 60 detik dalam 5 penerbangan Tanpa Batas.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerSilver": {
+      "name": {
+        "text": "Perintis · Perak",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Terbang minimal 60 detik dalam 50 penerbangan Tanpa Batas.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerGold": {
+      "name": {
+        "text": "Perintis · Emas",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Terbang minimal 60 detik dalam 250 penerbangan Tanpa Batas.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherBronze": {
+      "name": {
+        "text": "Terbang berkawan · Perunggu",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Ajak dua burung berbeda di penerbangan berskor.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherSilver": {
+      "name": {
+        "text": "Terbang berkawan · Perak",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Ajak keempat burung di penerbangan berskor.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherGold": {
+      "name": {
+        "text": "Terbang berkawan · Emas",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Lakukan 25 penerbangan berskor dengan tiap burung.",
+        "maxChars": 500
+      }
+    },
+    "allRounderBronze": {
+      "name": {
+        "text": "Serba bisa · Perunggu",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Mainkan gim mini push-up, squat, atau lompat.",
+        "maxChars": 500
+      }
+    },
+    "allRounderSilver": {
+      "name": {
+        "text": "Serba bisa · Perak",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Mainkan ketiga gim mini: push-up, squat, lompat.",
+        "maxChars": 500
+      }
+    },
+    "allRounderGold": {
+      "name": {
+        "text": "Serba bisa · Emas",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Lakukan 10 penerbangan berskor di tiap gim mini.",
+        "maxChars": 500
+      }
+    },
+    "canopyBoss": {
+      "name": {
+        "text": "Surat Menembus Kanopi",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Kalahkan Baron Kelelawar di sarangnya di ujung Rute Kanopi (1-8).",
+        "maxChars": 500
+      }
+    },
+    "neferhoo": {
+      "name": {
+        "text": "Kembali ke Pengirim",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Kalahkan Neferhoo, Kurir Mumi penjaga Mesir (2-6).",
+        "maxChars": 500
+      }
+    },
+    "roadBoss": {
+      "name": {
+        "text": "Teh Mint Lagi",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Kalahkan Raja Peludah di ujung Jalan Kuno (2-9).",
+        "maxChars": 500
+      }
+    },
+    "kingCoo": {
+      "name": {
+        "text": "Remah Raib",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Kalahkan Raja Kurkur, penjaga New York (3-2).",
+        "maxChars": 500
+      }
+    },
+    "gargoyle": {
+      "name": {
+        "text": "Lolos dari Sorotan",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Kalahkan Gargoyle Lampu Sorot (3-4).",
+        "maxChars": 500
+      }
+    },
+    "goldCanopy": {
+      "name": {
+        "text": "Kanopi Emas",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Raih tiga bintang di setiap level Rute Kanopi.",
+        "maxChars": 500
+      }
+    },
+    "goldRoad": {
+      "name": {
+        "text": "Jalan Emas",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Raih tiga bintang di setiap level Jalan Kuno.",
+        "maxChars": 500
+      }
+    },
+    "brightLights": {
+      "name": {
+        "text": "Gemerlap Kota",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Raih tiga bintang di setiap level New York.",
+        "maxChars": 500
+      }
+    },
+    "lamplighter": {
+      "name": {
+        "text": "Penyala Lampu",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Kalahkan Maharani Senja dalam penerbangan Tanpa Batas.",
+        "maxChars": 500
+      }
+    },
+    "harbourBells": {
+      "name": {
+        "text": "Lonceng Pelabuhan",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Kalahkan Kapten Bajak Laut dalam penerbangan Tanpa Batas.",
+        "maxChars": 500
+      }
+    },
+    "edgeOfTheMap": {
+      "name": {
+        "text": "Ujung Peta",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Kalahkan Naga Bara dalam penerbangan Tanpa Batas.",
+        "maxChars": 500
+      }
+    },
+    "twoOnOnePhone": {
+      "name": {
+        "text": "Berdua Satu Ponsel",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Selesaikan satu penerbangan Terbang Bersama mode Bertali.",
+        "maxChars": 500
+      }
+    },
+    "friendlyRivals": {
+      "name": {
+        "text": "Rival Akrab",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Mainkan satu duel 1 lawan 1.",
+        "maxChars": 500
+      }
+    },
+    "routePlanner": {
+      "name": {
+        "text": "Perancang Rute",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Buat level di Pembuat Level dan terbangi sampai finis.",
+        "maxChars": 500
+      }
+    },
+    "wholeKit": {
+      "name": {
+        "text": "Komplet Semua",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Beli semua 16 level peningkatan.",
+        "maxChars": 500
+      }
+    },
+    "penPal": {
+      "name": {
+        "text": "Sahabat Pena",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Cap 10 kartu pos harian dengan menuntaskan semua misi Petualangan dalam satu hari.",
+        "maxChars": 500
+      }
+    },
+    "nightMail": {
+      "name": {
+        "text": "Pos Malam",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Selesaikan penerbangan berskor antara tengah malam dan pukul 04.00.",
+        "maxChars": 500
+      }
+    },
+    "specialDelivery": {
+      "name": {
+        "text": "Kiriman Khusus",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Tembak Merpati Gang dan rebut kembali bintang yang dicurinya.",
+        "maxChars": 500
+      }
+    }
+  }
+}

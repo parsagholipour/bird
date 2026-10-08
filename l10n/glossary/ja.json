@@ -1,0 +1,2523 @@
+{
+ "language": "ja",
+ "terms": {
+  "brand.beakbound": {
+   "en": "Beakbound",
+   "target": "Beakbound",
+   "note": "ラテン文字のまま。"
+  },
+  "brand.beak1-code": {
+   "en": "BEAK1.",
+   "target": "BEAK1.",
+   "note": "技術トークン。変更しない。"
+  },
+  "char.pip": {
+   "en": "Pip",
+   "target": "ピップ",
+   "note": "一人称「僕」。素直でまじめ、少し理屈っぽい。相棒（プレイヤー）にはくだけた口調「〜だよ」「〜だね」、張り切ると「〜です！」。"
+  },
+  "char.peaches": {
+   "en": "Peaches",
+   "target": "ピーチズ",
+   "note": "一人称「あたし」。甘くて元気、「〜だよ」「〜なの」「〜ね」。プレイヤーをいつも違うあまい呼び名で呼ぶ（address.peaches-pet-names）。ピーチ（桃）のダジャレはそのまま使える。"
+  },
+  "char.minty": {
+   "en": "Minty",
+   "target": "ミンティ",
+   "note": "一人称「オレ」。生意気でスピード狂、短く「〜だぜ」「〜じゃん」。「ミントティー」と名前がそのまま掛かる。"
+  },
+  "char.orbit": {
+   "en": "Orbit",
+   "target": "オービット",
+   "note": "一人称「わたし」。ねむたげでやさしい、ゆっくり「〜ね」「〜かな」「…」。"
+  },
+  "char.postmaster-bill": {
+   "en": "Postmaster Bill",
+   "target": "ビル局長",
+   "note": "一人称「わし」。陽気な老局長、「〜だぞ」「〜だな」「〜さ」。配達人を「新米」と呼ぶ（くだけた口調）。ボスにはていねい語。名前だけなら「ビル」。"
+  },
+  "char.courier": {
+   "en": "courier",
+   "target": "配達人",
+   "note": "「王室配達人」「配達人ピップ」と同じ語。物語の配達人セリフは4羽共通なので一人称を省き、相手にはです・ます。"
+  },
+  "char.narrator": {
+   "en": "the narrator",
+   "target": "ナレーター",
+   "note": "画面には出ない。やさしい絵本の語り口で、プレイヤーに直接語りかける。"
+  },
+  "boss.baron-bat": {
+   "en": "Baron Bat",
+   "target": "コウモリ男爵",
+   "note": "短縮「男爵」、呼びかけ「男爵」（配達人は「男爵さま」も可）。一人称「わたくし」、気取った上から目線「〜したまえ」「〜だよ」。配達人を「小さな配達人さん」「きみ」と呼ぶ。"
+  },
+  "boss.spitter-king": {
+   "en": "Spitter King",
+   "target": "ペッペ王",
+   "note": "「ペッペ」はつばを吐く音。ペッペ虫（enemy.spitter-beetle）の王。一人称「わがはい」、「〜である！」「〜なのだ！」。ビルは「王さま」、鳥たちは「王さま」。"
+  },
+  "boss.dusk-empress": {
+   "en": "Dusk Empress",
+   "target": "たそがれ女帝",
+   "note": "短縮・呼びかけ「女帝」（配達人は「女帝さま」）。ピップは「女帝陛下」。一人称「わらわ」、ささやき声で「〜じゃ」「〜ぞ」「〜おくれ」。"
+  },
+  "boss.pirate-captain": {
+   "en": "Pirate Captain",
+   "target": "海賊船長",
+   "note": "短縮・呼びかけ「船長」。自分を「船長さま」と呼ぶ。一人称「わし」、「〜じゃ」「〜ぞい」、海賊の掛け声「ヨーホー！」。"
+  },
+  "boss.ember-dragon": {
+   "en": "Ember Dragon",
+   "target": "残り火ドラゴン",
+   "note": "「残り火」＝静かに燃え続ける古い火（attack.embers と同じ語）。短縮・呼びかけ「ドラゴン」。一人称「我（われ）」、古風で重々しく「〜である」「〜か」。"
+  },
+  "guardian.neferhoo": {
+   "en": "Neferhoo",
+   "target": "ネフェルフー",
+   "note": "一人称「わたくし」、口うるさい古い役人「〜ですぞ」「〜でございます」。配達人を「ひよっこ殿」と呼ぶ。ピーチズは「ネフェルフーさん」。"
+  },
+  "guardian.king-coo": {
+   "en": "King Coo",
+   "target": "キング・ポッポ",
+   "note": "ハトの鳴き声「ポッポ」＋キング。「キングコング」の響きも残る。一人称「本官」、自分を三人称「署長」とも呼ぶ（「署長の命令である」「署長は、引き受ける。」）。尊大な「〜である」「〜べからず」「〜ぬ」。"
+  },
+  "guardian.searchlight-gargoyle": {
+   "en": "Searchlight Gargoyle",
+   "target": "サーチライト・ガーゴイル",
+   "note": "カードは「サーチライト／ガーゴイル」で二行に分けられる。短縮「ガーゴイル」。一人称「わたし」、大げさな舞台役者口調「〜のだ」「〜おくれ」、みんなを「きみ」と呼ぶ。三人称で「ガーゴイルは、お引き受けしよう。」"
+  },
+  "npc.toucan-twins": {
+   "en": "the toucan twins",
+   "target": "オオハシのふたご",
+   "note": "複数・はしゃぐ子ども。"
+  },
+  "npc.sloth-stargazer": {
+   "en": "the sloth stargazer",
+   "target": "星好きのナマケモノ",
+   "note": "単数、ねむたげでのんびり。"
+  },
+  "npc.firefly-nursery": {
+   "en": "the firefly nursery",
+   "target": "ホタル保育園",
+   "note": "小さな子を預かる保育園（植物の苗床ではない）。"
+  },
+  "npc.samba-macaws": {
+   "en": "the samba macaws",
+   "target": "サンバのコンゴウインコ",
+   "note": "複数、はしゃぐ。"
+  },
+  "npc.drum-captain": {
+   "en": "the drum captain",
+   "target": "太鼓隊長",
+   "note": "楽団のリーダー。海賊船長とは別の語。"
+  },
+  "npc.temple-cooks": {
+   "en": "the temple cooks",
+   "target": "神殿の料理人たち",
+   "note": "複数、陽気。"
+  },
+  "npc.dawn-keeper": {
+   "en": "the dawn keeper",
+   "target": "夜明けの番人",
+   "note": "単数、落ち着いた賢者。"
+  },
+  "npc.chariot-racers": {
+   "en": "the chariot racers",
+   "target": "馬車レーサーたち",
+   "note": "古代ローマの戦車競走（子どもが戦車＝タンクと誤解しないよう「馬車」）。"
+  },
+  "npc.statue-carver": {
+   "en": "the statue carver",
+   "target": "像の彫刻家",
+   "note": "単数。「鼻」は像の鼻。"
+  },
+  "npc.fire-brigade": {
+   "en": "the fire brigade",
+   "target": "消防隊",
+   "note": "一団で一つの声。"
+  },
+  "npc.pyramid-astronomer": {
+   "en": "the pyramid astronomer",
+   "target": "ピラミッドの天文学者",
+   "note": "単数。"
+  },
+  "npc.pyramid-caretaker": {
+   "en": "the pyramid caretaker",
+   "target": "ピラミッドの管理人さん",
+   "note": "女性、単数。短縮「管理人さん」。"
+  },
+  "npc.lantern-sellers": {
+   "en": "the lantern sellers",
+   "target": "ランタン売りたち",
+   "note": "複数。"
+  },
+  "npc.caravan-leader": {
+   "en": "the caravan leader",
+   "target": "キャラバンのリーダー",
+   "note": "単数、ぶっきらぼう。"
+  },
+  "npc.stage-manager": {
+   "en": "the stage manager",
+   "target": "舞台監督",
+   "note": "単数、ショービジネス風。"
+  },
+  "npc.newsstand-pigeons": {
+   "en": "the newsstand pigeons",
+   "target": "新聞スタンドのハトたち",
+   "note": "複数。"
+  },
+  "npc.night-cabbies": {
+   "en": "the night cabbies",
+   "target": "夜のタクシー運転手たち",
+   "note": "積み荷では「夜勤のタクシー運転手」。同じ人たち。"
+  },
+  "npc.tower-keeper": {
+   "en": "the tower keeper",
+   "target": "塔の番人",
+   "note": "単数、おじいさん。"
+  },
+  "npc.rooftop-painters": {
+   "en": "the rooftop painters",
+   "target": "屋根の上の画家たち",
+   "note": "複数。お礼の「Magnifique」はフランス語のまま（雰囲気づけ）。"
+  },
+  "npc.accordion-player": {
+   "en": "the accordion player",
+   "target": "アコーディオン弾き",
+   "note": "単数。"
+  },
+  "npc.baker": {
+   "en": "the baker",
+   "target": "パン屋さん",
+   "note": "パリのパン屋（女性）。火山のケーキ屋さんとは別人。"
+  },
+  "npc.lighthouse-keeper": {
+   "en": "the lighthouse keeper",
+   "target": "灯台守",
+   "note": "単数。"
+  },
+  "npc.volcano-baker": {
+   "en": "the volcano baker",
+   "target": "火山のケーキ屋さん",
+   "note": "溶岩ケーキを焼く。パリのパン屋さんとは別。"
+  },
+  "npc.kite-flyers": {
+   "en": "the kite flyers",
+   "target": "たこあげの人たち",
+   "note": "積み荷は「浜辺のお祭り」へ。"
+  },
+  "npc.island-hermit": {
+   "en": "the island hermit",
+   "target": "島の仙人",
+   "note": "男性、単数。"
+  },
+  "npc.ferry-crew": {
+   "en": "the ferry crew",
+   "target": "フェリーの乗組員",
+   "note": "一団。"
+  },
+  "npc.gull-colony": {
+   "en": "the gull colony",
+   "target": "カモメの群れ",
+   "note": "九百羽。"
+  },
+  "npc.storm-watch": {
+   "en": "the storm watch",
+   "target": "嵐の見張り番",
+   "note": "積み荷では「嵐の見張り番の船乗り」。"
+  },
+  "npc.penguin-choir": {
+   "en": "the penguin choir",
+   "target": "ペンギン合唱団",
+   "note": "複数。"
+  },
+  "npc.polar-station": {
+   "en": "the polar station",
+   "target": "南極基地",
+   "note": "基地の隊員を代表して。"
+  },
+  "npc.noodle-chef": {
+   "en": "the noodle chef",
+   "target": "ラーメン屋の店主",
+   "note": "日本語では「ラーメン屋」が自然。男性。"
+  },
+  "npc.rooftop-runners": {
+   "en": "the rooftop runners",
+   "target": "屋上ランナーたち",
+   "note": "複数。"
+  },
+  "npc.lantern-makers": {
+   "en": "the lantern makers",
+   "target": "ちょうちん職人たち",
+   "note": "中国の紙ちょうちん。"
+  },
+  "npc.mountain-monks": {
+   "en": "the mountain monks",
+   "target": "山のお坊さんたち",
+   "note": "複数、静か。積み荷は「山寺」へ。"
+  },
+  "npc.sphinx": {
+   "en": "the Sphinx",
+   "target": "スフィンクス",
+   "note": "ピーチズは「スフィンクスさん」。男性扱い。乾いた短い口調。署名「スフィンクスより」。"
+  },
+  "npc.unit-7": {
+   "en": "Unit 7",
+   "target": "ユニット7",
+   "note": "ロボットの型番。お礼は短く硬いロボット口調。"
+  },
+  "npc.parrot": {
+   "en": "the Parrot",
+   "target": "オウム",
+   "note": "船長の相棒（男）。呼びかけは「オウム」。"
+  },
+  "npc.baron-cousins": {
+   "en": "the Baron's cousins",
+   "target": "男爵のいとこたち",
+   "note": "男爵は「いとこたち！」「親せきども！」と呼ぶ。"
+  },
+  "title.postmaster": {
+   "en": "Postmaster",
+   "target": "局長",
+   "note": "名前の後に付ける：「ビル局長」。単独でも「局長の命令」。"
+  },
+  "title.lord-of-the-storm": {
+   "en": "LORD OF THE STORM",
+   "target": "嵐の君主"
+  },
+  "title.the-storm-returns": {
+   "en": "THE STORM RETURNS",
+   "target": "嵐、ふたたび",
+   "note": "「嵐」を共有。"
+  },
+  "title.brewer-of-the-swarm": {
+   "en": "BREWER OF THE SWARM",
+   "target": "群れの醸造王",
+   "note": "「なべ」で煮る王。"
+  },
+  "title.keeper-of-the-twilight-veil": {
+   "en": "KEEPER OF THE TWILIGHT VEIL",
+   "target": "たそがれのベールの守り手",
+   "note": "「ベール」は attack.veil と同じ。"
+  },
+  "title.terror-of-the-high-tide": {
+   "en": "TERROR OF THE HIGH TIDE",
+   "target": "満潮の恐怖",
+   "note": "「満潮」は hazard.tide と同じ。"
+  },
+  "title.sovereign-of-the-burning-sky": {
+   "en": "SOVEREIGN OF THE BURNING SKY",
+   "target": "燃える空の支配者"
+  },
+  "title.keeper-of-the-lost-letter": {
+   "en": "Keeper of the Lost Letter",
+   "target": "迷子の一通の番人",
+   "note": "単数の「ただ一通」。クラブの仕事 title.keeper-of-lost-letters と響き合わせる。"
+  },
+  "title.keeper-of-lost-letters": {
+   "en": "Keeper of Lost Letters",
+   "target": "迷子の手紙係",
+   "note": "クラブの新しい仕事（すべての迷子の手紙）。ネフェルフーの返事「迷子の手紙？」につながる。"
+  },
+  "title.royal-courier": {
+   "en": "Royal Courier",
+   "target": "王室配達人",
+   "note": "「配達人」は char.courier と同じ語（ピップのジョーク用）。"
+  },
+  "title.mummy-courier": {
+   "en": "the Mummy Courier",
+   "target": "ミイラ配達人"
+  },
+  "title.commissioner-of-the-curb": {
+   "en": "Commissioner of the Curb",
+   "target": "道ばた署長",
+   "note": "「curb（歩道のふち）」→ハトがパンくずをついばむ「道ばた」＋警察署長。"
+  },
+  "title.commissioner": {
+   "en": "the Commissioner",
+   "target": "署長",
+   "note": "キング・ポッポが自分を三人称で呼ぶ語。配達人とビルは「署長」「署長さん」と呼ぶ。"
+  },
+  "title.watchman-of-the-tallest-tower": {
+   "en": "Watchman of the Tallest Tower",
+   "target": "いちばん高い塔の見張り番"
+  },
+  "title.ink-maker": {
+   "en": "ink-maker",
+   "target": "インク職人",
+   "note": "本人は「王室インク職人」。"
+  },
+  "region.jungle": {
+   "en": "Jungle",
+   "target": "ジャングル"
+  },
+  "region.brazil": {
+   "en": "Brazil",
+   "target": "ブラジル"
+  },
+  "region.aztec": {
+   "en": "Aztec",
+   "target": "アステカ"
+  },
+  "region.ancient-rome": {
+   "en": "Ancient Rome",
+   "target": "古代ローマ",
+   "note": "「古代アラビア」と対。"
+  },
+  "region.egypt": {
+   "en": "Egypt",
+   "target": "エジプト"
+  },
+  "region.ancient-arabia": {
+   "en": "Ancient Arabia",
+   "target": "古代アラビア",
+   "note": "アラビアンナイト風。"
+  },
+  "region.new-york": {
+   "en": "New York",
+   "target": "ニューヨーク"
+  },
+  "region.paris": {
+   "en": "Paris",
+   "target": "パリ"
+  },
+  "region.mexico": {
+   "en": "Mexico",
+   "target": "メキシコ"
+  },
+  "region.open-sea": {
+   "en": "Open Sea",
+   "target": "大海原",
+   "note": "陸から遠い外洋。"
+  },
+  "region.antarctica": {
+   "en": "Antarctica",
+   "target": "南極"
+  },
+  "region.cyberpunk-city": {
+   "en": "Cyberpunk City",
+   "target": "サイバーパンク・シティ"
+  },
+  "region.china": {
+   "en": "China",
+   "target": "中国"
+  },
+  "place.city-of-light": {
+   "en": "the City of Light",
+   "target": "光の都",
+   "note": "パリの異名。明かりが消えたジョークに必要なので「花の都」ではなく「光の都」。"
+  },
+  "place.edge-of-the-map": {
+   "en": "the Edge of the Map",
+   "target": "地図の果て",
+   "note": "第5章名・実績と同じ語。宛名でも同じ。"
+  },
+  "place.giza": {
+   "en": "Giza",
+   "target": "ギザ",
+   "note": "宛名：「ギザ、スフィンクス様」。"
+  },
+  "place.nile": {
+   "en": "the Nile",
+   "target": "ナイル川"
+  },
+  "place.pyramid": {
+   "en": "the pyramid",
+   "target": "ピラミッド"
+  },
+  "place.colosseum": {
+   "en": "the Colosseum",
+   "target": "コロッセオ"
+  },
+  "place.sugarloaf-mountain": {
+   "en": "Sugarloaf Mountain",
+   "target": "シュガーローフ山",
+   "note": "「シュガー＝お砂糖」なのでピップのジョークが残る。"
+  },
+  "place.eiffel-tower": {
+   "en": "the Eiffel Tower",
+   "target": "エッフェル塔"
+  },
+  "place.theatre-marquee": {
+   "en": "the theatre marquee",
+   "target": "劇場のひさし",
+   "note": "電球のついた入口のひさし。雨宿りのオチに合う。"
+  },
+  "place.tallest-tower": {
+   "en": "the tallest tower",
+   "target": "いちばん高い塔",
+   "note": "短縮「塔」、「でっぱり」（ledge）。"
+  },
+  "place.canopy": {
+   "en": "the canopy",
+   "target": "こずえ",
+   "note": "森のてっぺんの葉の屋根。第1章「こずえルート」と同じ語。"
+  },
+  "place.bazaar": {
+   "en": "the bazaar",
+   "target": "バザール"
+  },
+  "place.harbour": {
+   "en": "the harbour",
+   "target": "港",
+   "note": "「港の鐘」。"
+  },
+  "chapter.canopy-route": {
+   "en": "The Canopy Route",
+   "target": "こずえルート",
+   "note": "「ルート」は story.mail-route と同じ語。"
+  },
+  "chapter.ancient-road": {
+   "en": "The Ancient Road",
+   "target": "いにしえの道",
+   "note": "ペッペ王は「わがはいの道」と呼ぶ。"
+  },
+  "chapter.lamplight-line": {
+   "en": "The Lamplight Line",
+   "target": "街あかり線",
+   "note": "「線」は路線。街のランプのイメージ。"
+  },
+  "chapter.tide-route": {
+   "en": "The Tide Route",
+   "target": "潮のルート",
+   "note": "「潮」は hazard.tide と同じ。"
+  },
+  "chapter.edge-of-the-map": {
+   "en": "The Edge of the Map",
+   "target": "地図の果て",
+   "note": "place.edge-of-the-map と同じ。"
+  },
+  "level.1-1": {
+   "en": "First Delivery",
+   "target": "はじめての配達"
+  },
+  "level.1-2": {
+   "en": "Star Streak",
+   "target": "星つなぎ",
+   "note": "「星つなぎ」は ui.streak と同じ語。"
+  },
+  "level.1-3": {
+   "en": "Bat Patrol",
+   "target": "コウモリパトロール"
+  },
+  "level.1-4": {
+   "en": "Carnival Skies",
+   "target": "カーニバルの空"
+  },
+  "level.1-5": {
+   "en": "Express Post",
+   "target": "速達便",
+   "note": "ネフェルフーの「速達便！」（attack.express-post）と同じ語。"
+  },
+  "level.1-6": {
+   "en": "Temple Steps",
+   "target": "神殿の階段"
+  },
+  "level.1-7": {
+   "en": "Sunrise Roost",
+   "target": "日の出のねぐら"
+  },
+  "level.1-8": {
+   "en": "Baron Bat",
+   "target": "コウモリ男爵",
+   "note": "boss.baron-bat と同じ。"
+  },
+  "level.2-1": {
+   "en": "Beetle Road",
+   "target": "ペッペ虫の道",
+   "note": "「道」は第2章と同じ。"
+  },
+  "level.2-2": {
+   "en": "Sealed Gates",
+   "target": "ふさがれた門",
+   "note": "炎の封印とは無関係。"
+  },
+  "level.2-3": {
+   "en": "Wildfire Run",
+   "target": "大火事ダッシュ",
+   "note": "「大火事」＝set-piece.wildfire、「ダッシュ」＝weapon.sprint。"
+  },
+  "level.2-4": {
+   "en": "Nile Switchbacks",
+   "target": "ナイルのジグザグ",
+   "note": "「ジグザグ」＝hazard.switchback。"
+  },
+  "level.2-5": {
+   "en": "Skyfall",
+   "target": "メテオフォール",
+   "note": "set-piece.skyfall と同じ。"
+  },
+  "level.2-6": {
+   "en": "Return to Sender",
+   "target": "差出人に返送",
+   "note": "phrase.return-to-sender と同じ（！なし）。"
+  },
+  "level.2-7": {
+   "en": "Lantern Bazaar",
+   "target": "ランタンのバザール"
+  },
+  "level.2-8": {
+   "en": "The Long Caravan",
+   "target": "長いキャラバン",
+   "note": "積み荷と同じ語。"
+  },
+  "level.2-9": {
+   "en": "Spitter King",
+   "target": "ペッペ王",
+   "note": "boss.spitter-king と同じ。"
+  },
+  "level.3-1": {
+   "en": "Moth Light",
+   "target": "あかりに誘われて",
+   "note": "光に集まる蛾（「飛んで火に入る夏の虫」の連想）。"
+  },
+  "level.3-2": {
+   "en": "Wheels in the Rain",
+   "target": "雨と車輪",
+   "note": "屋台の車輪＋雨。映画タイトル風。"
+  },
+  "level.3-3": {
+   "en": "Steam Alley",
+   "target": "スチーム横丁",
+   "note": "ビルが声に出して言う。"
+  },
+  "level.3-4": {
+   "en": "Storm Warning",
+   "target": "暴風警報",
+   "note": "ガーゴイル登場の見出し ui.omen-gargoyle と同じ。"
+  },
+  "level.3-5": {
+   "en": "Crystal Rooftops",
+   "target": "クリスタルの屋根"
+  },
+  "level.3-6": {
+   "en": "After the Gale",
+   "target": "突風のあとで",
+   "note": "「突風」＝set-piece.gale。"
+  },
+  "level.3-7": {
+   "en": "Midnight Express",
+   "target": "真夜中の特急便",
+   "note": "真夜中＋特急。"
+  },
+  "level.3-8": {
+   "en": "Dusk Empress",
+   "target": "たそがれ女帝",
+   "note": "boss.dusk-empress と同じ。"
+  },
+  "level.4-1": {
+   "en": "Harbour Lights",
+   "target": "港のあかり"
+  },
+  "level.4-2": {
+   "en": "Volcano Pass",
+   "target": "火山の峠"
+  },
+  "level.4-3": {
+   "en": "Down the Coast",
+   "target": "海岸ぞいに"
+  },
+  "level.4-4": {
+   "en": "Low Water",
+   "target": "干潮"
+  },
+  "level.4-5": {
+   "en": "Spring Tide",
+   "target": "大潮",
+   "note": "航海用語（季節の春ではない）。"
+  },
+  "level.4-6": {
+   "en": "Broadside Bay",
+   "target": "一斉砲撃の湾",
+   "note": "「一斉砲撃」＝attack.broadside。"
+  },
+  "level.4-7": {
+   "en": "Stormy Crossing",
+   "target": "嵐の海をこえて"
+  },
+  "level.4-8": {
+   "en": "Pirate Captain",
+   "target": "海賊船長",
+   "note": "boss.pirate-captain と同じ。"
+  },
+  "level.5-1": {
+   "en": "Aurora Post",
+   "target": "オーロラ郵便局"
+  },
+  "level.5-2": {
+   "en": "Polar Night",
+   "target": "極地の夜",
+   "note": "「極夜」は子どもに難しいので言いかえ。"
+  },
+  "level.5-3": {
+   "en": "Neon Express",
+   "target": "ネオン特急"
+  },
+  "level.5-4": {
+   "en": "Data Storm",
+   "target": "データの嵐"
+  },
+  "level.5-5": {
+   "en": "Skyline Sprint",
+   "target": "屋上ダッシュ",
+   "note": "「ダッシュ」＝weapon.sprint。「ビル街」はビル局長と紛らわしいので避けた。"
+  },
+  "level.5-6": {
+   "en": "Lantern Festival",
+   "target": "ランタン祭り"
+  },
+  "level.5-7": {
+   "en": "The Last Leg",
+   "target": "最後のひと飛び",
+   "note": "「最後の行程」を鳥らしく。"
+  },
+  "level.5-8": {
+   "en": "Ember Dragon",
+   "target": "残り火ドラゴン",
+   "note": "boss.ember-dragon と同じ。"
+  },
+  "level.starter-garden-hop": {
+   "en": "Garden Hop",
+   "target": "お庭ぴょんぴょん"
+  },
+  "level.starter-ten-push-ups": {
+   "en": "Ten Push-Ups",
+   "target": "腕立て10回"
+  },
+  "level.starter-stair-squats": {
+   "en": "Stair Squats",
+   "target": "階段スクワット"
+  },
+  "level.starter-bounce-bay": {
+   "en": "Bounce Bay",
+   "target": "ぴょんぴょん湾"
+  },
+  "level.starter-barons-bridge": {
+   "en": "Baron’s Bridge",
+   "target": "男爵の橋"
+  },
+  "cargo.1-1": {
+   "en": "A birthday card for the toucan twins",
+   "target": "オオハシのふたごへ誕生日カード"
+  },
+  "cargo.1-2": {
+   "en": "Star charts for the sloth stargazer",
+   "target": "星好きのナマケモノへ星図"
+  },
+  "cargo.1-3": {
+   "en": "Night-lights for the firefly nursery",
+   "target": "ホタル保育園へナイトライト"
+  },
+  "cargo.1-4": {
+   "en": "Feather boas for the carnival parade",
+   "target": "カーニバルのパレードへ羽根のボア"
+  },
+  "cargo.1-5": {
+   "en": "A rush invitation for the drum captain",
+   "target": "太鼓隊長へ大急ぎの招待状"
+  },
+  "cargo.1-6": {
+   "en": "Cocoa beans for the temple cooks",
+   "target": "神殿の料理人たちへカカオ豆"
+  },
+  "cargo.1-7": {
+   "en": "A sundial for the dawn keeper",
+   "target": "夜明けの番人へ日時計"
+  },
+  "cargo.1-8": {
+   "en": "A final notice for Baron Bat",
+   "target": "コウモリ男爵へ最終通告"
+  },
+  "cargo.2-1": {
+   "en": "Laurel wreaths for the chariot racers",
+   "target": "馬車レーサーたちへ月桂冠"
+  },
+  "cargo.2-2": {
+   "en": "A new chisel for the statue carver",
+   "target": "像の彫刻家へ新しいノミ"
+  },
+  "cargo.2-3": {
+   "en": "Water buckets for the fire brigade",
+   "target": "消防隊へ水のバケツ"
+  },
+  "cargo.2-4": {
+   "en": "A book of new riddles for the Sphinx",
+   "target": "スフィンクスへ新しいなぞなぞの本"
+  },
+  "cargo.2-5": {
+   "en": "A telescope for the pyramid astronomer",
+   "target": "ピラミッドの天文学者へ望遠鏡"
+  },
+  "cargo.2-6": {
+   "en": "A feather duster for the caretaker",
+   "target": "管理人さんへ羽ぼうき"
+  },
+  "cargo.2-7": {
+   "en": "Lamp oil for the lantern sellers",
+   "target": "ランタン売りたちへランプの油"
+  },
+  "cargo.2-8": {
+   "en": "Water flasks for the long caravan",
+   "target": "長いキャラバンへ水筒"
+  },
+  "cargo.2-9": {
+   "en": "A stop-brewing order for the Spitter King",
+   "target": "ペッペ王へなべ禁止令",
+   "note": "「煮込み禁止」を「なべ」（story.brew）で。"
+  },
+  "cargo.3-1": {
+   "en": "Light bulbs for the theatre marquee",
+   "target": "劇場のひさしへ電球"
+  },
+  "cargo.3-2": {
+   "en": "Umbrellas for the newsstand pigeons",
+   "target": "新聞スタンドのハトたちへかさ"
+  },
+  "cargo.3-3": {
+   "en": "Hot pretzels for the night-shift cabbies",
+   "target": "夜勤のタクシー運転手へ熱々プレッツェル"
+  },
+  "cargo.3-4": {
+   "en": "A weather vane for the tallest tower",
+   "target": "いちばん高い塔へ風見鶏"
+  },
+  "cargo.3-5": {
+   "en": "Croissants for the rooftop painters",
+   "target": "屋根の上の画家たちへクロワッサン"
+  },
+  "cargo.3-6": {
+   "en": "Sheet music for the accordion player",
+   "target": "アコーディオン弾きへ楽譜"
+  },
+  "cargo.3-7": {
+   "en": "A midnight love letter for the baker",
+   "target": "パン屋さんへ真夜中のラブレター"
+  },
+  "cargo.3-8": {
+   "en": "A wake-up call for the Dusk Empress",
+   "target": "たそがれ女帝へ目覚ましコール"
+  },
+  "cargo.4-1": {
+   "en": "A new lens for the lighthouse keeper",
+   "target": "灯台守へ新しいレンズ"
+  },
+  "cargo.4-2": {
+   "en": "Oven mitts for the volcano baker",
+   "target": "火山のケーキ屋さんへオーブンミトン"
+  },
+  "cargo.4-3": {
+   "en": "Kite string for the beach festival",
+   "target": "浜辺のお祭りへたこ糸"
+  },
+  "cargo.4-4": {
+   "en": "A reply for the island hermit",
+   "target": "島の仙人へお返事"
+  },
+  "cargo.4-5": {
+   "en": "A tide table for the ferry crew",
+   "target": "フェリーの乗組員へ潮の時刻表"
+  },
+  "cargo.4-6": {
+   "en": "Fish biscuits for the gull colony",
+   "target": "カモメの群れへ魚ビスケット"
+  },
+  "cargo.4-7": {
+   "en": "Dry socks for the storm-watch sailors",
+   "target": "嵐の見張り番の船乗りへ乾いた靴下"
+  },
+  "cargo.4-8": {
+   "en": "A return-the-mail order for the Captain",
+   "target": "船長へ郵便返却命令"
+  },
+  "cargo.5-1": {
+   "en": "Woolly hats for the penguin choir",
+   "target": "ペンギン合唱団へ毛糸の帽子"
+  },
+  "cargo.5-2": {
+   "en": "Hot cocoa for the polar station",
+   "target": "南極基地へホットココア"
+  },
+  "cargo.5-3": {
+   "en": "Spare fuses for the noodle bar sign",
+   "target": "ラーメン屋の看板へ予備のヒューズ"
+  },
+  "cargo.5-4": {
+   "en": "A paper letter for a curious robot",
+   "target": "好奇心いっぱいのロボットへ紙の手紙"
+  },
+  "cargo.5-5": {
+   "en": "Race tickets for the rooftop runners",
+   "target": "屋上ランナーたちへレースのチケット"
+  },
+  "cargo.5-6": {
+   "en": "Paper lanterns for the festival",
+   "target": "お祭りへ紙のちょうちん"
+  },
+  "cargo.5-7": {
+   "en": "Mountain tea for the monastery",
+   "target": "山寺へ山のお茶"
+  },
+  "cargo.5-8": {
+   "en": "The first letter ever sent to the Dragon",
+   "target": "ドラゴンへ、はじめての手紙"
+  },
+  "enemy.purple-bat": {
+   "en": "Purple bat",
+   "target": "ムラサキコウモリ",
+   "note": "ふだんは「コウモリ」。男爵の・大群の・ミイラのコウモリも同じ語。"
+  },
+  "enemy.cave-bat": {
+   "en": "Cave bat",
+   "target": "ホラアナコウモリ"
+  },
+  "enemy.spitter-beetle": {
+   "en": "Spitter beetle",
+   "target": "ペッペ虫",
+   "note": "ペッペ王と同じ「ペッペ」。"
+  },
+  "enemy.dusk-moth": {
+   "en": "Dusk moth",
+   "target": "たそがれ蛾",
+   "note": "「たそがれ」は女帝と同じ。単独で「蛾」。"
+  },
+  "enemy.alley-pigeon": {
+   "en": "Alley Pigeon",
+   "target": "路地裏バト"
+  },
+  "enemy.mummy-bat": {
+   "en": "Mummy bat",
+   "target": "ミイラコウモリ"
+  },
+  "enemy.squadron": {
+   "en": "King Coo's squadron",
+   "target": "ポッポ隊",
+   "note": "キング・ポッポの部下のハトたち。"
+  },
+  "enemy.straggler": {
+   "en": "straggler",
+   "target": "はぐれバト",
+   "note": "UIは「もどってくる」「全部つかまえた！」。"
+  },
+  "enemy.brood": {
+   "en": "the Spitter King's brood",
+   "target": "ペッペ王の子分たち",
+   "note": "王は「助手たち！」「わがはいのかわいいコガネたち」と呼ぶ。"
+  },
+  "enemy.empress-moths": {
+   "en": "the Dusk Empress's moths",
+   "target": "女帝の蛾たち",
+   "note": "女帝は「かわいい子たち」と呼ぶ。"
+  },
+  "enemy.swarm-bats": {
+   "en": "swarm bats",
+   "target": "コウモリの大群",
+   "note": "「大群」＝set-piece.swarm。"
+  },
+  "attack.fireball": {
+   "en": "fireball",
+   "target": "火の玉"
+  },
+  "attack.screech": {
+   "en": "sonic screech",
+   "target": "超音波",
+   "note": "コウモリの超音波。鳥たちは「キーキー声」とも言う。phrase.all-screech と同じ「キーキー」系。"
+  },
+  "attack.seed": {
+   "en": "seed",
+   "target": "タネ"
+  },
+  "attack.fan": {
+   "en": "fan",
+   "target": "扇",
+   "note": "扇の形に広がる弾。セリフでは「三発の扇」「扇が来るぞ」「扇みたいに撃ってくる」。"
+  },
+  "attack.pollen": {
+   "en": "pollen",
+   "target": "花粉"
+  },
+  "attack.veil": {
+   "en": "veil",
+   "target": "ベール",
+   "note": "鳥たちは「シールド」とも呼ぶ。"
+  },
+  "attack.cannon": {
+   "en": "cannon",
+   "target": "大砲",
+   "note": "導火線＝「導火線」、砲弾＝「大砲の弾」。"
+  },
+  "attack.broadside": {
+   "en": "broadside",
+   "target": "一斉砲撃"
+  },
+  "attack.dragon-breath": {
+   "en": "dragon's breath",
+   "target": "ドラゴンの火の息",
+   "note": "短縮「火の息」。"
+  },
+  "attack.embers": {
+   "en": "embers",
+   "target": "残り火",
+   "note": "「残り火ドラゴン」と同じ語。"
+  },
+  "attack.crumb-bomb": {
+   "en": "crumb bomb",
+   "target": "パンくず爆弾"
+  },
+  "attack.stale-crust": {
+   "en": "stale crust",
+   "target": "かたいパンの耳"
+  },
+  "attack.puff": {
+   "en": "puff",
+   "target": "胸ふくらまし",
+   "note": "ポン！／プシュー！は擬音。"
+  },
+  "attack.beam": {
+   "en": "beam",
+   "target": "サーチライトの光",
+   "note": "見つかったら「見つかった！」。"
+  },
+  "attack.lamp": {
+   "en": "lamp",
+   "target": "胸のランプ",
+   "note": "よろい戸＝「シャッター」。女帝の街のランプとは別物だが同じ「ランプ」でよい。"
+  },
+  "attack.stone-feathers": {
+   "en": "stone feathers",
+   "target": "石の羽根"
+  },
+  "attack.mail-call": {
+   "en": "mail call",
+   "target": "郵便ですぞ！",
+   "note": "ネフェルフーの叫び（音声）と同じ。UIタグも「郵便ですぞ！・撃ち返せ！」でよい。"
+  },
+  "attack.ankh": {
+   "en": "ankh",
+   "target": "アンク"
+  },
+  "attack.express-post": {
+   "en": "EXPRESS POST",
+   "target": "速達便",
+   "note": "level.1-5 と同じ。"
+  },
+  "hazard.gate": {
+   "en": "gate",
+   "target": "ゲート",
+   "note": "すき間＝「すき間」。"
+  },
+  "hazard.garden-gate": {
+   "en": "Garden gate",
+   "target": "庭のゲート"
+  },
+  "hazard.wind-lift": {
+   "en": "Wind lift",
+   "target": "風のリフト"
+  },
+  "hazard.petal-shutters": {
+   "en": "Petal shutters",
+   "target": "花びらシャッター",
+   "note": "ビルは「花びらゲート」と呼ぶ（同じ障害物）。"
+  },
+  "hazard.switchback": {
+   "en": "Switchback",
+   "target": "ジグザグゲート",
+   "note": "「上のすき間、次は下」。"
+  },
+  "hazard.lantern-drift": {
+   "en": "Lantern drift",
+   "target": "ゆらゆらランタン"
+  },
+  "hazard.sun-wheels": {
+   "en": "Sun wheels",
+   "target": "お日さま車輪"
+  },
+  "hazard.crystal-steps": {
+   "en": "Crystal steps",
+   "target": "クリスタルの階段"
+  },
+  "hazard.stone-panel": {
+   "en": "stone panel",
+   "target": "石の板",
+   "note": "石のとびら・石の壁も同じ「石」。"
+  },
+  "hazard.steam-geyser": {
+   "en": "steam vent",
+   "target": "蒸気口",
+   "note": "「熱いのはとび越えて、やわらかいのには乗って」。"
+  },
+  "hazard.sea": {
+   "en": "the sea",
+   "target": "海",
+   "note": "「水」も同じ危険。「海はかみつく」。"
+  },
+  "hazard.tide": {
+   "en": "the tide",
+   "target": "潮",
+   "note": "満潮＝「満潮」、上げ潮＝「潮が満ちる」。"
+  },
+  "hazard.tide-bell": {
+   "en": "the bell",
+   "target": "鐘",
+   "note": "「潮の鐘」。港の鐘とつながる。"
+  },
+  "hazard.lava-plume": {
+   "en": "lava plume",
+   "target": "溶岩の柱"
+  },
+  "hazard.meteor": {
+   "en": "meteor",
+   "target": "いん石",
+   "note": "「隕」は難しい漢字なのでかな書き。"
+  },
+  "hazard.debris": {
+   "en": "debris",
+   "target": "がらくた",
+   "note": "「飛んでくるがらくた」。"
+  },
+  "hazard.football": {
+   "en": "football",
+   "target": "サッカーボール"
+  },
+  "hazard.warning-mark": {
+   "en": "!",
+   "target": "！",
+   "note": "記号のまま。"
+  },
+  "hazard.rubble": {
+   "en": "rubble",
+   "target": "がれき"
+  },
+  "set-piece.rush-path": {
+   "en": "rush",
+   "target": "ラッシュ"
+  },
+  "set-piece.wildfire": {
+   "en": "Wildfire",
+   "target": "大火事",
+   "note": "バナー「大火事だ！」。"
+  },
+  "set-piece.skyfall": {
+   "en": "Skyfall",
+   "target": "メテオフォール",
+   "note": "「空から落ちるいん石」。ゲームらしい短い造語。"
+  },
+  "set-piece.eruption": {
+   "en": "Eruption",
+   "target": "噴火"
+  },
+  "set-piece.swarm": {
+   "en": "Swarm",
+   "target": "大群",
+   "note": "コウモリの大群。"
+  },
+  "set-piece.gale": {
+   "en": "gale",
+   "target": "突風",
+   "note": "バナー「突風！」、「空いている側」。"
+  },
+  "set-piece.finish-line": {
+   "en": "finish line",
+   "target": "ゴール",
+   "note": "看板は「ゴール」、チェック柄のテープ。"
+  },
+  "set-piece.run-up": {
+   "en": "run-up",
+   "target": "助走"
+  },
+  "set-piece.vanguard": {
+   "en": "vanguard",
+   "target": "先ぶれ隊",
+   "note": "画面には出ない。"
+  },
+  "pickup.star": {
+   "en": "star",
+   "target": "星",
+   "note": "すべての用途で同じ語（拾う星・評価・通貨）。"
+  },
+  "pickup.star-trio": {
+   "en": "star trio",
+   "target": "星トリオ"
+  },
+  "pickup.heart": {
+   "en": "heart",
+   "target": "ハート",
+   "note": "ピーチズの「愛」のダジャレが生きる。"
+  },
+  "pickup.shield": {
+   "en": "shield",
+   "target": "シールド",
+   "note": "鳥たちは「バリア」「あわ」とも言わず「シールド」で統一。"
+  },
+  "pickup.star-magnet": {
+   "en": "star magnet",
+   "target": "星マグネット",
+   "note": "短縮「マグネット」。"
+  },
+  "pickup.sprint-ring": {
+   "en": "sprint ring",
+   "target": "ダッシュリング",
+   "note": "音声・ヒントでは「金のリング」「リング」。"
+  },
+  "pickup.mystery-box": {
+   "en": "mystery box",
+   "target": "ふしぎボックス"
+  },
+  "pickup.bat-swarm": {
+   "en": "Bat swarm",
+   "target": "コウモリの大群"
+  },
+  "pickup.meteor-shower": {
+   "en": "Meteor shower",
+   "target": "いん石の雨"
+  },
+  "pickup.star-power": {
+   "en": "Star power",
+   "target": "スターパワー"
+  },
+  "power-up.shot-power": {
+   "en": "Shot power",
+   "target": "ショットパワー"
+  },
+  "power-up.sprint": {
+   "en": "Sprint (upgrade)",
+   "target": "ダッシュ",
+   "note": "weapon.sprint と同じ。"
+  },
+  "power-up.shield": {
+   "en": "Shield (upgrade)",
+   "target": "シールド"
+  },
+  "power-up.magnet": {
+   "en": "Magnet (upgrade)",
+   "target": "マグネット"
+  },
+  "weapon.shoot": {
+   "en": "Shoot",
+   "target": "ショット",
+   "note": "ボタン名。動詞は「撃つ」「ショットで〜」。"
+  },
+  "weapon.rock": {
+   "en": "rock",
+   "target": "石",
+   "note": "ドラゴンは「小石」。"
+  },
+  "weapon.big-rock": {
+   "en": "big rock",
+   "target": "大きな石",
+   "note": "ためうち。"
+  },
+  "weapon.ammo": {
+   "en": "ammo",
+   "target": "石の残り",
+   "note": "「装てん中…」。鳥たちは「石」と言う。"
+  },
+  "weapon.sprint": {
+   "en": "Sprint",
+   "target": "ダッシュ",
+   "note": "ボタン名。"
+  },
+  "weapon.ring-sprint": {
+   "en": "ring sprint",
+   "target": "リングダッシュ"
+  },
+  "weapon.smash": {
+   "en": "SMASH!",
+   "target": "ドカン！"
+  },
+  "mode.campaign": {
+   "en": "Campaign",
+   "target": "キャンペーン"
+  },
+  "mode.endless": {
+   "en": "Endless",
+   "target": "エンドレス",
+   "note": "「エンドレスの空」。"
+  },
+  "mode.tap-and-fly": {
+   "en": "Tap & Fly",
+   "target": "タップ＆フライ"
+  },
+  "mode.push-up-flight": {
+   "en": "Push-Up Flight",
+   "target": "腕立てフライト",
+   "note": "おまけのミニゲーム。"
+  },
+  "mode.squat-and-fly": {
+   "en": "Squat & Fly",
+   "target": "スクワット＆フライ"
+  },
+  "mode.jump-and-fly": {
+   "en": "Jump & Fly",
+   "target": "ジャンプ＆フライ"
+  },
+  "mode.mini-games": {
+   "en": "Mini games",
+   "target": "ミニゲーム",
+   "note": "フィットネスアプリに見せない。"
+  },
+  "mode.fly-together": {
+   "en": "Fly Together",
+   "target": "いっしょに飛ぼう"
+  },
+  "mode.roped": {
+   "en": "Roped",
+   "target": "ロープあり"
+  },
+  "mode.no-rope": {
+   "en": "No rope",
+   "target": "ロープなし"
+  },
+  "mode.duel": {
+   "en": "1 v 1",
+   "target": "1対1",
+   "note": "名詞は「対決」。"
+  },
+  "mode.level-builder": {
+   "en": "Level Builder",
+   "target": "レベルビルダー"
+  },
+  "mode.daily-adventure": {
+   "en": "Adventure",
+   "target": "アドベンチャー",
+   "note": "「今日の小さなぼうけん」。"
+  },
+  "mode.flight-school": {
+   "en": "Flight School",
+   "target": "飛行学校"
+  },
+  "mode.practice": {
+   "en": "Practice",
+   "target": "練習"
+  },
+  "mode.test-flight": {
+   "en": "test flight",
+   "target": "テスト飛行",
+   "note": "動詞「テストで飛ぶ」。"
+  },
+  "mode.classic": {
+   "en": "Classic",
+   "target": "クラシック"
+  },
+  "mode.world-tour": {
+   "en": "world tour",
+   "target": "世界一周"
+  },
+  "ui.sky-club": {
+   "en": "Sky Club",
+   "target": "スカイクラブ",
+   "note": "短縮「クラブ」。日本語ではカタカナ名が自然。「クラブへようこそ」は文字どおりの意味。"
+  },
+  "ui.sky-club-post": {
+   "en": "Sky Club post",
+   "target": "スカイクラブ郵便",
+   "note": "戸口のあいさつは「スカイクラブ郵便です！」。"
+  },
+  "ui.passport": {
+   "en": "passport",
+   "target": "パスポート",
+   "note": "「空のパスポート」。"
+  },
+  "ui.passport-stamp": {
+   "en": "stamp (passport)",
+   "target": "スタンプ",
+   "note": "インクのスタンプ。船長の「切手」（story.postage-stamp）とは別の語。"
+  },
+  "ui.medal": {
+   "en": "medal",
+   "target": "メダル"
+  },
+  "ui.bronze": {
+   "en": "Bronze",
+   "target": "銅"
+  },
+  "ui.silver": {
+   "en": "Silver",
+   "target": "銀"
+  },
+  "ui.gold": {
+   "en": "Gold",
+   "target": "金",
+   "note": "「金のリング」と同じ。"
+  },
+  "ui.star-marks": {
+   "en": "star marks",
+   "target": "星の目盛り",
+   "note": "ピップの「目盛りがともった」。"
+  },
+  "ui.star-rating": {
+   "en": "stars (level rating)",
+   "target": "星",
+   "note": "「星2つ」「星3つ」。"
+  },
+  "ui.streak": {
+   "en": "streak",
+   "target": "星つなぎ",
+   "note": "連続で星を取ること。level.1-2 と同じ。"
+  },
+  "ui.multiplier": {
+   "en": "multiplier",
+   "target": "倍率",
+   "note": "「×」記号はそのまま。"
+  },
+  "ui.perfect-pass": {
+   "en": "perfect pass",
+   "target": "パーフェクト通過",
+   "note": "「パーフェクトゲート」も同じ。"
+  },
+  "ui.aiming-mark": {
+   "en": "aiming mark",
+   "target": "ねらいマーク"
+  },
+  "ui.score": {
+   "en": "score",
+   "target": "スコア",
+   "note": "「星ポイント」。"
+  },
+  "ui.best": {
+   "en": "best",
+   "target": "ベスト",
+   "note": "「自己ベスト」。"
+  },
+  "ui.record": {
+   "en": "record",
+   "target": "新記録",
+   "note": "「記録」。"
+  },
+  "ui.records-screen": {
+   "en": "Records",
+   "target": "記録"
+  },
+  "ui.saved-session": {
+   "en": "saved session",
+   "target": "保存したフライト"
+  },
+  "ui.replay": {
+   "en": "replay",
+   "target": "リプレイ"
+  },
+  "ui.flight-highlights": {
+   "en": "Flight highlights",
+   "target": "フライトのハイライト"
+  },
+  "ui.flight": {
+   "en": "flight",
+   "target": "フライト",
+   "note": "一回のプレイ。「ゲーム」「ラン」とは言わない。"
+  },
+  "ui.scored-flight": {
+   "en": "scored flight",
+   "target": "記録に残るフライト"
+  },
+  "ui.upgrades": {
+   "en": "Upgrades",
+   "target": "アップグレード",
+   "note": "「最大」。"
+  },
+  "ui.star-wallet": {
+   "en": "stars to spend",
+   "target": "使える星"
+  },
+  "ui.collection": {
+   "en": "Birds",
+   "target": "鳥たち",
+   "note": "「飛行クルー」「いっしょに飛ぶ仲間」。"
+  },
+  "ui.trail-sunshine-bubbles": {
+   "en": "Sunshine bubbles",
+   "target": "おひさまのあわ"
+  },
+  "ui.trail-peach-hearts": {
+   "en": "Peach hearts",
+   "target": "ピーチハート"
+  },
+  "ui.trail-mint-leaves": {
+   "en": "Mint leaves",
+   "target": "ミントの葉っぱ"
+  },
+  "ui.trail-stardust-sparkles": {
+   "en": "Stardust sparkles",
+   "target": "星くずのきらめき"
+  },
+  "ui.character-voices": {
+   "en": "Character voices",
+   "target": "キャラクターボイス"
+  },
+  "ui.sky-club-soundtrack": {
+   "en": "Sky Club soundtrack",
+   "target": "スカイクラブ・サウンドトラック"
+  },
+  "ui.reduced-motion": {
+   "en": "Reduced motion",
+   "target": "視差効果を減らす",
+   "note": "OSの用語に合わせる。"
+  },
+  "ui.campaign-map": {
+   "en": "map",
+   "target": "マップ"
+  },
+  "ui.stop": {
+   "en": "stop",
+   "target": "行き先",
+   "note": "「次の行き先」。ナレーター「次の行き先は、パリ」。"
+  },
+  "ui.chapter": {
+   "en": "chapter",
+   "target": "章"
+  },
+  "ui.level": {
+   "en": "level",
+   "target": "レベル"
+  },
+  "ui.level-card": {
+   "en": "level card",
+   "target": "レベルカード"
+  },
+  "ui.special-delivery": {
+   "en": "SPECIAL DELIVERY",
+   "target": "特別便",
+   "note": "実績・音声でも同じ語。"
+  },
+  "ui.hint": {
+   "en": "TIP",
+   "target": "ヒント",
+   "note": "ビルのヒントは「局長のヒント」。"
+  },
+  "ui.thank-you-note": {
+   "en": "thank-you note",
+   "target": "お礼のカード"
+  },
+  "ui.postcard": {
+   "en": "postcard",
+   "target": "絵はがき",
+   "note": "「配達人さんへ」「追伸」。"
+  },
+  "ui.lair": {
+   "en": "lair",
+   "target": "すみか",
+   "note": "ビル「あいつのすみかは、あの山の向こうだ」。"
+  },
+  "ui.guardian": {
+   "en": "GUARDIAN",
+   "target": "ガーディアン",
+   "note": "ビルの台詞でも同じ語。"
+  },
+  "ui.boss": {
+   "en": "boss",
+   "target": "ボス"
+  },
+  "ui.encounter": {
+   "en": "ENCOUNTER 01",
+   "target": "遭遇 01"
+  },
+  "ui.name-card": {
+   "en": "name card",
+   "target": "名前カード"
+  },
+  "ui.stronger": {
+   "en": "STRONGER",
+   "target": "パワーアップ"
+  },
+  "ui.fury": {
+   "en": "FURY",
+   "target": "激怒"
+  },
+  "ui.sky-reclaimed": {
+   "en": "SKY RECLAIMED",
+   "target": "空をとりもどした"
+  },
+  "ui.guardian-down": {
+   "en": "GUARDIAN DOWN!",
+   "target": "ガーディアン撃破！"
+  },
+  "ui.victory": {
+   "en": "Victory!",
+   "target": "勝利！"
+  },
+  "ui.delivered": {
+   "en": "Delivered!",
+   "target": "お届け完了！"
+  },
+  "ui.try-again": {
+   "en": "Try again!",
+   "target": "もう一回！"
+  },
+  "ui.bonk": {
+   "en": "Bonk!",
+   "target": "ゴツン！",
+   "note": "女帝の「ゴツン。ゴツン。」と同じ擬音。"
+  },
+  "ui.splash": {
+   "en": "Splash!",
+   "target": "ザブン！"
+  },
+  "ui.route-flown": {
+   "en": "ROUTE FLOWN",
+   "target": "飛んだルート",
+   "note": "「ルート」は配達ルートと同じ。"
+  },
+  "ui.coming-soon": {
+   "en": "Coming soon",
+   "target": "近日公開"
+  },
+  "ui.unlock": {
+   "en": "unlock",
+   "target": "解放",
+   "note": "「ロック中」。"
+  },
+  "ui.story-key": {
+   "en": "Story",
+   "target": "ストーリー",
+   "note": "「スキップ」「次へ」。"
+  },
+  "ui.to-be-continued": {
+   "en": "To be continued…",
+   "target": "つづく…",
+   "note": "ナレーター字幕は「つづく…次の行き先は、光の都パリ。」。UI担当に伝えること。"
+  },
+  "ui.pause": {
+   "en": "Take a breather.",
+   "target": "ひと休みしよう。",
+   "note": "「つづける」「やり直す」「マップ」。"
+  },
+  "ui.flap": {
+   "en": "Flap",
+   "target": "はばたく",
+   "note": "「タップではばたく」。"
+  },
+  "ui.fly": {
+   "en": "Fly!",
+   "target": "飛ぼう！"
+  },
+  "ui.workout": {
+   "en": "workout",
+   "target": "運動",
+   "note": "軽い言い方で。"
+  },
+  "ui.calibration": {
+   "en": "calibration",
+   "target": "調整",
+   "note": "「調整中」「調整完了！」。"
+  },
+  "ui.camera-lab": {
+   "en": "Camera & tracking lab",
+   "target": "カメラ＆トラッキング実験室"
+  },
+  "ui.play-games": {
+   "en": "Play Games",
+   "target": "Play ゲーム",
+   "note": "Google の日本語表記に従う。"
+  },
+  "ui.achievements": {
+   "en": "achievements",
+   "target": "実績"
+  },
+  "ui.share-code": {
+   "en": "share code",
+   "target": "共有コード",
+   "note": "「コードを貼り付け」。"
+  },
+  "ui.remix": {
+   "en": "Remix",
+   "target": "リミックス"
+  },
+  "ui.starter-levels": {
+   "en": "Starter levels",
+   "target": "お手本レベル"
+  },
+  "ui.start-zone": {
+   "en": "START ZONE",
+   "target": "スタート地点"
+  },
+  "ui.gate-family": {
+   "en": "gate family",
+   "target": "ゲートの種類"
+  },
+  "ui.boss-finale": {
+   "en": "Boss finale",
+   "target": "ボスで締める",
+   "note": "「ボスの位置」。"
+  },
+  "ui.cleared-by-you": {
+   "en": "Cleared by you",
+   "target": "自分でクリア済み",
+   "note": "「作者がクリア済み」。"
+  },
+  "ui.pace": {
+   "en": "Pace",
+   "target": "ペース",
+   "note": "のんびり／ふつう／きびきび。"
+  },
+  "ui.lane": {
+   "en": "lane",
+   "target": "レーン",
+   "note": "「空いているレーン」。"
+  },
+  "ui.player": {
+   "en": "Player 1",
+   "target": "プレイヤー1",
+   "note": "P1／P2。"
+  },
+  "ui.team-score": {
+   "en": "TEAM SCORE",
+   "target": "チームスコア"
+  },
+  "ui.rematch": {
+   "en": "Rematch",
+   "target": "再戦",
+   "note": "「シリーズ」「引き分け！」。"
+  },
+  "ui.rank-first-wings": {
+   "en": "First wings",
+   "target": "はじめての翼"
+  },
+  "ui.rank-cloud-explorer": {
+   "en": "Cloud explorer",
+   "target": "雲の探検家"
+  },
+  "ui.home-greeting": {
+   "en": "Hi, I’m $name! Ready to fly?",
+   "target": "やあ、$name だよ！飛ぶ準備はいい？",
+   "note": "鳥ごとの口調はUI担当が判断。"
+  },
+  "achievement.frequent-flyer": {
+   "en": "Frequent flyer",
+   "target": "常連フライヤー"
+  },
+  "achievement.on-the-dot": {
+   "en": "On the dot",
+   "target": "ど真ん中",
+   "note": "「ねらいマークのど真ん中」。"
+  },
+  "achievement.star-chaser": {
+   "en": "Star chaser",
+   "target": "星を追う者"
+  },
+  "achievement.constellation": {
+   "en": "Constellation",
+   "target": "星座"
+  },
+  "achievement.sky-captain": {
+   "en": "Sky captain",
+   "target": "空のキャプテン",
+   "note": "海賊船長とは別。"
+  },
+  "achievement.trailblazer": {
+   "en": "Trailblazer",
+   "target": "道を切りひらく者"
+  },
+  "achievement.flock-together": {
+   "en": "Flock together",
+   "target": "類は友を呼ぶ",
+   "note": "「同じ羽の鳥は群れる」の日本語版ことわざ。"
+  },
+  "achievement.all-rounder": {
+   "en": "All-rounder",
+   "target": "なんでも屋"
+  },
+  "achievement.mail-through-the-canopy": {
+   "en": "Mail Through the Canopy",
+   "target": "こずえの郵便"
+  },
+  "achievement.return-to-sender": {
+   "en": "Return to Sender",
+   "target": "差出人に返送",
+   "note": "phrase.return-to-sender と同じ。"
+  },
+  "achievement.mint-tea-again": {
+   "en": "Mint Tea Again",
+   "target": "またミントティー"
+  },
+  "achievement.crumbs-cleared": {
+   "en": "Crumbs Cleared",
+   "target": "パンくず一掃"
+  },
+  "achievement.out-of-the-spotlight": {
+   "en": "Out of the Spotlight",
+   "target": "スポットライトの外へ",
+   "note": "サーチライトから逃げる＋役者が主役の座を降りる。"
+  },
+  "achievement.gold-canopy": {
+   "en": "Gold Canopy",
+   "target": "金のこずえ"
+  },
+  "achievement.gold-road": {
+   "en": "Gold Road",
+   "target": "金の道"
+  },
+  "achievement.bright-lights": {
+   "en": "Bright Lights",
+   "target": "大都会のあかり"
+  },
+  "achievement.lamplighter": {
+   "en": "Lamplighter",
+   "target": "ランプ点灯係"
+  },
+  "achievement.harbour-bells": {
+   "en": "Harbour Bells",
+   "target": "港の鐘"
+  },
+  "achievement.edge-of-the-map": {
+   "en": "Edge of the Map",
+   "target": "地図の果て"
+  },
+  "achievement.two-on-one-phone": {
+   "en": "Two on One Phone",
+   "target": "スマホ一台でふたり"
+  },
+  "achievement.friendly-rivals": {
+   "en": "Friendly Rivals",
+   "target": "なかよしライバル"
+  },
+  "achievement.route-planner": {
+   "en": "Route Planner",
+   "target": "ルートの設計士"
+  },
+  "achievement.the-whole-kit": {
+   "en": "The Whole Kit",
+   "target": "ぜんぶそろった"
+  },
+  "achievement.pen-pal": {
+   "en": "Pen Pal",
+   "target": "ペンフレンド"
+  },
+  "achievement.night-mail": {
+   "en": "Night Mail",
+   "target": "夜の郵便",
+   "note": "story.night-mail と同じ。"
+  },
+  "achievement.special-delivery": {
+   "en": "Special Delivery",
+   "target": "特別便"
+  },
+  "achievement.goal-spread-your-wings": {
+   "en": "Spread your wings",
+   "target": "翼を広げて"
+  },
+  "achievement.goal-open-horizons": {
+   "en": "Open horizons",
+   "target": "ひろがる地平線"
+  },
+  "achievement.goal-pocketful-of-stars": {
+   "en": "Pocketful of stars",
+   "target": "ポケットいっぱいの星"
+  },
+  "achievement.goal-keep-the-sparkle": {
+   "en": "Keep the sparkle",
+   "target": "きらきらつなげて"
+  },
+  "achievement.goal-right-on-the-mark": {
+   "en": "Right on the mark",
+   "target": "ねらいどおり"
+  },
+  "achievement.goal-the-whole-journey": {
+   "en": "The whole journey",
+   "target": "旅をまるごと"
+  },
+  "achievement.card-sunrise-delivery": {
+   "en": "Sunrise delivery",
+   "target": "朝焼けの配達"
+  },
+  "achievement.card-peach-picnic": {
+   "en": "Peach picnic",
+   "target": "ピーチのピクニック"
+  },
+  "achievement.card-moonlit-mail": {
+   "en": "Moonlit mail",
+   "target": "月あかりの郵便"
+  },
+  "achievement.card-cloud-parade": {
+   "en": "Cloud parade",
+   "target": "雲のパレード"
+  },
+  "achievement.card-twilight-treasure": {
+   "en": "Twilight treasure",
+   "target": "たそがれの宝物"
+  },
+  "achievement.card-garden-party": {
+   "en": "Garden party",
+   "target": "ガーデンパーティー"
+  },
+  "story.flame-seal": {
+   "en": "flame seal",
+   "target": "炎の封印",
+   "note": "封ろう（封蝋）は子どもに難しいので「封印」。単独で「封印」。"
+  },
+  "story.warm-letter": {
+   "en": "a warm letter",
+   "target": "あたたかい手紙",
+   "note": "かな書きで「温かい（気持ち）」と「暖かい（熱）」の両方を残す。"
+  },
+  "story.night-mail": {
+   "en": "the night mail",
+   "target": "夜の郵便"
+  },
+  "story.morning-post": {
+   "en": "the morning post",
+   "target": "朝の郵便"
+  },
+  "story.mail-route": {
+   "en": "route",
+   "target": "配達ルート",
+   "note": "短縮「ルート」。章名・ボス・ビル・HUDで同じ語。"
+  },
+  "story.route-six": {
+   "en": "Route six",
+   "target": "六番ルート"
+  },
+  "story.beacon": {
+   "en": "our beacon",
+   "target": "かがり火",
+   "note": "ドラゴンが守る火。「わたしたちのかがり火」。"
+  },
+  "story.lost-letter": {
+   "en": "the lost letter",
+   "target": "迷子の手紙",
+   "note": "「なくした手紙」とも。"
+  },
+  "story.the-books": {
+   "en": "the books",
+   "target": "記録帳"
+  },
+  "story.pigeonholes": {
+   "en": "pigeonholes",
+   "target": "仕分け棚",
+   "note": "日本語に「鳩の穴」のしゃれがないので、ビルのジョークは「郵便クラブなのに伝書バトが一羽もいない」に置きかえ。"
+  },
+  "story.bread-cart": {
+   "en": "the bread cart",
+   "target": "パンの屋台"
+  },
+  "story.bagel": {
+   "en": "a hot bagel a day",
+   "target": "毎日ほかほかのベーグル一個"
+  },
+  "story.landing-light": {
+   "en": "landing light",
+   "target": "着陸のあかり"
+  },
+  "story.brew": {
+   "en": "the brew",
+   "target": "なべ",
+   "note": "ペッペ王が手紙を煮こむ「なべ」（中身も「なべ」）。「なべに入れる」「なべはおしまい」。"
+  },
+  "story.perfect-ink": {
+   "en": "the perfect ink",
+   "target": "完ぺきなインク",
+   "note": "「消えないインク」。"
+  },
+  "story.mint-tea": {
+   "en": "mint tea",
+   "target": "ミントティー",
+   "note": "「ミンティ」と音が重なり、ジョークがそのまま生きる。"
+  },
+  "story.letter-phrases": {
+   "en": "“Dear Grandma”, “Wish you were here”",
+   "target": "「おばあちゃんへ」「お元気ですか」",
+   "note": "飛行中は「お大事に」「愛をこめて」。手紙の決まり文句。"
+  },
+  "story.postage-stamp": {
+   "en": "stamps",
+   "target": "切手",
+   "note": "パスポートの「スタンプ」とは別。「切手集め」。"
+  },
+  "story.stamp-album": {
+   "en": "stamp album",
+   "target": "切手アルバム"
+  },
+  "story.penny-black": {
+   "en": "penny black",
+   "target": "ペニー・ブラック"
+  },
+  "story.envelopes": {
+   "en": "the envelopes",
+   "target": "封筒"
+  },
+  "story.beauty-sleep": {
+   "en": "beauty sleep",
+   "target": "美容の眠り",
+   "note": "男爵の決まり文句。どこでも同じ語。"
+  },
+  "story.dusk-delivery": {
+   "en": "deliver at dusk",
+   "target": "たそがれ時に配達",
+   "note": "「たそがれ」は女帝と同じ語。"
+  },
+  "story.lamps": {
+   "en": "the lamps",
+   "target": "ランプ",
+   "note": "街のランプ。「街灯」は「街頭」と同音なので音声では「ランプ」。"
+  },
+  "story.lampshades": {
+   "en": "lampshades",
+   "target": "ランプのかさ",
+   "note": "女帝は短く「かさ…」。"
+  },
+  "story.harbour-bells": {
+   "en": "harbour bells",
+   "target": "港の鐘"
+  },
+  "story.club-rule": {
+   "en": "Club rule",
+   "target": "クラブのおきて"
+  },
+  "story.final-notice": {
+   "en": "final notice",
+   "target": "最終通告"
+  },
+  "story.wake-up-call": {
+   "en": "wake-up call",
+   "target": "目覚ましコール",
+   "note": "目覚まし＋警告の両方。"
+  },
+  "story.first-letter": {
+   "en": "the first letter ever sent to the Dragon",
+   "target": "ドラゴンへの、はじめての手紙"
+  },
+  "story.dotted-i": {
+   "en": "He dotted his “i” with a tiny bat.",
+   "target": "はんこの代わりに、小さなコウモリを描いた。",
+   "note": "日本語には「i の点」がないので、日本の署名習慣「はんこ」に置きかえ（ビル：「はんこの代わりに、小さなコウモリを描いとった。」）。"
+  },
+  "story.mailbag": {
+   "en": "mailbag",
+   "target": "郵便袋"
+  },
+  "story.satchel": {
+   "en": "satchel",
+   "target": "かばん"
+  },
+  "story.pharaohs-post": {
+   "en": "the Pharaoh's post",
+   "target": "ファラオの郵便"
+  },
+  "story.mask": {
+   "en": "golden courier mask",
+   "target": "黄金のマスク",
+   "note": "「わたくしのマスクが！」"
+  },
+  "story.wrappings": {
+   "en": "wrappings",
+   "target": "包帯"
+  },
+  "story.headwear": {
+   "en": "headwear",
+   "target": "王冠",
+   "note": "男爵＝王冠、ペッペ王＝フラスコの王冠、女帝＝ティアラ（本人は「冠」）、船長＝帽子、キング・ポッポ＝警察帽、ガーゴイル＝ひさし。"
+  },
+  "story.kindling": {
+   "en": "kindling",
+   "target": "たきつけ",
+   "note": "火をおこすための小枝。"
+  },
+  "story.rush-hour": {
+   "en": "rush hour",
+   "target": "ラッシュアワー",
+   "note": "日本語でも通じる外来語。「あいつの寝る時間が、うちのラッシュアワー」。"
+  },
+  "story.weather-vane": {
+   "en": "weather vane",
+   "target": "風見鶏"
+  },
+  "motto.every-letter-lands": {
+   "en": "Every letter lands.",
+   "target": "手紙は必ず届く。",
+   "note": "短く言い切る。疑問形「手紙は本当に必ず届くのか？」でも使える。どこでも一字一句同じ。"
+  },
+  "motto.every-letter-delivered": {
+   "en": "Every letter delivered",
+   "target": "すべての手紙をお届け"
+  },
+  "address.rookie": {
+   "en": "rookie",
+   "target": "新米",
+   "note": "ビルの呼び名。性別なし。ピップは「新米配達人ピップ」。"
+  },
+  "address.little-courier": {
+   "en": "little courier",
+   "target": "小さな配達人さん",
+   "note": "男爵の上品な見下し。"
+  },
+  "address.darling": {
+   "en": "darling",
+   "target": "きみ",
+   "note": "ガーゴイルの芝居がかった「きみ」（男爵も上品に「きみ」）。日本語の「ダーリン」は恋人の意味になるので避けた。ピーチズの愛称は別（address.peaches-pet-names）。"
+  },
+  "address.postie": {
+   "en": "postie",
+   "target": "郵便屋"
+  },
+  "address.sprat": {
+   "en": "sprat",
+   "target": "ちびイワシ",
+   "note": "小魚＝ちっぽけなやつ。"
+  },
+  "address.skylubber": {
+   "en": "skylubber",
+   "target": "空のシロウト"
+  },
+  "address.matey": {
+   "en": "matey",
+   "target": "おまえさん",
+   "note": "手下たちには「野郎ども」。"
+  },
+  "address.lad": {
+   "en": "lad",
+   "target": "ちびすけ",
+   "note": "性別のない呼び名。"
+  },
+  "address.feathers": {
+   "en": "feathers",
+   "target": "羽っこ"
+  },
+  "address.little-spark": {
+   "en": "little spark",
+   "target": "小さき火の粉"
+  },
+  "address.hatchling": {
+   "en": "hatchling",
+   "target": "ひなどり"
+  },
+  "address.small-one": {
+   "en": "small one",
+   "target": "小さき者",
+   "note": "「使いの者」「小鳥」も。"
+  },
+  "address.little-one": {
+   "en": "little one",
+   "target": "おちびさん",
+   "note": "女帝のやさしい見下し。"
+  },
+  "address.fledgling": {
+   "en": "fledgling",
+   "target": "ひよっこ殿",
+   "note": "ネフェルフーの皮肉なていねいさ。"
+  },
+  "address.old-courier": {
+   "en": "old courier",
+   "target": "老配達人さん"
+  },
+  "address.stoneface": {
+   "en": "Stoneface",
+   "target": "石頭くん",
+   "note": "石＋頭（がんこ者）。親しみをこめたあだ名。"
+  },
+  "address.commissioner": {
+   "en": "Commissioner",
+   "target": "署長",
+   "note": "配達人は「署長さん」。"
+  },
+  "address.your-majesty": {
+   "en": "Your Majesty",
+   "target": "王さま",
+   "note": "鳥たちの呼びかけ。"
+  },
+  "address.your-lordship": {
+   "en": "Your Lordship",
+   "target": "男爵閣下"
+  },
+  "address.her-highness": {
+   "en": "Her Highness",
+   "target": "女帝陛下"
+  },
+  "address.sir": {
+   "en": "sir",
+   "target": "〜さま",
+   "note": "日本語ではです・ます調そのものが敬意。必要なら「男爵さま」「署長さん」など肩書き＋敬称。"
+  },
+  "address.mister": {
+   "en": "Mister",
+   "target": "〜さん",
+   "note": "「スフィンクスさん」「ネフェルフーさん」、単独は「おじさま」。"
+  },
+  "address.partner": {
+   "en": "partner",
+   "target": "相棒",
+   "note": "ピップとミンティがプレイヤーを呼ぶ。敵には「おまえ」「のろま」。"
+  },
+  "address.peaches-pet-names": {
+   "en": "sweetie",
+   "target": "ハニー",
+   "note": "毎回ちがう甘い呼び名（性別なし）：ハニー、いちごちゃん、プリンちゃん、わたあめちゃん、マシュマロちゃん、あめちゃん、もちちゃん、おまめちゃん、かわいこちゃん、羽ちゃん。追加するなら クッキーちゃん、ショートケーキちゃん など。"
+  },
+  "address.bossy": {
+   "en": "bossy",
+   "target": "エラそうボス"
+  },
+  "address.minions": {
+   "en": "Cousins! / my lovelies / my little scarabs / me hearties",
+   "target": "いとこたち！／かわいい子たち／わがはいのかわいいコガネたち／野郎ども",
+   "note": "ボスごとの口調で。"
+  },
+  "phrase.baron-bat-line": {
+   "en": "This route is my roost now, little courier!",
+   "target": "このルートはわたくしのねぐらだ、小さな配達人さん！",
+   "note": "story before-1-8-4 と一字一句同じ。"
+  },
+  "phrase.spitter-king-line": {
+   "en": "Every letter on my road goes in the brew!",
+   "target": "わがはいの道の手紙は、ぜんぶなべに入れるのだ！",
+   "note": "story before-2-9-4 と同じ。"
+  },
+  "phrase.dusk-empress-line": {
+   "en": "Hush now. The night mail is sleeping.",
+   "target": "しーっ。夜の郵便は、おやすみ中じゃ。",
+   "note": "story before-3-8-4 と同じ。"
+  },
+  "phrase.pirate-captain-line": {
+   "en": "Arr! Every mailbag on these waves be mine!",
+   "target": "ヨーホー！この海の郵便袋は、ぜんぶわしのもんじゃ！",
+   "note": "story before-4-8-4 と同じ。"
+  },
+  "phrase.ember-dragon-line": {
+   "en": "The sky is mine. Your letters are kindling.",
+   "target": "空はわれのもの。おまえの手紙など、たきつけよ。",
+   "note": "story before-5-8-4 と同じ。"
+  },
+  "phrase.neferhoo-line": {
+   "en": "Return to sender! This route has a courier.",
+   "target": "差出人に返送！このルートには配達人がおりますぞ。",
+   "note": "story before-2-6-7 と同じ。"
+  },
+  "phrase.king-coo-line": {
+   "en": "Nobody flies till the bread cart is found!",
+   "target": "パンの屋台が見つかるまで、だれも飛ぶべからず！",
+   "note": "story before-3-2-6 と同じ。"
+  },
+  "phrase.searchlight-gargoyle-line": {
+   "en": "Hold still! Nobody ever stays in the light.",
+   "target": "じっとして！だれも光の中にいてくれないのだ。",
+   "note": "story before-3-4-4 と同じ。"
+  },
+  "phrase.return-to-sender": {
+   "en": "Return to sender!",
+   "target": "差出人に返送！",
+   "note": "郵便の「差出人へ返送」。全キャラ・レベル名・実績で同じ。オービットは「差出人に返送…そっとね。」"
+  },
+  "phrase.signed-sealed-delivered": {
+   "en": "Signed, sealed, delivered!",
+   "target": "書いて、封して、お届け！",
+   "note": "三拍子。ミンティ版「書いて、封して、超特急！」。"
+  },
+  "phrase.small-bird-big-sky": {
+   "en": "Small bird. Big sky.",
+   "target": "小さな鳥、大きな空。",
+   "note": "ピップの「小さな鳥、大きな作戦！」に使う。"
+  },
+  "phrase.peaches-tagline": {
+   "en": "Rosy cheeks, curly crest, all heart.",
+   "target": "バラ色ほっぺ、くるくるトサカ、ハートいっぱい。"
+  },
+  "phrase.minty-tagline": {
+   "en": "Tiny hummer. Fresh sprig. Full speed.",
+   "target": "ちびハチドリ。ミントの若葉。全速力。"
+  },
+  "phrase.orbit-tagline": {
+   "en": "A dreamy owl who flies by starlight.",
+   "target": "星あかりで飛ぶ、夢見るフクロウ。",
+   "note": "ビル「星あかりで飛べ、新米。」と同じ「星あかりで」。"
+  },
+  "phrase.sprint-woohoo": {
+   "en": "Woo-hooo!",
+   "target": "ヒャッホー！",
+   "note": "4羽共通。"
+  },
+  "phrase.sprint-turbo-feathers": {
+   "en": "Turbo feathers!",
+   "target": "ターボ羽根！",
+   "note": "4羽共通。"
+  },
+  "phrase.sprint-bye-bye-gravity": {
+   "en": "Bye-bye, gravity!",
+   "target": "重力さん、バイバイ！",
+   "note": "4羽共通。"
+  },
+  "phrase.sprint-wheee": {
+   "en": "Wheeee!",
+   "target": "わーーい！",
+   "note": "4羽共通。"
+  },
+  "phrase.keep-your-beak-up": {
+   "en": "Keep your beak up.",
+   "target": "くちばしを上げていけ",
+   "note": "「顔を上げて」の鳥版。"
+  },
+  "phrase.all-screech": {
+   "en": "He’s all screech",
+   "target": "キーキーわめくだけ",
+   "note": "「弱い犬ほどよく吠える」の意味をコウモリの鳴き声で。"
+  },
+  "phrase.no-flame-seal": {
+   "en": "No flame seal on this guardian.",
+   "target": "このガーディアンに炎の封印はない。",
+   "note": "2回とも同じ文。"
+  },
+  "phrase.halt": {
+   "en": "HALT!",
+   "target": "止まれ！",
+   "note": "キング・ポッポは「止まれ！」、ネフェルフーは古風に「止まれい！」。"
+  },
+  "phrase.mister-nice-bat": {
+   "en": "No more Mister Nice Bat!",
+   "target": "コウモリの顔も三度まで",
+   "note": "「仏の顔も三度まで」をコウモリに。"
+  },
+  "phrase.at-your-disservice": {
+   "en": "at your disservice",
+   "target": "ごきげん悪う",
+   "note": "上品なあいさつ「ごきげんよう」をひっくり返す。"
+  },
+  "phrase.mind-the-gap": {
+   "en": "Mind the gap",
+   "target": "すき間にご注意を",
+   "note": "駅のアナウンス風。"
+  },
+  "phrase.sticks-and-stones": {
+   "en": "Sticks and stones?",
+   "target": "悪口なんて平気。石なら持ってる！",
+   "note": "日本語に同じことわざがないので意味＋石のオチ。"
+  },
+  "phrase.rock-beats-shot": {
+   "en": "Rock beats shot!",
+   "target": "石は弾に勝つ！",
+   "note": "じゃんけんの「グーは〜に勝つ」の形。"
+  },
+  "phrase.pirate-speak": {
+   "en": "Arr!",
+   "target": "ヨーホー！",
+   "note": "「わし」「〜じゃ」「〜ぞい」「野郎ども」で海賊らしさ。"
+  },
+  "phrase.strike-the-colours": {
+   "en": "strike the colours",
+   "target": "旗を降ろせ",
+   "note": "降参の合図。"
+  },
+  "phrase.nobody-looks-up": {
+   "en": "Nobody looks up.",
+   "target": "だれも見上げない",
+   "note": "「配達人はみんな見上げるさ！」と対。"
+  },
+  "phrase.accepts": {
+   "en": "The Commissioner accepts.",
+   "target": "署長は、引き受ける。",
+   "note": "ガーゴイルは「ガーゴイルは、お引き受けしよう。」三人称のまま。"
+  },
+  "phrase.bonk-bonk": {
+   "en": "Bonk. Bonk.",
+   "target": "ゴツン。ゴツン。",
+   "note": "ui.bonk と同じ擬音。"
+  },
+  "phrase.hush": {
+   "en": "Hush now.",
+   "target": "しーっ",
+   "note": "「お静かに」。"
+  },
+  "phrase.welcome-to-the-club": {
+   "en": "Welcome to the club",
+   "target": "クラブへようこそ",
+   "note": "文字どおりの入会。"
+  },
+  "ui.omen-baron": {
+   "en": "A SHADOW APPROACHES",
+   "target": "影が近づく"
+  },
+  "ui.omen-baron-returns": {
+   "en": "THE BARON RETURNS",
+   "target": "男爵、ふたたび"
+  },
+  "ui.omen-spitter": {
+   "en": "SOMETHING IS BREWING",
+   "target": "なにかが煮えている",
+   "note": "「なべ」（story.brew）のダジャレ。"
+  },
+  "ui.omen-empress": {
+   "en": "TWILIGHT TAKES WING",
+   "target": "たそがれが羽ばたく"
+  },
+  "ui.omen-pirate": {
+   "en": "SAIL HO!",
+   "target": "帆が見えたぞ！"
+  },
+  "ui.omen-dragon": {
+   "en": "THE SKY CATCHES FIRE",
+   "target": "空が燃えあがる"
+  },
+  "ui.omen-king-coo": {
+   "en": "THE CURB IS CLOSED",
+   "target": "道ばた、通行止め",
+   "note": "「道ばた署長」とつながる。"
+  },
+  "ui.omen-gargoyle": {
+   "en": "STORM WARNING",
+   "target": "暴風警報",
+   "note": "level.3-4 と同じ。"
+  },
+  "ui.omen-neferhoo": {
+   "en": "THE PYRAMID STIRS",
+   "target": "ピラミッドが目覚める"
+  },
+  "story.letter": {
+   "en": "letter",
+   "target": "手紙",
+   "note": "合言葉と同じ語。"
+  },
+  "story.mail-and-post": {
+   "en": "the mail / the post",
+   "target": "郵便",
+   "note": "mail も post も「郵便」。郵便屋＝postman。"
+  },
+  "story.parcel": {
+   "en": "parcel",
+   "target": "小包"
+  },
+  "story.delivery": {
+   "en": "delivery",
+   "target": "配達",
+   "note": "動詞「届ける／配達する」、「お届け完了」。"
+  },
+  "story.salutation": {
+   "en": "Dear Dragon.",
+   "target": "ドラゴンさんへ。",
+   "note": "日本語の手紙の書き出し「〜へ」。絵はがきは「配達人さんへ」。"
+  },
+  "ui.short-gargoyle": {
+   "en": "Searchlight Gargoyle (short UI name)",
+   "target": "ガーゴイル",
+   "note": "UI: boss name card, health bar, campaign plaque, Level Builder (20-wide budgets). Full name サーチライト・ガーゴイル stays where it fits (victory banner, store, the two-line name card サーチライト／ガーゴイル)."
+  },
+  "ui.short-cyberpunk": {
+   "en": "Cyberpunk City (region, short)",
+   "target": "サイバーシティ",
+   "note": "Region name in the UI (budget 18): サイバーパンク・シティ is 22 wide. Story/voice keep the glossary form."
+  },
+  "ui.short-adventure": {
+   "en": "Adventure (home dock label)",
+   "target": "冒険",
+   "note": "Home shelf label only (11 wide); everywhere else アドベンチャー."
+  },
+  "ui.short-upgrade": {
+   "en": "Upgrades / Upgrade (button, dock)",
+   "target": "強化",
+   "note": "Home dock and the buy button (11-12 wide); the screen and screen-reader text say アップグレード, the title パワーアップ."
+  },
+  "ui.short-guardian-goal": {
+   "en": "Guardian (result goal tag)",
+   "target": "中ボス",
+   "note": "Level result goal tag under the first star (10 wide): ガーディアン is 12 wide."
+  },
+  "ui.short-music": {
+   "en": "Sky Club soundtrack (Settings)",
+   "target": "スカイクラブの音楽",
+   "note": "Settings switch title (24 wide); the glossary's スカイクラブ・サウンドトラック is 30."
+  },
+  "ui.short-camera-lab": {
+   "en": "Camera & tracking lab (Settings button)",
+   "target": "カメラ実験室",
+   "note": "Settings button (24 wide). The lab's own back line says カメラ実験室 too."
+  },
+  "ui.nice-shot": {
+   "en": "NICE SHOT!",
+   "target": "ナイス命中！",
+   "note": "Flight callout when a shot hits."
+  },
+  "ui.perfect-callout": {
+   "en": "PERFECT! (callout)",
+   "target": "完ぺき！",
+   "note": "Flight callout for a perfect gate; the stat and the term stay パーフェクト／パーフェクト通過."
+  },
+  "ui.spotted": {
+   "en": "SPOTTED!",
+   "target": "バレた！",
+   "note": "Gargoyle's beam catches the bird."
+  },
+  "ui.scorched": {
+   "en": "SCORCHED!",
+   "target": "アチチ！",
+   "note": "Dragon fire hits the bird."
+  },
+  "ui.pirate-roar": {
+   "en": "ARRR! (arrival roar)",
+   "target": "ヨホー!",
+   "note": "Budget 7: short form of ヨーホー！."
+  },
+  "ui.king-coo-shout": {
+   "en": "COO! (arrival cry)",
+   "target": "ポッポー",
+   "note": "Echoes キング・ポッポ. POP! パーン！, POOF! ボフン！"
+  },
+  "ui.neferhoo-hoo": {
+   "en": "HOO POO POO",
+   "target": "ホー ポー ポー",
+   "note": "Neferhoo's arrival hoot (three syllables)."
+  },
+  "ui.player-short": {
+   "en": "P1 / P2",
+   "target": "1P / 2P",
+   "note": "Japanese game convention; used in every two-player tag."
+  },
+  "ui.save-session": {
+   "en": "Save session",
+   "target": "フライトを保存",
+   "note": "Results button; matches ui.saved-session 保存したフライト."
+  },
+  "ui.fix-it": {
+   "en": "Fix it (Level Builder)",
+   "target": "直す",
+   "note": "Shelf card key; toasts quote it as「直す」."
+  },
+  "ui.builder-shelf": {
+   "en": "shelf (Level Builder list)",
+   "target": "たな",
+   "note": "Only in the import toast「〜をたなに追加したよ！」."
+  },
+  "ui.test-fly": {
+   "en": "TEST FLY / test flight",
+   "target": "テスト飛行",
+   "note": "Same as mode.test-flight."
+  },
+  "ui.scored-flight-short": {
+   "en": "scored flights (Records total)",
+   "target": "記録フライト",
+   "note": "Records plate (18 wide): 「120 回の記録フライト」. Full form 記録に残るフライト elsewhere."
+  },
+  "ui.magnet-replay": {
+   "en": "Magnet · 12s (replay)",
+   "target": "じしゃく12秒",
+   "note": "Replay HUD only (14 wide)."
+  },
+  "ui.on-off": {
+   "en": "ON / OFF",
+   "target": "ON / OFF",
+   "note": "Kept in Latin capitals, as Japanese settings screens do."
+  },
+  "ui.new-tag": {
+   "en": "NEW",
+   "target": "NEW",
+   "note": "Kept in Latin capitals on tags."
+  },
+  "ui.retry": {
+   "en": "Retry",
+   "target": "リトライ",
+   "note": "Pause card / result key. Try again (load errors) = もう一度."
+  },
+  "ui.ready-steady": {
+   "en": "Ready, steady…",
+   "target": "位置について、よーい…",
+   "note": "Countdown card title."
+  },
+  "ui.stamped": {
+   "en": "STAMPED (passport)",
+   "target": "スタンプ済",
+   "note": "Passport postmark word (10 wide)."
+  },
+  "ui.medal-title": {
+   "en": "{stamp} · {medal}",
+   "target": "常連フライヤー · 銅",
+   "note": "Passport and Play achievement names use the same pattern and words."
+  },
+  "ui.sky-club-stamp": {
+   "en": "SKY CLUB (postage stamp band)",
+   "target": "SKY CLUB",
+   "note": "Kept in Latin on the tiny stamp band (10 wide), as real stamps carry Latin; スカイクラブ is 12 wide."
+  }
+ }
+}

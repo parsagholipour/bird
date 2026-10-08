@@ -22,6 +22,9 @@ import '../theme.dart';
 import '../ui_sounds.dart';
 import 'builder_chrome.dart';
 import 'builder_pickers.dart';
+import '../../l10n/l10n.dart';
+import '../../l10n/text/builder_shelf_text.dart';
+import '../fit_text.dart';
 
 /// The Level Builder's shelf (`/builder`): the player's own levels to fly,
 /// edit and share, the starter levels to fly or remix, a new level and a
@@ -72,7 +75,7 @@ class _BuilderHomeScreenState extends ConsumerState<BuilderHomeScreen> {
     } catch (error) {
       debugPrint('PushUpBird builder shelf: $error');
       if (mounted) {
-        _warn('That didn’t save. Please try again.');
+        _warn(context.l10n.builderShelfSaveFailed);
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -105,9 +108,14 @@ class _BuilderHomeScreenState extends ConsumerState<BuilderHomeScreen> {
   /// duplicate of one's own. Opens the copy in the editor.
   Future<void> _copy(BuiltLevel level, {required bool remix}) =>
       _guard(() async {
+        final l = context.l10n;
+        // A starter's copy takes its name in the player's language.
         final plan = level.plan.copyWith(
           id: BuiltPlan.newId(_random),
-          name: suffixedName(level.plan.name, remix ? ' remix' : ' copy'),
+          name: suffixedName(
+            l.builtLevelName(level.plan),
+            ' ${remix ? l.builderShelfRemixSuffix : l.builderShelfCopySuffix}',
+          ),
         );
         final copy = await _store.create(
           plan,
@@ -119,41 +127,43 @@ class _BuilderHomeScreenState extends ConsumerState<BuilderHomeScreen> {
       });
 
   Future<void> _delete(BuiltLevel level) async {
+    final l = context.l10n;
     final yes = await confirmBuilder(
       context,
-      title: 'Delete “${level.plan.name}”?',
-      message:
-          'Its bests go with it. Push-ups, squats and jumps you flew on it '
-          'still count.',
-      yes: 'Delete',
+      title: l.builderShelfDeleteTitle(level.plan.name),
+      message: l.builderShelfDeleteBody,
+      yes: l.builderShelfDelete,
     );
     if (!yes || !mounted) return;
     await _guard(() async {
       await _store.delete(level.id);
       _refresh(level.id);
-      _toast('Deleted “${level.plan.name}”.', icon: Icons.delete_rounded);
+      _toast(
+        l.builderShelfDeleted(level.plan.name),
+        icon: Icons.delete_rounded,
+      );
     });
   }
 
   Future<void> _share(BuiltLevel level) async {
+    final l = context.l10n;
     if (level.plan.problem != null) {
-      _warn('Fix what’s marked in red before sharing: tap Fix it.');
+      _warn(l.builderShelfFixFirst);
       return;
     }
     await copyShareCode(level.plan, cleared: level.cleared);
     // A friend's preview says whether its maker flew it to the end.
     _toast(
       level.cleared
-          ? 'Code copied! Paste it to a friend.'
-          : 'Code copied! Fly it to the finish too, so friends know it can '
-                'be done.',
+          ? l.builderShelfCodeCopied
+          : l.builderShelfCodeCopiedUncleared,
       icon: Icons.content_paste_go_rounded,
     );
   }
 
   void _fly(BuiltLevel level) {
     if (level.plan.problem != null) {
-      _warn('This level isn’t ready to fly yet: tap Fix it.');
+      _warn(context.l10n.builderShelfNotReady);
       return;
     }
     flyBuilt(context, level.plan);
@@ -181,6 +191,7 @@ class _BuilderHomeScreenState extends ConsumerState<BuilderHomeScreen> {
   Future<void> _paste() async {
     final data = await Clipboard.getData(Clipboard.kTextPlain);
     if (!mounted) return;
+    final l = context.l10n;
     final BuiltImport found;
     try {
       found = BuiltCode.decode(data?.text ?? '', id: BuiltPlan.newId(_random));
@@ -188,19 +199,14 @@ class _BuilderHomeScreenState extends ConsumerState<BuilderHomeScreen> {
       await showBuilderNotice(
         context,
         title: switch (e.fault) {
-          BuiltCodeFault.missing => 'No level code to paste',
-          BuiltCodeFault.newer => 'A level from a newer Beakbound',
-          BuiltCodeFault.damaged => 'That code got scrambled',
+          BuiltCodeFault.missing => l.builderShelfPasteMissingTitle,
+          BuiltCodeFault.newer => l.builderShelfPasteNewerTitle,
+          BuiltCodeFault.damaged => l.builderShelfPasteDamagedTitle,
         },
         message: switch (e.fault) {
-          BuiltCodeFault.missing =>
-            'Copy a friend’s level code (it starts with BEAK1.) and tap '
-                'Paste code again.',
-          BuiltCodeFault.newer =>
-            'Update Beakbound to fly it, then paste the code again.',
-          BuiltCodeFault.damaged =>
-            'Part of it is missing or mistyped. Ask your friend to copy the '
-                'whole code again.',
+          BuiltCodeFault.missing => l.builderShelfPasteMissingBody,
+          BuiltCodeFault.newer => l.builderShelfPasteNewerBody,
+          BuiltCodeFault.damaged => l.builderShelfPasteDamagedBody,
         },
         icon: switch (e.fault) {
           BuiltCodeFault.missing => Icons.content_paste_off_rounded,
@@ -226,7 +232,7 @@ class _BuilderHomeScreenState extends ConsumerState<BuilderHomeScreen> {
           );
           _refresh(level.id);
           if (_shelf.hasClients) _shelf.jumpTo(0);
-          _toast('“${level.plan.name}” is on your shelf!');
+          _toast(l.builderShelfImported(level.plan.name));
         });
       case null:
         break;
@@ -235,6 +241,7 @@ class _BuilderHomeScreenState extends ConsumerState<BuilderHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final shelf = ref.watch(builtShelfProvider);
     final mine = shelf.asData?.value.mine ?? const <BuiltLevel>[];
     return PopScope(
@@ -255,20 +262,20 @@ class _BuilderHomeScreenState extends ConsumerState<BuilderHomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       MiniHeader(
-                        title: 'Level Builder',
+                        title: l.builderShelfTitle,
                         size: 32,
                         onBack: () => context.go('/'),
                         trailing: [
                           MiniPillKey(
                             key: const ValueKey('paste-code'),
                             icon: Icons.content_paste_rounded,
-                            label: 'Paste code',
+                            label: l.builderShelfPasteCode,
                             onPressed: _paste,
                           ),
                           BuilderKey(
                             key: const ValueKey('new-level'),
-                            tooltip: 'New level',
-                            label: 'New level',
+                            tooltip: l.builderShelfNewLevel,
+                            label: l.builderShelfNewLevel,
                             icon: Icons.add_rounded,
                             color: SkyColors.mint,
                             onPressed: () => _newLevel(mine),
@@ -290,13 +297,13 @@ class _BuilderHomeScreenState extends ConsumerState<BuilderHomeScreen> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
-                                    'Your levels need a moment.',
+                                    l.builderShelfUnavailable,
                                     style: heading(22),
                                   ),
                                   const SizedBox(height: 12),
                                   BuilderKey(
-                                    tooltip: 'Try again',
-                                    label: 'Try again',
+                                    tooltip: l.commonTryAgain,
+                                    label: l.commonTryAgain,
                                     icon: Icons.refresh_rounded,
                                     onPressed: () =>
                                         ref.invalidate(builtShelfProvider),
@@ -353,7 +360,7 @@ class _ShelfView extends StatelessWidget {
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       _SectionTitle(
-        'My levels',
+        context.l10n.builderShelfMine,
         trailing: shelf.mine.isEmpty ? null : '${shelf.mine.length}',
       ),
       const SizedBox(height: 4),
@@ -386,9 +393,9 @@ class _ShelfView extends StatelessWidget {
               ),
       ),
       const SizedBox(height: 10),
-      const _SectionTitle(
-        'Starter levels',
-        hint: 'Fly one, or remix it into a level of your own',
+      _SectionTitle(
+        context.l10n.builderShelfStarters,
+        hint: context.l10n.builderShelfStartersHint,
       ),
       const SizedBox(height: 4),
       SizedBox(
@@ -503,14 +510,15 @@ class _EmptyShelf extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Build your first level',
+              // One line of title and two of invitation fill the shelf's
+              // height; longer words shrink rather than push the keys out.
+              FitText(
+                context.l10n.builderShelfEmptyTitle,
                 style: heading(26, weight: FontWeight.w700),
               ),
               const SizedBox(height: 4),
-              Text(
-                'Place gates, stars and hearts by hand, set the finish line '
-                'and test fly it.',
+              FitParagraph(
+                context.l10n.builderShelfEmptyBody,
                 style: bodyText(14.5, color: SkyColors.muted),
               ),
               const SizedBox(height: 12),
@@ -518,16 +526,16 @@ class _EmptyShelf extends StatelessWidget {
                 children: [
                   BuilderKey(
                     key: const ValueKey('empty-new-level'),
-                    tooltip: 'New level',
-                    label: 'New level',
+                    tooltip: context.l10n.builderShelfNewLevel,
+                    label: context.l10n.builderShelfNewLevel,
                     icon: Icons.add_rounded,
                     color: SkyColors.mint,
                     onPressed: onNew,
                   ),
                   const SizedBox(width: 12),
                   BuilderKey(
-                    tooltip: 'Paste a friend’s code',
-                    label: 'Paste a friend’s code',
+                    tooltip: context.l10n.builderShelfPasteFriend,
+                    label: context.l10n.builderShelfPasteFriend,
                     icon: Icons.content_paste_rounded,
                     onPressed: onPaste,
                   ),
@@ -541,21 +549,17 @@ class _EmptyShelf extends StatelessWidget {
   );
 }
 
-/// What stops [plan] flying, counted: "1 thing to fix", "3 things to fix".
-String _toFix(BuiltPlan plan) {
-  final count = math.max(
-    1,
-    BuiltReach.check(plan).where((issue) => issue.blocking).length,
-  );
-  return '$count thing${count == 1 ? '' : 's'} to fix';
-}
+/// How many things stop [plan] flying ("1 thing to fix", "3 things to
+/// fix"): at least one.
+int _toFix(BuiltPlan plan) =>
+    math.max(1, BuiltReach.check(plan).where((issue) => issue.blocking).length);
 
 /// The second fact of a starter level: its workout, its boss, or its stars.
-(IconData?, String) _starterFact(BuiltPlan plan) {
+(IconData?, String) _starterFact(AppLocalizations l, BuiltPlan plan) {
   final reps = builtReps(plan);
-  if (plan.boss != null) return (Icons.shield_rounded, bossName(plan.boss!));
+  if (plan.boss != null) return (Icons.shield_rounded, l.bossName(plan.boss!));
   if (reps != null) return (null, reps);
-  return (Icons.star_rounded, '${plan.totalStars} stars');
+  return (Icons.star_rounded, l.builderShelfStars(plan.totalStars));
 }
 
 /// One of the player's levels: its region, mode and state over its
@@ -577,9 +581,10 @@ class _LevelCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final plan = level.plan;
     final ready = plan.problem == null;
-    final name = plan.name;
+    final name = l.builtLevelName(plan);
     final yours = level.clearedRevision == level.revision;
     final friends = level.origin == BuiltOrigin.imported;
     final stars = best?.stars ?? 0;
@@ -593,12 +598,20 @@ class _LevelCard extends StatelessWidget {
 
     return Semantics(
       container: true,
-      label:
-          '$name. ${builtModeName(plan.mode)} in ${plan.region.title}. '
-          '${builtLength(plan)}. '
-          '${ready ? 'Best $stars of 3 stars. ' : 'Needs work: ${_toFix(plan)}. '}'
-          '${ready && yours ? 'Cleared by you. ' : ''}'
-          '${friends ? 'From a friend. ' : ''}',
+      // Sentence by sentence, each followed by a space.
+      label: [
+        l.builderShelfLevelSemantics(
+          name,
+          builtModeName(plan.mode),
+          l.regionName(plan.region),
+          builtLength(plan),
+        ),
+        ready
+            ? l.builderShelfBestSemantics(stars)
+            : l.builderShelfNeedsWorkSemantics(_toFix(plan)),
+        if (ready && yours) l.builderShelfClearedSemantics,
+        if (friends) l.builderShelfFromFriendSemantics,
+      ].map((sentence) => '$sentence ').join(),
       child: MiniCard(
         key: ValueKey('level-${level.id}'),
         accent: builtModeColor(plan.mode),
@@ -625,20 +638,20 @@ class _LevelCard extends StatelessWidget {
                       right: 8,
                       top: 7,
                       child: !ready
-                          ? const BuilderBadge(
-                              'Needs work',
+                          ? BuilderBadge(
+                              l.builderShelfNeedsWork,
                               icon: Icons.build_rounded,
                               color: SkyColors.coral,
                             )
                           : yours
-                          ? const BuilderBadge(
-                              'Cleared by you',
+                          ? BuilderBadge(
+                              l.builderShelfClearedByYou,
                               icon: Icons.verified_rounded,
                               color: SkyColors.mint,
                             )
                           : friends
-                          ? const BuilderBadge(
-                              'From a friend',
+                          ? BuilderBadge(
+                              l.builderShelfFromFriend,
                               icon: Icons.mail_rounded,
                               color: SkyColors.cream,
                             )
@@ -694,7 +707,7 @@ class _LevelCard extends StatelessWidget {
                                       child: plan.boss != null
                                           ? _Fact(
                                               Icons.shield_rounded,
-                                              bossName(plan.boss!),
+                                              l.bossName(plan.boss!),
                                             )
                                           : _Fact.workout(plan.mode, reps!),
                                     ),
@@ -703,7 +716,7 @@ class _LevelCard extends StatelessWidget {
                               )
                             : _Fact(
                                 Icons.build_rounded,
-                                '${_toFix(plan)} in the editor',
+                                l.builderShelfToFixInEditor(_toFix(plan)),
                                 color: SkyColors.coralDeep,
                               ),
                       ),
@@ -720,16 +733,16 @@ class _LevelCard extends StatelessWidget {
                     child: ready
                         ? BuilderKey(
                             key: ValueKey('fly-${level.id}'),
-                            tooltip: 'Fly $name',
-                            label: 'Fly',
+                            tooltip: l.builderShelfFlySemantics(name),
+                            label: l.builderShelfFly,
                             icon: Icons.play_arrow_rounded,
                             color: SkyColors.mint,
                             onPressed: onFly,
                           )
                         : BuilderKey(
                             key: ValueKey('fix-${level.id}'),
-                            tooltip: 'Fix $name',
-                            label: 'Fix it',
+                            tooltip: l.builderShelfFixSemantics(name),
+                            label: l.builderShelfFixIt,
                             icon: Icons.build_rounded,
                             color: SkyColors.yellow,
                             onPressed: onEdit,
@@ -739,7 +752,7 @@ class _LevelCard extends StatelessWidget {
                     const SizedBox(width: 7),
                     BuilderKey(
                       key: ValueKey('edit-${level.id}'),
-                      tooltip: 'Edit $name',
+                      tooltip: l.builderShelfEditSemantics(name),
                       icon: Icons.edit_rounded,
                       onPressed: onEdit,
                     ),
@@ -748,8 +761,8 @@ class _LevelCard extends StatelessWidget {
                   BuilderKey(
                     key: ValueKey('share-${level.id}'),
                     tooltip: brag
-                        ? 'Share $name: you cleared it'
-                        : 'Share $name',
+                        ? l.builderShelfShareClearedSemantics(name)
+                        : l.builderShelfShareSemantics(name),
                     icon: Icons.ios_share_rounded,
                     color: brag ? SkyColors.skyDeep : SkyColors.cream,
                     muted: !ready,
@@ -759,7 +772,7 @@ class _LevelCard extends StatelessWidget {
                   const SizedBox(width: 7),
                   BuilderKey(
                     key: ValueKey('more-${level.id}'),
-                    tooltip: 'More for $name',
+                    tooltip: l.builderShelfMoreSemantics(name),
                     icon: Icons.more_horiz_rounded,
                     onPressed: onMore,
                   ),
@@ -790,8 +803,10 @@ class _StarterCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final plan = level.plan;
-    final (icon, fact) = _starterFact(plan);
+    final name = l.builtLevelName(plan);
+    final (icon, fact) = _starterFact(l, plan);
     final stars = best?.stars ?? 0;
     return MiniCard(
       key: ValueKey('starter-${level.id}'),
@@ -804,10 +819,15 @@ class _StarterCard extends StatelessWidget {
           Expanded(
             child: Semantics(
               button: true,
-              label:
-                  'Look at ${plan.name}. ${builtModeName(plan.mode)}, '
-                  '${builtLength(plan)}, $fact.'
-                  '${stars > 0 ? ' Best $stars of 3 stars.' : ''}',
+              label: [
+                l.builderShelfStarterSemantics(
+                  name,
+                  builtModeName(plan.mode),
+                  builtLength(plan),
+                  fact,
+                ),
+                if (stars > 0) l.builderShelfBestSemantics(stars),
+              ].join(' '),
               excludeSemantics: true,
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
@@ -849,7 +869,7 @@ class _StarterCard extends StatelessWidget {
                               fit: BoxFit.scaleDown,
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                plan.name,
+                                name,
                                 maxLines: 1,
                                 style: heading(
                                   15.5,
@@ -884,8 +904,8 @@ class _StarterCard extends StatelessWidget {
               children: [
                 BuilderKey(
                   key: ValueKey('fly-${level.id}'),
-                  tooltip: 'Fly ${plan.name}',
-                  label: 'Fly',
+                  tooltip: l.builderShelfFlySemantics(name),
+                  label: l.builderShelfFly,
                   vertical: true,
                   labelSize: 10.5,
                   width: 54,
@@ -895,8 +915,8 @@ class _StarterCard extends StatelessWidget {
                 ),
                 BuilderKey(
                   key: ValueKey('remix-${level.id}'),
-                  tooltip: 'Remix ${plan.name}',
-                  label: 'Remix',
+                  tooltip: l.builderShelfRemixSemantics(name),
+                  label: l.builderShelfRemix,
                   vertical: true,
                   labelSize: 10.5,
                   width: 54,
@@ -930,6 +950,14 @@ class _Fact extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ink = color ?? SkyColors.muted;
+    final style = bodyText(
+      size,
+      color: color ?? SkyColors.ink,
+      weight: FontWeight.w800,
+    ).copyWith(height: 1.15);
+    // A longer translation shrinks to fit; with large system text the fact
+    // keeps the player's size and gives way at its end instead.
+    final large = MediaQuery.textScalerOf(context).scale(10) > 10.01;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -939,16 +967,14 @@ class _Fact extends StatelessWidget {
           Icon(icon, size: size + 2, color: ink),
         const SizedBox(width: 3),
         Flexible(
-          child: Text(
-            text,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: bodyText(
-              size,
-              color: color ?? SkyColors.ink,
-              weight: FontWeight.w800,
-            ).copyWith(height: 1.15),
-          ),
+          child: large
+              ? Text(
+                  text,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: style,
+                )
+              : FitText(text, style: style),
         ),
       ],
     );
@@ -1070,8 +1096,8 @@ Future<void> showBuilderNotice(
               width: 200,
               child: BuilderKey(
                 key: const ValueKey('notice-ok'),
-                tooltip: 'OK',
-                label: 'OK',
+                tooltip: context.l10n.commonOk,
+                label: context.l10n.commonOk,
                 color: SkyColors.mint,
                 height: 52,
                 onPressed: () => Navigator.of(context).pop(),

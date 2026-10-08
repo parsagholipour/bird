@@ -3,6 +3,11 @@ import 'dart:io' show ZLibCodec, ZLibDecoder;
 
 import 'game_rules.dart';
 
+// l10n-english-twin: [BuiltCode.message] is the English twin of the
+// `builderShareMessage` key, which the editor and the shelf copy in the
+// player's language (lib/ui/builder/builder_chrome.dart). `BEAK` and the
+// code itself are data, never translated.
+
 /// Why a pasted share code could not be read.
 enum BuiltCodeFault {
   /// No code in the text.

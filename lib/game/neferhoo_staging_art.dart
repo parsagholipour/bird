@@ -3,6 +3,8 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/painting.dart';
 
+import '../l10n/l10n.dart';
+
 import 'neferhoo_kit.dart';
 
 /// Neferhoo's stagecraft: the props and effects of his arrival and his
@@ -117,7 +119,19 @@ abstract final class NeferhooStaging {
 
   // -------------------------------------------------------------- cache --
 
-  static final Map<Object, Object> _memo = {};
+  static final Map<Object, Object> _memo = _forgetOnLanguage({});
+
+  /// [cache], emptied (its pictures disposed) whenever the language
+  /// changes: the cards' pictures and painters hold words and fonts.
+  static Map<Object, V> _forgetOnLanguage<V>(Map<Object, V> cache) {
+    L10n.language.addListener(() {
+      for (final v in cache.values) {
+        if (v is ui.Picture) v.dispose();
+      }
+      cache.clear();
+    });
+    return cache;
+  }
 
   /// How many built things are kept (tests: bounded).
   static int get cacheSize => _memo.length;
@@ -150,7 +164,8 @@ abstract final class NeferhooStaging {
 
   // --------------------------------------------------------------- text --
 
-  static final Map<Object, (TextPainter, TextPainter?)> _texts = {};
+  static final Map<Object, (TextPainter, TextPainter?, double)> _texts =
+      _forgetOnLanguage({});
 
   /// How many laid-out texts are kept (tests: bounded).
   static int get textCacheSize => _texts.length;
@@ -158,6 +173,8 @@ abstract final class NeferhooStaging {
   /// Draws [s] with its top at [at] (left, centred or right-aligned on
   /// [at]); returns its size. Fredoka by default (the titles), Nunito for
   /// spoken lines. Laid out once per string, size, colour and alpha step.
+  /// With [fit], one line set smaller when it is wider than [fit] (a long
+  /// translation on a fixed plate; the fitted size is laid out once too).
   static Size text(
     Canvas c,
     String s,
@@ -173,6 +190,7 @@ abstract final class NeferhooStaging {
     double outlineWidth = 0,
     bool italic = false,
     double? maxWidth,
+    double? fit,
   }) {
     if (!size.isFinite || size <= 0 || !at.isFinite) return Size.zero;
     final alpha = (color.a * 16).round();
@@ -189,27 +207,47 @@ abstract final class NeferhooStaging {
       (outlineWidth * 8).round(),
       italic,
       maxWidth?.round(),
+      fit?.round(),
     );
     var pair = _texts[key];
     if (pair == null) {
       if (_texts.length >= 256) _texts.clear();
+      final fonts = L10n.fonts;
+      var points = size, spaced = spacing;
       TextPainter tp(Paint? fg) => TextPainter(
         text: TextSpan(
           text: s,
           style: TextStyle(
-            fontFamily: nunito ? 'Nunito' : 'Fredoka',
-            fontSize: size,
+            fontFamily: nunito ? fonts.body : fonts.heading,
+            fontFamilyFallback: nunito
+                ? fonts.bodyFallback
+                : fonts.headingFallback,
+            fontSize: points,
             fontWeight: weight,
-            letterSpacing: spacing,
+            letterSpacing: spaced,
             fontStyle: italic ? FontStyle.italic : FontStyle.normal,
             color: fg == null ? color.withValues(alpha: alpha / 16) : null,
             foreground: fg,
           ),
         ),
-        textDirection: TextDirection.ltr,
-        textAlign: center ? TextAlign.center : TextAlign.left,
-        maxLines: 2,
+        // Words run their language's way; where they sit stays the
+        // world's (left to right).
+        textDirection: L10n.textDirection,
+        textAlign: center ? TextAlign.center : TextAlign.start,
+        maxLines: fit == null ? 2 : 1,
       )..layout(maxWidth: maxWidth ?? double.infinity);
+      // (a fitted line keeps the full size's middle)
+      var drop = 0.0;
+      if (fit != null && fit > 0) {
+        final probe = tp(null);
+        if (probe.width > fit) {
+          final k = fit / probe.width;
+          points = size * k;
+          spaced = spacing * k;
+          drop = probe.height * (1 - k) / 2;
+        }
+        probe.dispose();
+      }
       pair = _texts[key] = (
         tp(null),
         outline != null && outlineWidth > 0
@@ -223,10 +261,11 @@ abstract final class NeferhooStaging {
                   ),
               )
             : null,
+        drop,
       );
     }
-    final (main, edge) = pair;
-    var o = at;
+    final (main, edge, drop) = pair;
+    var o = drop == 0 ? at : at + Offset(0, drop);
     if (center) o = at - Offset(main.width / 2, 0);
     if (right) o = at - Offset(main.width, 0);
     edge?.paint(c, o);

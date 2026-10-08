@@ -1,0 +1,2511 @@
+{
+ "language": "ar",
+ "terms": {
+  "brand.beakbound": {
+   "en": "Beakbound",
+   "target": "Beakbound",
+   "note": "Stays in Latin letters; isolate as a left-to-right run inside Arabic text (BEAKBOUND in the logo)."
+  },
+  "brand.beak1-code": {
+   "en": "BEAK1.",
+   "target": "BEAK1.",
+   "note": "Technical token, never changed; only the sentence around it is translated."
+  },
+  "char.pip": {
+   "en": "Pip",
+   "target": "بيب",
+   "note": "Transliteration of Pip; masculine (agreement and self-reference)."
+  },
+  "char.peaches": {
+   "en": "Peaches",
+   "target": "بيتشيز",
+   "note": "Transliteration (Pee-chiz); feminine. Her fruit puns use خوخ (peach), the pan-Arab word."
+  },
+  "char.minty": {
+   "en": "Minty",
+   "target": "مينتي",
+   "note": "Transliteration; masculine. Mint jokes use نعناع (mint) and the colour «بلون النعناع»; the name itself is not the Arabic word for mint, so «named after me» jokes become colour jokes."
+  },
+  "char.orbit": {
+   "en": "Orbit",
+   "target": "أوربِت",
+   "note": "Transliteration with one kasra so TTS says Or-bit (not «awrabat»); UI may drop the kasra. Feminine. The word orbit (مدار) is not used as her name."
+  },
+  "char.postmaster-bill": {
+   "en": "Postmaster Bill",
+   "target": "مدير البريد بيل",
+   "note": "Title before the name, as in Arabic; short form بيل."
+  },
+  "char.courier": {
+   "en": "courier",
+   "target": "ساعي البريد",
+   "note": "Short form الساعي. Grammatically masculine generic in shared lines and in what bosses say to the courier (CHARACTERS.md rule for Arabic); Peaches and Orbit may say ساعية البريد about themselves."
+  },
+  "char.narrator": {
+   "en": "the narrator",
+   "target": "الراوي",
+   "note": "Never named on screen; captions in a calm storybook voice."
+  },
+  "boss.baron-bat": {
+   "en": "Baron Bat",
+   "target": "البارون وطواط",
+   "note": "وطواط = bat (as in الرجل الوطواط, Batman); the doubled «wat-wat» gives the name a ring in place of the B-B alliteration. Short form البارون, address يا بارون. The small enemy bats use the plain word خفاش/خفافيش."
+  },
+  "boss.spitter-king": {
+   "en": "Spitter King",
+   "target": "الملك البصّاق",
+   "note": "بصّاق = one who spits, same word as the beetles (خنفساء بصّاقة). Bill says أيها الملك; birds say يا صاحب الجلالة."
+  },
+  "boss.dusk-empress": {
+   "en": "Dusk Empress",
+   "target": "إمبراطورة الغسق",
+   "note": "غسق = dusk, same word as her moths (فراشة الغسق). Short form الإمبراطورة; Pip says صاحبة السموّ."
+  },
+  "boss.pirate-captain": {
+   "en": "Pirate Captain",
+   "target": "قبطان القراصنة",
+   "note": "Short form القبطان, which he also uses for himself."
+  },
+  "boss.ember-dragon": {
+   "en": "Ember Dragon",
+   "target": "تنين الجمر",
+   "note": "جمر = embers (same root as his جمرات attack). Short form التنين; the letter opens «عزيزي التنين»."
+  },
+  "guardian.neferhoo": {
+   "en": "Neferhoo",
+   "target": "نِفِرهو",
+   "note": "Kasras guide TTS to NEF-er-hoo; keep the same spelling everywhere (UI may drop the marks if the font renders them poorly)."
+  },
+  "guardian.king-coo": {
+   "en": "King Coo",
+   "target": "الملك كوكو",
+   "note": "كوكو = the pigeon's coo as children say it; short and card-friendly. His card shout COO! = كوو!. He calls himself المفوّض."
+  },
+  "guardian.searchlight-gargoyle": {
+   "en": "Searchlight Gargoyle",
+   "target": "الغرغول الكشّاف",
+   "note": "غرغول = gargoyle (loanword), كشّاف = searchlight. Card split: big «الغرغول» with small «الكشّاف» (order may follow the layout). Short form الغرغول, also his self-reference."
+  },
+  "npc.toucan-twins": {
+   "en": "the toucan twins",
+   "target": "توأما الطوقان",
+   "note": "Plural/dual, giggly children."
+  },
+  "npc.sloth-stargazer": {
+   "en": "the sloth stargazer",
+   "target": "الكسلان راصد النجوم",
+   "note": "Singular, slow, sleepy."
+  },
+  "npc.firefly-nursery": {
+   "en": "the firefly nursery",
+   "target": "حضانة اليراعات",
+   "note": "حضانة = a crèche for small children, not a plant nursery."
+  },
+  "npc.samba-macaws": {
+   "en": "the samba macaws",
+   "target": "ببغاوات السامبا",
+   "note": "Plural, excited."
+  },
+  "npc.drum-captain": {
+   "en": "the drum captain",
+   "target": "قائد الطبول",
+   "note": "Band leader; deliberately not قبطان (the Pirate Captain)."
+  },
+  "npc.temple-cooks": {
+   "en": "the temple cooks",
+   "target": "طهاة المعبد",
+   "note": "Plural, jolly."
+  },
+  "npc.dawn-keeper": {
+   "en": "the dawn keeper",
+   "target": "حارس الفجر",
+   "note": "Singular, calm."
+  },
+  "npc.chariot-racers": {
+   "en": "the chariot racers",
+   "target": "متسابقو العربات",
+   "note": "Plural (متسابقي after a preposition)."
+  },
+  "npc.statue-carver": {
+   "en": "the statue carver",
+   "target": "نحّات التماثيل",
+   "note": "Singular; «his nose» = the statue's nose (أنف التمثال)."
+  },
+  "npc.fire-brigade": {
+   "en": "the fire brigade",
+   "target": "فرقة الإطفاء",
+   "note": "Group speaking as one."
+  },
+  "npc.pyramid-astronomer": {
+   "en": "the pyramid astronomer",
+   "target": "فلكيّ الهرم",
+   "note": "Singular."
+  },
+  "npc.pyramid-caretaker": {
+   "en": "the pyramid caretaker",
+   "target": "حارسة الهرم",
+   "note": "Feminine (she says the dust talks back). Short form الحارسة."
+  },
+  "npc.lantern-sellers": {
+   "en": "the lantern sellers",
+   "target": "باعة الفوانيس",
+   "note": "Plural."
+  },
+  "npc.caravan-leader": {
+   "en": "the caravan leader",
+   "target": "قائد القافلة",
+   "note": "Singular, dry."
+  },
+  "npc.stage-manager": {
+   "en": "the stage manager",
+   "target": "مدير المسرح",
+   "note": "Singular."
+  },
+  "npc.newsstand-pigeons": {
+   "en": "the newsstand pigeons",
+   "target": "حمام كشك الجرائد",
+   "note": "Plural."
+  },
+  "npc.night-cabbies": {
+   "en": "the night cabbies",
+   "target": "سائقو الأجرة الليليون",
+   "note": "Cargo form after a preposition: سائقي الأجرة الليليين (same people as «night-shift cabbies»)."
+  },
+  "npc.tower-keeper": {
+   "en": "the tower keeper",
+   "target": "حارس البرج",
+   "note": "Singular old man."
+  },
+  "npc.rooftop-painters": {
+   "en": "the rooftop painters",
+   "target": "رسّامو الأسطح",
+   "note": "Plural; their «Magnifique» becomes Arabic «روعة!» (see NOTES)."
+  },
+  "npc.accordion-player": {
+   "en": "the accordion player",
+   "target": "عازف الأكورديون",
+   "note": "Singular."
+  },
+  "npc.baker": {
+   "en": "the baker",
+   "target": "الخبّازة",
+   "note": "Feminine (voice and «I said yes!»)."
+  },
+  "npc.lighthouse-keeper": {
+   "en": "the lighthouse keeper",
+   "target": "حارسة المنارة",
+   "note": "Feminine to match the female voice (Jessie); the English term is neutral."
+  },
+  "npc.volcano-baker": {
+   "en": "the volcano baker",
+   "target": "خبّازة البركان",
+   "note": "Feminine voice."
+  },
+  "npc.kite-flyers": {
+   "en": "the kite flyers",
+   "target": "هواة الطائرات الورقية",
+   "note": "Plural; cargo names the beach festival (مهرجان الشاطئ)."
+  },
+  "npc.island-hermit": {
+   "en": "the island hermit",
+   "target": "ناسك الجزيرة",
+   "note": "Singular, masculine."
+  },
+  "npc.ferry-crew": {
+   "en": "the ferry crew",
+   "target": "طاقم العبّارة",
+   "note": "Group speaking as one."
+  },
+  "npc.gull-colony": {
+   "en": "the gull colony",
+   "target": "مستعمرة النوارس",
+   "note": "Group speaking as one."
+  },
+  "npc.storm-watch": {
+   "en": "the storm watch",
+   "target": "مراقبو العواصف",
+   "note": "Cargo form: بحّارة مراقبة العواصف (storm-watch sailors), same people."
+  },
+  "npc.penguin-choir": {
+   "en": "the penguin choir",
+   "target": "جوقة البطاريق",
+   "note": "Plural."
+  },
+  "npc.polar-station": {
+   "en": "the polar station",
+   "target": "المحطة القطبية",
+   "note": "A place speaking for its crew."
+  },
+  "npc.noodle-chef": {
+   "en": "the noodle chef",
+   "target": "طاهي النودلز",
+   "note": "نودلز is the common loanword; the sign is «مفتوح»."
+  },
+  "npc.rooftop-runners": {
+   "en": "the rooftop runners",
+   "target": "عدّاؤو الأسطح",
+   "note": "Plural (عدّائي after a preposition)."
+  },
+  "npc.lantern-makers": {
+   "en": "the lantern makers",
+   "target": "صانعو الفوانيس",
+   "note": "Plural."
+  },
+  "npc.mountain-monks": {
+   "en": "the mountain monks",
+   "target": "رهبان الجبل",
+   "note": "Plural; alias the monastery = الدير."
+  },
+  "npc.sphinx": {
+   "en": "the Sphinx",
+   "target": "أبو الهول",
+   "note": "The Arabic name of the Sphinx of Giza; masculine. Peaches: «سيد أبو الهول». After a preposition: أبي الهول."
+  },
+  "npc.unit-7": {
+   "en": "Unit 7",
+   "target": "الوحدة ٧",
+   "note": "Spoken «الوحدة سبعة». Its thank-you is clipped and robotic (no letter case in Arabic)."
+  },
+  "npc.parrot": {
+   "en": "the Parrot",
+   "target": "الببغاء",
+   "note": "Address «أيها الببغاء»; masculine."
+  },
+  "npc.baron-cousins": {
+   "en": "the Baron's cousins",
+   "target": "أبناء عمّ البارون",
+   "note": "His summons: «يا أقاربي!», «يا أبناء عمّي!»."
+  },
+  "title.postmaster": {
+   "en": "Postmaster",
+   "target": "مدير البريد",
+   "note": "Works alone: «أوامر مدير البريد»."
+  },
+  "title.lord-of-the-storm": {
+   "en": "LORD OF THE STORM",
+   "target": "سيّد العاصفة",
+   "note": "Pairs with العاصفة تعود."
+  },
+  "title.the-storm-returns": {
+   "en": "THE STORM RETURNS",
+   "target": "العاصفة تعود",
+   "note": "Echoes سيّد العاصفة."
+  },
+  "title.brewer-of-the-swarm": {
+   "en": "BREWER OF THE SWARM",
+   "target": "خيميائيّ السِّرب",
+   "note": "Adapted: «alchemist of the swarm» says brewer better than a literal طبّاخ (cook) and fits the mad-alchemist; السرب = his beetles."
+  },
+  "title.keeper-of-the-twilight-veil": {
+   "en": "KEEPER OF THE TWILIGHT VEIL",
+   "target": "حارسة وشاح الشفق",
+   "note": "وشاح = her silk veil (attack.veil)."
+  },
+  "title.terror-of-the-high-tide": {
+   "en": "TERROR OF THE HIGH TIDE",
+   "target": "رُعب المدّ العالي",
+   "note": "المدّ العالي = HIGH TIDE."
+  },
+  "title.sovereign-of-the-burning-sky": {
+   "en": "SOVEREIGN OF THE BURNING SKY",
+   "target": "عاهل السماء المشتعلة",
+   "note": "عاهل = sovereign (grand, short)."
+  },
+  "title.keeper-of-the-lost-letter": {
+   "en": "Keeper of the Lost Letter",
+   "target": "أمين الرسالة الضائعة",
+   "note": "أمين (keeper/curator) instead of حارس so the GUARDIAN card (حارس) does not repeat the word; singular."
+  },
+  "title.keeper-of-lost-letters": {
+   "en": "Keeper of Lost Letters",
+   "target": "أمين الرسائل الضائعة",
+   "note": "Plural job title, echoes his card epithet."
+  },
+  "title.royal-courier": {
+   "en": "Royal Courier",
+   "target": "ساعي البريد الملكي",
+   "note": "Same courier word: Pip «ساعي البريد الملكي؟ أنا مجرد ساعي بريد. ساعي البريد بيب.»"
+  },
+  "title.mummy-courier": {
+   "en": "the Mummy Courier",
+   "target": "ساعي البريد المومياء",
+   "note": "Not spoken."
+  },
+  "title.commissioner-of-the-curb": {
+   "en": "Commissioner of the Curb",
+   "target": "مفوّض الرصيف",
+   "note": "رصيف = pavement/curb where pigeons peck; pompous police title."
+  },
+  "title.commissioner": {
+   "en": "the Commissioner",
+   "target": "المفوّض",
+   "note": "Police commissioner; third person «المفوّض يقبل العرض»; address «حضرة المفوّض»."
+  },
+  "title.watchman-of-the-tallest-tower": {
+   "en": "Watchman of the Tallest Tower",
+   "target": "رقيب أعلى برج",
+   "note": "رقيب = watchman; avoids حارس (GUARDIAN) on the same card."
+  },
+  "title.ink-maker": {
+   "en": "ink-maker",
+   "target": "صانع الحبر",
+   "note": "Royal ink-maker = صانع الحبر الملكي."
+  },
+  "region.jungle": {
+   "en": "Jungle",
+   "target": "الأدغال",
+   "note": "Generic rainforest."
+  },
+  "region.brazil": {
+   "en": "Brazil",
+   "target": "البرازيل"
+  },
+  "region.aztec": {
+   "en": "Aztec",
+   "target": "بلاد الأزتيك",
+   "note": "Short map label."
+  },
+  "region.ancient-rome": {
+   "en": "Ancient Rome",
+   "target": "روما القديمة",
+   "note": "Parallel with بلاد العرب القديمة."
+  },
+  "region.egypt": {
+   "en": "Egypt",
+   "target": "مصر"
+  },
+  "region.ancient-arabia": {
+   "en": "Ancient Arabia",
+   "target": "بلاد العرب القديمة",
+   "note": "Neutral, storybook historical form (Arabian Nights mood), not a modern country."
+  },
+  "region.new-york": {
+   "en": "New York",
+   "target": "نيويورك"
+  },
+  "region.paris": {
+   "en": "Paris",
+   "target": "باريس"
+  },
+  "region.mexico": {
+   "en": "Mexico",
+   "target": "المكسيك"
+  },
+  "region.open-sea": {
+   "en": "Open Sea",
+   "target": "عرض البحر",
+   "note": "The high seas."
+  },
+  "region.antarctica": {
+   "en": "Antarctica",
+   "target": "أنتاركتيكا",
+   "note": "Short label (القارة القطبية الجنوبية is too long for the map)."
+  },
+  "region.cyberpunk-city": {
+   "en": "Cyberpunk City",
+   "target": "مدينة السايبربانك",
+   "note": "Bill also says مدينة النيون (the neon city)."
+  },
+  "region.china": {
+   "en": "China",
+   "target": "الصين"
+  },
+  "place.city-of-light": {
+   "en": "the City of Light",
+   "target": "مدينة الأنوار",
+   "note": "The usual Arabic epithet for Paris."
+  },
+  "place.edge-of-the-map": {
+   "en": "the Edge of the Map",
+   "target": "حافة الخريطة",
+   "note": "Same words as the chapter and the achievement."
+  },
+  "place.giza": {
+   "en": "Giza",
+   "target": "الجيزة",
+   "note": "Address line: «إلى أبي الهول، الجيزة.»"
+  },
+  "place.nile": {
+   "en": "the Nile",
+   "target": "النيل"
+  },
+  "place.pyramid": {
+   "en": "the pyramid",
+   "target": "الهرم"
+  },
+  "place.colosseum": {
+   "en": "the Colosseum",
+   "target": "الكولوسيوم"
+  },
+  "place.sugarloaf-mountain": {
+   "en": "Sugarloaf Mountain",
+   "target": "جبل رغيف السكر",
+   "note": "Keeps «sugar», so Pip's «not actually made of sugar» joke survives."
+  },
+  "place.eiffel-tower": {
+   "en": "the Eiffel Tower",
+   "target": "برج إيفل"
+  },
+  "place.theatre-marquee": {
+   "en": "the theatre marquee",
+   "target": "سقيفة المسرح",
+   "note": "سقيفة = awning/shelter over the door: the cart sheltered under it. Not مظلة, which is the umbrellas of 3-2."
+  },
+  "place.tallest-tower": {
+   "en": "the tallest tower",
+   "target": "أعلى برج",
+   "note": "Same words as the cargo and رقيب أعلى برج."
+  },
+  "place.canopy": {
+   "en": "the canopy",
+   "target": "قمم الأشجار",
+   "note": "The roof of leaves; same words as the chapter."
+  },
+  "place.bazaar": {
+   "en": "the bazaar",
+   "target": "السوق",
+   "note": "Level 2-7: سوق الفوانيس."
+  },
+  "place.harbour": {
+   "en": "the harbour",
+   "target": "الميناء"
+  },
+  "chapter.canopy-route": {
+   "en": "The Canopy Route",
+   "target": "خط قمم الأشجار",
+   "note": "خط = the club's word for a mail route."
+  },
+  "chapter.ancient-road": {
+   "en": "The Ancient Road",
+   "target": "الطريق القديم",
+   "note": "The Spitter King's «my road» = طريقي."
+  },
+  "chapter.lamplight-line": {
+   "en": "The Lamplight Line",
+   "target": "خط المصابيح",
+   "note": "Keeps the lamp image and the «line»."
+  },
+  "chapter.tide-route": {
+   "en": "The Tide Route",
+   "target": "خط المدّ"
+  },
+  "chapter.edge-of-the-map": {
+   "en": "The Edge of the Map",
+   "target": "حافة الخريطة"
+  },
+  "level.1-1": {
+   "en": "First Delivery",
+   "target": "التوصيلة الأولى"
+  },
+  "level.1-2": {
+   "en": "Star Streak",
+   "target": "سلسلة النجوم",
+   "note": "سلسلة = streak."
+  },
+  "level.1-3": {
+   "en": "Bat Patrol",
+   "target": "دورية الخفافيش"
+  },
+  "level.1-4": {
+   "en": "Carnival Skies",
+   "target": "سماء الكرنفال"
+  },
+  "level.1-5": {
+   "en": "Express Post",
+   "target": "البريد السريع",
+   "note": "Same words as Neferhoo's EXPRESS POST."
+  },
+  "level.1-6": {
+   "en": "Temple Steps",
+   "target": "درجات المعبد"
+  },
+  "level.1-7": {
+   "en": "Sunrise Roost",
+   "target": "مَبيت الشروق",
+   "note": "مبيت = where one sleeps the night (a roost)."
+  },
+  "level.1-8": {
+   "en": "Baron Bat",
+   "target": "البارون وطواط"
+  },
+  "level.2-1": {
+   "en": "Beetle Road",
+   "target": "طريق الخنافس",
+   "note": "Same road word as الطريق القديم."
+  },
+  "level.2-2": {
+   "en": "Sealed Gates",
+   "target": "البوابات المسدودة",
+   "note": "«Sealed» = blocked; avoids ختم (the flame seal)."
+  },
+  "level.2-3": {
+   "en": "Wildfire Run",
+   "target": "سباق الحريق",
+   "note": "حريق = the Wildfire rush."
+  },
+  "level.2-4": {
+   "en": "Nile Switchbacks",
+   "target": "منعطفات النيل",
+   "note": "منعطفات = switchbacks."
+  },
+  "level.2-5": {
+   "en": "Skyfall",
+   "target": "سقوط السماء",
+   "note": "Same as the Skyfall rush."
+  },
+  "level.2-6": {
+   "en": "Return to Sender",
+   "target": "يُعاد إلى المُرسِل",
+   "note": "Neferhoo's catchphrase."
+  },
+  "level.2-7": {
+   "en": "Lantern Bazaar",
+   "target": "سوق الفوانيس"
+  },
+  "level.2-8": {
+   "en": "The Long Caravan",
+   "target": "القافلة الطويلة",
+   "note": "Cargo: «للقافلة الطويلة»."
+  },
+  "level.2-9": {
+   "en": "Spitter King",
+   "target": "الملك البصّاق"
+  },
+  "level.3-1": {
+   "en": "Moth Light",
+   "target": "فراشات الضوء",
+   "note": "Moths drawn to light (cf. the Arabic image of the moth and the flame)."
+  },
+  "level.3-2": {
+   "en": "Wheels in the Rain",
+   "target": "عجلات تحت المطر",
+   "note": "Echoes the Arabic title of «Singin' in the Rain» (الغناء تحت المطر); keeps wheels + rain."
+  },
+  "level.3-3": {
+   "en": "Steam Alley",
+   "target": "زقاق البخار",
+   "note": "Bill says it aloud."
+  },
+  "level.3-4": {
+   "en": "Storm Warning",
+   "target": "إنذار عاصفة",
+   "note": "Same words as the Gargoyle's STORM WARNING banner."
+  },
+  "level.3-5": {
+   "en": "Crystal Rooftops",
+   "target": "الأسطح البلورية"
+  },
+  "level.3-6": {
+   "en": "After the Gale",
+   "target": "بعد الريح العاتية",
+   "note": "ريح عاتية = gale."
+  },
+  "level.3-7": {
+   "en": "Midnight Express",
+   "target": "سريع منتصف الليل",
+   "note": "«The Midnight Express»; keeps midnight + express."
+  },
+  "level.3-8": {
+   "en": "Dusk Empress",
+   "target": "إمبراطورة الغسق"
+  },
+  "level.4-1": {
+   "en": "Harbour Lights",
+   "target": "أضواء الميناء"
+  },
+  "level.4-2": {
+   "en": "Volcano Pass",
+   "target": "ممرّ البركان"
+  },
+  "level.4-3": {
+   "en": "Down the Coast",
+   "target": "على امتداد الساحل"
+  },
+  "level.4-4": {
+   "en": "Low Water",
+   "target": "ساعة الجَزْر",
+   "note": "Fatha/sukun so الجزر reads «low tide», not carrots or islands."
+  },
+  "level.4-5": {
+   "en": "Spring Tide",
+   "target": "المدّ الأعلى",
+   "note": "Spring tide as «the highest tide» (not the season)."
+  },
+  "level.4-6": {
+   "en": "Broadside Bay",
+   "target": "خليج المدافع",
+   "note": "Broadside = all the cannons firing."
+  },
+  "level.4-7": {
+   "en": "Stormy Crossing",
+   "target": "عبور عاصف"
+  },
+  "level.4-8": {
+   "en": "Pirate Captain",
+   "target": "قبطان القراصنة"
+  },
+  "level.5-1": {
+   "en": "Aurora Post",
+   "target": "بريد الشفق القطبي",
+   "note": "الشفق القطبي = aurora."
+  },
+  "level.5-2": {
+   "en": "Polar Night",
+   "target": "الليل القطبي"
+  },
+  "level.5-3": {
+   "en": "Neon Express",
+   "target": "سريع النيون",
+   "note": "Parallel to سريع منتصف الليل."
+  },
+  "level.5-4": {
+   "en": "Data Storm",
+   "target": "عاصفة البيانات"
+  },
+  "level.5-5": {
+   "en": "Skyline Sprint",
+   "target": "انطلاقة فوق الأفق",
+   "note": "انطلاقة = the Sprint word."
+  },
+  "level.5-6": {
+   "en": "Lantern Festival",
+   "target": "مهرجان الفوانيس"
+  },
+  "level.5-7": {
+   "en": "The Last Leg",
+   "target": "الشوط الأخير",
+   "note": "Arabic idiom for the final stretch."
+  },
+  "level.5-8": {
+   "en": "Ember Dragon",
+   "target": "تنين الجمر"
+  },
+  "level.starter-garden-hop": {
+   "en": "Garden Hop",
+   "target": "قفزة في الحديقة"
+  },
+  "level.starter-ten-push-ups": {
+   "en": "Ten Push-Ups",
+   "target": "عشر تمارين ضغط"
+  },
+  "level.starter-stair-squats": {
+   "en": "Stair Squats",
+   "target": "قرفصاء الدرج"
+  },
+  "level.starter-bounce-bay": {
+   "en": "Bounce Bay",
+   "target": "خليج القفز"
+  },
+  "level.starter-barons-bridge": {
+   "en": "Baron’s Bridge",
+   "target": "جسر البارون"
+  },
+  "cargo.1-1": {
+   "en": "A birthday card for the toucan twins",
+   "target": "بطاقة عيد ميلاد لتوأمَي الطوقان"
+  },
+  "cargo.1-2": {
+   "en": "Star charts for the sloth stargazer",
+   "target": "خرائط نجوم لراصد النجوم الكسلان"
+  },
+  "cargo.1-3": {
+   "en": "Night-lights for the firefly nursery",
+   "target": "مصابيح ليلية لحضانة اليراعات"
+  },
+  "cargo.1-4": {
+   "en": "Feather boas for the carnival parade",
+   "target": "أوشحة ريش لموكب الكرنفال"
+  },
+  "cargo.1-5": {
+   "en": "A rush invitation for the drum captain",
+   "target": "دعوة عاجلة لقائد الطبول"
+  },
+  "cargo.1-6": {
+   "en": "Cocoa beans for the temple cooks",
+   "target": "حبوب كاكاو لطهاة المعبد"
+  },
+  "cargo.1-7": {
+   "en": "A sundial for the dawn keeper",
+   "target": "مزولة شمسية لحارس الفجر"
+  },
+  "cargo.1-8": {
+   "en": "A final notice for Baron Bat",
+   "target": "إنذار نهائي للبارون وطواط",
+   "note": "Official notice tone."
+  },
+  "cargo.2-1": {
+   "en": "Laurel wreaths for the chariot racers",
+   "target": "أكاليل غار لمتسابقي العربات"
+  },
+  "cargo.2-2": {
+   "en": "A new chisel for the statue carver",
+   "target": "إزميل جديد لنحّات التماثيل"
+  },
+  "cargo.2-3": {
+   "en": "Water buckets for the fire brigade",
+   "target": "دلاء ماء لفرقة الإطفاء"
+  },
+  "cargo.2-4": {
+   "en": "A book of new riddles for the Sphinx",
+   "target": "كتاب ألغاز جديدة لأبي الهول"
+  },
+  "cargo.2-5": {
+   "en": "A telescope for the pyramid astronomer",
+   "target": "تلسكوب لفلكيّ الهرم"
+  },
+  "cargo.2-6": {
+   "en": "A feather duster for the caretaker",
+   "target": "منفضة ريش لحارسة الهرم"
+  },
+  "cargo.2-7": {
+   "en": "Lamp oil for the lantern sellers",
+   "target": "زيت مصابيح لباعة الفوانيس"
+  },
+  "cargo.2-8": {
+   "en": "Water flasks for the long caravan",
+   "target": "قوارير ماء للقافلة الطويلة"
+  },
+  "cargo.2-9": {
+   "en": "A stop-brewing order for the Spitter King",
+   "target": "أمر بوقف الغليان للملك البصّاق",
+   "note": "Official notice tone."
+  },
+  "cargo.3-1": {
+   "en": "Light bulbs for the theatre marquee",
+   "target": "مصابيح كهربائية لسقيفة المسرح"
+  },
+  "cargo.3-2": {
+   "en": "Umbrellas for the newsstand pigeons",
+   "target": "مظلات لحمام كشك الجرائد"
+  },
+  "cargo.3-3": {
+   "en": "Hot pretzels for the night-shift cabbies",
+   "target": "بريتزل ساخن لسائقي الأجرة الليليين",
+   "note": "بريتزل is the known loanword."
+  },
+  "cargo.3-4": {
+   "en": "A weather vane for the tallest tower",
+   "target": "دوّارة رياح لأعلى برج"
+  },
+  "cargo.3-5": {
+   "en": "Croissants for the rooftop painters",
+   "target": "كرواسون لرسّامي الأسطح"
+  },
+  "cargo.3-6": {
+   "en": "Sheet music for the accordion player",
+   "target": "نوتات موسيقية لعازف الأكورديون"
+  },
+  "cargo.3-7": {
+   "en": "A midnight love letter for the baker",
+   "target": "رسالة حب في منتصف الليل للخبّازة"
+  },
+  "cargo.3-8": {
+   "en": "A wake-up call for the Dusk Empress",
+   "target": "جرس إنذار لإمبراطورة الغسق",
+   "note": "جرس إنذار = an alarm bell and, figuratively, a warning: both meanings of wake-up call."
+  },
+  "cargo.4-1": {
+   "en": "A new lens for the lighthouse keeper",
+   "target": "عدسة جديدة لحارسة المنارة"
+  },
+  "cargo.4-2": {
+   "en": "Oven mitts for the volcano baker",
+   "target": "قفّازات فرن لخبّازة البركان"
+  },
+  "cargo.4-3": {
+   "en": "Kite string for the beach festival",
+   "target": "خيط طائرات ورقية لمهرجان الشاطئ"
+  },
+  "cargo.4-4": {
+   "en": "A reply for the island hermit",
+   "target": "ردّ لناسك الجزيرة"
+  },
+  "cargo.4-5": {
+   "en": "A tide table for the ferry crew",
+   "target": "جدول المدّ والجزر لطاقم العبّارة"
+  },
+  "cargo.4-6": {
+   "en": "Fish biscuits for the gull colony",
+   "target": "بسكويت سمك لمستعمرة النوارس"
+  },
+  "cargo.4-7": {
+   "en": "Dry socks for the storm-watch sailors",
+   "target": "جوارب جافة لبحّارة مراقبة العواصف"
+  },
+  "cargo.4-8": {
+   "en": "A return-the-mail order for the Captain",
+   "target": "أمر بإعادة البريد للقبطان",
+   "note": "Official notice tone."
+  },
+  "cargo.5-1": {
+   "en": "Woolly hats for the penguin choir",
+   "target": "قبعات صوفية لجوقة البطاريق"
+  },
+  "cargo.5-2": {
+   "en": "Hot cocoa for the polar station",
+   "target": "كاكاو ساخن للمحطة القطبية"
+  },
+  "cargo.5-3": {
+   "en": "Spare fuses for the noodle bar sign",
+   "target": "صمامات احتياطية للافتة مطعم النودلز",
+   "note": "صمامات = (electrical) fuses."
+  },
+  "cargo.5-4": {
+   "en": "A paper letter for a curious robot",
+   "target": "رسالة ورقية لروبوت فضولي"
+  },
+  "cargo.5-5": {
+   "en": "Race tickets for the rooftop runners",
+   "target": "تذاكر سباق لعدّائي الأسطح"
+  },
+  "cargo.5-6": {
+   "en": "Paper lanterns for the festival",
+   "target": "فوانيس ورقية للمهرجان"
+  },
+  "cargo.5-7": {
+   "en": "Mountain tea for the monastery",
+   "target": "شاي جبلي للدير"
+  },
+  "cargo.5-8": {
+   "en": "The first letter ever sent to the Dragon",
+   "target": "أول رسالة تُرسَل إلى التنين"
+  },
+  "enemy.purple-bat": {
+   "en": "Purple bat",
+   "target": "خفاش بنفسجي",
+   "note": "Plain bat word خفاش (plural خفافيش) for all small bats; only the Baron's name uses وطواط."
+  },
+  "enemy.cave-bat": {
+   "en": "Cave bat",
+   "target": "خفاش الكهف"
+  },
+  "enemy.spitter-beetle": {
+   "en": "Spitter beetle",
+   "target": "خنفساء بصّاقة",
+   "note": "Same بصّاق as the Spitter King. Plural خنافس."
+  },
+  "enemy.dusk-moth": {
+   "en": "Dusk moth",
+   "target": "فراشة الغسق",
+   "note": "فراشة (moth/butterfly) is warmer for children than عثّة; plural فراشات."
+  },
+  "enemy.alley-pigeon": {
+   "en": "Alley Pigeon",
+   "target": "حمامة الأزقّة",
+   "note": "Plural حمام الأزقّة."
+  },
+  "enemy.mummy-bat": {
+   "en": "Mummy bat",
+   "target": "خفاش مومياء",
+   "note": "MUMMY BATS = خفافيش مومياء."
+  },
+  "enemy.squadron": {
+   "en": "King Coo's squadron",
+   "target": "فرقة الملك كوكو",
+   "note": "فرقة (police squad), not سرب, which is the Swarm."
+  },
+  "enemy.straggler": {
+   "en": "straggler",
+   "target": "الحمامة الهاربة",
+   "note": "UI: «تعود!» (comes back), ALL CAUGHT! = «قُبض على الجميع!»."
+  },
+  "enemy.brood": {
+   "en": "the Spitter King's brood",
+   "target": "صغار الملك البصّاق",
+   "note": "He calls them «يا جعاريني الصغار» (scarabs) and «يا مساعديّ!»."
+  },
+  "enemy.empress-moths": {
+   "en": "the Dusk Empress's moths",
+   "target": "فراشات الإمبراطورة",
+   "note": "She calls them «يا حلواتي», «يا جميلاتي»."
+  },
+  "enemy.swarm-bats": {
+   "en": "swarm bats",
+   "target": "خفافيش السرب",
+   "note": "Same سرب as the Swarm rush."
+  },
+  "attack.fireball": {
+   "en": "fireball",
+   "target": "كرة نارية",
+   "note": "Plural كرات نارية."
+  },
+  "attack.screech": {
+   "en": "sonic screech",
+   "target": "الصرخة الصوتية",
+   "note": "Short صرخة; Bill's «He's all screech» = «كلّه صراخ» (same root)."
+  },
+  "attack.seed": {
+   "en": "seed",
+   "target": "بذرة",
+   "note": "Plural بذور."
+  },
+  "attack.fan": {
+   "en": "fan",
+   "target": "مروحة",
+   "note": "Fan-shaped spread; fans of three = مراوح من ثلاث."
+  },
+  "attack.pollen": {
+   "en": "pollen",
+   "target": "حبوب اللقاح",
+   "note": "The Empress says الغبار (dust)."
+  },
+  "attack.veil": {
+   "en": "veil",
+   "target": "الوشاح",
+   "note": "silk shield = درع حريري; FIRE WHEN THE VEIL DROPS = «ارمِ حين يسقط الوشاح»."
+  },
+  "attack.cannon": {
+   "en": "cannon",
+   "target": "المدفع",
+   "note": "cannonball = قذيفة مدفع; fuse = فتيل."
+  },
+  "attack.broadside": {
+   "en": "broadside",
+   "target": "وابل المدافع"
+  },
+  "attack.dragon-breath": {
+   "en": "dragon's breath",
+   "target": "نفث التنين",
+   "note": "نفث (blowing fire) avoids نفس, which TTS could read as «soul»."
+  },
+  "attack.embers": {
+   "en": "embers",
+   "target": "جمرات",
+   "note": "Same root as تنين الجمر."
+  },
+  "attack.crumb-bomb": {
+   "en": "crumb bomb",
+   "target": "قنبلة فُتات",
+   "note": "Plural قنابل فتات."
+  },
+  "attack.stale-crust": {
+   "en": "stale crust",
+   "target": "كِسرة يابسة",
+   "note": "Plural كِسَر يابسة."
+  },
+  "attack.puff": {
+   "en": "puff",
+   "target": "انتفاخ",
+   "note": "PUFFED = «منتفخ!», POP! = «فَرقعة!», POOF! = «بُف!», whistle = صفير."
+  },
+  "attack.beam": {
+   "en": "beam",
+   "target": "الشعاع",
+   "note": "SPOTTED! = «انكشفت!»."
+  },
+  "attack.lamp": {
+   "en": "lamp",
+   "target": "المصباح",
+   "note": "Same word as the city lamps (allowed); LAMP OPEN = «المصباح مفتوح»."
+  },
+  "attack.stone-feathers": {
+   "en": "stone feathers",
+   "target": "ريش حجري"
+  },
+  "attack.mail-call": {
+   "en": "mail call",
+   "target": "توزيع البريد",
+   "note": "«Mail call» as the moment mail is handed out; Neferhoo shouts «توزيع البريد!»."
+  },
+  "attack.ankh": {
+   "en": "ankh",
+   "target": "مفتاح الحياة",
+   "note": "The usual Arabic name of the ankh (عنخ is the scholarly word)."
+  },
+  "attack.express-post": {
+   "en": "EXPRESS POST",
+   "target": "البريد السريع",
+   "note": "Same as level 1-5."
+  },
+  "hazard.gate": {
+   "en": "gate",
+   "target": "بوابة",
+   "note": "gap/opening = فتحة."
+  },
+  "hazard.garden-gate": {
+   "en": "Garden gate",
+   "target": "بوابة الحديقة"
+  },
+  "hazard.wind-lift": {
+   "en": "Wind lift",
+   "target": "رافعة الريح"
+  },
+  "hazard.petal-shutters": {
+   "en": "Petal shutters",
+   "target": "مصاريع البتلات",
+   "note": "Bill's petal gates = بوابات البتلات."
+  },
+  "hazard.switchback": {
+   "en": "Switchback",
+   "target": "منعطف",
+   "note": "Plural منعطفات: «اصعد من فتحة، وانزل من التالية»."
+  },
+  "hazard.lantern-drift": {
+   "en": "Lantern drift",
+   "target": "فوانيس عائمة"
+  },
+  "hazard.sun-wheels": {
+   "en": "Sun wheels",
+   "target": "عجلات الشمس"
+  },
+  "hazard.crystal-steps": {
+   "en": "Crystal steps",
+   "target": "درجات بلورية"
+  },
+  "hazard.stone-panel": {
+   "en": "stone panel",
+   "target": "لوح حجري",
+   "note": "stone door = باب حجري."
+  },
+  "hazard.steam-geyser": {
+   "en": "steam vent",
+   "target": "فتحة بخار",
+   "note": "Plural فتحات; hot ones = الساخنة, soft ones = اللطيفة."
+  },
+  "hazard.sea": {
+   "en": "the sea",
+   "target": "البحر",
+   "note": "the water = الماء."
+  },
+  "hazard.tide": {
+   "en": "the tide",
+   "target": "المدّ",
+   "note": "HIGH TIDE = «مدّ عالٍ», TIDE RISING = «المدّ يرتفع»."
+  },
+  "hazard.tide-bell": {
+   "en": "the bell",
+   "target": "الجرس"
+  },
+  "hazard.lava-plume": {
+   "en": "lava plume",
+   "target": "نافورة حمم",
+   "note": "Plural نوافير حمم."
+  },
+  "hazard.meteor": {
+   "en": "meteor",
+   "target": "نيزك",
+   "note": "Plural نيازك."
+  },
+  "hazard.debris": {
+   "en": "debris",
+   "target": "الحُطام",
+   "note": "flying junk = الخردة الطائرة."
+  },
+  "hazard.football": {
+   "en": "football",
+   "target": "كرة قدم",
+   "note": "Plural كرات قدم."
+  },
+  "hazard.warning-mark": {
+   "en": "!",
+   "target": "!",
+   "note": "The sign stays; «Watch the !» = «راقب علامة !»."
+  },
+  "hazard.rubble": {
+   "en": "rubble",
+   "target": "ركام"
+  },
+  "set-piece.rush-path": {
+   "en": "rush",
+   "target": "اندفاعة",
+   "note": "HUD «RUSH ×2!» = «اندفاعة ×٢!»."
+  },
+  "set-piece.wildfire": {
+   "en": "Wildfire",
+   "target": "حريق",
+   "note": "Banner «حريق!»; Outran the wildfire = «سبقتَ الحريق»."
+  },
+  "set-piece.skyfall": {
+   "en": "Skyfall",
+   "target": "سقوط السماء",
+   "note": "Coined «falling sky»; same as level 2-5."
+  },
+  "set-piece.eruption": {
+   "en": "Eruption",
+   "target": "ثوران",
+   "note": "Volcanic eruption."
+  },
+  "set-piece.swarm": {
+   "en": "Swarm",
+   "target": "سِرب"
+  },
+  "set-piece.gale": {
+   "en": "gale",
+   "target": "ريح عاتية",
+   "note": "Banner «ريح عاتية!»; open side = الجهة المفتوحة."
+  },
+  "set-piece.finish-line": {
+   "en": "finish line",
+   "target": "خط النهاية",
+   "note": "FINISH = «النهاية»."
+  },
+  "set-piece.run-up": {
+   "en": "run-up",
+   "target": "الاقتراب"
+  },
+  "set-piece.vanguard": {
+   "en": "vanguard",
+   "target": "الطليعة",
+   "note": "Here they come! = «ها هم قادمون!»; CLEAR! = «خلا الطريق!»."
+  },
+  "pickup.star": {
+   "en": "star",
+   "target": "نجمة",
+   "note": "Plural نجوم; same word for the pickup, the rating and the wallet."
+  },
+  "pickup.star-trio": {
+   "en": "star trio",
+   "target": "ثلاثية نجوم"
+  },
+  "pickup.heart": {
+   "en": "heart",
+   "target": "قلب",
+   "note": "Plural قلوب; keeps Peaches's love puns."
+  },
+  "pickup.shield": {
+   "en": "shield",
+   "target": "درع",
+   "note": "The birds' «bubble» = فقاعة."
+  },
+  "pickup.star-magnet": {
+   "en": "star magnet",
+   "target": "مغناطيس النجوم"
+  },
+  "pickup.sprint-ring": {
+   "en": "sprint ring",
+   "target": "حلقة الانطلاق",
+   "note": "gold rings = الحلقات الذهبية."
+  },
+  "pickup.mystery-box": {
+   "en": "mystery box",
+   "target": "صندوق المفاجآت"
+  },
+  "pickup.bat-swarm": {
+   "en": "Bat swarm",
+   "target": "سرب خفافيش"
+  },
+  "pickup.meteor-shower": {
+   "en": "Meteor shower",
+   "target": "زخّة نيازك"
+  },
+  "pickup.star-power": {
+   "en": "Star power",
+   "target": "قوة النجوم"
+  },
+  "power-up.shot-power": {
+   "en": "Shot power",
+   "target": "قوة الرمي"
+  },
+  "power-up.sprint": {
+   "en": "Sprint (upgrade)",
+   "target": "الانطلاقة"
+  },
+  "power-up.shield": {
+   "en": "Shield (upgrade)",
+   "target": "الدرع"
+  },
+  "power-up.magnet": {
+   "en": "Magnet (upgrade)",
+   "target": "المغناطيس"
+  },
+  "weapon.shoot": {
+   "en": "Shoot",
+   "target": "ارمِ",
+   "note": "The bird throws rocks, so «throw» is the natural button word; «Tap Shoot» = «انقر على ارمِ»; shoot down = أسقِط."
+  },
+  "weapon.rock": {
+   "en": "rock",
+   "target": "حجر",
+   "note": "Plural حجارة; pebble = حصاة. Out of rocks = «نفدت الحجارة»."
+  },
+  "weapon.big-rock": {
+   "en": "big rock",
+   "target": "حجر كبير"
+  },
+  "weapon.ammo": {
+   "en": "ammo",
+   "target": "مخزون الحجارة",
+   "note": "The birds say الحجارة; Reloading… = «إعادة التعبئة…»."
+  },
+  "weapon.sprint": {
+   "en": "Sprint",
+   "target": "انطلاقة",
+   "note": "Button label; spoken command «انطلق!»."
+  },
+  "weapon.ring-sprint": {
+   "en": "ring sprint",
+   "target": "انطلاقة الحلقة",
+   "note": "Plural انطلاقات الحلقات."
+  },
+  "weapon.smash": {
+   "en": "SMASH!",
+   "target": "تحطيم!"
+  },
+  "mode.campaign": {
+   "en": "Campaign",
+   "target": "الحملة"
+  },
+  "mode.endless": {
+   "en": "Endless",
+   "target": "بلا نهاية",
+   "note": "endless sky = السماء التي لا تنتهي."
+  },
+  "mode.tap-and-fly": {
+   "en": "Tap & Fly",
+   "target": "انقر وطِر"
+  },
+  "mode.push-up-flight": {
+   "en": "Push-Up Flight",
+   "target": "طيران بالضغط",
+   "note": "Push-up = تمرين الضغط; a side mini game."
+  },
+  "mode.squat-and-fly": {
+   "en": "Squat & Fly",
+   "target": "اقرفص وطِر"
+  },
+  "mode.jump-and-fly": {
+   "en": "Jump & Fly",
+   "target": "اقفز وطِر"
+  },
+  "mode.mini-games": {
+   "en": "Mini games",
+   "target": "ألعاب صغيرة"
+  },
+  "mode.fly-together": {
+   "en": "Fly Together",
+   "target": "نطير معًا"
+  },
+  "mode.roped": {
+   "en": "Roped",
+   "target": "بالحبل"
+  },
+  "mode.no-rope": {
+   "en": "No rope",
+   "target": "بلا حبل"
+  },
+  "mode.duel": {
+   "en": "1 v 1",
+   "target": "١ ضد ١",
+   "note": "duel = مبارزة."
+  },
+  "mode.level-builder": {
+   "en": "Level Builder",
+   "target": "صانع المراحل"
+  },
+  "mode.daily-adventure": {
+   "en": "Adventure",
+   "target": "مغامرة اليوم",
+   "note": "Short key: مغامرة."
+  },
+  "mode.flight-school": {
+   "en": "Flight School",
+   "target": "مدرسة الطيران"
+  },
+  "mode.practice": {
+   "en": "Practice",
+   "target": "تدريب"
+  },
+  "mode.test-flight": {
+   "en": "test flight",
+   "target": "طيران تجريبي",
+   "note": "TEST FLY = «جرّب الطيران»."
+  },
+  "mode.classic": {
+   "en": "Classic",
+   "target": "كلاسيكي"
+  },
+  "mode.world-tour": {
+   "en": "world tour",
+   "target": "جولة حول العالم"
+  },
+  "ui.sky-club": {
+   "en": "Sky Club",
+   "target": "نادي السماء",
+   "note": "Short form النادي."
+  },
+  "ui.sky-club-post": {
+   "en": "Sky Club post",
+   "target": "بريد نادي السماء",
+   "note": "Also the courier's greeting at every door: «بريد نادي السماء!»."
+  },
+  "ui.passport": {
+   "en": "passport",
+   "target": "جواز السفر",
+   "note": "Sky Passport = جواز السماء."
+  },
+  "ui.passport-stamp": {
+   "en": "stamp (passport)",
+   "target": "ختم",
+   "note": "Ink stamp; postage stamps are طوابع. The wax flame seal is ختم اللهب (always with اللهب)."
+  },
+  "ui.medal": {
+   "en": "medal",
+   "target": "ميدالية"
+  },
+  "ui.bronze": {
+   "en": "Bronze",
+   "target": "برونزية",
+   "note": "Feminine to agree with ميدالية."
+  },
+  "ui.silver": {
+   "en": "Silver",
+   "target": "فضية"
+  },
+  "ui.gold": {
+   "en": "Gold",
+   "target": "ذهبية",
+   "note": "Gold rings = الحلقات الذهبية."
+  },
+  "ui.star-marks": {
+   "en": "star marks",
+   "target": "علامات النجوم",
+   "note": "notch/mark = علامة."
+  },
+  "ui.star-rating": {
+   "en": "stars (level rating)",
+   "target": "نجوم"
+  },
+  "ui.streak": {
+   "en": "streak",
+   "target": "سلسلة",
+   "note": "Same word as level 1-2."
+  },
+  "ui.multiplier": {
+   "en": "multiplier",
+   "target": "المضاعِف",
+   "note": "Keep ×."
+  },
+  "ui.perfect-pass": {
+   "en": "perfect pass",
+   "target": "عبور مثالي",
+   "note": "PERFECT! = «مثالي!»."
+  },
+  "ui.aiming-mark": {
+   "en": "aiming mark",
+   "target": "علامة التصويب"
+  },
+  "ui.score": {
+   "en": "score",
+   "target": "النقاط"
+  },
+  "ui.best": {
+   "en": "best",
+   "target": "أفضل نتيجة",
+   "note": "NEW BEST! = «أفضل نتيجة جديدة!»."
+  },
+  "ui.record": {
+   "en": "record",
+   "target": "رقم قياسي"
+  },
+  "ui.records-screen": {
+   "en": "Records",
+   "target": "السجلّات",
+   "note": "The club's ledgers are الدفاتر, to keep them apart."
+  },
+  "ui.saved-session": {
+   "en": "saved session",
+   "target": "جلسة محفوظة"
+  },
+  "ui.replay": {
+   "en": "replay",
+   "target": "إعادة العرض"
+  },
+  "ui.flight-highlights": {
+   "en": "Flight highlights",
+   "target": "أبرز لحظات الرحلة"
+  },
+  "ui.flight": {
+   "en": "flight",
+   "target": "رحلة",
+   "note": "One play session."
+  },
+  "ui.scored-flight": {
+   "en": "scored flight",
+   "target": "رحلة محسوبة"
+  },
+  "ui.upgrades": {
+   "en": "Upgrades",
+   "target": "التطويرات"
+  },
+  "ui.star-wallet": {
+   "en": "stars to spend",
+   "target": "نجوم للإنفاق"
+  },
+  "ui.collection": {
+   "en": "Birds",
+   "target": "الطيور",
+   "note": "flight crew = طاقم الطيران."
+  },
+  "ui.trail-sunshine-bubbles": {
+   "en": "Sunshine bubbles",
+   "target": "فقاعات الشمس"
+  },
+  "ui.trail-peach-hearts": {
+   "en": "Peach hearts",
+   "target": "قلوب خوخية"
+  },
+  "ui.trail-mint-leaves": {
+   "en": "Mint leaves",
+   "target": "أوراق النعناع"
+  },
+  "ui.trail-stardust-sparkles": {
+   "en": "Stardust sparkles",
+   "target": "بريق غبار النجوم"
+  },
+  "ui.character-voices": {
+   "en": "Character voices",
+   "target": "أصوات الشخصيات"
+  },
+  "ui.sky-club-soundtrack": {
+   "en": "Sky Club soundtrack",
+   "target": "موسيقى نادي السماء"
+  },
+  "ui.reduced-motion": {
+   "en": "Reduced motion",
+   "target": "تقليل الحركة"
+  },
+  "ui.campaign-map": {
+   "en": "map",
+   "target": "الخريطة"
+  },
+  "ui.stop": {
+   "en": "stop",
+   "target": "محطة",
+   "note": "Next stop = المحطة التالية."
+  },
+  "ui.chapter": {
+   "en": "chapter",
+   "target": "فصل"
+  },
+  "ui.level": {
+   "en": "level",
+   "target": "مرحلة"
+  },
+  "ui.level-card": {
+   "en": "level card",
+   "target": "بطاقة المرحلة"
+  },
+  "ui.special-delivery": {
+   "en": "SPECIAL DELIVERY",
+   "target": "توصيل خاص"
+  },
+  "ui.hint": {
+   "en": "TIP",
+   "target": "نصيحة"
+  },
+  "ui.thank-you-note": {
+   "en": "thank-you note",
+   "target": "بطاقة شكر"
+  },
+  "ui.postcard": {
+   "en": "postcard",
+   "target": "بطاقة بريدية",
+   "note": "Dear courier, = «عزيزي ساعي البريد،»; P.S. = «ملاحظة:»; Greetings from = «تحيات من»."
+  },
+  "ui.lair": {
+   "en": "lair",
+   "target": "عرين"
+  },
+  "ui.guardian": {
+   "en": "GUARDIAN",
+   "target": "حارس",
+   "note": "One word everywhere (Bill: «لا ختم لهب على هذا الحارس»)."
+  },
+  "ui.boss": {
+   "en": "boss",
+   "target": "الزعيم",
+   "note": "BOSS DOWN! = «سقط الزعيم!»."
+  },
+  "ui.encounter": {
+   "en": "ENCOUNTER 01",
+   "target": "المواجهة ٠١"
+  },
+  "ui.name-card": {
+   "en": "name card",
+   "target": "بطاقة الاسم"
+  },
+  "ui.stronger": {
+   "en": "STRONGER",
+   "target": "أقوى"
+  },
+  "ui.fury": {
+   "en": "FURY",
+   "target": "الغضب"
+  },
+  "ui.sky-reclaimed": {
+   "en": "SKY RECLAIMED",
+   "target": "استعدنا السماء"
+  },
+  "ui.guardian-down": {
+   "en": "GUARDIAN DOWN!",
+   "target": "سقط الحارس!"
+  },
+  "ui.victory": {
+   "en": "Victory!",
+   "target": "انتصار!"
+  },
+  "ui.delivered": {
+   "en": "Delivered!",
+   "target": "تم التوصيل!",
+   "note": "No gender or number agreement needed; the birds shout it too."
+  },
+  "ui.try-again": {
+   "en": "Try again!",
+   "target": "حاول مجددًا!"
+  },
+  "ui.bonk": {
+   "en": "Bonk!",
+   "target": "طُق!",
+   "note": "Cartoon bump sound; the same sound as the Empress's «طُق. طُق.»."
+  },
+  "ui.splash": {
+   "en": "Splash!",
+   "target": "طَشّ!",
+   "note": "Water splash sound."
+  },
+  "ui.route-flown": {
+   "en": "ROUTE FLOWN",
+   "target": "من الخط",
+   "note": "«N٪ من الخط» (route = خط)."
+  },
+  "ui.coming-soon": {
+   "en": "Coming soon",
+   "target": "قريبًا"
+  },
+  "ui.unlock": {
+   "en": "unlock",
+   "target": "فتح",
+   "note": "LOCKED = «مقفل»."
+  },
+  "ui.story-key": {
+   "en": "Story",
+   "target": "القصة",
+   "note": "Skip = «تخطٍّ», Next line = «التالي»."
+  },
+  "ui.to-be-continued": {
+   "en": "To be continued…",
+   "target": "يُتبَع…",
+   "note": "The usual Arabic TV formula; the narrator's caption starts with exactly «يُتبَع…»."
+  },
+  "ui.pause": {
+   "en": "Take a breather.",
+   "target": "التقط أنفاسك.",
+   "note": "Idiom for «take a breather»; Retry = «أعد المحاولة», Keep flying = «تابع الطيران»."
+  },
+  "ui.flap": {
+   "en": "Flap",
+   "target": "رفرف",
+   "note": "Tap to flap = «انقر لترفرف»."
+  },
+  "ui.fly": {
+   "en": "Fly!",
+   "target": "طِر!",
+   "note": "Fly again = «طِر مجددًا»."
+  },
+  "ui.workout": {
+   "en": "workout",
+   "target": "تمرين"
+  },
+  "ui.calibration": {
+   "en": "calibration",
+   "target": "معايرة"
+  },
+  "ui.camera-lab": {
+   "en": "Camera & tracking lab",
+   "target": "مختبر الكاميرا والتتبّع"
+  },
+  "ui.play-games": {
+   "en": "Play Games",
+   "target": "ألعاب Google Play",
+   "note": "Google's own Arabic product name."
+  },
+  "ui.achievements": {
+   "en": "achievements",
+   "target": "الإنجازات",
+   "note": "Google Play's Arabic term."
+  },
+  "ui.share-code": {
+   "en": "share code",
+   "target": "رمز المشاركة",
+   "note": "Paste code = «الصق الرمز»."
+  },
+  "ui.remix": {
+   "en": "Remix",
+   "target": "إعادة مزج"
+  },
+  "ui.starter-levels": {
+   "en": "Starter levels",
+   "target": "مراحل البداية"
+  },
+  "ui.start-zone": {
+   "en": "START ZONE",
+   "target": "منطقة البداية"
+  },
+  "ui.gate-family": {
+   "en": "gate family",
+   "target": "نوع البوابة"
+  },
+  "ui.boss-finale": {
+   "en": "Boss finale",
+   "target": "خاتمة الزعيم",
+   "note": "Boss mark = «علامة الزعيم»."
+  },
+  "ui.cleared-by-you": {
+   "en": "Cleared by you",
+   "target": "أنهيتها بنفسك",
+   "note": "Unvocalized, fits any player."
+  },
+  "ui.pace": {
+   "en": "Pace",
+   "target": "الإيقاع",
+   "note": "Relaxed = هادئ, Steady = ثابت, Brisk = سريع."
+  },
+  "ui.lane": {
+   "en": "lane",
+   "target": "مسار",
+   "note": "open lane = المسار المفتوح (route is خط, lane is مسار)."
+  },
+  "ui.player": {
+   "en": "Player 1",
+   "target": "اللاعب 1"
+  },
+  "ui.team-score": {
+   "en": "TEAM SCORE",
+   "target": "نقاط الفريق"
+  },
+  "ui.rematch": {
+   "en": "Rematch",
+   "target": "إعادة المباراة",
+   "note": "A draw! = «تعادل!»."
+  },
+  "ui.rank-first-wings": {
+   "en": "First wings",
+   "target": "الأجنحة الأولى"
+  },
+  "ui.rank-cloud-explorer": {
+   "en": "Cloud explorer",
+   "target": "مستكشف الغيوم"
+  },
+  "ui.home-greeting": {
+   "en": "Hi, I’m $name! Ready to fly?",
+   "target": "مرحبًا، أنا $name! هيا نطير؟",
+   "note": "Works for any bird and any player (no gendered «ready» adjective)."
+  },
+  "achievement.frequent-flyer": {
+   "en": "Frequent flyer",
+   "target": "المسافر الدائم",
+   "note": "Airline term."
+  },
+  "achievement.on-the-dot": {
+   "en": "On the dot",
+   "target": "في الصميم",
+   "note": "Idiom of precision («right on target»)."
+  },
+  "achievement.star-chaser": {
+   "en": "Star chaser",
+   "target": "صيّاد النجوم"
+  },
+  "achievement.constellation": {
+   "en": "Constellation",
+   "target": "كوكبة"
+  },
+  "achievement.sky-captain": {
+   "en": "Sky captain",
+   "target": "قائد السماء",
+   "note": "Not قبطان (the Pirate Captain)."
+  },
+  "achievement.trailblazer": {
+   "en": "Trailblazer",
+   "target": "رائد الدروب"
+  },
+  "achievement.flock-together": {
+   "en": "Flock together",
+   "target": "الطيور على أشكالها",
+   "note": "From the proverb «إنّ الطيور على أشكالها تقع» (birds of a feather flock together)."
+  },
+  "achievement.all-rounder": {
+   "en": "All-rounder",
+   "target": "متعدد المواهب"
+  },
+  "achievement.mail-through-the-canopy": {
+   "en": "Mail Through the Canopy",
+   "target": "بريد عبر قمم الأشجار"
+  },
+  "achievement.return-to-sender": {
+   "en": "Return to Sender",
+   "target": "يُعاد إلى المُرسِل"
+  },
+  "achievement.mint-tea-again": {
+   "en": "Mint Tea Again",
+   "target": "شاي بالنعناع مجددًا"
+  },
+  "achievement.crumbs-cleared": {
+   "en": "Crumbs Cleared",
+   "target": "كنسنا الفتات",
+   "note": "Adapted: «we swept the crumbs»."
+  },
+  "achievement.out-of-the-spotlight": {
+   "en": "Out of the Spotlight",
+   "target": "بعيدًا عن الأضواء",
+   "note": "The Arabic idiom also means «out of the limelight»: both senses kept."
+  },
+  "achievement.gold-canopy": {
+   "en": "Gold Canopy",
+   "target": "قمم الأشجار الذهبية"
+  },
+  "achievement.gold-road": {
+   "en": "Gold Road",
+   "target": "الطريق الذهبي"
+  },
+  "achievement.bright-lights": {
+   "en": "Bright Lights",
+   "target": "أضواء المدينة",
+   "note": "«The bright lights of the city»."
+  },
+  "achievement.lamplighter": {
+   "en": "Lamplighter",
+   "target": "مُشعل المصابيح"
+  },
+  "achievement.harbour-bells": {
+   "en": "Harbour Bells",
+   "target": "أجراس الميناء"
+  },
+  "achievement.edge-of-the-map": {
+   "en": "Edge of the Map",
+   "target": "حافة الخريطة"
+  },
+  "achievement.two-on-one-phone": {
+   "en": "Two on One Phone",
+   "target": "اثنان على هاتف واحد"
+  },
+  "achievement.friendly-rivals": {
+   "en": "Friendly Rivals",
+   "target": "خصمان صديقان"
+  },
+  "achievement.route-planner": {
+   "en": "Route Planner",
+   "target": "مخطِّط الخطوط"
+  },
+  "achievement.the-whole-kit": {
+   "en": "The Whole Kit",
+   "target": "العُدّة كاملة",
+   "note": "Idiom: everything."
+  },
+  "achievement.pen-pal": {
+   "en": "Pen Pal",
+   "target": "صديق المراسلة"
+  },
+  "achievement.night-mail": {
+   "en": "Night Mail",
+   "target": "بريد الليل"
+  },
+  "achievement.special-delivery": {
+   "en": "Special Delivery",
+   "target": "توصيل خاص"
+  },
+  "achievement.goal-spread-your-wings": {
+   "en": "Spread your wings",
+   "target": "افرد جناحيك"
+  },
+  "achievement.goal-open-horizons": {
+   "en": "Open horizons",
+   "target": "آفاق مفتوحة"
+  },
+  "achievement.goal-pocketful-of-stars": {
+   "en": "Pocketful of stars",
+   "target": "جيب مليء بالنجوم"
+  },
+  "achievement.goal-keep-the-sparkle": {
+   "en": "Keep the sparkle",
+   "target": "حافظ على البريق"
+  },
+  "achievement.goal-right-on-the-mark": {
+   "en": "Right on the mark",
+   "target": "إصابة الهدف",
+   "note": "Distinct from «في الصميم» (On the dot)."
+  },
+  "achievement.goal-the-whole-journey": {
+   "en": "The whole journey",
+   "target": "الرحلة كلها"
+  },
+  "achievement.card-sunrise-delivery": {
+   "en": "Sunrise delivery",
+   "target": "توصيلة الشروق"
+  },
+  "achievement.card-peach-picnic": {
+   "en": "Peach picnic",
+   "target": "نزهة الخوخ"
+  },
+  "achievement.card-moonlit-mail": {
+   "en": "Moonlit mail",
+   "target": "بريد ضوء القمر"
+  },
+  "achievement.card-cloud-parade": {
+   "en": "Cloud parade",
+   "target": "موكب الغيوم"
+  },
+  "achievement.card-twilight-treasure": {
+   "en": "Twilight treasure",
+   "target": "كنز الشفق"
+  },
+  "achievement.card-garden-party": {
+   "en": "Garden party",
+   "target": "حفلة الحديقة"
+  },
+  "story.flame-seal": {
+   "en": "flame seal",
+   "target": "ختم اللهب",
+   "note": "A wax seal; alone «ختم», plural «أختام». «a seal shaped like a flame» = «ختمٌ على شكل لهب»."
+  },
+  "story.warm-letter": {
+   "en": "a warm letter",
+   "target": "رسالة دافئة",
+   "note": "دافئة is both literally warm and kind; «warm as toast» = «دافئة كرغيف خرج من الفرن»."
+  },
+  "story.night-mail": {
+   "en": "the night mail",
+   "target": "بريد الليل"
+  },
+  "story.morning-post": {
+   "en": "the morning post",
+   "target": "بريد الصباح"
+  },
+  "story.mail-route": {
+   "en": "route",
+   "target": "خط البريد",
+   "note": "Short خط, plural خطوط: chapter names, boss lines, Bill."
+  },
+  "story.route-six": {
+   "en": "Route six",
+   "target": "الخط السادس"
+  },
+  "story.beacon": {
+   "en": "our beacon",
+   "target": "شعلتنا",
+   "note": "A signal fire (شعلة) rather than منارة, which is the lighthouse of 4-1."
+  },
+  "story.lost-letter": {
+   "en": "the lost letter",
+   "target": "الرسالة الضائعة"
+  },
+  "story.the-books": {
+   "en": "the books",
+   "target": "الدفاتر",
+   "note": "«I checked the books twice» = «راجعتُ الدفاتر مرتين»."
+  },
+  "story.pigeonholes": {
+   "en": "pigeonholes",
+   "target": "خانات البريد",
+   "note": "Pun adapted: Bill says the post «never had a carrier pigeon» (الحمام الزاجل, the classic Arabic mail bird). See NOTES."
+  },
+  "story.bread-cart": {
+   "en": "the bread cart",
+   "target": "عربة الخبز"
+  },
+  "story.bagel": {
+   "en": "a hot bagel a day",
+   "target": "كعكة ساخنة كل يوم",
+   "note": "كعك (sesame ring bread) is the closest familiar bread to a bagel."
+  },
+  "story.landing-light": {
+   "en": "landing light",
+   "target": "ضوء الهبوط"
+  },
+  "story.brew": {
+   "en": "the brew",
+   "target": "الخلطة",
+   "note": "«brewing» = يطبخ/يغلي; SOMETHING IS BREWING = «شيءٌ ما يُطبَخ»."
+  },
+  "story.perfect-ink": {
+   "en": "the perfect ink",
+   "target": "الحبر المثالي",
+   "note": "ink that never fades = حبر لا يبهت أبدًا."
+  },
+  "story.mint-tea": {
+   "en": "mint tea",
+   "target": "شاي النعناع"
+  },
+  "story.letter-phrases": {
+   "en": "“Dear Grandma”, “Wish you were here”",
+   "target": "«جدتي العزيزة»، «ليتك كنت هنا»",
+   "note": "Get Well Soon = «الشفاء العاجل», Love From = «مع حبي»: the stock phrases of Arabic cards and letters."
+  },
+  "story.postage-stamp": {
+   "en": "stamps",
+   "target": "طوابع",
+   "note": "Singular طابع; stamp collector = جامع طوابع."
+  },
+  "story.stamp-album": {
+   "en": "stamp album",
+   "target": "ألبوم الطوابع"
+  },
+  "story.penny-black": {
+   "en": "penny black",
+   "target": "البنس الأسود",
+   "note": "The Arabic philatelic name."
+  },
+  "story.envelopes": {
+   "en": "the envelopes",
+   "target": "الأظرف"
+  },
+  "story.beauty-sleep": {
+   "en": "beauty sleep",
+   "target": "نوم الجمال"
+  },
+  "story.dusk-delivery": {
+   "en": "deliver at dusk",
+   "target": "التوصيل عند الغسق"
+  },
+  "story.lamps": {
+   "en": "the lamps",
+   "target": "المصابيح",
+   "note": "Street lamps; no near-homophone risk in Arabic."
+  },
+  "story.lampshades": {
+   "en": "lampshades",
+   "target": "أغطية المصابيح",
+   "note": "The Empress shortens it to «أغطية…»."
+  },
+  "story.harbour-bells": {
+   "en": "harbour bells",
+   "target": "أجراس الميناء"
+  },
+  "story.club-rule": {
+   "en": "Club rule",
+   "target": "قاعدة النادي"
+  },
+  "story.final-notice": {
+   "en": "final notice",
+   "target": "إنذار نهائي"
+  },
+  "story.wake-up-call": {
+   "en": "wake-up call",
+   "target": "جرس إنذار",
+   "note": "Alarm bell + warning, both senses."
+  },
+  "story.first-letter": {
+   "en": "the first letter ever sent to the Dragon",
+   "target": "أول رسالة تُرسَل إلى التنين"
+  },
+  "story.dotted-i": {
+   "en": "He dotted his “i” with a tiny bat.",
+   "target": "وجعل نقطة الباء في توقيعه وطواطًا صغيرًا",
+   "note": "Adapted: Arabic letters have dots too; the Baron turned the dot of the ب in «البارون» into a tiny bat."
+  },
+  "story.mailbag": {
+   "en": "mailbag",
+   "target": "كيس البريد",
+   "note": "Plural أكياس البريد."
+  },
+  "story.satchel": {
+   "en": "satchel",
+   "target": "حقيبة"
+  },
+  "story.pharaohs-post": {
+   "en": "the Pharaoh's post",
+   "target": "بريد الفرعون"
+  },
+  "story.mask": {
+   "en": "golden courier mask",
+   "target": "القناع الذهبي",
+   "note": "My mask! = «قناعي!»."
+  },
+  "story.wrappings": {
+   "en": "wrappings",
+   "target": "اللفائف",
+   "note": "Linen mummy wraps."
+  },
+  "story.headwear": {
+   "en": "headwear",
+   "target": "تاج",
+   "note": "flask crown = تاج القارورة, diadem = الإكليل, hat = القبعة, police cap = قبعة الشرطة, brow visor = واقي الجبين."
+  },
+  "story.kindling": {
+   "en": "kindling",
+   "target": "حطب",
+   "note": "«Your letters are kindling» = «رسائلك ليست إلا حطبًا»."
+  },
+  "story.rush-hour": {
+   "en": "rush hour",
+   "target": "ساعة الذروة",
+   "note": "«His bedtime is our rush hour» = «فوقت نومه هو ساعة ذروتنا»."
+  },
+  "story.weather-vane": {
+   "en": "weather vane",
+   "target": "دوّارة الرياح"
+  },
+  "motto.every-letter-lands": {
+   "en": "Every letter lands.",
+   "target": "كل رسالة تصل.",
+   "note": "Short, works as a question: «هل تصل كل رسالة حقًا؟»; «Every letter lands, and mine lands FAST!» = «كل رسالة تصل، ورسالتي تصل بسرعة البرق!»."
+  },
+  "motto.every-letter-delivered": {
+   "en": "Every letter delivered",
+   "target": "كل رسالة إلى صاحبها",
+   "note": "Echoes the motto (to its recipient)."
+  },
+  "address.rookie": {
+   "en": "rookie",
+   "target": "يا مبتدئ",
+   "note": "Masculine generic (Arabic rule in CHARACTERS.md); Pip about himself: «ساعي البريد المبتدئ بيب»."
+  },
+  "address.little-courier": {
+   "en": "little courier",
+   "target": "يا ساعي البريد الصغير"
+  },
+  "address.darling": {
+   "en": "darling",
+   "target": "يا عزيزي",
+   "note": "The Gargoyle and the Baron (masculine generic). Peaches uses gender-free endearments instead (see pet names)."
+  },
+  "address.postie": {
+   "en": "postie",
+   "target": "يا ساعي",
+   "note": "The Captain's clipped, slangy form of ساعي البريد."
+  },
+  "address.sprat": {
+   "en": "sprat",
+   "target": "يا سردينة",
+   "note": "A sardine: the small fry; a noun epithet, so it fits any bird."
+  },
+  "address.skylubber": {
+   "en": "skylubber",
+   "target": "يا ابن الغيوم",
+   "note": "Twist of the sailors' «ابن البرّ» (landlubber)."
+  },
+  "address.matey": {
+   "en": "matey",
+   "target": "يا صاح",
+   "note": "Old-sailor «O companion»; me hearties = «يا بحّارتي الأشدّاء», me handsome = «يا وسيم»."
+  },
+  "address.lad": {
+   "en": "lad",
+   "target": "يا سردينة",
+   "note": "Gender trap avoided: the story's «lad» uses the neutral pirate epithet."
+  },
+  "address.feathers": {
+   "en": "feathers",
+   "target": "يا ريشة",
+   "note": "Noun epithet, fits any bird."
+  },
+  "address.little-spark": {
+   "en": "little spark",
+   "target": "يا شرارة صغيرة"
+  },
+  "address.hatchling": {
+   "en": "hatchling",
+   "target": "يا فرخ"
+  },
+  "address.small-one": {
+   "en": "small one",
+   "target": "أيها الصغير",
+   "note": "messenger = «يا حامل الرسائل» (not رسول, which also means prophet); little bird = «أيها الطائر الصغير»."
+  },
+  "address.little-one": {
+   "en": "little one",
+   "target": "يا صغيري",
+   "note": "little wanderer = «أيها الجوّال الصغير», night bird = «يا طائر الليل», little ruffian = «أيها المشاغب الصغير»."
+  },
+  "address.fledgling": {
+   "en": "fledgling",
+   "target": "أيها الناشئ",
+   "note": "Fussy old official's condescension."
+  },
+  "address.old-courier": {
+   "en": "old courier",
+   "target": "أيها الساعي العتيق",
+   "note": "Respectful-tender («ancient», not «old» in a blunt sense)."
+  },
+  "address.stoneface": {
+   "en": "Stoneface",
+   "target": "يا وجه الحجر"
+  },
+  "address.commissioner": {
+   "en": "Commissioner",
+   "target": "حضرة المفوّض"
+  },
+  "address.your-majesty": {
+   "en": "Your Majesty",
+   "target": "يا صاحب الجلالة",
+   "note": "His Majesty = صاحب الجلالة."
+  },
+  "address.your-lordship": {
+   "en": "Your Lordship",
+   "target": "يا صاحب السيادة"
+  },
+  "address.her-highness": {
+   "en": "Her Highness",
+   "target": "صاحبة السموّ"
+  },
+  "address.sir": {
+   "en": "sir",
+   "target": "سيدي"
+  },
+  "address.mister": {
+   "en": "Mister",
+   "target": "سيد",
+   "note": "«سيد أبو الهول», «يا سيد نِفِرهو»."
+  },
+  "address.partner": {
+   "en": "partner",
+   "target": "يا شريكي",
+   "note": "buddy = يا صديقي, pal = يا صاحبي, hotshot = يا بطل."
+  },
+  "address.peaches-pet-names": {
+   "en": "sweetie",
+   "target": "يا عسل",
+   "note": "Gender-free noun endearments, never the same twice: يا عسل، يا سكّر، يا روحي، يا قلبي، يا زهرتي، يا كعكتي، يا قطعة الحلوى، يا قمر، يا ظريف (to a bat)."
+  },
+  "address.bossy": {
+   "en": "bossy",
+   "target": "يا زعيم",
+   "note": "Ironic «boss» (الزعيم is the game's boss word)."
+  },
+  "address.minions": {
+   "en": "Cousins! / my lovelies / my little scarabs / me hearties",
+   "target": "يا أقاربي! / يا حلواتي / يا جعاريني الصغار / يا بحّارتي الأشدّاء",
+   "note": "Baron: «يا أقاربي!», «يا صغاري»; Empress: «يا حلواتي», «يا جميلاتي»; Spitter King: «يا مساعديّ!», «يا جعاريني الصغار», «أيتها الخنافس!»; Captain: «كل الأيدي على السطح!», «يا طاقمي!»; Dragon: «يا خفافيشي», «يا ظلال السماء الحمراء»."
+  },
+  "phrase.baron-bat-line": {
+   "en": "This route is my roost now, little courier!",
+   "target": "هذا الخط صار غرفة نومي يا ساعي البريد الصغير!",
+   "note": "Card line = story clip before-1-8-4, word for word."
+  },
+  "phrase.spitter-king-line": {
+   "en": "Every letter on my road goes in the brew!",
+   "target": "كل رسالة على طريقي تذهب إلى الخلطة!",
+   "note": "Card line = story clip before-2-9-4."
+  },
+  "phrase.dusk-empress-line": {
+   "en": "Hush now. The night mail is sleeping.",
+   "target": "صه الآن. بريد الليل يغطّ في نومه.",
+   "note": "Card line = story clip before-3-8-4."
+  },
+  "phrase.pirate-captain-line": {
+   "en": "Arr! Every mailbag on these waves be mine!",
+   "target": "أرر! كل كيس بريد على هذه الأمواج ملكي!",
+   "note": "Card line = story clip before-4-8-4."
+  },
+  "phrase.ember-dragon-line": {
+   "en": "The sky is mine. Your letters are kindling.",
+   "target": "السماء ملكي أنا. ورسائلك ليست إلا حطبًا.",
+   "note": "Card line = story clip before-5-8-4."
+  },
+  "phrase.neferhoo-line": {
+   "en": "Return to sender! This route has a courier.",
+   "target": "يُعاد إلى المُرسِل! لهذا الخط ساعي بريده.",
+   "note": "Card line = story clip before-2-6-7."
+  },
+  "phrase.king-coo-line": {
+   "en": "Nobody flies till the bread cart is found!",
+   "target": "لا أحد يطير حتى يُعثر على عربة الخبز!",
+   "note": "Card line = story clip before-3-2-6."
+  },
+  "phrase.searchlight-gargoyle-line": {
+   "en": "Hold still! Nobody ever stays in the light.",
+   "target": "اثبت مكانك! لا أحد يبقى في الضوء أبدًا.",
+   "note": "Card line = story clip before-3-4-4."
+  },
+  "phrase.return-to-sender": {
+   "en": "Return to sender!",
+   "target": "يُعاد إلى المُرسِل!",
+   "note": "The formula Arab postal services print on returned mail; prop split «يُعاد / إلى المُرسِل». Marks: المُرسِل = sender, not المُرسَل (the sent). Hurt line: «يُعاد إلى... إليّ أنا؟»."
+  },
+  "phrase.signed-sealed-delivered": {
+   "en": "Signed, sealed, delivered!",
+   "target": "موقّعة، مختومة، مُسلَّمة!",
+   "note": "Three beats; Minty's twist: «موقّعة، مختومة، وطارت!»."
+  },
+  "phrase.small-bird-big-sky": {
+   "en": "Small bird. Big sky.",
+   "target": "طائر صغير، سماء كبيرة.",
+   "note": "Pip's riffs reuse the pattern: «طائر صغير، خطة كبيرة!»."
+  },
+  "phrase.peaches-tagline": {
+   "en": "Rosy cheeks, curly crest, all heart.",
+   "target": "خدود وردية، عُرف مجعّد، وقلب كبير."
+  },
+  "phrase.minty-tagline": {
+   "en": "Tiny hummer. Fresh sprig. Full speed.",
+   "target": "طنّان صغير. غصن نعناع. سرعة قصوى.",
+   "note": "طنّان = hummingbird."
+  },
+  "phrase.orbit-tagline": {
+   "en": "A dreamy owl who flies by starlight.",
+   "target": "بومة حالمة تطير على ضوء النجوم.",
+   "note": "Bill: «طِر على ضوء النجوم يا مبتدئ»."
+  },
+  "phrase.sprint-woohoo": {
+   "en": "Woo-hooo!",
+   "target": "ياهووو!",
+   "note": "Gender-free whoop."
+  },
+  "phrase.sprint-turbo-feathers": {
+   "en": "Turbo feathers!",
+   "target": "ريشٌ توربو!",
+   "note": "توربو is a known loanword; the tanween helps TTS read «rīshun»."
+  },
+  "phrase.sprint-bye-bye-gravity": {
+   "en": "Bye-bye, gravity!",
+   "target": "وداعًا يا جاذبية!"
+  },
+  "phrase.sprint-wheee": {
+   "en": "Wheeee!",
+   "target": "وييييي!"
+  },
+  "phrase.keep-your-beak-up": {
+   "en": "Keep your beak up.",
+   "target": "ارفع منقارك.",
+   "note": "Bird twist on «ارفع رأسك» (chin up)."
+  },
+  "phrase.all-screech": {
+   "en": "He’s all screech",
+   "target": "كلّه صراخ",
+   "note": "Like «كلّه كلام» (all talk); صراخ shares its root with صرخة (the screech attack)."
+  },
+  "phrase.no-flame-seal": {
+   "en": "No flame seal on this guardian.",
+   "target": "لا ختم لهب على هذا الحارس.",
+   "note": "Same wording at 2-6 and 3-2."
+  },
+  "phrase.halt": {
+   "en": "HALT!",
+   "target": "قِف!"
+  },
+  "phrase.mister-nice-bat": {
+   "en": "No more Mister Nice Bat!",
+   "target": "انتهى زمن الوطواط اللطيف!",
+   "note": "Twist of «انتهى زمن اللطف» (no more Mr Nice Guy)."
+  },
+  "phrase.at-your-disservice": {
+   "en": "at your disservice",
+   "target": "رهنَ إزعاجك",
+   "note": "Twist of the polite formula «رهنَ إشارتك» (at your service): «at your annoyance»."
+  },
+  "phrase.mind-the-gap": {
+   "en": "Mind the gap",
+   "target": "انتبه للفجوة",
+   "note": "The Arabic metro warning."
+  },
+  "phrase.sticks-and-stones": {
+   "en": "Sticks and stones?",
+   "target": "الكلام سهل… وأنا أحضرتُ الحجارة!",
+   "note": "No Arabic «sticks and stones» proverb: «talk is easy… I brought the stones», keeping the rock joke."
+  },
+  "phrase.rock-beats-shot": {
+   "en": "Rock beats shot!",
+   "target": "الحجر يغلب الرمية!",
+   "note": "Rock-paper-scissors pattern (حجرة ورقة مقص)."
+  },
+  "phrase.pirate-speak": {
+   "en": "Arr!",
+   "target": "أرر!",
+   "note": "Arabic stage-pirate kit: أرر! (growl), يو هو! (Ahoy; not أهوي, which TTS could read as the verb «I fall»), مكانَك! (Avast), يا لصواري سفينتي! (Shiver me timbers), يا للهول! (Blimey), شراع في الأفق! (Sail ho!), يا صاح, يا سردينة."
+  },
+  "phrase.strike-the-colours": {
+   "en": "strike the colours",
+   "target": "أنزِل العلم",
+   "note": "Lowering the flag = surrender."
+  },
+  "phrase.nobody-looks-up": {
+   "en": "Nobody looks up.",
+   "target": "لا أحد ينظر إلى الأعلى.",
+   "note": "Payoff: «كل ساعي بريد سينظر إلى الأعلى!»."
+  },
+  "phrase.accepts": {
+   "en": "The Commissioner accepts.",
+   "target": "المفوّض يقبل العرض.",
+   "note": "Third person; «الغرغول يقبل العرض.» (العرض = the offer, a pompous touch)."
+  },
+  "phrase.bonk-bonk": {
+   "en": "Bonk. Bonk.",
+   "target": "طُق. طُق.",
+   "note": "Same sound word as the knockout card."
+  },
+  "phrase.hush": {
+   "en": "Hush now.",
+   "target": "صه الآن.",
+   "note": "Shh = «ششش»; Hush = «صه»; Quietly, please = «بهدوء، من فضلك»."
+  },
+  "phrase.welcome-to-the-club": {
+   "en": "Welcome to the club",
+   "target": "مرحبًا بك في النادي",
+   "note": "Literal; the membership is what matters."
+  },
+  "ui.omen-baron": {
+   "en": "A SHADOW APPROACHES",
+   "target": "ظلٌّ يقترب",
+   "note": "The line: «السماء ملكٌ لأحدٍ آخر…»."
+  },
+  "ui.omen-baron-returns": {
+   "en": "THE BARON RETURNS",
+   "target": "عودة البارون",
+   "note": "The line: «لقد عاد، وصوته أعلى بكثير…»."
+  },
+  "ui.omen-spitter": {
+   "en": "SOMETHING IS BREWING",
+   "target": "شيءٌ ما يُطبَخ",
+   "note": "«Something is being cooked» also means «something is being plotted» in Arabic: the brewing pun survives. Line: «الهواء بدأ يفور…»."
+  },
+  "ui.omen-empress": {
+   "en": "TWILIGHT TAKES WING",
+   "target": "الشفق يفرد جناحيه",
+   "note": "Line: «وشاح حريري يتجمّع في الغسق…»."
+  },
+  "ui.omen-pirate": {
+   "en": "SAIL HO!",
+   "target": "شراع في الأفق!",
+   "note": "Line: «سفينة تأتي مع المدّ الصاعد…»."
+  },
+  "ui.omen-dragon": {
+   "en": "THE SKY CATCHES FIRE",
+   "target": "السماء تشتعل",
+   "note": "Line: «أجنحة عظيمة تخفق فوق الغيوم…»."
+  },
+  "ui.omen-king-coo": {
+   "en": "THE CURB IS CLOSED",
+   "target": "الرصيف مغلق",
+   "note": "Echoes مفوّض الرصيف. Line: «أحدهم غاضب جدًا بسبب عربة الخبز…»."
+  },
+  "ui.omen-gargoyle": {
+   "en": "STORM WARNING",
+   "target": "إنذار عاصفة",
+   "note": "Same words as level 3-4. Line: «شيء على الحافة يراقب…»."
+  },
+  "ui.omen-neferhoo": {
+   "en": "THE PYRAMID STIRS",
+   "target": "الهرم يتحرّك",
+   "note": "Line: «غبار الهرم يتحرّك…»."
+  },
+  "story.letter": {
+   "en": "letter",
+   "target": "رسالة",
+   "note": "Plural رسائل; same word as in the motto."
+  },
+  "story.mail-and-post": {
+   "en": "the mail / the post",
+   "target": "البريد",
+   "note": "One Arabic word for mail and post; postman = ساعي البريد, postmen = سعاة البريد."
+  },
+  "story.parcel": {
+   "en": "parcel",
+   "target": "طرد",
+   "note": "Plural طرود."
+  },
+  "story.delivery": {
+   "en": "delivery",
+   "target": "توصيل",
+   "note": "deliver = يوصل/أوصل, delivered = «تم التوصيل», a delivery = توصيلة."
+  },
+  "story.salutation": {
+   "en": "Dear Dragon.",
+   "target": "عزيزي التنين.",
+   "note": "Dear courier, = «عزيزي ساعي البريد،» (masculine generic, standard letter form)."
+  },
+  "ui.make-yourself-at-home": {
+   "en": "Make yourself at home.",
+   "target": "البيت بيتك.",
+   "note": "Settings title; the Arabic hospitality idiom."
+  },
+  "ui.switch-on-off": {
+   "en": "ON / OFF",
+   "target": "يعمل / مطفأ",
+   "note": "Switch state words (budget 4). Status «مفعّل / معطّل» is used for the builder's Shoot/Sprint switches."
+  },
+  "ui.time-units": {
+   "en": "s / min / h / d",
+   "target": "ث / د / س / ي",
+   "note": "Short units after Western digits: «12 ث», «1 د 05 ث», «منذ 3 س». Full words with ICU plurals where the budget allows (ثانية / ثانيتان / ثوانٍ)."
+  },
+  "ui.nice-shot": {
+   "en": "NICE SHOT!",
+   "target": "رمية رائعة!",
+   "note": "Shot = رمية (Shoot = ارمِ)."
+  },
+  "ui.scorched": {
+   "en": "SCORCHED!",
+   "target": "لسعة نار!",
+   "note": "Gender-free noun shout (no «احترقتَ/احترقتِ»)."
+  },
+  "ui.extra-life": {
+   "en": "+1 LIFE!",
+   "target": "حياة إضافية!",
+   "note": "Avoids a bidi-flipped «+1»."
+  },
+  "ui.hp": {
+   "en": "HP",
+   "target": "الصحة",
+   "note": "Boss health: «الصحة المتبقية 40», «120 صحة»."
+  },
+  "ui.new-best-short": {
+   "en": "NEW BEST! (tight labels)",
+   "target": "رقم قياسي!",
+   "note": "Where «أفضل نتيجة جديدة!» (17) does not fit the 14-wide budget; the 22-wide results ribbon keeps the glossary form."
+  },
+  "ui.duel-series": {
+   "en": "SERIES (duel score)",
+   "target": "المواجهات",
+   "note": "Head-to-head tally «المواجهات 2–1»; سلسلة stays the star streak."
+  },
+  "ui.player-tag": {
+   "en": "P1 / P2",
+   "target": "P1 / P2",
+   "note": "Kept in Latin (budget 5 = one letter beside the number; no established Arabic abbreviation of اللاعب). Long forms: «اللاعب 1»."
+  },
+  "ui.stamp-band": {
+   "en": "SKY CLUB (stamp band)",
+   "target": "بريد جوي",
+   "note": "Budget 10: «نادي السماء» is 11. «بريد جوي» (air mail) is the classic stamp wording. Owner may prefer another."
+  },
+  "ui.remix-suffix": {
+   "en": "remix (name suffix)",
+   "target": "ريمكس",
+   "note": "Suffix after a level name; the key itself is «إعادة مزج». copy suffix = «نسخة»."
+  },
+  "ui.builder-short": {
+   "en": "Builder",
+   "target": "الصانع",
+   "note": "Short key for the Level Builder (صانع المراحل)."
+  },
+  "ui.builder-terms": {
+   "en": "Sway / As you arrive / Look / Place / Opening / Motion",
+   "target": "التأرجح / عند وصولك / الشكل / الموضع / الفتحة / الحركة",
+   "note": "Inspector captions; motion Still/Gentle/Lively = ثابتة / هادئة / نشيطة (the gate is feminine)."
+  },
+  "ui.glide": {
+   "en": "glide",
+   "target": "انزلاق",
+   "note": "Jump & Fly glide: «اقفز لتنزلق», «انزلاق · 1.5 ث»."
+  },
+  "ui.pickups": {
+   "en": "pickups",
+   "target": "الجوائز",
+   "note": "Stars and hearts placed in the sky; effects «أصوات ... الجوائز»."
+  },
+  "ui.reps": {
+   "en": "push-up / squat / jump / flap (counted)",
+   "target": "ضغطة / تمرين قرفصاء / قفزة / رفرفة",
+   "note": "Rep counts with full ICU plurals (ضغطتان، ضغطات، 12 ضغطة); «قرفصاء» alone where a budget is tight."
+  },
+  "ui.key-names": {
+   "en": "Space, Esc, W, D, A, Up/Right/Left",
+   "target": "Space، Esc، W، D، A، فوق/يمين/يسار",
+   "note": "Letter keys keep their labels; arrow keys named in words (no ↑ glyph in the fonts)."
+  },
+  "ui.status-ready": {
+   "en": "READY TO FLY / YOUR CO-PILOT / FLYING",
+   "target": "على أهبة الطيران / رفيق رحلتك / في الرحلة",
+   "note": "Bird status pills worded without gendered adjectives (two birds are feminine)."
+  },
+  "ui.duel-beat": {
+   "en": "{winner} beat {loser}",
+   "target": "فوز {winner} على {loser}",
+   "note": "Noun phrase, so no verb agreement with the winner's gender."
+  },
+  "ui.calibrated": {
+   "en": "Calibrated! / Ready!",
+   "target": "تمت المعايرة! / هيا!",
+   "note": "Gender-free «Ready» in coaching lines."
+  }
+ }
+}

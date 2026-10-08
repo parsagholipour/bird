@@ -2,6 +2,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../domain/game_rules.dart' show BossKind, FinishLine;
 import '../game/bird_puppet.dart';
+import '../l10n/l10n.dart';
+import '../l10n/text/flight_text.dart';
 import 'campaign_keepsake_art.dart';
 import 'campaign_map_art.dart' show MapGuardianPainter;
 import 'match_hud.dart';
@@ -103,14 +105,16 @@ class _MatchLevelStarsState extends State<MatchLevelStars>
   @override
   Widget build(BuildContext context) {
     final stars = widget.stars, two = widget.two, three = widget.three;
-    String mark(int count, int at) =>
-        stars >= at ? '$count stars reached' : '$count stars at $at';
+    final l = context.l10n;
+    String mark(int count, int at) => stars >= at
+        ? l.hudMarkReachedSemantics(count)
+        : l.hudMarkAtSemantics(count, at);
     // The next mark to reach: 2 (★★), 3 (★★★), or 0 once both are in.
     final next = stars < two ? 2 : (stars < three ? 3 : 0);
     final target = switch (next) {
       2 => '/$two',
       3 => '/$three',
-      _ => 'MAX',
+      _ => l.hudMax,
     };
     // The count and its target keep their width as digits come in and marks
     // pass, so nothing shifts along the plate.
@@ -118,7 +122,12 @@ class _MatchLevelStarsState extends State<MatchLevelStars>
     final room = '$three'.length > 2 ? '/$three' : '/00';
     return Center(
       child: Semantics(
-        label: '$stars stars collected. ${mark(2, two)}. ${mark(3, three)}.',
+        label: HudWords.of(l, (
+          'levelStars',
+          stars,
+          two,
+          three,
+        ), () => l.hudLevelStarsSemantics(stars, mark(2, two), mark(3, three))),
         excludeSemantics: true,
         child: ScaleTransition(
           scale: _scale,
@@ -157,7 +166,7 @@ class _MatchLevelStarsState extends State<MatchLevelStars>
                           ),
                           Opacity(
                             opacity: 0,
-                            child: Text('MAX', style: _doneStyle),
+                            child: Text(l.hudMax, style: _doneStyle),
                           ),
                           Text(
                             target,
@@ -470,7 +479,9 @@ class MatchRoute extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Semantics(
-    label: 'Route ${(progress.clamp(0.0, 1.0) * 100).round()}% flown',
+    label: context.l10n.hudRouteSemantics(
+      (progress.clamp(0.0, 1.0) * 100).round(),
+    ),
     excludeSemantics: true,
     child: MatchPlate(
       padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),

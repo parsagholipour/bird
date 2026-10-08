@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../domain/game_rules.dart';
 import '../game/tether_art.dart';
+import '../l10n/l10n.dart';
 import 'home_keys.dart';
 import 'match_hud.dart' show matchInkEdge;
 import 'theme.dart';
@@ -853,7 +854,7 @@ class CoopVersusBurst extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         child: FittedBox(
           child: Text(
-            'VS',
+            context.l10n.duelVersus,
             style: heading(
               34,
               color: SkyColors.white,

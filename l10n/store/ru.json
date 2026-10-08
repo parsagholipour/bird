@@ -1,0 +1,463 @@
+{
+  "@note": "Russian (ru) translation of l10n/store/en.json. English source of the Play Store listing and the Google Play Games texts. Translators copy this file to l10n/store/<slug>.json (slugs as AppLanguage: es_419, pt_br, id, fr, de, ja, ko, tr, zh_hant, ru, ar), translate every \"text\", keep every key, and stay within \"maxChars\" (Play Console counts characters). The owner pastes them into Play Console: Grow users > Store presence > Main store listing > translations, and Play Games Services > Achievements > (each) > translations. Nothing here ships in the app. check: python3 tool/l10n/check_store.py.",
+  "@status": "listing: DRAFT by the localization architect (no English listing existed in the repo); owner to approve before translation. achievements: copied from play-games-ws/UX-DECISION.md section 5 (names and descriptions as designed; descriptions 1-24 equal SkyStamp.goal in the app).",
+  "listing": {
+    "title": {
+      "text": "Beakbound",
+      "maxChars": 30,
+      "description": "App name on Google Play. A brand name: keep it as is unless a market needs a transliteration (owner decides).",
+      "keepEnglish": true
+    },
+    "shortDescription": {
+      "text": "Жми и лети: птица-курьер развозит почту по всему миру. Каждое письмо долетит!",
+      "maxChars": 80,
+      "description": "Play Store short description, under the screenshots. Friendly, no ALL CAPS, no emoji, no \"free\"/\"best\"/\"#1\" (Play policy)."
+    },
+    "fullDescription": {
+      "text": "Beakbound — яркое приключение в небе, для которого не нужен интернет. Ты — новый курьер Небесного клуба: жми, чтобы взмахнуть крыльями, пролетай сквозь ворота, собирай звёзды и развози почту по всему миру.\n\nЛЕТИ ПО КАМПАНИИ\nЗа одну ночь пять почтовых маршрутов замолчали. Лети уровень за уровнем: из джунглей — в карнавальную Бразилию и к храмам ацтеков, дальше — в Древний Рим, Египет и Аравию и в яркие огни Нью-Йорка. На каждом уровне тебя ждёт посылка, и за каждую доставку тебе скажут спасибо.\n\nСРАЗИСЬ С БОССАМИ\nНа пути стоят Барон Нетопырь, Король Плевунов, курьер-мумия Неферху, Король Курлык и Прожекторная Горгулья. Стреляй, делай рывки и уворачивайся, чтобы прогнать их восвояси.\n\nБЕСКОНЕЧНЫЙ ПОЛЁТ\nСтавь рекорды на бесконечной трассе, где ворота, шквалы и боссы никогда не кончаются.\n\nЧТО ЕЩЁ\n- Четыре птицы в коллекции, у каждой свой голос\n- Улучшения за собранные звёзды\n- Ежедневное Приключение и Небесный паспорт, полный медалей\n- Конструктор уровней: строй свои маршруты и пролетай их\n- «Летим вместе» и дуэли 1 на 1 для двоих на одном телефоне\n- Мини-игры, где летаешь с помощью отжиманий, приседаний или прыжков перед камерой\n\nИГРАЙ ПО-СВОЕМУ\nНе нужны ни аккаунт, ни интернет. Мини-игры с камерой работают только на твоём телефоне: видео никуда не уходит. По желанию — облачные сохранения и достижения в Google Play Играх.",
+      "maxChars": 4000,
+      "description": "Play Store full description. Section headers in capitals are fine. Keep the facts: offline, camera stays on the phone, optional Play Games."
+    },
+    "releaseNotes": {
+      "text": "Beakbound теперь говорит по-русски: выбери язык в настройках.",
+      "maxChars": 500,
+      "description": "\"What's new\" for the release that ships the translations."
+    }
+  },
+  "playGames": {
+    "displayName": {
+      "text": "Beakbound",
+      "maxChars": 50,
+      "description": "Play Games Services game name.",
+      "keepEnglish": true
+    },
+    "description": {
+      "text": "Лети по всему миру с птицей-курьером: доставляй почту, побеждай боссов и собирай все медали.",
+      "maxChars": 4000,
+      "description": "Play Games Services game description (Properties)."
+    }
+  },
+  "achievements": {
+    "frequentFlyerBronze": {
+      "name": {
+        "text": "Частый летун · Бронза",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Заверши 10 зачётных полётов.",
+        "maxChars": 500
+      }
+    },
+    "frequentFlyerSilver": {
+      "name": {
+        "text": "Частый летун · Серебро",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Заверши 100 зачётных полётов.",
+        "maxChars": 500
+      }
+    },
+    "frequentFlyerGold": {
+      "name": {
+        "text": "Частый летун · Золото",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Заверши 500 зачётных полётов.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotBronze": {
+      "name": {
+        "text": "В яблочко · Бронза",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Сделай 25 идеальных пролётов по прицельным меткам.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotSilver": {
+      "name": {
+        "text": "В яблочко · Серебро",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Сделай 200 идеальных пролётов по прицельным меткам.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotGold": {
+      "name": {
+        "text": "В яблочко · Золото",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Сделай 1 000 идеальных пролётов по прицельным меткам.",
+        "maxChars": 500
+      }
+    },
+    "starChaserBronze": {
+      "name": {
+        "text": "Ловец звёзд · Бронза",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Собери 50 звёзд.",
+        "maxChars": 500
+      }
+    },
+    "starChaserSilver": {
+      "name": {
+        "text": "Ловец звёзд · Серебро",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Собери 500 звёзд.",
+        "maxChars": 500
+      }
+    },
+    "starChaserGold": {
+      "name": {
+        "text": "Ловец звёзд · Золото",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Собери 5 000 звёзд.",
+        "maxChars": 500
+      }
+    },
+    "constellationBronze": {
+      "name": {
+        "text": "Созвездие · Бронза",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Собери 15 звёзд одной непрерывной серией.",
+        "maxChars": 500
+      }
+    },
+    "constellationSilver": {
+      "name": {
+        "text": "Созвездие · Серебро",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Собери 40 звёзд одной непрерывной серией.",
+        "maxChars": 500
+      }
+    },
+    "constellationGold": {
+      "name": {
+        "text": "Созвездие · Золото",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Собери 80 звёзд одной непрерывной серией.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainBronze": {
+      "name": {
+        "text": "Капитан неба · Бронза",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Набери 100 очков за один бесконечный полёт.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainSilver": {
+      "name": {
+        "text": "Капитан неба · Серебро",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Набери 500 очков за один бесконечный полёт.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainGold": {
+      "name": {
+        "text": "Капитан неба · Золото",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Набери 2 000 очков за один бесконечный полёт.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerBronze": {
+      "name": {
+        "text": "Первопроходец · Бронза",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Продержись не меньше 60 секунд в 5 бесконечных полётах.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerSilver": {
+      "name": {
+        "text": "Первопроходец · Серебро",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Продержись не меньше 60 секунд в 50 бесконечных полётах.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerGold": {
+      "name": {
+        "text": "Первопроходец · Золото",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Продержись не меньше 60 секунд в 250 бесконечных полётах.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherBronze": {
+      "name": {
+        "text": "Одной стаей · Бронза",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Слетай в зачётные полёты с двумя разными птицами.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherSilver": {
+      "name": {
+        "text": "Одной стаей · Серебро",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Слетай в зачётные полёты со всеми четырьмя птицами.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherGold": {
+      "name": {
+        "text": "Одной стаей · Золото",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Соверши 25 зачётных полётов с каждой птицей.",
+        "maxChars": 500
+      }
+    },
+    "allRounderBronze": {
+      "name": {
+        "text": "Мастер на все крылья · Бронза",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Сыграй в мини-игру с отжиманиями, приседаниями или прыжками.",
+        "maxChars": 500
+      }
+    },
+    "allRounderSilver": {
+      "name": {
+        "text": "Мастер на все крылья · Серебро",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Сыграй во все три мини-игры: отжимания, приседания, прыжки.",
+        "maxChars": 500
+      }
+    },
+    "allRounderGold": {
+      "name": {
+        "text": "Мастер на все крылья · Золото",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Соверши 10 зачётных полётов в каждой мини-игре.",
+        "maxChars": 500
+      }
+    },
+    "canopyBoss": {
+      "name": {
+        "text": "Почта сквозь кроны",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Победи Барона Нетопыря в его логове в конце Маршрута над кронами (1-8).",
+        "maxChars": 500
+      }
+    },
+    "neferhoo": {
+      "name": {
+        "text": "Вернуть отправителю",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Победи Неферху, курьера-мумию, который охраняет Египет (2-6).",
+        "maxChars": 500
+      }
+    },
+    "roadBoss": {
+      "name": {
+        "text": "Снова мятный чай",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Победи Короля Плевунов в конце Древней дороги (2-9).",
+        "maxChars": 500
+      }
+    },
+    "kingCoo": {
+      "name": {
+        "text": "Ни крошки",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Победи Короля Курлыка, стража Нью-Йорка (3-2).",
+        "maxChars": 500
+      }
+    },
+    "gargoyle": {
+      "name": {
+        "text": "Без софитов",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Победи Прожекторную Горгулью (3-4).",
+        "maxChars": 500
+      }
+    },
+    "goldCanopy": {
+      "name": {
+        "text": "Золотые кроны",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Получи три звезды на каждом уровне Маршрута над кронами.",
+        "maxChars": 500
+      }
+    },
+    "goldRoad": {
+      "name": {
+        "text": "Золотая дорога",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Получи три звезды на каждом уровне Древней дороги.",
+        "maxChars": 500
+      }
+    },
+    "brightLights": {
+      "name": {
+        "text": "Огни большого города",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Получи три звезды на каждом уровне Нью-Йорка.",
+        "maxChars": 500
+      }
+    },
+    "lamplighter": {
+      "name": {
+        "text": "Фонарщик",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Победи Сумеречную Императрицу в бесконечном полёте.",
+        "maxChars": 500
+      }
+    },
+    "harbourBells": {
+      "name": {
+        "text": "Колокола гавани",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Победи Пиратского Капитана в бесконечном полёте.",
+        "maxChars": 500
+      }
+    },
+    "edgeOfTheMap": {
+      "name": {
+        "text": "Край карты",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Победи Тлеющего Дракона в бесконечном полёте.",
+        "maxChars": 500
+      }
+    },
+    "twoOnOnePhone": {
+      "name": {
+        "text": "Двое на одном телефоне",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Заверши полёт «Летим вместе» на верёвке.",
+        "maxChars": 500
+      }
+    },
+    "friendlyRivals": {
+      "name": {
+        "text": "Друзья-соперники",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Проведи дуэль 1 на 1.",
+        "maxChars": 500
+      }
+    },
+    "routePlanner": {
+      "name": {
+        "text": "Прокладчик маршрутов",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Построй уровень в Конструкторе уровней и пролети его до финиша.",
+        "maxChars": 500
+      }
+    },
+    "wholeKit": {
+      "name": {
+        "text": "Полный комплект",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Купи все 16 уровней улучшений.",
+        "maxChars": 500
+      }
+    },
+    "penPal": {
+      "name": {
+        "text": "Друг по переписке",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Получи штампы на 10 открытках дня: для этого выполняй все задания Приключения дня.",
+        "maxChars": 500
+      }
+    },
+    "nightMail": {
+      "name": {
+        "text": "Ночная почта",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Заверши зачётный полёт между полуночью и 4 часами утра.",
+        "maxChars": 500
+      }
+    },
+    "specialDelivery": {
+      "name": {
+        "text": "Особая доставка",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Сбей дворового голубя и верни звезду, которую он стащил.",
+        "maxChars": 500
+      }
+    }
+  },
+  "@achievementNote": "Keys are PlayAchievement values (lib/data/play_achievements.dart), in Play Console order. Names 1-24 follow the in-game \"Stamp · Medal\" pattern: translate the stamp and medal words as the game's ARB does (passport keys) so the two match."
+}

@@ -2,12 +2,15 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import '../data/progress_repository.dart';
 import '../domain/tether.dart';
 import '../game/bird_puppet.dart';
 import '../game/play_controller.dart';
 import '../game/tether_art.dart';
+import '../l10n/l10n.dart';
+import '../l10n/text/coop_text.dart';
+import '../l10n/text/flight_text.dart';
 import 'components.dart';
+import 'fit_text.dart';
 import 'match_hud.dart';
 import 'pause_card.dart';
 import 'theme.dart';
@@ -50,14 +53,21 @@ String _clock(double seconds) {
 
 /// The save line under a scoreboard: an error first, then the session,
 /// then the flight itself. Null while there is nothing worth saying.
-(IconData, String, Color)? coopStatus(PlayController flight) {
+(IconData, String, Color)? coopStatus(
+  AppLocalizations l,
+  PlayController flight,
+) {
   if (flight.saveError.isNotEmpty) {
-    return (Icons.error_outline_rounded, flight.saveError, SkyColors.coralDeep);
+    return (
+      Icons.error_outline_rounded,
+      l.flightNote(flight.saveError),
+      SkyColors.coralDeep,
+    );
   }
   if (flight.sessionError.isNotEmpty) {
     return (
       Icons.error_outline_rounded,
-      flight.sessionError,
+      l.flightNote(flight.sessionError),
       SkyColors.coralDeep,
     );
   }
@@ -65,7 +75,7 @@ String _clock(double seconds) {
     // Teal deepened so small text keeps its contrast on cream.
     return (
       Icons.video_library_outlined,
-      'Session saved · Watch in Records',
+      l.coopSessionSaved,
       const Color(0xff2e7d6f),
     );
   }
@@ -388,11 +398,12 @@ class _CoopTeamStageState extends State<CoopTeamStage>
     animation: Listenable.merge([intro, idle]),
     builder: (context, _) {
       final w = widget;
+      final l = context.l10n;
       final (first, second) = w.birds;
       return stage(
         title: title(
           _Lettering(
-            w.isBest ? 'New team best!' : 'What a team.',
+            w.isBest ? l.coopNewTeamBest : l.coopWhatATeam,
             size: 62,
             fill: w.isBest ? SkyColors.yellow : SkyColors.cream,
           ),
@@ -401,17 +412,20 @@ class _CoopTeamStageState extends State<CoopTeamStage>
               _ModeChip(w.mode),
               const SizedBox(width: 8),
               Text(
-                '${birdNames[first]} & ${birdNames[second]}',
+                l.coopPairCaption(l.birdName(first), l.birdName(second)),
                 style: bodyText(16, weight: FontWeight.w900),
               ),
             ],
           ),
         ),
-        scene: _TeamScene(
-          birds: w.birds,
-          roped: w.mode == CoopMode.roped,
-          seconds: seconds,
-          cheer: w.isBest ? span(.72, 1) : 0,
+        // The pair, like the players, keeps player 1 on the left.
+        scene: FlightDirection(
+          child: _TeamScene(
+            birds: w.birds,
+            roped: w.mode == CoopMode.roped,
+            seconds: seconds,
+            cheer: w.isBest ? span(.72, 1) : 0,
+          ),
         ),
         card: board(
           Column(
@@ -422,7 +436,10 @@ class _CoopTeamStageState extends State<CoopTeamStage>
               const SizedBox(height: 6),
               Opacity(opacity: span(.2, .42), child: _stats()),
               const SizedBox(height: 8),
-              Opacity(opacity: span(.26, .48), child: _split()),
+              Opacity(
+                opacity: span(.26, .48),
+                child: FlightDirection(child: _split()),
+              ),
               if (w.status case final status?) ...[
                 const SizedBox(height: 6),
                 note(status),
@@ -452,7 +469,7 @@ class _CoopTeamStageState extends State<CoopTeamStage>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('TEAM SCORE', style: _label),
+              Text(context.l10n.coopTeamScore, style: _label),
               Flexible(
                 child: Transform.scale(
                   scale: 1 + .08 * land,
@@ -504,7 +521,10 @@ class _CoopTeamStageState extends State<CoopTeamStage>
                           opacity: 1 - gild,
                           child: FittedBox(
                             fit: BoxFit.scaleDown,
-                            child: Text('TEAM BEST', style: _label),
+                            child: Text(
+                              context.l10n.coopTeamBest,
+                              style: _label,
+                            ),
                           ),
                         ),
                         if (w.isBest && ribbon > 0)
@@ -515,7 +535,9 @@ class _CoopTeamStageState extends State<CoopTeamStage>
                               scale: ribbon,
                               child: Transform.rotate(
                                 angle: -.04,
-                                child: const _Ribbon('NEW TEAM BEST!'),
+                                child: _Ribbon(
+                                  context.l10n.coopNewTeamBestRibbon,
+                                ),
                               ),
                             ),
                           ),
@@ -553,16 +575,27 @@ class _CoopTeamStageState extends State<CoopTeamStage>
 
   Widget _stats() {
     final w = widget;
+    final l = context.l10n;
     return _Inset(
       tiles: [
         (
           Icons.timer_outlined,
           SkyColors.sky,
           _clock(w.durationSeconds),
-          'flight time',
+          l.coopStatFlightTime,
         ),
-        (Icons.auto_awesome, SkyColors.yellow, '${w.stars}', 'stars'),
-        (Icons.flag_rounded, SkyColors.mint, '${w.gates}', 'gates'),
+        (
+          Icons.auto_awesome,
+          SkyColors.yellow,
+          '${w.stars}',
+          l.coopStatStars(w.stars),
+        ),
+        (
+          Icons.flag_rounded,
+          SkyColors.mint,
+          '${w.gates}',
+          l.coopStatGates(w.gates),
+        ),
       ],
     );
   }
@@ -586,7 +619,9 @@ class _CoopTeamStageState extends State<CoopTeamStage>
               children: [
                 FittedBox(
                   fit: BoxFit.scaleDown,
-                  child: Text('FLAP SHARE', style: _label),
+                  child: LanguageDirection(
+                    child: Text(context.l10n.coopFlapShare, style: _label),
+                  ),
                 ),
                 const SizedBox(height: 4),
                 _ShareBar(share: .5 + (share - .5) * grow),
@@ -594,7 +629,7 @@ class _CoopTeamStageState extends State<CoopTeamStage>
                 Row(
                   children: [
                     Text(
-                      '${(share * 100).round()}%',
+                      context.l10n.coopPercent((share * 100).round()),
                       style: bodyText(
                         12,
                         color: SkyColors.coralDeep,
@@ -603,7 +638,7 @@ class _CoopTeamStageState extends State<CoopTeamStage>
                     ),
                     const Spacer(),
                     Text(
-                      '${100 - (share * 100).round()}%',
+                      context.l10n.coopPercent(100 - (share * 100).round()),
                       style: bodyText(
                         12,
                         color: const Color(0xff2e7d6f),
@@ -649,14 +684,15 @@ class _PlayerFlaps extends StatelessWidget {
             ).copyWith(shadows: matchInkEdge(1.2), height: 1.05),
           ),
         ),
-        Text(
-          'P${player + 1} flaps',
-          maxLines: 1,
-          style: bodyText(
-            12,
-            color: SkyColors.ink,
-            weight: FontWeight.w900,
-          ).copyWith(height: 1.1),
+        LanguageDirection(
+          child: FitText(
+            context.l10n.coopPlayerFlaps(flaps, player + 1),
+            style: bodyText(
+              12,
+              color: SkyColors.ink,
+              weight: FontWeight.w900,
+            ).copyWith(height: 1.1),
+          ),
         ),
       ],
     );
@@ -700,7 +736,7 @@ class _PlayerCoin extends StatelessWidget {
       border: Border.all(color: SkyColors.ink, width: 2),
     ),
     child: Text(
-      'P${player + 1}',
+      context.l10n.coopPlayerTag(player),
       style: matchDigits(size * .42, color: TetherArt.players[player]),
     ),
   );
@@ -866,7 +902,7 @@ class _HudTag extends StatelessWidget {
     color: TetherArt.players[player],
     padding: const EdgeInsets.fromLTRB(9, 1, 9, 2),
     child: Text(
-      'P${player + 1}',
+      context.l10n.coopPlayerTag(player),
       style: matchDigits(
         16,
         color: SkyColors.white,
@@ -1202,22 +1238,29 @@ class _CoopDuelStageState extends State<CoopDuelStage>
             ],
           ),
         ),
-        scene: _Podium(
-          birds: w.birds,
-          winner: winner,
-          stopped: w.stopped,
-          seconds: seconds,
-          rise: span(.3, .62, Curves.easeOutBack),
-          crown: span(.55, .8, Curves.elasticOut),
+        // Player 1 stands on the left, as they flew, in every language.
+        scene: FlightDirection(
+          child: _Podium(
+            birds: w.birds,
+            winner: winner,
+            stopped: w.stopped,
+            seconds: seconds,
+            rise: span(.3, .62, Curves.easeOutBack),
+            crown: span(.55, .8, Curves.elasticOut),
+          ),
         ),
         card: board(
           Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _series(),
+              // Each player's numbers sit on their own side.
+              FlightDirection(child: _series()),
               const SizedBox(height: 10),
-              Opacity(opacity: span(.24, .46), child: _headToHead()),
+              Opacity(
+                opacity: span(.24, .46),
+                child: FlightDirection(child: _headToHead()),
+              ),
               const SizedBox(height: 6),
               Opacity(
                 opacity: span(.3, .5),
@@ -1231,7 +1274,7 @@ class _CoopDuelStageState extends State<CoopDuelStage>
                     ),
                     const SizedBox(width: 5),
                     Text(
-                      'Duel time ${_clock(w.durationSeconds)}',
+                      context.l10n.duelTime(_clock(w.durationSeconds)),
                       style: bodyText(
                         12.5,
                         color: SkyColors.muted,
@@ -1260,6 +1303,11 @@ class _CoopDuelStageState extends State<CoopDuelStage>
     final (one, two) = w.wins;
     final (first, second) = w.birds;
     final pop = math.sin(span(.5, .62) * math.pi);
+    // Player 1's wins stay on the left: after a right-to-left word a mark
+    // keeps the score running left to right.
+    final locale = Localizations.maybeLocaleOf(context);
+    final rtl =
+        locale != null && (AppLanguage.forLocale(locale)?.isRtl ?? false);
     TextStyle digits(int player) =>
         matchDigits(54, color: TetherArt.players[player]).copyWith(
           height: 1,
@@ -1280,7 +1328,7 @@ class _CoopDuelStageState extends State<CoopDuelStage>
             : CrossAxisAlignment.end,
         children: [
           Text(
-            'PLAYER ${player + 1}',
+            context.l10n.coopPlayerCaps(player + 1),
             style: bodyText(
               11,
               color: TetherArt.players[player],
@@ -1290,7 +1338,7 @@ class _CoopDuelStageState extends State<CoopDuelStage>
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
-              birdNames[bird],
+              context.l10n.birdName(bird),
               style: heading(
                 20,
                 color: SkyColors.cream,
@@ -1345,7 +1393,7 @@ class _CoopDuelStageState extends State<CoopDuelStage>
               TextSpan(
                 children: [
                   TextSpan(
-                    text: 'SERIES ',
+                    text: '${context.l10n.duelSeries} ${rtl ? '\u200e' : ''}',
                     style: bodyText(
                       13,
                       color: SkyColors.cream.withValues(alpha: .75),
@@ -1378,10 +1426,11 @@ class _CoopDuelStageState extends State<CoopDuelStage>
   /// their side; whoever did better gets their colour.
   Widget _headToHead() {
     final [a, b] = widget.lines;
+    final l = context.l10n;
     final rows = [
-      (Icons.favorite_rounded, 'hearts left', a.hearts, b.hearts),
-      (Icons.card_giftcard_rounded, 'boxes opened', a.boxes, b.boxes),
-      (Icons.bolt_rounded, 'hits landed', a.hits, b.hits),
+      (Icons.favorite_rounded, l.duelHeartsLeft, a.hearts, b.hearts),
+      (Icons.card_giftcard_rounded, l.duelBoxesOpened, a.boxes, b.boxes),
+      (Icons.bolt_rounded, l.duelHitsLanded, a.hits, b.hits),
     ];
     Widget value(int player, int n, bool ahead) {
       final color = TetherArt.players[player];
@@ -1426,14 +1475,14 @@ class _CoopDuelStageState extends State<CoopDuelStage>
                     Icon(icon, size: 17, color: SkyColors.muted),
                     const SizedBox(width: 6),
                     Flexible(
-                      child: Text(
-                        label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: bodyText(
-                          14,
-                          color: SkyColors.ink,
-                          weight: FontWeight.w800,
+                      child: LanguageDirection(
+                        child: FitText(
+                          label,
+                          style: bodyText(
+                            14,
+                            color: SkyColors.ink,
+                            weight: FontWeight.w800,
+                          ),
                         ),
                       ),
                     ),
@@ -1711,8 +1760,9 @@ class _PodiumPainter extends CustomPainter {
     );
     final win = winner;
     if (r.height < 52 || (win == null && stopped)) return;
+    // A place, not a word: the same marks in every language.
     final place = win == null
-        ? '='
+        ? '=' // l10n-ignore
         : win == player
         ? '1'
         : '2';
@@ -1940,7 +1990,12 @@ class _Lettering extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 4, 8, 10),
       child: CustomPaint(
-        painter: _EdgePainter(text, style, MediaQuery.textScalerOf(context)),
+        painter: _EdgePainter(
+          text,
+          style,
+          MediaQuery.textScalerOf(context),
+          Directionality.of(context),
+        ),
         child: Text(
           text,
           maxLines: 1,
@@ -1953,10 +2008,13 @@ class _Lettering extends StatelessWidget {
 }
 
 class _EdgePainter extends CustomPainter {
-  const _EdgePainter(this.text, this.style, this.scaler);
+  const _EdgePainter(this.text, this.style, this.scaler, this.direction);
   final String text;
   final TextStyle style;
   final TextScaler scaler;
+
+  /// The [Text]'s own direction, so the edge lies under the same glyphs.
+  final TextDirection direction;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -1971,7 +2029,7 @@ class _EdgePainter extends CustomPainter {
             ..color = color,
         ),
       ),
-      textDirection: TextDirection.ltr,
+      textDirection: direction,
       textScaler: scaler,
       maxLines: 1,
     )..layout();
@@ -1986,7 +2044,10 @@ class _EdgePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_EdgePainter old) =>
-      old.text != text || old.style != style || old.scaler != scaler;
+      old.text != text ||
+      old.style != style ||
+      old.scaler != scaler ||
+      old.direction != direction;
 }
 
 /// The cream plate a title's caption rides on, so it reads over any world.
@@ -2038,7 +2099,10 @@ class _ModeChip extends StatelessWidget {
           color: SkyColors.ink,
         ),
         const SizedBox(width: 4),
-        Text(mode.title, style: heading(15, weight: FontWeight.w700)),
+        Text(
+          context.l10n.coopModeName(mode),
+          style: heading(15, weight: FontWeight.w700),
+        ),
       ],
     ),
   );
@@ -2194,10 +2258,10 @@ class CoopPauseCard extends StatelessWidget {
     final (first, second) = birds;
     return PauseCard(
       reducedMotion: reducedMotion,
-      subtitle: 'You’re both perched and waiting. We’ll count you both in.',
+      subtitle: context.l10n.coopPauseSubtitle,
       actions: [
         PauseAction(
-          label: 'Finish flight',
+          label: context.l10n.coopFinishFlight,
           icon: Icons.flag_rounded,
           onPressed: onFinish,
         ),

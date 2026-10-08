@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 
 abstract final class SkyColors {
   static const sky = Color(0xffbde9f6), skyDeep = Color(0xff90d5ee);
@@ -26,31 +27,42 @@ abstract final class SkyLayout {
       pill = 999.0;
 }
 
+/// Fredoka lettering, with the current language's fallback fonts for the
+/// glyphs Fredoka lacks (lib/l10n/language_fonts.dart; English and the other
+/// Latin languages get exactly the old style).
 TextStyle heading(
   double size, {
   Color color = SkyColors.ink,
   FontWeight weight = FontWeight.w600,
 }) => TextStyle(
-  fontFamily: 'Fredoka',
+  fontFamily: L10n.fonts.heading,
+  fontFamilyFallback: L10n.fonts.headingFallback,
   fontSize: size,
   fontWeight: weight,
   color: color,
   height: 1.08,
 );
+
+/// Nunito body text, with the current language's fallback fonts.
 TextStyle bodyText(
   double size, {
   Color color = SkyColors.ink,
   FontWeight weight = FontWeight.w600,
 }) => TextStyle(
   fontFamily: 'Nunito',
+  fontFamilyFallback: L10n.fonts.bodyFallback,
   fontSize: size,
   fontWeight: weight,
   color: color,
   height: 1.25,
 );
-ThemeData skyTheme() => ThemeData(
+
+/// The app's theme; [language] picks the fallback fonts Material's own
+/// text (dialog buttons, snack bars) uses.
+ThemeData skyTheme([AppLanguage language = AppLanguage.en]) => ThemeData(
   useMaterial3: true,
   fontFamily: 'Nunito',
+  fontFamilyFallback: LanguageFonts.of(language).bodyFallback,
   scaffoldBackgroundColor: SkyColors.sky,
   colorScheme: ColorScheme.fromSeed(
     seedColor: SkyColors.coral,

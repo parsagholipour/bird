@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import 'theme.dart';
 import 'ui_sounds.dart';
 
@@ -146,7 +147,7 @@ class _StageKeyState extends State<StageKey> {
       button: true,
       enabled: enabled,
       label: widget.label,
-      value: widget.busy ? 'Busy' : null,
+      value: widget.busy ? context.l10n.commonBusySemantics : null,
       liveRegion: widget.busy,
       child: Material(
         type: MaterialType.transparency,
@@ -347,7 +348,13 @@ class StageRibbon extends StatelessWidget {
             color: SkyColors.ink,
           ),
           const SizedBox(width: 5),
-          Text(label, style: bodyText(13, weight: FontWeight.w900)),
+          // A longer word shrinks to the room the ribbon is given.
+          Flexible(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(label, style: bodyText(13, weight: FontWeight.w900)),
+            ),
+          ),
         ],
       ),
     ),

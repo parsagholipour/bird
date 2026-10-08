@@ -1,0 +1,2446 @@
+{
+ "language": "id",
+ "terms": {
+  "brand.beakbound": {
+   "en": "Beakbound",
+   "target": "Beakbound",
+   "note": "Brand: stays in Latin letters, never translated."
+  },
+  "brand.beak1-code": {
+   "en": "BEAK1.",
+   "target": "BEAK1.",
+   "note": "Technical token, unchanged."
+  },
+  "char.pip": {
+   "en": "Pip",
+   "target": "Pip",
+   "note": "Name kept. Masculine is irrelevant in Indonesian grammar (no gender agreement); self: \"aku\"."
+  },
+  "char.peaches": {
+   "en": "Peaches",
+   "target": "Peaches",
+   "note": "Name kept; her fruit puns use \"persik\" (peach)."
+  },
+  "char.minty": {
+   "en": "Minty",
+   "target": "Minty",
+   "note": "Name kept; mint jokes work because Indonesian also says \"mint\" (teh mint)."
+  },
+  "char.orbit": {
+   "en": "Orbit",
+   "target": "Orbit",
+   "note": "Name kept (Indonesian \"orbit\" is the same word, so her moon jokes still work)."
+  },
+  "char.postmaster-bill": {
+   "en": "Postmaster Bill",
+   "target": "Kepala Pos Bill",
+   "note": "Title \"Kepala Pos\" (head of the post office) + name. The birds call him \"Pak Bill\" (Pak = Mr, the natural way an Indonesian child names an older mentor); Bill uses \"kamu\" with the courier."
+  },
+  "char.courier": {
+   "en": "courier",
+   "target": "kurir",
+   "note": "Epicene noun, fits all four birds. \"Kurir Pip\", \"Kurir Kerajaan\"."
+  },
+  "char.narrator": {
+   "en": "the narrator",
+   "target": "narator",
+   "note": "Never named on screen. Captions address the player gently, ungendered."
+  },
+  "boss.baron-bat": {
+   "en": "Baron Bat",
+   "target": "Baron Kelelawar",
+   "note": "Noble rank + \"kelelawar\" (bat). Short forms: \"sang Baron\", address \"Baron\". Speaks \"saya\"/\"Anda\" (ironic politeness)."
+  },
+  "boss.spitter-king": {
+   "en": "Spitter King",
+   "target": "Raja Peludah",
+   "note": "\"Peludah\" = one who spits (ludah = spit); same word as the beetles (kumbang peludah). Address \"Yang Mulia\"; Bill says \"Raja\"."
+  },
+  "boss.dusk-empress": {
+   "en": "Dusk Empress",
+   "target": "Maharani Senja",
+   "note": "\"Maharani\" = empress; \"senja\" = dusk, same word as her moths (ngengat senja). Address \"Maharani\"; uses royal \"kami\" for herself."
+  },
+  "boss.pirate-captain": {
+   "en": "Pirate Captain",
+   "target": "Kapten Bajak Laut",
+   "note": "Short form \"Kapten\" (also his third-person self-reference). Gruff \"kau\" to the courier. Health bar (16-char budget): \"KAPTEN\"."
+  },
+  "boss.ember-dragon": {
+   "en": "Ember Dragon",
+   "target": "Naga Bara",
+   "note": "\"Bara\" = glowing ember. Short \"sang Naga\", address \"Naga\". Grand \"kau\" to the courier."
+  },
+  "guardian.neferhoo": {
+   "en": "Neferhoo",
+   "target": "Neferhoo",
+   "note": "Name kept (NEF-er-hoo). Peaches: \"Om Neferhoo\"."
+  },
+  "guardian.king-coo": {
+   "en": "King Coo",
+   "target": "Raja Kurkur",
+   "note": "Adapted: \"kur-kur\" is the Indonesian sound for a pigeon's coo; reduplicated like a kid's nickname. Card shout \"KURRR!\". Third person: \"Komisaris\"."
+  },
+  "guardian.searchlight-gargoyle": {
+   "en": "Searchlight Gargoyle",
+   "target": "Gargoyle Lampu Sorot",
+   "note": "\"lampu sorot\" = searchlight; Indonesian puts the noun first, so the card reads big \"GARGOYLE\" + small \"LAMPU SOROT\" (tell UI). Short \"si Gargoyle\"; self: \"Sang Gargoyle menerima.\" UI name card (fixed layout: small line over big line): small \"GARGOYLE\" over big \"LAMPU SOROT\"; health bar \"GARGOYLE\"."
+  },
+  "npc.toucan-twins": {
+   "en": "the toucan twins",
+   "target": "si kembar tukan",
+   "note": "Plural group, giggly children (\"kami\")."
+  },
+  "npc.sloth-stargazer": {
+   "en": "the sloth stargazer",
+   "target": "kungkang pengamat bintang",
+   "note": "\"kungkang\" = sloth."
+  },
+  "npc.firefly-nursery": {
+   "en": "the firefly nursery",
+   "target": "penitipan anak kunang-kunang",
+   "note": "Nursery = daycare (penitipan anak), not a plant nursery."
+  },
+  "npc.samba-macaws": {
+   "en": "the samba macaws",
+   "target": "para makau samba"
+  },
+  "npc.drum-captain": {
+   "en": "the drum captain",
+   "target": "pemimpin drum",
+   "note": "Band leader, not a ship captain (kapten is kept for the pirate)."
+  },
+  "npc.temple-cooks": {
+   "en": "the temple cooks",
+   "target": "para koki kuil"
+  },
+  "npc.dawn-keeper": {
+   "en": "the dawn keeper",
+   "target": "penjaga fajar"
+  },
+  "npc.chariot-racers": {
+   "en": "the chariot racers",
+   "target": "para pembalap kereta kuda"
+  },
+  "npc.statue-carver": {
+   "en": "the statue carver",
+   "target": "pemahat patung"
+  },
+  "npc.fire-brigade": {
+   "en": "the fire brigade",
+   "target": "regu pemadam kebakaran"
+  },
+  "npc.pyramid-astronomer": {
+   "en": "the pyramid astronomer",
+   "target": "astronom piramida"
+  },
+  "npc.pyramid-caretaker": {
+   "en": "the pyramid caretaker",
+   "target": "juru kunci piramida",
+   "note": "\"Juru kunci\" = traditional caretaker of a monument; short \"si juru kunci\"."
+  },
+  "npc.lantern-sellers": {
+   "en": "the lantern sellers",
+   "target": "para penjual lentera"
+  },
+  "npc.caravan-leader": {
+   "en": "the caravan leader",
+   "target": "pemimpin kafilah"
+  },
+  "npc.stage-manager": {
+   "en": "the stage manager",
+   "target": "manajer panggung"
+  },
+  "npc.newsstand-pigeons": {
+   "en": "the newsstand pigeons",
+   "target": "merpati kios koran"
+  },
+  "npc.night-cabbies": {
+   "en": "the night cabbies",
+   "target": "sopir taksi malam",
+   "note": "Cargo and signer use the same words."
+  },
+  "npc.tower-keeper": {
+   "en": "the tower keeper",
+   "target": "penjaga menara"
+  },
+  "npc.rooftop-painters": {
+   "en": "the rooftop painters",
+   "target": "pelukis atap",
+   "note": "Their \"Magnifique\" stays as French flavour."
+  },
+  "npc.accordion-player": {
+   "en": "the accordion player",
+   "target": "pemain akordeon"
+  },
+  "npc.baker": {
+   "en": "the baker",
+   "target": "tukang roti",
+   "note": "The Paris baker (not the volcano baker)."
+  },
+  "npc.lighthouse-keeper": {
+   "en": "the lighthouse keeper",
+   "target": "penjaga mercusuar"
+  },
+  "npc.volcano-baker": {
+   "en": "the volcano baker",
+   "target": "tukang kue gunung berapi"
+  },
+  "npc.kite-flyers": {
+   "en": "the kite flyers",
+   "target": "para pemain layang-layang",
+   "note": "Alias \"festival pantai\" (beach festival)."
+  },
+  "npc.island-hermit": {
+   "en": "the island hermit",
+   "target": "pertapa pulau"
+  },
+  "npc.ferry-crew": {
+   "en": "the ferry crew",
+   "target": "awak kapal feri"
+  },
+  "npc.gull-colony": {
+   "en": "the gull colony",
+   "target": "koloni camar"
+  },
+  "npc.storm-watch": {
+   "en": "the storm watch",
+   "target": "regu jaga badai",
+   "note": "Cargo: \"pelaut jaga badai\" (same people)."
+  },
+  "npc.penguin-choir": {
+   "en": "the penguin choir",
+   "target": "paduan suara penguin"
+  },
+  "npc.polar-station": {
+   "en": "the polar station",
+   "target": "stasiun kutub"
+  },
+  "npc.noodle-chef": {
+   "en": "the noodle chef",
+   "target": "koki mi",
+   "note": "Alias \"kedai mi\" (noodle bar)."
+  },
+  "npc.rooftop-runners": {
+   "en": "the rooftop runners",
+   "target": "pelari atap"
+  },
+  "npc.lantern-makers": {
+   "en": "the lantern makers",
+   "target": "para pembuat lentera",
+   "note": "Alias \"festival\" = \"festival lentera\"."
+  },
+  "npc.mountain-monks": {
+   "en": "the mountain monks",
+   "target": "para biksu gunung",
+   "note": "Alias \"biara\" (monastery)."
+  },
+  "npc.sphinx": {
+   "en": "the Sphinx",
+   "target": "Sfinks",
+   "note": "KBBI spelling (reads right for TTS). Peaches: \"Om Sfinks\". Signs \"Tertanda: Sfinks.\""
+  },
+  "npc.unit-7": {
+   "en": "Unit 7",
+   "target": "Unit 7",
+   "note": "Robot designation kept; spoken as \"Unit Tujuh\" if ever voiced."
+  },
+  "npc.parrot": {
+   "en": "the Parrot",
+   "target": "Nuri",
+   "note": "\"Burung nuri\" = parrot; capitalised as a name when the Captain addresses it."
+  },
+  "npc.baron-cousins": {
+   "en": "the Baron's cousins",
+   "target": "para sepupu sang Baron",
+   "note": "\"Sepupu!\" / \"Saudara-saudara!\" when he summons them."
+  },
+  "title.postmaster": {
+   "en": "Postmaster",
+   "target": "Kepala Pos",
+   "note": "\"Perintah Kepala Pos\" = Postmaster's orders."
+  },
+  "title.lord-of-the-storm": {
+   "en": "LORD OF THE STORM",
+   "target": "PENGUASA BADAI"
+  },
+  "title.the-storm-returns": {
+   "en": "THE STORM RETURNS",
+   "target": "BADAI KEMBALI",
+   "note": "Arrival headline \"SANG BARON KEMBALI\"."
+  },
+  "title.brewer-of-the-swarm": {
+   "en": "BREWER OF THE SWARM",
+   "target": "PERAMU PASUKAN KUMBANG",
+   "note": "\"Peramu\" = potion-brewer; keeps the brew and the beetle swarm."
+  },
+  "title.keeper-of-the-twilight-veil": {
+   "en": "KEEPER OF THE TWILIGHT VEIL",
+   "target": "PENJAGA SELUBUNG SENJA",
+   "note": "\"selubung\" = veil (attack.veil)."
+  },
+  "title.terror-of-the-high-tide": {
+   "en": "TERROR OF THE HIGH TIDE",
+   "target": "TEROR AIR PASANG"
+  },
+  "title.sovereign-of-the-burning-sky": {
+   "en": "SOVEREIGN OF THE BURNING SKY",
+   "target": "PENGUASA LANGIT MEMBARA",
+   "note": "\"membara\" echoes \"bara\" (ember)."
+  },
+  "title.keeper-of-the-lost-letter": {
+   "en": "Keeper of the Lost Letter",
+   "target": "Penjaga Surat yang Hilang",
+   "note": "Card: PENJAGA SURAT YANG HILANG."
+  },
+  "title.keeper-of-lost-letters": {
+   "en": "Keeper of Lost Letters",
+   "target": "Penjaga Surat Hilang",
+   "note": "The club job (all lost mail); echoes the epithet."
+  },
+  "title.royal-courier": {
+   "en": "Royal Courier",
+   "target": "Kurir Kerajaan"
+  },
+  "title.mummy-courier": {
+   "en": "the Mummy Courier",
+   "target": "Kurir Mumi"
+  },
+  "title.commissioner-of-the-curb": {
+   "en": "Commissioner of the Curb",
+   "target": "Komisaris Kaki Lima",
+   "note": "Adapted: \"kaki lima\" is the Indonesian curbside (street-food carts, crumbs, a bread cart is a \"gerobak kaki lima\"); \"Komisaris\" is a real police rank. Card: KOMISARIS KAKI LIMA."
+  },
+  "title.commissioner": {
+   "en": "the Commissioner",
+   "target": "Komisaris",
+   "note": "Police rank; third person: \"Sang Komisaris menerima.\""
+  },
+  "title.watchman-of-the-tallest-tower": {
+   "en": "Watchman of the Tallest Tower",
+   "target": "Penjaga Menara Tertinggi",
+   "note": "Card: PENJAGA MENARA TERTINGGI."
+  },
+  "title.ink-maker": {
+   "en": "ink-maker",
+   "target": "pembuat tinta",
+   "note": "\"Pembuat Tinta Kerajaan!\" = Royal ink-maker."
+  },
+  "region.jungle": {
+   "en": "Jungle",
+   "target": "Hutan Rimba"
+  },
+  "region.brazil": {
+   "en": "Brazil",
+   "target": "Brasil"
+  },
+  "region.aztec": {
+   "en": "Aztec",
+   "target": "Aztek"
+  },
+  "region.ancient-rome": {
+   "en": "Ancient Rome",
+   "target": "Roma Kuno"
+  },
+  "region.egypt": {
+   "en": "Egypt",
+   "target": "Mesir"
+  },
+  "region.ancient-arabia": {
+   "en": "Ancient Arabia",
+   "target": "Arab Kuno"
+  },
+  "region.new-york": {
+   "en": "New York",
+   "target": "New York"
+  },
+  "region.paris": {
+   "en": "Paris",
+   "target": "Paris"
+  },
+  "region.mexico": {
+   "en": "Mexico",
+   "target": "Meksiko"
+  },
+  "region.open-sea": {
+   "en": "Open Sea",
+   "target": "Laut Lepas"
+  },
+  "region.antarctica": {
+   "en": "Antarctica",
+   "target": "Antarktika"
+  },
+  "region.cyberpunk-city": {
+   "en": "Cyberpunk City",
+   "target": "Kota Siberpunk",
+   "note": "Indonesianised spelling, read correctly by Indonesian TTS."
+  },
+  "region.china": {
+   "en": "China",
+   "target": "Tiongkok",
+   "note": "Official Indonesian name."
+  },
+  "place.city-of-light": {
+   "en": "the City of Light",
+   "target": "Kota Cahaya",
+   "note": "\"Paris, Kota Cahaya\"."
+  },
+  "place.edge-of-the-map": {
+   "en": "the Edge of the Map",
+   "target": "Ujung Peta",
+   "note": "Address on the letter: \"Naga Bara, Ujung Peta\"."
+  },
+  "place.giza": {
+   "en": "Giza",
+   "target": "Giza"
+  },
+  "place.nile": {
+   "en": "the Nile",
+   "target": "Sungai Nil"
+  },
+  "place.pyramid": {
+   "en": "the pyramid",
+   "target": "piramida"
+  },
+  "place.colosseum": {
+   "en": "the Colosseum",
+   "target": "Koloseum"
+  },
+  "place.sugarloaf-mountain": {
+   "en": "Sugarloaf Mountain",
+   "target": "Gunung Roti Gula",
+   "note": "Literal translation of Pão de Açúcar (\"sugar loaf\"), so Pip's \"not made of sugar\" joke still works."
+  },
+  "place.eiffel-tower": {
+   "en": "the Eiffel Tower",
+   "target": "Menara Eiffel"
+  },
+  "place.theatre-marquee": {
+   "en": "the theatre marquee",
+   "target": "kanopi teater",
+   "note": "\"kanopi\" = the lit canopy over a theatre entrance."
+  },
+  "place.tallest-tower": {
+   "en": "the tallest tower",
+   "target": "menara tertinggi",
+   "note": "\"the ledge\" = \"langkan\"."
+  },
+  "place.canopy": {
+   "en": "the canopy",
+   "target": "kanopi hutan",
+   "note": "Short \"kanopi\"."
+  },
+  "place.bazaar": {
+   "en": "the bazaar",
+   "target": "bazar"
+  },
+  "place.harbour": {
+   "en": "the harbour",
+   "target": "pelabuhan",
+   "note": "\"lonceng pelabuhan\" = harbour bells."
+  },
+  "chapter.canopy-route": {
+   "en": "The Canopy Route",
+   "target": "Rute Kanopi"
+  },
+  "chapter.ancient-road": {
+   "en": "The Ancient Road",
+   "target": "Jalan Kuno",
+   "note": "The Spitter King's \"jalanku\" = my road."
+  },
+  "chapter.lamplight-line": {
+   "en": "The Lamplight Line",
+   "target": "Jalur Lampu Kota"
+  },
+  "chapter.tide-route": {
+   "en": "The Tide Route",
+   "target": "Rute Pasang Surut",
+   "note": "Bill: \"Rute pasang surut\"."
+  },
+  "chapter.edge-of-the-map": {
+   "en": "The Edge of the Map",
+   "target": "Ujung Peta"
+  },
+  "level.1-1": {
+   "en": "First Delivery",
+   "target": "Kiriman Pertama"
+  },
+  "level.1-2": {
+   "en": "Star Streak",
+   "target": "Rantai Bintang",
+   "note": "Streak = \"rantai bintang\" (chain of stars)."
+  },
+  "level.1-3": {
+   "en": "Bat Patrol",
+   "target": "Patroli Kelelawar"
+  },
+  "level.1-4": {
+   "en": "Carnival Skies",
+   "target": "Langit Karnaval"
+  },
+  "level.1-5": {
+   "en": "Express Post",
+   "target": "Pos Kilat",
+   "note": "\"Pos Kilat\" is the Indonesian name for express mail; same words as Neferhoo's \"POS KILAT!\"."
+  },
+  "level.1-6": {
+   "en": "Temple Steps",
+   "target": "Tangga Kuil"
+  },
+  "level.1-7": {
+   "en": "Sunrise Roost",
+   "target": "Sarang Fajar",
+   "note": "\"sarang\" = the Baron's roost (also his card line)."
+  },
+  "level.1-8": {
+   "en": "Baron Bat",
+   "target": "Baron Kelelawar"
+  },
+  "level.2-1": {
+   "en": "Beetle Road",
+   "target": "Jalan Kumbang"
+  },
+  "level.2-2": {
+   "en": "Sealed Gates",
+   "target": "Gerbang Tersegel"
+  },
+  "level.2-3": {
+   "en": "Wildfire Run",
+   "target": "Kejaran Api Liar"
+  },
+  "level.2-4": {
+   "en": "Nile Switchbacks",
+   "target": "Zigzag Sungai Nil",
+   "note": "Switchback gates = \"gerbang zigzag\"."
+  },
+  "level.2-5": {
+   "en": "Skyfall",
+   "target": "Langit Runtuh",
+   "note": "Same words as the Skyfall rush."
+  },
+  "level.2-6": {
+   "en": "Return to Sender",
+   "target": "Kembali ke Pengirim",
+   "note": "Neferhoo's postal formula."
+  },
+  "level.2-7": {
+   "en": "Lantern Bazaar",
+   "target": "Bazar Lentera"
+  },
+  "level.2-8": {
+   "en": "The Long Caravan",
+   "target": "Kafilah Panjang"
+  },
+  "level.2-9": {
+   "en": "Spitter King",
+   "target": "Raja Peludah"
+  },
+  "level.3-1": {
+   "en": "Moth Light",
+   "target": "Cahaya Ngengat",
+   "note": "Adapted: moths drawn to light; short, poetic."
+  },
+  "level.3-2": {
+   "en": "Wheels in the Rain",
+   "target": "Roda dalam Hujan",
+   "note": "Adapted: keeps wheels + rain, film-title ring (\"Bernyanyi dalam Hujan\")."
+  },
+  "level.3-3": {
+   "en": "Steam Alley",
+   "target": "Gang Uap"
+  },
+  "level.3-4": {
+   "en": "Storm Warning",
+   "target": "Peringatan Badai",
+   "note": "Same words as the Gargoyle's omen headline."
+  },
+  "level.3-5": {
+   "en": "Crystal Rooftops",
+   "target": "Atap Kristal"
+  },
+  "level.3-6": {
+   "en": "After the Gale",
+   "target": "Usai Angin Ribut",
+   "note": "Gale = \"angin ribut\"."
+  },
+  "level.3-7": {
+   "en": "Midnight Express",
+   "target": "Kilat Tengah Malam",
+   "note": "Adapted: \"kilat\" = express (Pos Kilat) + midnight."
+  },
+  "level.3-8": {
+   "en": "Dusk Empress",
+   "target": "Maharani Senja"
+  },
+  "level.4-1": {
+   "en": "Harbour Lights",
+   "target": "Cahaya Pelabuhan"
+  },
+  "level.4-2": {
+   "en": "Volcano Pass",
+   "target": "Celah Gunung Berapi"
+  },
+  "level.4-3": {
+   "en": "Down the Coast",
+   "target": "Menyusuri Pantai"
+  },
+  "level.4-4": {
+   "en": "Low Water",
+   "target": "Air Surut"
+  },
+  "level.4-5": {
+   "en": "Spring Tide",
+   "target": "Pasang Purnama",
+   "note": "The Indonesian term for a spring tide."
+  },
+  "level.4-6": {
+   "en": "Broadside Bay",
+   "target": "Teluk Gempuran",
+   "note": "Broadside = \"gempuran meriam\"."
+  },
+  "level.4-7": {
+   "en": "Stormy Crossing",
+   "target": "Penyeberangan Badai"
+  },
+  "level.4-8": {
+   "en": "Pirate Captain",
+   "target": "Kapten Bajak Laut"
+  },
+  "level.5-1": {
+   "en": "Aurora Post",
+   "target": "Pos Aurora"
+  },
+  "level.5-2": {
+   "en": "Polar Night",
+   "target": "Malam Kutub"
+  },
+  "level.5-3": {
+   "en": "Neon Express",
+   "target": "Kilat Neon"
+  },
+  "level.5-4": {
+   "en": "Data Storm",
+   "target": "Badai Data"
+  },
+  "level.5-5": {
+   "en": "Skyline Sprint",
+   "target": "Lesatan Langit Kota",
+   "note": "Sprint = \"melesat/lesatan\"."
+  },
+  "level.5-6": {
+   "en": "Lantern Festival",
+   "target": "Festival Lentera"
+  },
+  "level.5-7": {
+   "en": "The Last Leg",
+   "target": "Etape Terakhir",
+   "note": "Adapted: \"etape\" = a stage of a long journey/race; \"etape terakhir\" = the final stretch."
+  },
+  "level.5-8": {
+   "en": "Ember Dragon",
+   "target": "Naga Bara"
+  },
+  "level.starter-garden-hop": {
+   "en": "Garden Hop",
+   "target": "Lompat Taman"
+  },
+  "level.starter-ten-push-ups": {
+   "en": "Ten Push-Ups",
+   "target": "Sepuluh Push-Up",
+   "note": "\"push-up\" is the everyday Indonesian word."
+  },
+  "level.starter-stair-squats": {
+   "en": "Stair Squats",
+   "target": "Squat Tangga",
+   "note": "\"squat\" is the everyday Indonesian word."
+  },
+  "level.starter-bounce-bay": {
+   "en": "Bounce Bay",
+   "target": "Teluk Pantul"
+  },
+  "level.starter-barons-bridge": {
+   "en": "Baron’s Bridge",
+   "target": "Jembatan Baron"
+  },
+  "cargo.1-1": {
+   "en": "A birthday card for the toucan twins",
+   "target": "Kartu ulang tahun untuk si kembar tukan"
+  },
+  "cargo.1-2": {
+   "en": "Star charts for the sloth stargazer",
+   "target": "Peta bintang untuk kungkang pengamat bintang"
+  },
+  "cargo.1-3": {
+   "en": "Night-lights for the firefly nursery",
+   "target": "Lampu tidur untuk penitipan anak kunang-kunang"
+  },
+  "cargo.1-4": {
+   "en": "Feather boas for the carnival parade",
+   "target": "Syal bulu untuk parade karnaval",
+   "note": "Feather boa = \"syal bulu\"."
+  },
+  "cargo.1-5": {
+   "en": "A rush invitation for the drum captain",
+   "target": "Undangan kilat untuk pemimpin drum",
+   "note": "Rush = \"kilat\" (urgent)."
+  },
+  "cargo.1-6": {
+   "en": "Cocoa beans for the temple cooks",
+   "target": "Biji kakao untuk para koki kuil"
+  },
+  "cargo.1-7": {
+   "en": "A sundial for the dawn keeper",
+   "target": "Jam matahari untuk penjaga fajar"
+  },
+  "cargo.1-8": {
+   "en": "A final notice for Baron Bat",
+   "target": "Peringatan terakhir untuk Baron Kelelawar",
+   "note": "\"Peringatan terakhir\" = the formal last warning letter."
+  },
+  "cargo.2-1": {
+   "en": "Laurel wreaths for the chariot racers",
+   "target": "Mahkota laurel untuk para pembalap kereta kuda"
+  },
+  "cargo.2-2": {
+   "en": "A new chisel for the statue carver",
+   "target": "Pahat baru untuk pemahat patung"
+  },
+  "cargo.2-3": {
+   "en": "Water buckets for the fire brigade",
+   "target": "Ember air untuk regu pemadam kebakaran",
+   "note": "Indonesian \"ember\" = bucket (unrelated to the Dragon, who is \"Naga Bara\")."
+  },
+  "cargo.2-4": {
+   "en": "A book of new riddles for the Sphinx",
+   "target": "Buku teka-teki baru untuk Sfinks"
+  },
+  "cargo.2-5": {
+   "en": "A telescope for the pyramid astronomer",
+   "target": "Teleskop untuk astronom piramida"
+  },
+  "cargo.2-6": {
+   "en": "A feather duster for the caretaker",
+   "target": "Kemoceng untuk juru kunci",
+   "note": "\"Kemoceng\" = the Indonesian feather duster."
+  },
+  "cargo.2-7": {
+   "en": "Lamp oil for the lantern sellers",
+   "target": "Minyak lampu untuk para penjual lentera"
+  },
+  "cargo.2-8": {
+   "en": "Water flasks for the long caravan",
+   "target": "Botol air untuk kafilah panjang"
+  },
+  "cargo.2-9": {
+   "en": "A stop-brewing order for the Spitter King",
+   "target": "Perintah stop meramu untuk Raja Peludah"
+  },
+  "cargo.3-1": {
+   "en": "Light bulbs for the theatre marquee",
+   "target": "Bola lampu untuk kanopi teater"
+  },
+  "cargo.3-2": {
+   "en": "Umbrellas for the newsstand pigeons",
+   "target": "Payung untuk merpati kios koran"
+  },
+  "cargo.3-3": {
+   "en": "Hot pretzels for the night-shift cabbies",
+   "target": "Pretzel hangat untuk sopir taksi malam"
+  },
+  "cargo.3-4": {
+   "en": "A weather vane for the tallest tower",
+   "target": "Penunjuk angin untuk menara tertinggi",
+   "note": "Weather vane = \"penunjuk angin\" (no vane/vain trap in Indonesian)."
+  },
+  "cargo.3-5": {
+   "en": "Croissants for the rooftop painters",
+   "target": "Croissant untuk pelukis atap"
+  },
+  "cargo.3-6": {
+   "en": "Sheet music for the accordion player",
+   "target": "Partitur lagu untuk pemain akordeon"
+  },
+  "cargo.3-7": {
+   "en": "A midnight love letter for the baker",
+   "target": "Surat cinta tengah malam untuk tukang roti"
+  },
+  "cargo.3-8": {
+   "en": "A wake-up call for the Dusk Empress",
+   "target": "Alarm bangun untuk Maharani Senja",
+   "note": "Keeps both meanings: an alarm and a warning (\"alarm\" is used figuratively too)."
+  },
+  "cargo.4-1": {
+   "en": "A new lens for the lighthouse keeper",
+   "target": "Lensa baru untuk penjaga mercusuar"
+  },
+  "cargo.4-2": {
+   "en": "Oven mitts for the volcano baker",
+   "target": "Sarung tangan oven untuk tukang kue gunung berapi"
+  },
+  "cargo.4-3": {
+   "en": "Kite string for the beach festival",
+   "target": "Benang layangan untuk festival pantai"
+  },
+  "cargo.4-4": {
+   "en": "A reply for the island hermit",
+   "target": "Surat balasan untuk pertapa pulau"
+  },
+  "cargo.4-5": {
+   "en": "A tide table for the ferry crew",
+   "target": "Jadwal pasang surut untuk awak kapal feri"
+  },
+  "cargo.4-6": {
+   "en": "Fish biscuits for the gull colony",
+   "target": "Biskuit ikan untuk koloni camar"
+  },
+  "cargo.4-7": {
+   "en": "Dry socks for the storm-watch sailors",
+   "target": "Kaus kaki kering untuk pelaut jaga badai"
+  },
+  "cargo.4-8": {
+   "en": "A return-the-mail order for the Captain",
+   "target": "Perintah kembalikan surat untuk sang Kapten"
+  },
+  "cargo.5-1": {
+   "en": "Woolly hats for the penguin choir",
+   "target": "Kupluk wol untuk paduan suara penguin"
+  },
+  "cargo.5-2": {
+   "en": "Hot cocoa for the polar station",
+   "target": "Cokelat panas untuk stasiun kutub"
+  },
+  "cargo.5-3": {
+   "en": "Spare fuses for the noodle bar sign",
+   "target": "Sekring cadangan untuk papan nama kedai mi"
+  },
+  "cargo.5-4": {
+   "en": "A paper letter for a curious robot",
+   "target": "Surat kertas untuk robot yang penasaran"
+  },
+  "cargo.5-5": {
+   "en": "Race tickets for the rooftop runners",
+   "target": "Tiket lomba untuk pelari atap"
+  },
+  "cargo.5-6": {
+   "en": "Paper lanterns for the festival",
+   "target": "Lentera kertas untuk festival"
+  },
+  "cargo.5-7": {
+   "en": "Mountain tea for the monastery",
+   "target": "Teh gunung untuk biara"
+  },
+  "cargo.5-8": {
+   "en": "The first letter ever sent to the Dragon",
+   "target": "Surat pertama yang pernah dikirim untuk sang Naga"
+  },
+  "enemy.purple-bat": {
+   "en": "Purple bat",
+   "target": "kelelawar ungu",
+   "note": "Lines: \"kelelawar\", \"kelelawar kecil\"."
+  },
+  "enemy.cave-bat": {
+   "en": "Cave bat",
+   "target": "kelelawar gua"
+  },
+  "enemy.spitter-beetle": {
+   "en": "Spitter beetle",
+   "target": "kumbang peludah",
+   "note": "Short \"kumbang\"; their king is the Raja Peludah."
+  },
+  "enemy.dusk-moth": {
+   "en": "Dusk moth",
+   "target": "ngengat senja",
+   "note": "Short \"ngengat\"."
+  },
+  "enemy.alley-pigeon": {
+   "en": "Alley Pigeon",
+   "target": "Merpati Gang",
+   "note": "Pun: \"gang\" = alley in Indonesian and also a gang (the star-grabbing gang)."
+  },
+  "enemy.mummy-bat": {
+   "en": "Mummy bat",
+   "target": "kelelawar mumi",
+   "note": "Banner: KELELAWAR MUMI · Tembak jatuh!"
+  },
+  "enemy.squadron": {
+   "en": "King Coo's squadron",
+   "target": "skuadron Raja Kurkur",
+   "note": "Banner: SKUADRON RAJA KURKUR."
+  },
+  "enemy.straggler": {
+   "en": "straggler",
+   "target": "pelarian",
+   "note": "A pigeon that got away; tag \"SEMUA TERTANGKAP!\". King Coo tag (16-char budget): \"SEMUA TERTANGKAP\" (no \"!\")."
+  },
+  "enemy.brood": {
+   "en": "the Spitter King's brood",
+   "target": "pasukan Raja Peludah",
+   "note": "Banner: PASUKAN RAJA PELUDAH; he calls them \"asisten-asistenku\", \"kumbang-kumbang kecilku\"."
+  },
+  "enemy.empress-moths": {
+   "en": "the Dusk Empress's moths",
+   "target": "ngengat-ngengat Maharani Senja",
+   "note": "She calls them \"sayang-sayangku\", \"manis-manisku\", \"cantik-cantikku\"."
+  },
+  "enemy.swarm-bats": {
+   "en": "swarm bats",
+   "target": "kawanan kelelawar",
+   "note": "Banner: KAWANAN · Hindari kelelawar atau melesat menembusnya."
+  },
+  "attack.fireball": {
+   "en": "fireball",
+   "target": "bola api"
+  },
+  "attack.screech": {
+   "en": "sonic screech",
+   "target": "jeritan sonik",
+   "note": "Short \"jeritan\"."
+  },
+  "attack.seed": {
+   "en": "seed",
+   "target": "biji"
+  },
+  "attack.fan": {
+   "en": "fan",
+   "target": "kipas",
+   "note": "\"kipas isi tiga\" = fans of three."
+  },
+  "attack.pollen": {
+   "en": "pollen",
+   "target": "serbuk sari"
+  },
+  "attack.veil": {
+   "en": "veil",
+   "target": "selubung",
+   "note": "\"perisai sutra\" = silk shield; banner TERLINDUNG."
+  },
+  "attack.cannon": {
+   "en": "cannon",
+   "target": "meriam",
+   "note": "\"peluru meriam\" = cannonball; \"sumbu\" = fuse."
+  },
+  "attack.broadside": {
+   "en": "broadside",
+   "target": "gempuran meriam"
+  },
+  "attack.dragon-breath": {
+   "en": "dragon's breath",
+   "target": "napas naga"
+  },
+  "attack.embers": {
+   "en": "embers",
+   "target": "bara",
+   "note": "Same root as his name (Naga Bara)."
+  },
+  "attack.crumb-bomb": {
+   "en": "crumb bomb",
+   "target": "bom remah"
+  },
+  "attack.stale-crust": {
+   "en": "stale crust",
+   "target": "kerak roti basi",
+   "note": "\"kerak roti\" for short."
+  },
+  "attack.puff": {
+   "en": "puff",
+   "target": "menggembung",
+   "note": "Banner: MENGGEMBUNG · Tembak dadanya (x2)!; then \"POP!\" → \"DOR!\"."
+  },
+  "attack.beam": {
+   "en": "beam",
+   "target": "sorotan",
+   "note": "\"TERSOROT!\" = SPOTTED!"
+  },
+  "attack.lamp": {
+   "en": "lamp",
+   "target": "lampu",
+   "note": "His chest lamp; \"LAMPU TERBUKA\", \"penutup\" = shutters. HUD tag (12-char budget): \"LAMPU BUKA\"; hints say \"LAMPU TERBUKA\"."
+  },
+  "attack.stone-feathers": {
+   "en": "stone feathers",
+   "target": "bulu batu"
+  },
+  "attack.mail-call": {
+   "en": "mail call",
+   "target": "Surat datang!",
+   "note": "Neferhoo's shout when he fires letters."
+  },
+  "attack.ankh": {
+   "en": "ankh",
+   "target": "ankh",
+   "note": "Kept (the Egyptian symbol has no Indonesian name); \"ankh emas\"."
+  },
+  "attack.express-post": {
+   "en": "EXPRESS POST",
+   "target": "POS KILAT",
+   "note": "Indonesia's own name for express mail."
+  },
+  "hazard.gate": {
+   "en": "gate",
+   "target": "gerbang",
+   "note": "gap/opening = \"celah\"."
+  },
+  "hazard.garden-gate": {
+   "en": "Garden gate",
+   "target": "Gerbang taman"
+  },
+  "hazard.wind-lift": {
+   "en": "Wind lift",
+   "target": "Gerbang angin"
+  },
+  "hazard.petal-shutters": {
+   "en": "Petal shutters",
+   "target": "Tirai kelopak",
+   "note": "Bill: \"gerbang kelopak\"."
+  },
+  "hazard.switchback": {
+   "en": "Switchback",
+   "target": "Zigzag",
+   "note": "\"gerbang zigzag\"."
+  },
+  "hazard.lantern-drift": {
+   "en": "Lantern drift",
+   "target": "Lentera melayang"
+  },
+  "hazard.sun-wheels": {
+   "en": "Sun wheels",
+   "target": "Roda matahari"
+  },
+  "hazard.crystal-steps": {
+   "en": "Crystal steps",
+   "target": "Tangga kristal"
+  },
+  "hazard.stone-panel": {
+   "en": "stone panel",
+   "target": "lempeng batu",
+   "note": "Builder name: \"pintu batu\"."
+  },
+  "hazard.steam-geyser": {
+   "en": "steam vent",
+   "target": "lubang uap",
+   "note": "\"yang panas\" / \"yang lembut\" = hot ones / soft ones."
+  },
+  "hazard.sea": {
+   "en": "the sea",
+   "target": "laut"
+  },
+  "hazard.tide": {
+   "en": "the tide",
+   "target": "air pasang",
+   "note": "Banners: AIR NAIK · Terbang tinggi! / AIR PASANG · Tetap di atas air."
+  },
+  "hazard.tide-bell": {
+   "en": "the bell",
+   "target": "lonceng"
+  },
+  "hazard.lava-plume": {
+   "en": "lava plume",
+   "target": "semburan lava"
+  },
+  "hazard.meteor": {
+   "en": "meteor",
+   "target": "meteor"
+  },
+  "hazard.debris": {
+   "en": "debris",
+   "target": "puing",
+   "note": "\"rongsokan terbang\" = flying junk."
+  },
+  "hazard.football": {
+   "en": "football",
+   "target": "bola sepak",
+   "note": "\"bola\" in short."
+  },
+  "hazard.warning-mark": {
+   "en": "!",
+   "target": "!",
+   "note": "Kept; said \"tanda seru\" (\"Lihat tanda !\")."
+  },
+  "hazard.rubble": {
+   "en": "rubble",
+   "target": "reruntuhan"
+  },
+  "set-piece.rush-path": {
+   "en": "rush",
+   "target": "serbuan",
+   "note": "A rush path; banner SERBUAN."
+  },
+  "set-piece.wildfire": {
+   "en": "Wildfire",
+   "target": "Api Liar",
+   "note": "Banner API LIAR!"
+  },
+  "set-piece.skyfall": {
+   "en": "Skyfall",
+   "target": "Langit Runtuh",
+   "note": "Adapted: \"the sky falls\"; same words as level 2-5."
+  },
+  "set-piece.eruption": {
+   "en": "Eruption",
+   "target": "Letusan"
+  },
+  "set-piece.swarm": {
+   "en": "Swarm",
+   "target": "Kawanan",
+   "note": "Banner KAWANAN!"
+  },
+  "set-piece.gale": {
+   "en": "gale",
+   "target": "angin ribut",
+   "note": "Banners ANGIN RIBUT! / BERHASIL BERTAHAN; \"sisi terbuka\" = open side. Gale banner with points (20-char budget): \"BERTAHAN! +{points}\"."
+  },
+  "set-piece.finish-line": {
+   "en": "finish line",
+   "target": "garis finis",
+   "note": "FINISH = FINIS."
+  },
+  "set-piece.run-up": {
+   "en": "run-up",
+   "target": "ancang-ancang"
+  },
+  "set-piece.vanguard": {
+   "en": "vanguard",
+   "target": "barisan depan",
+   "note": "\"Mereka datang!\" / \"BERSIH!\"."
+  },
+  "pickup.star": {
+   "en": "star",
+   "target": "bintang"
+  },
+  "pickup.star-trio": {
+   "en": "star trio",
+   "target": "trio bintang",
+   "note": "TRIO BINTANG +5! Callout (18-char budget): \"TRIO BINTANG +{points}\" (no \"!\")."
+  },
+  "pickup.heart": {
+   "en": "heart",
+   "target": "hati",
+   "note": "The ♥ life; \"Tinggal satu hati\"."
+  },
+  "pickup.shield": {
+   "en": "shield",
+   "target": "perisai",
+   "note": "\"gelembung\" = bubble; PERISAI MENYELAMATKAN! Flight callout (14-char budget): \"TERSELAMATKAN!\"; replay highlight \"Perisai menyelamatkan\"."
+  },
+  "pickup.star-magnet": {
+   "en": "star magnet",
+   "target": "magnet bintang",
+   "note": "MAGNET BINTANG! Callout (14-char budget): \"MAGNET BINTANG\" (no \"!\")."
+  },
+  "pickup.sprint-ring": {
+   "en": "sprint ring",
+   "target": "cincin lesat",
+   "note": "Lines say \"cincin emas\" (gold rings) / \"cincin\"."
+  },
+  "pickup.mystery-box": {
+   "en": "mystery box",
+   "target": "kotak misteri"
+  },
+  "pickup.bat-swarm": {
+   "en": "Bat swarm",
+   "target": "Kawanan kelelawar",
+   "note": "Duel prize label (16-char budget): \"Badai kelelawar\"."
+  },
+  "pickup.meteor-shower": {
+   "en": "Meteor shower",
+   "target": "Hujan meteor"
+  },
+  "pickup.star-power": {
+   "en": "Star power",
+   "target": "Kekuatan bintang",
+   "note": "Flight callout (20-char budget): \"{n}× DAYA BINTANG!\"; elsewhere \"Kekuatan bintang\"."
+  },
+  "power-up.shot-power": {
+   "en": "Shot power",
+   "target": "Kekuatan tembakan",
+   "note": "UI upgrade name (14-char budget): \"Daya tembak\"."
+  },
+  "power-up.sprint": {
+   "en": "Sprint (upgrade)",
+   "target": "Melesat"
+  },
+  "power-up.shield": {
+   "en": "Shield (upgrade)",
+   "target": "Perisai"
+  },
+  "power-up.magnet": {
+   "en": "Magnet (upgrade)",
+   "target": "Magnet"
+  },
+  "weapon.shoot": {
+   "en": "Shoot",
+   "target": "Tembak",
+   "note": "Button and verb."
+  },
+  "weapon.rock": {
+   "en": "rock",
+   "target": "batu",
+   "note": "\"Batu habis\" = out of rocks."
+  },
+  "weapon.big-rock": {
+   "en": "big rock",
+   "target": "batu besar"
+  },
+  "weapon.ammo": {
+   "en": "ammo",
+   "target": "amunisi",
+   "note": "\"Mengisi ulang…\" = Reloading…"
+  },
+  "weapon.sprint": {
+   "en": "Sprint",
+   "target": "Melesat",
+   "note": "Button; verb \"melesat\", noun \"lesatan\"."
+  },
+  "weapon.ring-sprint": {
+   "en": "ring sprint",
+   "target": "lesatan cincin"
+  },
+  "weapon.smash": {
+   "en": "SMASH!",
+   "target": "HANCUR!"
+  },
+  "mode.campaign": {
+   "en": "Campaign",
+   "target": "Kampanye"
+  },
+  "mode.endless": {
+   "en": "Endless",
+   "target": "Tanpa Batas"
+  },
+  "mode.tap-and-fly": {
+   "en": "Tap & Fly",
+   "target": "Ketuk & Terbang"
+  },
+  "mode.push-up-flight": {
+   "en": "Push-Up Flight",
+   "target": "Terbang Push-Up"
+  },
+  "mode.squat-and-fly": {
+   "en": "Squat & Fly",
+   "target": "Squat & Terbang"
+  },
+  "mode.jump-and-fly": {
+   "en": "Jump & Fly",
+   "target": "Lompat & Terbang"
+  },
+  "mode.mini-games": {
+   "en": "Mini games",
+   "target": "Gim mini"
+  },
+  "mode.fly-together": {
+   "en": "Fly Together",
+   "target": "Terbang Bersama"
+  },
+  "mode.roped": {
+   "en": "Roped",
+   "target": "Bertali"
+  },
+  "mode.no-rope": {
+   "en": "No rope",
+   "target": "Tanpa tali"
+  },
+  "mode.duel": {
+   "en": "1 v 1",
+   "target": "1 lawan 1",
+   "note": "\"duel\" also fine in sentences."
+  },
+  "mode.level-builder": {
+   "en": "Level Builder",
+   "target": "Pembuat Level"
+  },
+  "mode.daily-adventure": {
+   "en": "Adventure",
+   "target": "Petualangan",
+   "note": "\"Petualangan kecil hari ini.\""
+  },
+  "mode.flight-school": {
+   "en": "Flight School",
+   "target": "Sekolah Terbang"
+  },
+  "mode.practice": {
+   "en": "Practice",
+   "target": "Latihan"
+  },
+  "mode.test-flight": {
+   "en": "test flight",
+   "target": "uji terbang",
+   "note": "UJI TERBANG."
+  },
+  "mode.classic": {
+   "en": "Classic",
+   "target": "Klasik"
+  },
+  "mode.world-tour": {
+   "en": "world tour",
+   "target": "tur dunia"
+  },
+  "ui.sky-club": {
+   "en": "Sky Club",
+   "target": "Klub Langit",
+   "note": "Translated (a club of birds of the sky); short \"klub\". Postage stamp band (10-char budget): \"POS LANGIT\"."
+  },
+  "ui.sky-club-post": {
+   "en": "Sky Club post",
+   "target": "Pos Klub Langit",
+   "note": "Also the courier's greeting at every door: \"Pos Klub Langit!\""
+  },
+  "ui.passport": {
+   "en": "passport",
+   "target": "paspor",
+   "note": "\"Paspor Langit\"."
+  },
+  "ui.passport-stamp": {
+   "en": "stamp (passport)",
+   "target": "cap",
+   "note": "Passport ink stamp (\"cap\"), distinct from postage stamps (\"perangko\"). KARTU POS DICAP!"
+  },
+  "ui.medal": {
+   "en": "medal",
+   "target": "medali"
+  },
+  "ui.bronze": {
+   "en": "Bronze",
+   "target": "Perunggu"
+  },
+  "ui.silver": {
+   "en": "Silver",
+   "target": "Perak"
+  },
+  "ui.gold": {
+   "en": "Gold",
+   "target": "Emas"
+  },
+  "ui.star-marks": {
+   "en": "star marks",
+   "target": "tanda bintang",
+   "note": "\"takik\" for the notch on the track."
+  },
+  "ui.star-rating": {
+   "en": "stars (level rating)",
+   "target": "bintang",
+   "note": "\"2 dari 3 bintang\"."
+  },
+  "ui.streak": {
+   "en": "streak",
+   "target": "rantai bintang",
+   "note": "\"Rangkai bintang\" = chain stars."
+  },
+  "ui.multiplier": {
+   "en": "multiplier",
+   "target": "pengali"
+  },
+  "ui.perfect-pass": {
+   "en": "perfect pass",
+   "target": "lintasan sempurna",
+   "note": "Pop-up SEMPURNA!; \"gerbang sempurna\"."
+  },
+  "ui.aiming-mark": {
+   "en": "aiming mark",
+   "target": "titik bidik"
+  },
+  "ui.score": {
+   "en": "score",
+   "target": "skor",
+   "note": "\"poin bintang\" = star points."
+  },
+  "ui.best": {
+   "en": "best",
+   "target": "terbaik",
+   "note": "TERBAIK BARU!; \"rekor pribadi\"."
+  },
+  "ui.record": {
+   "en": "record",
+   "target": "rekor",
+   "note": "\"Rekor baru!\""
+  },
+  "ui.records-screen": {
+   "en": "Records",
+   "target": "Rekor"
+  },
+  "ui.saved-session": {
+   "en": "saved session",
+   "target": "sesi tersimpan"
+  },
+  "ui.replay": {
+   "en": "replay",
+   "target": "tayangan ulang"
+  },
+  "ui.flight-highlights": {
+   "en": "Flight highlights",
+   "target": "Sorotan penerbangan"
+  },
+  "ui.flight": {
+   "en": "flight",
+   "target": "penerbangan"
+  },
+  "ui.scored-flight": {
+   "en": "scored flight",
+   "target": "penerbangan berskor"
+  },
+  "ui.upgrades": {
+   "en": "Upgrades",
+   "target": "Peningkatan"
+  },
+  "ui.star-wallet": {
+   "en": "stars to spend",
+   "target": "bintang untuk dibelanjakan",
+   "note": "BINTANGMU."
+  },
+  "ui.collection": {
+   "en": "Birds",
+   "target": "Burung",
+   "note": "\"Kenalan dengan kru terbangmu.\""
+  },
+  "ui.trail-sunshine-bubbles": {
+   "en": "Sunshine bubbles",
+   "target": "Gelembung mentari"
+  },
+  "ui.trail-peach-hearts": {
+   "en": "Peach hearts",
+   "target": "Hati persik"
+  },
+  "ui.trail-mint-leaves": {
+   "en": "Mint leaves",
+   "target": "Daun mint"
+  },
+  "ui.trail-stardust-sparkles": {
+   "en": "Stardust sparkles",
+   "target": "Kilau debu bintang"
+  },
+  "ui.character-voices": {
+   "en": "Character voices",
+   "target": "Suara karakter"
+  },
+  "ui.sky-club-soundtrack": {
+   "en": "Sky Club soundtrack",
+   "target": "Musik Klub Langit"
+  },
+  "ui.reduced-motion": {
+   "en": "Reduced motion",
+   "target": "Kurangi gerakan"
+  },
+  "ui.campaign-map": {
+   "en": "map",
+   "target": "peta"
+  },
+  "ui.stop": {
+   "en": "stop",
+   "target": "perhentian",
+   "note": "\"Perhentian berikutnya\"."
+  },
+  "ui.chapter": {
+   "en": "chapter",
+   "target": "bab"
+  },
+  "ui.level": {
+   "en": "level",
+   "target": "level"
+  },
+  "ui.level-card": {
+   "en": "level card",
+   "target": "kartu level"
+  },
+  "ui.special-delivery": {
+   "en": "SPECIAL DELIVERY",
+   "target": "KIRIMAN KHUSUS",
+   "note": "Spoken \"Kiriman khusus\"."
+  },
+  "ui.hint": {
+   "en": "TIP",
+   "target": "TIPS",
+   "note": "\"tips dari Pak Bill\"."
+  },
+  "ui.thank-you-note": {
+   "en": "thank-you note",
+   "target": "ucapan terima kasih"
+  },
+  "ui.postcard": {
+   "en": "postcard",
+   "target": "kartu pos",
+   "note": "\"Kurir yang baik,\" / \"Salam dari\" / \"N.B.\""
+  },
+  "ui.lair": {
+   "en": "lair",
+   "target": "sarang"
+  },
+  "ui.guardian": {
+   "en": "GUARDIAN",
+   "target": "PENJAGA",
+   "note": "Always this word for a guardian."
+  },
+  "ui.boss": {
+   "en": "boss",
+   "target": "bos"
+  },
+  "ui.encounter": {
+   "en": "ENCOUNTER 01",
+   "target": "PERTARUNGAN 01"
+  },
+  "ui.name-card": {
+   "en": "name card",
+   "target": "kartu nama"
+  },
+  "ui.stronger": {
+   "en": "STRONGER",
+   "target": "LEBIH KUAT"
+  },
+  "ui.fury": {
+   "en": "FURY",
+   "target": "MURKA"
+  },
+  "ui.sky-reclaimed": {
+   "en": "SKY RECLAIMED",
+   "target": "LANGIT DIREBUT KEMBALI",
+   "note": "UI victory card (18-char budget): \"LANGIT BEBAS LAGI\"."
+  },
+  "ui.guardian-down": {
+   "en": "GUARDIAN DOWN!",
+   "target": "PENJAGA TUMBANG!"
+  },
+  "ui.victory": {
+   "en": "Victory!",
+   "target": "Menang!"
+  },
+  "ui.delivered": {
+   "en": "Delivered!",
+   "target": "Terkirim!"
+  },
+  "ui.try-again": {
+   "en": "Try again!",
+   "target": "Coba lagi!"
+  },
+  "ui.bonk": {
+   "en": "Bonk!",
+   "target": "Duk!",
+   "note": "Adapted: the Indonesian cartoon bump sound; same word as the Empress's \"Duk. Duk.\""
+  },
+  "ui.splash": {
+   "en": "Splash!",
+   "target": "Byur!",
+   "note": "Adapted: the Indonesian splash sound."
+  },
+  "ui.route-flown": {
+   "en": "ROUTE FLOWN",
+   "target": "RUTE DITEMPUH"
+  },
+  "ui.coming-soon": {
+   "en": "Coming soon",
+   "target": "Segera hadir"
+  },
+  "ui.unlock": {
+   "en": "unlock",
+   "target": "buka",
+   "note": "TERKUNCI."
+  },
+  "ui.story-key": {
+   "en": "Story",
+   "target": "Cerita",
+   "note": "\"Lewati\", \"Baris berikutnya\"."
+  },
+  "ui.to-be-continued": {
+   "en": "To be continued…",
+   "target": "Bersambung…",
+   "note": "Exact narrator wording: \"Bersambung…\" (for the UI's detection)."
+  },
+  "ui.pause": {
+   "en": "Take a breather.",
+   "target": "Tarik napas dulu.",
+   "note": "\"Lanjut terbang\", \"Ulangi\"."
+  },
+  "ui.flap": {
+   "en": "Flap",
+   "target": "Kepak",
+   "note": "\"Ketuk untuk mengepak\"."
+  },
+  "ui.fly": {
+   "en": "Fly!",
+   "target": "Terbang!",
+   "note": "\"Terbang lagi\"."
+  },
+  "ui.workout": {
+   "en": "workout",
+   "target": "olahraga"
+  },
+  "ui.calibration": {
+   "en": "calibration",
+   "target": "kalibrasi"
+  },
+  "ui.camera-lab": {
+   "en": "Camera & tracking lab",
+   "target": "Lab kamera & pelacakan"
+  },
+  "ui.play-games": {
+   "en": "Play Games",
+   "target": "Play Game",
+   "note": "Google's own Indonesian name for the service (\"Google Play Game\"); UI and store use it. Never spoken in the voices."
+  },
+  "ui.achievements": {
+   "en": "achievements",
+   "target": "pencapaian"
+  },
+  "ui.share-code": {
+   "en": "share code",
+   "target": "kode bagikan",
+   "note": "\"Tempel kode\"."
+  },
+  "ui.remix": {
+   "en": "Remix",
+   "target": "Remix",
+   "note": "Common in Indonesian apps."
+  },
+  "ui.starter-levels": {
+   "en": "Starter levels",
+   "target": "Level awal"
+  },
+  "ui.start-zone": {
+   "en": "START ZONE",
+   "target": "ZONA MULAI"
+  },
+  "ui.gate-family": {
+   "en": "gate family",
+   "target": "jenis gerbang"
+  },
+  "ui.boss-finale": {
+   "en": "Boss finale",
+   "target": "Bos penutup",
+   "note": "\"Tanda bos\"."
+  },
+  "ui.cleared-by-you": {
+   "en": "Cleared by you",
+   "target": "Sudah kamu tamatkan"
+  },
+  "ui.pace": {
+   "en": "Pace",
+   "target": "Tempo",
+   "note": "Santai, Sedang, Cepat."
+  },
+  "ui.lane": {
+   "en": "lane",
+   "target": "lajur",
+   "note": "\"lajur terbuka\" = open lane."
+  },
+  "ui.player": {
+   "en": "Player 1",
+   "target": "Pemain 1",
+   "note": "P1, P2."
+  },
+  "ui.team-score": {
+   "en": "TEAM SCORE",
+   "target": "SKOR TIM"
+  },
+  "ui.rematch": {
+   "en": "Rematch",
+   "target": "Tanding ulang"
+  },
+  "ui.rank-first-wings": {
+   "en": "First wings",
+   "target": "Sayap pertama"
+  },
+  "ui.rank-cloud-explorer": {
+   "en": "Cloud explorer",
+   "target": "Penjelajah awan",
+   "note": "UI rank chip (14-char budget): \"Pengelana awan\"."
+  },
+  "ui.home-greeting": {
+   "en": "Hi, I’m $name! Ready to fly?",
+   "target": "Hai, aku $name! Siap terbang?"
+  },
+  "achievement.frequent-flyer": {
+   "en": "Frequent flyer",
+   "target": "Penerbang setia"
+  },
+  "achievement.on-the-dot": {
+   "en": "On the dot",
+   "target": "Tepat sasaran",
+   "note": "Adapted: idiom of precision."
+  },
+  "achievement.star-chaser": {
+   "en": "Star chaser",
+   "target": "Pemburu bintang"
+  },
+  "achievement.constellation": {
+   "en": "Constellation",
+   "target": "Rasi bintang"
+  },
+  "achievement.sky-captain": {
+   "en": "Sky captain",
+   "target": "Kapten langit"
+  },
+  "achievement.trailblazer": {
+   "en": "Trailblazer",
+   "target": "Perintis"
+  },
+  "achievement.flock-together": {
+   "en": "Flock together",
+   "target": "Terbang berkawan",
+   "note": "Adapted: flock + together."
+  },
+  "achievement.all-rounder": {
+   "en": "All-rounder",
+   "target": "Serba bisa"
+  },
+  "achievement.mail-through-the-canopy": {
+   "en": "Mail Through the Canopy",
+   "target": "Surat Menembus Kanopi"
+  },
+  "achievement.return-to-sender": {
+   "en": "Return to Sender",
+   "target": "Kembali ke Pengirim"
+  },
+  "achievement.mint-tea-again": {
+   "en": "Mint Tea Again",
+   "target": "Teh Mint Lagi"
+  },
+  "achievement.crumbs-cleared": {
+   "en": "Crumbs Cleared",
+   "target": "Remah Raib",
+   "note": "Adapted: R-R alliteration, crumbs vanished."
+  },
+  "achievement.out-of-the-spotlight": {
+   "en": "Out of the Spotlight",
+   "target": "Lolos dari Sorotan",
+   "note": "Adapted: \"sorotan\" is both the searchlight beam and the limelight."
+  },
+  "achievement.gold-canopy": {
+   "en": "Gold Canopy",
+   "target": "Kanopi Emas"
+  },
+  "achievement.gold-road": {
+   "en": "Gold Road",
+   "target": "Jalan Emas"
+  },
+  "achievement.bright-lights": {
+   "en": "Bright Lights",
+   "target": "Gemerlap Kota",
+   "note": "Adapted: the bright lights of the big city."
+  },
+  "achievement.lamplighter": {
+   "en": "Lamplighter",
+   "target": "Penyala Lampu"
+  },
+  "achievement.harbour-bells": {
+   "en": "Harbour Bells",
+   "target": "Lonceng Pelabuhan"
+  },
+  "achievement.edge-of-the-map": {
+   "en": "Edge of the Map",
+   "target": "Ujung Peta"
+  },
+  "achievement.two-on-one-phone": {
+   "en": "Two on One Phone",
+   "target": "Berdua Satu Ponsel"
+  },
+  "achievement.friendly-rivals": {
+   "en": "Friendly Rivals",
+   "target": "Rival Akrab"
+  },
+  "achievement.route-planner": {
+   "en": "Route Planner",
+   "target": "Perancang Rute"
+  },
+  "achievement.the-whole-kit": {
+   "en": "The Whole Kit",
+   "target": "Komplet Semua",
+   "note": "Adapted: \"the whole lot\"."
+  },
+  "achievement.pen-pal": {
+   "en": "Pen Pal",
+   "target": "Sahabat Pena"
+  },
+  "achievement.night-mail": {
+   "en": "Night Mail",
+   "target": "Pos Malam"
+  },
+  "achievement.special-delivery": {
+   "en": "Special Delivery",
+   "target": "Kiriman Khusus"
+  },
+  "achievement.goal-spread-your-wings": {
+   "en": "Spread your wings",
+   "target": "Bentangkan sayap"
+  },
+  "achievement.goal-open-horizons": {
+   "en": "Open horizons",
+   "target": "Cakrawala terbuka"
+  },
+  "achievement.goal-pocketful-of-stars": {
+   "en": "Pocketful of stars",
+   "target": "Saku penuh bintang"
+  },
+  "achievement.goal-keep-the-sparkle": {
+   "en": "Keep the sparkle",
+   "target": "Jaga kilaunya"
+  },
+  "achievement.goal-right-on-the-mark": {
+   "en": "Right on the mark",
+   "target": "Pas di sasaran"
+  },
+  "achievement.goal-the-whole-journey": {
+   "en": "The whole journey",
+   "target": "Perjalanan penuh"
+  },
+  "achievement.card-sunrise-delivery": {
+   "en": "Sunrise delivery",
+   "target": "Kiriman fajar"
+  },
+  "achievement.card-peach-picnic": {
+   "en": "Peach picnic",
+   "target": "Piknik persik"
+  },
+  "achievement.card-moonlit-mail": {
+   "en": "Moonlit mail",
+   "target": "Surat sinar bulan"
+  },
+  "achievement.card-cloud-parade": {
+   "en": "Cloud parade",
+   "target": "Parade awan"
+  },
+  "achievement.card-twilight-treasure": {
+   "en": "Twilight treasure",
+   "target": "Harta senja"
+  },
+  "achievement.card-garden-party": {
+   "en": "Garden party",
+   "target": "Pesta taman"
+  },
+  "story.flame-seal": {
+   "en": "flame seal",
+   "target": "segel api",
+   "note": "\"segel berbentuk api\" = a seal shaped like a flame."
+  },
+  "story.warm-letter": {
+   "en": "a warm letter",
+   "target": "surat yang hangat",
+   "note": "\"hangat\" keeps both meanings (warm to the touch, kind)."
+  },
+  "story.night-mail": {
+   "en": "the night mail",
+   "target": "pos malam",
+   "note": "No near-homophone risk."
+  },
+  "story.morning-post": {
+   "en": "the morning post",
+   "target": "pos pagi"
+  },
+  "story.mail-route": {
+   "en": "route",
+   "target": "rute",
+   "note": "\"rute pos\" = mail route; \"lima rute\"."
+  },
+  "story.route-six": {
+   "en": "Route six",
+   "target": "Rute keenam"
+  },
+  "story.beacon": {
+   "en": "our beacon",
+   "target": "suar kami",
+   "note": "\"suar\" = beacon light."
+  },
+  "story.lost-letter": {
+   "en": "the lost letter",
+   "target": "surat yang hilang",
+   "note": "SURAT YANG HILANG DITEMUKAN."
+  },
+  "story.the-books": {
+   "en": "the books",
+   "target": "buku catatan"
+  },
+  "story.pigeonholes": {
+   "en": "pigeonholes",
+   "target": "rak sortir",
+   "note": "Pun adapted: no pigeon in the Indonesian word, so Bill's joke becomes \"a post club that has never had a real carrier pigeon (merpati pos)\"."
+  },
+  "story.bread-cart": {
+   "en": "the bread cart",
+   "target": "gerobak roti"
+  },
+  "story.bagel": {
+   "en": "a hot bagel a day",
+   "target": "satu bagel hangat sehari",
+   "note": "\"bagel\" kept (New York flavour)."
+  },
+  "story.landing-light": {
+   "en": "landing light",
+   "target": "lampu pendaratan"
+  },
+  "story.brew": {
+   "en": "the brew",
+   "target": "ramuan",
+   "note": "\"meramu\" = brewing."
+  },
+  "story.perfect-ink": {
+   "en": "the perfect ink",
+   "target": "tinta sempurna",
+   "note": "\"tinta yang tak pernah pudar\"."
+  },
+  "story.mint-tea": {
+   "en": "mint tea",
+   "target": "teh mint"
+  },
+  "story.letter-phrases": {
+   "en": "“Dear Grandma”, “Wish you were here”",
+   "target": "“Nenek tersayang”, “Salam rindu”",
+   "note": "Adapted: Indonesian letter/postcard stock phrases; also “Lekas sembuh”, “Peluk cium”."
+  },
+  "story.postage-stamp": {
+   "en": "stamps",
+   "target": "perangko",
+   "note": "Postage stamps (not passport \"cap\")."
+  },
+  "story.stamp-album": {
+   "en": "stamp album",
+   "target": "album perangko"
+  },
+  "story.penny-black": {
+   "en": "penny black",
+   "target": "Penny Black",
+   "note": "Name of the stamp kept."
+  },
+  "story.envelopes": {
+   "en": "the envelopes",
+   "target": "amplop"
+  },
+  "story.beauty-sleep": {
+   "en": "beauty sleep",
+   "target": "tidur cantik",
+   "note": "Indonesian has the same vanity phrase."
+  },
+  "story.dusk-delivery": {
+   "en": "deliver at dusk",
+   "target": "antar saat senja"
+  },
+  "story.lamps": {
+   "en": "the lamps",
+   "target": "lampu-lampu",
+   "note": "\"lampu kota\" = city lamps. No homophone risk."
+  },
+  "story.lampshades": {
+   "en": "lampshades",
+   "target": "kap lampu",
+   "note": "\"Kap lampu… Ya.\""
+  },
+  "story.harbour-bells": {
+   "en": "harbour bells",
+   "target": "lonceng pelabuhan"
+  },
+  "story.club-rule": {
+   "en": "Club rule",
+   "target": "Aturan klub"
+  },
+  "story.final-notice": {
+   "en": "final notice",
+   "target": "peringatan terakhir"
+  },
+  "story.wake-up-call": {
+   "en": "wake-up call",
+   "target": "alarm bangun",
+   "note": "Both meanings."
+  },
+  "story.first-letter": {
+   "en": "the first letter ever sent to the Dragon",
+   "target": "surat pertama untuk sang Naga"
+  },
+  "story.dotted-i": {
+   "en": "He dotted his “i” with a tiny bat.",
+   "target": "Titik huruf i-nya dia ganti kelelawar mungil.",
+   "note": "Latin script: the dotted i works."
+  },
+  "story.mailbag": {
+   "en": "mailbag",
+   "target": "kantong surat"
+  },
+  "story.satchel": {
+   "en": "satchel",
+   "target": "tas selempang"
+  },
+  "story.pharaohs-post": {
+   "en": "the Pharaoh's post",
+   "target": "pos Firaun",
+   "note": "The Pharaoh's royal mail (\"Tak ada kurir yang menerbangkan pos Firaun selain saya!\")."
+  },
+  "story.mask": {
+   "en": "golden courier mask",
+   "target": "topeng kurir emas",
+   "note": "\"Topengku!\""
+  },
+  "story.wrappings": {
+   "en": "wrappings",
+   "target": "balutan"
+  },
+  "story.headwear": {
+   "en": "headwear",
+   "target": "mahkota",
+   "note": "Crown \"mahkota\"; hat \"topi\"; police cap \"topi polisi\"; diadem \"diadem\"."
+  },
+  "story.kindling": {
+   "en": "kindling",
+   "target": "kayu bakar"
+  },
+  "story.rush-hour": {
+   "en": "rush hour",
+   "target": "jam sibuk",
+   "note": "\"Jam tidurnya itu jam sibuk kita.\""
+  },
+  "story.weather-vane": {
+   "en": "weather vane",
+   "target": "penunjuk angin"
+  },
+  "motto.every-letter-lands": {
+   "en": "Every letter lands.",
+   "target": "Setiap surat pasti sampai.",
+   "note": "\"sampai\" = arrives (the natural verb for mail). Works as a question: \"Apa setiap surat benar-benar sampai?\" Reused verbatim."
+  },
+  "motto.every-letter-delivered": {
+   "en": "Every letter delivered",
+   "target": "Setiap surat terantar",
+   "note": "Echoes the motto."
+  },
+  "address.rookie": {
+   "en": "rookie",
+   "target": "anak baru",
+   "note": "Bill's affectionate \"newbie\"; gender-neutral. Pip: \"Pip si anak baru\"."
+  },
+  "address.little-courier": {
+   "en": "little courier",
+   "target": "kurir kecil"
+  },
+  "address.darling": {
+   "en": "darling",
+   "target": "sayang",
+   "note": "The Gargoyle's and the Baron's \"darling\" (no gender)."
+  },
+  "address.postie": {
+   "en": "postie",
+   "target": "tukang pos",
+   "note": "Colloquial, gender-neutral."
+  },
+  "address.sprat": {
+   "en": "sprat",
+   "target": "ikan teri",
+   "note": "Adapted: \"teri\" = tiny anchovy, also \"kelas teri\" (small fry)."
+  },
+  "address.skylubber": {
+   "en": "skylubber",
+   "target": "bocah langit",
+   "note": "Adapted: no Indonesian \"landlubber\"; a gruff \"sky kid\"."
+  },
+  "address.matey": {
+   "en": "matey",
+   "target": "sobat",
+   "note": "\"awak-awakku\" = me hearties."
+  },
+  "address.lad": {
+   "en": "lad",
+   "target": "bocah",
+   "note": "Gender-neutral \"kid\", gruff."
+  },
+  "address.feathers": {
+   "en": "feathers",
+   "target": "si bulu"
+  },
+  "address.little-spark": {
+   "en": "little spark",
+   "target": "percikan kecil"
+  },
+  "address.hatchling": {
+   "en": "hatchling",
+   "target": "anak burung"
+  },
+  "address.small-one": {
+   "en": "small one",
+   "target": "makhluk kecil",
+   "note": "\"pembawa pesan\" = messenger, \"burung kecil\" = little bird."
+  },
+  "address.little-one": {
+   "en": "little one",
+   "target": "si kecil",
+   "note": "\"pengembara kecil\", \"burung malam\", \"bocah nakal\"."
+  },
+  "address.fledgling": {
+   "en": "fledgling",
+   "target": "anak muda",
+   "note": "Fussy old man's \"young one\"."
+  },
+  "address.old-courier": {
+   "en": "old courier",
+   "target": "Kakek Kurir",
+   "note": "Tender, respectful."
+  },
+  "address.stoneface": {
+   "en": "Stoneface",
+   "target": "Si Muka Batu",
+   "note": "Adapted: stone face, a jovial nickname."
+  },
+  "address.commissioner": {
+   "en": "Commissioner",
+   "target": "Komisaris"
+  },
+  "address.your-majesty": {
+   "en": "Your Majesty",
+   "target": "Yang Mulia"
+  },
+  "address.your-lordship": {
+   "en": "Your Lordship",
+   "target": "Tuanku",
+   "note": "Classic address to a noble."
+  },
+  "address.her-highness": {
+   "en": "Her Highness",
+   "target": "Sri Paduka"
+  },
+  "address.sir": {
+   "en": "sir",
+   "target": "Tuan",
+   "note": "The courier's polite address (with \"Anda\")."
+  },
+  "address.mister": {
+   "en": "Mister",
+   "target": "Om",
+   "note": "What Indonesian children call an adult man: \"Om Sfinks\", \"Om Neferhoo\"."
+  },
+  "address.partner": {
+   "en": "partner",
+   "target": "rekan",
+   "note": "Pip: \"rekan\"; Minty: \"sobat\" (also \"kawan\" to enemies, \"jagoan\" = hotshot)."
+  },
+  "address.peaches-pet-names": {
+   "en": "sweetie",
+   "target": "manis",
+   "note": "Varied: manis, sayang, si imut, permen kecil, kue mangkuk, gulali, madu, cintaku, bolu manis, si mungil, cokelat kecil, kesayanganku."
+  },
+  "address.bossy": {
+   "en": "bossy",
+   "target": "Pak Bos",
+   "note": "Adapted: cheeky \"Mr Boss\"."
+  },
+  "address.minions": {
+   "en": "Cousins! / my lovelies / my little scarabs / me hearties",
+   "target": "Sepupu! / sayang-sayangku / kumbang-kumbang kecilku / awak-awakku",
+   "note": "Each boss in his own register."
+  },
+  "phrase.baron-bat-line": {
+   "en": "This route is my roost now, little courier!",
+   "target": "Rute ini sarang saya sekarang, kurir kecil!",
+   "note": "\"sarang\" = a bat's roost (where he sleeps)."
+  },
+  "phrase.spitter-king-line": {
+   "en": "Every letter on my road goes in the brew!",
+   "target": "Setiap surat di jalanku masuk ke ramuan!"
+  },
+  "phrase.dusk-empress-line": {
+   "en": "Hush now. The night mail is sleeping.",
+   "target": "Ssst, tenanglah. Pos malam sedang tidur."
+  },
+  "phrase.pirate-captain-line": {
+   "en": "Arr! Every mailbag on these waves be mine!",
+   "target": "Arrr! Semua kantong surat di laut ini milik Kapten!",
+   "note": "Pirate flavour: he speaks of himself as \"Kapten\"."
+  },
+  "phrase.ember-dragon-line": {
+   "en": "The sky is mine. Your letters are kindling.",
+   "target": "Langit ini milikku. Suratmu hanyalah kayu bakar."
+  },
+  "phrase.neferhoo-line": {
+   "en": "Return to sender! This route has a courier.",
+   "target": "Kembali ke pengirim! Rute ini sudah ada kurirnya."
+  },
+  "phrase.king-coo-line": {
+   "en": "Nobody flies till the bread cart is found!",
+   "target": "Tak ada yang terbang sampai gerobak roti ketemu!"
+  },
+  "phrase.searchlight-gargoyle-line": {
+   "en": "Hold still! Nobody ever stays in the light.",
+   "target": "Diam di situ! Tak pernah ada yang mau tinggal di bawah sorotan.",
+   "note": "\"sorotan\" = his searchlight and the limelight."
+  },
+  "phrase.return-to-sender": {
+   "en": "Return to sender!",
+   "target": "Kembali ke pengirim!",
+   "note": "The Indonesian postal formula on returned mail (KEMBALI KE PENGIRIM). \"Kembali ke... saya?\" for his hurt line."
+  },
+  "phrase.signed-sealed-delivered": {
+   "en": "Signed, sealed, delivered!",
+   "target": "Dicap, disegel, diantar!",
+   "note": "Three beats; Minty: \"Dicap, disegel, dikebut!\""
+  },
+  "phrase.small-bird-big-sky": {
+   "en": "Small bird. Big sky.",
+   "target": "Burung kecil. Langit luas.",
+   "note": "Riffs: \"Burung kecil, rencana besar!\""
+  },
+  "phrase.peaches-tagline": {
+   "en": "Rosy cheeks, curly crest, all heart.",
+   "target": "Pipi merona, jambul ikal, hati penuh cinta."
+  },
+  "phrase.minty-tagline": {
+   "en": "Tiny hummer. Fresh sprig. Full speed.",
+   "target": "Kolibri mungil. Mint segar. Kecepatan penuh."
+  },
+  "phrase.orbit-tagline": {
+   "en": "A dreamy owl who flies by starlight.",
+   "target": "Burung hantu pemimpi yang terbang diterangi bintang.",
+   "note": "Bill: \"Terbanglah diterangi bintang, anak baru.\""
+  },
+  "phrase.sprint-woohoo": {
+   "en": "Woo-hooo!",
+   "target": "Yuhuuu!",
+   "note": "Indonesian kids' cheer."
+  },
+  "phrase.sprint-turbo-feathers": {
+   "en": "Turbo feathers!",
+   "target": "Bulu turbo!"
+  },
+  "phrase.sprint-bye-bye-gravity": {
+   "en": "Bye-bye, gravity!",
+   "target": "Dadah, gravitasi!",
+   "note": "\"Dadah\" = a child's bye-bye."
+  },
+  "phrase.sprint-wheee": {
+   "en": "Wheeee!",
+   "target": "Wiiiii!"
+  },
+  "phrase.keep-your-beak-up": {
+   "en": "Keep your beak up.",
+   "target": "Tegakkan paruhmu.",
+   "note": "Adapted from \"tegakkan kepala\" (hold your head up)."
+  },
+  "phrase.all-screech": {
+   "en": "He’s all screech",
+   "target": "Jeritannya saja yang besar",
+   "note": "Adapted: \"only his screech is big\" (all bark, no bite)."
+  },
+  "phrase.no-flame-seal": {
+   "en": "No flame seal on this guardian.",
+   "target": "Penjaga ini tak punya segel api.",
+   "note": "Same wording both times."
+  },
+  "phrase.halt": {
+   "en": "HALT!",
+   "target": "BERHENTI!"
+  },
+  "phrase.mister-nice-bat": {
+   "en": "No more Mister Nice Bat!",
+   "target": "Tak ada lagi Kelelawar Baik Hati!",
+   "note": "Adapted."
+  },
+  "phrase.at-your-disservice": {
+   "en": "at your disservice",
+   "target": "siap merepotkan Anda",
+   "note": "Adapted: inverts \"siap melayani Anda\" (at your service)."
+  },
+  "phrase.mind-the-gap": {
+   "en": "Mind the gap",
+   "target": "Perhatikan celah",
+   "note": "Adapted from the Jakarta commuter-train warning \"perhatikan celah peron\"."
+  },
+  "phrase.sticks-and-stones": {
+   "en": "Sticks and stones?",
+   "target": "Lidah tak bertulang",
+   "note": "Adapted: the proverb \"the tongue has no bones\" (talk is cheap) + \"but my rocks are hard\"."
+  },
+  "phrase.rock-beats-shot": {
+   "en": "Rock beats shot!",
+   "target": "Batu menang lawan tembakan!",
+   "note": "Rock-paper-scissors (\"batu, gunting, kertas\") pattern."
+  },
+  "phrase.pirate-speak": {
+   "en": "Arr!",
+   "target": "Arrr!",
+   "note": "Stage-pirate idiom: Arrr!, Ahoi!, \"Berhenti di situ!\" (Avast), \"Demi jangkar karatan!\" (Shiver me timbers), \"Astaga!\" (Blimey), \"kau\", self \"Kapten\"."
+  },
+  "phrase.strike-the-colours": {
+   "en": "strike the colours",
+   "target": "turunkan bendera"
+  },
+  "phrase.nobody-looks-up": {
+   "en": "Nobody looks up.",
+   "target": "Tak ada yang mendongak.",
+   "note": "Payoff: \"Setiap kurir pasti mendongak!\""
+  },
+  "phrase.accepts": {
+   "en": "The Commissioner accepts.",
+   "target": "Sang Komisaris menerima.",
+   "note": "Also \"Sang Gargoyle menerima.\""
+  },
+  "phrase.bonk-bonk": {
+   "en": "Bonk. Bonk.",
+   "target": "Duk. Duk."
+  },
+  "phrase.hush": {
+   "en": "Hush now.",
+   "target": "Ssst, tenanglah.",
+   "note": "\"Ssst.\" / \"Pelan-pelan saja.\""
+  },
+  "phrase.welcome-to-the-club": {
+   "en": "Welcome to the club",
+   "target": "Selamat bergabung di klub"
+  },
+  "ui.omen-baron": {
+   "en": "A SHADOW APPROACHES",
+   "target": "BAYANGAN MENDEKAT"
+  },
+  "ui.omen-baron-returns": {
+   "en": "THE BARON RETURNS",
+   "target": "SANG BARON KEMBALI"
+  },
+  "ui.omen-spitter": {
+   "en": "SOMETHING IS BREWING",
+   "target": "ADA YANG SEDANG DIRAMU",
+   "note": "Keeps the brew pun."
+  },
+  "ui.omen-empress": {
+   "en": "TWILIGHT TAKES WING",
+   "target": "SENJA MENGEPAKKAN SAYAP"
+  },
+  "ui.omen-pirate": {
+   "en": "SAIL HO!",
+   "target": "ADA KAPAL!",
+   "note": "The lookout's cry."
+  },
+  "ui.omen-dragon": {
+   "en": "THE SKY CATCHES FIRE",
+   "target": "LANGIT TERBAKAR"
+  },
+  "ui.omen-king-coo": {
+   "en": "THE CURB IS CLOSED",
+   "target": "KAKI LIMA DITUTUP",
+   "note": "Matches \"Komisaris Kaki Lima\"."
+  },
+  "ui.omen-gargoyle": {
+   "en": "STORM WARNING",
+   "target": "PERINGATAN BADAI",
+   "note": "Same words as level 3-4."
+  },
+  "ui.omen-neferhoo": {
+   "en": "THE PYRAMID STIRS",
+   "target": "PIRAMIDA TERBANGUN"
+  },
+  "story.letter": {
+   "en": "letter",
+   "target": "surat"
+  },
+  "story.mail-and-post": {
+   "en": "the mail / the post",
+   "target": "surat / pos",
+   "note": "\"surat\" for the mail itself, \"pos\" for the service (\"Pos Klub Langit\", \"pos malam\")."
+  },
+  "story.parcel": {
+   "en": "parcel",
+   "target": "paket"
+  },
+  "story.delivery": {
+   "en": "delivery",
+   "target": "pengiriman",
+   "note": "\"antar\" = deliver, \"terkirim\" = delivered, \"kiriman\" = a delivery."
+  },
+  "story.salutation": {
+   "en": "Dear Dragon.",
+   "target": "Naga yang baik.",
+   "note": "Letter salutations: \"Naga yang baik.\" / \"Kurir yang baik,\"."
+  },
+  "ui.home-key": {
+   "en": "Home",
+   "target": "Beranda",
+   "note": "Home buttons and \"Back home\" (Ke beranda)."
+  },
+  "ui.settings": {
+   "en": "Settings",
+   "target": "Pengaturan"
+  },
+  "ui.reset-progress": {
+   "en": "Reset local progress",
+   "target": "Atur ulang progres lokal",
+   "note": "\"atur ulang\" = reset; \"Hapus semuanya\" = Reset everything."
+  },
+  "ui.cloud-save": {
+   "en": "cloud save",
+   "target": "simpanan cloud",
+   "note": "\"Tersimpan di cloud\", \"Cloud dipulihkan\"."
+  },
+  "ui.daily-goal": {
+   "en": "goal (daily Adventure)",
+   "target": "misi",
+   "note": "The three daily goals: \"3 MISI\", \"Tiga misi.\" Titles keep the glossary achievement.goal-* words."
+  },
+  "ui.boss-health": {
+   "en": "health / HP (boss)",
+   "target": "darah",
+   "note": "Screen readers: \"darah 120 dari 300\"; numbers keep \"HP\" (\"{hp} HP\", \"SISA 40 HP\")."
+  },
+  "ui.dragon-heart": {
+   "en": "heart (the Ember Dragon's weak point)",
+   "target": "jantung",
+   "note": "\"JANTUNG ×2\", \"Serang jantung yang menyala\". Distinct from the life \"hati\"."
+  },
+  "ui.defeated": {
+   "en": "DEFEATED (boss)",
+   "target": "TUMBANG",
+   "note": "\"BARON KELELAWAR TUMBANG\", health bar \"TUMBANG\"; same verb as PENJAGA TUMBANG."
+  },
+  "ui.escaped": {
+   "en": "ESCAPED! / FLAWLESS!",
+   "target": "LOLOS! / TANPA CELA!",
+   "note": "Rush and gale banners; \"Tanpa lecet.\" in replay highlights."
+  },
+  "ui.goal-done": {
+   "en": "Done (goal met)",
+   "target": "Tercapai",
+   "note": "Under result goals; \"Belum\" = Not yet; \"Finis dulu\" = Finish first."
+  },
+  "ui.shelf": {
+   "en": "shelf (Level Builder)",
+   "target": "rak",
+   "note": "\"“{name}” sudah ada di rakmu!\""
+  },
+  "ui.level-builder-short": {
+   "en": "Builder (key)",
+   "target": "Pembuat",
+   "note": "Short key back to the Level Builder (12-char budget); full name \"Pembuat Level\"."
+  },
+  "ui.edit": {
+   "en": "Edit",
+   "target": "Ubah",
+   "note": "\"Ubah level\"; Rename = \"Ganti nama\"; Duplicate = \"Duplikat\"; Copy = \"Salin\"."
+  },
+  "ui.replay-title": {
+   "en": "REPLAY (screen title)",
+   "target": "PUTAR ULANG",
+   "note": "Screen title (12-char budget); the thing itself stays \"tayangan ulang\"; \"Tonton ulang\" = Watch replay."
+  },
+  "ui.upgrade-key": {
+   "en": "Upgrade (buy key)",
+   "target": "Tingkatkan",
+   "note": "\"MAKS\" = MAX; \"Sudah maksimal\" = Maxed out."
+  },
+  "ui.new-best": {
+   "en": "New best!",
+   "target": "Rekor baru!",
+   "note": "\"Terbaik {n}\" = Best {n}; \"REKOR PRIBADI\" = PERSONAL BEST."
+  },
+  "ui.seconds-unit": {
+   "en": "s (seconds)",
+   "target": "detik / dtk / s",
+   "note": "Sentences \"detik\"; compact labels \"dtk\"; tightest HUD slots keep the SI \"s\" (\"12s\")."
+  },
+  "ui.time-ago": {
+   "en": "3 min ago",
+   "target": "3mnt lalu",
+   "note": "12-char budget: \"{n}mnt lalu\", \"{n}jam lalu\", \"{n}hr lalu\"; \"baru saja\" = just now."
+  },
+  "ui.postcard-address": {
+   "en": "The courier / Sky Club post / Up in the sky",
+   "target": "Yth. Kurir / Pos Klub Langit / Di atas awan",
+   "note": "\"Yth.\" = the formal Indonesian address abbreviation on envelopes."
+  },
+  "ui.dodge-tags": {
+   "en": "FLY LOW / FLY HIGH",
+   "target": "KE BAWAH / KE ATAS",
+   "note": "12-char tags; hints say \"Terbang rendah!\" / \"Terbang tinggi!\"."
+  },
+  "ui.coop-keys": {
+   "en": "P1 · W flap · D shoot · A sprint",
+   "target": "P1: W kepak, D tembak, A lesat",
+   "note": "40-char budget forces the root \"lesat\" for sprint; P2: \"Atas kepak, Kanan tembak, Kiri lesat\"."
+  }
+ }
+}

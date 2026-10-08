@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import 'theme.dart';
 
 /// A flight's target stays fixed even while the saved record is being updated.
@@ -18,18 +19,19 @@ class RecordChase extends StatelessWidget {
     final beaten = score > best;
     final matched = score == best;
     final remaining = best + 1 - score;
+    final l = context.l10n;
     final title = beaten
-        ? 'New best!'
+        ? l.hudRecordNewBest
         : matched
-        ? 'Best matched!'
-        : 'Best $best';
+        ? l.hudRecordMatched
+        : l.hudRecordBest(best);
     final detail = beaten
-        ? '+${score - best} beyond your best'
+        ? l.hudRecordBeyond(score - best)
         : remaining == 1
-        ? 'One more for a record'
-        : '$remaining to a new record';
+        ? l.hudRecordOneMore
+        : l.hudRecordToGo(remaining);
     return Semantics(
-      label: '$title. $detail.',
+      label: l.hudRecordSemantics(title, detail),
       child: ExcludeSemantics(
         child: TweenAnimationBuilder<double>(
           key: ValueKey(beaten),

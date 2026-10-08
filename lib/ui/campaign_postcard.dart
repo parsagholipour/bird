@@ -10,11 +10,18 @@ import '../game/star_art.dart';
 import 'campaign_keepsake_art.dart';
 import 'campaign_map_art.dart' show MapRibbonPainter;
 import 'campaign_region_still.dart';
+import 'fit_text.dart';
 import 'theme.dart';
+import '../l10n/l10n.dart';
 
 /// What one chapter's postcard says and shows. The words come from the
 /// chapter in the campaign catalog, so the card and docs/campaign.md have
 /// one source; the card only adds where its picture looks.
+///
+/// [route], [postmarkName], [body] and [postscript] are the English words
+/// (the twins of the ARB keys `chapter_*`, which test/l10n_campaign_test.dart
+/// keeps equal); the card shows the current language's through
+/// [CampaignText] (`routeIn`, `bodyIn`, ...).
 class CampaignLetter {
   const CampaignLetter(this.chapter, {this.crop = 0});
   final CampaignChapter chapter;
@@ -34,12 +41,20 @@ class CampaignLetter {
   /// The message after "Dear courier," which the card writes as its own
   /// greeting line.
   String get body {
+    // Reads the English twin. l10n-ignore
     final text = _typeset(_after(chapter.postcard, 'Dear courier, '));
     return text.isEmpty ? text : text[0].toUpperCase() + text.substring(1);
   }
 
   /// The P.S. without its label, which the card sets in its own colour.
+  // Reads the English twin. l10n-ignore
   String get postscript => _typeset(_after(chapter.postscript, 'P.S. '));
+
+  /// [route], [postmarkName], [body] and [postscript] in [l]'s language.
+  String routeIn(AppLocalizations l) => l.chapterRoute(chapter);
+  String postmarkIn(AppLocalizations l) => l.chapterPostmark(chapter);
+  String bodyIn(AppLocalizations l) => l.chapterPostcard(chapter);
+  String postscriptIn(AppLocalizations l) => l.chapterPostscript(chapter);
 
   /// How far the picture slides along the region's skyline, as a fraction
   /// of the frame, to keep its landmark beside the bird.
@@ -89,9 +104,11 @@ class CampaignPostcard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Semantics(
     container: true,
-    label:
-        'Postcard from ${letter.route}. Dear courier, ${letter.body} '
-        'P.S. ${letter.postscript}',
+    label: context.l10n.campaignPostcardSemantics(
+      letter.routeIn(context.l10n),
+      letter.bodyIn(context.l10n),
+      letter.postscriptIn(context.l10n),
+    ),
     child: AspectRatio(
       aspectRatio: size.width / size.height,
       child: FittedBox(
@@ -189,6 +206,8 @@ class _PictureSide extends StatelessWidget {
                 Positioned(
                   left: 14,
                   top: 12,
+                  // A long name in another language shrinks to the picture.
+                  right: 14,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -197,7 +216,7 @@ class _PictureSide extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(18, 3, 18, 8),
                           child: Text(
-                            'Greetings from',
+                            context.l10n.campaignPostcardGreetingsFrom,
                             style: bodyText(
                               12,
                               color: SkyColors.cream,
@@ -210,7 +229,13 @@ class _PictureSide extends StatelessWidget {
                       Transform.rotate(
                         angle: -.04,
                         alignment: Alignment.centerLeft,
-                        child: CampaignLettering(letter.region.title),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: AlignmentDirectional.centerStart,
+                          child: CampaignLettering(
+                            context.l10n.regionName(letter.region),
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -354,160 +379,194 @@ class _MessageSide extends StatelessWidget {
   static const pen = Color(0xff2e5f93);
 
   @override
-  Widget build(BuildContext context) => Container(
-    decoration: _card(const Color(0xfffffaef)),
-    child: Stack(
-      children: [
-        Positioned.fill(
-          child: CustomPaint(
-            painter: CampaignPaperPainter(seed: chapter, radius: 11.4),
-          ),
-        ),
-        const Positioned.fill(
-          child: CustomPaint(painter: CampaignAirmailPainter(radius: 11.4)),
-        ),
-        // A faint club seal on the paper, behind the message.
-        const Positioned(
-          left: 132,
-          top: 163,
-          width: 90,
-          height: 90,
-          child: CustomPaint(painter: _SealPainter()),
-        ),
-        Positioned(
-          left: 0,
-          right: 0,
-          top: 13,
-          child: Center(
-            child: Text(
-              'SKY CLUB POSTCARD',
-              style: bodyText(
-                10,
-                color: SkyColors.muted.withValues(alpha: .7),
-                weight: FontWeight.w900,
-              ).copyWith(letterSpacing: 2.4),
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return Container(
+      decoration: _card(const Color(0xfffffaef)),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: CustomPaint(
+              painter: CampaignPaperPainter(seed: chapter, radius: 11.4),
             ),
           ),
-        ),
-        // The message on the left, the stamp and address on the right.
-        Positioned(
-          left: 24,
-          top: 36,
-          width: 222,
-          bottom: 20,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _Pen(
-                angle: -.03,
-                child: Text('Dear courier,', style: heading(24, color: pen)),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                letter.body,
+          const Positioned.fill(
+            child: CustomPaint(painter: CampaignAirmailPainter(radius: 11.4)),
+          ),
+          // A faint club seal on the paper, behind the message.
+          const Positioned(
+            left: 132,
+            top: 163,
+            width: 90,
+            height: 90,
+            child: CustomPaint(painter: _SealPainter()),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            top: 13,
+            child: Center(
+              child: FitText(
+                l.campaignPostcardHeader,
                 style: bodyText(
-                  14,
-                  weight: FontWeight.w700,
-                ).copyWith(height: 1.34),
+                  10,
+                  color: SkyColors.muted.withValues(alpha: .7),
+                  weight: FontWeight.w900,
+                ).copyWith(letterSpacing: 2.4),
               ),
-              const SizedBox(height: 8),
-              Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: 'P.S. ',
-                      style: heading(14, color: SkyColors.coralDeep),
-                    ),
-                    TextSpan(text: letter.postscript),
-                  ],
-                ),
-                style: bodyText(
-                  13,
-                  color: SkyColors.muted,
-                  weight: FontWeight.w700,
-                ).copyWith(height: 1.3),
-              ),
-              const Spacer(),
-              // The flourish is as wide as the name it underlines.
-              IntrinsicWidth(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _Pen(
-                      angle: -.03,
-                      child: Text(
-                        '— ${letter.route}',
-                        style: heading(18, color: pen),
+            ),
+          ),
+          // The message on the left, the stamp and address on the right.
+          Positioned(
+            left: 24,
+            top: 36,
+            width: 222,
+            bottom: 20,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // The message keeps to its half of the card: a longer
+                // translation sets a little smaller rather than run into the
+                // signature.
+                Expanded(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: AlignmentDirectional.topStart,
+                    child: SizedBox(
+                      width: _messageWidth,
+                      child: Column(
+                        key: const ValueKey('campaign-postcard-message'),
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _Pen(
+                            angle: -.03,
+                            child: Text(
+                              l.campaignPostcardGreeting,
+                              style: heading(24, color: pen),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            letter.bodyIn(l),
+                            style: bodyText(
+                              14,
+                              weight: FontWeight.w700,
+                            ).copyWith(height: 1.34),
+                          ),
+                          const SizedBox(height: 8),
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: '${l.campaignPostcardPs} ',
+                                  style: heading(
+                                    14,
+                                    color: SkyColors.coralDeep,
+                                  ),
+                                ),
+                                TextSpan(text: letter.postscriptIn(l)),
+                              ],
+                            ),
+                            style: bodyText(
+                              13,
+                              color: SkyColors.muted,
+                              weight: FontWeight.w700,
+                            ).copyWith(height: 1.3),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 1),
-                    const CustomPaint(
-                      size: Size.fromHeight(9),
-                      painter: _FlourishPainter(pen),
-                    ),
-                  ],
+                  ),
+                ),
+                // The flourish is as wide as the name it underlines.
+                IntrinsicWidth(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _Pen(
+                        angle: -.03,
+                        child: Text(
+                          l.campaignPostcardSignature(letter.routeIn(l)),
+                          style: heading(18, color: pen),
+                        ),
+                      ),
+                      const SizedBox(height: 1),
+                      const CustomPaint(
+                        size: Size.fromHeight(9),
+                        painter: _FlourishPainter(pen),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            left: 258,
+            top: 40,
+            bottom: 26,
+            child: CustomPaint(
+              size: const Size(2, double.infinity),
+              painter: _DashPainter(),
+            ),
+          ),
+          Positioned(
+            right: 22,
+            top: 22,
+            width: 86,
+            height: 102,
+            child: Transform.rotate(
+              angle: .03 + chapter % 3 * .02,
+              child: CustomPaint(
+                painter: CampaignStampPainter(
+                  letter.boss,
+                  chapter: chapter,
+                  label: l.campaignStampSkyClub,
                 ),
               ),
-            ],
-          ),
-        ),
-        Positioned(
-          left: 258,
-          top: 40,
-          bottom: 26,
-          child: CustomPaint(
-            size: const Size(2, double.infinity),
-            painter: _DashPainter(),
-          ),
-        ),
-        Positioned(
-          right: 22,
-          top: 22,
-          width: 86,
-          height: 102,
-          child: Transform.rotate(
-            angle: .03 + chapter % 3 * .02,
-            child: CustomPaint(
-              painter: CampaignStampPainter(letter.boss, chapter: chapter),
             ),
           ),
-        ),
-        // The postmark's ring bites the stamp's lower corner; its cancel
-        // lines run across the stamp and off the card.
-        Positioned(
-          left: 251,
-          top: 103,
-          width: 136,
-          height: 62,
-          child: Transform.rotate(
-            angle: -.1,
-            child: CustomPaint(
-              painter: CampaignPostmarkPainter(
-                top: letter.postmarkName,
-                middle: 'DELIVERED',
-                bottom: 'SKY CLUB POST',
+          // The postmark's ring bites the stamp's lower corner; its cancel
+          // lines run across the stamp and off the card.
+          Positioned(
+            left: 251,
+            top: 103,
+            width: 136,
+            height: 62,
+            child: Transform.rotate(
+              angle: -.1,
+              child: CustomPaint(
+                painter: CampaignPostmarkPainter(
+                  top: letter.postmarkIn(l),
+                  middle: l.campaignPostmarkDelivered,
+                  bottom: l.campaignPostmarkClub,
+                ),
               ),
             ),
           ),
-        ),
-        Positioned(
-          left: 272,
-          right: 18,
-          top: 167,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _AddressLine('The courier', angle: -.012),
-              const SizedBox(height: 6),
-              _AddressLine('Sky Club post', angle: .01),
-              const SizedBox(height: 6),
-              _AddressLine('Up in the sky', angle: -.008),
-            ],
+          Positioned(
+            left: 272,
+            right: 18,
+            top: 167,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _AddressLine(l.campaignPostcardAddressName, angle: -.012),
+                const SizedBox(height: 6),
+                _AddressLine(l.campaignPostcardAddressStreet, angle: .01),
+                const SizedBox(height: 6),
+                _AddressLine(l.campaignPostcardAddressCity, angle: -.008),
+              ],
+            ),
           ),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
+
+  /// The width of the message column, beside the stamp.
+  static const _messageWidth = 222.0;
 }
 
 /// Handwriting in Fredoka: leaned over and set a little off the baseline,
@@ -545,7 +604,7 @@ class _AddressLine extends StatelessWidget {
     ),
     child: _Pen(
       angle: angle,
-      child: Text(
+      child: FitText(
         text,
         style: heading(14.5, color: _MessageSide.pen, weight: FontWeight.w500),
       ),

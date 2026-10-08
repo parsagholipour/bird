@@ -2,6 +2,10 @@ import 'dart:math' as math;
 import 'game_rules.dart';
 import 'session_replay.dart';
 
+// l10n-english-twin: [ReplayHighlight.title] and [ReplayHighlight.detail]
+// are the English twins of the replayMoment* keys; the highlights sheet
+// words a moment with ReplayText (lib/l10n/text/replay_text.dart).
+
 enum ReplayMomentKind {
   start,
   finish,
@@ -15,20 +19,76 @@ enum ReplayMomentKind {
   gale,
 }
 
+/// One moment worth replaying. It records what happened ([kind], [value]
+/// and the fields below), so any language can word it; [title] and
+/// [detail] are its English words.
 class ReplayHighlight {
   const ReplayHighlight({
     required this.kind,
     required this.atMs,
-    required this.title,
-    required this.detail,
     required this.priority,
     this.value = 0,
+    this.rush,
+    this.endReason,
+    this.flawless = false,
+    this.subtleStars = false,
   });
   final ReplayMomentKind kind;
   final double atMs;
-  final String title, detail;
   final int priority, value;
+
+  /// The rush path escaped, for a [ReplayMomentKind.rush] moment.
+  final RushPathKind? rush;
+
+  /// How the flight ended, for a [ReplayMomentKind.finish] moment.
+  final EndReason? endReason;
+
+  /// A rush or gale got through without a hit (the bigger bonus).
+  final bool flawless;
+
+  /// A star trio under the calmer star rewards.
+  final bool subtleStars;
   double get playFromMs => math.max(0, atMs - 1500);
+
+  String get title => switch (kind) {
+    ReplayMomentKind.start => 'Takeoff',
+    ReplayMomentKind.magnet => 'Star magnet',
+    ReplayMomentKind.starTrio => 'First star trio',
+    ReplayMomentKind.streak => '$value× star power',
+    ReplayMomentKind.shield => 'Shield save',
+    ReplayMomentKind.perfect => 'First perfect pass',
+    ReplayMomentKind.milestone => '$value gates cleared',
+    ReplayMomentKind.rush => (rush ?? RushPathKind.wildfire).escape,
+    ReplayMomentKind.gale => 'Weathered the gale',
+    ReplayMomentKind.finish =>
+      endReason == EndReason.completed ? 'Route complete' : 'Final moment',
+  };
+
+  String get detail => switch (kind) {
+    ReplayMomentKind.start => 'The sky is yours.',
+    ReplayMomentKind.magnet => 'Three perfect passes bring the stars closer.',
+    ReplayMomentKind.starTrio =>
+      subtleStars
+          ? 'Every star in the group collected. +5 points!'
+          : 'Three stars become a constellation. +5 points!',
+    ReplayMomentKind.streak => 'A sparkling streak of stars.',
+    ReplayMomentKind.shield => 'A close call, and another chance.',
+    ReplayMomentKind.perfect => 'Right through the aiming mark.',
+    ReplayMomentKind.milestone => 'A little farther into the sky.',
+    ReplayMomentKind.rush =>
+      flawless
+          ? 'Not a scratch. +$value points!'
+          : 'Sprint rings to safety. +$value points!',
+    ReplayMomentKind.gale =>
+      flawless
+          ? 'Not a scratch. +$value points!'
+          : 'Dodged the flying debris. +$value points!',
+    ReplayMomentKind.finish => switch (endReason) {
+      EndReason.completed => 'You reached the end of the route.',
+      EndReason.collision => 'Watch the final approach.',
+      _ => 'The end of this flight.',
+    },
+  };
 }
 
 /// Reconstruct once away from the playback UI. Journal timestamps include
@@ -63,13 +123,7 @@ List<ReplayHighlight> buildReplayHighlights(ReplayTape tape) {
     final at = (entry[0] as num).toDouble();
     if (!hadStarted && sim.started) {
       offer(
-        ReplayHighlight(
-          kind: ReplayMomentKind.start,
-          atMs: at,
-          title: 'Takeoff',
-          detail: 'The sky is yours.',
-          priority: 100,
-        ),
+        ReplayHighlight(kind: ReplayMomentKind.start, atMs: at, priority: 100),
       );
     }
     for (final event in sim.events.where((e) => e.at > previousTime)) {
@@ -77,68 +131,50 @@ List<ReplayHighlight> buildReplayHighlights(ReplayTape tape) {
         FlightEventKind.magnet => ReplayHighlight(
           kind: ReplayMomentKind.magnet,
           atMs: at,
-          title: 'Star magnet',
-          detail: 'Three perfect passes bring the stars closer.',
           priority: 75,
         ),
         FlightEventKind.starTrio => ReplayHighlight(
           kind: ReplayMomentKind.starTrio,
           atMs: at,
-          title: 'First star trio',
-          detail: sim.subtleStarRewards
-              ? 'Every star in the group collected. +5 points!'
-              : 'Three stars become a constellation. +5 points!',
           priority: 65,
+          subtleStars: sim.subtleStarRewards,
         ),
         FlightEventKind.streak => ReplayHighlight(
           kind: ReplayMomentKind.streak,
           atMs: at,
-          title: '${event.value}× star power',
-          detail: 'A sparkling streak of stars.',
           value: event.value,
           priority: event.value == 3 ? 85 : 70,
         ),
         FlightEventKind.shieldUsed => ReplayHighlight(
           kind: ReplayMomentKind.shield,
           atMs: at,
-          title: 'Shield save',
-          detail: 'A close call, and another chance.',
           priority: 60,
         ),
         FlightEventKind.perfect when !sim.collectsStars => ReplayHighlight(
           kind: ReplayMomentKind.perfect,
           atMs: at,
-          title: 'First perfect pass',
-          detail: 'Right through the aiming mark.',
           priority: 65,
         ),
         FlightEventKind.milestone when !sim.collectsStars => ReplayHighlight(
           kind: ReplayMomentKind.milestone,
           atMs: at,
-          title: '${event.value} gates cleared',
-          detail: 'A little farther into the sky.',
           value: event.value,
           priority: event.value == 5 ? 80 : 55,
         ),
         FlightEventKind.rushEscaped => ReplayHighlight(
           kind: ReplayMomentKind.rush,
           atMs: at,
-          title: (sim.lastRushKind ?? RushPathKind.wildfire).escape,
-          detail: event.value > Rush.escapeBonus
-              ? 'Not a scratch. +${event.value} points!'
-              : 'Sprint rings to safety. +${event.value} points!',
           value: event.value,
           priority: event.value > Rush.escapeBonus ? 90 : 78,
+          rush: sim.lastRushKind ?? RushPathKind.wildfire,
+          flawless: event.value > Rush.escapeBonus,
         ),
         FlightEventKind.galeWeathered => ReplayHighlight(
           kind: ReplayMomentKind.gale,
           atMs: at,
-          title: 'Weathered the gale',
-          detail: event.value > Gale.weatherBonus
-              ? 'Not a scratch. +${event.value} points!'
-              : 'Dodged the flying debris. +${event.value} points!',
           value: event.value,
           priority: event.value > Gale.weatherBonus ? 90 : 78,
+          flawless: event.value > Gale.weatherBonus,
         ),
         _ => null,
       };
@@ -159,15 +195,8 @@ List<ReplayHighlight> buildReplayHighlights(ReplayTape tape) {
         ReplayHighlight(
           kind: ReplayMomentKind.finish,
           atMs: at,
-          title: sim.endReason == EndReason.completed
-              ? 'Route complete'
-              : 'Final moment',
-          detail: switch (sim.endReason) {
-            EndReason.completed => 'You reached the end of the route.',
-            EndReason.collision => 'Watch the final approach.',
-            _ => 'The end of this flight.',
-          },
           priority: 100,
+          endReason: sim.endReason,
         ),
       );
     }

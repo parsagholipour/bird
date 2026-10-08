@@ -8,6 +8,10 @@ import '../domain/game_rules.dart';
 import '../domain/sky_passport.dart';
 import '../domain/tracking.dart';
 import '../game/play_controller.dart';
+import '../l10n/l10n.dart';
+import '../l10n/text/flight_text.dart';
+import '../l10n/text/passport_text.dart';
+import 'fit_text.dart';
 import 'flight_portrait.dart';
 import 'match_hud.dart';
 import 'mini_chrome.dart';
@@ -94,6 +98,7 @@ class _MiniResultsState extends State<MiniResults>
   Widget _stage(BuildContext context) {
     final c = widget.controller;
     final r = c.result!;
+    final l = context.l10n;
     final p = widget.progress;
     final newStamps = p.medalsWonSince(widget.initialStamps);
     final newDailyCard =
@@ -104,16 +109,7 @@ class _MiniResultsState extends State<MiniResults>
     final isBest = r.score > widget.initialBest;
     final best = p.record(widget.mode, widget.course).best;
     final completed = r.reason == EndReason.completed;
-    final reason = switch (r.reason) {
-      EndReason.collision => 'A little bump in the clouds.',
-      EndReason.trackingLost => 'We lost sight of you for a moment.',
-      EndReason.postureLost => 'Your position moved out of range.',
-      EndReason.backgrounded => 'You stepped away from the sky.',
-      EndReason.breakTaken => 'A well-earned breather.',
-      EndReason.quit => 'Until the next adventure.',
-      EndReason.stalled => 'The game was interrupted.',
-      EndReason.completed => 'A whole sky of stars. All yours.',
-    };
+    final reason = l.flightEndReason(r.reason);
     final celebrate =
         isBest || newDailyCard || newStamps.isNotEmpty || completed;
     return Opacity(
@@ -123,11 +119,11 @@ class _MiniResultsState extends State<MiniResults>
         child: Column(
           children: [
             MiniHeader(
-              title: 'Every flight counts.',
+              title: l.miniResultTitle,
               onBack: widget.onLeave,
               leading: [
                 MiniTag(
-                  widget.course.title.toUpperCase(),
+                  L10n.upper(l.courseTitle(widget.course)),
                   icon: widget.course.collectsStars
                       ? Icons.auto_awesome
                       : Icons.flag_rounded,
@@ -139,7 +135,7 @@ class _MiniResultsState extends State<MiniResults>
               ],
               trailing: [
                 MiniTag(
-                  'FLIGHT COMPLETE',
+                  l.miniResultComplete,
                   icon: Icons.emoji_events_rounded,
                   color: SkyColors.yellow,
                 ),
@@ -204,6 +200,7 @@ class _MiniResultsState extends State<MiniResults>
     required Widget? sticker,
   }) {
     final p = widget.progress;
+    final l = context.l10n;
     final glow = _span(0, .35, Curves.easeOut);
     final cheer = _span(.08, .38, Curves.easeOutBack);
     final plate = _span(.22, .44, Curves.easeOutBack);
@@ -255,10 +252,10 @@ class _MiniResultsState extends State<MiniResults>
                     header: true,
                     child: Text(
                       isBest
-                          ? 'Look at you go!'
+                          ? l.miniResultCheerBest
                           : r.reason == EndReason.completed
-                          ? 'Flight complete!'
-                          : 'Nice flying.',
+                          ? l.miniResultCheerComplete
+                          : l.miniResultCheerNice,
                       textAlign: TextAlign.center,
                       style: heading(
                         44,
@@ -327,6 +324,7 @@ class _MiniResultsState extends State<MiniResults>
     required List<StampProgress> newStamps,
     required StampProgress? nextStamp,
   }) {
+    final l = context.l10n;
     final title = bodyText(14.5, weight: FontWeight.w900);
     final detail = bodyText(
       12,
@@ -341,7 +339,7 @@ class _MiniResultsState extends State<MiniResults>
         ),
         fresh: true,
         onTap: () => widget.onLeave('/daily'),
-        body: Text('Today’s postcard stamped!', style: title),
+        body: Text(l.flightResultDailyStamped, style: title),
       );
     }
     if (newStamps.isNotEmpty) {
@@ -357,13 +355,9 @@ class _MiniResultsState extends State<MiniResults>
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(won.medalTitle, style: title),
-            Text(
-              won.stamp.goal(won.medal!),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: detail,
-            ),
+            Text(l.stampMedalTitle(won), style: title),
+            // A long goal shrinks rather than lose its end.
+            FitText(l.stampGoal(won.stamp, won.medal!), style: detail),
           ],
         ),
       );
@@ -381,28 +375,28 @@ class _MiniResultsState extends State<MiniResults>
           children: [
             Row(
               children: [
+                // A long title shrinks rather than lose its end.
                 Expanded(
-                  child: Text(
-                    'Next: ${nextStamp.nextTitle}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: title,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text(
+                      l.flightResultNextStamp(l.stampNextTitle(nextStamp)),
+                      maxLines: 1,
+                      style: title,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
-                Text(nextStamp.tally, style: title),
+                Text(l.stampTally(nextStamp), style: title),
               ],
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: _meter(nextStamp.fraction, SkyColors.teal, height: 9),
             ),
-            Text(
-              nextStamp.goal,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: detail,
-            ),
+            // A long goal shrinks rather than lose its end.
+            FitText(l.stampProgressGoal(nextStamp), style: detail),
           ],
         ),
       );
@@ -476,6 +470,7 @@ class _MiniResultsState extends State<MiniResults>
   }
 
   Widget _scores(RunResult r, {required int best, required bool isBest}) {
+    final l = context.l10n;
     final count = _span(.26, .66, Curves.easeOutCubic);
     final land = math.sin(_span(.66, .76) * math.pi);
     final ribbon = _span(.7, .9, Curves.elasticOut);
@@ -490,7 +485,7 @@ class _MiniResultsState extends State<MiniResults>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(widget.course.scoreLabel, style: _label),
+              Text(l.courseScoreLabel(widget.course), style: _label),
               Flexible(
                 child: Transform.scale(
                   scale: 1 + .08 * land,
@@ -563,7 +558,10 @@ class _MiniResultsState extends State<MiniResults>
                           children: [
                             Opacity(
                               opacity: 1 - gild,
-                              child: Text('PERSONAL BEST', style: _label),
+                              child: Text(
+                                l.flightResultPersonalBest,
+                                style: _label,
+                              ),
                             ),
                             if (isBest && ribbon > 0)
                               OverflowBox(
@@ -573,8 +571,8 @@ class _MiniResultsState extends State<MiniResults>
                                   scale: ribbon,
                                   child: Transform.rotate(
                                     angle: -.04,
-                                    child: const StageRibbon(
-                                      'NEW PERSONAL BEST!',
+                                    child: StageRibbon(
+                                      l.flightResultNewPersonalBest,
                                     ),
                                   ),
                                 ),
@@ -613,44 +611,42 @@ class _MiniResultsState extends State<MiniResults>
   /// This flight's numbers on a sand inset, each a coin beside a bold
   /// number and its word.
   Widget _stats(RunResult r) {
-    final reps = switch (widget.mode) {
-      PlayMode.pushUp => 'push-ups',
-      PlayMode.squat => 'squats',
-      PlayMode.jump => 'jumps',
-      PlayMode.touch => 'flaps',
-    };
+    final l = context.l10n;
+    final moves = widget.mode.controlsHeight ? r.repetitions : r.flaps;
+    final reps = l.flightMoves(widget.mode, moves);
     final stats = <(IconData, Color, String, String)>[
       (
         widget.mode == PlayMode.touch
             ? Icons.touch_app_rounded
             : Icons.fitness_center_rounded,
         miniColor(widget.mode),
-        '${widget.mode.controlsHeight ? r.repetitions : r.flaps}',
+        '$moves',
         reps,
       ),
       (
         Icons.timer_rounded,
         SkyColors.sky,
-        '${r.durationSeconds.round()}s',
-        'flight time',
+        l.flightSeconds('${r.durationSeconds.round()}'),
+        l.flightStatFlightTime,
       ),
       (
         Icons.center_focus_strong_rounded,
         SkyColors.mint,
         '${r.perfectPasses}',
-        'perfect',
+        l.flightStatPerfect,
       ),
       if (r.course.collectsStars)
-        (Icons.auto_awesome, SkyColors.yellow, '${r.bestCombo}', 'best streak')
+        (
+          Icons.auto_awesome,
+          SkyColors.yellow,
+          '${r.bestCombo}',
+          l.flightStatBestStreak,
+        )
       else if (r.score >= 5)
         (
           Icons.workspace_premium_rounded,
           SkyColors.yellow,
-          r.score >= 25
-              ? 'Sky captain'
-              : r.score >= 10
-              ? 'Cloud explorer'
-              : 'First wings',
+          l.flightRank(r.score),
           '',
         ),
     ];
@@ -764,6 +760,7 @@ class _MiniResultsState extends State<MiniResults>
   /// Save status (tap to retry), then session and camera messages.
   List<Widget> _status() {
     final c = widget.controller;
+    final l = context.l10n;
     Widget note(IconData icon, String text, Color color) => Padding(
       padding: const EdgeInsets.symmetric(vertical: 1.5),
       child: Row(
@@ -798,7 +795,7 @@ class _MiniResultsState extends State<MiniResults>
             color: SkyColors.coralDeep,
           ),
           label: Text(
-            c.saveError,
+            l.flightNote(c.saveError),
             style: bodyText(
               13,
               weight: FontWeight.w900,
@@ -812,20 +809,18 @@ class _MiniResultsState extends State<MiniResults>
               ? Icons.check_circle_outline_rounded
               : Icons.hourglass_top_rounded,
           c.saved
-              ? 'Saved on this phone · ${widget.progress.totalObstacles} total gates'
-              : 'Saving your flight…',
+              ? l.flightResultSavedGates(widget.progress.totalObstacles)
+              : l.flightResultSaving,
           SkyColors.muted,
         ),
       if (c.sessionSaved)
-        note(
-          Icons.video_library_outlined,
-          'Session saved · Watch in Records',
-          _teal,
-        ),
+        note(Icons.video_library_outlined, l.flightResultSessionSaved, _teal),
       if (c.sessionError.isNotEmpty || c.cameraRecordingError.isNotEmpty)
         note(
           Icons.error_outline_rounded,
-          c.sessionError.isNotEmpty ? c.sessionError : c.cameraRecordingError,
+          l.flightNote(
+            c.sessionError.isNotEmpty ? c.sessionError : c.cameraRecordingError,
+          ),
           SkyColors.coralDeep,
         ),
     ];
@@ -858,6 +853,7 @@ class _MiniResultsState extends State<MiniResults>
 
   Widget _actions(RunResult r) {
     final c = widget.controller;
+    final l = context.l10n;
     Widget pop(double at, Widget child) {
       final k = _span(at, at + .22, Curves.easeOutBack);
       return Opacity(
@@ -879,7 +875,7 @@ class _MiniResultsState extends State<MiniResults>
           child: pop(
             .3,
             StageKey(
-              label: 'Home',
+              label: l.commonHome,
               icon: Icons.home_rounded,
               onPressed: widget.onLeave,
             ),
@@ -894,12 +890,12 @@ class _MiniResultsState extends State<MiniResults>
               StageKey(
                 key: const ValueKey('save-or-watch-session'),
                 label: c.sessionSaved
-                    ? 'Watch replay'
+                    ? l.flightResultWatchReplay
                     : c.preparingReplay
-                    ? 'Preparing…'
+                    ? l.flightResultPreparing
                     : c.sessionSaving
-                    ? 'Saving…'
-                    : 'Save session',
+                    ? l.flightResultSavingShort
+                    : l.flightResultSaveSession,
                 icon: c.sessionSaved
                     ? Icons.play_circle_outline_rounded
                     : Icons.save_alt_rounded,
@@ -918,7 +914,7 @@ class _MiniResultsState extends State<MiniResults>
           child: pop(
             .38,
             StageKey(
-              label: 'Fly again',
+              label: l.flightResultFlyAgain,
               icon: Icons.replay_rounded,
               hero: true,
               autofocus: true,
@@ -983,12 +979,15 @@ class _StickerCallout extends StatelessWidget {
           ),
         ),
         if (fresh)
-          const Positioned(
+          Positioned(
             top: -20,
             right: -16,
             child: IgnorePointer(
               child: ExcludeSemantics(
-                child: MatchTag('NEW', color: SkyColors.coral),
+                child: MatchTag(
+                  context.l10n.miniResultNew,
+                  color: SkyColors.coral,
+                ),
               ),
             ),
           ),

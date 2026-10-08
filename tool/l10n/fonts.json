@@ -1,0 +1,135 @@
+{
+  "@note": "Which fonts set each language (mirrors lib/l10n/language_fonts.dart; test/l10n_tables_test.dart keeps them equal). subset_fonts.py cuts each 'subset' family to the characters its languages use; check_arb.py checks every translation against these chains. Sources are pinned to a google/fonts commit and verified by sha256.",
+  "budgetBytes": 3145728,
+  "sourceBase": "https://raw.githubusercontent.com/google/fonts/7085eb89a950e85db5b166b7a58d414544b4140c/",
+  "families": {
+    "Fredoka": {
+      "asset": "assets/fonts/Fredoka.ttf",
+      "license": "assets/fonts/Fredoka-LICENSE.txt",
+      "subset": false
+    },
+    "Nunito": {
+      "asset": "assets/fonts/Nunito.ttf",
+      "license": "assets/fonts/Nunito-LICENSE.txt",
+      "subset": false
+    },
+    "BalooBhaijaan2": {
+      "source": "ofl/baloobhaijaan2/BalooBhaijaan2[wght].ttf",
+      "sha256": "3e9f07fbc796c0ddcb3e6e0aa26f9c86741d9f5b7f5cb72f4ed3c06e55a19336",
+      "asset": "assets/fonts/l10n/BalooBhaijaan2.ttf",
+      "license": "assets/fonts/l10n/BalooBhaijaan2-LICENSE.txt",
+      "subset": true,
+      "languages": [
+        "ar",
+        "tr"
+      ]
+    },
+    "MPLUSRounded1c": {
+      "source": "ofl/mplusrounded1c/MPLUSRounded1c-Bold.ttf",
+      "sha256": "c358630584e8e2d8fbd6121d0f4693255ffef6d1e6d4f3441fd6e5a963a11f9e",
+      "asset": "assets/fonts/l10n/MPLUSRounded1c-Bold.ttf",
+      "license": "assets/fonts/l10n/MPLUSRounded1c-LICENSE.txt",
+      "weight": 700,
+      "subset": true,
+      "languages": [
+        "ja",
+        "ru"
+      ]
+    },
+    "Jua": {
+      "source": "ofl/jua/Jua-Regular.ttf",
+      "sha256": "769677aef240bfc3b9965f2b50748075bff885e6c6992fc591a3fb268279f898",
+      "asset": "assets/fonts/l10n/Jua.ttf",
+      "license": "assets/fonts/l10n/Jua-LICENSE.txt",
+      "subset": true,
+      "languages": [
+        "ko"
+      ]
+    },
+    "Huninn": {
+      "source": "ofl/huninn/Huninn-Regular.ttf",
+      "sha256": "1bd770a5ffc0c06723b567686f8b5db5abf9ab54227f3bbc4e6fd648f4698805",
+      "asset": "assets/fonts/l10n/Huninn.ttf",
+      "license": "assets/fonts/l10n/Huninn-LICENSE.txt",
+      "subset": true,
+      "languages": [
+        "zh_hant"
+      ]
+    }
+  },
+  "languages": {
+    "en": {"heading": "Fredoka", "headingFallback": [], "bodyFallback": []},
+    "es_419": {"heading": "Fredoka", "headingFallback": [], "bodyFallback": []},
+    "pt_br": {"heading": "Fredoka", "headingFallback": [], "bodyFallback": []},
+    "id": {"heading": "Fredoka", "headingFallback": [], "bodyFallback": []},
+    "fr": {"heading": "Fredoka", "headingFallback": [], "bodyFallback": []},
+    "de": {"heading": "Fredoka", "headingFallback": [], "bodyFallback": []},
+    "ja": {"heading": "Fredoka", "headingFallback": ["MPLUSRounded1c"], "bodyFallback": ["MPLUSRounded1c"]},
+    "ko": {"heading": "Fredoka", "headingFallback": ["Jua"], "bodyFallback": ["Jua"]},
+    "tr": {"heading": "BalooBhaijaan2", "headingFallback": ["Nunito"], "bodyFallback": []},
+    "zh_hant": {"heading": "Fredoka", "headingFallback": ["Huninn"], "bodyFallback": ["Huninn"]},
+    "ru": {"heading": "Fredoka", "headingFallback": ["MPLUSRounded1c", "Nunito"], "bodyFallback": []},
+    "ar": {"heading": "Fredoka", "headingFallback": ["BalooBhaijaan2"], "bodyFallback": ["BalooBhaijaan2"]}
+  },
+  "seeds": {
+    "@note": "Characters every subset of a language keeps whether or not a translation uses them yet: ranges as [first, last] code points, plus literal strings.",
+    "common": {
+      "ranges": [
+        [32, 126],
+        [160, 255]
+      ],
+      "text": "‘’“”‚„…–—•·×←↑→↓✓№€™"
+    },
+    "tr": {
+      "ranges": [],
+      "text": "ÇçĞğİıÖöŞşÜüÂâÎîÛû"
+    },
+    "ru": {
+      "ranges": [
+        [1024, 1119]
+      ],
+      "text": "«»„“№"
+    },
+    "ja": {
+      "ranges": [
+        [12288, 12351],
+        [12353, 12438],
+        [12441, 12447],
+        [12449, 12543],
+        [65281, 65376]
+      ],
+      "text": ""
+    },
+    "ko": {
+      "ranges": [],
+      "text": ""
+    },
+    "zh_hant": {
+      "ranges": [
+        [12288, 12351],
+        [65281, 65376]
+      ],
+      "text": ""
+    },
+    "ar": {
+      "ranges": [
+        [1548, 1548],
+        [1563, 1563],
+        [1567, 1567],
+        [1569, 1594],
+        [1600, 1618],
+        [1632, 1641],
+        [1642, 1645],
+        [1648, 1648],
+        [1657, 1657],
+        [1662, 1662],
+        [1670, 1670],
+        [1688, 1688],
+        [1705, 1705],
+        [1711, 1711],
+        [1740, 1740]
+      ],
+      "text": "«»"
+    }
+  }
+}

@@ -360,7 +360,7 @@ class NewerLogbook implements Exception {
   const NewerLogbook(this.schema);
   final int schema;
   @override
-  String toString() => 'NewerLogbook($schema)';
+  String toString() => 'NewerLogbook($schema)'; // l10n-ignore: for logs
 }
 
 Map<String, Object?> _modeToJson(ModeRecord r) => {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'match_hud.dart' show MatchIcon, MatchSymbol;
+import '../l10n/l10n.dart';
 import 'theme.dart';
 
 /// The stars to spend, in the gold pill the shop screens show them in.
@@ -11,7 +12,7 @@ class StarWallet extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Semantics(
     key: const ValueKey('star-wallet'),
-    label: '$stars stars to spend',
+    label: context.l10n.upgradesWalletSemantics(stars),
     excludeSemantics: true,
     child: Container(
       height: 58,
@@ -35,7 +36,7 @@ class StarWallet extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            'YOUR\nSTARS',
+            context.l10n.upgradesWalletLabel,
             style: bodyText(
               13,
               color: SkyColors.muted,

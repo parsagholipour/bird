@@ -1,0 +1,2542 @@
+{
+ "language": "pt_br",
+ "terms": {
+  "brand.beakbound": {
+   "en": "Beakbound",
+   "target": "Beakbound",
+   "note": "Marca: nunca traduzir (BEAKBOUND no logo)."
+  },
+  "brand.beak1-code": {
+   "en": "BEAK1.",
+   "target": "BEAK1.",
+   "note": "Token técnico, não traduzir."
+  },
+  "char.pip": {
+   "en": "Pip",
+   "target": "Pip",
+   "note": "Nome mantido; masculino."
+  },
+  "char.peaches": {
+   "en": "Peaches",
+   "target": "Peaches",
+   "note": "Nome mantido; feminino. Trocadilhos com \"peach\" viram \"pêssego\" (Pêssego tostado!)."
+  },
+  "char.minty": {
+   "en": "Minty",
+   "target": "Minty",
+   "note": "Nome mantido; masculino. Piada do chá: \"chá de menta\", Minty soa como \"menta\"."
+  },
+  "char.orbit": {
+   "en": "Orbit",
+   "target": "Orbit",
+   "note": "Nome mantido; feminino. Trocadilhos com órbita/lua mantidos quando funcionam."
+  },
+  "char.postmaster-bill": {
+   "en": "Postmaster Bill",
+   "target": "Carteiro-Chefe Bill",
+   "note": "Título antes do nome; nas falas, \"Bill\" sozinho. O trocadilho bill (bico/conta) não sobrevive."
+  },
+  "char.courier": {
+   "en": "courier",
+   "target": "carteiro",
+   "note": "Palavra do ofício (masculino genérico, como \"o carteiro\" do bairro). Nas falas de chefões dirigidas ao pássaro, preferimos vocativos epicenos (passarinho, filhote, faisquinha) para servir aos quatro pássaros."
+  },
+  "char.narrator": {
+   "en": "the narrator",
+   "target": "o narrador",
+   "note": "Nunca aparece na tela; fala com o jogador em \"você\", sem gênero."
+  },
+  "boss.baron-bat": {
+   "en": "Baron Bat",
+   "target": "Barão Morcego",
+   "note": "Título + espécie, curto e claro para crianças. Formas curtas: \"o Barão\", vocativo \"Barão\"."
+  },
+  "boss.spitter-king": {
+   "en": "Spitter King",
+   "target": "Rei Cuspidor",
+   "note": "\"Cuspidor\" = que cospe, a mesma palavra de \"besouro-cuspidor\". Formas curtas: \"o Rei\"; pássaros dizem \"Vossa Majestade\"."
+  },
+  "boss.dusk-empress": {
+   "en": "Dusk Empress",
+   "target": "Imperatriz do Crepúsculo",
+   "note": "Mesmo \"crepúsculo\" de \"mariposa do crepúsculo\". Formas curtas: \"a Imperatriz\"; Pip diz \"Sua Alteza\"."
+  },
+  "boss.pirate-captain": {
+   "en": "Pirate Captain",
+   "target": "Capitão Pirata",
+   "note": "Forma curta \"o Capitão\"; fala de si como \"o Capitão\"."
+  },
+  "boss.ember-dragon": {
+   "en": "Ember Dragon",
+   "target": "Dragão das Brasas",
+   "note": "\"Ember\" = brasa; casa com \"brasas\" (embers) e \"Brasa velha ainda morde\". Forma curta \"o Dragão\"."
+  },
+  "guardian.neferhoo": {
+   "en": "Neferhoo",
+   "target": "Neferhoo",
+   "note": "Nome mantido (NÉ-fer-ru). Peaches: \"Seu Neferhoo\"."
+  },
+  "guardian.king-coo": {
+   "en": "King Coo",
+   "target": "Rei Pruu",
+   "note": "Adaptado: \"Pruu\" é o arrulho do pombo nos quadrinhos brasileiros (pru-pru); \"Rei\" + som de pombo, curto para o cartão. O eco de King Kong se perde. O grito do cartão \"COO!\" vira \"PRUU!\"."
+  },
+  "guardian.searchlight-gargoyle": {
+   "en": "Searchlight Gargoyle",
+   "target": "Gárgula do Holofote",
+   "note": "No cartão: grande \"GÁRGULA\" e pequeno \"DO HOLOFOTE\" (ordem invertida do inglês; avisar a UI). Forma curta \"a Gárgula\" (substantivo feminino, personagem masculino: \"A Gárgula aceita.\")."
+  },
+  "npc.toucan-twins": {
+   "en": "the toucan twins",
+   "target": "os tucanos gêmeos",
+   "note": "Plural; crianças risonhas."
+  },
+  "npc.sloth-stargazer": {
+   "en": "the sloth stargazer",
+   "target": "o bicho-preguiça astrônomo",
+   "note": "Singular, masculino (voz masculina), lento e sonolento."
+  },
+  "npc.firefly-nursery": {
+   "en": "the firefly nursery",
+   "target": "a creche dos vaga-lumes",
+   "note": "Creche = lugar de crianças pequenas (não viveiro de plantas)."
+  },
+  "npc.samba-macaws": {
+   "en": "the samba macaws",
+   "target": "as araras do samba",
+   "note": "Plural, animadas."
+  },
+  "npc.drum-captain": {
+   "en": "the drum captain",
+   "target": "o mestre de bateria",
+   "note": "Termo real das escolas de samba para o líder da bateria; evita \"capitão\" (que é do Pirata)."
+  },
+  "npc.temple-cooks": {
+   "en": "the temple cooks",
+   "target": "os cozinheiros do templo",
+   "note": "Plural, alegres."
+  },
+  "npc.dawn-keeper": {
+   "en": "the dawn keeper",
+   "target": "o guardião da aurora",
+   "note": "Singular, calmo e sábio."
+  },
+  "npc.chariot-racers": {
+   "en": "the chariot racers",
+   "target": "os corredores de biga",
+   "note": "Biga = carro de corrida romano."
+  },
+  "npc.statue-carver": {
+   "en": "the statue carver",
+   "target": "o escultor",
+   "note": "\"o nariz dele\" = o nariz da estátua."
+  },
+  "npc.fire-brigade": {
+   "en": "the fire brigade",
+   "target": "os bombeiros",
+   "note": "Grupo falando como um só."
+  },
+  "npc.pyramid-astronomer": {
+   "en": "the pyramid astronomer",
+   "target": "o astrônomo da pirâmide",
+   "note": "Singular, animado."
+  },
+  "npc.pyramid-caretaker": {
+   "en": "the pyramid caretaker",
+   "target": "a zeladora da pirâmide",
+   "note": "Feminino. Forma curta \"a zeladora\"."
+  },
+  "npc.lantern-sellers": {
+   "en": "the lantern sellers",
+   "target": "os vendedores de lanternas",
+   "note": "Plural."
+  },
+  "npc.caravan-leader": {
+   "en": "the caravan leader",
+   "target": "o líder da caravana",
+   "note": "Singular, seco."
+  },
+  "npc.stage-manager": {
+   "en": "the stage manager",
+   "target": "o diretor de palco",
+   "note": "Singular, empolgado."
+  },
+  "npc.newsstand-pigeons": {
+   "en": "the newsstand pigeons",
+   "target": "os pombos da banca de jornal",
+   "note": "Banca = a banca de jornal brasileira."
+  },
+  "npc.night-cabbies": {
+   "en": "the night cabbies",
+   "target": "os taxistas da noite",
+   "note": "Na carga: \"taxistas do turno da noite\". Mesmo grupo."
+  },
+  "npc.tower-keeper": {
+   "en": "the tower keeper",
+   "target": "o zelador da torre",
+   "note": "Senhor idoso e encantado."
+  },
+  "npc.rooftop-painters": {
+   "en": "the rooftop painters",
+   "target": "os pintores dos telhados",
+   "note": "O \"Magnifique\" fica em francês como charme parisiense."
+  },
+  "npc.accordion-player": {
+   "en": "the accordion player",
+   "target": "o sanfoneiro",
+   "note": "Sanfona é a palavra brasileira para acordeão."
+  },
+  "npc.baker": {
+   "en": "the baker",
+   "target": "a padeira",
+   "note": "Feminino (\"Eu disse sim!\"). Não confundir com a confeiteira do vulcão."
+  },
+  "npc.lighthouse-keeper": {
+   "en": "the lighthouse keeper",
+   "target": "a faroleira",
+   "note": "A voz (Jessie) é feminina."
+  },
+  "npc.volcano-baker": {
+   "en": "the volcano baker",
+   "target": "a confeiteira do vulcão",
+   "note": "Feminino; faz bolos de lava."
+  },
+  "npc.kite-flyers": {
+   "en": "the kite flyers",
+   "target": "a turma das pipas",
+   "note": "Pipa = papagaio/pipa no Brasil. Festa: \"a festa da praia\"."
+  },
+  "npc.island-hermit": {
+   "en": "the island hermit",
+   "target": "o eremita da ilha",
+   "note": "Masculino."
+  },
+  "npc.ferry-crew": {
+   "en": "the ferry crew",
+   "target": "a tripulação da balsa",
+   "note": "Grupo."
+  },
+  "npc.gull-colony": {
+   "en": "the gull colony",
+   "target": "a colônia de gaivotas",
+   "note": "Grupo."
+  },
+  "npc.storm-watch": {
+   "en": "the storm watch",
+   "target": "os vigias da tempestade",
+   "note": "Na carga: \"marinheiros de vigia da tempestade\"."
+  },
+  "npc.penguin-choir": {
+   "en": "the penguin choir",
+   "target": "o coral de pinguins",
+   "note": "Plural, felizes."
+  },
+  "npc.polar-station": {
+   "en": "the polar station",
+   "target": "a estação polar",
+   "note": "Fala pela equipe."
+  },
+  "npc.noodle-chef": {
+   "en": "the noodle chef",
+   "target": "o chef do lámen",
+   "note": "\"noodle bar\" = \"o bar de lámen\"."
+  },
+  "npc.rooftop-runners": {
+   "en": "the rooftop runners",
+   "target": "os corredores dos telhados",
+   "note": "Plural, ofegantes."
+  },
+  "npc.lantern-makers": {
+   "en": "the lantern makers",
+   "target": "os artesãos de lanternas",
+   "note": "\"the festival\" = \"o festival\"."
+  },
+  "npc.mountain-monks": {
+   "en": "the mountain monks",
+   "target": "os monges da montanha",
+   "note": "\"the monastery\" = \"o mosteiro\"."
+  },
+  "npc.sphinx": {
+   "en": "the Sphinx",
+   "target": "a Esfinge",
+   "note": "Substantivo feminino em português; Peaches diz \"Seu Esfinge\" (fofo). Assina: \"Assinado: a Esfinge.\""
+  },
+  "npc.unit-7": {
+   "en": "Unit 7",
+   "target": "Unidade 7",
+   "note": "Robô; agradecimento em MAIÚSCULAS."
+  },
+  "npc.parrot": {
+   "en": "the Parrot",
+   "target": "o Papagaio",
+   "note": "Masculino; \"Papagaio\" com maiúscula quando é chamado pelo Capitão."
+  },
+  "npc.baron-cousins": {
+   "en": "the Baron's cousins",
+   "target": "os primos do Barão",
+   "note": "Vocativos: \"Primos!\", \"Parentes!\", \"meus pequenos\"."
+  },
+  "title.postmaster": {
+   "en": "Postmaster",
+   "target": "Carteiro-Chefe",
+   "note": "Antes do nome. Pip: \"Ordens do Carteiro-Chefe\"."
+  },
+  "title.lord-of-the-storm": {
+   "en": "LORD OF THE STORM",
+   "target": "SENHOR DA TEMPESTADE"
+  },
+  "title.the-storm-returns": {
+   "en": "THE STORM RETURNS",
+   "target": "A TEMPESTADE VOLTOU"
+  },
+  "title.brewer-of-the-swarm": {
+   "en": "BREWER OF THE SWARM",
+   "target": "ALQUIMISTA DO ENXAME",
+   "note": "\"Alquimista\" liga à poção dele."
+  },
+  "title.keeper-of-the-twilight-veil": {
+   "en": "KEEPER OF THE TWILIGHT VEIL",
+   "target": "GUARDIÃ DO VÉU DO CREPÚSCULO",
+   "note": "Mesmo \"véu\" das dicas de luta."
+  },
+  "title.terror-of-the-high-tide": {
+   "en": "TERROR OF THE HIGH TIDE",
+   "target": "TERROR DA MARÉ ALTA"
+  },
+  "title.sovereign-of-the-burning-sky": {
+   "en": "SOVEREIGN OF THE BURNING SKY",
+   "target": "SOBERANO DO CÉU EM CHAMAS"
+  },
+  "title.keeper-of-the-lost-letter": {
+   "en": "Keeper of the Lost Letter",
+   "target": "Zelador da Carta Perdida",
+   "note": "\"Zelador\" (e não \"Guardião\") para não repetir a palavra GUARDIÃO do cartão."
+  },
+  "title.keeper-of-lost-letters": {
+   "en": "Keeper of Lost Letters",
+   "target": "Zelador das Cartas Perdidas",
+   "note": "Ecoa o epíteto, no plural."
+  },
+  "title.royal-courier": {
+   "en": "Royal Courier",
+   "target": "Carteiro Real",
+   "note": "Mesmo \"carteiro\" de char.courier (piada do Pip: \"Carteiro Real? Eu sou só Carteiro.\")."
+  },
+  "title.mummy-courier": {
+   "en": "the Mummy Courier",
+   "target": "o Carteiro Múmia"
+  },
+  "title.commissioner-of-the-curb": {
+   "en": "Commissioner of the Curb",
+   "target": "Comissário da Calçada",
+   "note": "Aliteração C-C; \"calçada\" = onde os pombos catam migalhas."
+  },
+  "title.commissioner": {
+   "en": "the Commissioner",
+   "target": "o Comissário",
+   "note": "Fala de si na terceira pessoa: \"O Comissário aceita.\""
+  },
+  "title.watchman-of-the-tallest-tower": {
+   "en": "Watchman of the Tallest Tower",
+   "target": "Sentinela da Torre Mais Alta"
+  },
+  "title.ink-maker": {
+   "en": "ink-maker",
+   "target": "mestre-tinteiro",
+   "note": "\"Royal ink-maker!\" = \"Mestre-tinteiro real!\""
+  },
+  "region.jungle": {
+   "en": "Jungle",
+   "target": "Selva"
+  },
+  "region.brazil": {
+   "en": "Brazil",
+   "target": "Brasil"
+  },
+  "region.aztec": {
+   "en": "Aztec",
+   "target": "Terra Asteca"
+  },
+  "region.ancient-rome": {
+   "en": "Ancient Rome",
+   "target": "Roma Antiga"
+  },
+  "region.egypt": {
+   "en": "Egypt",
+   "target": "Egito"
+  },
+  "region.ancient-arabia": {
+   "en": "Ancient Arabia",
+   "target": "Arábia Antiga"
+  },
+  "region.new-york": {
+   "en": "New York",
+   "target": "Nova York"
+  },
+  "region.paris": {
+   "en": "Paris",
+   "target": "Paris"
+  },
+  "region.mexico": {
+   "en": "Mexico",
+   "target": "México"
+  },
+  "region.open-sea": {
+   "en": "Open Sea",
+   "target": "Mar Aberto"
+  },
+  "region.antarctica": {
+   "en": "Antarctica",
+   "target": "Antártida"
+  },
+  "region.cyberpunk-city": {
+   "en": "Cyberpunk City",
+   "target": "Cidade Cyberpunk"
+  },
+  "region.china": {
+   "en": "China",
+   "target": "China"
+  },
+  "place.city-of-light": {
+   "en": "the City of Light",
+   "target": "a Cidade Luz",
+   "note": "Apelido consagrado de Paris em português."
+  },
+  "place.edge-of-the-map": {
+   "en": "the Edge of the Map",
+   "target": "a Beira do Mapa",
+   "note": "Minúsculas na fala corrida (\"na beira do mapa\"); maiúsculas no endereço."
+  },
+  "place.giza": {
+   "en": "Giza",
+   "target": "Gizé"
+  },
+  "place.nile": {
+   "en": "the Nile",
+   "target": "o Nilo"
+  },
+  "place.pyramid": {
+   "en": "the pyramid",
+   "target": "a pirâmide"
+  },
+  "place.colosseum": {
+   "en": "the Colosseum",
+   "target": "o Coliseu"
+  },
+  "place.sugarloaf-mountain": {
+   "en": "Sugarloaf Mountain",
+   "target": "o Pão de Açúcar",
+   "note": "O nome local também é de açúcar: a piada do Pip funciona igual."
+  },
+  "place.eiffel-tower": {
+   "en": "the Eiffel Tower",
+   "target": "a Torre Eiffel"
+  },
+  "place.theatre-marquee": {
+   "en": "the theatre marquee",
+   "target": "a marquise do teatro",
+   "note": "Marquise = cobertura iluminada sobre a entrada."
+  },
+  "place.tallest-tower": {
+   "en": "the tallest tower",
+   "target": "a torre mais alta",
+   "note": "\"the ledge\" = \"o parapeito\"."
+  },
+  "place.canopy": {
+   "en": "the canopy",
+   "target": "as copas das árvores",
+   "note": "Mesma palavra do capítulo (Rota das Copas)."
+  },
+  "place.bazaar": {
+   "en": "the bazaar",
+   "target": "o bazar"
+  },
+  "place.harbour": {
+   "en": "the harbour",
+   "target": "o porto",
+   "note": "\"harbour bells\" = \"os sinos do porto\"."
+  },
+  "chapter.canopy-route": {
+   "en": "The Canopy Route",
+   "target": "A Rota das Copas",
+   "note": "\"Copas\" = copas das árvores (evita \"Rota da Copa\", que no Brasil soaria Copa do Mundo)."
+  },
+  "chapter.ancient-road": {
+   "en": "The Ancient Road",
+   "target": "A Estrada Antiga",
+   "note": "O Rei diz \"minha estrada\"."
+  },
+  "chapter.lamplight-line": {
+   "en": "The Lamplight Line",
+   "target": "A Linha dos Lampiões",
+   "note": "Aliteração L-L; \"lampiões\" = os postes de luz da história."
+  },
+  "chapter.tide-route": {
+   "en": "The Tide Route",
+   "target": "A Rota da Maré"
+  },
+  "chapter.edge-of-the-map": {
+   "en": "The Edge of the Map",
+   "target": "A Beira do Mapa"
+  },
+  "level.1-1": {
+   "en": "First Delivery",
+   "target": "Primeira Entrega"
+  },
+  "level.1-2": {
+   "en": "Star Streak",
+   "target": "Sequência Estelar",
+   "note": "Mesma \"sequência\" de ui.streak."
+  },
+  "level.1-3": {
+   "en": "Bat Patrol",
+   "target": "Patrulha dos Morcegos"
+  },
+  "level.1-4": {
+   "en": "Carnival Skies",
+   "target": "Céu de Carnaval"
+  },
+  "level.1-5": {
+   "en": "Express Post",
+   "target": "Correio Expresso",
+   "note": "Mesmas palavras do ataque de Neferhoo."
+  },
+  "level.1-6": {
+   "en": "Temple Steps",
+   "target": "Degraus do Templo"
+  },
+  "level.1-7": {
+   "en": "Sunrise Roost",
+   "target": "Poleiro do Amanhecer"
+  },
+  "level.1-8": {
+   "en": "Baron Bat",
+   "target": "Barão Morcego"
+  },
+  "level.2-1": {
+   "en": "Beetle Road",
+   "target": "Estrada dos Besouros"
+  },
+  "level.2-2": {
+   "en": "Sealed Gates",
+   "target": "Portais Bloqueados",
+   "note": "\"Sealed\" aqui = bloqueado, não o lacre de chama."
+  },
+  "level.2-3": {
+   "en": "Wildfire Run",
+   "target": "Fuga do Incêndio"
+  },
+  "level.2-4": {
+   "en": "Nile Switchbacks",
+   "target": "Zigue-Zagues do Nilo"
+  },
+  "level.2-5": {
+   "en": "Skyfall",
+   "target": "Céu Desabando",
+   "note": "= set-piece.skyfall."
+  },
+  "level.2-6": {
+   "en": "Return to Sender",
+   "target": "Devolver ao Remetente"
+  },
+  "level.2-7": {
+   "en": "Lantern Bazaar",
+   "target": "Bazar das Lanternas"
+  },
+  "level.2-8": {
+   "en": "The Long Caravan",
+   "target": "A Longa Caravana"
+  },
+  "level.2-9": {
+   "en": "Spitter King",
+   "target": "Rei Cuspidor"
+  },
+  "level.3-1": {
+   "en": "Moth Light",
+   "target": "Luz de Mariposa",
+   "note": "Mariposas atraídas pela luz."
+  },
+  "level.3-2": {
+   "en": "Wheels in the Rain",
+   "target": "Rodas na Chuva",
+   "note": "Eco de \"Cantando na Chuva\" (título brasileiro de Singin' in the Rain)."
+  },
+  "level.3-3": {
+   "en": "Steam Alley",
+   "target": "Beco do Vapor",
+   "note": "Bill diz em voz alta: \"Beco do Vapor\"."
+  },
+  "level.3-4": {
+   "en": "Storm Warning",
+   "target": "Alerta de Tempestade",
+   "note": "= manchete STORM WARNING."
+  },
+  "level.3-5": {
+   "en": "Crystal Rooftops",
+   "target": "Telhados de Cristal"
+  },
+  "level.3-6": {
+   "en": "After the Gale",
+   "target": "Depois da Ventania"
+  },
+  "level.3-7": {
+   "en": "Midnight Express",
+   "target": "Expresso da Meia-Noite",
+   "note": "Título brasileiro do filme \"Midnight Express\"."
+  },
+  "level.3-8": {
+   "en": "Dusk Empress",
+   "target": "Imperatriz do Crepúsculo"
+  },
+  "level.4-1": {
+   "en": "Harbour Lights",
+   "target": "Luzes do Porto"
+  },
+  "level.4-2": {
+   "en": "Volcano Pass",
+   "target": "Passagem do Vulcão"
+  },
+  "level.4-3": {
+   "en": "Down the Coast",
+   "target": "Pela Costa"
+  },
+  "level.4-4": {
+   "en": "Low Water",
+   "target": "Maré Baixa"
+  },
+  "level.4-5": {
+   "en": "Spring Tide",
+   "target": "Maré Viva",
+   "note": "Termo náutico para as marés mais altas (não a estação)."
+  },
+  "level.4-6": {
+   "en": "Broadside Bay",
+   "target": "Baía da Bordada",
+   "note": "Bordada = salva de todos os canhões de um lado; aliteração B-B."
+  },
+  "level.4-7": {
+   "en": "Stormy Crossing",
+   "target": "Travessia Tempestuosa"
+  },
+  "level.4-8": {
+   "en": "Pirate Captain",
+   "target": "Capitão Pirata"
+  },
+  "level.5-1": {
+   "en": "Aurora Post",
+   "target": "Correio da Aurora"
+  },
+  "level.5-2": {
+   "en": "Polar Night",
+   "target": "Noite Polar"
+  },
+  "level.5-3": {
+   "en": "Neon Express",
+   "target": "Expresso Neon"
+  },
+  "level.5-4": {
+   "en": "Data Storm",
+   "target": "Tempestade de Dados"
+  },
+  "level.5-5": {
+   "en": "Skyline Sprint",
+   "target": "Turbo no Horizonte",
+   "note": "Mesmo \"Turbo\" do botão."
+  },
+  "level.5-6": {
+   "en": "Lantern Festival",
+   "target": "Festival das Lanternas"
+  },
+  "level.5-7": {
+   "en": "The Last Leg",
+   "target": "A Reta Final",
+   "note": "Expressão idiomática para o último trecho."
+  },
+  "level.5-8": {
+   "en": "Ember Dragon",
+   "target": "Dragão das Brasas"
+  },
+  "level.starter-garden-hop": {
+   "en": "Garden Hop",
+   "target": "Pulinho no Jardim"
+  },
+  "level.starter-ten-push-ups": {
+   "en": "Ten Push-Ups",
+   "target": "Dez Flexões"
+  },
+  "level.starter-stair-squats": {
+   "en": "Stair Squats",
+   "target": "Agachamentos na Escada"
+  },
+  "level.starter-bounce-bay": {
+   "en": "Bounce Bay",
+   "target": "Baía do Pula-Pula"
+  },
+  "level.starter-barons-bridge": {
+   "en": "Baron’s Bridge",
+   "target": "Ponte do Barão"
+  },
+  "cargo.1-1": {
+   "en": "A birthday card for the toucan twins",
+   "target": "Cartão de aniversário dos tucanos gêmeos",
+   "note": "40 caracteres. Fala: \"Um cartão de aniversário pros tucanos gêmeos!\""
+  },
+  "cargo.1-2": {
+   "en": "Star charts for the sloth stargazer",
+   "target": "Mapas do céu para o bicho-preguiça",
+   "note": "Fala: \"Mapas do céu para o bicho-preguiça astrônomo.\""
+  },
+  "cargo.1-3": {
+   "en": "Night-lights for the firefly nursery",
+   "target": "Luzinhas para a creche dos vaga-lumes"
+  },
+  "cargo.1-4": {
+   "en": "Feather boas for the carnival parade",
+   "target": "Boás de plumas para o desfile",
+   "note": "Desfile de carnaval."
+  },
+  "cargo.1-5": {
+   "en": "A rush invitation for the drum captain",
+   "target": "Convite urgente pro mestre de bateria"
+  },
+  "cargo.1-6": {
+   "en": "Cocoa beans for the temple cooks",
+   "target": "Cacau para os cozinheiros do templo"
+  },
+  "cargo.1-7": {
+   "en": "A sundial for the dawn keeper",
+   "target": "Um relógio de sol pro guardião da aurora"
+  },
+  "cargo.1-8": {
+   "en": "A final notice for Baron Bat",
+   "target": "Último aviso para o Barão Morcego",
+   "note": "Tom de notificação oficial."
+  },
+  "cargo.2-1": {
+   "en": "Laurel wreaths for the chariot racers",
+   "target": "Coroas de louro para os corredores",
+   "note": "Fala: \"...para os corredores de biga\"."
+  },
+  "cargo.2-2": {
+   "en": "A new chisel for the statue carver",
+   "target": "Um cinzel novo para o escultor"
+  },
+  "cargo.2-3": {
+   "en": "Water buckets for the fire brigade",
+   "target": "Baldes de água para os bombeiros"
+  },
+  "cargo.2-4": {
+   "en": "A book of new riddles for the Sphinx",
+   "target": "Livro de charadas novas para a Esfinge"
+  },
+  "cargo.2-5": {
+   "en": "A telescope for the pyramid astronomer",
+   "target": "Um telescópio pro astrônomo da pirâmide"
+  },
+  "cargo.2-6": {
+   "en": "A feather duster for the caretaker",
+   "target": "Um espanador de penas para a zeladora"
+  },
+  "cargo.2-7": {
+   "en": "Lamp oil for the lantern sellers",
+   "target": "Óleo de lamparina pros vendedores"
+  },
+  "cargo.2-8": {
+   "en": "Water flasks for the long caravan",
+   "target": "Cantis de água para a longa caravana"
+  },
+  "cargo.2-9": {
+   "en": "A stop-brewing order for the Spitter King",
+   "target": "Ordem de parar a poção pro Rei Cuspidor",
+   "note": "Tom oficial."
+  },
+  "cargo.3-1": {
+   "en": "Light bulbs for the theatre marquee",
+   "target": "Lâmpadas para a marquise do teatro"
+  },
+  "cargo.3-2": {
+   "en": "Umbrellas for the newsstand pigeons",
+   "target": "Guarda-chuvas para os pombos da banca"
+  },
+  "cargo.3-3": {
+   "en": "Hot pretzels for the night-shift cabbies",
+   "target": "Pretzels quentes pros taxistas da noite",
+   "note": "Fala: \"taxistas do turno da noite\"."
+  },
+  "cargo.3-4": {
+   "en": "A weather vane for the tallest tower",
+   "target": "Um cata-vento para a torre mais alta",
+   "note": "Cata-vento = indicador de direção do vento no telhado."
+  },
+  "cargo.3-5": {
+   "en": "Croissants for the rooftop painters",
+   "target": "Croissants para os pintores dos telhados"
+  },
+  "cargo.3-6": {
+   "en": "Sheet music for the accordion player",
+   "target": "Partituras para o sanfoneiro"
+  },
+  "cargo.3-7": {
+   "en": "A midnight love letter for the baker",
+   "target": "Carta de amor da meia-noite pra padeira"
+  },
+  "cargo.3-8": {
+   "en": "A wake-up call for the Dusk Empress",
+   "target": "Um toque de despertar pra Imperatriz",
+   "note": "\"Toque de despertar\" = alarme e aviso ao mesmo tempo."
+  },
+  "cargo.4-1": {
+   "en": "A new lens for the lighthouse keeper",
+   "target": "Uma lente nova para a faroleira"
+  },
+  "cargo.4-2": {
+   "en": "Oven mitts for the volcano baker",
+   "target": "Luvas de forno para a confeiteira"
+  },
+  "cargo.4-3": {
+   "en": "Kite string for the beach festival",
+   "target": "Linha de pipa para a festa da praia"
+  },
+  "cargo.4-4": {
+   "en": "A reply for the island hermit",
+   "target": "Uma resposta para o eremita da ilha"
+  },
+  "cargo.4-5": {
+   "en": "A tide table for the ferry crew",
+   "target": "Tábua de marés para a tripulação"
+  },
+  "cargo.4-6": {
+   "en": "Fish biscuits for the gull colony",
+   "target": "Biscoitos de peixe para as gaivotas"
+  },
+  "cargo.4-7": {
+   "en": "Dry socks for the storm-watch sailors",
+   "target": "Meias secas para os vigias da tempestade"
+  },
+  "cargo.4-8": {
+   "en": "A return-the-mail order for the Captain",
+   "target": "Ordem de devolver o correio pro Capitão",
+   "note": "Tom oficial."
+  },
+  "cargo.5-1": {
+   "en": "Woolly hats for the penguin choir",
+   "target": "Gorros de lã para o coral de pinguins"
+  },
+  "cargo.5-2": {
+   "en": "Hot cocoa for the polar station",
+   "target": "Chocolate quente para a estação polar"
+  },
+  "cargo.5-3": {
+   "en": "Spare fuses for the noodle bar sign",
+   "target": "Fusíveis para o letreiro do lámen"
+  },
+  "cargo.5-4": {
+   "en": "A paper letter for a curious robot",
+   "target": "Uma carta de papel para um robô curioso"
+  },
+  "cargo.5-5": {
+   "en": "Race tickets for the rooftop runners",
+   "target": "Ingressos para os corredores dos telhados"
+  },
+  "cargo.5-6": {
+   "en": "Paper lanterns for the festival",
+   "target": "Lanternas de papel para o festival"
+  },
+  "cargo.5-7": {
+   "en": "Mountain tea for the monastery",
+   "target": "Chá da montanha para o mosteiro"
+  },
+  "cargo.5-8": {
+   "en": "The first letter ever sent to the Dragon",
+   "target": "A primeira carta enviada ao Dragão",
+   "note": "Fala: \"a primeira carta já enviada ao Dragão\"."
+  },
+  "enemy.purple-bat": {
+   "en": "Purple bat",
+   "target": "Morcego roxo",
+   "note": "\"morcego(s)\" sozinho nas falas."
+  },
+  "enemy.cave-bat": {
+   "en": "Cave bat",
+   "target": "Morcego das cavernas"
+  },
+  "enemy.spitter-beetle": {
+   "en": "Spitter beetle",
+   "target": "Besouro-cuspidor",
+   "note": "Mesmo \"cuspidor\" do Rei Cuspidor. \"besouro(s)\" sozinho nas falas."
+  },
+  "enemy.dusk-moth": {
+   "en": "Dusk moth",
+   "target": "Mariposa do crepúsculo",
+   "note": "\"mariposa(s)\" sozinha nas falas."
+  },
+  "enemy.alley-pigeon": {
+   "en": "Alley Pigeon",
+   "target": "Pombo de beco",
+   "note": "Gangue: \"a gangue que rouba estrelas\"."
+  },
+  "enemy.mummy-bat": {
+   "en": "Mummy bat",
+   "target": "Morcego múmia",
+   "note": "Faixa: MORCEGOS MÚMIA."
+  },
+  "enemy.squadron": {
+   "en": "King Coo's squadron",
+   "target": "a esquadrilha do Rei Pruu",
+   "note": "\"esquadrilha\" também na etiqueta (ESQUADRILHA CANCELADA)."
+  },
+  "enemy.straggler": {
+   "en": "straggler",
+   "target": "retardatário",
+   "note": "Na UI: \"ele volta\" e \"TODOS PEGOS!\"."
+  },
+  "enemy.brood": {
+   "en": "the Spitter King's brood",
+   "target": "a ninhada do Rei Cuspidor",
+   "note": "Vocativos: \"Assistentes!\", \"meus escaravelhos\"."
+  },
+  "enemy.empress-moths": {
+   "en": "the Dusk Empress's moths",
+   "target": "as mariposas da Imperatriz",
+   "note": "Vocativos: \"minhas lindas\", \"minhas belezinhas\", \"meus docinhos\"."
+  },
+  "enemy.swarm-bats": {
+   "en": "swarm bats",
+   "target": "morcegos do enxame",
+   "note": "\"bandos\"/\"bando\" para flocks."
+  },
+  "attack.fireball": {
+   "en": "fireball",
+   "target": "bola de fogo"
+  },
+  "attack.screech": {
+   "en": "sonic screech",
+   "target": "guincho sônico",
+   "note": "Curto: \"guincho\"."
+  },
+  "attack.seed": {
+   "en": "seed",
+   "target": "semente"
+  },
+  "attack.fan": {
+   "en": "fan",
+   "target": "leque",
+   "note": "\"leques de três\"."
+  },
+  "attack.pollen": {
+   "en": "pollen",
+   "target": "pólen"
+  },
+  "attack.veil": {
+   "en": "veil",
+   "target": "véu",
+   "note": "Os pássaros chamam de \"escudo de seda\"."
+  },
+  "attack.cannon": {
+   "en": "cannon",
+   "target": "canhão",
+   "note": "\"bala de canhão\", \"pavio\"."
+  },
+  "attack.broadside": {
+   "en": "broadside",
+   "target": "bordada",
+   "note": "Termo náutico."
+  },
+  "attack.dragon-breath": {
+   "en": "dragon's breath",
+   "target": "sopro do dragão"
+  },
+  "attack.embers": {
+   "en": "embers",
+   "target": "brasas",
+   "note": "Mesma raiz do Dragão das Brasas."
+  },
+  "attack.crumb-bomb": {
+   "en": "crumb bomb",
+   "target": "bomba de migalhas"
+  },
+  "attack.stale-crust": {
+   "en": "stale crust",
+   "target": "casca de pão dura"
+  },
+  "attack.puff": {
+   "en": "puff",
+   "target": "estufar o peito",
+   "note": "ESTUFADO; \"PLOFT!\" para POP!/POOF!."
+  },
+  "attack.beam": {
+   "en": "beam",
+   "target": "facho de luz",
+   "note": "\"AVISTADO!\" para SPOTTED!."
+  },
+  "attack.lamp": {
+   "en": "lamp",
+   "target": "lâmpada",
+   "note": "A lâmpada do peito da Gárgula (diferente dos lampiões da cidade)."
+  },
+  "attack.stone-feathers": {
+   "en": "stone feathers",
+   "target": "penas de pedra"
+  },
+  "attack.mail-call": {
+   "en": "mail call",
+   "target": "Olha o correio!",
+   "note": "Grito de entrega, bem brasileiro (como \"olha o carteiro!\")."
+  },
+  "attack.ankh": {
+   "en": "ankh",
+   "target": "ankh",
+   "note": "Nome do símbolo egípcio; \"o ankh dourado\"."
+  },
+  "attack.express-post": {
+   "en": "EXPRESS POST",
+   "target": "CORREIO EXPRESSO",
+   "note": "= nome da fase 1-5."
+  },
+  "hazard.gate": {
+   "en": "gate",
+   "target": "portal",
+   "note": "\"vão\" ou \"abertura\" para gap/opening."
+  },
+  "hazard.garden-gate": {
+   "en": "Garden gate",
+   "target": "Portal do jardim"
+  },
+  "hazard.wind-lift": {
+   "en": "Wind lift",
+   "target": "Sobe-e-desce do vento"
+  },
+  "hazard.petal-shutters": {
+   "en": "Petal shutters",
+   "target": "Persianas de pétalas",
+   "note": "Bill: \"portais de pétalas\"."
+  },
+  "hazard.switchback": {
+   "en": "Switchback",
+   "target": "Zigue-zague",
+   "note": "\"sobe num vão, desce no outro\"."
+  },
+  "hazard.lantern-drift": {
+   "en": "Lantern drift",
+   "target": "Lanternas à deriva"
+  },
+  "hazard.sun-wheels": {
+   "en": "Sun wheels",
+   "target": "Rodas de sol"
+  },
+  "hazard.crystal-steps": {
+   "en": "Crystal steps",
+   "target": "Degraus de cristal"
+  },
+  "hazard.stone-panel": {
+   "en": "stone panel",
+   "target": "placa de pedra",
+   "note": "Construtor: \"porta de pedra\"."
+  },
+  "hazard.steam-geyser": {
+   "en": "steam vent",
+   "target": "bueiro de vapor",
+   "note": "\"os quentes\" pula, \"os mansos\" carregam."
+  },
+  "hazard.sea": {
+   "en": "the sea",
+   "target": "o mar",
+   "note": "\"a água\" é o mesmo perigo; \"o mar morde\"."
+  },
+  "hazard.tide": {
+   "en": "the tide",
+   "target": "a maré",
+   "note": "MARÉ ALTA, MARÉ SUBINDO."
+  },
+  "hazard.tide-bell": {
+   "en": "the bell",
+   "target": "o sino"
+  },
+  "hazard.lava-plume": {
+   "en": "lava plume",
+   "target": "jato de lava"
+  },
+  "hazard.meteor": {
+   "en": "meteor",
+   "target": "meteoro"
+  },
+  "hazard.debris": {
+   "en": "debris",
+   "target": "destroços"
+  },
+  "hazard.football": {
+   "en": "football",
+   "target": "bola de futebol",
+   "note": "No Brasil: bolas de futebol, uma diferente a cada rajada."
+  },
+  "hazard.warning-mark": {
+   "en": "!",
+   "target": "!",
+   "note": "O sinal fica; traduz-se a frase (\"Fique de olho no !\")."
+  },
+  "hazard.rubble": {
+   "en": "rubble",
+   "target": "entulho"
+  },
+  "set-piece.rush-path": {
+   "en": "rush",
+   "target": "correria",
+   "note": "Curto para o HUD (\"CORRERIA ×2!\")."
+  },
+  "set-piece.wildfire": {
+   "en": "Wildfire",
+   "target": "Incêndio"
+  },
+  "set-piece.skyfall": {
+   "en": "Skyfall",
+   "target": "Céu Desabando",
+   "note": "Adaptado: o céu caindo (meteoros); = fase 2-5."
+  },
+  "set-piece.eruption": {
+   "en": "Eruption",
+   "target": "Erupção"
+  },
+  "set-piece.swarm": {
+   "en": "Swarm",
+   "target": "Enxame"
+  },
+  "set-piece.gale": {
+   "en": "gale",
+   "target": "ventania",
+   "note": "VENTANIA!; \"lado aberto\"."
+  },
+  "set-piece.finish-line": {
+   "en": "finish line",
+   "target": "linha de chegada",
+   "note": "Placa: CHEGADA."
+  },
+  "set-piece.run-up": {
+   "en": "run-up",
+   "target": "aquecimento",
+   "note": "Os 30 s antes do chefão."
+  },
+  "set-piece.vanguard": {
+   "en": "vanguard",
+   "target": "vanguarda",
+   "note": "Não aparece; a faixa mostra o nome do grupo. \"Lá vêm eles!\""
+  },
+  "pickup.star": {
+   "en": "star",
+   "target": "estrela"
+  },
+  "pickup.star-trio": {
+   "en": "star trio",
+   "target": "trio de estrelas"
+  },
+  "pickup.heart": {
+   "en": "heart",
+   "target": "coração",
+   "note": "\"último coração\"."
+  },
+  "pickup.shield": {
+   "en": "shield",
+   "target": "escudo",
+   "note": "Os pássaros também dizem \"bolha\"."
+  },
+  "pickup.star-magnet": {
+   "en": "star magnet",
+   "target": "ímã de estrelas",
+   "note": "Curto: \"ímã\"."
+  },
+  "pickup.sprint-ring": {
+   "en": "sprint ring",
+   "target": "anel turbo",
+   "note": "\"anéis dourados\", \"os anéis\"."
+  },
+  "pickup.mystery-box": {
+   "en": "mystery box",
+   "target": "caixa-surpresa"
+  },
+  "pickup.bat-swarm": {
+   "en": "Bat swarm",
+   "target": "Enxame de morcegos"
+  },
+  "pickup.meteor-shower": {
+   "en": "Meteor shower",
+   "target": "Chuva de meteoros"
+  },
+  "pickup.star-power": {
+   "en": "Star power",
+   "target": "Poder estelar"
+  },
+  "power-up.shot-power": {
+   "en": "Shot power",
+   "target": "Força do tiro"
+  },
+  "power-up.sprint": {
+   "en": "Sprint (upgrade)",
+   "target": "Turbo"
+  },
+  "power-up.shield": {
+   "en": "Shield (upgrade)",
+   "target": "Escudo"
+  },
+  "power-up.magnet": {
+   "en": "Magnet (upgrade)",
+   "target": "Ímã"
+  },
+  "weapon.shoot": {
+   "en": "Shoot",
+   "target": "Atirar",
+   "note": "Botão e dicas: \"Toque em Atirar\", \"Segure Atirar\". Atirar pedras."
+  },
+  "weapon.rock": {
+   "en": "rock",
+   "target": "pedra"
+  },
+  "weapon.big-rock": {
+   "en": "big rock",
+   "target": "pedrona",
+   "note": "Aumentativo divertido; \"tiro carregado\"."
+  },
+  "weapon.ammo": {
+   "en": "ammo",
+   "target": "munição",
+   "note": "Os pássaros dizem \"pedras\". \"Recarregando…\""
+  },
+  "weapon.sprint": {
+   "en": "Sprint",
+   "target": "Turbo",
+   "note": "Botão de uma palavra; verbo \"turbinar\", \"ir no turbo\"."
+  },
+  "weapon.ring-sprint": {
+   "en": "ring sprint",
+   "target": "turbo do anel"
+  },
+  "weapon.smash": {
+   "en": "SMASH!",
+   "target": "ESMAGOU!"
+  },
+  "mode.campaign": {
+   "en": "Campaign",
+   "target": "Campanha"
+  },
+  "mode.endless": {
+   "en": "Endless",
+   "target": "Infinito",
+   "note": "\"voo infinito\", \"céu infinito\"."
+  },
+  "mode.tap-and-fly": {
+   "en": "Tap & Fly",
+   "target": "Toque e Voe"
+  },
+  "mode.push-up-flight": {
+   "en": "Push-Up Flight",
+   "target": "Voo de Flexões"
+  },
+  "mode.squat-and-fly": {
+   "en": "Squat & Fly",
+   "target": "Agache e Voe"
+  },
+  "mode.jump-and-fly": {
+   "en": "Jump & Fly",
+   "target": "Pule e Voe"
+  },
+  "mode.mini-games": {
+   "en": "Mini games",
+   "target": "Minijogos"
+  },
+  "mode.fly-together": {
+   "en": "Fly Together",
+   "target": "Voem Juntos"
+  },
+  "mode.roped": {
+   "en": "Roped",
+   "target": "Na corda"
+  },
+  "mode.no-rope": {
+   "en": "No rope",
+   "target": "Sem corda"
+  },
+  "mode.duel": {
+   "en": "1 v 1",
+   "target": "1 contra 1",
+   "note": "Substantivo: \"duelo\"."
+  },
+  "mode.level-builder": {
+   "en": "Level Builder",
+   "target": "Criador de Fases"
+  },
+  "mode.daily-adventure": {
+   "en": "Adventure",
+   "target": "Aventura",
+   "note": "\"Aventura do dia\"."
+  },
+  "mode.flight-school": {
+   "en": "Flight School",
+   "target": "Escola de Voo"
+  },
+  "mode.practice": {
+   "en": "Practice",
+   "target": "Treino"
+  },
+  "mode.test-flight": {
+   "en": "test flight",
+   "target": "voo de teste",
+   "note": "Verbo: \"testar voo\"."
+  },
+  "mode.classic": {
+   "en": "Classic",
+   "target": "Clássico"
+  },
+  "mode.world-tour": {
+   "en": "world tour",
+   "target": "volta ao mundo"
+  },
+  "ui.sky-club": {
+   "en": "Sky Club",
+   "target": "Clube do Céu",
+   "note": "Forma curta \"o clube\"."
+  },
+  "ui.sky-club-post": {
+   "en": "Sky Club post",
+   "target": "Correio do Clube do Céu",
+   "note": "Saudação em cada porta: \"Correio do Clube do Céu!\""
+  },
+  "ui.passport": {
+   "en": "passport",
+   "target": "passaporte",
+   "note": "\"Passaporte do Céu\"."
+  },
+  "ui.passport-stamp": {
+   "en": "stamp (passport)",
+   "target": "carimbo",
+   "note": "Carimbo de tinta (passaporte), diferente de \"selo\" (selo postal do Capitão)."
+  },
+  "ui.medal": {
+   "en": "medal",
+   "target": "medalha"
+  },
+  "ui.bronze": {
+   "en": "Bronze",
+   "target": "Bronze"
+  },
+  "ui.silver": {
+   "en": "Silver",
+   "target": "Prata"
+  },
+  "ui.gold": {
+   "en": "Gold",
+   "target": "Ouro"
+  },
+  "ui.star-marks": {
+   "en": "star marks",
+   "target": "marcas de estrela",
+   "note": "O trocadilho \"top notch\" do Pip foi adaptado."
+  },
+  "ui.star-rating": {
+   "en": "stars (level rating)",
+   "target": "estrelas"
+  },
+  "ui.streak": {
+   "en": "streak",
+   "target": "sequência"
+  },
+  "ui.multiplier": {
+   "en": "multiplier",
+   "target": "multiplicador",
+   "note": "Manter o \"×\"."
+  },
+  "ui.perfect-pass": {
+   "en": "perfect pass",
+   "target": "passagem perfeita",
+   "note": "PERFEITO!; \"portal perfeito\"."
+  },
+  "ui.aiming-mark": {
+   "en": "aiming mark",
+   "target": "mira"
+  },
+  "ui.score": {
+   "en": "score",
+   "target": "pontuação",
+   "note": "\"pontos estelares\"."
+  },
+  "ui.best": {
+   "en": "best",
+   "target": "melhor marca",
+   "note": "NOVA MELHOR MARCA!"
+  },
+  "ui.record": {
+   "en": "record",
+   "target": "recorde"
+  },
+  "ui.records-screen": {
+   "en": "Records",
+   "target": "Recordes"
+  },
+  "ui.saved-session": {
+   "en": "saved session",
+   "target": "sessão salva"
+  },
+  "ui.replay": {
+   "en": "replay",
+   "target": "replay",
+   "note": "\"Ver replay\"."
+  },
+  "ui.flight-highlights": {
+   "en": "Flight highlights",
+   "target": "Melhores momentos do voo"
+  },
+  "ui.flight": {
+   "en": "flight",
+   "target": "voo",
+   "note": "Uma partida = um voo."
+  },
+  "ui.scored-flight": {
+   "en": "scored flight",
+   "target": "voo valendo pontos"
+  },
+  "ui.upgrades": {
+   "en": "Upgrades",
+   "target": "Melhorias"
+  },
+  "ui.star-wallet": {
+   "en": "stars to spend",
+   "target": "estrelas para gastar"
+  },
+  "ui.collection": {
+   "en": "Birds",
+   "target": "Pássaros",
+   "note": "\"tripulação de voo\"."
+  },
+  "ui.trail-sunshine-bubbles": {
+   "en": "Sunshine bubbles",
+   "target": "Bolhas de sol"
+  },
+  "ui.trail-peach-hearts": {
+   "en": "Peach hearts",
+   "target": "Corações de pêssego"
+  },
+  "ui.trail-mint-leaves": {
+   "en": "Mint leaves",
+   "target": "Folhas de menta"
+  },
+  "ui.trail-stardust-sparkles": {
+   "en": "Stardust sparkles",
+   "target": "Brilho de poeira estelar"
+  },
+  "ui.character-voices": {
+   "en": "Character voices",
+   "target": "Vozes dos personagens"
+  },
+  "ui.sky-club-soundtrack": {
+   "en": "Sky Club soundtrack",
+   "target": "Trilha sonora do Clube do Céu"
+  },
+  "ui.reduced-motion": {
+   "en": "Reduced motion",
+   "target": "Reduzir movimento"
+  },
+  "ui.campaign-map": {
+   "en": "map",
+   "target": "mapa"
+  },
+  "ui.stop": {
+   "en": "stop",
+   "target": "parada",
+   "note": "\"Próxima parada\"."
+  },
+  "ui.chapter": {
+   "en": "chapter",
+   "target": "capítulo"
+  },
+  "ui.level": {
+   "en": "level",
+   "target": "fase"
+  },
+  "ui.level-card": {
+   "en": "level card",
+   "target": "cartão da fase"
+  },
+  "ui.special-delivery": {
+   "en": "SPECIAL DELIVERY",
+   "target": "ENTREGA ESPECIAL"
+  },
+  "ui.hint": {
+   "en": "TIP",
+   "target": "DICA"
+  },
+  "ui.thank-you-note": {
+   "en": "thank-you note",
+   "target": "bilhete de agradecimento"
+  },
+  "ui.postcard": {
+   "en": "postcard",
+   "target": "cartão-postal",
+   "note": "\"Olá, carteiro,\" / \"P.S.\" / \"Lembranças de\"."
+  },
+  "ui.lair": {
+   "en": "lair",
+   "target": "covil"
+  },
+  "ui.guardian": {
+   "en": "GUARDIAN",
+   "target": "GUARDIÃO",
+   "note": "Todos os guardiões são masculinos."
+  },
+  "ui.boss": {
+   "en": "boss",
+   "target": "chefão",
+   "note": "Termo dos games no Brasil. LUTA CONTRA O CHEFÃO."
+  },
+  "ui.encounter": {
+   "en": "ENCOUNTER 01",
+   "target": "ENCONTRO 01"
+  },
+  "ui.name-card": {
+   "en": "name card",
+   "target": "cartão de apresentação"
+  },
+  "ui.stronger": {
+   "en": "STRONGER",
+   "target": "MAIS FORTE"
+  },
+  "ui.fury": {
+   "en": "FURY",
+   "target": "FÚRIA"
+  },
+  "ui.sky-reclaimed": {
+   "en": "SKY RECLAIMED",
+   "target": "CÉU RECONQUISTADO"
+  },
+  "ui.guardian-down": {
+   "en": "GUARDIAN DOWN!",
+   "target": "GUARDIÃO DERROTADO!"
+  },
+  "ui.victory": {
+   "en": "Victory!",
+   "target": "Vitória!"
+  },
+  "ui.delivered": {
+   "en": "Delivered!",
+   "target": "Entregue!",
+   "note": "\"Entregue\" serve para masculino e feminino."
+  },
+  "ui.try-again": {
+   "en": "Try again!",
+   "target": "Tente de novo!"
+  },
+  "ui.bonk": {
+   "en": "Bonk!",
+   "target": "Tóim!",
+   "note": "Som brasileiro de batida de desenho/quadrinho. Mesmo som do \"Tóim. Tóim.\" da Imperatriz."
+  },
+  "ui.splash": {
+   "en": "Splash!",
+   "target": "Tchibum!",
+   "note": "Som brasileiro de queda na água."
+  },
+  "ui.route-flown": {
+   "en": "ROUTE FLOWN",
+   "target": "ROTA PERCORRIDA"
+  },
+  "ui.coming-soon": {
+   "en": "Coming soon",
+   "target": "Em breve"
+  },
+  "ui.unlock": {
+   "en": "unlock",
+   "target": "desbloquear",
+   "note": "BLOQUEADO."
+  },
+  "ui.story-key": {
+   "en": "Story",
+   "target": "História",
+   "note": "Pular; Próxima fala."
+  },
+  "ui.to-be-continued": {
+   "en": "To be continued…",
+   "target": "Continua…",
+   "note": "Fórmula de TV no Brasil; texto exato da legenda: \"Continua… Próxima parada: Paris, a Cidade Luz.\""
+  },
+  "ui.pause": {
+   "en": "Take a breather.",
+   "target": "Respira um pouco.",
+   "note": "Botões: Mapa, Tentar de novo, Continuar voando."
+  },
+  "ui.flap": {
+   "en": "Flap",
+   "target": "Bater asas",
+   "note": "\"Toque para bater asas\"."
+  },
+  "ui.fly": {
+   "en": "Fly!",
+   "target": "Voar!",
+   "note": "\"Voar de novo\", \"Voar com Pip\"."
+  },
+  "ui.workout": {
+   "en": "workout",
+   "target": "exercício"
+  },
+  "ui.calibration": {
+   "en": "calibration",
+   "target": "calibração"
+  },
+  "ui.camera-lab": {
+   "en": "Camera & tracking lab",
+   "target": "Laboratório de câmera e rastreamento"
+  },
+  "ui.play-games": {
+   "en": "Play Games",
+   "target": "Play Games",
+   "note": "Nome do produto do Google."
+  },
+  "ui.achievements": {
+   "en": "achievements",
+   "target": "conquistas",
+   "note": "Termo do Google Play em português."
+  },
+  "ui.share-code": {
+   "en": "share code",
+   "target": "código da fase",
+   "note": "\"Colar código\"."
+  },
+  "ui.remix": {
+   "en": "Remix",
+   "target": "Remixar"
+  },
+  "ui.starter-levels": {
+   "en": "Starter levels",
+   "target": "Fases de exemplo"
+  },
+  "ui.start-zone": {
+   "en": "START ZONE",
+   "target": "ZONA DE LARGADA"
+  },
+  "ui.gate-family": {
+   "en": "gate family",
+   "target": "tipo de portal"
+  },
+  "ui.boss-finale": {
+   "en": "Boss finale",
+   "target": "Chefão no final",
+   "note": "\"Marca do chefão\"."
+  },
+  "ui.cleared-by-you": {
+   "en": "Cleared by you",
+   "target": "Concluída por você"
+  },
+  "ui.pace": {
+   "en": "Pace",
+   "target": "Ritmo",
+   "note": "Tranquilo, Firme, Acelerado."
+  },
+  "ui.lane": {
+   "en": "lane",
+   "target": "faixa",
+   "note": "\"faixa livre\"."
+  },
+  "ui.player": {
+   "en": "Player 1",
+   "target": "Jogador 1",
+   "note": "J1/J2."
+  },
+  "ui.team-score": {
+   "en": "TEAM SCORE",
+   "target": "PONTOS DA EQUIPE"
+  },
+  "ui.rematch": {
+   "en": "Rematch",
+   "target": "Revanche"
+  },
+  "ui.rank-first-wings": {
+   "en": "First wings",
+   "target": "Primeiras asas"
+  },
+  "ui.rank-cloud-explorer": {
+   "en": "Cloud explorer",
+   "target": "Explorador de nuvens"
+  },
+  "ui.home-greeting": {
+   "en": "Hi, I’m $name! Ready to fly?",
+   "target": "Oi, eu sou $name! Bora voar?",
+   "note": "Sem marca de gênero."
+  },
+  "achievement.frequent-flyer": {
+   "en": "Frequent flyer",
+   "target": "Viajante frequente"
+  },
+  "achievement.on-the-dot": {
+   "en": "On the dot",
+   "target": "Na mosca",
+   "note": "Expressão brasileira de precisão (acertar na mosca)."
+  },
+  "achievement.star-chaser": {
+   "en": "Star chaser",
+   "target": "Caça-estrelas",
+   "note": "Composto sem gênero."
+  },
+  "achievement.constellation": {
+   "en": "Constellation",
+   "target": "Constelação"
+  },
+  "achievement.sky-captain": {
+   "en": "Sky captain",
+   "target": "Capitão do céu"
+  },
+  "achievement.trailblazer": {
+   "en": "Trailblazer",
+   "target": "Desbravador"
+  },
+  "achievement.flock-together": {
+   "en": "Flock together",
+   "target": "Voando em bando"
+  },
+  "achievement.all-rounder": {
+   "en": "All-rounder",
+   "target": "Faz-tudo"
+  },
+  "achievement.mail-through-the-canopy": {
+   "en": "Mail Through the Canopy",
+   "target": "Correio pelas Copas"
+  },
+  "achievement.return-to-sender": {
+   "en": "Return to Sender",
+   "target": "Devolver ao Remetente"
+  },
+  "achievement.mint-tea-again": {
+   "en": "Mint Tea Again",
+   "target": "Chá de Menta de Novo"
+  },
+  "achievement.crumbs-cleared": {
+   "en": "Crumbs Cleared",
+   "target": "Migalhas Varridas"
+  },
+  "achievement.out-of-the-spotlight": {
+   "en": "Out of the Spotlight",
+   "target": "Fora dos Holofotes",
+   "note": "Duplo sentido igual ao inglês."
+  },
+  "achievement.gold-canopy": {
+   "en": "Gold Canopy",
+   "target": "Copas de Ouro"
+  },
+  "achievement.gold-road": {
+   "en": "Gold Road",
+   "target": "Estrada de Ouro"
+  },
+  "achievement.bright-lights": {
+   "en": "Bright Lights",
+   "target": "Luzes da Cidade Grande"
+  },
+  "achievement.lamplighter": {
+   "en": "Lamplighter",
+   "target": "Acendedor de Lampiões",
+   "note": "Ofício clássico (e o do Pequeno Príncipe em português)."
+  },
+  "achievement.harbour-bells": {
+   "en": "Harbour Bells",
+   "target": "Sinos do Porto"
+  },
+  "achievement.edge-of-the-map": {
+   "en": "Edge of the Map",
+   "target": "Beira do Mapa"
+  },
+  "achievement.two-on-one-phone": {
+   "en": "Two on One Phone",
+   "target": "Dois num Celular"
+  },
+  "achievement.friendly-rivals": {
+   "en": "Friendly Rivals",
+   "target": "Rivais Amigos"
+  },
+  "achievement.route-planner": {
+   "en": "Route Planner",
+   "target": "Planejador de Rotas"
+  },
+  "achievement.the-whole-kit": {
+   "en": "The Whole Kit",
+   "target": "O Pacote Completo"
+  },
+  "achievement.pen-pal": {
+   "en": "Pen Pal",
+   "target": "Amigo por Carta"
+  },
+  "achievement.night-mail": {
+   "en": "Night Mail",
+   "target": "Correio Noturno"
+  },
+  "achievement.special-delivery": {
+   "en": "Special Delivery",
+   "target": "Entrega Especial"
+  },
+  "achievement.goal-spread-your-wings": {
+   "en": "Spread your wings",
+   "target": "Abra as asas"
+  },
+  "achievement.goal-open-horizons": {
+   "en": "Open horizons",
+   "target": "Horizontes abertos"
+  },
+  "achievement.goal-pocketful-of-stars": {
+   "en": "Pocketful of stars",
+   "target": "Bolso cheio de estrelas"
+  },
+  "achievement.goal-keep-the-sparkle": {
+   "en": "Keep the sparkle",
+   "target": "Não perca o brilho"
+  },
+  "achievement.goal-right-on-the-mark": {
+   "en": "Right on the mark",
+   "target": "Bem no alvo"
+  },
+  "achievement.goal-the-whole-journey": {
+   "en": "The whole journey",
+   "target": "A viagem inteira"
+  },
+  "achievement.card-sunrise-delivery": {
+   "en": "Sunrise delivery",
+   "target": "Entrega ao nascer do sol"
+  },
+  "achievement.card-peach-picnic": {
+   "en": "Peach picnic",
+   "target": "Piquenique de pêssego"
+  },
+  "achievement.card-moonlit-mail": {
+   "en": "Moonlit mail",
+   "target": "Correio ao luar"
+  },
+  "achievement.card-cloud-parade": {
+   "en": "Cloud parade",
+   "target": "Desfile de nuvens"
+  },
+  "achievement.card-twilight-treasure": {
+   "en": "Twilight treasure",
+   "target": "Tesouro do crepúsculo"
+  },
+  "achievement.card-garden-party": {
+   "en": "Garden party",
+   "target": "Festa no jardim"
+  },
+  "story.flame-seal": {
+   "en": "flame seal",
+   "target": "lacre de chama",
+   "note": "\"Lacre\" (de cera) e não \"selo\", que é o selo postal do Capitão. \"Um lacre em forma de chama\"; \"Duas rotas, dois lacres.\""
+  },
+  "story.warm-letter": {
+   "en": "a warm letter",
+   "target": "uma carta calorosa",
+   "note": "Calorosa = quentinha e carinhosa ao mesmo tempo."
+  },
+  "story.night-mail": {
+   "en": "the night mail",
+   "target": "o correio noturno"
+  },
+  "story.morning-post": {
+   "en": "the morning post",
+   "target": "o correio da manhã"
+  },
+  "story.mail-route": {
+   "en": "route",
+   "target": "rota",
+   "note": "\"rota do correio\"."
+  },
+  "story.route-six": {
+   "en": "Route six",
+   "target": "Rota seis"
+  },
+  "story.beacon": {
+   "en": "our beacon",
+   "target": "nosso farol"
+  },
+  "story.lost-letter": {
+   "en": "the lost letter",
+   "target": "a carta perdida"
+  },
+  "story.the-books": {
+   "en": "the books",
+   "target": "os registros",
+   "note": "\"Conferi os registros duas vezes.\""
+  },
+  "story.pigeonholes": {
+   "en": "pigeonholes",
+   "target": "escaninhos",
+   "note": "O trocadilho vira \"pombo-correio\": \"Nunca tivemos um pombo-correio de verdade.\""
+  },
+  "story.bread-cart": {
+   "en": "the bread cart",
+   "target": "o carrinho de pão"
+  },
+  "story.bagel": {
+   "en": "a hot bagel a day",
+   "target": "um bagel quentinho por dia"
+  },
+  "story.landing-light": {
+   "en": "landing light",
+   "target": "luz de pouso"
+  },
+  "story.brew": {
+   "en": "the brew",
+   "target": "a poção",
+   "note": "\"fervendo\", \"ferver\"."
+  },
+  "story.perfect-ink": {
+   "en": "the perfect ink",
+   "target": "a tinta perfeita",
+   "note": "\"uma tinta que nunca desbota\"."
+  },
+  "story.mint-tea": {
+   "en": "mint tea",
+   "target": "chá de menta",
+   "note": "\"Menta\" ecoa o nome Minty."
+  },
+  "story.letter-phrases": {
+   "en": "“Dear Grandma”, “Wish you were here”",
+   "target": "\"Querida vovó\", \"Saudades\"",
+   "note": "Fórmulas brasileiras de carta e postal: \"Querida vovó\", \"Saudades\", \"Melhoras!\", \"Com carinho\"."
+  },
+  "story.postage-stamp": {
+   "en": "stamps",
+   "target": "selos",
+   "note": "Selos postais (o tesouro do Capitão); colecionador de selos."
+  },
+  "story.stamp-album": {
+   "en": "stamp album",
+   "target": "álbum de selos"
+  },
+  "story.penny-black": {
+   "en": "penny black",
+   "target": "Penny Black",
+   "note": "Nome filatélico mantido."
+  },
+  "story.envelopes": {
+   "en": "the envelopes",
+   "target": "os envelopes"
+  },
+  "story.beauty-sleep": {
+   "en": "beauty sleep",
+   "target": "sono de beleza"
+  },
+  "story.dusk-delivery": {
+   "en": "deliver at dusk",
+   "target": "entregar ao entardecer"
+  },
+  "story.lamps": {
+   "en": "the lamps",
+   "target": "os lampiões",
+   "note": "Postes de luz antigos; sem homófono perigoso."
+  },
+  "story.lampshades": {
+   "en": "lampshades",
+   "target": "cúpulas",
+   "note": "A Imperatriz encurta para \"Cúpulas…\"."
+  },
+  "story.harbour-bells": {
+   "en": "harbour bells",
+   "target": "sinos do porto"
+  },
+  "story.club-rule": {
+   "en": "Club rule",
+   "target": "Regra do clube"
+  },
+  "story.final-notice": {
+   "en": "final notice",
+   "target": "último aviso",
+   "note": "Fórmula usual de cobrança/notificação."
+  },
+  "story.wake-up-call": {
+   "en": "wake-up call",
+   "target": "toque de despertar",
+   "note": "Alarme e aviso."
+  },
+  "story.first-letter": {
+   "en": "the first letter ever sent to the Dragon",
+   "target": "a primeira carta já enviada ao Dragão"
+  },
+  "story.dotted-i": {
+   "en": "He dotted his “i” with a tiny bat.",
+   "target": "Pingou o \"i\" com um morceguinho.",
+   "note": "\"Pingar o i\" funciona em português."
+  },
+  "story.mailbag": {
+   "en": "mailbag",
+   "target": "bolsa de cartas"
+  },
+  "story.satchel": {
+   "en": "satchel",
+   "target": "bolsa"
+  },
+  "story.pharaohs-post": {
+   "en": "the Pharaoh's post",
+   "target": "o correio do Faraó"
+  },
+  "story.mask": {
+   "en": "golden courier mask",
+   "target": "máscara de ouro"
+  },
+  "story.wrappings": {
+   "en": "wrappings",
+   "target": "ataduras",
+   "note": "Evita \"faixas\" (que é a faixa/pista da UI)."
+  },
+  "story.headwear": {
+   "en": "headwear",
+   "target": "coroa / coroa de frasco / diadema / chapéu / quepe / viseira",
+   "note": "Cada peça traduzida ao pé da letra."
+  },
+  "story.kindling": {
+   "en": "kindling",
+   "target": "gravetos"
+  },
+  "story.rush-hour": {
+   "en": "rush hour",
+   "target": "hora do rush",
+   "note": "O Brasil diz \"hora do rush\"."
+  },
+  "story.weather-vane": {
+   "en": "weather vane",
+   "target": "cata-vento"
+  },
+  "motto.every-letter-lands": {
+   "en": "Every letter lands.",
+   "target": "Toda carta chega.",
+   "note": "Lema curto; funciona como pergunta: \"Toda carta chega mesmo?\""
+  },
+  "motto.every-letter-delivered": {
+   "en": "Every letter delivered",
+   "target": "Toda carta entregue"
+  },
+  "address.rookie": {
+   "en": "rookie",
+   "target": "aprendiz",
+   "note": "Carinhoso e sem gênero (o/a aprendiz). Pip: \"Aprendiz Pip\"."
+  },
+  "address.little-courier": {
+   "en": "little courier",
+   "target": "passarinho do correio",
+   "note": "\"Passarinho\" serve para qualquer pássaro (epiceno)."
+  },
+  "address.darling": {
+   "en": "darling",
+   "target": "meu bem",
+   "note": "Invariável; serve para a Gárgula, o Barão e Peaches."
+  },
+  "address.postie": {
+   "en": "postie",
+   "target": "carteiro",
+   "note": "Dito com rudeza de pirata; sem forma mais neutra natural."
+  },
+  "address.sprat": {
+   "en": "sprat",
+   "target": "sardinha",
+   "note": "Peixinho miúdo; serve para qualquer pássaro."
+  },
+  "address.skylubber": {
+   "en": "skylubber",
+   "target": "rato de nuvem",
+   "note": "Versão aérea de \"rato de porão\"."
+  },
+  "address.matey": {
+   "en": "matey",
+   "target": "camarada",
+   "note": "Sem gênero. \"meus marujos\" para me hearties; \"meu chapa\" para me handsome."
+  },
+  "address.lad": {
+   "en": "lad",
+   "target": "sardinha",
+   "note": "Armadilha de gênero resolvida com vocativo neutro de pirata."
+  },
+  "address.feathers": {
+   "en": "feathers",
+   "target": "Penas",
+   "note": "Apelido."
+  },
+  "address.little-spark": {
+   "en": "little spark",
+   "target": "faisquinha"
+  },
+  "address.hatchling": {
+   "en": "hatchling",
+   "target": "filhote"
+  },
+  "address.small-one": {
+   "en": "small one",
+   "target": "criaturinha",
+   "note": "\"mensageiro\" e \"passarinho\" quando couber."
+  },
+  "address.little-one": {
+   "en": "little one",
+   "target": "passarinho",
+   "note": "Também \"ave da noite\", \"andarilho\" evitado (gênero)."
+  },
+  "address.fledgling": {
+   "en": "fledgling",
+   "target": "pintinho",
+   "note": "Condescendente e sem gênero."
+  },
+  "address.old-courier": {
+   "en": "old courier",
+   "target": "velho carteiro"
+  },
+  "address.stoneface": {
+   "en": "Stoneface",
+   "target": "Cara de Pedra",
+   "note": "\"Cara de pedra\" também é expressão de quem não mostra emoção."
+  },
+  "address.commissioner": {
+   "en": "Commissioner",
+   "target": "Comissário"
+  },
+  "address.your-majesty": {
+   "en": "Your Majesty",
+   "target": "Vossa Majestade",
+   "note": "\"Sua Majestade, o besouro\"."
+  },
+  "address.your-lordship": {
+   "en": "Your Lordship",
+   "target": "Vossa Senhoria"
+  },
+  "address.her-highness": {
+   "en": "Her Highness",
+   "target": "Sua Alteza"
+  },
+  "address.sir": {
+   "en": "sir",
+   "target": "senhor",
+   "note": "Para a Imperatriz: \"senhora\"."
+  },
+  "address.mister": {
+   "en": "Mister",
+   "target": "Seu",
+   "note": "Tratamento brasileiro carinhoso: \"Seu Neferhoo\", \"Seu Esfinge\"."
+  },
+  "address.partner": {
+   "en": "partner",
+   "target": "parceiro",
+   "note": "Minty usa \"parça\"; para inimigos \"meu chapa\", \"colega\"; hotshot = \"fera\"."
+  },
+  "address.peaches-pet-names": {
+   "en": "sweetie",
+   "target": "docinho",
+   "note": "Variados: docinho, chuchu, fofura, jujuba, brigadeiro, quindim, pudinzinho, bombom, gracinha, lindeza, coração, amorzinho, benzinho, pãozinho de mel, florzinha, anjinho, cocadinha."
+  },
+  "address.bossy": {
+   "en": "bossy",
+   "target": "chefia",
+   "note": "Gíria brasileira invariável para chamar um chefe."
+  },
+  "address.minions": {
+   "en": "Cousins! / my lovelies / my little scarabs / me hearties",
+   "target": "Primos! / minhas lindas / meus escaravelhos / meus marujos",
+   "note": "Plural (vocês) no registro de cada chefão."
+  },
+  "phrase.baron-bat-line": {
+   "en": "This route is my roost now, little courier!",
+   "target": "Agora esta rota é meu poleiro, passarinho do correio!",
+   "note": "Igual no cartão, na legenda e na voz."
+  },
+  "phrase.spitter-king-line": {
+   "en": "Every letter on my road goes in the brew!",
+   "target": "Toda carta da minha estrada vai pra poção!"
+  },
+  "phrase.dusk-empress-line": {
+   "en": "Hush now. The night mail is sleeping.",
+   "target": "Shhh, quietinho. O correio noturno está dormindo."
+  },
+  "phrase.pirate-captain-line": {
+   "en": "Arr! Every mailbag on these waves be mine!",
+   "target": "Arrr! Toda bolsa de cartas destes mares é minha!"
+  },
+  "phrase.ember-dragon-line": {
+   "en": "The sky is mine. Your letters are kindling.",
+   "target": "O céu é meu. Suas cartas não passam de gravetos."
+  },
+  "phrase.neferhoo-line": {
+   "en": "Return to sender! This route has a courier.",
+   "target": "Devolver ao remetente! Esta rota tem carteiro."
+  },
+  "phrase.king-coo-line": {
+   "en": "Nobody flies till the bread cart is found!",
+   "target": "Ninguém voa até acharem o carrinho de pão!"
+  },
+  "phrase.searchlight-gargoyle-line": {
+   "en": "Hold still! Nobody ever stays in the light.",
+   "target": "Não se mexa! Ninguém jamais fica na luz.",
+   "note": "\"Não se mexa\" em vez de \"Parado aí\" (sem gênero)."
+  },
+  "phrase.return-to-sender": {
+   "en": "Return to sender!",
+   "target": "Devolver ao remetente!",
+   "note": "Fórmula postal brasileira; placa: DEVOLVER / AO REMETENTE."
+  },
+  "phrase.signed-sealed-delivered": {
+   "en": "Signed, sealed, delivered!",
+   "target": "Assinado, lacrado, entregue!",
+   "note": "Minty: \"Assinado, lacrado, ZUUUM!\""
+  },
+  "phrase.small-bird-big-sky": {
+   "en": "Small bird. Big sky.",
+   "target": "Pássaro pequeno. Céu grande.",
+   "note": "Variações: \"Pássaro pequeno, plano grande!\""
+  },
+  "phrase.peaches-tagline": {
+   "en": "Rosy cheeks, curly crest, all heart.",
+   "target": "Bochechas rosadas, topete cacheado, puro coração."
+  },
+  "phrase.minty-tagline": {
+   "en": "Tiny hummer. Fresh sprig. Full speed.",
+   "target": "Beija-flor mini. Raminho fresco. Velocidade total."
+  },
+  "phrase.orbit-tagline": {
+   "en": "A dreamy owl who flies by starlight.",
+   "target": "Uma corujinha sonhadora que voa à luz das estrelas.",
+   "note": "Bill: \"Voe à luz das estrelas\"."
+  },
+  "phrase.sprint-woohoo": {
+   "en": "Woo-hooo!",
+   "target": "Uhuuuu!"
+  },
+  "phrase.sprint-turbo-feathers": {
+   "en": "Turbo feathers!",
+   "target": "Penas no turbo!"
+  },
+  "phrase.sprint-bye-bye-gravity": {
+   "en": "Bye-bye, gravity!",
+   "target": "Tchau, gravidade!"
+  },
+  "phrase.sprint-wheee": {
+   "en": "Wheeee!",
+   "target": "Iupiiii!"
+  },
+  "phrase.keep-your-beak-up": {
+   "en": "Keep your beak up.",
+   "target": "Bico erguido.",
+   "note": "Versão de passarinho de \"cabeça erguida\"."
+  },
+  "phrase.all-screech": {
+   "en": "He’s all screech",
+   "target": "Morcego que guincha não morde",
+   "note": "Adaptado de \"cão que ladra não morde\"."
+  },
+  "phrase.no-flame-seal": {
+   "en": "No flame seal on this guardian.",
+   "target": "Nada de lacre de chama neste guardião."
+  },
+  "phrase.halt": {
+   "en": "HALT!",
+   "target": "ALTO LÁ!"
+  },
+  "phrase.mister-nice-bat": {
+   "en": "No more Mister Nice Bat!",
+   "target": "Acabou o morcego bonzinho!"
+  },
+  "phrase.at-your-disservice": {
+   "en": "at your disservice",
+   "target": "às suas desordens",
+   "note": "Inverte \"às suas ordens\"."
+  },
+  "phrase.mind-the-gap": {
+   "en": "Mind the gap",
+   "target": "Cuidado com o vão",
+   "note": "O aviso do metrô brasileiro."
+  },
+  "phrase.sticks-and-stones": {
+   "en": "Sticks and stones?",
+   "target": "Palavras não machucam?",
+   "note": "Sem provérbio equivalente; a piada vira \"Palavra não machuca. Pedra eu trouxe!\""
+  },
+  "phrase.rock-beats-shot": {
+   "en": "Rock beats shot!",
+   "target": "Pedra ganha de tiro!",
+   "note": "Padrão de pedra, papel e tesoura."
+  },
+  "phrase.pirate-speak": {
+   "en": "Arr!",
+   "target": "Arrr!",
+   "note": "Ahoy!, Alto lá!, Raios e trovões!, Pelas barbas de Netuno!, meu navio, marujos, NAVIO À VISTA!"
+  },
+  "phrase.strike-the-colours": {
+   "en": "strike the colours",
+   "target": "arriar a bandeira",
+   "note": "Termo náutico de rendição."
+  },
+  "phrase.nobody-looks-up": {
+   "en": "Nobody looks up.",
+   "target": "Ninguém olha para cima.",
+   "note": "Resposta: \"Todo carteiro vai olhar pra cima!\""
+  },
+  "phrase.accepts": {
+   "en": "The Commissioner accepts.",
+   "target": "O Comissário aceita.",
+   "note": "\"A Gárgula aceita.\""
+  },
+  "phrase.bonk-bonk": {
+   "en": "Bonk. Bonk.",
+   "target": "Tóim. Tóim."
+  },
+  "phrase.hush": {
+   "en": "Hush now.",
+   "target": "Shhh, quietinho.",
+   "note": "Também \"Psiu\"."
+  },
+  "phrase.welcome-to-the-club": {
+   "en": "Welcome to the club",
+   "target": "Bem-vindo ao clube",
+   "note": "A expressão existe igual em português."
+  },
+  "ui.omen-baron": {
+   "en": "A SHADOW APPROACHES",
+   "target": "UMA SOMBRA SE APROXIMA",
+   "note": "\"O céu pertence a outra pessoa…\""
+  },
+  "ui.omen-baron-returns": {
+   "en": "THE BARON RETURNS",
+   "target": "O BARÃO VOLTOU",
+   "note": "\"Ele voltou, e muito mais barulhento…\""
+  },
+  "ui.omen-spitter": {
+   "en": "SOMETHING IS BREWING",
+   "target": "TEM ALGO FERVENDO",
+   "note": "\"O ar está começando a borbulhar…\""
+  },
+  "ui.omen-empress": {
+   "en": "TWILIGHT TAKES WING",
+   "target": "O CREPÚSCULO LEVANTA VOO",
+   "note": "\"Um véu de seda se junta no anoitecer…\""
+  },
+  "ui.omen-pirate": {
+   "en": "SAIL HO!",
+   "target": "NAVIO À VISTA!",
+   "note": "\"Um navio chega na maré cheia…\""
+  },
+  "ui.omen-dragon": {
+   "en": "THE SKY CATCHES FIRE",
+   "target": "O CÉU PEGA FOGO",
+   "note": "\"Grandes asas batem acima das nuvens…\""
+  },
+  "ui.omen-king-coo": {
+   "en": "THE CURB IS CLOSED",
+   "target": "CALÇADA INTERDITADA",
+   "note": "\"Alguém está muito bravo por causa do carrinho de pão…\""
+  },
+  "ui.omen-gargoyle": {
+   "en": "STORM WARNING",
+   "target": "ALERTA DE TEMPESTADE",
+   "note": "= fase 3-4."
+  },
+  "ui.omen-neferhoo": {
+   "en": "THE PYRAMID STIRS",
+   "target": "A PIRÂMIDE DESPERTA",
+   "note": "\"A poeira da pirâmide está se mexendo…\""
+  },
+  "story.letter": {
+   "en": "letter",
+   "target": "carta",
+   "note": "Sempre a carta postal (exceto o \"i\" pingado e as palavras fervidas da página)."
+  },
+  "story.mail-and-post": {
+   "en": "the mail / the post",
+   "target": "o correio",
+   "note": "Uma palavra para mail e post; \"carteiro\" para postman."
+  },
+  "story.parcel": {
+   "en": "parcel",
+   "target": "pacote"
+  },
+  "story.delivery": {
+   "en": "delivery",
+   "target": "entrega",
+   "note": "entregar / entrega / entregue."
+  },
+  "story.salutation": {
+   "en": "Dear Dragon.",
+   "target": "Querido Dragão.",
+   "note": "Para o Dragão (masculino). Postais: \"Olá, carteiro,\" (sem gênero)."
+  },
+  "ui.settings": {
+   "en": "Settings",
+   "target": "Configurações",
+   "note": "Tela e ícone de engrenagem; \"Ajustes\" só onde falta espaço (Ajustes do microfone). (UI)"
+  },
+  "ui.records-dock": {
+   "en": "Records (screen)",
+   "target": "Recordes",
+   "note": "Nome da tela e da aba; \"Veja em Recordes\". (UI)"
+  },
+  "ui.best-tag": {
+   "en": "Best (tag)",
+   "target": "Recorde",
+   "note": "Etiquetas de melhor marca: \"Recorde 42\", \"NOVO RECORDE!\", \"Sem recorde\". (UI)"
+  },
+  "ui.personal-best": {
+   "en": "personal best",
+   "target": "recorde pessoal",
+   "note": "NOVO RECORDE PESSOAL! (UI)"
+  },
+  "ui.level-builder-short": {
+   "en": "Builder (key)",
+   "target": "Criador",
+   "note": "Forma curta de \"Criador de Fases\" em teclas pequenas. (UI)"
+  },
+  "ui.test-fly-key": {
+   "en": "TEST FLY",
+   "target": "TESTAR VOO",
+   "note": "Tecla do editor; o substantivo segue \"voo de teste\". (UI)"
+  },
+  "ui.cleared": {
+   "en": "Cleared!",
+   "target": "Concluída!",
+   "note": "Fase concluída (feminino, concorda com \"fase\"). (UI)"
+  },
+  "ui.goal": {
+   "en": "goal (daily / star goal)",
+   "target": "meta",
+   "note": "\"3 METAS\", \"metas cumpridas\". (UI)"
+  },
+  "ui.postcard-short": {
+   "en": "postcard (tags)",
+   "target": "postal",
+   "note": "Forma curta de \"cartão-postal\" em etiquetas: POSTAL DO CLUBE DO CÉU, POSTAL CARIMBADO! (UI)"
+  },
+  "ui.player-short": {
+   "en": "P1 / P2",
+   "target": "J1 / J2",
+   "note": "Jogador 1 / Jogador 2. (UI)"
+  },
+  "ui.versus": {
+   "en": "A vs B",
+   "target": "A x B",
+   "note": "Placar à brasileira; o selo do duelo fica \"VS\". (UI)"
+  },
+  "ui.series": {
+   "en": "SERIES 2–1",
+   "target": "PLACAR 2–1",
+   "note": "(UI)"
+  },
+  "ui.knockout-bar": {
+   "en": "DEFEATED (boss bar)",
+   "target": "NOCAUTE",
+   "note": "Neutro em gênero (serve para a Imperatriz e a Gárgula). (UI)"
+  },
+  "ui.hp": {
+   "en": "HP",
+   "target": "HP",
+   "note": "Mantido: é como os jogadores brasileiros dizem. (UI)"
+  },
+  "ui.lane-top-bottom": {
+   "en": "Top / Bottom (lane)",
+   "target": "Em cima / Embaixo",
+   "note": "Faixas das fases de flexão e agachamento. (UI)"
+  },
+  "ui.gap-screech": {
+   "en": "gap (sonic screech)",
+   "target": "brecha",
+   "note": "VOE ATÉ A BRECHA, FIQUE NA BRECHA. (UI)"
+  },
+  "ui.gap-squadron": {
+   "en": "gap (King Coo squadron)",
+   "target": "vão",
+   "note": "PASSE NO VÃO, DEPOIS: VÃO. (UI)"
+  },
+  "ui.flawless": {
+   "en": "FLAWLESS!",
+   "target": "IMPECÁVEL!",
+   "note": "\"PERFEITO\" fica reservado para o portal perfeito. (UI)"
+  },
+  "ui.weathered": {
+   "en": "WEATHERED!",
+   "target": "AGUENTOU!",
+   "note": "(UI)"
+  },
+  "ui.escaped": {
+   "en": "ESCAPED!",
+   "target": "ESCAPOU!",
+   "note": "(UI)"
+  },
+  "ui.scored-tag": {
+   "en": "SCORED (tag)",
+   "target": "VALENDO",
+   "note": "Forma curta de \"voo valendo pontos\"; \"voos pontuados\" no total de Recordes. (UI)"
+  },
+  "ui.ready-countdown": {
+   "en": "Ready, steady…",
+   "target": "Preparar, apontar…",
+   "note": "Mesma fórmula da fala do Minty. (UI)"
+  },
+  "ui.boss-fight-tag": {
+   "en": "BOSS FIGHT",
+   "target": "LUTA DE CHEFÃO",
+   "note": "(UI)"
+  },
+  "ui.boss-down": {
+   "en": "BOSS DOWN!",
+   "target": "CHEFÃO CAIU!",
+   "note": "(UI)"
+  },
+  "ui.guardian-down-short": {
+   "en": "GUARDIAN DOWN! (16-char cards)",
+   "target": "GUARDIÃO CAIU!",
+   "note": "\"GUARDIÃO DERROTADO!\" (19) não cabe no orçamento de 16. (UI)"
+  },
+  "ui.star-magnet-callout": {
+   "en": "STAR MAGNET!",
+   "target": "ÍMÃ ESTELAR!",
+   "note": "Forma curta de \"ímã de estrelas\" (o grito tem 14 caracteres). (UI)"
+  },
+  "ui.dusk-empress-short": {
+   "en": "Dusk Empress (boss name, 20 chars)",
+   "target": "Imperatriz",
+   "note": "boss_duskMoth_name e a barra; o nome completo fica na fase 3-8, no remetente e no banner. (UI)"
+  },
+  "ui.gargoyle-card": {
+   "en": "THE SEARCHLIGHT / GARGOYLE",
+   "target": "GÁRGULA DO / HOLOFOTE",
+   "note": "O cartão põe a linha pequena em cima; para ler na ordem certa a pequena é \"GÁRGULA DO\". (UI)"
+  },
+  "ui.petal-gates": {
+   "en": "Petal shutters (gate family)",
+   "target": "Portais de pétalas",
+   "note": "Como o Bill diz na história; \"Persianas de pétalas\" (20) não cabe em 18. (UI)"
+  },
+  "ui.wind-lift": {
+   "en": "Wind lift (gate family)",
+   "target": "Vento sobe-e-desce",
+   "note": "\"Sobe-e-desce do vento\" (21) não cabe em 18. (UI)"
+  },
+  "ui.bat-swarm-prize": {
+   "en": "Bat swarm (duel prize)",
+   "target": "Morcegada",
+   "note": "\"Enxame de morcegos\" (18) não cabe em 16. (UI)"
+  },
+  "ui.meteor-shower-prize": {
+   "en": "Meteor shower (duel prize)",
+   "target": "Chuva meteórica",
+   "note": "\"Chuva de meteoros\" (17) não cabe em 16. (UI)"
+  },
+  "ui.on-off": {
+   "en": "ON / OFF (switch)",
+   "target": "SIM / NÃO",
+   "note": "Orçamento de 4 caracteres. (UI)"
+  },
+  "ui.copilot": {
+   "en": "YOUR CO-PILOT",
+   "target": "SUA DUPLA",
+   "note": "Neutro em gênero. (UI)"
+  },
+  "ui.locked-on": {
+   "en": "LOCKED ON (camera)",
+   "target": "NA MIRA",
+   "note": "(UI)"
+  },
+  "ui.wallet": {
+   "en": "YOUR STARS (wallet)",
+   "target": "SEU SALDO",
+   "note": "(UI)"
+  },
+  "ui.space-key": {
+   "en": "Space (key)",
+   "target": "Espaço",
+   "note": "Teclas D, A, W, Esc ficam como estão. (UI)"
+  },
+  "ui.remix-suffix": {
+   "en": "remix / copy (name suffix)",
+   "target": "remix / cópia",
+   "note": "(UI)"
+  }
+ }
+}

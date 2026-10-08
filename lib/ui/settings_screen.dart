@@ -7,7 +7,10 @@ import '../app_brand.dart';
 import '../data/play_games.dart';
 import '../data/providers.dart';
 import '../data/progress_repository.dart';
+import '../l10n/l10n.dart';
 import 'components.dart';
+import 'fit_text.dart';
+import 'language_picker.dart';
 import 'mini_chrome.dart';
 import 'theme.dart';
 import 'ui_sounds.dart';
@@ -63,7 +66,9 @@ class SettingsScreen extends ConsumerWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'A fresh start. ${birdNames[firstBird]} is ready for you.',
+                    context.l10n.settingsResetDone(
+                      context.l10n.birdName(firstBird),
+                    ),
                     style: bodyText(
                       15,
                       color: SkyColors.cream,
@@ -90,6 +95,7 @@ class SettingsScreen extends ConsumerWidget {
     // Play Games has its strip only where it can work (play_games_ids.dart);
     // then the lab and About keys share one row to make room.
     final playGames = ref.watch(playGamesProvider).available;
+    final l = context.l10n;
     void lab() => context.go('/lab');
     void about() => showLicensePage(
       context: context,
@@ -133,9 +139,12 @@ class SettingsScreen extends ConsumerWidget {
             child: Column(
               children: [
                 MiniHeader(
-                  title: 'Make yourself at home.',
+                  title: l.settingsTitle,
                   size: 34,
                   onBack: () => context.go('/'),
+                  // After the title, clear of the bird perched on the
+                  // right-hand panel.
+                  leading: const [LanguageKey()],
                 ),
                 const SizedBox(height: 18),
                 Expanded(
@@ -164,15 +173,15 @@ class SettingsScreen extends ConsumerWidget {
                                 )
                               : _PanelBody(
                                   children: [
-                                    const _SectionLabel(
-                                      'Sound',
+                                    _SectionLabel(
+                                      l.settingsSectionSound,
                                       icon: Icons.graphic_eq_rounded,
                                     ),
                                     toggle(
                                       SettingKey.music,
                                       Icons.music_note_rounded,
-                                      'Sky Club soundtrack',
-                                      'Menu, adventure and boss themes.',
+                                      l.settingsMusicTitle,
+                                      l.settingsMusicDetail,
                                       SkyColors.lavender,
                                       s?.music,
                                     ),
@@ -180,8 +189,8 @@ class SettingsScreen extends ConsumerWidget {
                                     toggle(
                                       SettingKey.effects,
                                       Icons.volume_up_rounded,
-                                      'Sound effects',
-                                      'Flight, combat, pickups and menu feedback.',
+                                      l.settingsEffectsTitle,
+                                      l.settingsEffectsDetail,
                                       SkyColors.yellow,
                                       s?.effects,
                                     ),
@@ -189,21 +198,21 @@ class SettingsScreen extends ConsumerWidget {
                                     toggle(
                                       SettingKey.voices,
                                       Icons.record_voice_over_rounded,
-                                      'Character voices',
-                                      'Story scenes, thank-you notes and sprint calls.',
+                                      l.settingsVoicesTitle,
+                                      l.settingsVoicesDetail,
                                       SkyColors.mint,
                                       s?.voices,
                                     ),
                                     const SizedBox(height: 8),
-                                    const _SectionLabel(
-                                      'Comfort',
+                                    _SectionLabel(
+                                      l.settingsSectionComfort,
                                       icon: Icons.spa_rounded,
                                     ),
                                     toggle(
                                       SettingKey.reducedMotion,
                                       Icons.motion_photos_off_rounded,
-                                      'Reduced motion',
-                                      'Quieter menus and fewer decorative effects.',
+                                      l.settingsReducedMotionTitle,
+                                      l.settingsReducedMotionDetail,
                                       SkyColors.skyDeep,
                                       s?.reducedMotion,
                                     ),
@@ -237,7 +246,7 @@ class SettingsScreen extends ConsumerWidget {
                                           Expanded(
                                             child: _ActionRow(
                                               icon: Icons.camera_alt_rounded,
-                                              label: 'Camera & tracking lab',
+                                              label: l.settingsCameraLab,
                                               compact: true,
                                               onTap: lab,
                                             ),
@@ -246,10 +255,14 @@ class SettingsScreen extends ConsumerWidget {
                                           Expanded(
                                             child: _ActionRow(
                                               icon: Icons.info_outline_rounded,
-                                              label: 'About & licenses',
-                                              detail: 'v$_version',
-                                              semanticLabel:
-                                                  'About & licenses, version $_version',
+                                              label: l.settingsAbout,
+                                              detail: l.settingsVersion(
+                                                _version,
+                                              ),
+                                              semanticLabel: l
+                                                  .settingsAboutSemantics(
+                                                    _version,
+                                                  ),
                                               compact: true,
                                               onTap: about,
                                             ),
@@ -262,16 +275,17 @@ class SettingsScreen extends ConsumerWidget {
                                     const SizedBox(height: 12),
                                     _ActionRow(
                                       icon: Icons.camera_alt_rounded,
-                                      label: 'Camera & tracking lab',
+                                      label: l.settingsCameraLab,
                                       onTap: lab,
                                     ),
                                     const SizedBox(height: 8),
                                     _ActionRow(
                                       icon: Icons.info_outline_rounded,
-                                      label: 'About & licenses',
-                                      detail: 'v$_version',
-                                      semanticLabel:
-                                          'About & licenses, version $_version',
+                                      label: l.settingsAbout,
+                                      detail: l.settingsVersion(_version),
+                                      semanticLabel: l.settingsAboutSemantics(
+                                        _version,
+                                      ),
                                       onTap: about,
                                     ),
                                     const SizedBox(height: 10),
@@ -279,7 +293,7 @@ class SettingsScreen extends ConsumerWidget {
                                   const Spacer(),
                                   _ActionRow(
                                     icon: Icons.restart_alt_rounded,
-                                    label: 'Reset local progress',
+                                    label: l.settingsReset,
                                     danger: true,
                                     onTap: () => reset(context, ref),
                                   ),
@@ -358,7 +372,7 @@ class _SectionLabel extends StatelessWidget {
           Icon(icon, size: 15, color: SkyColors.ink),
           const SizedBox(width: 5),
           Text(
-            label.toUpperCase(),
+            L10n.upper(label),
             style: bodyText(
               12,
               weight: FontWeight.w900,
@@ -561,10 +575,12 @@ class _SettingRow extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  // One line each in every language: a longer translation
+                  // shrinks a little rather than wrap (FitText).
                   children: [
-                    Text(title, style: heading(21)),
+                    FitText(title, style: heading(21)),
                     const SizedBox(height: 2),
-                    Text(
+                    FitText(
                       subtitle,
                       style: bodyText(13.5, color: SkyColors.muted),
                     ),
@@ -580,7 +596,9 @@ class _SettingRow extends StatelessWidget {
                     ? null
                     : ExcludeSemantics(
                         child: Text(
-                          on ? 'ON' : 'OFF',
+                          on
+                              ? context.l10n.settingsSwitchOn
+                              : context.l10n.settingsSwitchOff,
                           textAlign: TextAlign.right,
                           style: bodyText(
                             12,
@@ -653,9 +671,9 @@ class _SettingsUnavailable extends StatelessWidget {
       children: [
         BirdArt(bird: bird == 1 ? 0 : 1, size: 92, bob: false),
         const SizedBox(height: 8),
-        Text('Your settings need a moment.', style: heading(24)),
+        Text(context.l10n.settingsUnavailable, style: heading(24)),
         const SizedBox(height: 14),
-        SkyButton(label: 'Try again', onPressed: onRetry),
+        SkyButton(label: context.l10n.commonTryAgain, onPressed: onRetry),
       ],
     ),
   );
@@ -696,22 +714,23 @@ class _PrivacyCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'ON-DEVICE. ALWAYS.',
+                    context.l10n.settingsPrivacyKicker,
                     style: bodyText(
                       12,
                       color: _tealInk,
                       weight: FontWeight.w900,
                     ).copyWith(letterSpacing: 1),
                   ),
-                  Text('Your camera stays yours.', style: heading(22)),
+                  Text(context.l10n.settingsPrivacyTitle, style: heading(22)),
                 ],
               ),
             ),
           ],
         ),
         const SizedBox(height: 6),
-        Text(
-          'Video and optional microphone audio stay on this phone. Unsaved clips are discarded. No uploads.',
+        // Two lines in every language (FitParagraph).
+        FitParagraph(
+          context.l10n.settingsPrivacyBody,
           style: bodyText(14, color: SkyColors.muted),
         ),
       ],
@@ -867,12 +886,12 @@ class _PlayGamesStripState extends ConsumerState<_PlayGamesStrip> {
   }
 
   /// "2 min ago", "3 h ago".
-  static String ago(DateTime at, DateTime now) {
+  static String ago(AppLocalizations l, DateTime at, DateTime now) {
     final d = now.difference(at);
-    if (d.inMinutes < 1) return 'just now';
-    if (d.inHours < 1) return '${d.inMinutes} min ago';
-    if (d.inDays < 1) return '${d.inHours} h ago';
-    return '${d.inDays} d ago';
+    if (d.inMinutes < 1) return l.timeAgoJustNow;
+    if (d.inHours < 1) return l.timeAgoMinutes(d.inMinutes);
+    if (d.inDays < 1) return l.timeAgoHours(d.inHours);
+    return l.timeAgoDays(d.inDays);
   }
 
   @override
@@ -880,33 +899,35 @@ class _PlayGamesStripState extends ConsumerState<_PlayGamesStrip> {
     final s = ref.watch(playGamesProvider);
     final now = ref.read(appClockProvider)();
     final saved = s.savedAt;
+    final l = context.l10n;
     final (IconData cloud, String line) = !s.connected
         ? connecting
-              ? (Icons.cloud_sync_rounded, 'Connecting…')
+              ? (Icons.cloud_sync_rounded, l.playGamesConnecting)
               : failed
-              ? (Icons.cloud_off_rounded, 'Couldn’t connect')
-              : (Icons.cloud_outlined, 'Cloud save & achievements')
+              ? (Icons.cloud_off_rounded, l.playGamesConnectFailed)
+              : (Icons.cloud_outlined, l.playGamesIdle)
         : s.saving
-        ? (Icons.cloud_sync_rounded, 'Saving to cloud…')
+        ? (Icons.cloud_sync_rounded, l.playGamesSaving)
         : s.offline
         ? (
             Icons.cloud_off_rounded,
             saved == null
-                ? 'Offline · not saved yet'
-                : 'Offline · saved ${ago(saved, now)}',
+                ? l.playGamesOfflineUnsaved
+                : l.playGamesOfflineSaved(ago(l, saved, now)),
           )
         : s.updateNeeded
-        ? (Icons.system_update_rounded, 'Update Beakbound to sync')
+        ? (Icons.system_update_rounded, l.playGamesUpdateNeeded)
         : s.unreadable
-        ? (Icons.sync_problem_rounded, 'Cloud save can’t be read')
+        ? (Icons.sync_problem_rounded, l.playGamesUnreadable)
         : saved == null
-        ? (Icons.cloud_outlined, 'Cloud save is on')
+        ? (Icons.cloud_outlined, l.playGamesOn)
         : s.resetElsewhere
-        ? (Icons.cloud_done_rounded, 'Reset on another phone')
+        ? (Icons.cloud_done_rounded, l.playGamesResetElsewhere)
         : (
             Icons.cloud_done_rounded,
-            '${s.restored ? 'Cloud restored' : 'Saved to cloud'} · '
-                '${ago(saved, now)}',
+            s.restored
+                ? l.playGamesRestored(ago(l, saved, now))
+                : l.playGamesSaved(ago(l, saved, now)),
           );
     final ink = s.connected ? _tealInk : SkyColors.muted;
     return Container(
@@ -940,7 +961,7 @@ class _PlayGamesStripState extends ConsumerState<_PlayGamesStrip> {
                   children: [
                     Flexible(
                       child: Text(
-                        'Play Games',
+                        l.playGamesName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: heading(17),
@@ -956,7 +977,9 @@ class _PlayGamesStripState extends ConsumerState<_PlayGamesStrip> {
                     ),
                     const SizedBox(width: 3),
                     Text(
-                      s.connected ? 'Connected' : 'Not connected',
+                      s.connected
+                          ? l.playGamesConnected
+                          : l.playGamesNotConnected,
                       style: bodyText(
                         11.5,
                         color: ink,
@@ -970,11 +993,11 @@ class _PlayGamesStripState extends ConsumerState<_PlayGamesStrip> {
                   children: [
                     Icon(cloud, size: 14, color: SkyColors.muted),
                     const SizedBox(width: 4),
+                    // A long status ("… · saved 59 min ago") shrinks
+                    // rather than lose its end, the time.
                     Expanded(
-                      child: Text(
+                      child: FitText(
                         line,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                         style: bodyText(
                           12,
                           color: SkyColors.muted,
@@ -992,8 +1015,8 @@ class _PlayGamesStripState extends ConsumerState<_PlayGamesStrip> {
             child: Semantics(
               button: true,
               label: s.connected
-                  ? 'Play Games achievements'
-                  : 'Connect Play Games',
+                  ? l.playGamesAchievementsSemantics
+                  : l.playGamesConnectSemantics,
               child: _Keycap(
                 minHeight: 48,
                 padding: const EdgeInsets.symmetric(horizontal: 9),
@@ -1036,7 +1059,9 @@ class _PlayGamesStripState extends ConsumerState<_PlayGamesStrip> {
                           ),
                         const SizedBox(width: 5),
                         Text(
-                          s.connected ? 'Achievements' : 'Connect',
+                          s.connected
+                              ? l.playGamesAchievements
+                              : l.playGamesConnect,
                           style: bodyText(13.5, weight: FontWeight.w900),
                         ),
                       ],
@@ -1061,7 +1086,7 @@ class _ResetDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-    semanticLabel: 'Start a fresh adventure?',
+    semanticLabel: context.l10n.settingsResetTitle,
     scrollable: true,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(24),
@@ -1079,15 +1104,17 @@ class _ResetDialog extends StatelessWidget {
           size: 48,
         ),
         const SizedBox(width: 14),
-        Expanded(child: Text('Start a fresh adventure?', style: heading(26))),
+        Expanded(
+          child: Text(context.l10n.settingsResetTitle, style: heading(26)),
+        ),
       ],
     ),
     content: ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 440),
       child: Text(
         cloud
-            ? 'This deletes your saved videos, replays, scores, runs, built levels and settings from this phone, and your Play Games cloud save. It cannot be undone.'
-            : 'This deletes your saved videos, replays, scores, runs, built levels and settings from this phone. It cannot be undone.',
+            ? context.l10n.settingsResetBodyCloud
+            : context.l10n.settingsResetBody,
         style: bodyText(16),
       ),
     ),
@@ -1118,10 +1145,10 @@ class _ResetDialog extends StatelessWidget {
                     : const BorderSide(color: _dangerInk, width: 2),
               ),
             ),
-        child: const Text('Reset everything'),
+        child: Text(context.l10n.settingsResetConfirm),
       ),
       SkyButton(
-        label: 'Keep my progress',
+        label: context.l10n.settingsResetKeep,
         color: SkyColors.yellow,
         icon: Icons.check_rounded,
         autofocus: true,

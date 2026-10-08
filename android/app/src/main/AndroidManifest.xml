@@ -8,7 +8,7 @@
         android:label="Beakbound"
         android:allowBackup="false"
         android:appCategory="game"
-        android:name="${applicationName}"
+        android:name=".BeakboundApplication"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
@@ -38,6 +38,12 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- Voice packs: asset-only deferred components, so no Dart loading
+             unit maps to a feature module (l10n-ws/VOICE-PLAN.md). The
+             Application above (VoicePackDelivery.kt) delivers them. -->
+        <meta-data
+            android:name="io.flutter.embedding.engine.deferredcomponents.DeferredComponentManager.loadingUnitMapping"
+            android:value="" />
         <!-- Google Play Games. The id comes from lib/data/play_games_ids.dart
              (app/build.gradle.kts); while it is empty, PlayGamesGate.kt never
              starts the SDK, which is why its start-up provider is removed. -->

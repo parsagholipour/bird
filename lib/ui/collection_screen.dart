@@ -5,7 +5,10 @@ import 'package:go_router/go_router.dart';
 import '../data/providers.dart';
 import '../data/progress_repository.dart';
 import '../game/bird_trail.dart';
+import '../l10n/l10n.dart';
+import '../l10n/text/birds_text.dart';
 import 'components.dart';
+import 'fit_text.dart';
 import 'home_keys.dart' show HomeKey, HomeKeyColors;
 import 'keyboard.dart' show KeyTap;
 import 'match_hud.dart' show MatchIcon, MatchSymbol, matchInkEdge;
@@ -68,6 +71,7 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
   Widget build(BuildContext context) {
     final p = ref.watch(progressProvider).asData?.value;
     final viewing = p == null ? null : _viewing ?? p.settings.bird;
+    final l = context.l10n;
     return Scaffold(
       body: SkyBackdrop(
         child: SceneLayout(
@@ -79,12 +83,15 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       MiniHeader(
-                        title: 'Meet your flight crew.',
+                        title: l.birdsTitle,
                         size: 34,
                         onBack: () => context.go('/'),
                         trailing: [
                           MiniTag(
-                            '${p.birdsFlown.length} OF ${birdNames.length} FLOWN',
+                            l.birdsFlownTag(
+                              p.birdsFlown.length,
+                              birdNames.length,
+                            ),
                             icon: Icons.flutter_dash_rounded,
                             color: SkyColors.cream,
                           ),
@@ -159,175 +166,182 @@ class _Showcase extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final p = progress;
     final equipped = p.settings.bird == bird;
     final unlocked = p.birdUnlocked(bird);
     final flights = p.birdFlights[bird] ?? 0;
     final price = birdPrices[bird];
-    return LayoutBuilder(
-      builder: (context, box) {
-        final art = math.min(box.maxHeight * .56, box.maxWidth * .4);
-        // The bird hovers low on the right, beside the key, so its trail
-        // streams left through the open band between the chips and the key.
-        final birdTop = box.maxHeight * .66 - art / 2;
-        return Stack(
-          key: const ValueKey('bird-showcase'),
-          clipBehavior: Clip.none,
-          children: [
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: _panelColors[bird],
-                  borderRadius: BorderRadius.circular(30),
-                  border: Border.all(color: SkyColors.ink, width: 3),
-                  boxShadow: const [
-                    BoxShadow(color: SkyColors.ink, offset: Offset(0, 6)),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(27),
-                  child: CustomPaint(
-                    painter: _Burst(
-                      center: Offset(
-                        box.maxWidth - art * .55,
-                        box.maxHeight * .4,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            // The trail streams from the bird's tail across the panel.
-            Positioned.fill(
-              child: IgnorePointer(
-                child: CustomPaint(
-                  painter: _Trail(
-                    bird: bird,
-                    anchor: Offset(
-                      box.maxWidth - 8 - art * .8,
-                      birdTop + art * .52,
-                    ),
-                    unit: art / 12,
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              right: 8,
-              top: birdTop,
-              child: Opacity(
-                opacity: unlocked ? 1 : .92,
-                child: BirdArt(
-                  key: ValueKey('showcase-bird-$bird'),
-                  bird: bird,
-                  size: art,
-                  reducedMotion: p.settings.reducedMotion,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _StatusPill(equipped: equipped, unlocked: unlocked),
-                  const SizedBox(height: 4),
-                  SizedBox(
-                    width: box.maxWidth * .6,
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        birdNames[bird],
-                        style: heading(
-                          68,
-                          color: SkyColors.white,
-                          weight: FontWeight.w700,
-                        ).copyWith(height: 1.05, shadows: matchInkEdge(3.2)),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 6,
-                    children: [
-                      _InfoChip(
-                        icon: Icons.auto_awesome_rounded,
-                        text: BirdTrail.names[bird],
-                      ),
-                      if (!unlocked && !p.canUnlock(bird))
-                        _InfoChip(
-                          icon: Icons.lock_rounded,
-                          text: '${price - p.starWallet} more to go',
-                        )
-                      else
-                        _InfoChip(
-                          icon: flights > 0
-                              ? Icons.flight_takeoff_rounded
-                              : Icons.fiber_new_rounded,
-                          text: flights == 0
-                              ? 'Not flown yet'
-                              : flights == 1
-                              ? '1 flight'
-                              : '$flights flights',
-                        ),
+    final name = l.birdName(bird);
+    // The panel is a picture: the bird on the right, its trail streaming
+    // left behind the words, in every language. Only the words inside run
+    // their language's way.
+    return FlightDirection(
+      child: LayoutBuilder(
+        builder: (context, box) {
+          final art = math.min(box.maxHeight * .56, box.maxWidth * .4);
+          // The bird hovers low on the right, beside the key, so its trail
+          // streams left through the open band between the chips and the key.
+          final birdTop = box.maxHeight * .66 - art / 2;
+          return Stack(
+            key: const ValueKey('bird-showcase'),
+            clipBehavior: Clip.none,
+            children: [
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: _panelColors[bird],
+                    borderRadius: BorderRadius.circular(30),
+                    border: Border.all(color: SkyColors.ink, width: 3),
+                    boxShadow: const [
+                      BoxShadow(color: SkyColors.ink, offset: Offset(0, 6)),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  Container(
-                    constraints: BoxConstraints(maxWidth: box.maxWidth * .56),
-                    padding: const EdgeInsets.fromLTRB(12, 6, 12, 7),
-                    decoration: BoxDecoration(
-                      color: SkyColors.cream.withValues(alpha: .92),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: SkyColors.ink, width: 2.5),
-                    ),
-                    child: Text(
-                      birdDescriptions[bird],
-                      style: bodyText(
-                        16,
-                        weight: FontWeight.w900,
-                      ).copyWith(height: 1.2),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(27),
+                    child: CustomPaint(
+                      painter: _Burst(
+                        center: Offset(
+                          box.maxWidth - art * .55,
+                          box.maxHeight * .4,
+                        ),
+                      ),
                     ),
                   ),
-                  const Spacer(),
-                  SizedBox(
-                    height: 60,
-                    width: box.maxWidth * .58,
-                    child: equipped
-                        ? const _FlyingNow()
-                        : unlocked
-                        ? _ActionKey(
-                            key: ValueKey('fly-with-$bird'),
-                            label: 'Fly with ${birdNames[bird]}',
-                            semantics:
-                                'Fly with ${birdNames[bird]} instead of '
-                                '${birdNames[p.settings.bird]}',
-                            enabled: !busy,
-                            busy: busy,
-                            onPressed: onFly,
-                          )
-                        : _ActionKey(
-                            key: ValueKey('unlock-$bird'),
-                            label: 'Unlock ${birdNames[bird]}',
-                            semantics: p.canUnlock(bird)
-                                ? 'Unlock ${birdNames[bird]} for $price stars'
-                                : 'Unlock ${birdNames[bird]} for $price '
-                                      'stars, not enough stars yet',
-                            price: price,
-                            enabled: p.canUnlock(bird) && !busy,
-                            busy: busy,
-                            onPressed: onUnlock,
-                            onDenied: onDenied,
-                          ),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ],
-        );
-      },
+              // The trail streams from the bird's tail across the panel.
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: CustomPaint(
+                    painter: _Trail(
+                      bird: bird,
+                      anchor: Offset(
+                        box.maxWidth - 8 - art * .8,
+                        birdTop + art * .52,
+                      ),
+                      unit: art / 12,
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                right: 8,
+                top: birdTop,
+                child: Opacity(
+                  opacity: unlocked ? 1 : .92,
+                  child: BirdArt(
+                    key: ValueKey('showcase-bird-$bird'),
+                    bird: bird,
+                    size: art,
+                    reducedMotion: p.settings.reducedMotion,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _StatusPill(equipped: equipped, unlocked: unlocked),
+                    const SizedBox(height: 4),
+                    SizedBox(
+                      width: box.maxWidth * .6,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          name,
+                          style: heading(
+                            68,
+                            color: SkyColors.white,
+                            weight: FontWeight.w700,
+                          ).copyWith(height: 1.05, shadows: matchInkEdge(3.2)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 6,
+                      children: [
+                        _InfoChip(
+                          icon: Icons.auto_awesome_rounded,
+                          text: l.birdTrailName(bird),
+                        ),
+                        if (!unlocked && !p.canUnlock(bird))
+                          _InfoChip(
+                            icon: Icons.lock_rounded,
+                            text: l.commonMoreToGo(price - p.starWallet),
+                          )
+                        else
+                          _InfoChip(
+                            icon: flights > 0
+                                ? Icons.flight_takeoff_rounded
+                                : Icons.fiber_new_rounded,
+                            text: flights == 0
+                                ? l.birdsNotFlown
+                                : l.birdsFlights(flights),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      constraints: BoxConstraints(maxWidth: box.maxWidth * .56),
+                      padding: const EdgeInsets.fromLTRB(12, 6, 12, 7),
+                      decoration: BoxDecoration(
+                        color: SkyColors.cream.withValues(alpha: .92),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: SkyColors.ink, width: 2.5),
+                      ),
+                      child: LanguageDirection(
+                        child: Text(
+                          l.birdDescription(bird),
+                          style: bodyText(
+                            16,
+                            weight: FontWeight.w900,
+                          ).copyWith(height: 1.2),
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    SizedBox(
+                      height: 60,
+                      width: box.maxWidth * .58,
+                      child: equipped
+                          ? const _FlyingNow()
+                          : unlocked
+                          ? _ActionKey(
+                              key: ValueKey('fly-with-$bird'),
+                              label: l.birdsFlyWith(name),
+                              semantics: l.birdsFlyWithSemantics(
+                                name,
+                                l.birdName(p.settings.bird),
+                              ),
+                              enabled: !busy,
+                              busy: busy,
+                              onPressed: onFly,
+                            )
+                          : _ActionKey(
+                              key: ValueKey('unlock-$bird'),
+                              label: l.birdsUnlock(name),
+                              semantics: p.canUnlock(bird)
+                                  ? l.birdsUnlockSemantics(price, name)
+                                  : l.birdsUnlockShortSemantics(price, name),
+                              price: price,
+                              enabled: p.canUnlock(bird) && !busy,
+                              busy: busy,
+                              onPressed: onUnlock,
+                              onDenied: onDenied,
+                            ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }
@@ -421,11 +435,12 @@ class _StatusPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final (icon, text) = equipped
-        ? (Icons.check_rounded, 'YOUR CO-PILOT')
+        ? (Icons.check_rounded, l.birdsStatusCopilot)
         : unlocked
-        ? (Icons.favorite_rounded, 'READY TO FLY')
-        : (Icons.lock_rounded, 'LOCKED');
+        ? (Icons.favorite_rounded, l.birdsStatusReady)
+        : (Icons.lock_rounded, l.birdsStatusLocked);
     return Container(
       padding: const EdgeInsets.fromLTRB(10, 4, 14, 5),
       decoration: BoxDecoration(
@@ -437,13 +452,15 @@ class _StatusPill extends StatelessWidget {
         children: [
           Icon(icon, size: 17, color: SkyColors.white),
           const SizedBox(width: 6),
-          Text(
-            text,
-            style: bodyText(
-              14,
-              color: SkyColors.white,
-              weight: FontWeight.w900,
-            ).copyWith(letterSpacing: 1, height: 1),
+          LanguageDirection(
+            child: Text(
+              text,
+              style: bodyText(
+                14,
+                color: SkyColors.white,
+                weight: FontWeight.w900,
+              ).copyWith(letterSpacing: 1, height: 1),
+            ),
           ),
         ],
       ),
@@ -469,9 +486,11 @@ class _InfoChip extends StatelessWidget {
       children: [
         Icon(icon, size: 19, color: SkyColors.ink),
         const SizedBox(width: 6),
-        Text(
-          text,
-          style: bodyText(15, weight: FontWeight.w900).copyWith(height: 1),
+        LanguageDirection(
+          child: Text(
+            text,
+            style: bodyText(15, weight: FontWeight.w900).copyWith(height: 1),
+          ),
         ),
       ],
     ),
@@ -511,13 +530,15 @@ class _ActionKey extends StatelessWidget {
             child: FittedBox(
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,
-              child: Text(
-                label,
-                style: heading(
-                  26,
-                  color: ink,
-                  weight: FontWeight.w700,
-                ).copyWith(height: 1),
+              child: LanguageDirection(
+                child: Text(
+                  label,
+                  style: heading(
+                    26,
+                    color: ink,
+                    weight: FontWeight.w700,
+                  ).copyWith(height: 1),
+                ),
               ),
             ),
           ),
@@ -641,7 +662,14 @@ class _FlyingNow extends StatelessWidget {
       children: [
         const Icon(Icons.check_circle_rounded, size: 26, color: SkyColors.ink),
         const SizedBox(width: 8),
-        Text('Flying with you', style: heading(24, weight: FontWeight.w700)),
+        Flexible(
+          child: LanguageDirection(
+            child: FitText(
+              context.l10n.birdsFlyingWithYou,
+              style: heading(24, weight: FontWeight.w700),
+            ),
+          ),
+        ),
       ],
     ),
   );
@@ -713,21 +741,26 @@ class _Tile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final p = progress;
     final equipped = p.settings.bird == bird;
     final unlocked = p.birdUnlocked(bird);
     final flown = p.birdsFlown.contains(bird);
+    final name = l.birdName(bird);
     final price = birdPrices[bird];
     final affordable = p.canUnlock(bird);
     return Semantics(
       button: true,
       selected: selected,
-      label: [
-        birdNames[bird],
-        if (equipped) 'flying with you',
-        if (!unlocked) 'locked, $price stars',
-        if (unlocked && !flown) 'new',
-      ].join(', '),
+      label: equipped
+          ? (flown
+                ? l.birdsCardFlyingSemantics(name)
+                : l.birdsCardFlyingNewSemantics(name))
+          : !unlocked
+          ? l.birdsCardLockedSemantics(price, name)
+          : !flown
+          ? l.birdsCardNewSemantics(name)
+          : name,
       excludeSemantics: true,
       child: KeyTap(
         onPressed: onTap,
@@ -822,7 +855,7 @@ class _Tile extends StatelessWidget {
                           child: FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
-                              birdNames[bird],
+                              name,
                               style: heading(
                                 22,
                                 weight: FontWeight.w700,
@@ -832,22 +865,22 @@ class _Tile extends StatelessWidget {
                         ),
                       ),
                       if (equipped)
-                        const Positioned(
+                        Positioned(
                           left: 8,
                           top: 8,
                           child: _Badge(
                             icon: Icons.check_rounded,
-                            text: 'FLYING',
+                            text: l.birdsTagFlying,
                             color: SkyColors.teal,
                             ink: SkyColors.white,
                           ),
                         )
                       else if (unlocked && !flown)
-                        const Positioned(
+                        Positioned(
                           right: 8,
                           top: 8,
                           child: _Badge(
-                            text: 'NEW',
+                            text: l.birdsTagNew,
                             color: SkyColors.coral,
                             ink: SkyColors.white,
                           ),

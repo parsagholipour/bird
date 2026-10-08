@@ -30,9 +30,13 @@ import 'data/play_games.dart';
 import 'data/providers.dart';
 import 'domain/daily_adventure.dart';
 import 'game/audio.dart';
+import 'game/voice_pack_seam_runtime.dart';
+import 'game/voice_packs.dart';
 import 'ui/ui_sounds.dart';
 import 'ui/keyboard.dart';
 import 'data/progress_repository.dart';
+import 'l10n/l10n.dart';
+import 'l10n/language_providers.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,8 +52,27 @@ Future<void> main() async {
     yield LicenseEntryWithLineBreaks([
       'Nunito',
     ], await rootBundle.loadString('assets/fonts/Nunito-LICENSE.txt'));
+    // The localization's script fonts (assets/fonts/l10n/).
+    for (final (family, file) in const [
+      ('Baloo Bhaijaan 2', 'BalooBhaijaan2'), // l10n-ignore
+      ('M PLUS Rounded 1c', 'MPLUSRounded1c'), // l10n-ignore
+      ('Jua', 'Jua'), // l10n-ignore
+      ('Huninn', 'Huninn'), // l10n-ignore
+    ]) {
+      yield LicenseEntryWithLineBreaks([
+        family,
+      ], await rootBundle.loadString('assets/fonts/l10n/$file-LICENSE.txt'));
+    }
   });
-  runApp(const ProviderScope(child: PushUpBirdApp()));
+  // The voices follow the game's language: its voice pack is installed when
+  // it becomes active (l10n-ws/VOICE-PLAN.md).
+  VoicePacks.instance.follow(L10n.language);
+  runApp(
+    ProviderScope(
+      overrides: voicePackSeamOverrides,
+      child: const PushUpBirdApp(),
+    ),
+  );
 }
 
 final appRouter = GoRouter(
@@ -196,6 +219,22 @@ class _PushUpBirdAppState extends ConsumerState<PushUpBirdApp>
     );
     // Load what the characters said in flight before the first flight.
     ref.read(flightVoiceMemoryProvider);
+    // Canvas and Flame code read the language from a global (L10n); keep it
+    // in step with the player's choice and the device, and keep the story
+    // captions of the current language loaded.
+    void syncLanguage() => L10n.apply(
+      ref.read(appLanguageProvider),
+      locale: ref.read(appLocaleProvider),
+    );
+    ref.listenManual(appLanguageProvider, (_, _) => syncLanguage());
+    ref.listenManual(
+      appLocaleProvider,
+      (_, _) => syncLanguage(),
+      fireImmediately: true,
+    );
+    ref.listenManual(storyCaptionsProvider, (_, captions) {
+      if (captions.value case final loaded?) L10n.applyCaptions(loaded);
+    }, fireImmediately: true);
     _calendar = Timer.periodic(const Duration(minutes: 1), (_) => _checkDay());
     // Play Games: silent, and only when configured (play_games_ids.dart).
     unawaited(ref.read(playGamesProvider.notifier).start());
@@ -251,6 +290,12 @@ class _PushUpBirdAppState extends ConsumerState<PushUpBirdApp>
     }
   }
 
+  /// Android's language list changed (only matters under "System default").
+  @override
+  void didChangeLocales(List<Locale>? locales) {
+    ref.read(deviceLocalesProvider.notifier).update(locales);
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     _foreground = state == AppLifecycleState.resumed;
@@ -282,10 +327,17 @@ class _PushUpBirdAppState extends ConsumerState<PushUpBirdApp>
         (p) => p.asData?.value.settings.reducedMotion ?? false,
       ),
     );
+    final language = ref.watch(appLanguageProvider);
     return MaterialApp.router(
       title: AppBrand.name,
       debugShowCheckedModeBanner: false,
-      theme: skyTheme(),
+      theme: skyTheme(language),
+      // The game picks its own language (lib/l10n/language_providers.dart);
+      // Material's widgets and Directionality follow it (Arabic mirrors the
+      // menus; flights stay left to right, see FlightDirection).
+      locale: ref.watch(appLocaleProvider),
+      supportedLocales: L10n.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
       routerConfig: appRouter,
       scrollBehavior: const _AnyPointerDrags(),
       builder: (context, child) {

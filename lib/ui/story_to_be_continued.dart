@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../domain/campaign_story.dart';
 import '../game/star_art.dart';
+import '../l10n/l10n.dart' show L10n;
 import 'delivery_art.dart' show DeliveryArt;
 import 'campaign_text_scale.dart';
 import 'story_speech.dart' show StorySpeech, StoryVoice;
@@ -45,15 +46,26 @@ class ToBeContinued extends StatelessWidget {
   /// Seconds that twinkle the lights and bob the cue; null holds them still.
   final Animation<double>? bob;
 
-  /// Whether [line] is this card's: a caption that begins "To be continued".
+  /// Whether [line] is this card's: the caption that closes a stop
+  /// ([StoryLine.endOfStop], the scene data), or a caption whose English
+  /// words begin "To be continued".
+  ///
+  /// It is asked of the scene's own line, never of what the player reads:
+  /// a translated caption ("Continua…", "Bersambung…", "다음 편에 계속…")
+  /// changes nothing here, and the card then shows that caption.
   static bool matches(StoryLine line) =>
-      line.speaker == StorySpeaker.caption &&
-      RegExp(r'^\s*to be continued', caseSensitive: false).hasMatch(line.text);
+      line.endOfStop ||
+      (line.speaker == StorySpeaker.caption &&
+          RegExp(
+            r'^\s*to be continued',
+            caseSensitive: false,
+          ).hasMatch(line.text));
 
-  /// Where the words "To be continued…" end in [text]: after their ellipsis
-  /// (or full stop), else after the third word.
+  /// Where the words "To be continued…" end in [text], the caption in any
+  /// language: after their ellipsis (or full stop, or ideographic full
+  /// stop), else after the third word.
   static int headEnd(String text) {
-    final ellipsis = RegExp(r'^[^.…]*(…|\.{2,}|\.)').firstMatch(text);
+    final ellipsis = RegExp(r'^[^.…。]*(…|\.{2,}|\.|。)').firstMatch(text);
     if (ellipsis != null) return ellipsis.end;
     final words = RegExp(r'\S+').allMatches(text).toList();
     return words.length < 3 ? text.length : words[2].end;
@@ -184,7 +196,7 @@ class ToBeContinued extends StatelessWidget {
           StorySpeech.style(StoryVoice.place, size),
           text.length,
         ),
-        textDirection: TextDirection.ltr,
+        textDirection: L10n.textDirection,
       )..layout(maxWidth: width);
       final rows = painter.computeLineMetrics().length;
       final height = painter.height;

@@ -48,9 +48,11 @@ class SteamPlan {
   static const none = SteamPlan();
 
   /// Steam Alley's steady layer (3-3): eight slots, hop and ride alternating.
+  // l10n-ignore: a slot pattern (H hop, R ride), not words.
   static const steady = SteamPlan(first: 4, every: 4, last: 34, pattern: 'HR');
 
   /// The light layer of a guardian's run-up (3-4): three slots, ride first.
+  // l10n-ignore: a slot pattern (H hop, R ride), not words.
   static const sparse = SteamPlan(first: 4, every: 4, last: 12, pattern: 'RH');
 
   final int first, every;

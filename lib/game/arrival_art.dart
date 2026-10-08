@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 import '../domain/game_rules.dart';
+import '../l10n/l10n.dart';
 import '../ui/theme.dart';
 import 'finish_celebration_art.dart';
 import 'finish_gate_art.dart';
@@ -141,17 +142,24 @@ abstract final class ArrivalArt {
       RRect.fromRectAndRadius(label, Radius.circular(h * .026)),
       Paint()..color = SkyColors.cream.withValues(alpha: alpha),
     );
+    final finish = L10n.strings.encounterFinish;
     final text = TextPainter(
       text: TextSpan(
-        text: 'FINISH',
+        text: finish,
         style: TextStyle(
-          fontFamily: 'Fredoka',
+          fontFamily: L10n.fonts.heading,
+          fontFamilyFallback: L10n.fonts.headingFallback,
           fontWeight: FontWeight.w600,
-          fontSize: h * .031,
+          // A long translation is set smaller to stay on its label.
+          fontSize: math.min(
+            h * .031,
+            (label.width - h * .03) /
+                FinishGateArt.emWidth(finish, FontWeight.w600, 0),
+          ),
           color: SkyColors.ink.withValues(alpha: alpha),
         ),
       ),
-      textDirection: TextDirection.ltr,
+      textDirection: L10n.textDirection,
     )..layout();
     text.paint(canvas, label.center - Offset(text.width / 2, text.height / 2));
     seal(canvas, Offset(x, h * .95), h * .028, alpha: alpha);

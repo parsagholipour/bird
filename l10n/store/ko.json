@@ -1,0 +1,462 @@
+{
+  "@note": "Korean (ko) Play Store listing, Play Games texts and achievements. Stamp and medal words match lib/l10n/arb/app_ko.arb (passportNextTitle \"{stamp} · {medal}\", stamp_*_goal).",
+  "listing": {
+    "title": {
+      "text": "Beakbound",
+      "maxChars": 30,
+      "description": "App name on Google Play. A brand name: keep it as is unless a market needs a transliteration (owner decides).",
+      "keepEnglish": true
+    },
+    "shortDescription": {
+      "text": "탭해서 배달부 새와 함께 세계를 날아요. 모든 편지는 꼭 닿는다!",
+      "maxChars": 80,
+      "description": "Play Store short description, under the screenshots. Friendly, no ALL CAPS, no emoji, no \"free\"/\"best\"/\"#1\" (Play policy)."
+    },
+    "fullDescription": {
+      "text": "Beakbound는 밝고 신나는 오프라인 비행 모험이에요. 여러분은 하늘 클럽의 새내기 배달부! 탭해서 날갯짓하고, 관문 사이를 누비고, 별을 모으며 온 세상에 우편을 배달해요.\n\n캠페인\n하룻밤 사이에 우편 항로 다섯 곳이 조용해졌어요. 정글에서 출발해 카니발이 한창인 브라질과 아즈텍 신전을 지나, 고대 로마와 이집트, 아라비아를 거쳐 뉴욕의 화려한 불빛 속까지 레벨을 하나씩 날아가요. 레벨마다 배달할 소포가 있고, 배달을 마칠 때마다 감사 쪽지가 돌아와요.\n\n보스와 맞서요\n박쥐 남작, 퉤퉤 왕, 미라 배달부 네페르후, 킹구구, 탐조등 가고일이 길을 막고 있어요. 발사하고, 대시하고, 피하면서 모두 돌려보내요.\n\n무한 비행\n관문과 강풍과 보스가 끝없이 몰려오는 무한 코스에서 최고 기록에 도전해요.\n\n즐길 거리가 더 있어요\n- 저마다 목소리를 가진 새 친구 네 마리\n- 모은 별로 사는 업그레이드\n- 매일 바뀌는 모험과 메달이 가득한 하늘 여권\n- 레벨 만들기: 나만의 항로를 만들고 직접 날아요\n- 폰 하나로 둘이 즐기는 함께 날기와 1 대 1 대결\n- 카메라 앞에서 팔굽혀펴기, 스쿼트, 점프로 나는 미니 게임\n\n내 방식대로\n계정도 인터넷도 필요 없어요. 카메라 미니 게임은 모두 휴대폰 안에서만 돌아가고, 영상은 휴대폰 밖으로 나가지 않아요. Google Play 게임즈 클라우드 저장과 업적은 원할 때만 쓰면 돼요.",
+      "maxChars": 4000,
+      "description": "Play Store full description. Section headers in capitals are fine. Keep the facts: offline, camera stays on the phone, optional Play Games."
+    },
+    "releaseNotes": {
+      "text": "이제 Beakbound를 한국어로 즐길 수 있어요! 설정에서 언어를 고를 수 있어요.",
+      "maxChars": 500,
+      "description": "\"What's new\" for the release that ships the translations."
+    }
+  },
+  "playGames": {
+    "displayName": {
+      "text": "Beakbound",
+      "maxChars": 50,
+      "description": "Play Games Services game name.",
+      "keepEnglish": true
+    },
+    "description": {
+      "text": "배달부 새가 되어 온 세상을 날아요. 우편을 배달하고, 보스를 물리치고, 메달을 모두 모아요.",
+      "maxChars": 4000,
+      "description": "Play Games Services game description (Properties)."
+    }
+  },
+  "achievements": {
+    "frequentFlyerBronze": {
+      "name": {
+        "text": "단골 비행사 · 동메달",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "기록 비행 10번 끝내기.",
+        "maxChars": 500
+      }
+    },
+    "frequentFlyerSilver": {
+      "name": {
+        "text": "단골 비행사 · 은메달",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "기록 비행 100번 끝내기.",
+        "maxChars": 500
+      }
+    },
+    "frequentFlyerGold": {
+      "name": {
+        "text": "단골 비행사 · 금메달",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "기록 비행 500번 끝내기.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotBronze": {
+      "name": {
+        "text": "백발백중 · 동메달",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "조준점을 따라 퍼펙트 통과 25번 하기.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotSilver": {
+      "name": {
+        "text": "백발백중 · 은메달",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "조준점을 따라 퍼펙트 통과 200번 하기.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotGold": {
+      "name": {
+        "text": "백발백중 · 금메달",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "조준점을 따라 퍼펙트 통과 1,000번 하기.",
+        "maxChars": 500
+      }
+    },
+    "starChaserBronze": {
+      "name": {
+        "text": "별 사냥꾼 · 동메달",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "별 50개 모으기.",
+        "maxChars": 500
+      }
+    },
+    "starChaserSilver": {
+      "name": {
+        "text": "별 사냥꾼 · 은메달",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "별 500개 모으기.",
+        "maxChars": 500
+      }
+    },
+    "starChaserGold": {
+      "name": {
+        "text": "별 사냥꾼 · 금메달",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "별 5,000개 모으기.",
+        "maxChars": 500
+      }
+    },
+    "constellationBronze": {
+      "name": {
+        "text": "별자리 · 동메달",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "끊김 없는 콤보로 별 15개 모으기.",
+        "maxChars": 500
+      }
+    },
+    "constellationSilver": {
+      "name": {
+        "text": "별자리 · 은메달",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "끊김 없는 콤보로 별 40개 모으기.",
+        "maxChars": 500
+      }
+    },
+    "constellationGold": {
+      "name": {
+        "text": "별자리 · 금메달",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "끊김 없는 콤보로 별 80개 모으기.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainBronze": {
+      "name": {
+        "text": "하늘의 기장 · 동메달",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "무한 비행 한 번에 100점 내기.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainSilver": {
+      "name": {
+        "text": "하늘의 기장 · 은메달",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "무한 비행 한 번에 500점 내기.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainGold": {
+      "name": {
+        "text": "하늘의 기장 · 금메달",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "무한 비행 한 번에 2,000점 내기.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerBronze": {
+      "name": {
+        "text": "개척자 · 동메달",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "무한 비행 5번을 각각 60초 이상 날기.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerSilver": {
+      "name": {
+        "text": "개척자 · 은메달",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "무한 비행 50번을 각각 60초 이상 날기.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerGold": {
+      "name": {
+        "text": "개척자 · 금메달",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "무한 비행 250번을 각각 60초 이상 날기.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherBronze": {
+      "name": {
+        "text": "끼리끼리 훨훨 · 동메달",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "서로 다른 새 두 마리로 기록 비행하기.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherSilver": {
+      "name": {
+        "text": "끼리끼리 훨훨 · 은메달",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "새 네 마리 모두로 기록 비행하기.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherGold": {
+      "name": {
+        "text": "끼리끼리 훨훨 · 금메달",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "새마다 기록 비행 25번씩 하기.",
+        "maxChars": 500
+      }
+    },
+    "allRounderBronze": {
+      "name": {
+        "text": "만능 재주꾼 · 동메달",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "팔굽혀펴기, 스쿼트, 점프 미니 게임 중 하나 날기.",
+        "maxChars": 500
+      }
+    },
+    "allRounderSilver": {
+      "name": {
+        "text": "만능 재주꾼 · 은메달",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "미니 게임 셋 다 날기: 팔굽혀펴기, 스쿼트, 점프.",
+        "maxChars": 500
+      }
+    },
+    "allRounderGold": {
+      "name": {
+        "text": "만능 재주꾼 · 금메달",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "미니 게임마다 기록 비행 10번씩 하기.",
+        "maxChars": 500
+      }
+    },
+    "canopyBoss": {
+      "name": {
+        "text": "숲 지붕 너머로 우편을",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "숲 지붕 항로 끝의 소굴에서 박쥐 남작 격파하기(1-8).",
+        "maxChars": 500
+      }
+    },
+    "neferhoo": {
+      "name": {
+        "text": "보낸 이에게 반송",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "이집트를 지키는 미라 배달부 네페르후 격파하기(2-6).",
+        "maxChars": 500
+      }
+    },
+    "roadBoss": {
+      "name": {
+        "text": "또 민트차",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "고대의 길 끝에서 퉤퉤 왕 격파하기(2-9).",
+        "maxChars": 500
+      }
+    },
+    "kingCoo": {
+      "name": {
+        "text": "빵가루 대청소",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "뉴욕의 수호자 킹구구 격파하기(3-2).",
+        "maxChars": 500
+      }
+    },
+    "gargoyle": {
+      "name": {
+        "text": "스포트라이트 밖으로",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "탐조등 가고일 격파하기(3-4).",
+        "maxChars": 500
+      }
+    },
+    "goldCanopy": {
+      "name": {
+        "text": "황금 숲 지붕",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "숲 지붕 항로의 모든 레벨에서 별 세 개 받기.",
+        "maxChars": 500
+      }
+    },
+    "goldRoad": {
+      "name": {
+        "text": "황금 길",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "고대의 길의 모든 레벨에서 별 세 개 받기.",
+        "maxChars": 500
+      }
+    },
+    "brightLights": {
+      "name": {
+        "text": "대도시의 불빛",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "뉴욕의 모든 레벨에서 별 세 개 받기.",
+        "maxChars": 500
+      }
+    },
+    "lamplighter": {
+      "name": {
+        "text": "등불지기",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "무한 비행에서 황혼 여제 격파하기.",
+        "maxChars": 500
+      }
+    },
+    "harbourBells": {
+      "name": {
+        "text": "항구의 종",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "무한 비행에서 해적 선장 격파하기.",
+        "maxChars": 500
+      }
+    },
+    "edgeOfTheMap": {
+      "name": {
+        "text": "지도의 끝",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "무한 비행에서 불씨 드래곤 격파하기.",
+        "maxChars": 500
+      }
+    },
+    "twoOnOnePhone": {
+      "name": {
+        "text": "폰 하나에 둘이서",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "로프 연결로 함께 날기 비행 끝내기.",
+        "maxChars": 500
+      }
+    },
+    "friendlyRivals": {
+      "name": {
+        "text": "사이좋은 라이벌",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "1 대 1 대결 한 판 하기.",
+        "maxChars": 500
+      }
+    },
+    "routePlanner": {
+      "name": {
+        "text": "항로 설계사",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "레벨 만들기에서 레벨을 만들고 결승선까지 날기.",
+        "maxChars": 500
+      }
+    },
+    "wholeKit": {
+      "name": {
+        "text": "풀세트 완성",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "업그레이드 16레벨을 모두 사기.",
+        "maxChars": 500
+      }
+    },
+    "penPal": {
+      "name": {
+        "text": "펜팔",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "하루 모험의 목표를 모두 끝내서 엽서에 도장 10번 찍기.",
+        "maxChars": 500
+      }
+    },
+    "nightMail": {
+      "name": {
+        "text": "야간 우편",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "자정부터 새벽 4시 사이에 기록 비행 끝내기.",
+        "maxChars": 500
+      }
+    },
+    "specialDelivery": {
+      "name": {
+        "text": "특별 배달",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "골목 비둘기를 쏴서 빼앗긴 별 되찾기.",
+        "maxChars": 500
+      }
+    }
+  },
+  "@achievementNote": "Keys are PlayAchievement values (lib/data/play_achievements.dart), in Play Console order. Names 1-24 follow the in-game \"Stamp · Medal\" pattern: translate the stamp and medal words as the game's ARB does (passport keys) so the two match."
+}

@@ -1,0 +1,463 @@
+{
+  "@note": "Traditional Chinese (Taiwan) translation of l10n/store/en.json: the Play listing, Play Games texts and the 42 achievements. Achievement names 1-24 are built from the ARB passport words (stamp_*_name · passportMedal_*), descriptions 1-24 from stamp_*_goal*, so the game and Play Console agree.",
+  "@status": "zh_hant translation of the DRAFT English listing (owner approval of the English pending); achievements final.",
+  "listing": {
+    "title": {
+      "text": "Beakbound",
+      "maxChars": 30,
+      "description": "App name on Google Play. A brand name: keep it as is unless a market needs a transliteration (owner decides).",
+      "keepEnglish": true
+    },
+    "shortDescription": {
+      "text": "點擊螢幕，駕著郵差鳥環遊世界送信。封封必達！",
+      "maxChars": 80,
+      "description": "Play Store short description, under the screenshots. Friendly, no ALL CAPS, no emoji, no \"free\"/\"best\"/\"#1\" (Play policy)."
+    },
+    "fullDescription": {
+      "text": "Beakbound 是一款明亮繽紛、可離線遊玩的飛行冒險遊戲。你是天空俱樂部最新的郵差：點擊拍翅、穿過一道道門、收集星星，把信件送往世界各地。\n\n故事模式\n一夜之間，五條送信航線全斷了。一關一關往前飛：從叢林到嘉年華的巴西、阿茲特克神殿，再到古羅馬、埃及與古阿拉伯，最後飛進紐約的璀璨燈火。每一關都有一份包裹要送，每次送達都會收到一張感謝卡。\n\n挑戰頭目\n蝙蝠男爵、噴噴王、木乃伊郵差奈弗胡、咕咕王和探照燈石像鬼擋在路上。射擊、衝刺、閃躲，把他們通通打發走！\n\n無盡飛行\n在無盡模式中挑戰你的最佳分數，門、狂風和頭目會源源不絕地出現。\n\n更多玩法\n- 收集四隻鳥兒，每隻都有自己的聲音\n- 用收集到的星星購買升級\n- 每日冒險，還有集滿獎牌的天空護照\n- 關卡編輯器：設計自己的航線，再親自飛一趟\n- 一起飛與 1 對 1 對決：兩位玩家共用一支手機\n- 小遊戲：在鏡頭前用伏地挺身、深蹲或跳躍來飛\n\n照你的方式玩\n不需要帳號，也不需要網路。鏡頭小遊戲完全在你的手機上執行：影片絕不會離開手機。可選用 Google Play 遊戲的雲端存檔與成就。",
+      "maxChars": 4000,
+      "description": "Play Store full description. Section headers in capitals are fine. Keep the facts: offline, camera stays on the phone, optional Play Games."
+    },
+    "releaseNotes": {
+      "text": "Beakbound 現在會說你的語言了：到「設定」裡選擇吧。",
+      "maxChars": 500,
+      "description": "\"What's new\" for the release that ships the translations."
+    }
+  },
+  "playGames": {
+    "displayName": {
+      "text": "Beakbound",
+      "maxChars": 50,
+      "description": "Play Games Services game name.",
+      "keepEnglish": true
+    },
+    "description": {
+      "text": "駕著郵差鳥環遊世界：送信、擊敗頭目，收集每一面獎牌。",
+      "maxChars": 4000,
+      "description": "Play Games Services game description (Properties)."
+    }
+  },
+  "achievements": {
+    "frequentFlyerBronze": {
+      "name": {
+        "text": "飛行常客 · 銅牌",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "完成 10 趟計分飛行。",
+        "maxChars": 500
+      }
+    },
+    "frequentFlyerSilver": {
+      "name": {
+        "text": "飛行常客 · 銀牌",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "完成 100 趟計分飛行。",
+        "maxChars": 500
+      }
+    },
+    "frequentFlyerGold": {
+      "name": {
+        "text": "飛行常客 · 金牌",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "完成 500 趟計分飛行。",
+        "maxChars": 500
+      }
+    },
+    "onTheDotBronze": {
+      "name": {
+        "text": "分毫不差 · 銅牌",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "沿著準心完成 25 次完美穿越。",
+        "maxChars": 500
+      }
+    },
+    "onTheDotSilver": {
+      "name": {
+        "text": "分毫不差 · 銀牌",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "沿著準心完成 200 次完美穿越。",
+        "maxChars": 500
+      }
+    },
+    "onTheDotGold": {
+      "name": {
+        "text": "分毫不差 · 金牌",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "沿著準心完成 1,000 次完美穿越。",
+        "maxChars": 500
+      }
+    },
+    "starChaserBronze": {
+      "name": {
+        "text": "追星族 · 銅牌",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "收集 50 顆星星。",
+        "maxChars": 500
+      }
+    },
+    "starChaserSilver": {
+      "name": {
+        "text": "追星族 · 銀牌",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "收集 500 顆星星。",
+        "maxChars": 500
+      }
+    },
+    "starChaserGold": {
+      "name": {
+        "text": "追星族 · 金牌",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "收集 5,000 顆星星。",
+        "maxChars": 500
+      }
+    },
+    "constellationBronze": {
+      "name": {
+        "text": "星座 · 銅牌",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "在一次不中斷的連擊中收集 15 顆星星。",
+        "maxChars": 500
+      }
+    },
+    "constellationSilver": {
+      "name": {
+        "text": "星座 · 銀牌",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "在一次不中斷的連擊中收集 40 顆星星。",
+        "maxChars": 500
+      }
+    },
+    "constellationGold": {
+      "name": {
+        "text": "星座 · 金牌",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "在一次不中斷的連擊中收集 80 顆星星。",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainBronze": {
+      "name": {
+        "text": "天空機長 · 銅牌",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "在一趟無盡飛行中拿到 100 分。",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainSilver": {
+      "name": {
+        "text": "天空機長 · 銀牌",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "在一趟無盡飛行中拿到 500 分。",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainGold": {
+      "name": {
+        "text": "天空機長 · 金牌",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "在一趟無盡飛行中拿到 2,000 分。",
+        "maxChars": 500
+      }
+    },
+    "trailblazerBronze": {
+      "name": {
+        "text": "開路先鋒 · 銅牌",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "完成 5 趟至少 60 秒的無盡飛行。",
+        "maxChars": 500
+      }
+    },
+    "trailblazerSilver": {
+      "name": {
+        "text": "開路先鋒 · 銀牌",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "完成 50 趟至少 60 秒的無盡飛行。",
+        "maxChars": 500
+      }
+    },
+    "trailblazerGold": {
+      "name": {
+        "text": "開路先鋒 · 金牌",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "完成 250 趟至少 60 秒的無盡飛行。",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherBronze": {
+      "name": {
+        "text": "物以類聚 · 銅牌",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "帶兩隻不同的鳥兒進行計分飛行。",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherSilver": {
+      "name": {
+        "text": "物以類聚 · 銀牌",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "帶全部四隻鳥兒進行計分飛行。",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherGold": {
+      "name": {
+        "text": "物以類聚 · 金牌",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "每隻鳥兒都完成 25 趟計分飛行。",
+        "maxChars": 500
+      }
+    },
+    "allRounderBronze": {
+      "name": {
+        "text": "全能好手 · 銅牌",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "玩一次伏地挺身、深蹲或跳躍小遊戲。",
+        "maxChars": 500
+      }
+    },
+    "allRounderSilver": {
+      "name": {
+        "text": "全能好手 · 銀牌",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "三種小遊戲都玩過：伏地挺身、深蹲、跳躍。",
+        "maxChars": 500
+      }
+    },
+    "allRounderGold": {
+      "name": {
+        "text": "全能好手 · 金牌",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "每種小遊戲都完成 10 趟計分飛行。",
+        "maxChars": 500
+      }
+    },
+    "canopyBoss": {
+      "name": {
+        "text": "穿越樹冠送信",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "在樹冠航線終點的巢穴擊敗蝙蝠男爵（1-8）。",
+        "maxChars": 500
+      }
+    },
+    "neferhoo": {
+      "name": {
+        "text": "退回寄件人",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "擊敗守護埃及的木乃伊郵差奈弗胡（2-6）。",
+        "maxChars": 500
+      }
+    },
+    "roadBoss": {
+      "name": {
+        "text": "又是薄荷茶",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "在古道的終點擊敗噴噴王（2-9）。",
+        "maxChars": 500
+      }
+    },
+    "kingCoo": {
+      "name": {
+        "text": "麵包屑掃光光",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "擊敗紐約的守護者咕咕王（3-2）。",
+        "maxChars": 500
+      }
+    },
+    "gargoyle": {
+      "name": {
+        "text": "逃出聚光燈",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "擊敗探照燈石像鬼（3-4）。",
+        "maxChars": 500
+      }
+    },
+    "goldCanopy": {
+      "name": {
+        "text": "黃金樹冠",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "在樹冠航線的每一關都拿到三顆星。",
+        "maxChars": 500
+      }
+    },
+    "goldRoad": {
+      "name": {
+        "text": "黃金古道",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "在古道的每一關都拿到三顆星。",
+        "maxChars": 500
+      }
+    },
+    "brightLights": {
+      "name": {
+        "text": "大城燈火",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "在紐約的每一關都拿到三顆星。",
+        "maxChars": 500
+      }
+    },
+    "lamplighter": {
+      "name": {
+        "text": "點燈人",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "在無盡飛行中擊敗暮光女皇。",
+        "maxChars": 500
+      }
+    },
+    "harbourBells": {
+      "name": {
+        "text": "港口鐘聲",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "在無盡飛行中擊敗海盜船長。",
+        "maxChars": 500
+      }
+    },
+    "edgeOfTheMap": {
+      "name": {
+        "text": "地圖邊緣",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "在無盡飛行中擊敗餘燼巨龍。",
+        "maxChars": 500
+      }
+    },
+    "twoOnOnePhone": {
+      "name": {
+        "text": "一機兩人",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "完成一趟綁繩模式的一起飛。",
+        "maxChars": 500
+      }
+    },
+    "friendlyRivals": {
+      "name": {
+        "text": "友好對手",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "進行一場 1 對 1 對決。",
+        "maxChars": 500
+      }
+    },
+    "routePlanner": {
+      "name": {
+        "text": "航線規劃師",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "在關卡編輯器裡做出一個關卡，並把它飛到終點。",
+        "maxChars": 500
+      }
+    },
+    "wholeKit": {
+      "name": {
+        "text": "全套到手",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "買齊全部 16 個升級等級。",
+        "maxChars": 500
+      }
+    },
+    "penPal": {
+      "name": {
+        "text": "筆友",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "完成某一天每日冒險的所有目標來替明信片蓋章，累積蓋滿 10 張。",
+        "maxChars": 500
+      }
+    },
+    "nightMail": {
+      "name": {
+        "text": "夜間郵件",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "在午夜 12 點到凌晨 4 點之間完成一趟計分飛行。",
+        "maxChars": 500
+      }
+    },
+    "specialDelivery": {
+      "name": {
+        "text": "特別專送",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "射中一隻巷弄鴿，搶回牠偷走的星星。",
+        "maxChars": 500
+      }
+    }
+  },
+  "@achievementNote": "Keys are PlayAchievement values (lib/data/play_achievements.dart), in Play Console order. Names 1-24 follow the in-game \"Stamp · Medal\" pattern: translate the stamp and medal words as the game's ARB does (passport keys) so the two match."
+}

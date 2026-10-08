@@ -6,6 +6,7 @@ import 'package:flutter/painting.dart';
 
 import '../domain/game_rules.dart' show FlightEvent, FlightEventKind, FlightSimulation;
 import '../domain/sky_boss.dart';
+import '../l10n/l10n.dart';
 import 'boss_motion.dart';
 import 'gargoyle_boss_rig.dart';
 import 'gargoyle_kit.dart';
@@ -658,15 +659,17 @@ abstract final class GargoyleBeamArt {
   /// A matrix (as a storage list) that scales x by [k].
   static Float64List _scaleX(double k) => Float64List.fromList([k, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 
-  static final _labels = <String, TextPainter>{};
+  // (laid out again in a new language's fonts)
+  static final _labels = L10n.cache(<String, TextPainter>{});
 
   static TextPainter _label(String text, double px, {Color color = GargoylePalette.cool, double stroke = 0}) => _labels.putIfAbsent(
-    '$text@${px.round()}@${color.toARGB32()}@$stroke',
+    '$text@${px.toStringAsFixed(1)}@${color.toARGB32()}@$stroke',
     () => TextPainter(
       text: TextSpan(
         text: text,
         style: TextStyle(
-          fontFamily: 'Fredoka',
+          fontFamily: L10n.fonts.heading,
+          fontFamilyFallback: L10n.fonts.headingFallback,
           fontSize: px,
           fontWeight: FontWeight.w700,
           letterSpacing: 1,
@@ -682,7 +685,8 @@ abstract final class GargoyleBeamArt {
         ),
       ),
       textAlign: TextAlign.center,
-      textDirection: TextDirection.ltr,
+      // Words run their language's way; the tag stays where it is.
+      textDirection: L10n.textDirection,
     )..layout(),
   );
 
@@ -698,14 +702,22 @@ abstract final class GargoyleBeamArt {
     // cached per step).
     final a = release >= 1 ? 1.0 : (_unit(release) * 4).ceil() / 4;
     if (a <= 0) return;
+    final l = L10n.strings;
     final text = pose.warnSlit
-        ? 'SLIP BETWEEN\nTHE BEAMS'
+        ? l.bossDodgeSlipBetween
         : side == BeamSide.high
-        ? 'FLY LOW'
-        : 'FLY HIGH';
+        ? l.bossDodgeFlyLow
+        : l.bossDodgeFlyHigh;
     final two = text.contains('\n');
     final cy = pose.warnSlit ? h * .5 : (side == BeamSide.high ? h * .80 : h * .20);
-    final tp = _label(text, h * (two ? .030 : .034), color: GargoylePalette.cool.withValues(alpha: a));
+    final px = h * (two ? .030 : .034);
+    var tp = _label(text, px, color: GargoylePalette.cool.withValues(alpha: a));
+    // Clear of the bird's column, like the dragon's tag: a long label is set
+    // smaller rather than run under the bird.
+    final spare = (FlightSimulation.birdX - .085) * h - h * .03 - h * .095;
+    if (tp.width > spare) {
+      tp = _label(text, (px * spare / tp.width * 10).floorToDouble() / 10, color: GargoylePalette.cool.withValues(alpha: a));
+    }
     final box = Rect.fromCenter(
       center: Offset(tp.width / 2 + h * .06, cy),
       width: tp.width + h * .07,
@@ -782,8 +794,9 @@ abstract final class GargoyleBeamArt {
     final grow = reduced ? 1.0 : BossMotion.ease(BossMotion.ramp(since, 0, .1));
     final rise = reduced ? 0.0 : -6 * s * BossMotion.ease(BossMotion.ramp(since, 0, 1.2));
     final px = (h * .055).roundToDouble();
-    final fill = _label('SPOTTED!', px, color: hot);
-    final line = _label('SPOTTED!', px, color: GargoylePalette.ink, stroke: px * .3);
+    final spotted = L10n.strings.bossSpotted;
+    final fill = _label(spotted, px, color: hot);
+    final line = _label(spotted, px, color: GargoylePalette.ink, stroke: px * .3);
     final cy = (above ? bird.dy - h * .215 : bird.dy + h * .215).clamp(h * .16, h * .94) + rise;
     c.save();
     c.translate(bird.dx, cy);
@@ -797,7 +810,8 @@ abstract final class GargoyleBeamArt {
       final k = (reduced ? 1.0 : BossMotion.ease(BossMotion.ramp(since, .12, .3))) * out;
       final shield = cost == GargoyleSpotCost.shield;
       final color = shield ? const Color(0xff7cf0e0) : const Color(0xffff6b6b);
-      final label = _label(shield ? 'SHIELD LOST' : '-1 HEART', (h * .032).roundToDouble(), color: color);
+      final l = L10n.strings;
+      final label = _label(shield ? l.bossShieldLost : l.bossHeartLost, (h * .032).roundToDouble(), color: color);
       final cw = label.width + h * .07, ch = h * .058;
       final centre = Offset(bird.dx, cy + (above ? h * .07 : -h * .07));
       final box = Rect.fromCenter(center: centre, width: cw, height: ch);

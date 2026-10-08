@@ -1,3 +1,5 @@
+// l10n-english-twin: names, titles and hints (BossHint) are the English
+// twins of the ARB keys mapped in lib/l10n/text/boss_text.dart.
 import 'dart:math' as math;
 
 import 'baron_screech.dart';
@@ -356,22 +358,19 @@ class SkyBoss {
     if (!staged || stageReached != 1) return null;
     if (age - stageUpAt >= stageHintSeconds) return null;
     return switch (kind) {
-      BossKind.baronBat => 'STRONGER · Triple shots, and his bats join in!',
-      BossKind.spitterBeetle =>
-        'STRONGER · Full fans, and his beetles join in!',
-      BossKind.duskMoth => 'STRONGER · Seven-shot fans, and her moths join in!',
-      BossKind.pirate => 'STRONGER · The tide is turning!',
-      BossKind.dragon => 'STRONGER · Watch for the breath and the flocks!',
-      BossKind.kingCoo => 'STRONGER · He whistles for his squadron!',
+      BossKind.baronBat => BossHint.strongerBaronBat,
+      BossKind.spitterBeetle => BossHint.strongerSpitterBeetle,
+      BossKind.duskMoth => BossHint.strongerDuskMoth,
+      BossKind.pirate => BossHint.strongerPirate,
+      BossKind.dragon => BossHint.strongerDragon,
+      BossKind.kingCoo => BossHint.strongerKingCoo,
       BossKind.searchlightGargoyle =>
-        fierce
-            ? 'STRONGER · Feathers fall on the open lamp!'
-            : 'STRONGER · Stone feathers fall!',
+        fierce ? BossHint.strongerGargoyleFierce : BossHint.strongerGargoyle,
       BossKind.neferhoo =>
         tougherNeferhoo
-            ? Neferhoo.tougherStageHint
-            : 'STRONGER · The golden ankh comes back!',
-    };
+            ? BossHint.strongerNeferhooTougher
+            : BossHint.strongerNeferhoo,
+    }.english;
   }
 
   bool get isSpitter => kind == BossKind.spitterBeetle;
@@ -385,6 +384,8 @@ class SkyBoss {
   /// A campaign-only guardian: King Coo, the Searchlight Gargoyle or
   /// Neferhoo.
   bool get isMiniBoss => kind.campaignOnly;
+  /// English twins: screens show `AppLocalizations.bossName(kind)` and
+  /// `bossTitle(boss)` (lib/l10n/text/), tests and logs read these.
   String get name => switch (kind) {
     BossKind.baronBat => 'Baron Bat',
     BossKind.spitterBeetle => 'Spitter King',
@@ -634,13 +635,14 @@ class SkyBoss {
     return seaLevel + (tidePeak - seaLevel) * tide;
   }
 
-  String get tideHint => tideWarning > 0
-      ? 'TIDE RISING · Fly high!'
-      : tide > 0
-      ? 'HIGH TIDE · Stay above the water'
-      : enraged
-      ? 'FURY · Broadsides between the surges'
-      : 'Dodge the cannonballs · Keep out of the water';
+  String get tideHint => (tideWarning > 0
+          ? BossHint.tideRising
+          : tide > 0
+          ? BossHint.highTide
+          : enraged
+          ? BossHint.tideFury
+          : BossHint.tideCalm)
+      .english;
 
   /// Cannon launch toward a point [dy] below the bird's height, from the
   /// captain's current position: the barrel angle, the muzzle and the
@@ -780,23 +782,24 @@ class SkyBoss {
   String get breathHint {
     final warning = breathWarning;
     if (warning > 0 || breathing) {
-      final dodge = switch (breathLane) {
-        BreathLane.high => 'Fly low!',
-        BreathLane.middle => 'Climb or dive!',
-        BreathLane.low => 'Fly high!',
-      };
-      return warning > 0
-          ? "DRAGON'S BREATH · $dodge Its heart is open"
-          : 'FIRE · $dodge Strike the glowing heart';
+      return switch ((warning > 0, breathLane)) {
+        (true, BreathLane.high) => BossHint.breathWarningHigh,
+        (true, BreathLane.middle) => BossHint.breathWarningMiddle,
+        (true, BreathLane.low) => BossHint.breathWarningLow,
+        (false, BreathLane.high) => BossHint.breathFireHigh,
+        (false, BreathLane.middle) => BossHint.breathFireMiddle,
+        (false, BreathLane.low) => BossHint.breathFireLow,
+      }.english;
     }
     if (age - lastSummonAt < swarmHintSeconds) {
-      return 'SWARM · Dodge the bats or sprint through them';
+      return BossHint.dragonSwarm.english;
     }
-    return enraged
-        ? debut
-              ? 'FURY · Faster fireballs'
-              : 'FURY · Fireballs burst into embers'
-        : 'Dodge the fireballs · Watch for the breath';
+    return (enraged
+            ? debut
+                  ? BossHint.dragonFuryDebut
+                  : BossHint.dragonFury
+            : BossHint.dragonCalm)
+        .english;
   }
 
   // ---------------------------------------------------------------------
@@ -865,18 +868,16 @@ class SkyBoss {
 
   String get screechHint {
     if (screechWarning > 0 || screeching) {
-      final gap = switch (screechGap) {
-        ScreechGap.high => 'high',
-        ScreechGap.middle => 'middle',
-        ScreechGap.low => 'low',
-      };
-      return screechWarning > 0
-          ? 'SONIC SCREECH · Fly to the $gap gap!'
-          : 'SCREECH · Hold the $gap gap';
+      return switch ((screechWarning > 0, screechGap)) {
+        (true, ScreechGap.high) => BossHint.screechWarningHigh,
+        (true, ScreechGap.middle) => BossHint.screechWarningMiddle,
+        (true, ScreechGap.low) => BossHint.screechWarningLow,
+        (false, ScreechGap.high) => BossHint.screechHoldHigh,
+        (false, ScreechGap.middle) => BossHint.screechHoldMiddle,
+        (false, ScreechGap.low) => BossHint.screechHoldLow,
+      }.english;
     }
-    return enraged
-        ? 'FURY · Faster fireballs, more bats'
-        : 'Dodge the fireballs and bats · Watch for the screech';
+    return (enraged ? BossHint.screechFury : BossHint.screechCalm).english;
   }
 
   // ---------------------------------------------------------------------
@@ -1050,28 +1051,27 @@ class SkyBoss {
       // A pop after the whistle keeps the squadron that is already out.
       final early =
           poppedAt! < cooCycleStart(cooCycleNumber) + KingCoo.whistleAt;
-      if (early) return 'POP! · No squadron';
+      if (early) return BossHint.cooPopped.english;
       if (cycle < KingCoo.squadCrossesBy) {
-        return 'SQUADRON · Follow the open lane!';
+        return BossHint.cooSquadron.english;
       }
     }
     if (puffWindow) {
       // A staged King Coo's warm-up blows no whistle.
-      return cycle >= KingCoo.whistleAt && (!staged || squadCalled)
-          ? 'SQUADRON · Follow the open lane!'
-          : 'PUFFED · Shoot his chest (x2)!';
+      return (cycle >= KingCoo.whistleAt && (!staged || squadCalled)
+              ? BossHint.cooSquadron
+              : BossHint.cooPuffed)
+          .english;
     }
     if (squadCalled &&
         squad.isNotEmpty &&
         cycle >= KingCoo.whistleAt &&
         cycle < KingCoo.squadCrossesBy) {
-      return 'SQUADRON · Follow the open lane!';
+      return BossHint.cooSquadron.english;
     }
     final locked = lobs.any((lob) => age >= lob.lockedAt && age < lob.burstAt);
-    if (locked) return 'CRUMB BOMB · Leave the ring!';
-    return enraged
-        ? 'FURY · Stay between the rings'
-        : 'Dodge the crumb bombs · Shoot his chest when it puffs';
+    if (locked) return BossHint.cooCrumbBomb.english;
+    return (enraged ? BossHint.cooFury : BossHint.cooCalm).english;
   }
 
   // ---------------------------------------------------------------------
@@ -1247,16 +1247,17 @@ class SkyBoss {
 
   String get gargoyleHint {
     if (beamOn) {
-      return 'BEAM · Stay in the dark';
+      return BossHint.beamOn.english;
     }
     if (sweepWarning > 0) {
-      if (slitSweep) return 'FURY · Slip between the beams';
-      return beamSide == BeamSide.high
-          ? 'BEAM INCOMING · Fly low!'
-          : 'BEAM INCOMING · Fly high!';
+      if (slitSweep) return BossHint.beamFury.english;
+      return (beamSide == BeamSide.high
+              ? BossHint.beamIncomingHigh
+              : BossHint.beamIncomingLow)
+          .english;
     }
-    if (lampOpen) return 'LAMP OPEN · Shoot the lamp!';
-    return 'SHUTTERS CLOSED · Save your shots';
+    if (lampOpen) return BossHint.lampOpen.english;
+    return BossHint.shuttersClosed.english;
   }
 
   // ---------------------------------------------------------------------
@@ -1302,17 +1303,18 @@ class SkyBoss {
                 shieldWarningSeconds)
             .clamp(0.0, 1.0)
       : 0;
-  String get shieldHint => !hasShield
-      ? enraged
-            ? 'FURY · Seven-shot fans. No veil yet!'
-            : 'No veil yet · Fire between the fans!'
-      : shielded
-      ? 'SHIELDED · Dodge until the veil drops'
-      : shieldWarning > 0
-      ? 'SHIELD FORMING · Get ready to dodge'
-      : enraged
-      ? 'FURY · Seven-shot fans. Veil is down!'
-      : 'Veil is down · Fire between the fans!';
+  String get shieldHint => (!hasShield
+          ? enraged
+                ? BossHint.mothFuryNoVeil
+                : BossHint.mothNoVeil
+          : shielded
+          ? BossHint.mothShielded
+          : shieldWarning > 0
+          ? BossHint.mothShieldForming
+          : enraged
+          ? BossHint.mothFury
+          : BossHint.mothCalm)
+      .english;
   static const arrivalSeconds = 2.5, departureSeconds = 2.0;
   static const revealAt = 1.65, roarAt = 2.65, burstAt = .85;
   final bool cinematic;
@@ -1416,4 +1418,89 @@ class SeaSplash {
 
   /// The bird dipped into the water rather than a cannonball.
   final bool bird;
+}
+
+/// Every line a boss fight's hint can say ([SkyBoss.stageHint],
+/// [SkyBoss.shieldHint], [SkyBoss.tideHint], [SkyBoss.breathHint],
+/// [SkyBoss.screechHint], [SkyBoss.cooHint], [SkyBoss.gargoyleHint] and
+/// Neferhoo's [NeferhooBoss.neferhooHint]): a tag, " · ", what to do.
+/// [english] is the English twin the getters return (tests and logs read
+/// it); screens show `AppLocalizations.bossHint` / `bossHintText`
+/// (lib/l10n/text/boss_text.dart). Words only: no rule reads a hint.
+enum BossHint {
+  strongerBaronBat('STRONGER · Triple shots, and his bats join in!'),
+  strongerSpitterBeetle('STRONGER · Full fans, and his beetles join in!'),
+  strongerDuskMoth('STRONGER · Seven-shot fans, and her moths join in!'),
+  strongerPirate('STRONGER · The tide is turning!'),
+  strongerDragon('STRONGER · Watch for the breath and the flocks!'),
+  strongerKingCoo('STRONGER · He whistles for his squadron!'),
+  strongerGargoyleFierce('STRONGER · Feathers fall on the open lamp!'),
+  strongerGargoyle('STRONGER · Stone feathers fall!'),
+  strongerNeferhooTougher(Neferhoo.tougherStageHint),
+  strongerNeferhoo('STRONGER · The golden ankh comes back!'),
+  tideRising('TIDE RISING · Fly high!'),
+  highTide('HIGH TIDE · Stay above the water'),
+  tideFury('FURY · Broadsides between the surges'),
+  tideCalm('Dodge the cannonballs · Keep out of the water'),
+  breathWarningHigh("DRAGON'S BREATH · Fly low! Its heart is open"),
+  breathWarningMiddle("DRAGON'S BREATH · Climb or dive! Its heart is open"),
+  breathWarningLow("DRAGON'S BREATH · Fly high! Its heart is open"),
+  breathFireHigh('FIRE · Fly low! Strike the glowing heart'),
+  breathFireMiddle('FIRE · Climb or dive! Strike the glowing heart'),
+  breathFireLow('FIRE · Fly high! Strike the glowing heart'),
+  dragonSwarm('SWARM · Dodge the bats or sprint through them'),
+  dragonFuryDebut('FURY · Faster fireballs'),
+  dragonFury('FURY · Fireballs burst into embers'),
+  dragonCalm('Dodge the fireballs · Watch for the breath'),
+  screechWarningHigh('SONIC SCREECH · Fly to the high gap!'),
+  screechWarningMiddle('SONIC SCREECH · Fly to the middle gap!'),
+  screechWarningLow('SONIC SCREECH · Fly to the low gap!'),
+  screechHoldHigh('SCREECH · Hold the high gap'),
+  screechHoldMiddle('SCREECH · Hold the middle gap'),
+  screechHoldLow('SCREECH · Hold the low gap'),
+  screechFury('FURY · Faster fireballs, more bats'),
+  screechCalm('Dodge the fireballs and bats · Watch for the screech'),
+  cooPopped('POP! · No squadron'),
+  cooSquadron('SQUADRON · Follow the open lane!'),
+  cooPuffed('PUFFED · Shoot his chest (x2)!'),
+  cooCrumbBomb('CRUMB BOMB · Leave the ring!'),
+  cooFury('FURY · Stay between the rings'),
+  cooCalm('Dodge the crumb bombs · Shoot his chest when it puffs'),
+  beamOn('BEAM · Stay in the dark'),
+  beamFury('FURY · Slip between the beams'),
+  beamIncomingHigh('BEAM INCOMING · Fly low!'),
+  beamIncomingLow('BEAM INCOMING · Fly high!'),
+  lampOpen('LAMP OPEN · Shoot the lamp!'),
+  shuttersClosed('SHUTTERS CLOSED · Save your shots'),
+  mothFuryNoVeil('FURY · Seven-shot fans. No veil yet!'),
+  mothNoVeil('No veil yet · Fire between the fans!'),
+  mothShielded('SHIELDED · Dodge until the veil drops'),
+  mothShieldForming('SHIELD FORMING · Get ready to dodge'),
+  mothFury('FURY · Seven-shot fans. Veil is down!'),
+  mothCalm('Veil is down · Fire between the fans!'),
+  neferhooMailCall(Neferhoo.mailHint),
+  neferhooReturn(Neferhoo.returnHint),
+  neferhooReturnFaster(Neferhoo.fasterReturnHint),
+  neferhooAnkh(Neferhoo.ankhHint),
+  neferhooExpress(Neferhoo.expressHint),
+  neferhooTwoAnkhs(Neferhoo.twoAnkhsHint),
+  neferhooBats(Neferhoo.batsHint),
+  neferhooScuff(Neferhoo.neferhooScuffHint),
+  neferhooWarmUp(Neferhoo.warmUpHint),
+  neferhooCalm(Neferhoo.calmHint),
+  neferhooFury(Neferhoo.furyHint);
+
+  const BossHint(this.english);
+
+  /// The English twin.
+  final String english;
+
+  static final Map<String, BossHint> _byEnglish = {
+    for (final hint in values) hint.english: hint,
+  };
+
+  /// The hint whose English twin is [english] (what the getters return),
+  /// or null.
+  static BossHint? of(String? english) =>
+      english == null ? null : _byEnglish[english];
 }

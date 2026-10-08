@@ -1,6 +1,9 @@
 import 'dart:math' as math;
 import 'tracking.dart';
 
+// l10n-english-twin: the coaching lines here are English twins; screens show
+// them through `l.trackingFeedback(...)` (lib/l10n/text/tracking_text.dart).
+
 /// A front-facing standing body. The torso supplies the motion signal; lower
 /// landmarks establish framing and scale without needing sharply tracked toes.
 class JumpObservation {

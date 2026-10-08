@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../domain/tracking.dart';
 import '../game/bird_puppet.dart';
 import '../game/tether_art.dart';
+import '../l10n/l10n.dart';
+import '../l10n/text/coop_text.dart';
 import 'theme.dart';
 
 /// Small, original game illustrations: each pose shows its actual control.
@@ -1071,10 +1073,26 @@ class ModePickerArt extends CustomPainter {
     }
   }
 
-  /// A player's tag: "P1" or "P2" on a sticker in the player's colour.
+  /// A player's tag: "P1" or "P2" on a sticker in the player's colour,
+  /// as wide as its words need.
   void _tag(Canvas canvas, Offset center, int player) {
+    final text = TextPainter(
+      text: TextSpan(
+        text: L10n.strings.coopPlayerTag(player),
+        style: heading(
+          11.5,
+          color: SkyColors.white,
+          weight: FontWeight.w700,
+        ).copyWith(height: 1),
+      ),
+      textDirection: L10n.textDirection,
+    )..layout();
     final pill = RRect.fromRectAndRadius(
-      Rect.fromCenter(center: center, width: 30, height: 17),
+      Rect.fromCenter(
+        center: center,
+        width: math.max(30, text.width + 12),
+        height: 17,
+      ),
       const Radius.circular(8.5),
     );
     canvas.drawRRect(
@@ -1089,19 +1107,6 @@ class ModePickerArt extends CustomPainter {
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2,
     );
-    final text = TextPainter(
-      text: TextSpan(
-        text: 'P${player + 1}',
-        style: const TextStyle(
-          fontFamily: 'Fredoka',
-          fontWeight: FontWeight.w700,
-          fontSize: 11.5,
-          height: 1,
-          color: SkyColors.white,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
     text.paint(canvas, center - Offset(text.width / 2, text.height / 2));
     text.dispose();
   }

@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/painting.dart';
 
 import '../domain/sky_boss.dart';
+import '../l10n/l10n.dart';
 import '../ui/theme.dart';
 import 'boss_motion.dart';
 import 'dragon_kit.dart';
@@ -46,8 +47,9 @@ abstract final class DragonHudArt {
 
   // ------------------------------------------------------------- caches --
 
-  // Laid-out text kept between frames (the banner's words never change).
-  static final Map<Object, TextPainter> _texts = {};
+  // Laid-out text kept between frames (the banner's words change only with
+  // the language, which empties it).
+  static final Map<Object, TextPainter> _texts = L10n.cache({});
 
   static TextPainter _text(String value, double size, double spacing) {
     final key = (value, size, spacing);
@@ -62,7 +64,8 @@ abstract final class DragonHudArt {
             shadows: [Shadow(color: ink, offset: Offset(0, size * .1))],
           ),
         ),
-        textDirection: TextDirection.ltr,
+        // Words run their language's way; the banner stays where it is.
+        textDirection: L10n.textDirection,
       )..layout();
     }
     return p;
@@ -920,7 +923,7 @@ abstract final class DragonHudArt {
         ? .5
         : .5 + .5 * math.sin(boss.age * rate * math.pi * 2);
     // Ten units of type (ten pixels at 640 x 360) beside a small ruby heart.
-    final text = _text('HEART ×2', 10 * u, .5 * u);
+    final text = _text(L10n.strings.bossBarHeartDouble, 10 * u, .5 * u);
     final icon = 8 * u, gap = 3 * u;
     final w = icon + gap + text.width + 11 * u, h = 13.5 * u;
     final cx = bar.center.dx;

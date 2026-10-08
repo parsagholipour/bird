@@ -1,0 +1,2495 @@
+{
+ "language": "zh_hant",
+ "terms": {
+  "brand.beakbound": {
+   "en": "Beakbound",
+   "target": "Beakbound",
+   "note": "Brand stays in Latin letters (BEAKBOUND in the logo)."
+  },
+  "brand.beak1-code": {
+   "en": "BEAK1.",
+   "target": "BEAK1.",
+   "note": "Technical token, unchanged."
+  },
+  "char.pip": {
+   "en": "Pip",
+   "target": "皮普",
+   "note": "Standard transliteration of Pip (Pípǔ); masculine."
+  },
+  "char.peaches": {
+   "en": "Peaches",
+   "target": "碧琪",
+   "note": "Phonetic (Bìqí, ~\"Peachy\"); soft feminine characters. Her peach puns use 桃/蜜桃 in the line, the name stays 碧琪."
+  },
+  "char.minty": {
+   "en": "Minty",
+   "target": "敏弟",
+   "note": "Phonetic (Mǐndì); 敏 = quick, 弟 = little brother: a cocky little boy. Mint jokes use 薄荷 in the line."
+  },
+  "char.orbit": {
+   "en": "Orbit",
+   "target": "歐比",
+   "note": "Phonetic (Ōubǐ); short, soft; feminine."
+  },
+  "char.postmaster-bill": {
+   "en": "Postmaster Bill",
+   "target": "比爾局長",
+   "note": "Name 比爾 + title 局長 (Chinese puts the title after the name). Short form 比爾."
+  },
+  "char.courier": {
+   "en": "courier",
+   "target": "郵差",
+   "note": "Everyday Taiwanese word for a mail carrier; gender-neutral. Royal Courier 皇家郵差, Courier Pip 郵差皮普."
+  },
+  "char.narrator": {
+   "en": "the narrator",
+   "target": "旁白",
+   "note": "Never named on screen; gentle storybook narration addressing the player with 你."
+  },
+  "boss.baron-bat": {
+   "en": "Baron Bat",
+   "target": "蝙蝠男爵",
+   "note": "Chinese order (species + rank). Short forms: 男爵; address 男爵 / 男爵大人."
+  },
+  "boss.spitter-king": {
+   "en": "Spitter King",
+   "target": "噴噴王",
+   "note": "King of the 噴噴甲蟲 (spitter beetles); reduplicated 噴噴 is playful and kid-friendly. Bill: 國王; birds: 陛下."
+  },
+  "boss.dusk-empress": {
+   "en": "Dusk Empress",
+   "target": "暮光女皇",
+   "note": "Same 暮光 as the dusk moths (暮光蛾). Short form 女皇; Her Highness 女皇殿下. Self-reference 本宮."
+  },
+  "boss.pirate-captain": {
+   "en": "Pirate Captain",
+   "target": "海盜船長",
+   "note": "Short form 船長; he calls himself 本船長."
+  },
+  "boss.ember-dragon": {
+   "en": "Ember Dragon",
+   "target": "餘燼巨龍",
+   "note": "餘燼 = embers (same word as the attack 餘燼). Short form 巨龍; letter: 親愛的巨龍."
+  },
+  "guardian.neferhoo": {
+   "en": "Neferhoo",
+   "target": "奈弗胡",
+   "note": "Phonetic NEF-er-hoo (Nàifúhú); Mister Neferhoo 奈弗胡先生. Self-reference 老夫 (fussy old official)."
+  },
+  "guardian.king-coo": {
+   "en": "King Coo",
+   "target": "咕咕王",
+   "note": "Adapted: 咕咕 is the Chinese pigeon coo, 王 = king; short for the card. He calls himself 本警長."
+  },
+  "guardian.searchlight-gargoyle": {
+   "en": "Searchlight Gargoyle",
+   "target": "探照燈石像鬼",
+   "note": "Card split: 探照燈 / 石像鬼. Short form 石像鬼; self-reference in the job line: 本石像鬼."
+  },
+  "npc.toucan-twins": {
+   "en": "the toucan twins",
+   "target": "巨嘴鳥雙胞胎",
+   "note": "Toucan = 巨嘴鳥 (Taiwan usage); plural, giggly."
+  },
+  "npc.sloth-stargazer": {
+   "en": "the sloth stargazer",
+   "target": "觀星樹懶"
+  },
+  "npc.firefly-nursery": {
+   "en": "the firefly nursery",
+   "target": "螢火蟲幼兒園",
+   "note": "A place for little ones (not a plant nursery)."
+  },
+  "npc.samba-macaws": {
+   "en": "the samba macaws",
+   "target": "森巴金剛鸚鵡",
+   "note": "Macaw = 金剛鸚鵡; samba = 森巴 (Taiwan)."
+  },
+  "npc.drum-captain": {
+   "en": "the drum captain",
+   "target": "鼓隊隊長",
+   "note": "Band leader, not 船長."
+  },
+  "npc.temple-cooks": {
+   "en": "the temple cooks",
+   "target": "神殿廚師們"
+  },
+  "npc.dawn-keeper": {
+   "en": "the dawn keeper",
+   "target": "黎明看守人"
+  },
+  "npc.chariot-racers": {
+   "en": "the chariot racers",
+   "target": "戰車賽手們"
+  },
+  "npc.statue-carver": {
+   "en": "the statue carver",
+   "target": "雕像師傅",
+   "note": "師傅 = master craftsman (Taiwan)."
+  },
+  "npc.fire-brigade": {
+   "en": "the fire brigade",
+   "target": "消防隊"
+  },
+  "npc.pyramid-astronomer": {
+   "en": "the pyramid astronomer",
+   "target": "金字塔天文學家"
+  },
+  "npc.pyramid-caretaker": {
+   "en": "the pyramid caretaker",
+   "target": "金字塔管理員",
+   "note": "Feminine in the story (她)."
+  },
+  "npc.lantern-sellers": {
+   "en": "the lantern sellers",
+   "target": "燈籠小販"
+  },
+  "npc.caravan-leader": {
+   "en": "the caravan leader",
+   "target": "商隊隊長",
+   "note": "Leader of the camel caravan (駱駝商隊)."
+  },
+  "npc.stage-manager": {
+   "en": "the stage manager",
+   "target": "舞台監督"
+  },
+  "npc.newsstand-pigeons": {
+   "en": "the newsstand pigeons",
+   "target": "書報攤鴿子"
+  },
+  "npc.night-cabbies": {
+   "en": "the night cabbies",
+   "target": "夜班計程車司機",
+   "note": "Short form 夜班司機; cargo uses the same words."
+  },
+  "npc.tower-keeper": {
+   "en": "the tower keeper",
+   "target": "高塔管理員"
+  },
+  "npc.rooftop-painters": {
+   "en": "the rooftop painters",
+   "target": "屋頂畫家"
+  },
+  "npc.accordion-player": {
+   "en": "the accordion player",
+   "target": "手風琴師"
+  },
+  "npc.baker": {
+   "en": "the baker",
+   "target": "麵包師傅",
+   "note": "The Paris baker (feminine); not the volcano baker."
+  },
+  "npc.lighthouse-keeper": {
+   "en": "the lighthouse keeper",
+   "target": "燈塔看守人"
+  },
+  "npc.volcano-baker": {
+   "en": "the volcano baker",
+   "target": "火山烘焙師",
+   "note": "Distinct from 麵包師傅 (Paris)."
+  },
+  "npc.kite-flyers": {
+   "en": "the kite flyers",
+   "target": "放風箏的人",
+   "note": "Beach festival = 海灘節."
+  },
+  "npc.island-hermit": {
+   "en": "the island hermit",
+   "target": "小島隱士"
+  },
+  "npc.ferry-crew": {
+   "en": "the ferry crew",
+   "target": "渡輪船員"
+  },
+  "npc.gull-colony": {
+   "en": "the gull colony",
+   "target": "海鷗群"
+  },
+  "npc.storm-watch": {
+   "en": "the storm watch",
+   "target": "風暴守望隊",
+   "note": "Cargo: 風暴守望隊的水手 (storm-watch sailors)."
+  },
+  "npc.penguin-choir": {
+   "en": "the penguin choir",
+   "target": "企鵝合唱團"
+  },
+  "npc.polar-station": {
+   "en": "the polar station",
+   "target": "極地研究站",
+   "note": "Short form 極地站."
+  },
+  "npc.noodle-chef": {
+   "en": "the noodle chef",
+   "target": "麵館大廚",
+   "note": "The noodle bar = 麵館."
+  },
+  "npc.rooftop-runners": {
+   "en": "the rooftop runners",
+   "target": "屋頂飛毛腿",
+   "note": "Rooftop racers; 飛毛腿 = speedy runner (Taiwan idiom)."
+  },
+  "npc.lantern-makers": {
+   "en": "the lantern makers",
+   "target": "燈籠師傅",
+   "note": "The festival = 元宵燈會."
+  },
+  "npc.mountain-monks": {
+   "en": "the mountain monks",
+   "target": "山寺僧人",
+   "note": "The monastery = 山寺."
+  },
+  "npc.sphinx": {
+   "en": "the Sphinx",
+   "target": "人面獅身像",
+   "note": "Taiwan name of the Sphinx; as a character 人面獅身 (Mister Sphinx = 人面獅身先生); masculine."
+  },
+  "npc.unit-7": {
+   "en": "Unit 7",
+   "target": "七號機",
+   "note": "Robot serial name in the anime style (cf. 初號機)."
+  },
+  "npc.parrot": {
+   "en": "the Parrot",
+   "target": "鸚鵡",
+   "note": "Masculine (他)."
+  },
+  "npc.baron-cousins": {
+   "en": "the Baron's cousins",
+   "target": "男爵的表親們",
+   "note": "Cousins! = 表親們！; Relatives! = 親戚們！"
+  },
+  "title.postmaster": {
+   "en": "Postmaster",
+   "target": "局長",
+   "note": "Head of the post office (郵局局長); after the name: 比爾局長. \"Postmaster's orders\" = 局長的命令."
+  },
+  "title.lord-of-the-storm": {
+   "en": "LORD OF THE STORM",
+   "target": "風暴之主"
+  },
+  "title.the-storm-returns": {
+   "en": "THE STORM RETURNS",
+   "target": "風暴再臨",
+   "note": "Echoes 風暴之主; headline THE BARON RETURNS = 男爵回來了."
+  },
+  "title.brewer-of-the-swarm": {
+   "en": "BREWER OF THE SWARM",
+   "target": "蟲群釀造師",
+   "note": "釀造 = brew."
+  },
+  "title.keeper-of-the-twilight-veil": {
+   "en": "KEEPER OF THE TWILIGHT VEIL",
+   "target": "暮光薄紗守護者",
+   "note": "薄紗 = the veil (fight hints use the same word)."
+  },
+  "title.terror-of-the-high-tide": {
+   "en": "TERROR OF THE HIGH TIDE",
+   "target": "滿潮霸王",
+   "note": "滿潮 = HIGH TIDE (hazard.tide)."
+  },
+  "title.sovereign-of-the-burning-sky": {
+   "en": "SOVEREIGN OF THE BURNING SKY",
+   "target": "焚天之王"
+  },
+  "title.keeper-of-the-lost-letter": {
+   "en": "Keeper of the Lost Letter",
+   "target": "遺失之信守護者",
+   "note": "Singular: the one lost letter."
+  },
+  "title.keeper-of-lost-letters": {
+   "en": "Keeper of Lost Letters",
+   "target": "遺失信件守護者",
+   "note": "The club job (plural, all lost mail); echoes the card epithet."
+  },
+  "title.royal-courier": {
+   "en": "Royal Courier",
+   "target": "皇家郵差",
+   "note": "Same 郵差 as char.courier (Pip: 皇家郵差？我只是郵差。)."
+  },
+  "title.mummy-courier": {
+   "en": "the Mummy Courier",
+   "target": "木乃伊郵差"
+  },
+  "title.commissioner-of-the-curb": {
+   "en": "Commissioner of the Curb",
+   "target": "街角大警長",
+   "note": "Adapted: a pompous street police title (curb = 街角, where pigeons peck)."
+  },
+  "title.commissioner": {
+   "en": "the Commissioner",
+   "target": "警長",
+   "note": "Police chief; self-reference 本警長; job ad 徵警長一名. Not 局長 (that is Bill)."
+  },
+  "title.watchman-of-the-tallest-tower": {
+   "en": "Watchman of the Tallest Tower",
+   "target": "最高塔守望者"
+  },
+  "title.ink-maker": {
+   "en": "ink-maker",
+   "target": "製墨師",
+   "note": "Royal ink-maker = 皇家製墨師."
+  },
+  "region.jungle": {
+   "en": "Jungle",
+   "target": "叢林"
+  },
+  "region.brazil": {
+   "en": "Brazil",
+   "target": "巴西"
+  },
+  "region.aztec": {
+   "en": "Aztec",
+   "target": "阿茲特克"
+  },
+  "region.ancient-rome": {
+   "en": "Ancient Rome",
+   "target": "古羅馬"
+  },
+  "region.egypt": {
+   "en": "Egypt",
+   "target": "埃及"
+  },
+  "region.ancient-arabia": {
+   "en": "Ancient Arabia",
+   "target": "古阿拉伯",
+   "note": "Parallel to 古羅馬."
+  },
+  "region.new-york": {
+   "en": "New York",
+   "target": "紐約"
+  },
+  "region.paris": {
+   "en": "Paris",
+   "target": "巴黎"
+  },
+  "region.mexico": {
+   "en": "Mexico",
+   "target": "墨西哥"
+  },
+  "region.open-sea": {
+   "en": "Open Sea",
+   "target": "茫茫大海",
+   "note": "The high seas, nowhere to land; 公海 is too legal."
+  },
+  "region.antarctica": {
+   "en": "Antarctica",
+   "target": "南極洲"
+  },
+  "region.cyberpunk-city": {
+   "en": "Cyberpunk City",
+   "target": "電馭叛客城",
+   "note": "電馭叛客 is the established Taiwan term for cyberpunk; Bill calls it 霓虹城 (the neon city)."
+  },
+  "region.china": {
+   "en": "China",
+   "target": "中國",
+   "note": "Standard name; region label only."
+  },
+  "place.city-of-light": {
+   "en": "the City of Light",
+   "target": "光之城",
+   "note": "The usual Chinese epithet of Paris."
+  },
+  "place.edge-of-the-map": {
+   "en": "the Edge of the Map",
+   "target": "地圖邊緣",
+   "note": "Same words as chapter 5 and the achievement."
+  },
+  "place.giza": {
+   "en": "Giza",
+   "target": "吉薩"
+  },
+  "place.nile": {
+   "en": "the Nile",
+   "target": "尼羅河"
+  },
+  "place.pyramid": {
+   "en": "the pyramid",
+   "target": "金字塔"
+  },
+  "place.colosseum": {
+   "en": "the Colosseum",
+   "target": "羅馬競技場"
+  },
+  "place.sugarloaf-mountain": {
+   "en": "Sugarloaf Mountain",
+   "target": "糖麵包山",
+   "note": "The Chinese name (麵包山 / 糖麵包山) keeps the sugar, so Pip's joke survives."
+  },
+  "place.eiffel-tower": {
+   "en": "the Eiffel Tower",
+   "target": "艾菲爾鐵塔",
+   "note": "Taiwan spelling."
+  },
+  "place.theatre-marquee": {
+   "en": "the theatre marquee",
+   "target": "劇院門簷",
+   "note": "The lit canopy over the theatre door; 簷 (eaves) is where you shelter from rain."
+  },
+  "place.tallest-tower": {
+   "en": "the tallest tower",
+   "target": "最高的塔",
+   "note": "Card form 最高塔."
+  },
+  "place.canopy": {
+   "en": "the canopy",
+   "target": "樹冠",
+   "note": "Same word as chapter 1."
+  },
+  "place.bazaar": {
+   "en": "the bazaar",
+   "target": "市集"
+  },
+  "place.harbour": {
+   "en": "the harbour",
+   "target": "港口"
+  },
+  "chapter.canopy-route": {
+   "en": "The Canopy Route",
+   "target": "樹冠航線",
+   "note": "航線 = route (birds fly it); the key recurring route word."
+  },
+  "chapter.ancient-road": {
+   "en": "The Ancient Road",
+   "target": "古道",
+   "note": "The Spitter King's 我的古道 / 我路上."
+  },
+  "chapter.lamplight-line": {
+   "en": "The Lamplight Line",
+   "target": "燈火航線",
+   "note": "Keeps the lamp image."
+  },
+  "chapter.tide-route": {
+   "en": "The Tide Route",
+   "target": "潮汐航線"
+  },
+  "chapter.edge-of-the-map": {
+   "en": "The Edge of the Map",
+   "target": "地圖邊緣"
+  },
+  "level.1-1": {
+   "en": "First Delivery",
+   "target": "第一次送信"
+  },
+  "level.1-2": {
+   "en": "Star Streak",
+   "target": "星星連擊",
+   "note": "連擊 = ui.streak."
+  },
+  "level.1-3": {
+   "en": "Bat Patrol",
+   "target": "蝙蝠巡邏隊"
+  },
+  "level.1-4": {
+   "en": "Carnival Skies",
+   "target": "嘉年華天空"
+  },
+  "level.1-5": {
+   "en": "Express Post",
+   "target": "限時專送",
+   "note": "Taiwan Post's real name for express mail; same as Neferhoo's EXPRESS POST."
+  },
+  "level.1-6": {
+   "en": "Temple Steps",
+   "target": "神殿階梯"
+  },
+  "level.1-7": {
+   "en": "Sunrise Roost",
+   "target": "日出棲所"
+  },
+  "level.1-8": {
+   "en": "Baron Bat",
+   "target": "蝙蝠男爵"
+  },
+  "level.2-1": {
+   "en": "Beetle Road",
+   "target": "甲蟲古道",
+   "note": "Same 古道 as chapter 2."
+  },
+  "level.2-2": {
+   "en": "Sealed Gates",
+   "target": "石封之門",
+   "note": "Blocked with stone; not the flame seal."
+  },
+  "level.2-3": {
+   "en": "Wildfire Run",
+   "target": "野火狂奔"
+  },
+  "level.2-4": {
+   "en": "Nile Switchbacks",
+   "target": "尼羅河之字門",
+   "note": "Same 之字門 as hazard.switchback."
+  },
+  "level.2-5": {
+   "en": "Skyfall",
+   "target": "流星天降",
+   "note": "Same as set-piece.skyfall."
+  },
+  "level.2-6": {
+   "en": "Return to Sender",
+   "target": "退回寄件人",
+   "note": "Same as phrase.return-to-sender."
+  },
+  "level.2-7": {
+   "en": "Lantern Bazaar",
+   "target": "燈籠市集"
+  },
+  "level.2-8": {
+   "en": "The Long Caravan",
+   "target": "漫漫商隊",
+   "note": "Cargo: 給漫漫商隊的水壺."
+  },
+  "level.2-9": {
+   "en": "Spitter King",
+   "target": "噴噴王"
+  },
+  "level.3-1": {
+   "en": "Moth Light",
+   "target": "飛蛾逐光",
+   "note": "Moths chasing light (nod to 飛蛾撲火 without the dark meaning)."
+  },
+  "level.3-2": {
+   "en": "Wheels in the Rain",
+   "target": "雨中車輪",
+   "note": "Keeps wheels + rain."
+  },
+  "level.3-3": {
+   "en": "Steam Alley",
+   "target": "蒸氣巷",
+   "note": "Bill says it aloud: 下一站，菜鳥：蒸氣巷."
+  },
+  "level.3-4": {
+   "en": "Storm Warning",
+   "target": "風暴警報",
+   "note": "Same as the Gargoyle's headline."
+  },
+  "level.3-5": {
+   "en": "Crystal Rooftops",
+   "target": "水晶屋頂"
+  },
+  "level.3-6": {
+   "en": "After the Gale",
+   "target": "狂風過後",
+   "note": "狂風 = gale."
+  },
+  "level.3-7": {
+   "en": "Midnight Express",
+   "target": "午夜快遞",
+   "note": "Midnight + express (cf. the film 午夜快車)."
+  },
+  "level.3-8": {
+   "en": "Dusk Empress",
+   "target": "暮光女皇"
+  },
+  "level.4-1": {
+   "en": "Harbour Lights",
+   "target": "港口燈火"
+  },
+  "level.4-2": {
+   "en": "Volcano Pass",
+   "target": "火山隘口"
+  },
+  "level.4-3": {
+   "en": "Down the Coast",
+   "target": "沿岸南下"
+  },
+  "level.4-4": {
+   "en": "Low Water",
+   "target": "低潮",
+   "note": "Sailor's low water."
+  },
+  "level.4-5": {
+   "en": "Spring Tide",
+   "target": "大潮",
+   "note": "The Chinese nautical term for a spring tide."
+  },
+  "level.4-6": {
+   "en": "Broadside Bay",
+   "target": "舷砲海灣",
+   "note": "舷砲 = broadside."
+  },
+  "level.4-7": {
+   "en": "Stormy Crossing",
+   "target": "風暴橫渡"
+  },
+  "level.4-8": {
+   "en": "Pirate Captain",
+   "target": "海盜船長"
+  },
+  "level.5-1": {
+   "en": "Aurora Post",
+   "target": "極光郵站"
+  },
+  "level.5-2": {
+   "en": "Polar Night",
+   "target": "極夜"
+  },
+  "level.5-3": {
+   "en": "Neon Express",
+   "target": "霓虹快遞"
+  },
+  "level.5-4": {
+   "en": "Data Storm",
+   "target": "資料風暴",
+   "note": "Taiwan uses 資料 for data."
+  },
+  "level.5-5": {
+   "en": "Skyline Sprint",
+   "target": "天際線衝刺",
+   "note": "Same 衝刺 as the Sprint button."
+  },
+  "level.5-6": {
+   "en": "Lantern Festival",
+   "target": "元宵燈會",
+   "note": "The established name of the Lantern Festival."
+  },
+  "level.5-7": {
+   "en": "The Last Leg",
+   "target": "最後一哩路",
+   "note": "Taiwan idiom for the final stretch."
+  },
+  "level.5-8": {
+   "en": "Ember Dragon",
+   "target": "餘燼巨龍"
+  },
+  "level.starter-garden-hop": {
+   "en": "Garden Hop",
+   "target": "花園跳跳"
+  },
+  "level.starter-ten-push-ups": {
+   "en": "Ten Push-Ups",
+   "target": "十下伏地挺身"
+  },
+  "level.starter-stair-squats": {
+   "en": "Stair Squats",
+   "target": "階梯深蹲"
+  },
+  "level.starter-bounce-bay": {
+   "en": "Bounce Bay",
+   "target": "彈跳灣"
+  },
+  "level.starter-barons-bridge": {
+   "en": "Baron’s Bridge",
+   "target": "男爵之橋"
+  },
+  "cargo.1-1": {
+   "en": "A birthday card for the toucan twins",
+   "target": "給巨嘴鳥雙胞胎的生日卡"
+  },
+  "cargo.1-2": {
+   "en": "Star charts for the sloth stargazer",
+   "target": "給觀星樹懶的星圖"
+  },
+  "cargo.1-3": {
+   "en": "Night-lights for the firefly nursery",
+   "target": "給螢火蟲幼兒園的小夜燈"
+  },
+  "cargo.1-4": {
+   "en": "Feather boas for the carnival parade",
+   "target": "給嘉年華遊行的羽毛圍巾",
+   "note": "Feather boa = 羽毛圍巾."
+  },
+  "cargo.1-5": {
+   "en": "A rush invitation for the drum captain",
+   "target": "給鼓隊隊長的緊急邀請函",
+   "note": "Rush = 緊急."
+  },
+  "cargo.1-6": {
+   "en": "Cocoa beans for the temple cooks",
+   "target": "給神殿廚師的可可豆"
+  },
+  "cargo.1-7": {
+   "en": "A sundial for the dawn keeper",
+   "target": "給黎明看守人的日晷"
+  },
+  "cargo.1-8": {
+   "en": "A final notice for Baron Bat",
+   "target": "給蝙蝠男爵的最後通知",
+   "note": "最後通知 = the formal final notice."
+  },
+  "cargo.2-1": {
+   "en": "Laurel wreaths for the chariot racers",
+   "target": "給戰車賽手的月桂冠"
+  },
+  "cargo.2-2": {
+   "en": "A new chisel for the statue carver",
+   "target": "給雕像師傅的新鑿子"
+  },
+  "cargo.2-3": {
+   "en": "Water buckets for the fire brigade",
+   "target": "給消防隊的水桶"
+  },
+  "cargo.2-4": {
+   "en": "A book of new riddles for the Sphinx",
+   "target": "給人面獅身的新謎語書"
+  },
+  "cargo.2-5": {
+   "en": "A telescope for the pyramid astronomer",
+   "target": "給金字塔天文學家的望遠鏡"
+  },
+  "cargo.2-6": {
+   "en": "A feather duster for the caretaker",
+   "target": "給管理員的雞毛撢子",
+   "note": "Feather duster = 雞毛撢子 (the everyday Taiwanese word)."
+  },
+  "cargo.2-7": {
+   "en": "Lamp oil for the lantern sellers",
+   "target": "給燈籠小販的燈油"
+  },
+  "cargo.2-8": {
+   "en": "Water flasks for the long caravan",
+   "target": "給漫漫商隊的水壺"
+  },
+  "cargo.2-9": {
+   "en": "A stop-brewing order for the Spitter King",
+   "target": "給噴噴王的停熬令",
+   "note": "Official order to stop brewing."
+  },
+  "cargo.3-1": {
+   "en": "Light bulbs for the theatre marquee",
+   "target": "給劇院門簷的燈泡"
+  },
+  "cargo.3-2": {
+   "en": "Umbrellas for the newsstand pigeons",
+   "target": "給書報攤鴿子的雨傘"
+  },
+  "cargo.3-3": {
+   "en": "Hot pretzels for the night-shift cabbies",
+   "target": "給夜班司機的熱椒鹽捲餅",
+   "note": "Pretzel = 椒鹽捲餅."
+  },
+  "cargo.3-4": {
+   "en": "A weather vane for the tallest tower",
+   "target": "給最高的塔的風向標"
+  },
+  "cargo.3-5": {
+   "en": "Croissants for the rooftop painters",
+   "target": "給屋頂畫家的可頌",
+   "note": "Taiwan: 可頌."
+  },
+  "cargo.3-6": {
+   "en": "Sheet music for the accordion player",
+   "target": "給手風琴師的樂譜"
+  },
+  "cargo.3-7": {
+   "en": "A midnight love letter for the baker",
+   "target": "給麵包師傅的午夜情書"
+  },
+  "cargo.3-8": {
+   "en": "A wake-up call for the Dusk Empress",
+   "target": "給暮光女皇的起床號",
+   "note": "起床號 = a wake-up call (signal and warning)."
+  },
+  "cargo.4-1": {
+   "en": "A new lens for the lighthouse keeper",
+   "target": "給燈塔看守人的新鏡片"
+  },
+  "cargo.4-2": {
+   "en": "Oven mitts for the volcano baker",
+   "target": "給火山烘焙師的隔熱手套"
+  },
+  "cargo.4-3": {
+   "en": "Kite string for the beach festival",
+   "target": "給海灘節的風箏線"
+  },
+  "cargo.4-4": {
+   "en": "A reply for the island hermit",
+   "target": "給小島隱士的回信"
+  },
+  "cargo.4-5": {
+   "en": "A tide table for the ferry crew",
+   "target": "給渡輪船員的潮汐表"
+  },
+  "cargo.4-6": {
+   "en": "Fish biscuits for the gull colony",
+   "target": "給海鷗群的魚餅乾"
+  },
+  "cargo.4-7": {
+   "en": "Dry socks for the storm-watch sailors",
+   "target": "給風暴守望隊水手的乾襪子"
+  },
+  "cargo.4-8": {
+   "en": "A return-the-mail order for the Captain",
+   "target": "給船長的還信令",
+   "note": "An order to return the mail."
+  },
+  "cargo.5-1": {
+   "en": "Woolly hats for the penguin choir",
+   "target": "給企鵝合唱團的毛線帽"
+  },
+  "cargo.5-2": {
+   "en": "Hot cocoa for the polar station",
+   "target": "給極地研究站的熱可可"
+  },
+  "cargo.5-3": {
+   "en": "Spare fuses for the noodle bar sign",
+   "target": "給麵館招牌的備用保險絲"
+  },
+  "cargo.5-4": {
+   "en": "A paper letter for a curious robot",
+   "target": "給好奇機器人的紙本信"
+  },
+  "cargo.5-5": {
+   "en": "Race tickets for the rooftop runners",
+   "target": "給屋頂飛毛腿的比賽門票"
+  },
+  "cargo.5-6": {
+   "en": "Paper lanterns for the festival",
+   "target": "給燈會的紙燈籠"
+  },
+  "cargo.5-7": {
+   "en": "Mountain tea for the monastery",
+   "target": "給山寺的高山茶"
+  },
+  "cargo.5-8": {
+   "en": "The first letter ever sent to the Dragon",
+   "target": "第一封寄給巨龍的信"
+  },
+  "enemy.purple-bat": {
+   "en": "Purple bat",
+   "target": "紫蝙蝠",
+   "note": "Plain 蝙蝠 in lines."
+  },
+  "enemy.cave-bat": {
+   "en": "Cave bat",
+   "target": "洞穴蝙蝠"
+  },
+  "enemy.spitter-beetle": {
+   "en": "Spitter beetle",
+   "target": "噴噴甲蟲",
+   "note": "Same 噴噴 as the king."
+  },
+  "enemy.dusk-moth": {
+   "en": "Dusk moth",
+   "target": "暮光蛾",
+   "note": "Same 暮光 as the Empress."
+  },
+  "enemy.alley-pigeon": {
+   "en": "Alley Pigeon",
+   "target": "巷弄鴿"
+  },
+  "enemy.mummy-bat": {
+   "en": "Mummy bat",
+   "target": "木乃伊蝙蝠"
+  },
+  "enemy.squadron": {
+   "en": "King Coo's squadron",
+   "target": "咕咕王的鴿子中隊",
+   "note": "SQUAD = 中隊."
+  },
+  "enemy.straggler": {
+   "en": "straggler",
+   "target": "落跑鴿",
+   "note": "Not printed; the UI says 它會回來."
+  },
+  "enemy.brood": {
+   "en": "the Spitter King's brood",
+   "target": "噴噴王的蟲寶寶",
+   "note": "His beetles; he calls them 我的小聖甲蟲們."
+  },
+  "enemy.empress-moths": {
+   "en": "the Dusk Empress's moths",
+   "target": "暮光女皇的飛蛾",
+   "note": "Her pet names: 我的小可愛們, 我的美人們, 我的小甜心們."
+  },
+  "enemy.swarm-bats": {
+   "en": "swarm bats",
+   "target": "蝙蝠群",
+   "note": "Same as set-piece.swarm."
+  },
+  "attack.fireball": {
+   "en": "fireball",
+   "target": "火球"
+  },
+  "attack.screech": {
+   "en": "sonic screech",
+   "target": "音波尖叫",
+   "note": "Bill's 他光會尖叫 uses the same 尖叫."
+  },
+  "attack.seed": {
+   "en": "seed",
+   "target": "種子"
+  },
+  "attack.fan": {
+   "en": "fan",
+   "target": "扇形彈幕",
+   "note": "Short: 扇形; fans of three = 三發扇形."
+  },
+  "attack.pollen": {
+   "en": "pollen",
+   "target": "花粉"
+  },
+  "attack.veil": {
+   "en": "veil",
+   "target": "薄紗",
+   "note": "The birds may call it 護盾 (shield); same object."
+  },
+  "attack.cannon": {
+   "en": "cannon",
+   "target": "大砲"
+  },
+  "attack.broadside": {
+   "en": "broadside",
+   "target": "舷砲齊射"
+  },
+  "attack.dragon-breath": {
+   "en": "dragon's breath",
+   "target": "龍息",
+   "note": "Its glowing heart = 心臟 (not the 愛心 pickup)."
+  },
+  "attack.embers": {
+   "en": "embers",
+   "target": "餘燼",
+   "note": "Same root as 餘燼巨龍."
+  },
+  "attack.crumb-bomb": {
+   "en": "crumb bomb",
+   "target": "麵包屑炸彈"
+  },
+  "attack.stale-crust": {
+   "en": "stale crust",
+   "target": "硬麵包皮"
+  },
+  "attack.puff": {
+   "en": "puff",
+   "target": "鼓胸",
+   "note": "POP! = 啵！"
+  },
+  "attack.beam": {
+   "en": "beam",
+   "target": "光束"
+  },
+  "attack.lamp": {
+   "en": "lamp",
+   "target": "胸燈",
+   "note": "The Gargoyle's chest lamp; 燈 for short."
+  },
+  "attack.stone-feathers": {
+   "en": "stone feathers",
+   "target": "石羽毛"
+  },
+  "attack.mail-call": {
+   "en": "mail call",
+   "target": "來信囉",
+   "note": "Neferhoo's cry 來信囉！ = handing out the mail."
+  },
+  "attack.ankh": {
+   "en": "ankh",
+   "target": "安卡",
+   "note": "Standard Chinese name of the ankh."
+  },
+  "attack.express-post": {
+   "en": "EXPRESS POST",
+   "target": "限時專送",
+   "note": "Same as level 1-5."
+  },
+  "hazard.gate": {
+   "en": "gate",
+   "target": "門",
+   "note": "Counted with 道 (三道完美的門); gap/opening = 縫隙 / 開口."
+  },
+  "hazard.garden-gate": {
+   "en": "Garden gate",
+   "target": "花園門"
+  },
+  "hazard.wind-lift": {
+   "en": "Wind lift",
+   "target": "升風門"
+  },
+  "hazard.petal-shutters": {
+   "en": "Petal shutters",
+   "target": "花瓣門",
+   "note": "Bill's \"petal gates\" = 花瓣門 too."
+  },
+  "hazard.switchback": {
+   "en": "Switchback",
+   "target": "之字門",
+   "note": "Up one gap, down the next."
+  },
+  "hazard.lantern-drift": {
+   "en": "Lantern drift",
+   "target": "飄燈門"
+  },
+  "hazard.sun-wheels": {
+   "en": "Sun wheels",
+   "target": "太陽輪"
+  },
+  "hazard.crystal-steps": {
+   "en": "Crystal steps",
+   "target": "水晶階梯"
+  },
+  "hazard.stone-panel": {
+   "en": "stone panel",
+   "target": "石板",
+   "note": "Builder: 石門 (stone door)."
+  },
+  "hazard.steam-geyser": {
+   "en": "steam vent",
+   "target": "蒸氣孔",
+   "note": "Hot / soft = 燙的 / 軟的; hop / ride = 跳過 / 乘著."
+  },
+  "hazard.sea": {
+   "en": "the sea",
+   "target": "海",
+   "note": "Same as 海水 / 水."
+  },
+  "hazard.tide": {
+   "en": "the tide",
+   "target": "潮水",
+   "note": "HIGH TIDE = 滿潮; TIDE RISING = 漲潮了."
+  },
+  "hazard.tide-bell": {
+   "en": "the bell",
+   "target": "潮鐘",
+   "note": "Short: 鐘."
+  },
+  "hazard.lava-plume": {
+   "en": "lava plume",
+   "target": "岩漿柱"
+  },
+  "hazard.meteor": {
+   "en": "meteor",
+   "target": "流星"
+  },
+  "hazard.debris": {
+   "en": "debris",
+   "target": "雜物"
+  },
+  "hazard.football": {
+   "en": "football",
+   "target": "足球"
+  },
+  "hazard.warning-mark": {
+   "en": "!",
+   "target": "!",
+   "note": "The sign itself; 注意「!」."
+  },
+  "hazard.rubble": {
+   "en": "rubble",
+   "target": "碎石"
+  },
+  "set-piece.rush-path": {
+   "en": "rush",
+   "target": "急襲",
+   "note": "A short perilous dash; HUD 急襲 ×2！"
+  },
+  "set-piece.wildfire": {
+   "en": "Wildfire",
+   "target": "野火"
+  },
+  "set-piece.skyfall": {
+   "en": "Skyfall",
+   "target": "流星天降",
+   "note": "Coined: meteors falling from the sky."
+  },
+  "set-piece.eruption": {
+   "en": "Eruption",
+   "target": "火山噴發",
+   "note": "Banner: 噴發！"
+  },
+  "set-piece.swarm": {
+   "en": "Swarm",
+   "target": "蝙蝠群",
+   "note": "Banner: 蝙蝠群來襲！"
+  },
+  "set-piece.gale": {
+   "en": "gale",
+   "target": "狂風"
+  },
+  "set-piece.finish-line": {
+   "en": "finish line",
+   "target": "終點線",
+   "note": "FINISH = 終點."
+  },
+  "set-piece.run-up": {
+   "en": "run-up",
+   "target": "開場飛行"
+  },
+  "set-piece.vanguard": {
+   "en": "vanguard",
+   "target": "先鋒隊",
+   "note": "Not shown; the banner names the group."
+  },
+  "pickup.star": {
+   "en": "star",
+   "target": "星星",
+   "note": "One word for pickup, rating and currency."
+  },
+  "pickup.star-trio": {
+   "en": "star trio",
+   "target": "三星組"
+  },
+  "pickup.heart": {
+   "en": "heart",
+   "target": "愛心",
+   "note": "The life heart; Peaches plays on it."
+  },
+  "pickup.shield": {
+   "en": "shield",
+   "target": "護盾",
+   "note": "Birds also say 泡泡 (bubble)."
+  },
+  "pickup.star-magnet": {
+   "en": "star magnet",
+   "target": "星星磁鐵",
+   "note": "Upgrade card: 磁鐵."
+  },
+  "pickup.sprint-ring": {
+   "en": "sprint ring",
+   "target": "衝刺環",
+   "note": "Hints and voices: 金環 (gold rings)."
+  },
+  "pickup.mystery-box": {
+   "en": "mystery box",
+   "target": "神秘箱"
+  },
+  "pickup.bat-swarm": {
+   "en": "Bat swarm",
+   "target": "蝙蝠群"
+  },
+  "pickup.meteor-shower": {
+   "en": "Meteor shower",
+   "target": "流星雨"
+  },
+  "pickup.star-power": {
+   "en": "Star power",
+   "target": "星星無敵"
+  },
+  "power-up.shot-power": {
+   "en": "Shot power",
+   "target": "射擊力"
+  },
+  "power-up.sprint": {
+   "en": "Sprint (upgrade)",
+   "target": "衝刺"
+  },
+  "power-up.shield": {
+   "en": "Shield (upgrade)",
+   "target": "護盾"
+  },
+  "power-up.magnet": {
+   "en": "Magnet (upgrade)",
+   "target": "磁鐵"
+  },
+  "weapon.shoot": {
+   "en": "Shoot",
+   "target": "射擊",
+   "note": "Button and verb in hints (點射擊 / 按住射擊)."
+  },
+  "weapon.rock": {
+   "en": "rock",
+   "target": "石頭",
+   "note": "The jokes keep 石頭 (rock-paper-scissors, sticks and stones)."
+  },
+  "weapon.big-rock": {
+   "en": "big rock",
+   "target": "大石頭"
+  },
+  "weapon.ammo": {
+   "en": "ammo",
+   "target": "彈藥",
+   "note": "The birds say 石頭."
+  },
+  "weapon.sprint": {
+   "en": "Sprint",
+   "target": "衝刺"
+  },
+  "weapon.ring-sprint": {
+   "en": "ring sprint",
+   "target": "金環衝刺"
+  },
+  "weapon.smash": {
+   "en": "SMASH!",
+   "target": "撞碎！"
+  },
+  "mode.campaign": {
+   "en": "Campaign",
+   "target": "故事模式"
+  },
+  "mode.endless": {
+   "en": "Endless",
+   "target": "無盡模式",
+   "note": "Adjective: 無盡的 (endless flight 無盡飛行)."
+  },
+  "mode.tap-and-fly": {
+   "en": "Tap & Fly",
+   "target": "點擊飛行",
+   "note": "Pattern X飛行 shared by the four control modes."
+  },
+  "mode.push-up-flight": {
+   "en": "Push-Up Flight",
+   "target": "伏地挺身飛行"
+  },
+  "mode.squat-and-fly": {
+   "en": "Squat & Fly",
+   "target": "深蹲飛行"
+  },
+  "mode.jump-and-fly": {
+   "en": "Jump & Fly",
+   "target": "跳躍飛行"
+  },
+  "mode.mini-games": {
+   "en": "Mini games",
+   "target": "小遊戲"
+  },
+  "mode.fly-together": {
+   "en": "Fly Together",
+   "target": "一起飛"
+  },
+  "mode.roped": {
+   "en": "Roped",
+   "target": "綁繩"
+  },
+  "mode.no-rope": {
+   "en": "No rope",
+   "target": "無繩"
+  },
+  "mode.duel": {
+   "en": "1 v 1",
+   "target": "1 對 1",
+   "note": "Noun: 對決."
+  },
+  "mode.level-builder": {
+   "en": "Level Builder",
+   "target": "關卡編輯器"
+  },
+  "mode.daily-adventure": {
+   "en": "Adventure",
+   "target": "每日冒險",
+   "note": "Home key: 冒險."
+  },
+  "mode.flight-school": {
+   "en": "Flight School",
+   "target": "飛行學校"
+  },
+  "mode.practice": {
+   "en": "Practice",
+   "target": "練習"
+  },
+  "mode.test-flight": {
+   "en": "test flight",
+   "target": "試飛"
+  },
+  "mode.classic": {
+   "en": "Classic",
+   "target": "經典"
+  },
+  "mode.world-tour": {
+   "en": "world tour",
+   "target": "環遊世界"
+  },
+  "ui.sky-club": {
+   "en": "Sky Club",
+   "target": "天空俱樂部",
+   "note": "Short form 俱樂部."
+  },
+  "ui.sky-club-post": {
+   "en": "Sky Club post",
+   "target": "天空俱樂部郵局",
+   "note": "As the door greeting: 天空俱樂部郵局！"
+  },
+  "ui.passport": {
+   "en": "passport",
+   "target": "護照",
+   "note": "Sky Passport = 天空護照."
+  },
+  "ui.passport-stamp": {
+   "en": "stamp (passport)",
+   "target": "戳章",
+   "note": "Ink stamp; never 郵票 (postage stamp)."
+  },
+  "ui.medal": {
+   "en": "medal",
+   "target": "獎牌"
+  },
+  "ui.bronze": {
+   "en": "Bronze",
+   "target": "銅",
+   "note": "Medal: 銅牌."
+  },
+  "ui.silver": {
+   "en": "Silver",
+   "target": "銀",
+   "note": "Medal: 銀牌."
+  },
+  "ui.gold": {
+   "en": "Gold",
+   "target": "金",
+   "note": "Medal: 金牌; gold rings 金環."
+  },
+  "ui.star-marks": {
+   "en": "star marks",
+   "target": "星級刻度",
+   "note": "The notches on the star track; Pip's \"top notch\" pun is adapted."
+  },
+  "ui.star-rating": {
+   "en": "stars (level rating)",
+   "target": "星級",
+   "note": "Same 星星."
+  },
+  "ui.streak": {
+   "en": "streak",
+   "target": "連擊"
+  },
+  "ui.multiplier": {
+   "en": "multiplier",
+   "target": "倍率"
+  },
+  "ui.perfect-pass": {
+   "en": "perfect pass",
+   "target": "完美穿越"
+  },
+  "ui.aiming-mark": {
+   "en": "aiming mark",
+   "target": "準心"
+  },
+  "ui.score": {
+   "en": "score",
+   "target": "分數"
+  },
+  "ui.best": {
+   "en": "best",
+   "target": "最佳"
+  },
+  "ui.record": {
+   "en": "record",
+   "target": "紀錄",
+   "note": "Taiwan spelling 紀錄."
+  },
+  "ui.records-screen": {
+   "en": "Records",
+   "target": "紀錄"
+  },
+  "ui.saved-session": {
+   "en": "saved session",
+   "target": "已存的飛行"
+  },
+  "ui.replay": {
+   "en": "replay",
+   "target": "重播"
+  },
+  "ui.flight-highlights": {
+   "en": "Flight highlights",
+   "target": "飛行精彩片段"
+  },
+  "ui.flight": {
+   "en": "flight",
+   "target": "飛行",
+   "note": "One play session = 一趟飛行."
+  },
+  "ui.scored-flight": {
+   "en": "scored flight",
+   "target": "計分飛行"
+  },
+  "ui.upgrades": {
+   "en": "Upgrades",
+   "target": "升級"
+  },
+  "ui.star-wallet": {
+   "en": "stars to spend",
+   "target": "可用星星"
+  },
+  "ui.collection": {
+   "en": "Birds",
+   "target": "鳥兒",
+   "note": "\"Meet your flight crew.\" = 認識你的飛行夥伴。"
+  },
+  "ui.trail-sunshine-bubbles": {
+   "en": "Sunshine bubbles",
+   "target": "陽光泡泡"
+  },
+  "ui.trail-peach-hearts": {
+   "en": "Peach hearts",
+   "target": "蜜桃愛心"
+  },
+  "ui.trail-mint-leaves": {
+   "en": "Mint leaves",
+   "target": "薄荷葉"
+  },
+  "ui.trail-stardust-sparkles": {
+   "en": "Stardust sparkles",
+   "target": "星塵閃閃"
+  },
+  "ui.character-voices": {
+   "en": "Character voices",
+   "target": "角色語音"
+  },
+  "ui.sky-club-soundtrack": {
+   "en": "Sky Club soundtrack",
+   "target": "天空俱樂部原聲帶"
+  },
+  "ui.reduced-motion": {
+   "en": "Reduced motion",
+   "target": "減少動態效果",
+   "note": "The platform's Taiwan wording."
+  },
+  "ui.campaign-map": {
+   "en": "map",
+   "target": "地圖"
+  },
+  "ui.stop": {
+   "en": "stop",
+   "target": "站",
+   "note": "Next stop = 下一站."
+  },
+  "ui.chapter": {
+   "en": "chapter",
+   "target": "章",
+   "note": "CHAPTER 1 = 第一章."
+  },
+  "ui.level": {
+   "en": "level",
+   "target": "關卡"
+  },
+  "ui.level-card": {
+   "en": "level card",
+   "target": "關卡卡片"
+  },
+  "ui.special-delivery": {
+   "en": "SPECIAL DELIVERY",
+   "target": "特別專送",
+   "note": "Echoes 限時專送 (Express Post)."
+  },
+  "ui.hint": {
+   "en": "TIP",
+   "target": "小撇步",
+   "note": "Taiwanese for a handy tip; Bill's tip = 比爾的小撇步."
+  },
+  "ui.thank-you-note": {
+   "en": "thank-you note",
+   "target": "感謝卡"
+  },
+  "ui.postcard": {
+   "en": "postcard",
+   "target": "明信片",
+   "note": "Dear courier, = 親愛的郵差：; P.S. = 附註："
+  },
+  "ui.lair": {
+   "en": "lair",
+   "target": "巢穴"
+  },
+  "ui.guardian": {
+   "en": "GUARDIAN",
+   "target": "守護者"
+  },
+  "ui.boss": {
+   "en": "boss",
+   "target": "頭目",
+   "note": "BOSS FIGHT = 頭目戰."
+  },
+  "ui.encounter": {
+   "en": "ENCOUNTER 01",
+   "target": "遭遇 01"
+  },
+  "ui.name-card": {
+   "en": "name card",
+   "target": "名牌"
+  },
+  "ui.stronger": {
+   "en": "STRONGER",
+   "target": "強化"
+  },
+  "ui.fury": {
+   "en": "FURY",
+   "target": "狂怒"
+  },
+  "ui.sky-reclaimed": {
+   "en": "SKY RECLAIMED",
+   "target": "奪回天空"
+  },
+  "ui.guardian-down": {
+   "en": "GUARDIAN DOWN!",
+   "target": "守護者倒下！"
+  },
+  "ui.victory": {
+   "en": "Victory!",
+   "target": "勝利！"
+  },
+  "ui.delivered": {
+   "en": "Delivered!",
+   "target": "送達！",
+   "note": "No agreement needed."
+  },
+  "ui.try-again": {
+   "en": "Try again!",
+   "target": "再試一次！"
+  },
+  "ui.bonk": {
+   "en": "Bonk!",
+   "target": "咚！",
+   "note": "Cartoon bump; the Empress's 咚。咚。 uses the same sound."
+  },
+  "ui.splash": {
+   "en": "Splash!",
+   "target": "噗通！"
+  },
+  "ui.route-flown": {
+   "en": "ROUTE FLOWN",
+   "target": "已飛航程"
+  },
+  "ui.coming-soon": {
+   "en": "Coming soon",
+   "target": "即將推出"
+  },
+  "ui.unlock": {
+   "en": "unlock",
+   "target": "解鎖"
+  },
+  "ui.story-key": {
+   "en": "Story",
+   "target": "劇情",
+   "note": "Skip = 跳過; Next line = 下一句."
+  },
+  "ui.to-be-continued": {
+   "en": "To be continued…",
+   "target": "未完待續……",
+   "note": "Exact caption start: 未完待續……"
+  },
+  "ui.pause": {
+   "en": "Take a breather.",
+   "target": "喘口氣吧。"
+  },
+  "ui.flap": {
+   "en": "Flap",
+   "target": "拍翅"
+  },
+  "ui.fly": {
+   "en": "Fly!",
+   "target": "起飛！"
+  },
+  "ui.workout": {
+   "en": "workout",
+   "target": "運動"
+  },
+  "ui.calibration": {
+   "en": "calibration",
+   "target": "校準"
+  },
+  "ui.camera-lab": {
+   "en": "Camera & tracking lab",
+   "target": "鏡頭與追蹤實驗室"
+  },
+  "ui.play-games": {
+   "en": "Play Games",
+   "target": "Google Play 遊戲",
+   "note": "Google's own zh-TW product name."
+  },
+  "ui.achievements": {
+   "en": "achievements",
+   "target": "成就"
+  },
+  "ui.share-code": {
+   "en": "share code",
+   "target": "分享碼"
+  },
+  "ui.remix": {
+   "en": "Remix",
+   "target": "改編"
+  },
+  "ui.starter-levels": {
+   "en": "Starter levels",
+   "target": "入門關卡"
+  },
+  "ui.start-zone": {
+   "en": "START ZONE",
+   "target": "起點區"
+  },
+  "ui.gate-family": {
+   "en": "gate family",
+   "target": "門的種類"
+  },
+  "ui.boss-finale": {
+   "en": "Boss finale",
+   "target": "頭目壓軸"
+  },
+  "ui.cleared-by-you": {
+   "en": "Cleared by you",
+   "target": "你已破關"
+  },
+  "ui.pace": {
+   "en": "Pace",
+   "target": "節奏",
+   "note": "Relaxed / Steady / Brisk = 悠閒 / 穩定 / 輕快."
+  },
+  "ui.lane": {
+   "en": "lane",
+   "target": "航道",
+   "note": "Open lane = 安全航道."
+  },
+  "ui.player": {
+   "en": "Player 1",
+   "target": "玩家 1",
+   "note": "P1 / P2."
+  },
+  "ui.team-score": {
+   "en": "TEAM SCORE",
+   "target": "團隊分數"
+  },
+  "ui.rematch": {
+   "en": "Rematch",
+   "target": "再戰"
+  },
+  "ui.rank-first-wings": {
+   "en": "First wings",
+   "target": "初試身手"
+  },
+  "ui.rank-cloud-explorer": {
+   "en": "Cloud explorer",
+   "target": "雲端探險家"
+  },
+  "ui.home-greeting": {
+   "en": "Hi, I’m $name! Ready to fly?",
+   "target": "嗨，我是$name！準備好起飛了嗎？",
+   "note": "No gender agreement needed."
+  },
+  "achievement.frequent-flyer": {
+   "en": "Frequent flyer",
+   "target": "飛行常客"
+  },
+  "achievement.on-the-dot": {
+   "en": "On the dot",
+   "target": "分毫不差",
+   "note": "Idiom of precision."
+  },
+  "achievement.star-chaser": {
+   "en": "Star chaser",
+   "target": "追星族",
+   "note": "Pun: a star chaser is also a fan."
+  },
+  "achievement.constellation": {
+   "en": "Constellation",
+   "target": "星座"
+  },
+  "achievement.sky-captain": {
+   "en": "Sky captain",
+   "target": "天空機長",
+   "note": "Not 船長."
+  },
+  "achievement.trailblazer": {
+   "en": "Trailblazer",
+   "target": "開路先鋒"
+  },
+  "achievement.flock-together": {
+   "en": "Flock together",
+   "target": "物以類聚",
+   "note": "The Chinese idiom for birds of a feather."
+  },
+  "achievement.all-rounder": {
+   "en": "All-rounder",
+   "target": "全能好手"
+  },
+  "achievement.mail-through-the-canopy": {
+   "en": "Mail Through the Canopy",
+   "target": "穿越樹冠送信"
+  },
+  "achievement.return-to-sender": {
+   "en": "Return to Sender",
+   "target": "退回寄件人"
+  },
+  "achievement.mint-tea-again": {
+   "en": "Mint Tea Again",
+   "target": "又是薄荷茶"
+  },
+  "achievement.crumbs-cleared": {
+   "en": "Crumbs Cleared",
+   "target": "麵包屑掃光光"
+  },
+  "achievement.out-of-the-spotlight": {
+   "en": "Out of the Spotlight",
+   "target": "逃出聚光燈",
+   "note": "Escaping his beam and the ham losing the spotlight."
+  },
+  "achievement.gold-canopy": {
+   "en": "Gold Canopy",
+   "target": "黃金樹冠"
+  },
+  "achievement.gold-road": {
+   "en": "Gold Road",
+   "target": "黃金古道"
+  },
+  "achievement.bright-lights": {
+   "en": "Bright Lights",
+   "target": "大城燈火",
+   "note": "The bright lights of the big city."
+  },
+  "achievement.lamplighter": {
+   "en": "Lamplighter",
+   "target": "點燈人"
+  },
+  "achievement.harbour-bells": {
+   "en": "Harbour Bells",
+   "target": "港口鐘聲"
+  },
+  "achievement.edge-of-the-map": {
+   "en": "Edge of the Map",
+   "target": "地圖邊緣"
+  },
+  "achievement.two-on-one-phone": {
+   "en": "Two on One Phone",
+   "target": "一機兩人"
+  },
+  "achievement.friendly-rivals": {
+   "en": "Friendly Rivals",
+   "target": "友好對手"
+  },
+  "achievement.route-planner": {
+   "en": "Route Planner",
+   "target": "航線規劃師"
+  },
+  "achievement.the-whole-kit": {
+   "en": "The Whole Kit",
+   "target": "全套到手",
+   "note": "Everything, the whole set."
+  },
+  "achievement.pen-pal": {
+   "en": "Pen Pal",
+   "target": "筆友"
+  },
+  "achievement.night-mail": {
+   "en": "Night Mail",
+   "target": "夜間郵件"
+  },
+  "achievement.special-delivery": {
+   "en": "Special Delivery",
+   "target": "特別專送"
+  },
+  "achievement.goal-spread-your-wings": {
+   "en": "Spread your wings",
+   "target": "展翅高飛"
+  },
+  "achievement.goal-open-horizons": {
+   "en": "Open horizons",
+   "target": "海闊天空",
+   "note": "Idiom: wide open sea and sky."
+  },
+  "achievement.goal-pocketful-of-stars": {
+   "en": "Pocketful of stars",
+   "target": "星星滿口袋"
+  },
+  "achievement.goal-keep-the-sparkle": {
+   "en": "Keep the sparkle",
+   "target": "閃亮不停"
+  },
+  "achievement.goal-right-on-the-mark": {
+   "en": "Right on the mark",
+   "target": "正中紅心"
+  },
+  "achievement.goal-the-whole-journey": {
+   "en": "The whole journey",
+   "target": "一路飛到底"
+  },
+  "achievement.card-sunrise-delivery": {
+   "en": "Sunrise delivery",
+   "target": "日出送信"
+  },
+  "achievement.card-peach-picnic": {
+   "en": "Peach picnic",
+   "target": "蜜桃野餐"
+  },
+  "achievement.card-moonlit-mail": {
+   "en": "Moonlit mail",
+   "target": "月光郵件"
+  },
+  "achievement.card-cloud-parade": {
+   "en": "Cloud parade",
+   "target": "雲朵遊行"
+  },
+  "achievement.card-twilight-treasure": {
+   "en": "Twilight treasure",
+   "target": "暮光寶藏"
+  },
+  "achievement.card-garden-party": {
+   "en": "Garden party",
+   "target": "花園派對"
+  },
+  "story.flame-seal": {
+   "en": "flame seal",
+   "target": "火焰封印",
+   "note": "The flame-shaped wax seal; \"seal\" alone = 封印."
+  },
+  "story.warm-letter": {
+   "en": "a warm letter",
+   "target": "溫暖的信",
+   "note": "溫暖 is both warm to the touch and kind."
+  },
+  "story.night-mail": {
+   "en": "the night mail",
+   "target": "夜間郵件"
+  },
+  "story.morning-post": {
+   "en": "the morning post",
+   "target": "早班郵件"
+  },
+  "story.mail-route": {
+   "en": "route",
+   "target": "航線",
+   "note": "The one route word (五條航線, 送信航線)."
+  },
+  "story.route-six": {
+   "en": "Route six",
+   "target": "第六條航線"
+  },
+  "story.beacon": {
+   "en": "our beacon",
+   "target": "烽火",
+   "note": "A signal fire: fits a dragon. 來看守我們的烽火吧。"
+  },
+  "story.lost-letter": {
+   "en": "the lost letter",
+   "target": "遺失的信"
+  },
+  "story.the-books": {
+   "en": "the books",
+   "target": "紀錄簿"
+  },
+  "story.pigeonholes": {
+   "en": "pigeonholes",
+   "target": "分信格",
+   "note": "Pun adapted: the club \"never had a 信鴿 (carrier pigeon)\"."
+  },
+  "story.bread-cart": {
+   "en": "the bread cart",
+   "target": "麵包推車",
+   "note": "麵包車 alone means a minivan in Chinese, hence 推車."
+  },
+  "story.bagel": {
+   "en": "a hot bagel a day",
+   "target": "每天一個熱貝果",
+   "note": "Bagel = 貝果 (known in Taiwan)."
+  },
+  "story.landing-light": {
+   "en": "landing light",
+   "target": "降落燈"
+  },
+  "story.brew": {
+   "en": "the brew",
+   "target": "藥湯",
+   "note": "His bubbling potion; to brew = 熬."
+  },
+  "story.perfect-ink": {
+   "en": "the perfect ink",
+   "target": "完美墨水"
+  },
+  "story.mint-tea": {
+   "en": "mint tea",
+   "target": "薄荷茶"
+  },
+  "story.letter-phrases": {
+   "en": "“Dear Grandma”, “Wish you were here”",
+   "target": "「親愛的奶奶」、「此致敬禮」",
+   "note": "此致敬禮 is the classic Chinese letter closing every child learns (replaces the postcard cliché); also 「早日康復」 (get well soon), 「愛你的」 (love from)."
+  },
+  "story.postage-stamp": {
+   "en": "stamps",
+   "target": "郵票",
+   "note": "Postage stamps; never 戳章."
+  },
+  "story.stamp-album": {
+   "en": "stamp album",
+   "target": "集郵冊"
+  },
+  "story.penny-black": {
+   "en": "penny black",
+   "target": "黑便士",
+   "note": "The philatelic name (黑便士郵票)."
+  },
+  "story.envelopes": {
+   "en": "the envelopes",
+   "target": "信封"
+  },
+  "story.beauty-sleep": {
+   "en": "beauty sleep",
+   "target": "美容覺",
+   "note": "Taiwan idiom 睡美容覺."
+  },
+  "story.dusk-delivery": {
+   "en": "deliver at dusk",
+   "target": "黃昏送信"
+  },
+  "story.lamps": {
+   "en": "the lamps",
+   "target": "路燈",
+   "note": "Short 燈 (dēng, no near-homophone issue)."
+  },
+  "story.lampshades": {
+   "en": "lampshades",
+   "target": "燈罩",
+   "note": "The Empress: 燈罩……"
+  },
+  "story.harbour-bells": {
+   "en": "harbour bells",
+   "target": "港口鐘聲",
+   "note": "The bells = 港口的鐘."
+  },
+  "story.club-rule": {
+   "en": "Club rule",
+   "target": "俱樂部規矩"
+  },
+  "story.final-notice": {
+   "en": "final notice",
+   "target": "最後通知"
+  },
+  "story.wake-up-call": {
+   "en": "wake-up call",
+   "target": "起床號",
+   "note": "Both the wake-up signal and a warning."
+  },
+  "story.first-letter": {
+   "en": "the first letter ever sent to the Dragon",
+   "target": "第一封寄給巨龍的信"
+  },
+  "story.dotted-i": {
+   "en": "He dotted his “i” with a tiny bat.",
+   "target": "名字旁還畫了隻小蝙蝠。",
+   "note": "Adapted: Chinese has no dotted i, so the bat sits beside his signature."
+  },
+  "story.mailbag": {
+   "en": "mailbag",
+   "target": "郵袋"
+  },
+  "story.satchel": {
+   "en": "satchel",
+   "target": "郵包"
+  },
+  "story.pharaohs-post": {
+   "en": "the Pharaoh's post",
+   "target": "法老郵政",
+   "note": "In the line: 法老的信."
+  },
+  "story.mask": {
+   "en": "golden courier mask",
+   "target": "黃金面具"
+  },
+  "story.wrappings": {
+   "en": "wrappings",
+   "target": "裹布"
+  },
+  "story.headwear": {
+   "en": "headwear",
+   "target": "頭飾",
+   "note": "Crown 王冠, flask crown 燒瓶王冠, diadem 后冠, hat 帽子, cap 警帽."
+  },
+  "story.kindling": {
+   "en": "kindling",
+   "target": "柴火"
+  },
+  "story.rush-hour": {
+   "en": "rush hour",
+   "target": "尖峰時間"
+  },
+  "story.weather-vane": {
+   "en": "weather vane",
+   "target": "風向標"
+  },
+  "motto.every-letter-lands": {
+   "en": "Every letter lands.",
+   "target": "封封必達",
+   "note": "Built on the well-known slogan 使命必達: every letter (封) will surely arrive. Works as a question: 真的封封必達嗎？ Written 封封必達。 as a sentence."
+  },
+  "motto.every-letter-delivered": {
+   "en": "Every letter delivered",
+   "target": "封封送達",
+   "note": "Echoes the motto."
+  },
+  "address.rookie": {
+   "en": "rookie",
+   "target": "菜鳥",
+   "note": "The usual Taiwanese word for a newbie, and literally a bird."
+  },
+  "address.little-courier": {
+   "en": "little courier",
+   "target": "小郵差"
+  },
+  "address.darling": {
+   "en": "darling",
+   "target": "親愛的",
+   "note": "Neutral; Peaches also uses it."
+  },
+  "address.postie": {
+   "en": "postie",
+   "target": "送信的",
+   "note": "Salty colloquial \"the mail guy\", gender-neutral (郵差仔 avoided: TTS may misread 仔)."
+  },
+  "address.sprat": {
+   "en": "sprat",
+   "target": "小蝦米",
+   "note": "Taiwanese \"small fry\"."
+  },
+  "address.skylubber": {
+   "en": "skylubber",
+   "target": "飛天旱鴨子",
+   "note": "旱鴨子 = landlubber (a duck who cannot swim) + 飛天."
+  },
+  "address.matey": {
+   "en": "matey",
+   "target": "夥計"
+  },
+  "address.lad": {
+   "en": "lad",
+   "target": "小夥計",
+   "note": "Gender-neutral pirate address (not 小夥子)."
+  },
+  "address.feathers": {
+   "en": "feathers",
+   "target": "小羽毛"
+  },
+  "address.little-spark": {
+   "en": "little spark",
+   "target": "小火星",
+   "note": "A spark (also Mars, a little star-like pun)."
+  },
+  "address.hatchling": {
+   "en": "hatchling",
+   "target": "小雛鳥"
+  },
+  "address.small-one": {
+   "en": "small one",
+   "target": "小傢伙"
+  },
+  "address.little-one": {
+   "en": "little one",
+   "target": "小乖乖",
+   "note": "The Empress's lullaby address; little wanderer 小流浪者, night bird 夜鳥."
+  },
+  "address.fledgling": {
+   "en": "fledgling",
+   "target": "小毛頭",
+   "note": "Fussy old-man condescension (Neferhoo)."
+  },
+  "address.old-courier": {
+   "en": "old courier",
+   "target": "老郵差"
+  },
+  "address.stoneface": {
+   "en": "Stoneface",
+   "target": "石頭臉"
+  },
+  "address.commissioner": {
+   "en": "Commissioner",
+   "target": "警長"
+  },
+  "address.your-majesty": {
+   "en": "Your Majesty",
+   "target": "陛下"
+  },
+  "address.your-lordship": {
+   "en": "Your Lordship",
+   "target": "男爵大人"
+  },
+  "address.her-highness": {
+   "en": "Her Highness",
+   "target": "女皇殿下"
+  },
+  "address.sir": {
+   "en": "sir",
+   "target": "先生"
+  },
+  "address.mister": {
+   "en": "Mister",
+   "target": "先生",
+   "note": "After the name: 奈弗胡先生, 人面獅身先生."
+  },
+  "address.partner": {
+   "en": "partner",
+   "target": "搭檔"
+  },
+  "address.peaches-pet-names": {
+   "en": "sweetie",
+   "target": "小甜心",
+   "note": "Varied, never twice in a row; used so far: 小可愛 (cutie), 蜜糖 (sugar), 親愛的 (darling), 寶貝 (honey), 甜心 (darling), 小蛋糕 (honeybun), 小布丁 (lovebug), 小餅乾 (buttercup), 小棉花糖 (poppet). Spare: 小南瓜, 小糖果, 乖寶寶, 甜甜圈."
+  },
+  "address.bossy": {
+   "en": "bossy",
+   "target": "大頭目",
+   "note": "Minty's cheeky boss nickname."
+  },
+  "address.minions": {
+   "en": "Cousins! / my lovelies / my little scarabs / me hearties",
+   "target": "表親們！／我的小可愛們／我的小聖甲蟲們／小的們",
+   "note": "Each boss's own register."
+  },
+  "phrase.baron-bat-line": {
+   "en": "This route is my roost now, little courier!",
+   "target": "這條航線現在是我的窩了，小郵差！",
+   "note": "Card line = story before-1-8-4."
+  },
+  "phrase.spitter-king-line": {
+   "en": "Every letter on my road goes in the brew!",
+   "target": "我路上的每封信，通通下鍋熬！",
+   "note": "Card line = story before-2-9-4."
+  },
+  "phrase.dusk-empress-line": {
+   "en": "Hush now. The night mail is sleeping.",
+   "target": "噓……夜間郵件睡著了。",
+   "note": "Card line = story before-3-8-4."
+  },
+  "phrase.pirate-captain-line": {
+   "en": "Arr! Every mailbag on these waves be mine!",
+   "target": "呀哈！海上的郵袋，全歸本船長！",
+   "note": "Card line = story before-4-8-4."
+  },
+  "phrase.ember-dragon-line": {
+   "en": "The sky is mine. Your letters are kindling.",
+   "target": "天空是我的。你們的信，只是柴火。",
+   "note": "Card line = story before-5-8-4."
+  },
+  "phrase.neferhoo-line": {
+   "en": "Return to sender! This route has a courier.",
+   "target": "退回寄件人！這條航線有郵差了。",
+   "note": "Card line = story before-2-6-7."
+  },
+  "phrase.king-coo-line": {
+   "en": "Nobody flies till the bread cart is found!",
+   "target": "麵包推車沒找到，誰都不准飛！",
+   "note": "Card line = story before-3-2-6."
+  },
+  "phrase.searchlight-gargoyle-line": {
+   "en": "Hold still! Nobody ever stays in the light.",
+   "target": "別動！從來沒人肯待在光裡。",
+   "note": "Card line = story before-3-4-4."
+  },
+  "phrase.return-to-sender": {
+   "en": "Return to sender!",
+   "target": "退回寄件人！",
+   "note": "The returned-mail formula; prop split 退回 / 寄件人."
+  },
+  "phrase.signed-sealed-delivered": {
+   "en": "Signed, sealed, delivered!",
+   "target": "蓋章、封口、送達！",
+   "note": "Three beats; Minty: 蓋章、封口、咻一下！"
+  },
+  "phrase.small-bird-big-sky": {
+   "en": "Small bird. Big sky.",
+   "target": "小小鳥，大大天。",
+   "note": "Riffs: 小小鳥，大計畫！"
+  },
+  "phrase.peaches-tagline": {
+   "en": "Rosy cheeks, curly crest, all heart.",
+   "target": "粉嫩臉頰、捲捲羽冠、滿滿愛心。"
+  },
+  "phrase.minty-tagline": {
+   "en": "Tiny hummer. Fresh sprig. Full speed.",
+   "target": "小小蜂鳥，清新薄荷，全速衝刺。"
+  },
+  "phrase.orbit-tagline": {
+   "en": "A dreamy owl who flies by starlight.",
+   "target": "乘著星光飛翔的愛睏小貓頭鷹。",
+   "note": "Bill: 跟著星光飛吧，菜鳥。"
+  },
+  "phrase.sprint-woohoo": {
+   "en": "Woo-hooo!",
+   "target": "呀呼～！"
+  },
+  "phrase.sprint-turbo-feathers": {
+   "en": "Turbo feathers!",
+   "target": "羽毛加速！"
+  },
+  "phrase.sprint-bye-bye-gravity": {
+   "en": "Bye-bye, gravity!",
+   "target": "重力，掰掰！",
+   "note": "Taiwan 掰掰 (bye-bye)."
+  },
+  "phrase.sprint-wheee": {
+   "en": "Wheeee!",
+   "target": "咻～～！"
+  },
+  "phrase.keep-your-beak-up": {
+   "en": "Keep your beak up.",
+   "target": "抬頭挺喙",
+   "note": "Twist of 抬頭挺胸 (chin up, chest out) with 喙 (beak)."
+  },
+  "phrase.all-screech": {
+   "en": "He’s all screech",
+   "target": "他光會尖叫",
+   "note": "All screech, no bite."
+  },
+  "phrase.no-flame-seal": {
+   "en": "No flame seal on this guardian.",
+   "target": "這位守護者沒有火焰封印。"
+  },
+  "phrase.halt": {
+   "en": "HALT!",
+   "target": "站住！"
+  },
+  "phrase.mister-nice-bat": {
+   "en": "No more Mister Nice Bat!",
+   "target": "本蝙蝠不再客氣了！",
+   "note": "Twist of 別怪我不客氣."
+  },
+  "phrase.at-your-disservice": {
+   "en": "at your disservice",
+   "target": "恕不效勞",
+   "note": "Inverts 為您效勞."
+  },
+  "phrase.mind-the-gap": {
+   "en": "Mind the gap",
+   "target": "請注意間隙",
+   "note": "Taiwan MRT platform announcement (注意月台間隙)."
+  },
+  "phrase.sticks-and-stones": {
+   "en": "Sticks and stones?",
+   "target": "光說不練？",
+   "note": "No Chinese proverb fits; the joke keeps the stones: 我可是真的帶了石頭！"
+  },
+  "phrase.rock-beats-shot": {
+   "en": "Rock beats shot!",
+   "target": "石頭贏子彈！",
+   "note": "Rock-paper-scissors pattern (剪刀石頭布)."
+  },
+  "phrase.pirate-speak": {
+   "en": "Arr!",
+   "target": "呀哈！",
+   "note": "Stage pirate: 呀哈！ 喲呵！ 站住！ 我的船錨啊！ 本船長, 小的們, 送信的."
+  },
+  "phrase.strike-the-colours": {
+   "en": "strike the colours",
+   "target": "降旗"
+  },
+  "phrase.nobody-looks-up": {
+   "en": "Nobody looks up.",
+   "target": "沒有人抬頭看。",
+   "note": "Payoff: 每個郵差都會抬頭看！"
+  },
+  "phrase.accepts": {
+   "en": "The Commissioner accepts.",
+   "target": "本警長接受。",
+   "note": "Gargoyle: 本石像鬼接受。"
+  },
+  "phrase.bonk-bonk": {
+   "en": "Bonk. Bonk.",
+   "target": "咚。咚。"
+  },
+  "phrase.hush": {
+   "en": "Hush now.",
+   "target": "噓……"
+  },
+  "phrase.welcome-to-the-club": {
+   "en": "Welcome to the club",
+   "target": "歡迎加入俱樂部"
+  },
+  "ui.omen-baron": {
+   "en": "A SHADOW APPROACHES",
+   "target": "黑影逼近"
+  },
+  "ui.omen-baron-returns": {
+   "en": "THE BARON RETURNS",
+   "target": "男爵回來了"
+  },
+  "ui.omen-spitter": {
+   "en": "SOMETHING IS BREWING",
+   "target": "有事正在醞釀",
+   "note": "醞釀 = brewing, literally and figuratively."
+  },
+  "ui.omen-empress": {
+   "en": "TWILIGHT TAKES WING",
+   "target": "暮光展翅"
+  },
+  "ui.omen-pirate": {
+   "en": "SAIL HO!",
+   "target": "發現船帆！",
+   "note": "The lookout's cry."
+  },
+  "ui.omen-dragon": {
+   "en": "THE SKY CATCHES FIRE",
+   "target": "天空著火了"
+  },
+  "ui.omen-king-coo": {
+   "en": "THE CURB IS CLOSED",
+   "target": "街角封鎖"
+  },
+  "ui.omen-gargoyle": {
+   "en": "STORM WARNING",
+   "target": "風暴警報",
+   "note": "Same as level 3-4."
+  },
+  "ui.omen-neferhoo": {
+   "en": "THE PYRAMID STIRS",
+   "target": "金字塔騷動"
+  },
+  "story.letter": {
+   "en": "letter",
+   "target": "信",
+   "note": "One word everywhere, as in 封封必達 (封 = measure word for letters)."
+  },
+  "story.mail-and-post": {
+   "en": "the mail / the post",
+   "target": "郵件／郵局",
+   "note": "Mail = 郵件 / 信; the postal service = 郵局 / 郵政."
+  },
+  "story.parcel": {
+   "en": "parcel",
+   "target": "包裹"
+  },
+  "story.delivery": {
+   "en": "delivery",
+   "target": "送達",
+   "note": "Deliver 送, delivery 送件 / 送信, delivered 送達."
+  },
+  "story.salutation": {
+   "en": "Dear Dragon.",
+   "target": "親愛的巨龍：",
+   "note": "Postcard: 親愛的郵差："
+  },
+  "ui.star-multiplier-callout": {
+   "en": "STAR POWER (the ×2/×3 star streak multiplier)",
+   "target": "星星倍率",
+   "note": "UI: callout {n}× 星星倍率！ and the replay moment. Kept apart from pickup.star-power 星星無敵 (the duel invincibility). (added by the UI translator, 2026-10-07)"
+  },
+  "ui.star-points": {
+   "en": "star points / STAR POINTS",
+   "target": "星星分數",
+   "note": "Endless score label; unit after a number: 星星分 (42 星星分). (added by the UI translator, 2026-10-07)"
+  },
+  "ui.obstacles-score": {
+   "en": "OBSTACLES (Classic score)",
+   "target": "障礙數",
+   "note": "Old Classic course score label; unit 道門. (added by the UI translator, 2026-10-07)"
+  },
+  "ui.health": {
+   "en": "health / HP",
+   "target": "生命值",
+   "note": "Screen-reader health; on-canvas labels keep HP (剩餘 120 HP). (added by the UI translator, 2026-10-07)"
+  },
+  "ui.charge": {
+   "en": "charge (shot), charging (shield/sprint/magnet)",
+   "target": "蓄力 / 充能",
+   "note": "Shot: 蓄力; meters that refill: 充能中. (added by the UI translator, 2026-10-07)"
+  },
+  "ui.reloading": {
+   "en": "Reloading…",
+   "target": "裝填中……",
+   "note": "(added by the UI translator, 2026-10-07)"
+  },
+  "ui.glide": {
+   "en": "glide (Jump & Fly)",
+   "target": "滑翔",
+   "note": "(added by the UI translator, 2026-10-07)"
+  },
+  "ui.home-button": {
+   "en": "Home (button)",
+   "target": "主畫面",
+   "note": "Back-home key; tooltip 回主畫面. (added by the UI translator, 2026-10-07)"
+  },
+  "ui.new-tag": {
+   "en": "NEW (tag)",
+   "target": "新",
+   "note": "Level card / results / bird ribbons. (added by the UI translator, 2026-10-07)"
+  },
+  "ui.personal-best": {
+   "en": "PERSONAL BEST / NEW BEST!",
+   "target": "個人最佳 / 新紀錄！",
+   "note": "Team: 團隊最佳 / 團隊新紀錄！ (added by the UI translator, 2026-10-07)"
+  },
+  "ui.first-clear": {
+   "en": "First clear! / Cleared!",
+   "target": "首次過關！ / 破關！",
+   "note": "Built levels: 你已破關 = cleared by you (glossary ui.cleared-by-you). (added by the UI translator, 2026-10-07)"
+  },
+  "ui.draw": {
+   "en": "A draw!",
+   "target": "平手！",
+   "note": "(added by the UI translator, 2026-10-07)"
+  },
+  "ui.series": {
+   "en": "SERIES (duel score)",
+   "target": "戰績",
+   "note": "(added by the UI translator, 2026-10-07)"
+  },
+  "ui.save-session": {
+   "en": "Save session",
+   "target": "儲存飛行",
+   "note": "Same as the saved-session list 已存的飛行. (added by the UI translator, 2026-10-07)"
+  },
+  "ui.in-view": {
+   "en": "in view (camera)",
+   "target": "入鏡",
+   "note": "Camera coaching: 讓雙肩保持入鏡. (added by the UI translator, 2026-10-07)"
+  },
+  "ui.camera": {
+   "en": "camera",
+   "target": "鏡頭 / 相機",
+   "note": "鏡頭 in game UI (鏡頭與追蹤實驗室, 啟動鏡頭); 相機 only for the Android permission (相機權限). (added by the UI translator, 2026-10-07)"
+  },
+  "ui.body-hip": {
+   "en": "hip (camera tracking)",
+   "target": "臀部",
+   "note": "Also 肩膀 / 手肘 / 手腕 / 膝蓋 / 雙腳. (added by the UI translator, 2026-10-07)"
+  },
+  "ui.key-names": {
+   "en": "Space / Esc / D / A / W keys; Up / Right / Left arrows",
+   "target": "Space 鍵 / Esc 鍵 / D 鍵 …；上鍵 / 右鍵 / 左鍵",
+   "note": "Latin key caps kept, followed by 鍵. (added by the UI translator, 2026-10-07)"
+  },
+  "ui.builder-fix-it": {
+   "en": "Fix it / Needs work",
+   "target": "修正 / 需要修正",
+   "note": "Level Builder shelf key and badge. (added by the UI translator, 2026-10-07)"
+  },
+  "ui.builder-remix-suffix": {
+   "en": "remix / copy (name suffixes)",
+   "target": "改編版 / 副本",
+   "note": "「花園跳跳 改編版」, 「我的點擊關卡 副本」. (added by the UI translator, 2026-10-07)"
+  },
+  "ui.builder-tips": {
+   "en": "tips (Level Builder problems and tips)",
+   "target": "建議",
+   "note": "Problems = 問題; not 小撇步 (that is the level card TIP). (added by the UI translator, 2026-10-07)"
+  },
+  "ui.builder-motion": {
+   "en": "Motion / Sway / Look / Opening",
+   "target": "動態 / 擺動 / 外觀 / 開口",
+   "note": "Still / Gentle / Lively = 靜止 / 輕柔 / 活潑; Fast / Medium / Slow = 快 / 中 / 慢. (added by the UI translator, 2026-10-07)"
+  },
+  "ui.workout-amount": {
+   "en": "Workout (fact) / ASKS FOR",
+   "target": "運動量 / 需要",
+   "note": "(added by the UI translator, 2026-10-07)"
+  },
+  "ui.paste-code": {
+   "en": "Paste code",
+   "target": "貼上分享碼",
+   "note": "Uses ui.share-code 分享碼. (added by the UI translator, 2026-10-07)"
+  },
+  "ui.maker": {
+   "en": "its maker (shared level)",
+   "target": "作者",
+   "note": "Cleared by its maker = 作者已破關. (added by the UI translator, 2026-10-07)"
+  },
+  "ui.copilot": {
+   "en": "YOUR CO-PILOT",
+   "target": "你的副駕駛",
+   "note": "Birds screen pill. (added by the UI translator, 2026-10-07)"
+  },
+  "ui.greetings-from": {
+   "en": "Greetings from (postcard ribbon)",
+   "target": "寄自",
+   "note": "Postcard address: 郵差 收 / 天空俱樂部郵局 / 高高的天上. (added by the UI translator, 2026-10-07)"
+  },
+  "ui.spotted": {
+   "en": "SPOTTED! (Gargoyle beam)",
+   "target": "被照到！",
+   "note": "(added by the UI translator, 2026-10-07)"
+  },
+  "ui.vanguard-left": {
+   "en": "3 LEFT (vanguard strip)",
+   "target": "隻還在",
+   "note": "Read as 3 隻還在; CLEAR! = 全清！ (added by the UI translator, 2026-10-07)"
+  },
+  "ui.neferhoo-roar": {
+   "en": "HOO POO POO",
+   "target": "嗚 呼 呼",
+   "note": "嗚呼 is an old-fashioned 'alas!', fitting the fussy mummy official; 咕咕 stays the pigeon's. (added by the UI translator, 2026-10-07)"
+  },
+  "ui.weathered": {
+   "en": "WEATHERED! / ESCAPED! / FLAWLESS!",
+   "target": "撐過了！ / 逃脫！ / 完美無傷！",
+   "note": "Gale and rush banners. (added by the UI translator, 2026-10-07)"
+  },
+  "ui.all-rings": {
+   "en": "ALL RINGS! / Turbo boost",
+   "target": "金環全拿！ / 渦輪加速",
+   "note": "Glossary pickup.sprint-ring: 金環 in hints. (added by the UI translator, 2026-10-07)"
+  }
+ }
+}

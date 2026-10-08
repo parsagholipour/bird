@@ -1,5 +1,11 @@
 import 'dart:math' as math;
 
+// l10n-english-twin: the words here are English twins. Screens show
+// `l.playModeName(mode)` for [PlayMode.title] and `l.trackingFeedback(...)`
+// for the coaching lines ([BodyObservation.feedback], [BodyCalibrator]...),
+// which replays record as words (lib/l10n/text/tracking_text.dart). The
+// camera lab's [bodyDiagnostics] readout stays English on purpose.
+
 /// Camera-independent tracking data. All times use one monotonic millisecond clock.
 // Persisted by index: jump replaces smile at index 1; keep existing records.
 enum PlayMode {

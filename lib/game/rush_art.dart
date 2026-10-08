@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 import '../domain/game_rules.dart';
+import '../l10n/l10n.dart';
+import '../l10n/text/boss_text.dart';
 import '../ui/theme.dart';
 import 'enemy_defeat_art.dart';
 import 'gale_art.dart';
@@ -3345,6 +3347,11 @@ abstract final class RushArt {
   static const _bannerLife = 1.9;
   static const _galeBlue = Color(0xff5bc0eb);
 
+  /// Stands in for the gale card's orange "!" inside its translated line
+  /// (`encounterGaleDetail`), so the mark is found wherever a language puts
+  /// it.
+  static const _galeMark = '\u{E000}';
+
   /// Announces a run and celebrates the escape and a run's every ring, above
   /// everything else.
   static void banner(
@@ -3354,6 +3361,7 @@ abstract final class RushArt {
     required bool reducedMotion,
   }) {
     var top = size.height * .115;
+    final l = L10n.strings;
     for (final event in sim.events) {
       final age = sim.elapsed - event.at;
       if (age < 0 || age >= _bannerLife) continue;
@@ -3366,43 +3374,37 @@ abstract final class RushArt {
           final kind = RushPathKind
               .values[event.value.clamp(0, RushPathKind.values.length - 1)];
           motif = kind;
-          title = '${kind.title.toUpperCase()}!';
-          (detail, accent) = switch (kind) {
-            RushPathKind.wildfire => (
-              'Grab the sprint rings and outrun it!',
-              SkyColors.coral,
-            ),
-            RushPathKind.skyfall => (
-              'Grab the sprint rings and race the meteors!',
-              SkyColors.purple,
-            ),
-            RushPathKind.eruption => (
-              'Grab the sprint rings and beat the blasts!',
-              _ember,
-            ),
-            RushPathKind.swarm => (
-              'Grab the sprint rings and plow through!',
-              SkyColors.teal,
-            ),
+          title = l.rushWarningTitle(kind);
+          detail = l.rushWarningDetail(kind);
+          accent = switch (kind) {
+            RushPathKind.wildfire => SkyColors.coral,
+            RushPathKind.skyfall => SkyColors.purple,
+            RushPathKind.eruption => _ember,
+            RushPathKind.swarm => SkyColors.teal,
           };
         case FlightEventKind.rushEscaped:
           final flawless = event.value > Rush.escapeBonus;
           motif = null;
-          title = '${flawless ? 'FLAWLESS' : 'ESCAPED'}! +${event.value}';
-          final escape = (sim.lastRushKind ?? RushPathKind.wildfire).escape;
-          detail = 'You ${escape[0].toLowerCase()}${escape.substring(1)}';
+          title = flawless
+              ? l.encounterFlawless(event.value)
+              : l.encounterRushEscaped(event.value);
+          detail = l.rushEscapedDetail(
+            sim.lastRushKind ?? RushPathKind.wildfire,
+          );
           accent = SkyColors.gold;
         case FlightEventKind.galeWarning:
           motif = null;
           wind = true;
-          title = 'GALE!';
-          detail = 'Dodge the debris where the ! flashes!';
+          title = l.encounterGale;
+          detail = l.encounterGaleDetail(_galeMark);
           accent = _galeBlue;
         case FlightEventKind.galeWeathered:
           final flawless = event.value > Gale.weatherBonus;
           motif = null;
-          title = '${flawless ? 'FLAWLESS' : 'WEATHERED'}! +${event.value}';
-          detail = 'You rode out the gale';
+          title = flawless
+              ? l.encounterFlawless(event.value)
+              : l.encounterGaleWeathered(event.value);
+          detail = l.encounterGaleWeatheredDetail;
           accent = SkyColors.gold;
         case FlightEventKind.allRings:
           // The value is in tenths of a second.
@@ -3411,8 +3413,8 @@ abstract final class RushArt {
               ? '${tenths ~/ 10}'
               : (tenths / 10).toStringAsFixed(1);
           motif = null;
-          title = 'ALL RINGS!';
-          detail = 'Turbo boost +${seconds}s';
+          title = l.encounterAllRings;
+          detail = l.encounterAllRingsDetail(seconds);
           accent = SkyColors.yellow;
         default:
           continue;
@@ -3471,14 +3473,16 @@ abstract final class RushArt {
       text: TextSpan(
         text: value,
         style: TextStyle(
-          fontFamily: 'Fredoka',
+          fontFamily: L10n.fonts.heading,
+          fontFamilyFallback: L10n.fonts.headingFallback,
           fontWeight: weight,
           fontSize: points,
           letterSpacing: h * .002,
           foreground: paint,
         ),
       ),
-      textDirection: TextDirection.ltr,
+      // Words run their language's way; the card stays where it is.
+      textDirection: L10n.textDirection,
     )..layout();
 
     final titleSize = h * .09, detailSize = h * .038;
@@ -3492,7 +3496,7 @@ abstract final class RushArt {
     );
     final detailPaint = Paint()
       ..color = SkyColors.cream.withValues(alpha: .94 * fade * reveal);
-    final mark = wind ? detail.indexOf('!') : -1;
+    final mark = wind ? detail.indexOf(_galeMark) : -1;
     final TextPainter line;
     if (mark < 0) {
       line = type(detail, detailSize, FontWeight.w600, detailPaint);
@@ -3500,7 +3504,8 @@ abstract final class RushArt {
       // The gale's "!" wears the warning's own orange, so the card teaches
       // the mark the player is about to watch for.
       TextStyle style(Paint paint, FontWeight weight) => TextStyle(
-        fontFamily: 'Fredoka',
+        fontFamily: L10n.fonts.heading,
+        fontFamilyFallback: L10n.fonts.headingFallback,
         fontWeight: weight,
         fontSize: detailSize,
         letterSpacing: h * .002,
@@ -3519,10 +3524,10 @@ abstract final class RushArt {
                 FontWeight.w700,
               ),
             ),
-            TextSpan(text: detail.substring(mark + 1)),
+            TextSpan(text: detail.substring(mark + _galeMark.length)),
           ],
         ),
-        textDirection: TextDirection.ltr,
+        textDirection: L10n.textDirection,
       )..layout();
     }
     final glyph = h * .04, gap = h * .028;

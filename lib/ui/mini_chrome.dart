@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../domain/tracking.dart';
+import '../l10n/l10n.dart';
 import 'campaign_chrome.dart' show MapGlyph, MapKey;
 import 'components.dart' show Pill;
 import 'home_keys.dart';
@@ -55,7 +56,11 @@ class MiniHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Row(
     children: [
-      MapKey(glyph: MapGlyph.back, label: 'Back home', onPressed: onBack),
+      MapKey(
+        glyph: MapGlyph.back,
+        label: context.l10n.commonBackHome,
+        onPressed: onBack,
+      ),
       const SizedBox(width: 16),
       // The title shrinks to fit rather than lose its end, and the tags
       // after it follow; the trailing tags keep to the far edge.
@@ -287,7 +292,7 @@ class MiniKey extends StatelessWidget {
       child: Semantics(
         button: true,
         enabled: enabled,
-        value: busy ? 'Busy' : null,
+        value: busy ? context.l10n.commonBusySemantics : null,
         liveRegion: busy,
         child: Opacity(
           opacity: enabled || busy ? 1 : .55,
@@ -578,8 +583,12 @@ class MiniMeter extends StatelessWidget {
   Widget build(BuildContext context) => SizedBox(
     width: double.infinity,
     height: height,
-    child: CustomPaint(
-      painter: _MeterPainter(value.clamp(0, 1).toDouble(), color),
+    // It fills from where the language starts reading.
+    child: Transform.flip(
+      flipX: Directionality.of(context) == TextDirection.rtl,
+      child: CustomPaint(
+        painter: _MeterPainter(value.clamp(0, 1).toDouble(), color),
+      ),
     ),
   );
 }

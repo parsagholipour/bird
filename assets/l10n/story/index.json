@@ -1,0 +1,16 @@
+{
+  "@@note": "Languages whose story captions are bundled here as <slug>.json (tool/l10n/build_captions.py). English needs none: its captions are the domain lines.",
+  "languages": [
+    "es_419",
+    "pt_br",
+    "id",
+    "fr",
+    "de",
+    "ja",
+    "ko",
+    "tr",
+    "zh_hant",
+    "ru",
+    "ar"
+  ]
+}

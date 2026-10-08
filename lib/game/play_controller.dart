@@ -19,6 +19,61 @@ import 'finish_celebration_art.dart';
 import 'flight_voices.dart';
 import 'knockout_art.dart';
 
+/// What the flight screen tells the player about the camera, the
+/// microphone and saving, beside the trackers' coaching. Each is the English
+/// twin of an ARB key: the controller keeps the English in [PlayController]'s
+/// message fields (tests and diagnostics read it), and screens show
+/// `AppLocalizations.flightNote(text)` (lib/l10n/text/flight_text.dart),
+/// which also words the trackers' feedback. test/l10n_flight_test.dart keeps
+/// the English ARB equal to these.
+// l10n-english-twin: FlightNote's messages; this file's other literals are
+// ids, sound names and diagnostics.
+enum FlightNote {
+  rememberFailed(
+    'Changed for this flight. Could not remember your preference.',
+  ),
+  micUnavailable('Microphone unavailable. Video and gameplay still work.'),
+  micBlocked(
+    'Microphone blocked. You can allow it in Settings; video still works.',
+  ),
+  micOff('Microphone off. You can still play and save video.'),
+  videoUnavailable('Camera video unavailable. Gameplay can still be saved.'),
+  micAudioLost(
+    'Microphone audio was unavailable. Your video and gameplay can still be saved.',
+  ),
+  videoInterrupted(
+    'Camera video interrupted. Available footage and gameplay can still be saved.',
+  ),
+  sessionSaveFailed('Could not save the session. Tap Save session to retry.'),
+  wakingCamera('Waking up your camera…'),
+  cameraOff(
+    'Camera access is off. Allow it in Android settings, then come back and try again.',
+  ),
+  cameraFailed('The camera could not start. Try again or switch cameras.'),
+  preparing('Preparing your session…'),
+  saveFailed('Could not save your flight. Tap to retry.'),
+  welcomeBack('Welcome back. Let’s check your position again.'),
+
+  /// The camera's own reports (MainActivity.kt's status messages), passed
+  /// through as a [TrackingIssue]'s message.
+  cameraInterrupted(
+    'Camera interrupted. Check camera permission and try again.',
+  ),
+  trackingInterrupted('Tracking interrupted'),
+
+  /// [FlightSimulation.trackingFeedback] before any tracker has spoken.
+  findPosition('Find your position');
+
+  const FlightNote(this.english);
+  final String english;
+
+  static final _byEnglish = {for (final note in values) note.english: note};
+
+  /// The note whose English is [text], or null for anything else (a
+  /// tracker's feedback, or an error's own words).
+  static FlightNote? of(String text) => _byEnglish[text];
+}
+
 /// [celebrating] plays a campaign level's finish-line celebration and
 /// [fallen] the knockout after a fatal collision; the run is already being
 /// saved while either plays. [results] follows them (or any other ending).
@@ -220,8 +275,7 @@ class PlayController extends ChangeNotifier {
     try {
       await rememberRecordAudio?.call(recordAudio);
     } catch (_) {
-      microphoneMessage =
-          'Changed for this flight. Could not remember your preference.';
+      microphoneMessage = FlightNote.rememberFailed.english;
     }
   }
 
@@ -254,8 +308,7 @@ class PlayController extends ChangeNotifier {
       await _rememberAudio();
     } catch (_) {
       recordAudio = false;
-      microphoneMessage =
-          'Microphone unavailable. Video and gameplay still work.';
+      microphoneMessage = FlightNote.micUnavailable.english;
     } finally {
       microphoneRequestPending = false;
       notify();
@@ -265,8 +318,8 @@ class PlayController extends ChangeNotifier {
   void _microphoneUnavailable(MicrophoneAccess access) {
     microphoneSettingsAvailable = access == MicrophoneAccess.permanentlyDenied;
     microphoneMessage = microphoneSettingsAvailable
-        ? 'Microphone blocked. You can allow it in Settings; video still works.'
-        : 'Microphone off. You can still play and save video.';
+        ? FlightNote.micBlocked.english
+        : FlightNote.micOff.english;
   }
 
   Future<void> verifyMicrophoneAccess() async {
@@ -307,8 +360,7 @@ class PlayController extends ChangeNotifier {
       await verifyMicrophoneAccess();
       await source!.startRecording(withAudio: recordAudio);
     } catch (_) {
-      cameraRecordingError =
-          'Camera video unavailable. Gameplay can still be saved.';
+      cameraRecordingError = FlightNote.videoUnavailable.english;
     }
   }
 
@@ -317,8 +369,7 @@ class PlayController extends ChangeNotifier {
       final clip = await source!.stopRecording();
       if (clip != null && recorder != null) {
         if (recordAudio && !clip.hasAudio) {
-          cameraRecordingError =
-              'Microphone audio was unavailable. Your video and gameplay can still be saved.';
+          cameraRecordingError = FlightNote.micAudioLost.english;
         }
         _clips.add(
           SessionClip(
@@ -334,8 +385,7 @@ class PlayController extends ChangeNotifier {
         await File(clip.path).delete();
       }
     } catch (_) {
-      cameraRecordingError =
-          'Camera video interrupted. Available footage and gameplay can still be saved.';
+      cameraRecordingError = FlightNote.videoInterrupted.english;
     }
   }
 
@@ -369,7 +419,7 @@ class PlayController extends ChangeNotifier {
       sessionSaved = true;
       await _discardClips();
     } catch (_) {
-      sessionError = 'Could not save the session. Tap Save session to retry.';
+      sessionError = FlightNote.sessionSaveFailed.english;
     }
     sessionSaving = false;
     notify();
@@ -616,14 +666,13 @@ class PlayController extends ChangeNotifier {
     }
     final op = ++_operation;
     stage = PlayStage.starting;
-    message = 'Waking up your camera…';
+    message = FlightNote.wakingCamera.english;
     notify();
     try {
       if (!await source!.requestPermission()) {
         if (_disposed || op != _operation) return;
         stage = PlayStage.error;
-        message =
-            'Camera access is off. Allow it in Android settings, then come back and try again.';
+        message = FlightNote.cameraOff.english;
         notify();
         return;
       }
@@ -658,14 +707,16 @@ class PlayController extends ChangeNotifier {
         if (_disposed || op != _operation) return;
         recorder?.command('resume');
       }
+      // The trackers' own first words (their English twins): shown through
+      // TrackingText.trackingFeedback like every other tracker message.
       message = mode == PlayMode.pushUp
-          ? 'Find a comfortable top position'
-          : 'Stand still with your whole body and both feet in view';
+          ? 'Find a comfortable top position' // l10n-ignore
+          : 'Stand still with your whole body and both feet in view'; // l10n-ignore
       notify();
     } catch (e) {
       if (_disposed || op != _operation) return;
       stage = PlayStage.error;
-      message = 'The camera could not start. Try again or switch cameras.';
+      message = FlightNote.cameraFailed.english;
       debugPrint('PushUpBird camera: $e');
       notify();
     }
@@ -689,7 +740,7 @@ class PlayController extends ChangeNotifier {
     preparingReplay = true;
     if (!isTouch) {
       stage = PlayStage.ready;
-      message = 'Preparing your session…';
+      message = FlightNote.preparing.english;
       notify();
       _preparingCapture = _startCapture();
       await _preparingCapture;
@@ -999,7 +1050,7 @@ class PlayController extends ChangeNotifier {
       saved = true;
       saveError = '';
     } catch (e) {
-      saveError = 'Could not save your flight. Tap to retry.';
+      saveError = FlightNote.saveFailed.english;
       debugPrint('PushUpBird save: $e');
     }
     notify();
@@ -1067,7 +1118,7 @@ class PlayController extends ChangeNotifier {
         stage == PlayStage.starting) {
       stage = PlayStage.setup;
       interpreter = null;
-      message = 'Welcome back. Let’s check your position again.';
+      message = FlightNote.welcomeBack.english;
     }
     notify();
   }

@@ -5,7 +5,10 @@ import 'package:go_router/go_router.dart';
 import '../data/providers.dart';
 import '../data/progress_repository.dart';
 import '../domain/power_ups.dart';
+import '../l10n/l10n.dart';
+import '../l10n/text/upgrades_text.dart';
 import 'components.dart';
+import 'fit_text.dart';
 import 'home_keys.dart' show HomeKey, HomeKeyColors;
 import 'keyboard.dart' show KeyTap;
 import 'match_hud.dart' show MatchIcon, MatchSymbol;
@@ -59,6 +62,7 @@ class _UpgradesScreenState extends ConsumerState<UpgradesScreen> {
   Widget build(BuildContext context) {
     final p = ref.watch(progressProvider).asData?.value;
     final selected = p == null ? null : _selected ??= _firstPick(p);
+    final l = context.l10n;
     return Scaffold(
       body: SkyBackdrop(
         child: SceneLayout(
@@ -70,15 +74,15 @@ class _UpgradesScreenState extends ConsumerState<UpgradesScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       MiniHeader(
-                        title: 'Power up your bird.',
+                        title: l.upgradesTitle,
                         size: 34,
                         onBack: () => context.go('/'),
                         trailing: [StarWallet(stars: p.starWallet)],
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(left: 64),
-                        child: Text(
-                          'Tap a gear to see what it does. Every star you pick up in flight is one to spend.',
+                        padding: const EdgeInsetsDirectional.only(start: 64),
+                        child: FitText(
+                          l.upgradesIntro,
                           style: bodyText(15, weight: FontWeight.w800),
                         ),
                       ),
@@ -280,7 +284,7 @@ class _Perch extends StatelessWidget {
                 borderRadius: BorderRadius.circular(999),
               ),
               child: Text(
-                birdNames[bird],
+                context.l10n.birdName(bird),
                 style: heading(
                   17,
                   color: SkyColors.white,
@@ -316,18 +320,23 @@ class _Socket extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final cost = PowerUp.costFrom(level);
     final color = _colorOf(power);
+    final name = l.powerUpName(power);
     return Semantics(
       button: true,
       selected: selected,
-      label:
-          '${power.title}, level $level of ${PowerUp.maxLevel}. '
-          '${cost == null
-              ? 'Maxed'
-              : affordable
-              ? 'Next level $cost stars'
-              : 'Next level $cost stars, not enough yet'}',
+      label: cost == null
+          ? l.upgradesSocketMaxedSemantics(name, level, PowerUp.maxLevel)
+          : affordable
+          ? l.upgradesSocketSemantics(cost, name, level, PowerUp.maxLevel)
+          : l.upgradesSocketLockedSemantics(
+              cost,
+              name,
+              level,
+              PowerUp.maxLevel,
+            ),
       excludeSemantics: true,
       child: KeyTap(
         onPressed: onTap,
@@ -406,7 +415,7 @@ class _Socket extends StatelessWidget {
                             ),
                             alignment: Alignment.center,
                             child: Text(
-                              '!',
+                              '!', // l10n-ignore: a mark, not a word
                               style: heading(
                                 14,
                                 color: SkyColors.white,
@@ -424,9 +433,9 @@ class _Socket extends StatelessWidget {
                     color: selected ? SkyColors.ink : null,
                     borderRadius: BorderRadius.circular(999),
                   ),
-                  child: Text(
-                    power.title,
-                    maxLines: 1,
+                  // A long name shrinks rather than lose its end.
+                  child: FitText(
+                    name,
                     style: heading(
                       18,
                       color: selected ? SkyColors.white : SkyColors.ink,
@@ -543,7 +552,7 @@ class _PriceTag extends StatelessWidget {
             const Icon(Icons.lock_rounded, size: 17, color: _locked),
           const SizedBox(width: 4),
           Text(
-            maxed ? 'MAX' : '$cost',
+            maxed ? context.l10n.upgradesMax : '$cost',
             style: heading(
               18,
               color: ink,
@@ -572,11 +581,12 @@ class _Callout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final up = power, p = progress;
     final level = p.upgrades[up];
     final cost = PowerUp.costFrom(level);
-    final stats = up.stats(level);
-    final next = cost == null ? null : up.stats(level + 1);
+    final stats = l.powerStats(up, level);
+    final next = cost == null ? null : l.powerStats(up, level + 1);
     final affordable = p.canBuy(up);
     // The tail points at the open socket: top or bottom row.
     final top = up == PowerUp.shot || up == PowerUp.shield;
@@ -607,7 +617,7 @@ class _Callout extends StatelessWidget {
                   _CalloutHead(power: up, level: level),
                   const SizedBox(height: 8),
                   Text(
-                    up.blurb,
+                    l.powerUpBlurb(up),
                     style: bodyText(
                       16,
                       weight: FontWeight.w800,
@@ -656,10 +666,15 @@ class _Callout extends StatelessWidget {
               ),
             ),
           ),
-          Positioned(
-            left: -22,
+          // The tail points back at the sockets: left, or right where the
+          // screen runs right to left.
+          PositionedDirectional(
+            start: -22,
             top: top ? 46 : box.maxHeight - 150,
-            child: const CustomPaint(size: Size(26, 36), painter: _Tail()),
+            child: Transform.flip(
+              flipX: Directionality.of(context) == TextDirection.rtl,
+              child: const CustomPaint(size: Size(26, 36), painter: _Tail()),
+            ),
           ),
         ],
       ),
@@ -704,6 +719,7 @@ class _CalloutHead extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final maxed = level >= PowerUp.maxLevel;
     final color = _colorOf(power);
     return Row(
@@ -725,15 +741,15 @@ class _CalloutHead extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                power.title,
+              FitText(
+                l.powerUpName(power),
                 style: heading(27, weight: FontWeight.w700).copyWith(height: 1),
               ),
               const SizedBox(height: 4),
               Row(
                 children: [
                   Text(
-                    maxed ? 'Level $level, the top' : 'Level $level',
+                    maxed ? l.upgradesLevelTop(level) : l.upgradesLevel(level),
                     style: bodyText(
                       15,
                       color: SkyColors.muted,
@@ -771,7 +787,7 @@ class _CalloutHead extends StatelessWidget {
                 Container(
                   width: 16,
                   height: 16,
-                  margin: const EdgeInsets.only(left: 5),
+                  margin: const EdgeInsetsDirectional.only(start: 5),
                   decoration: BoxDecoration(
                     color: i < level
                         ? color
@@ -801,7 +817,9 @@ class _StatRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final upgrade = next != null && next != now;
     return Semantics(
-      label: upgrade ? '$label $now, next level $next' : '$label $now',
+      label: upgrade
+          ? context.l10n.upgradesStatUpgradeSemantics(label, now, next!)
+          : context.l10n.upgradesStatSemantics(label, now),
       excludeSemantics: true,
       child: Container(
         margin: const EdgeInsets.only(bottom: 5),
@@ -869,7 +887,7 @@ class _Progress extends StatelessWidget {
     final style = bodyText(15, color: SkyColors.muted, weight: FontWeight.w800);
     if (wallet >= cost) {
       return Text(
-        'You will have ${wallet - cost} stars left.',
+        context.l10n.upgradesStarsLeft(wallet - cost),
         style: style,
         textAlign: TextAlign.center,
       );
@@ -886,7 +904,7 @@ class _Progress extends StatelessWidget {
               borderRadius: BorderRadius.circular(99),
               border: Border.all(color: SkyColors.ink, width: 2),
             ),
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             child: FractionallySizedBox(
               widthFactor: (wallet / cost).clamp(0.0, 1.0),
               child: Container(
@@ -899,7 +917,7 @@ class _Progress extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 10),
-        Text('${cost - wallet} more to go', style: style),
+        Text(context.l10n.commonMoreToGo(cost - wallet), style: style),
       ],
     );
   }
@@ -933,7 +951,7 @@ class _UpgradeKey extends StatelessWidget {
           const SizedBox(width: 8),
         ],
         Text(
-          'Upgrade',
+          context.l10n.upgradesButton,
           style: heading(
             24,
             color: ink,
@@ -985,12 +1003,12 @@ class _UpgradeKey extends StatelessWidget {
         button: true,
         enabled: enabled,
         label: enabled
-            ? 'Upgrade for $cost stars'
-            : 'Upgrade for $cost stars, not enough stars yet',
+            ? context.l10n.upgradesBuySemantics(cost)
+            : context.l10n.upgradesBuyLockedSemantics(cost),
         excludeSemantics: true,
         child: enabled
             ? HomeKey(
-                label: 'Upgrade',
+                label: context.l10n.upgradesButton,
                 colors: HomeKeyColors.sun,
                 lip: 6,
                 radius: 22,
@@ -1034,7 +1052,10 @@ class _Maxed extends StatelessWidget {
       children: [
         const Icon(Icons.check_circle_rounded, size: 24, color: SkyColors.ink),
         const SizedBox(width: 8),
-        Text('Maxed out', style: heading(22, weight: FontWeight.w700)),
+        Text(
+          context.l10n.upgradesMaxedOut,
+          style: heading(22, weight: FontWeight.w700),
+        ),
       ],
     ),
   );

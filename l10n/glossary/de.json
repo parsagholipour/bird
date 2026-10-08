@@ -1,0 +1,2430 @@
+{
+ "language": "de",
+ "terms": {
+  "brand.beakbound": {
+   "en": "Beakbound",
+   "target": "Beakbound",
+   "note": "Brand, unchanged."
+  },
+  "brand.beak1-code": {
+   "en": "BEAK1.",
+   "target": "BEAK1.",
+   "note": "Technical token, unchanged."
+  },
+  "char.pip": {
+   "en": "Pip",
+   "target": "Pip",
+   "note": "Masculine (er)."
+  },
+  "char.peaches": {
+   "en": "Peaches",
+   "target": "Peaches",
+   "note": "Feminine (sie). Name kept; peach jokes use \"Pfirsich\" only where the joke needs it."
+  },
+  "char.minty": {
+   "en": "Minty",
+   "target": "Minty",
+   "note": "Masculine (er). Name kept; the flavour is \"Minze/minzig\"."
+  },
+  "char.orbit": {
+   "en": "Orbit",
+   "target": "Orbit",
+   "note": "Feminine (sie)."
+  },
+  "char.postmaster-bill": {
+   "en": "Postmaster Bill",
+   "target": "Postmeister Bill",
+   "note": "\"Postmeister\" = the friendly, old-fashioned title of a post office head. The bill/beak pun does not exist in German."
+  },
+  "char.courier": {
+   "en": "courier",
+   "target": "Kurier",
+   "note": "One role noun for every bird (generic masculine, used as a title: \"Kurier Pip\"). Shared story lines never use it about the speaker, so no gender shows. In UI sentences about Peaches/Orbit \"Kurierin\" is fine."
+  },
+  "char.narrator": {
+   "en": "the narrator",
+   "target": "der Erzähler",
+   "note": "Never shown. Addresses the player with \"du\"."
+  },
+  "boss.baron-bat": {
+   "en": "Baron Bat",
+   "target": "Baron Fledermaus",
+   "note": "\"Baron\" + \"Fledermaus\" (bat); also nods to Strauss's operetta \"Die Fledermaus\". Short form \"der Baron\", address \"Herr Baron\"/\"Baron\". Addresses the courier with \"Sie\"."
+  },
+  "boss.spitter-king": {
+   "en": "Spitter King",
+   "target": "Spuckkönig",
+   "note": "\"Spuck-\" (spit) as in Spuckkäfer. No article on the card; \"der Spuckkönig\" in sentences; Bill says \"König\", the birds \"Majestät\"."
+  },
+  "boss.dusk-empress": {
+   "en": "Dusk Empress",
+   "target": "Dämmerkaiserin",
+   "note": "\"Dämmer-\" (dusk) as in Dämmerfalter. Short \"die Kaiserin\", address \"Kaiserin\". Addresses the courier with \"du\"."
+  },
+  "boss.pirate-captain": {
+   "en": "Pirate Captain",
+   "target": "Piratenkapitän",
+   "note": "Short form and self-reference \"der Käpt’n\"; address \"Käpt’n\". Speaks pirate-ish (\"Ahoi\", \"Arr\", \"Donnerwetter\", \"Landratte\" type insults)."
+  },
+  "boss.ember-dragon": {
+   "en": "Ember Dragon",
+   "target": "Glutdrache",
+   "note": "\"Glut\" = embers (old fire that still bites). Short \"der Drache\", address \"Drache\"."
+  },
+  "guardian.neferhoo": {
+   "en": "Neferhoo",
+   "target": "Neferhoo",
+   "note": "Name kept. Addresses the courier with \"Sie\"."
+  },
+  "guardian.king-coo": {
+   "en": "King Coo",
+   "target": "König Gurr",
+   "note": "\"gurren\" = the German verb for a pigeon cooing; the King Kong echo is lost. Card shout \"COO!\" -> \"GURR!\"."
+  },
+  "guardian.searchlight-gargoyle": {
+   "en": "Searchlight Gargoyle",
+   "target": "Scheinwerfer-Wasserspeier",
+   "note": "\"Wasserspeier\" is the German word for a gargoyle. Card split: \"DER SCHEINWERFER-\" / \"WASSERSPEIER\". Short \"der Wasserspeier\" (also his third-person \"Der Wasserspeier nimmt an.\"). UI short form \"Wasserspeier\" where the full name does not fit (name 20, bar 16, map plaque); the name card reads \"SCHEINWERFER-\" / \"WASSERSPEIER\" on two lines; full form in the defeat banner and the store."
+  },
+  "npc.toucan-twins": {
+   "en": "the toucan twins",
+   "target": "die Tukan-Zwillinge",
+   "note": "Plural."
+  },
+  "npc.sloth-stargazer": {
+   "en": "the sloth stargazer",
+   "target": "das Sternengucker-Faultier",
+   "note": "\"Sterngucker\" = playful word for a stargazer. Neuter (das Faultier)."
+  },
+  "npc.firefly-nursery": {
+   "en": "the firefly nursery",
+   "target": "die Glühwürmchen-Kita",
+   "note": "\"Kita\" = day nursery for small children."
+  },
+  "npc.samba-macaws": {
+   "en": "the samba macaws",
+   "target": "die Samba-Aras",
+   "note": "Plural."
+  },
+  "npc.drum-captain": {
+   "en": "the drum captain",
+   "target": "der Trommelchef",
+   "note": "Band-leader word, distinct from the Pirate \"Käpt’n\"."
+  },
+  "npc.temple-cooks": {
+   "en": "the temple cooks",
+   "target": "die Tempelköche",
+   "note": "Plural."
+  },
+  "npc.dawn-keeper": {
+   "en": "the dawn keeper",
+   "target": "der Hüter der Morgenröte"
+  },
+  "npc.chariot-racers": {
+   "en": "the chariot racers",
+   "target": "die Wagenlenker",
+   "note": "Plural."
+  },
+  "npc.statue-carver": {
+   "en": "the statue carver",
+   "target": "der Bildhauer"
+  },
+  "npc.fire-brigade": {
+   "en": "the fire brigade",
+   "target": "die Feuerwehr"
+  },
+  "npc.pyramid-astronomer": {
+   "en": "the pyramid astronomer",
+   "target": "der Pyramiden-Astronom"
+  },
+  "npc.pyramid-caretaker": {
+   "en": "the pyramid caretaker",
+   "target": "die Pyramiden-Hausmeisterin",
+   "note": "Feminine."
+  },
+  "npc.lantern-sellers": {
+   "en": "the lantern sellers",
+   "target": "die Laternenhändler",
+   "note": "Plural."
+  },
+  "npc.caravan-leader": {
+   "en": "the caravan leader",
+   "target": "der Karawanenführer"
+  },
+  "npc.stage-manager": {
+   "en": "the stage manager",
+   "target": "der Bühnenmeister",
+   "note": "Kid-readable; the technical \"Inspizient\" is unknown to children."
+  },
+  "npc.newsstand-pigeons": {
+   "en": "the newsstand pigeons",
+   "target": "die Kiosktauben",
+   "note": "Newsstand = (Zeitungs-)Kiosk."
+  },
+  "npc.night-cabbies": {
+   "en": "the night cabbies",
+   "target": "die Nachttaxifahrer",
+   "note": "Same people as the cargo's \"night-shift cabbies\"."
+  },
+  "npc.tower-keeper": {
+   "en": "the tower keeper",
+   "target": "der Turmwärter"
+  },
+  "npc.rooftop-painters": {
+   "en": "the rooftop painters",
+   "target": "die Dachmaler",
+   "note": "Painters/artists on the rooftops."
+  },
+  "npc.accordion-player": {
+   "en": "the accordion player",
+   "target": "der Akkordeonspieler"
+  },
+  "npc.baker": {
+   "en": "the baker",
+   "target": "die Bäckerin",
+   "note": "Feminine."
+  },
+  "npc.lighthouse-keeper": {
+   "en": "the lighthouse keeper",
+   "target": "die Leuchtturmwärterin",
+   "note": "Feminine (voice: Jessie, female)."
+  },
+  "npc.volcano-baker": {
+   "en": "the volcano baker",
+   "target": "die Vulkanbäckerin",
+   "note": "Feminine voice."
+  },
+  "npc.kite-flyers": {
+   "en": "the kite flyers",
+   "target": "die Drachenflieger",
+   "note": "\"Drachen\" is the German word for a kite (as well as dragon); standard usage."
+  },
+  "npc.island-hermit": {
+   "en": "the island hermit",
+   "target": "der Inseleinsiedler"
+  },
+  "npc.ferry-crew": {
+   "en": "the ferry crew",
+   "target": "die Fährcrew"
+  },
+  "npc.gull-colony": {
+   "en": "the gull colony",
+   "target": "die Möwenkolonie"
+  },
+  "npc.storm-watch": {
+   "en": "the storm watch",
+   "target": "die Sturmwache"
+  },
+  "npc.penguin-choir": {
+   "en": "the penguin choir",
+   "target": "der Pinguinchor"
+  },
+  "npc.polar-station": {
+   "en": "the polar station",
+   "target": "die Polarstation"
+  },
+  "npc.noodle-chef": {
+   "en": "the noodle chef",
+   "target": "der Nudelkoch"
+  },
+  "npc.rooftop-runners": {
+   "en": "the rooftop runners",
+   "target": "die Dachläufer"
+  },
+  "npc.lantern-makers": {
+   "en": "the lantern makers",
+   "target": "die Laternenmacher"
+  },
+  "npc.mountain-monks": {
+   "en": "the mountain monks",
+   "target": "die Bergmönche"
+  },
+  "npc.sphinx": {
+   "en": "the Sphinx",
+   "target": "die Sphinx",
+   "note": "Standard German \"die Sphinx\" (grammatically feminine). Peaches calls it \"Herr Sphinx\" as a cute joke; the note signs \"die Sphinx\"."
+  },
+  "npc.unit-7": {
+   "en": "Unit 7",
+   "target": "Einheit 7",
+   "note": "Robot designation."
+  },
+  "npc.parrot": {
+   "en": "the Parrot",
+   "target": "der Papagei",
+   "note": "Address \"Papagei\". Masculine."
+  },
+  "npc.baron-cousins": {
+   "en": "the Baron's cousins",
+   "target": "die Vettern des Barons",
+   "note": "He calls them \"Vettern!\" / \"Verwandtschaft!\"."
+  },
+  "title.postmaster": {
+   "en": "Postmaster",
+   "target": "Postmeister",
+   "note": "Works alone (\"Befehl vom Postmeister\")."
+  },
+  "title.lord-of-the-storm": {
+   "en": "LORD OF THE STORM",
+   "target": "HERR DES STURMS"
+  },
+  "title.the-storm-returns": {
+   "en": "THE STORM RETURNS",
+   "target": "DER STURM KEHRT ZURÜCK"
+  },
+  "title.brewer-of-the-swarm": {
+   "en": "BREWER OF THE SWARM",
+   "target": "BRAUMEISTER DES SCHWARMS"
+  },
+  "title.keeper-of-the-twilight-veil": {
+   "en": "KEEPER OF THE TWILIGHT VEIL",
+   "target": "HÜTERIN DES DÄMMERSCHLEIERS",
+   "note": "Same \"Schleier\" (veil) as the fight hints."
+  },
+  "title.terror-of-the-high-tide": {
+   "en": "TERROR OF THE HIGH TIDE",
+   "target": "SCHRECKEN DER FLUT",
+   "note": "\"Flut\" = the tide hazard; short for the ribbon."
+  },
+  "title.sovereign-of-the-burning-sky": {
+   "en": "SOVEREIGN OF THE BURNING SKY",
+   "target": "HERRSCHER DES BRENNENDEN HIMMELS"
+  },
+  "title.keeper-of-the-lost-letter": {
+   "en": "Keeper of the Lost Letter",
+   "target": "HÜTER DES VERLORENEN BRIEFS",
+   "note": "Singular (one letter)."
+  },
+  "title.keeper-of-lost-letters": {
+   "en": "Keeper of Lost Letters",
+   "target": "Hüter der verlorenen Briefe",
+   "note": "Plural club job; echoes the card epithet."
+  },
+  "title.royal-courier": {
+   "en": "Royal Courier",
+   "target": "Königlicher Kurier",
+   "note": "Same \"Kurier\" as the courier (Pip's joke works)."
+  },
+  "title.mummy-courier": {
+   "en": "the Mummy Courier",
+   "target": "der Mumienkurier"
+  },
+  "title.commissioner-of-the-curb": {
+   "en": "Commissioner of the Curb",
+   "target": "KOMMISSAR VOM KANTSTEIN",
+   "note": "\"Kantstein\" = curb (where pigeons peck); K-K alliteration, pompous."
+  },
+  "title.commissioner": {
+   "en": "the Commissioner",
+   "target": "der Kommissar",
+   "note": "Kids know \"Kommissar\" as the police boss from TV; the pompous third person \"Der Kommissar nimmt an.\" works."
+  },
+  "title.watchman-of-the-tallest-tower": {
+   "en": "Watchman of the Tallest Tower",
+   "target": "WÄCHTER DES HÖCHSTEN TURMS"
+  },
+  "title.ink-maker": {
+   "en": "ink-maker",
+   "target": "Tintenmacher",
+   "note": "\"Königlicher Tintenmacher!\""
+  },
+  "region.jungle": {
+   "en": "Jungle",
+   "target": "Dschungel"
+  },
+  "region.brazil": {
+   "en": "Brazil",
+   "target": "Brasilien"
+  },
+  "region.aztec": {
+   "en": "Aztec",
+   "target": "Aztekenreich",
+   "note": "Map label."
+  },
+  "region.ancient-rome": {
+   "en": "Ancient Rome",
+   "target": "Antikes Rom"
+  },
+  "region.egypt": {
+   "en": "Egypt",
+   "target": "Ägypten"
+  },
+  "region.ancient-arabia": {
+   "en": "Ancient Arabia",
+   "target": "Antikes Arabien",
+   "note": "Parallel to \"Antikes Rom\"."
+  },
+  "region.new-york": {
+   "en": "New York",
+   "target": "New York"
+  },
+  "region.paris": {
+   "en": "Paris",
+   "target": "Paris"
+  },
+  "region.mexico": {
+   "en": "Mexico",
+   "target": "Mexiko"
+  },
+  "region.open-sea": {
+   "en": "Open Sea",
+   "target": "Hohe See",
+   "note": "German idiom for the open sea."
+  },
+  "region.antarctica": {
+   "en": "Antarctica",
+   "target": "Antarktis"
+  },
+  "region.cyberpunk-city": {
+   "en": "Cyberpunk City",
+   "target": "Cyberpunk-Stadt",
+   "note": "In speech also \"die Neonstadt\" (Bill)."
+  },
+  "region.china": {
+   "en": "China",
+   "target": "China"
+  },
+  "place.city-of-light": {
+   "en": "the City of Light",
+   "target": "die Stadt der Lichter",
+   "note": "Established epithet for Paris."
+  },
+  "place.edge-of-the-map": {
+   "en": "the Edge of the Map",
+   "target": "der Rand der Karte",
+   "note": "Address form \"Rand der Karte\"; in speech \"am Rand der Karte\"."
+  },
+  "place.giza": {
+   "en": "Giza",
+   "target": "Gizeh",
+   "note": "German exonym."
+  },
+  "place.nile": {
+   "en": "the Nile",
+   "target": "der Nil"
+  },
+  "place.pyramid": {
+   "en": "the pyramid",
+   "target": "die Pyramide"
+  },
+  "place.colosseum": {
+   "en": "the Colosseum",
+   "target": "das Kolosseum"
+  },
+  "place.sugarloaf-mountain": {
+   "en": "Sugarloaf Mountain",
+   "target": "Zuckerhut",
+   "note": "\"der Zuckerhut\": the German name also means sugar loaf, so Pip's sugar joke survives."
+  },
+  "place.eiffel-tower": {
+   "en": "the Eiffel Tower",
+   "target": "der Eiffelturm"
+  },
+  "place.theatre-marquee": {
+   "en": "the theatre marquee",
+   "target": "das Theatervordach",
+   "note": "Short \"das Vordach\" (King Coo's payoff)."
+  },
+  "place.tallest-tower": {
+   "en": "the tallest tower",
+   "target": "der höchste Turm"
+  },
+  "place.canopy": {
+   "en": "the canopy",
+   "target": "das Blätterdach"
+  },
+  "place.bazaar": {
+   "en": "the bazaar",
+   "target": "der Basar"
+  },
+  "place.harbour": {
+   "en": "the harbour",
+   "target": "der Hafen"
+  },
+  "chapter.canopy-route": {
+   "en": "The Canopy Route",
+   "target": "Die Blätterdach-Route"
+  },
+  "chapter.ancient-road": {
+   "en": "The Ancient Road",
+   "target": "Die Alte Straße",
+   "note": "The Spitter King's \"meine Straße\"."
+  },
+  "chapter.lamplight-line": {
+   "en": "The Lamplight Line",
+   "target": "Die Laternenlinie",
+   "note": "L-L alliteration, keeps the lamp image."
+  },
+  "chapter.tide-route": {
+   "en": "The Tide Route",
+   "target": "Die Gezeitenroute"
+  },
+  "chapter.edge-of-the-map": {
+   "en": "The Edge of the Map",
+   "target": "Der Rand der Karte"
+  },
+  "level.1-1": {
+   "en": "First Delivery",
+   "target": "Erste Zustellung"
+  },
+  "level.1-2": {
+   "en": "Star Streak",
+   "target": "Sternenserie",
+   "note": "\"Serie\" = ui.streak."
+  },
+  "level.1-3": {
+   "en": "Bat Patrol",
+   "target": "Fledermaus-Patrouille"
+  },
+  "level.1-4": {
+   "en": "Carnival Skies",
+   "target": "Karnevalshimmel"
+  },
+  "level.1-5": {
+   "en": "Express Post",
+   "target": "Eilpost",
+   "note": "Same word as Neferhoo's fury \"EILPOST!\"."
+  },
+  "level.1-6": {
+   "en": "Temple Steps",
+   "target": "Tempeltreppe"
+  },
+  "level.1-7": {
+   "en": "Sunrise Roost",
+   "target": "Morgenrot-Quartier",
+   "note": "A bat's roost is a \"Quartier\" in German."
+  },
+  "level.1-8": {
+   "en": "Baron Bat",
+   "target": "Baron Fledermaus"
+  },
+  "level.2-1": {
+   "en": "Beetle Road",
+   "target": "Käferstraße",
+   "note": "Same \"Straße\" as the Ancient Road."
+  },
+  "level.2-2": {
+   "en": "Sealed Gates",
+   "target": "Versiegelte Tore"
+  },
+  "level.2-3": {
+   "en": "Wildfire Run",
+   "target": "Lauffeuer-Rennen",
+   "note": "\"Lauffeuer\" = wildfire (literally running fire)."
+  },
+  "level.2-4": {
+   "en": "Nile Switchbacks",
+   "target": "Nil-Serpentinen"
+  },
+  "level.2-5": {
+   "en": "Skyfall",
+   "target": "Himmelssturz",
+   "note": "Coined: the sky falling down."
+  },
+  "level.2-6": {
+   "en": "Return to Sender",
+   "target": "Zurück an den Absender"
+  },
+  "level.2-7": {
+   "en": "Lantern Bazaar",
+   "target": "Laternenbasar"
+  },
+  "level.2-8": {
+   "en": "The Long Caravan",
+   "target": "Die lange Karawane"
+  },
+  "level.2-9": {
+   "en": "Spitter King",
+   "target": "Spuckkönig"
+  },
+  "level.3-1": {
+   "en": "Moth Light",
+   "target": "Mottenlicht",
+   "note": "Nod to \"wie die Motten das Licht\"."
+  },
+  "level.3-2": {
+   "en": "Wheels in the Rain",
+   "target": "Räder im Regen",
+   "note": "R-R alliteration, film-title ring."
+  },
+  "level.3-3": {
+   "en": "Steam Alley",
+   "target": "Dampfgasse",
+   "note": "Bill says it aloud."
+  },
+  "level.3-4": {
+   "en": "Storm Warning",
+   "target": "Sturmwarnung",
+   "note": "Same as the Gargoyle's headline."
+  },
+  "level.3-5": {
+   "en": "Crystal Rooftops",
+   "target": "Kristalldächer"
+  },
+  "level.3-6": {
+   "en": "After the Gale",
+   "target": "Nach dem Sturm",
+   "note": "\"Sturm\" = set-piece.gale."
+  },
+  "level.3-7": {
+   "en": "Midnight Express",
+   "target": "Mitternachtsexpress"
+  },
+  "level.3-8": {
+   "en": "Dusk Empress",
+   "target": "Dämmerkaiserin"
+  },
+  "level.4-1": {
+   "en": "Harbour Lights",
+   "target": "Hafenlichter"
+  },
+  "level.4-2": {
+   "en": "Volcano Pass",
+   "target": "Vulkanpass"
+  },
+  "level.4-3": {
+   "en": "Down the Coast",
+   "target": "Die Küste entlang"
+  },
+  "level.4-4": {
+   "en": "Low Water",
+   "target": "Niedrigwasser",
+   "note": "Sailors' term for low water."
+  },
+  "level.4-5": {
+   "en": "Spring Tide",
+   "target": "Springflut",
+   "note": "Exact nautical term for spring tide."
+  },
+  "level.4-6": {
+   "en": "Broadside Bay",
+   "target": "Breitseiten-Bucht",
+   "note": "B-B alliteration kept."
+  },
+  "level.4-7": {
+   "en": "Stormy Crossing",
+   "target": "Stürmische Überfahrt"
+  },
+  "level.4-8": {
+   "en": "Pirate Captain",
+   "target": "Piratenkapitän"
+  },
+  "level.5-1": {
+   "en": "Aurora Post",
+   "target": "Polarlicht-Post"
+  },
+  "level.5-2": {
+   "en": "Polar Night",
+   "target": "Polarnacht"
+  },
+  "level.5-3": {
+   "en": "Neon Express",
+   "target": "Neon-Express"
+  },
+  "level.5-4": {
+   "en": "Data Storm",
+   "target": "Datensturm"
+  },
+  "level.5-5": {
+   "en": "Skyline Sprint",
+   "target": "Skyline-Sprint",
+   "note": "\"Sprint\" = the button word."
+  },
+  "level.5-6": {
+   "en": "Lantern Festival",
+   "target": "Laternenfest"
+  },
+  "level.5-7": {
+   "en": "The Last Leg",
+   "target": "Die letzte Etappe",
+   "note": "Idiom for the final stretch."
+  },
+  "level.5-8": {
+   "en": "Ember Dragon",
+   "target": "Glutdrache"
+  },
+  "level.starter-garden-hop": {
+   "en": "Garden Hop",
+   "target": "Gartenhüpfer"
+  },
+  "level.starter-ten-push-ups": {
+   "en": "Ten Push-Ups",
+   "target": "Zehn Liegestütze"
+  },
+  "level.starter-stair-squats": {
+   "en": "Stair Squats",
+   "target": "Treppen-Hocke",
+   "note": "UI (2026-10-07): was \"Treppen-Kniebeugen\" (18) — over the 16-char starter-name budget. Not spoken."
+  },
+  "level.starter-bounce-bay": {
+   "en": "Bounce Bay",
+   "target": "Hüpfbucht"
+  },
+  "level.starter-barons-bridge": {
+   "en": "Baron’s Bridge",
+   "target": "Barons Brücke"
+  },
+  "cargo.1-1": {
+   "en": "A birthday card for the toucan twins",
+   "target": "Geburtstagskarte für die Tukan-Zwillinge",
+   "note": "40 chars. In speech with article: \"Eine Geburtstagskarte für die Tukan-Zwillinge\"."
+  },
+  "cargo.1-2": {
+   "en": "Star charts for the sloth stargazer",
+   "target": "Sternkarten fürs Sternengucker-Faultier"
+  },
+  "cargo.1-3": {
+   "en": "Night-lights for the firefly nursery",
+   "target": "Nachtlichter für die Glühwürmchen-Kita"
+  },
+  "cargo.1-4": {
+   "en": "Feather boas for the carnival parade",
+   "target": "Federboas für die Karnevalsparade"
+  },
+  "cargo.1-5": {
+   "en": "A rush invitation for the drum captain",
+   "target": "Eil-Einladung für den Trommelchef",
+   "note": "\"Eil-\" = rush/urgent; the birds play on \"Eile\"."
+  },
+  "cargo.1-6": {
+   "en": "Cocoa beans for the temple cooks",
+   "target": "Kakaobohnen für die Tempelköche"
+  },
+  "cargo.1-7": {
+   "en": "A sundial for the dawn keeper",
+   "target": "Sonnenuhr für den Hüter der Morgenröte"
+  },
+  "cargo.1-8": {
+   "en": "A final notice for Baron Bat",
+   "target": "Letzte Mahnung für Baron Fledermaus",
+   "note": "\"Letzte Mahnung\" = the official final-notice phrase."
+  },
+  "cargo.2-1": {
+   "en": "Laurel wreaths for the chariot racers",
+   "target": "Lorbeerkränze für die Wagenlenker"
+  },
+  "cargo.2-2": {
+   "en": "A new chisel for the statue carver",
+   "target": "Neuer Meißel für den Bildhauer"
+  },
+  "cargo.2-3": {
+   "en": "Water buckets for the fire brigade",
+   "target": "Wassereimer für die Feuerwehr"
+  },
+  "cargo.2-4": {
+   "en": "A book of new riddles for the Sphinx",
+   "target": "Ein Buch neuer Rätsel für die Sphinx"
+  },
+  "cargo.2-5": {
+   "en": "A telescope for the pyramid astronomer",
+   "target": "Teleskop für den Pyramiden-Astronomen"
+  },
+  "cargo.2-6": {
+   "en": "A feather duster for the caretaker",
+   "target": "Staubwedel für die Hausmeisterin"
+  },
+  "cargo.2-7": {
+   "en": "Lamp oil for the lantern sellers",
+   "target": "Lampenöl für die Laternenhändler"
+  },
+  "cargo.2-8": {
+   "en": "Water flasks for the long caravan",
+   "target": "Wasserflaschen für die lange Karawane"
+  },
+  "cargo.2-9": {
+   "en": "A stop-brewing order for the Spitter King",
+   "target": "Brau-Verbot für den Spuckkönig"
+  },
+  "cargo.3-1": {
+   "en": "Light bulbs for the theatre marquee",
+   "target": "Glühbirnen fürs Theatervordach"
+  },
+  "cargo.3-2": {
+   "en": "Umbrellas for the newsstand pigeons",
+   "target": "Schirme für die Kiosktauben",
+   "note": "In speech also \"Regenschirme\"."
+  },
+  "cargo.3-3": {
+   "en": "Hot pretzels for the night-shift cabbies",
+   "target": "Heiße Brezeln für die Nachttaxifahrer"
+  },
+  "cargo.3-4": {
+   "en": "A weather vane for the tallest tower",
+   "target": "Wetterhahn für den höchsten Turm",
+   "note": "\"Wetterhahn\" = rooftop weather vane; no homophone risk."
+  },
+  "cargo.3-5": {
+   "en": "Croissants for the rooftop painters",
+   "target": "Croissants für die Dachmaler"
+  },
+  "cargo.3-6": {
+   "en": "Sheet music for the accordion player",
+   "target": "Noten für den Akkordeonspieler"
+  },
+  "cargo.3-7": {
+   "en": "A midnight love letter for the baker",
+   "target": "Mitternachtsliebesbrief für die Bäckerin",
+   "note": "40 chars; in speech \"Mitternachts-Liebesbrief\"."
+  },
+  "cargo.3-8": {
+   "en": "A wake-up call for the Dusk Empress",
+   "target": "Weckruf für die Dämmerkaiserin",
+   "note": "\"Weckruf\" carries both meanings (alarm call and warning)."
+  },
+  "cargo.4-1": {
+   "en": "A new lens for the lighthouse keeper",
+   "target": "Neue Linse für die Leuchtturmwärterin"
+  },
+  "cargo.4-2": {
+   "en": "Oven mitts for the volcano baker",
+   "target": "Ofenhandschuhe für die Vulkanbäckerin"
+  },
+  "cargo.4-3": {
+   "en": "Kite string for the beach festival",
+   "target": "Drachenschnur fürs Strandfest",
+   "note": "\"Drachenschnur\" = kite string."
+  },
+  "cargo.4-4": {
+   "en": "A reply for the island hermit",
+   "target": "Eine Antwort für den Inseleinsiedler"
+  },
+  "cargo.4-5": {
+   "en": "A tide table for the ferry crew",
+   "target": "Gezeitentafel für die Fährcrew"
+  },
+  "cargo.4-6": {
+   "en": "Fish biscuits for the gull colony",
+   "target": "Fischkekse für die Möwenkolonie"
+  },
+  "cargo.4-7": {
+   "en": "Dry socks for the storm-watch sailors",
+   "target": "Trockene Socken für die Sturmwache"
+  },
+  "cargo.4-8": {
+   "en": "A return-the-mail order for the Captain",
+   "target": "Rückgabe-Befehl für den Käpt’n",
+   "note": "Official order to give the mail back."
+  },
+  "cargo.5-1": {
+   "en": "Woolly hats for the penguin choir",
+   "target": "Wollmützen für den Pinguinchor"
+  },
+  "cargo.5-2": {
+   "en": "Hot cocoa for the polar station",
+   "target": "Heißer Kakao für die Polarstation"
+  },
+  "cargo.5-3": {
+   "en": "Spare fuses for the noodle bar sign",
+   "target": "Ersatzsicherungen fürs Nudelbar-Schild"
+  },
+  "cargo.5-4": {
+   "en": "A paper letter for a curious robot",
+   "target": "Papierbrief für neugierigen Roboter",
+   "note": "Tag style to stay under 40; in speech \"Ein Papierbrief für einen neugierigen Roboter\"."
+  },
+  "cargo.5-5": {
+   "en": "Race tickets for the rooftop runners",
+   "target": "Renntickets für die Dachläufer"
+  },
+  "cargo.5-6": {
+   "en": "Paper lanterns for the festival",
+   "target": "Papierlaternen für das Fest"
+  },
+  "cargo.5-7": {
+   "en": "Mountain tea for the monastery",
+   "target": "Bergtee für das Kloster"
+  },
+  "cargo.5-8": {
+   "en": "The first letter ever sent to the Dragon",
+   "target": "Der allererste Brief an den Drachen"
+  },
+  "enemy.purple-bat": {
+   "en": "Purple bat",
+   "target": "Fledermaus",
+   "note": "\"lila Fledermaus\" where the kind is named."
+  },
+  "enemy.cave-bat": {
+   "en": "Cave bat",
+   "target": "Höhlenfledermaus"
+  },
+  "enemy.spitter-beetle": {
+   "en": "Spitter beetle",
+   "target": "Spuckkäfer"
+  },
+  "enemy.dusk-moth": {
+   "en": "Dusk moth",
+   "target": "Dämmerfalter",
+   "note": "\"Falter\" (moth) in short."
+  },
+  "enemy.alley-pigeon": {
+   "en": "Alley Pigeon",
+   "target": "Gassentaube"
+  },
+  "enemy.mummy-bat": {
+   "en": "Mummy bat",
+   "target": "Mumienfledermaus"
+  },
+  "enemy.squadron": {
+   "en": "King Coo's squadron",
+   "target": "König Gurrs Staffel",
+   "note": "\"STAFFEL\" also in \"SQUAD CANCELLED\"."
+  },
+  "enemy.straggler": {
+   "en": "straggler",
+   "target": "Nachzügler",
+   "note": "UI says \"kommt zurück\"."
+  },
+  "enemy.brood": {
+   "en": "the Spitter King's brood",
+   "target": "die Brut des Spuckkönigs",
+   "note": "He calls them \"Assistenten!\", \"meine kleinen Skarabäen\"."
+  },
+  "enemy.empress-moths": {
+   "en": "the Dusk Empress's moths",
+   "target": "die Falter der Dämmerkaiserin",
+   "note": "She calls them \"meine Lieblinge\", \"meine Hübschen\"."
+  },
+  "enemy.swarm-bats": {
+   "en": "swarm bats",
+   "target": "Schwarmfledermäuse",
+   "note": "\"Schwarm\" as in the Swarm rush."
+  },
+  "attack.fireball": {
+   "en": "fireball",
+   "target": "Feuerball"
+  },
+  "attack.screech": {
+   "en": "sonic screech",
+   "target": "Schallkreischen",
+   "note": "Same root as Bill's \"Der kreischt nur\"."
+  },
+  "attack.seed": {
+   "en": "seed",
+   "target": "Kern",
+   "note": "Spat like cherry pits (\"Kirschkernspucken\"); \"Käfer spucken Kerne. Schieß die Kerne ab.\""
+  },
+  "attack.fan": {
+   "en": "fan",
+   "target": "Fächer",
+   "note": "\"Dreierfächer\" = fan of three."
+  },
+  "attack.pollen": {
+   "en": "pollen",
+   "target": "Blütenstaub",
+   "note": "Also \"Pollen\"."
+  },
+  "attack.veil": {
+   "en": "veil",
+   "target": "Schleier",
+   "note": "The birds call it \"Schild\"."
+  },
+  "attack.cannon": {
+   "en": "cannon",
+   "target": "Kanone"
+  },
+  "attack.broadside": {
+   "en": "broadside",
+   "target": "Breitseite"
+  },
+  "attack.dragon-breath": {
+   "en": "dragon's breath",
+   "target": "Drachenatem"
+  },
+  "attack.embers": {
+   "en": "embers",
+   "target": "Glut",
+   "note": "Same root as \"Glutdrache\"."
+  },
+  "attack.crumb-bomb": {
+   "en": "crumb bomb",
+   "target": "Krümelbombe"
+  },
+  "attack.stale-crust": {
+   "en": "stale crust",
+   "target": "alte Brotkruste"
+  },
+  "attack.puff": {
+   "en": "puff",
+   "target": "aufplustern",
+   "note": "Pigeons really \"plustern sich auf\". POP!/POOF! -> PLOPP!/PUFF!"
+  },
+  "attack.beam": {
+   "en": "beam",
+   "target": "Lichtstrahl"
+  },
+  "attack.lamp": {
+   "en": "lamp",
+   "target": "Lampe",
+   "note": "His chest lamp (the city lamps are \"Laternen\")."
+  },
+  "attack.stone-feathers": {
+   "en": "stone feathers",
+   "target": "Steinfedern"
+  },
+  "attack.mail-call": {
+   "en": "mail call",
+   "target": "Post ist da!",
+   "note": "What a German postman calls out; his attack tag."
+  },
+  "attack.ankh": {
+   "en": "ankh",
+   "target": "Anch",
+   "note": "Standard German spelling (das Anch)."
+  },
+  "attack.express-post": {
+   "en": "EXPRESS POST",
+   "target": "EILPOST",
+   "note": "Same as level 1-5."
+  },
+  "hazard.gate": {
+   "en": "gate",
+   "target": "Tor"
+  },
+  "hazard.garden-gate": {
+   "en": "Garden gate",
+   "target": "Gartentor"
+  },
+  "hazard.wind-lift": {
+   "en": "Wind lift",
+   "target": "Aufwindtor"
+  },
+  "hazard.petal-shutters": {
+   "en": "Petal shutters",
+   "target": "Blütenklappen",
+   "note": "Bill says \"Blütentore\"."
+  },
+  "hazard.switchback": {
+   "en": "Switchback",
+   "target": "Serpentine"
+  },
+  "hazard.lantern-drift": {
+   "en": "Lantern drift",
+   "target": "Laternentreiben"
+  },
+  "hazard.sun-wheels": {
+   "en": "Sun wheels",
+   "target": "Sonnenräder"
+  },
+  "hazard.crystal-steps": {
+   "en": "Crystal steps",
+   "target": "Kristallstufen"
+  },
+  "hazard.stone-panel": {
+   "en": "stone panel",
+   "target": "Steinplatte"
+  },
+  "hazard.steam-geyser": {
+   "en": "steam vent",
+   "target": "Dampfgeysir",
+   "note": "Bill: \"Geysire zischen, bevor sie ausbrechen.\""
+  },
+  "hazard.sea": {
+   "en": "the sea",
+   "target": "das Meer",
+   "note": "Also \"das Wasser\"."
+  },
+  "hazard.tide": {
+   "en": "the tide",
+   "target": "die Flut",
+   "note": "HIGH TIDE = \"HOCHWASSER\"."
+  },
+  "hazard.tide-bell": {
+   "en": "the bell",
+   "target": "die Glocke"
+  },
+  "hazard.lava-plume": {
+   "en": "lava plume",
+   "target": "Lavafontäne"
+  },
+  "hazard.meteor": {
+   "en": "meteor",
+   "target": "Meteor"
+  },
+  "hazard.debris": {
+   "en": "debris",
+   "target": "Trümmer",
+   "note": "Birds say \"fliegender Kram\"."
+  },
+  "hazard.football": {
+   "en": "football",
+   "target": "Fußball"
+  },
+  "hazard.warning-mark": {
+   "en": "!",
+   "target": "!",
+   "note": "Sign unchanged."
+  },
+  "hazard.rubble": {
+   "en": "rubble",
+   "target": "Geröll"
+  },
+  "set-piece.rush-path": {
+   "en": "rush",
+   "target": "Ansturm",
+   "note": "HUD \"ANSTURM ×2!\"."
+  },
+  "set-piece.wildfire": {
+   "en": "Wildfire",
+   "target": "Lauffeuer",
+   "note": "Banner \"LAUFFEUER!\"."
+  },
+  "set-piece.skyfall": {
+   "en": "Skyfall",
+   "target": "Himmelssturz",
+   "note": "Banner \"HIMMELSSTURZ!\"."
+  },
+  "set-piece.eruption": {
+   "en": "Eruption",
+   "target": "Ausbruch"
+  },
+  "set-piece.swarm": {
+   "en": "Swarm",
+   "target": "Schwarm"
+  },
+  "set-piece.gale": {
+   "en": "gale",
+   "target": "Sturm",
+   "note": "Gusts \"Böen\"; banner \"STURM!\"."
+  },
+  "set-piece.finish-line": {
+   "en": "finish line",
+   "target": "Ziellinie",
+   "note": "Sign \"ZIEL\"; the tape \"Zielband\"."
+  },
+  "set-piece.run-up": {
+   "en": "run-up",
+   "target": "Anflug"
+  },
+  "set-piece.vanguard": {
+   "en": "vanguard",
+   "target": "Vorhut"
+  },
+  "pickup.star": {
+   "en": "star",
+   "target": "Stern"
+  },
+  "pickup.star-trio": {
+   "en": "star trio",
+   "target": "Sterntrio"
+  },
+  "pickup.heart": {
+   "en": "heart",
+   "target": "Herz"
+  },
+  "pickup.shield": {
+   "en": "shield",
+   "target": "Schild",
+   "note": "\"der Schild\"; the birds never say \"Blase\"."
+  },
+  "pickup.star-magnet": {
+   "en": "star magnet",
+   "target": "Sternmagnet",
+   "note": "Short \"Magnet\"."
+  },
+  "pickup.sprint-ring": {
+   "en": "sprint ring",
+   "target": "Sprintring",
+   "note": "\"goldene Ringe\", \"die Ringe\"."
+  },
+  "pickup.mystery-box": {
+   "en": "mystery box",
+   "target": "Wunderkiste"
+  },
+  "pickup.bat-swarm": {
+   "en": "Bat swarm",
+   "target": "Fledermausschwarm",
+   "note": "UI duel prize banner (budget 16): \"Fledermäuse\" (\"Fledermäuse auf S2!\")."
+  },
+  "pickup.meteor-shower": {
+   "en": "Meteor shower",
+   "target": "Meteorschauer"
+  },
+  "pickup.star-power": {
+   "en": "Star power",
+   "target": "Sternenkraft"
+  },
+  "power-up.shot-power": {
+   "en": "Shot power",
+   "target": "Schusskraft"
+  },
+  "power-up.sprint": {
+   "en": "Sprint (upgrade)",
+   "target": "Sprint"
+  },
+  "power-up.shield": {
+   "en": "Shield (upgrade)",
+   "target": "Schild"
+  },
+  "power-up.magnet": {
+   "en": "Magnet (upgrade)",
+   "target": "Magnet"
+  },
+  "weapon.shoot": {
+   "en": "Shoot",
+   "target": "Schießen",
+   "note": "Button; verb \"schießen\" in hints (\"Schieß die Kerne ab\")."
+  },
+  "weapon.rock": {
+   "en": "rock",
+   "target": "Stein"
+  },
+  "weapon.big-rock": {
+   "en": "big rock",
+   "target": "großer Stein"
+  },
+  "weapon.ammo": {
+   "en": "ammo",
+   "target": "Munition",
+   "note": "The birds say \"Steine\"."
+  },
+  "weapon.sprint": {
+   "en": "Sprint",
+   "target": "Sprint",
+   "note": "Verb \"sprinten\"."
+  },
+  "weapon.ring-sprint": {
+   "en": "ring sprint",
+   "target": "Ringsprint"
+  },
+  "weapon.smash": {
+   "en": "SMASH!",
+   "target": "KRACH!"
+  },
+  "mode.campaign": {
+   "en": "Campaign",
+   "target": "Kampagne"
+  },
+  "mode.endless": {
+   "en": "Endless",
+   "target": "Endlos"
+  },
+  "mode.tap-and-fly": {
+   "en": "Tap & Fly",
+   "target": "Tipp & Flieg"
+  },
+  "mode.push-up-flight": {
+   "en": "Push-Up Flight",
+   "target": "Liegestütz-Flug"
+  },
+  "mode.squat-and-fly": {
+   "en": "Squat & Fly",
+   "target": "Hock & Flieg"
+  },
+  "mode.jump-and-fly": {
+   "en": "Jump & Fly",
+   "target": "Hüpf & Flieg"
+  },
+  "mode.mini-games": {
+   "en": "Mini games",
+   "target": "Minispiele"
+  },
+  "mode.fly-together": {
+   "en": "Fly Together",
+   "target": "Zusammen fliegen"
+  },
+  "mode.roped": {
+   "en": "Roped",
+   "target": "Am Seil"
+  },
+  "mode.no-rope": {
+   "en": "No rope",
+   "target": "Ohne Seil"
+  },
+  "mode.duel": {
+   "en": "1 v 1",
+   "target": "1 gegen 1"
+  },
+  "mode.level-builder": {
+   "en": "Level Builder",
+   "target": "Level-Baukasten"
+  },
+  "mode.daily-adventure": {
+   "en": "Adventure",
+   "target": "Abenteuer"
+  },
+  "mode.flight-school": {
+   "en": "Flight School",
+   "target": "Flugschule"
+  },
+  "mode.practice": {
+   "en": "Practice",
+   "target": "Übung"
+  },
+  "mode.test-flight": {
+   "en": "test flight",
+   "target": "Testflug"
+  },
+  "mode.classic": {
+   "en": "Classic",
+   "target": "Klassisch"
+  },
+  "mode.world-tour": {
+   "en": "world tour",
+   "target": "Weltreise"
+  },
+  "ui.sky-club": {
+   "en": "Sky Club",
+   "target": "Himmelsclub",
+   "note": "Short \"der Club\"."
+  },
+  "ui.sky-club-post": {
+   "en": "Sky Club post",
+   "target": "Himmelsclub-Post",
+   "note": "Also the doorstep greeting \"Himmelsclub-Post!\" (like a postman calling \"Post!\")."
+  },
+  "ui.passport": {
+   "en": "passport",
+   "target": "Himmelspass",
+   "note": "Short \"Pass\"."
+  },
+  "ui.passport-stamp": {
+   "en": "stamp (passport)",
+   "target": "Stempel",
+   "note": "Ink stamp; postage stamps are \"Briefmarken\"."
+  },
+  "ui.medal": {
+   "en": "medal",
+   "target": "Medaille"
+  },
+  "ui.bronze": {
+   "en": "Bronze",
+   "target": "Bronze"
+  },
+  "ui.silver": {
+   "en": "Silver",
+   "target": "Silber"
+  },
+  "ui.gold": {
+   "en": "Gold",
+   "target": "Gold"
+  },
+  "ui.star-marks": {
+   "en": "star marks",
+   "target": "Sternmarken",
+   "note": "Pip: \"Erste Marke leuchtet!\""
+  },
+  "ui.star-rating": {
+   "en": "stars (level rating)",
+   "target": "Sterne"
+  },
+  "ui.streak": {
+   "en": "streak",
+   "target": "Serie"
+  },
+  "ui.multiplier": {
+   "en": "multiplier",
+   "target": "Multiplikator"
+  },
+  "ui.perfect-pass": {
+   "en": "perfect pass",
+   "target": "perfekter Durchflug"
+  },
+  "ui.aiming-mark": {
+   "en": "aiming mark",
+   "target": "Zielmarke"
+  },
+  "ui.score": {
+   "en": "score",
+   "target": "Punkte"
+  },
+  "ui.best": {
+   "en": "best",
+   "target": "Bestwert"
+  },
+  "ui.record": {
+   "en": "record",
+   "target": "Rekord"
+  },
+  "ui.records-screen": {
+   "en": "Records",
+   "target": "Rekorde"
+  },
+  "ui.saved-session": {
+   "en": "saved session",
+   "target": "gespeicherter Flug"
+  },
+  "ui.replay": {
+   "en": "replay",
+   "target": "Wiederholung"
+  },
+  "ui.flight-highlights": {
+   "en": "Flight highlights",
+   "target": "Flug-Highlights"
+  },
+  "ui.flight": {
+   "en": "flight",
+   "target": "Flug"
+  },
+  "ui.scored-flight": {
+   "en": "scored flight",
+   "target": "gewerteter Flug"
+  },
+  "ui.upgrades": {
+   "en": "Upgrades",
+   "target": "Upgrades"
+  },
+  "ui.star-wallet": {
+   "en": "stars to spend",
+   "target": "Sterne zum Ausgeben"
+  },
+  "ui.collection": {
+   "en": "Birds",
+   "target": "Vögel"
+  },
+  "ui.trail-sunshine-bubbles": {
+   "en": "Sunshine bubbles",
+   "target": "Sonnenblasen"
+  },
+  "ui.trail-peach-hearts": {
+   "en": "Peach hearts",
+   "target": "Pfirsichherzen"
+  },
+  "ui.trail-mint-leaves": {
+   "en": "Mint leaves",
+   "target": "Minzblätter"
+  },
+  "ui.trail-stardust-sparkles": {
+   "en": "Stardust sparkles",
+   "target": "Sternenstaub-Glitzer"
+  },
+  "ui.character-voices": {
+   "en": "Character voices",
+   "target": "Figurenstimmen"
+  },
+  "ui.sky-club-soundtrack": {
+   "en": "Sky Club soundtrack",
+   "target": "Himmelsclub-Soundtrack"
+  },
+  "ui.reduced-motion": {
+   "en": "Reduced motion",
+   "target": "Bewegung reduzieren"
+  },
+  "ui.campaign-map": {
+   "en": "map",
+   "target": "Karte"
+  },
+  "ui.stop": {
+   "en": "stop",
+   "target": "Halt",
+   "note": "\"Nächster Halt: Paris\" (train-announcement style); \"Station\" also fine in UI."
+  },
+  "ui.chapter": {
+   "en": "chapter",
+   "target": "Kapitel"
+  },
+  "ui.level": {
+   "en": "level",
+   "target": "Level"
+  },
+  "ui.level-card": {
+   "en": "level card",
+   "target": "Levelkarte"
+  },
+  "ui.special-delivery": {
+   "en": "SPECIAL DELIVERY",
+   "target": "SONDERZUSTELLUNG"
+  },
+  "ui.hint": {
+   "en": "TIP",
+   "target": "TIPP"
+  },
+  "ui.thank-you-note": {
+   "en": "thank-you note",
+   "target": "Dankeskarte"
+  },
+  "ui.postcard": {
+   "en": "postcard",
+   "target": "Postkarte",
+   "note": "\"Hallo, Kurier,\" avoids a gendered \"Lieber/Liebe\"."
+  },
+  "ui.lair": {
+   "en": "lair",
+   "target": "Versteck"
+  },
+  "ui.guardian": {
+   "en": "GUARDIAN",
+   "target": "WÄCHTER",
+   "note": "Bill says \"Wächter\"."
+  },
+  "ui.boss": {
+   "en": "boss",
+   "target": "Boss"
+  },
+  "ui.encounter": {
+   "en": "ENCOUNTER 01",
+   "target": "BEGEGNUNG 01"
+  },
+  "ui.name-card": {
+   "en": "name card",
+   "target": "Namenskarte"
+  },
+  "ui.stronger": {
+   "en": "STRONGER",
+   "target": "STÄRKER"
+  },
+  "ui.fury": {
+   "en": "FURY",
+   "target": "ZORN"
+  },
+  "ui.sky-reclaimed": {
+   "en": "SKY RECLAIMED",
+   "target": "HIMMEL ZURÜCKEROBERT",
+   "note": "UI (2026-10-07): the victory card uses \"HIMMEL BEFREIT\" (budget 18; \"HIMMEL ZURÜCKEROBERT\" is 20). Not spoken."
+  },
+  "ui.guardian-down": {
+   "en": "GUARDIAN DOWN!",
+   "target": "WÄCHTER BESIEGT!"
+  },
+  "ui.victory": {
+   "en": "Victory!",
+   "target": "Sieg!"
+  },
+  "ui.delivered": {
+   "en": "Delivered!",
+   "target": "Zugestellt!",
+   "note": "No agreement needed."
+  },
+  "ui.try-again": {
+   "en": "Try again!",
+   "target": "Nochmal!"
+  },
+  "ui.bonk": {
+   "en": "Bonk!",
+   "target": "Klonk!",
+   "note": "German cartoon bump; same sound as the Empress's \"Klonk. Klonk.\" and Pip's knockout."
+  },
+  "ui.splash": {
+   "en": "Splash!",
+   "target": "Platsch!"
+  },
+  "ui.route-flown": {
+   "en": "ROUTE FLOWN",
+   "target": "ROUTE GEFLOGEN"
+  },
+  "ui.coming-soon": {
+   "en": "Coming soon",
+   "target": "Demnächst"
+  },
+  "ui.unlock": {
+   "en": "unlock",
+   "target": "freischalten"
+  },
+  "ui.story-key": {
+   "en": "Story",
+   "target": "Geschichte"
+  },
+  "ui.to-be-continued": {
+   "en": "To be continued…",
+   "target": "Fortsetzung folgt…",
+   "note": "Exact caption the scene player must detect."
+  },
+  "ui.pause": {
+   "en": "Take a breather.",
+   "target": "Kurz verschnaufen."
+  },
+  "ui.flap": {
+   "en": "Flap",
+   "target": "Flattern"
+  },
+  "ui.fly": {
+   "en": "Fly!",
+   "target": "Flieg!"
+  },
+  "ui.workout": {
+   "en": "workout",
+   "target": "Training"
+  },
+  "ui.calibration": {
+   "en": "calibration",
+   "target": "Kalibrierung"
+  },
+  "ui.camera-lab": {
+   "en": "Camera & tracking lab",
+   "target": "Kamera- & Tracking-Labor"
+  },
+  "ui.play-games": {
+   "en": "Play Games",
+   "target": "Play Spiele",
+   "note": "Google's German product name is \"Google Play Spiele\"."
+  },
+  "ui.achievements": {
+   "en": "achievements",
+   "target": "Erfolge",
+   "note": "Google Play's German term."
+  },
+  "ui.share-code": {
+   "en": "share code",
+   "target": "Level-Code"
+  },
+  "ui.remix": {
+   "en": "Remix",
+   "target": "Remixen"
+  },
+  "ui.starter-levels": {
+   "en": "Starter levels",
+   "target": "Startlevel"
+  },
+  "ui.start-zone": {
+   "en": "START ZONE",
+   "target": "STARTZONE"
+  },
+  "ui.gate-family": {
+   "en": "gate family",
+   "target": "Torart"
+  },
+  "ui.boss-finale": {
+   "en": "Boss finale",
+   "target": "Boss-Finale"
+  },
+  "ui.cleared-by-you": {
+   "en": "Cleared by you",
+   "target": "Von dir geschafft"
+  },
+  "ui.pace": {
+   "en": "Pace",
+   "target": "Tempo"
+  },
+  "ui.lane": {
+   "en": "lane",
+   "target": "Bahn",
+   "note": "King Coo's \"open lane\" = \"die freie Bahn\" (idiom)."
+  },
+  "ui.player": {
+   "en": "Player 1",
+   "target": "Spieler 1",
+   "note": "\"S1\"/\"S2\"."
+  },
+  "ui.team-score": {
+   "en": "TEAM SCORE",
+   "target": "TEAMPUNKTE"
+  },
+  "ui.rematch": {
+   "en": "Rematch",
+   "target": "Revanche"
+  },
+  "ui.rank-first-wings": {
+   "en": "First wings",
+   "target": "Erste Flügel"
+  },
+  "ui.rank-cloud-explorer": {
+   "en": "Cloud explorer",
+   "target": "Wolkenforscher"
+  },
+  "ui.home-greeting": {
+   "en": "Hi, I’m $name! Ready to fly?",
+   "target": "Hi, ich bin $name! Bereit zum Fliegen?",
+   "note": "\"bereit\" is predicative, so it works for all four birds."
+  },
+  "achievement.frequent-flyer": {
+   "en": "Frequent flyer",
+   "target": "Vielflieger"
+  },
+  "achievement.on-the-dot": {
+   "en": "On the dot",
+   "target": "Auf den Punkt",
+   "note": "German precision idiom; also literal (the aiming mark)."
+  },
+  "achievement.star-chaser": {
+   "en": "Star chaser",
+   "target": "Sternenjäger"
+  },
+  "achievement.constellation": {
+   "en": "Constellation",
+   "target": "Sternbild"
+  },
+  "achievement.sky-captain": {
+   "en": "Sky captain",
+   "target": "Himmelskapitän"
+  },
+  "achievement.trailblazer": {
+   "en": "Trailblazer",
+   "target": "Wegbereiter"
+  },
+  "achievement.flock-together": {
+   "en": "Flock together",
+   "target": "Bunter Schwarm",
+   "note": "UI (2026-10-07): was \"Gemeinsam im Schwarm\" (20) — over the 18-char stamp budget; \"Bunter Schwarm\" (a colourful flock = different birds) is used in the passport and the Play achievement names. Not spoken in any voice clip."
+  },
+  "achievement.all-rounder": {
+   "en": "All-rounder",
+   "target": "Alleskönner"
+  },
+  "achievement.mail-through-the-canopy": {
+   "en": "Mail Through the Canopy",
+   "target": "Post durchs Blätterdach"
+  },
+  "achievement.return-to-sender": {
+   "en": "Return to Sender",
+   "target": "Zurück an den Absender"
+  },
+  "achievement.mint-tea-again": {
+   "en": "Mint Tea Again",
+   "target": "Schon wieder Minztee"
+  },
+  "achievement.crumbs-cleared": {
+   "en": "Crumbs Cleared",
+   "target": "Krümel-Kehraus",
+   "note": "\"Kehraus\" = sweeping out; K-K alliteration."
+  },
+  "achievement.out-of-the-spotlight": {
+   "en": "Out of the Spotlight",
+   "target": "Raus aus dem Rampenlicht",
+   "note": "Double meaning survives (stage spotlight / searchlight)."
+  },
+  "achievement.gold-canopy": {
+   "en": "Gold Canopy",
+   "target": "Goldenes Blätterdach"
+  },
+  "achievement.gold-road": {
+   "en": "Gold Road",
+   "target": "Goldene Straße"
+  },
+  "achievement.bright-lights": {
+   "en": "Bright Lights",
+   "target": "Lichter der Großstadt",
+   "note": "German title of Chaplin's \"City Lights\": the big-city echo."
+  },
+  "achievement.lamplighter": {
+   "en": "Lamplighter",
+   "target": "Laternenanzünder"
+  },
+  "achievement.harbour-bells": {
+   "en": "Harbour Bells",
+   "target": "Hafenglocken"
+  },
+  "achievement.edge-of-the-map": {
+   "en": "Edge of the Map",
+   "target": "Rand der Karte"
+  },
+  "achievement.two-on-one-phone": {
+   "en": "Two on One Phone",
+   "target": "Zwei an einem Handy"
+  },
+  "achievement.friendly-rivals": {
+   "en": "Friendly Rivals",
+   "target": "Freundliche Rivalen"
+  },
+  "achievement.route-planner": {
+   "en": "Route Planner",
+   "target": "Routenplaner"
+  },
+  "achievement.the-whole-kit": {
+   "en": "The Whole Kit",
+   "target": "Das volle Programm",
+   "note": "Idiom for \"everything\"."
+  },
+  "achievement.pen-pal": {
+   "en": "Pen Pal",
+   "target": "Brieffreund"
+  },
+  "achievement.night-mail": {
+   "en": "Night Mail",
+   "target": "Nachtpost"
+  },
+  "achievement.special-delivery": {
+   "en": "Special Delivery",
+   "target": "Sonderzustellung"
+  },
+  "achievement.goal-spread-your-wings": {
+   "en": "Spread your wings",
+   "target": "Flügel ausbreiten"
+  },
+  "achievement.goal-open-horizons": {
+   "en": "Open horizons",
+   "target": "Weite Horizonte"
+  },
+  "achievement.goal-pocketful-of-stars": {
+   "en": "Pocketful of stars",
+   "target": "Taschen voller Sterne"
+  },
+  "achievement.goal-keep-the-sparkle": {
+   "en": "Keep the sparkle",
+   "target": "Weiterfunkeln"
+  },
+  "achievement.goal-right-on-the-mark": {
+   "en": "Right on the mark",
+   "target": "Genau ins Schwarze",
+   "note": "Idiom for hitting the mark."
+  },
+  "achievement.goal-the-whole-journey": {
+   "en": "The whole journey",
+   "target": "Die ganze Reise"
+  },
+  "achievement.card-sunrise-delivery": {
+   "en": "Sunrise delivery",
+   "target": "Morgenrot-Post"
+  },
+  "achievement.card-peach-picnic": {
+   "en": "Peach picnic",
+   "target": "Pfirsich-Picknick",
+   "note": "P-P alliteration kept."
+  },
+  "achievement.card-moonlit-mail": {
+   "en": "Moonlit mail",
+   "target": "Mondscheinpost"
+  },
+  "achievement.card-cloud-parade": {
+   "en": "Cloud parade",
+   "target": "Wolkenparade"
+  },
+  "achievement.card-twilight-treasure": {
+   "en": "Twilight treasure",
+   "target": "Dämmerschatz"
+  },
+  "achievement.card-garden-party": {
+   "en": "Garden party",
+   "target": "Gartenparty"
+  },
+  "story.flame-seal": {
+   "en": "flame seal",
+   "target": "Flammensiegel",
+   "note": "Alone: \"Siegel\"."
+  },
+  "story.warm-letter": {
+   "en": "a warm letter",
+   "target": "ein warmer Brief",
+   "note": "\"warm\" carries both meanings in German too (warm/herzlich)."
+  },
+  "story.night-mail": {
+   "en": "the night mail",
+   "target": "die Nachtpost",
+   "note": "No near-homophone risk."
+  },
+  "story.morning-post": {
+   "en": "the morning post",
+   "target": "die Morgenpost"
+  },
+  "story.mail-route": {
+   "en": "route",
+   "target": "Route",
+   "note": "Compound \"Postroute\"."
+  },
+  "story.route-six": {
+   "en": "Route six",
+   "target": "Route sechs"
+  },
+  "story.beacon": {
+   "en": "our beacon",
+   "target": "unser Leuchtfeuer"
+  },
+  "story.lost-letter": {
+   "en": "the lost letter",
+   "target": "der verlorene Brief"
+  },
+  "story.the-books": {
+   "en": "the books",
+   "target": "die Bücher",
+   "note": "\"in den Büchern nachgesehen\"."
+  },
+  "story.pigeonholes": {
+   "en": "pigeonholes",
+   "target": "Taubenschlag",
+   "note": "Pun rebuilt: \"Bei uns geht’s zu wie im Taubenschlag, nur ohne Taube.\" (\"wie im Taubenschlag\" = constant coming and going, as in a busy post office.)"
+  },
+  "story.bread-cart": {
+   "en": "the bread cart",
+   "target": "der Brotwagen"
+  },
+  "story.bagel": {
+   "en": "a hot bagel a day",
+   "target": "ein warmer Bagel am Tag"
+  },
+  "story.landing-light": {
+   "en": "landing light",
+   "target": "Landelicht"
+  },
+  "story.brew": {
+   "en": "the brew",
+   "target": "das Gebräu"
+  },
+  "story.perfect-ink": {
+   "en": "the perfect ink",
+   "target": "die perfekte Tinte"
+  },
+  "story.mint-tea": {
+   "en": "mint tea",
+   "target": "Minztee",
+   "note": "Minty: \"Quasi nach mir benannt.\""
+  },
+  "story.letter-phrases": {
+   "en": "“Dear Grandma”, “Wish you were here”",
+   "target": "„Liebe Oma“, „Das Wetter ist schön“",
+   "note": "German letter opener and THE German postcard cliché; flight: „Gute Besserung“, „Liebe Grüße“."
+  },
+  "story.postage-stamp": {
+   "en": "stamps",
+   "target": "Briefmarken",
+   "note": "Short \"Marken\" in pirate speech."
+  },
+  "story.stamp-album": {
+   "en": "stamp album",
+   "target": "Briefmarkenalbum"
+  },
+  "story.penny-black": {
+   "en": "penny black",
+   "target": "Black Penny",
+   "note": "The usual German philatelic name."
+  },
+  "story.envelopes": {
+   "en": "the envelopes",
+   "target": "die Umschläge"
+  },
+  "story.beauty-sleep": {
+   "en": "beauty sleep",
+   "target": "Schönheitsschlaf",
+   "note": "Same idiom exists in German."
+  },
+  "story.dusk-delivery": {
+   "en": "deliver at dusk",
+   "target": "in der Dämmerung zustellen"
+  },
+  "story.lamps": {
+   "en": "the lamps",
+   "target": "die Laternen",
+   "note": "Street lamps; clear word, no homophone."
+  },
+  "story.lampshades": {
+   "en": "lampshades",
+   "target": "Lampenschirme",
+   "note": "The Empress shortens it to \"Schirme…\"."
+  },
+  "story.harbour-bells": {
+   "en": "harbour bells",
+   "target": "Hafenglocken"
+  },
+  "story.club-rule": {
+   "en": "Club rule",
+   "target": "Clubregel"
+  },
+  "story.final-notice": {
+   "en": "final notice",
+   "target": "Letzte Mahnung",
+   "note": "Official German final-notice phrase."
+  },
+  "story.wake-up-call": {
+   "en": "wake-up call",
+   "target": "Weckruf",
+   "note": "Both meanings."
+  },
+  "story.first-letter": {
+   "en": "the first letter ever sent to the Dragon",
+   "target": "der allererste Brief an den Drachen"
+  },
+  "story.dotted-i": {
+   "en": "He dotted his “i” with a tiny bat.",
+   "target": "Seinen i-Punkt hat er als winzige Fledermaus gemalt."
+  },
+  "story.mailbag": {
+   "en": "mailbag",
+   "target": "Postsack"
+  },
+  "story.satchel": {
+   "en": "satchel",
+   "target": "Posttasche"
+  },
+  "story.pharaohs-post": {
+   "en": "the Pharaoh's post",
+   "target": "die Post des Pharaos"
+  },
+  "story.mask": {
+   "en": "golden courier mask",
+   "target": "goldene Kuriermaske"
+  },
+  "story.wrappings": {
+   "en": "wrappings",
+   "target": "Mumienbinden"
+  },
+  "story.headwear": {
+   "en": "headwear",
+   "target": "Kopfschmuck",
+   "note": "Krone, Kolbenkrone, Diadem, Hut, Dienstmütze."
+  },
+  "story.kindling": {
+   "en": "kindling",
+   "target": "Zunder",
+   "note": "\"Deine Briefe sind Zunder.\""
+  },
+  "story.rush-hour": {
+   "en": "rush hour",
+   "target": "Stoßzeit",
+   "note": "\"Seine Schlafenszeit ist unsere Stoßzeit.\""
+  },
+  "story.weather-vane": {
+   "en": "weather vane",
+   "target": "Wetterhahn"
+  },
+  "motto.every-letter-lands": {
+   "en": "Every letter lands.",
+   "target": "Jeder Brief kommt an.",
+   "note": "Reused verbatim; the Dragon: \"Kommt wirklich jeder Brief an?\"; Minty: \"…und meiner kommt SCHNELL an!\""
+  },
+  "motto.every-letter-delivered": {
+   "en": "Every letter delivered",
+   "target": "Jeder Brief zugestellt"
+  },
+  "address.rookie": {
+   "en": "rookie",
+   "target": "Grünschnabel",
+   "note": "German for greenhorn, literally \"green beak\": a perfect bird word; epicene in use."
+  },
+  "address.little-courier": {
+   "en": "little courier",
+   "target": "Postvögelchen",
+   "note": "Neuter diminutive: fits any bird, posh condescension."
+  },
+  "address.darling": {
+   "en": "darling",
+   "target": "Schätzchen",
+   "note": "Neuter: fits any bird (Gargoyle, Baron, Peaches)."
+  },
+  "address.postie": {
+   "en": "postie",
+   "target": "Brieftaube",
+   "note": "\"carrier pigeon\": feminine noun used for any bird; a gruff jibe at a courier bird."
+  },
+  "address.sprat": {
+   "en": "sprat",
+   "target": "Sprotte",
+   "note": "The same tiny fish; feminine noun, fits any bird."
+  },
+  "address.skylubber": {
+   "en": "skylubber",
+   "target": "Wolkenratte",
+   "note": "From \"Landratte\"."
+  },
+  "address.matey": {
+   "en": "matey",
+   "target": "Maat"
+  },
+  "address.lad": {
+   "en": "lad",
+   "target": "Sprotte",
+   "note": "Gender trap avoided: never \"Junge\"."
+  },
+  "address.feathers": {
+   "en": "feathers",
+   "target": "Federvieh",
+   "note": "Jokey \"poultry\"."
+  },
+  "address.little-spark": {
+   "en": "little spark",
+   "target": "Fünkchen",
+   "note": "Neuter diminutive, fits any bird."
+  },
+  "address.hatchling": {
+   "en": "hatchling",
+   "target": "Küken",
+   "note": "Neuter."
+  },
+  "address.small-one": {
+   "en": "small one",
+   "target": "Kleines",
+   "note": "Neuter."
+  },
+  "address.little-one": {
+   "en": "little one",
+   "target": "Kleines",
+   "note": "Neuter; the Empress also says \"kleines Wanderherz\", \"kleiner Nachtvogel\"."
+  },
+  "address.fledgling": {
+   "en": "fledgling",
+   "target": "Nestling",
+   "note": "Bare vocative, no visible gender."
+  },
+  "address.old-courier": {
+   "en": "old courier",
+   "target": "alter Kurier"
+  },
+  "address.stoneface": {
+   "en": "Stoneface",
+   "target": "Steingesicht"
+  },
+  "address.commissioner": {
+   "en": "Commissioner",
+   "target": "Herr Kommissar"
+  },
+  "address.your-majesty": {
+   "en": "Your Majesty",
+   "target": "Majestät",
+   "note": "\"Eure Majestät\" in full."
+  },
+  "address.your-lordship": {
+   "en": "Your Lordship",
+   "target": "Euer Gnaden"
+  },
+  "address.her-highness": {
+   "en": "Her Highness",
+   "target": "Ihre Hoheit"
+  },
+  "address.sir": {
+   "en": "sir",
+   "target": "mein Herr",
+   "note": "Or \"Herr\" + title (Herr Baron, Herr Kommissar)."
+  },
+  "address.mister": {
+   "en": "Mister",
+   "target": "Herr",
+   "note": "\"Herr Sphinx\", \"Herr Neferhoo\"."
+  },
+  "address.partner": {
+   "en": "partner",
+   "target": "Partner",
+   "note": "Also \"Kumpel\" (Minty to enemies)."
+  },
+  "address.peaches-pet-names": {
+   "en": "sweetie",
+   "target": "Schätzchen",
+   "note": "Varied set used: Zuckerschnecke, Schätzchen, Honigbärchen, Mäuschen, Zuckerstück, Knuddelkäfer, Butterblümchen, Schnuckelchen, Herzchen, Federchen, Knödelchen…"
+  },
+  "address.bossy": {
+   "en": "bossy",
+   "target": "Chefchen",
+   "note": "Cheeky diminutive of \"Chef\"."
+  },
+  "address.minions": {
+   "en": "Cousins! / my lovelies / my little scarabs / me hearties",
+   "target": "Vettern! / meine Lieblinge / meine kleinen Skarabäen / Mannschaft!",
+   "note": "Plural \"ihr\"."
+  },
+  "phrase.baron-bat-line": {
+   "en": "This route is my roost now, little courier!",
+   "target": "Diese Route ist jetzt mein Schlafplatz, Postvögelchen!"
+  },
+  "phrase.spitter-king-line": {
+   "en": "Every letter on my road goes in the brew!",
+   "target": "Jeder Brief auf meiner Straße kommt ins Gebräu!"
+  },
+  "phrase.dusk-empress-line": {
+   "en": "Hush now. The night mail is sleeping.",
+   "target": "Pst, still jetzt. Die Nachtpost schläft."
+  },
+  "phrase.pirate-captain-line": {
+   "en": "Arr! Every mailbag on these waves be mine!",
+   "target": "Arr! Jeder Postsack auf diesen Wellen gehört mir!"
+  },
+  "phrase.ember-dragon-line": {
+   "en": "The sky is mine. Your letters are kindling.",
+   "target": "Der Himmel gehört mir. Deine Briefe sind Zunder."
+  },
+  "phrase.neferhoo-line": {
+   "en": "Return to sender! This route has a courier.",
+   "target": "Zurück an den Absender! Diese Route hat schon einen Kurier."
+  },
+  "phrase.king-coo-line": {
+   "en": "Nobody flies till the bread cart is found!",
+   "target": "Keiner fliegt, bis der Brotwagen gefunden ist!"
+  },
+  "phrase.searchlight-gargoyle-line": {
+   "en": "Hold still! Nobody ever stays in the light.",
+   "target": "Halt doch still! Nie bleibt jemand im Licht."
+  },
+  "phrase.return-to-sender": {
+   "en": "Return to sender!",
+   "target": "Zurück an den Absender!",
+   "note": "Official German postal formula; props: \"ZURÜCK AN\" / \"DEN ABSENDER\"."
+  },
+  "phrase.signed-sealed-delivered": {
+   "en": "Signed, sealed, delivered!",
+   "target": "Unterschrieben, versiegelt, zugestellt!",
+   "note": "Three beats; Minty's twist \"…zugeflitzt!\"."
+  },
+  "phrase.small-bird-big-sky": {
+   "en": "Small bird. Big sky.",
+   "target": "Kleiner Vogel. Großer Himmel.",
+   "note": "Pip's riff: \"Kleiner Vogel, großer Plan!\""
+  },
+  "phrase.peaches-tagline": {
+   "en": "Rosy cheeks, curly crest, all heart.",
+   "target": "Rosa Bäckchen, Lockenschopf, ganz viel Herz."
+  },
+  "phrase.minty-tagline": {
+   "en": "Tiny hummer. Fresh sprig. Full speed.",
+   "target": "Winziger Kolibri. Frische Minze. Vollgas."
+  },
+  "phrase.orbit-tagline": {
+   "en": "A dreamy owl who flies by starlight.",
+   "target": "Eine verträumte Eule, die im Sternenlicht fliegt.",
+   "note": "Bill: \"Flieg im Sternenlicht, Grünschnabel.\" UI bird card (budget 48): \"Verträumte Eule, die im Sternenlicht fliegt.\" (article dropped)."
+  },
+  "phrase.sprint-woohoo": {
+   "en": "Woo-hooo!",
+   "target": "Juhuuu!"
+  },
+  "phrase.sprint-turbo-feathers": {
+   "en": "Turbo feathers!",
+   "target": "Federn auf Turbo!"
+  },
+  "phrase.sprint-bye-bye-gravity": {
+   "en": "Bye-bye, gravity!",
+   "target": "Tschüss, Schwerkraft!"
+  },
+  "phrase.sprint-wheee": {
+   "en": "Wheeee!",
+   "target": "Huiiiii!"
+  },
+  "phrase.keep-your-beak-up": {
+   "en": "Keep your beak up.",
+   "target": "Schnabel hoch.",
+   "note": "From \"Kopf hoch\"."
+  },
+  "phrase.all-screech": {
+   "en": "He’s all screech",
+   "target": "Der kreischt nur",
+   "note": "\"Bellende Hunde beißen nicht\" spirit, kept short."
+  },
+  "phrase.no-flame-seal": {
+   "en": "No flame seal on this guardian.",
+   "target": "Kein Flammensiegel bei diesem Wächter."
+  },
+  "phrase.halt": {
+   "en": "HALT!",
+   "target": "HALT!"
+  },
+  "phrase.mister-nice-bat": {
+   "en": "No more Mister Nice Bat!",
+   "target": "Schluss mit Kuschelfledermaus!",
+   "note": "Twist on \"Schluss mit lustig!\"."
+  },
+  "phrase.at-your-disservice": {
+   "en": "at your disservice",
+   "target": "zu Ihren Diensten… nicht",
+   "note": "The polite formula, then the twist."
+  },
+  "phrase.mind-the-gap": {
+   "en": "Mind the gap",
+   "target": "Vorsicht an der Lücke",
+   "note": "Echoes the German platform announcement \"Vorsicht an der Bahnsteigkante\"."
+  },
+  "phrase.sticks-and-stones": {
+   "en": "Sticks and stones?",
+   "target": "Worte tun nicht weh – aber ich hab Steine dabei!",
+   "note": "No German proverb with the same shape; keep the stones joke."
+  },
+  "phrase.rock-beats-shot": {
+   "en": "Rock beats shot!",
+   "target": "Stein schlägt Schuss!",
+   "note": "\"Schere, Stein, Papier\" pattern; alliteration."
+  },
+  "phrase.pirate-speak": {
+   "en": "Arr!",
+   "target": "Arr! / Ahoi! / Donnerwetter!",
+   "note": "Also \"Beidrehen!\", \"Landratte\"-style insults, \"Luken dicht!\"."
+  },
+  "phrase.strike-the-colours": {
+   "en": "strike the colours",
+   "target": "die Flagge streichen",
+   "note": "Exact nautical idiom."
+  },
+  "phrase.nobody-looks-up": {
+   "en": "Nobody looks up.",
+   "target": "Keiner schaut nach oben.",
+   "note": "Payoff: \"Jeder Kurier wird nach oben schauen!\""
+  },
+  "phrase.accepts": {
+   "en": "The Commissioner accepts.",
+   "target": "Der Kommissar nimmt an.",
+   "note": "And \"Der Wasserspeier nimmt an.\""
+  },
+  "phrase.bonk-bonk": {
+   "en": "Bonk. Bonk.",
+   "target": "Klonk. Klonk."
+  },
+  "phrase.hush": {
+   "en": "Hush now.",
+   "target": "Pst, still jetzt."
+  },
+  "phrase.welcome-to-the-club": {
+   "en": "Welcome to the club",
+   "target": "Willkommen im Club",
+   "note": "The German idiom exists word for word."
+  },
+  "ui.omen-baron": {
+   "en": "A SHADOW APPROACHES",
+   "target": "EIN SCHATTEN NAHT"
+  },
+  "ui.omen-baron-returns": {
+   "en": "THE BARON RETURNS",
+   "target": "DER BARON KEHRT ZURÜCK"
+  },
+  "ui.omen-spitter": {
+   "en": "SOMETHING IS BREWING",
+   "target": "DA BRAUT SICH WAS ZUSAMMEN",
+   "note": "German idiom \"something is brewing\", literal for him."
+  },
+  "ui.omen-empress": {
+   "en": "TWILIGHT TAKES WING",
+   "target": "DIE DÄMMERUNG ERHEBT SICH"
+  },
+  "ui.omen-pirate": {
+   "en": "SAIL HO!",
+   "target": "SEGEL IN SICHT!"
+  },
+  "ui.omen-dragon": {
+   "en": "THE SKY CATCHES FIRE",
+   "target": "DER HIMMEL FÄNGT FEUER"
+  },
+  "ui.omen-king-coo": {
+   "en": "THE CURB IS CLOSED",
+   "target": "KANTSTEIN GESPERRT",
+   "note": "Echoes his title."
+  },
+  "ui.omen-gargoyle": {
+   "en": "STORM WARNING",
+   "target": "STURMWARNUNG",
+   "note": "Same as level 3-4."
+  },
+  "ui.omen-neferhoo": {
+   "en": "THE PYRAMID STIRS",
+   "target": "DIE PYRAMIDE ERWACHT"
+  },
+  "story.letter": {
+   "en": "letter",
+   "target": "Brief",
+   "note": "Alphabet sense only in \"i-Punkt\" and \"die Wörter vom Papier kochen\"."
+  },
+  "story.mail-and-post": {
+   "en": "the mail / the post",
+   "target": "die Post",
+   "note": "German has one word for both."
+  },
+  "story.parcel": {
+   "en": "parcel",
+   "target": "Paket"
+  },
+  "story.delivery": {
+   "en": "delivery",
+   "target": "Zustellung",
+   "note": "zustellen / zugestellt; the doorstep \"liefern\" is fine in speech."
+  },
+  "story.salutation": {
+   "en": "Dear Dragon.",
+   "target": "Lieber Drache.",
+   "note": "Postcards: \"Hallo, Kurier,\" (no gendered adjective)."
+  },
+  "ui.skip": {
+   "en": "Skip (story key)",
+   "target": "Auslassen",
+   "note": "Budget 10; \"Überspringen\" (12) does not fit."
+  },
+  "ui.home-button": {
+   "en": "Home (button)",
+   "target": "Hauptmenü",
+   "note": "Back-to-home keys and tooltips (\"Zum Hauptmenü\")."
+  },
+  "ui.try-again-load": {
+   "en": "Try again (load/save retry)",
+   "target": "Erneut versuchen",
+   "note": "Retry after a failed load; \"Nochmal\" is the level Retry key."
+  },
+  "ui.retry": {
+   "en": "Retry (level key)",
+   "target": "Nochmal"
+  },
+  "ui.hp": {
+   "en": "HP (health points)",
+   "target": "LP",
+   "note": "Lebenspunkte; \"{boss}: NOCH 120 LP\"."
+  },
+  "ui.save-session": {
+   "en": "Save session",
+   "target": "Flug speichern",
+   "note": "Saved sessions screen: \"Gespeicherte Flüge\"."
+  },
+  "ui.watch-replay": {
+   "en": "Watch replay",
+   "target": "Nochmal ansehen"
+  },
+  "ui.nice-shot": {
+   "en": "NICE SHOT!",
+   "target": "VOLLTREFFER!",
+   "note": "Flight callout."
+  },
+  "ui.boss-down": {
+   "en": "BOSS DOWN!",
+   "target": "BOSS BESIEGT!",
+   "note": "With points: \"BOSS K.O. +{points}!\" (budget 18)."
+  },
+  "ui.ready-steady": {
+   "en": "Ready, steady…",
+   "target": "Achtung, fertig…",
+   "note": "Countdown card."
+  },
+  "ui.first-clear": {
+   "en": "First clear!",
+   "target": "Premiere!",
+   "note": "Result tag (budget 14/16)."
+  },
+  "ui.new-best": {
+   "en": "New best! / NEW BEST!",
+   "target": "Neuer Rekord! / NEUER REKORD!",
+   "note": "\"Bestwert\" is the stored best (\"Bestwert 240\")."
+  },
+  "ui.player-short": {
+   "en": "P1 / P2",
+   "target": "S1 / S2",
+   "note": "Spieler 1/2; tiny tags and key hints."
+  },
+  "ui.space-key": {
+   "en": "Space (key)",
+   "target": "Leertaste"
+  },
+  "ui.stone-door": {
+   "en": "stone door (builder)",
+   "target": "Steintür"
+  },
+  "ui.pickups": {
+   "en": "pickups (builder)",
+   "target": "Extras"
+  },
+  "ui.shelf": {
+   "en": "shelf (Level Builder)",
+   "target": "Regal",
+   "note": "\"„…“ ist in deinem Regal!\""
+  },
+  "ui.upgrade-verb": {
+   "en": "Upgrade (buy button)",
+   "target": "Verbessern"
+  },
+  "ui.maxed-out": {
+   "en": "Maxed out",
+   "target": "Voll ausgebaut"
+  },
+  "ui.greetings-from": {
+   "en": "Greetings from (postcard ribbon)",
+   "target": "Herzliche Grüße",
+   "note": "\"Grüße aus\" would need the region in the dative."
+  },
+  "ui.dear-courier": {
+   "en": "Dear courier,",
+   "target": "Hallo, Kurier,",
+   "note": "From the voice NOTES (no gendered \"Liebe/r\")."
+  },
+  "ui.stamp-sky-club": {
+   "en": "SKY CLUB (postage stamp band)",
+   "target": "LUFTPOST",
+   "note": "Budget 10; \"HIMMELSCLUB\" is 11."
+  },
+  "ui.neferhoo-roar": {
+   "en": "HOO POO POO",
+   "target": "SCHU HU HU",
+   "note": "German owl call (\"schuhu\")."
+  },
+  "ui.king-coo-shout": {
+   "en": "COO!",
+   "target": "GURR!"
+  },
+  "ui.puffed": {
+   "en": "PUFFED",
+   "target": "GEBLÄHT (tag, 9) / AUFGEPLUSTERT (hint)"
+  },
+  "ui.calibration-top": {
+   "en": "comfortable top (push-up)",
+   "target": "bequem in den Stütz"
+  },
+  "ui.rush-chain": {
+   "en": "RUSH ×3",
+   "target": "ANSTURM ×3",
+   "note": "Same word as set-piece.rush-path."
+  }
+ }
+}

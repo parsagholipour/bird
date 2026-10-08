@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../app_brand.dart';
+import '../l10n/l10n.dart';
+import 'fit_text.dart';
 
 const launchBackground = Color(0xff10282f);
 const _gold = Color(0xffffd45b);
@@ -29,7 +31,7 @@ class LaunchLockup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Semantics(
-    label: '${AppBrand.name}. Every letter lands.',
+    label: context.l10n.launchSemantics(AppBrand.name, context.l10n.motto),
     image: true,
     child: const ExcludeSemantics(
       child: SizedBox(
@@ -84,13 +86,14 @@ class LaunchWordmark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MediaQuery.withNoTextScaling(
-    child: const SizedBox(
+    child: SizedBox(
       width: 320,
       height: 80,
       child: Column(
         children: [
-          Text(
-            'BEAKBOUND',
+          const Text(
+            'BEAKBOUND', // l10n-ignore: the brand, in Latin in every language
+
             style: TextStyle(
               fontFamily: 'Fredoka',
               fontSize: 38,
@@ -101,16 +104,19 @@ class LaunchWordmark extends StatelessWidget {
               decoration: TextDecoration.none,
             ),
           ),
-          SizedBox(height: 8),
-          Text(
-            'Every letter lands.',
+          const SizedBox(height: 8),
+          // The motto in the current language (English in the native launch
+          // assets, which tool/render_launch_assets_test.dart draws).
+          FitText(
+            context.l10n.motto,
             style: TextStyle(
               fontFamily: 'Nunito',
+              fontFamilyFallback: L10n.fonts.bodyFallback,
               fontSize: 14,
               fontWeight: FontWeight.w700,
               letterSpacing: .6,
               height: 1.2,
-              color: Color(0xff9bd4cc),
+              color: const Color(0xff9bd4cc),
               decoration: TextDecoration.none,
             ),
           ),

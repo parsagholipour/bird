@@ -2,9 +2,12 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:flutter/painting.dart';
+import 'package:flutter/widgets.dart' show StringCharacters;
 
 import '../domain/game_rules.dart' show FlightSimulation;
 import '../domain/sky_boss.dart';
+import '../l10n/l10n.dart';
+import '../l10n/text/boss_text.dart';
 import '../ui/theme.dart';
 import 'boss_motion.dart';
 import 'gargoyle_kit.dart';
@@ -30,17 +33,38 @@ import 'gargoyle_layout.dart';
 abstract final class GargoyleEncounterUi {
   /// The card's small gold word: GUARDIAN everywhere (the level card's ribbon,
   /// the result and this card), never MINI-BOSS or ENCOUNTER NN.
-  static const tag = 'GUARDIAN', epithet = 'WATCHMAN OF THE TALLEST TOWER';
+  static String get tag => L10n.strings.bossGuardianEyebrow;
+  static String get epithet => L10n.strings.boss_searchlightGargoyle_title;
 
   /// The card's title, on two lines.
-  static const titleSmall = 'THE SEARCHLIGHT', titleBig = 'GARGOYLE';
+  static String get titleSmall => L10n.strings.bossGargoyleCardSmall;
+  static String get titleBig => L10n.strings.bossGargoyleCardBig;
+
+  /// Whether the big line comes first (`bossGargoyleCardOrder` is
+  /// `big-small`): languages that name the gargoyle before his searchlight
+  /// (GÁRGULA over DO HOLOFOTE). English sets the small line on top.
+  static bool get bigFirst => L10n.strings.bossGargoyleCardOrder.trim() == 'big-small';
 
   /// His stage-actor entrance line (what the card shows when the campaign
-  /// supplies none; the campaign's own is the same words, `bossLine`) and the
-  /// captions.
-  static const line = 'Hold still! Nobody ever stays in the light.';
-  static const arrivalCaption = 'Something on the ledge is watching…';
-  static const fightCaption = 'STAY OUT OF THE LIGHT · SHOOT THE LAMP WHEN IT OPENS';
+  /// supplies none: his level's own line, `bossLine`, without quotation
+  /// marks) and the captions (BossEncounterArt's warning and letterbox).
+  static String get line =>
+      L10n.strings.guardianLine(BossKind.searchlightGargoyle) ?? '';
+  static String get arrivalCaption =>
+      L10n.strings.encounterOmenLine_searchlightGargoyle;
+  static String get fightCaption =>
+      L10n.strings.encounterCaption_searchlightGargoyle;
+
+  /// The quote the card sets: [given] (the campaign's, already in
+  /// quotation marks), else his own [line] in the language's quotation
+  /// marks. (The staging's prewarm quotes his line the English way; that is
+  /// his own line too, so the card it warms is the one the flight shows.)
+  static String _quote(String? given) {
+    final own = L10n.strings.bossQuotedLine(line);
+    if (given == null || given.trim().isEmpty) return own;
+    final text = given.trim();
+    return text == '“$line”' ? own : text;
+  }
 
   /// When the card lands: on the roar's hold (the roar strikes at 2.65 s; the
   /// card follows at 2.85 s), stays to [holdTo] and has folded away by
@@ -93,7 +117,8 @@ abstract final class GargoyleEncounterUi {
 
   // ------------------------------------------------------------ text, once --
 
-  static final Map<Object, TextPainter> _texts = {};
+  // (and laid out again in a new language's fonts)
+  static final Map<Object, TextPainter> _texts = L10n.cache({});
 
   /// How many laid-out text painters are kept (tests: bounded, nothing is laid
   /// out per frame).
@@ -133,7 +158,8 @@ abstract final class GargoyleEncounterUi {
                     ..color = _ink.withValues(alpha: bucket / 8),
                 ),
         ),
-        textDirection: TextDirection.ltr,
+        // Words run their language's way; the card stays where it is.
+        textDirection: L10n.textDirection,
         textAlign: width == null ? TextAlign.start : TextAlign.center,
         maxLines: maxLines,
         ellipsis: width == null ? null : '…',
@@ -213,7 +239,7 @@ abstract final class GargoyleEncounterUi {
     if (t < 0 || gone >= 1) return true;
     final reduced = m.reducedMotion;
     final h = size.height, k = h / 360;
-    final text = (line == null || line.trim().isEmpty) ? '“${GargoyleEncounterUi.line}”' : line.trim();
+    final text = _quote(line);
     final g = _card(size, boss, text);
     final hf = h * g.f;
     final x0 = g.plate.left, y0 = g.plate.top, wc = g.plate.width, hc = g.plate.height;
@@ -298,16 +324,18 @@ abstract final class GargoyleEncounterUi {
     // which only fades the whole card).
     double stagger(double from, double to) => reduced ? 1.0 : _ramp(t, from, to);
     final cx = g.plate.center.dx;
-    // The small title above the name.
+    // The small title above the name (under it where the language names
+    // the gargoyle first).
+    final bigFirst = GargoyleEncounterUi.bigFirst;
+    final nameTop = y0 + hf * (bigFirst ? .062 : .108);
     final small = g.small(fade * stagger(.2, .42) * inside);
-    final smallTop = y0 + hf * .062;
+    final smallTop = bigFirst ? nameTop + g.nameH + hf * .004 : y0 + hf * .062;
     if (small != null) {
       small.paint(c, Offset(cx - small.width / 2, smallTop));
     }
 
     // The name: an ink shadow and outline, then each letter lit as his beam
     // passes it, right to left.
-    final nameTop = y0 + hf * .108;
     final nameLeft = cx - g.nameW / 2;
     g.outline.paint(c, Offset(nameLeft, nameTop + k * 2.4 * g.f));
     g.outline.paint(c, Offset(nameLeft, nameTop));
@@ -339,7 +367,7 @@ abstract final class GargoyleEncounterUi {
       }
       _glyph(g.glyphs[i], g.nameSize, stage, fade).paint(c, Offset(nameLeft + g.glyphX[i], nameTop));
     }
-    final hair = nameTop + g.nameH + hf * .008;
+    final hair = (bigFirst ? smallTop + g.smallH : nameTop + g.nameH) + hf * .008;
     c.drawLine(
       Offset(cx - wc * .36, hair),
       Offset(cx + wc * .36, hair),
@@ -488,14 +516,14 @@ abstract final class GargoyleEncounterUi {
     // four and a quarter hit radii left of his lamp.
     final room = boss.x.isFinite ? boss.x * h - 4.3 * h * SkyBoss.radius - h * .016 - left : 1e6;
     final built = _cardBuilt;
-    if (built != null && built.size == size && built.quote == quote && built.room == room.round()) return built;
+    if (built != null && built.size == size && built.quote == quote && built.room == room.round() && built.locale == L10n.locale) return built;
     return _cardBuilt = _Card(size, quote, room);
   }
 
   /// The plate's rectangle for [boss] at [size] (the staging and the tests use
   /// it to keep the card clear of his head).
   static Rect cardRect(Size size, SkyBoss boss, {String? line}) =>
-      _card(size, boss, (line == null || line.trim().isEmpty) ? '“${GargoyleEncounterUi.line}”' : line.trim()).plate;
+      _card(size, boss, _quote(line)).plate;
 
   // ================================================================ bursts ==
 
@@ -1200,7 +1228,9 @@ abstract final class GargoyleEncounterUi {
 /// The card's measured layout: everything that depends only on the viewport,
 /// the room his head leaves and the words.
 class _Card {
-  _Card(this.size, this.quote, double roomPx) : room = roomPx.round() {
+  _Card(this.size, this.quote, double roomPx)
+    : room = roomPx.round(),
+      locale = L10n.locale {
     final h = size.height, w = size.width;
     final name = GargoyleEncounterUi.titleBig;
     // Lay it out at full size; if the plate would reach his head, lay it out
@@ -1221,13 +1251,18 @@ class _Card {
     final probe = GargoyleEncounterUi._text('name', name, nameSize, color: const Color(0xffffffff), spacing: 1);
     nameW = probe.width;
     nameH = probe.height;
-    glyphs = [for (var i = 0; i < name.length; i++) name[i]];
+    smallH = GargoyleEncounterUi._text('small', GargoyleEncounterUi.titleSmall, h * .03 * f, spacing: 3, color: GargoylePalette.brassLit).height;
+    // Heated letter by letter (whole characters); a right-to-left
+    // language's joined letters heat as one word.
+    glyphs = L10n.textDirection == TextDirection.rtl ? [name] : name.characters.toList();
     glyphX = [];
     glyphW = [];
-    for (var i = 0; i < name.length; i++) {
-      final boxes = probe.getBoxesForSelection(TextSelection(baseOffset: i, extentOffset: i + 1));
+    var at = 0;
+    for (final glyph in glyphs) {
+      final boxes = probe.getBoxesForSelection(TextSelection(baseOffset: at, extentOffset: at + glyph.length));
+      at += glyph.length;
       glyphX.add(boxes.isEmpty ? 0.0 : boxes.first.left);
-      glyphW.add(boxes.isEmpty ? 0.0 : boxes.first.right - boxes.first.left);
+      glyphW.add(boxes.isEmpty ? 0.0 : boxes.last.right - boxes.first.left);
     }
     outline = GargoyleEncounterUi._text('outline', name, nameSize, spacing: 1, stroke: h * .012 * f);
     final wc = wanted(f);
@@ -1347,9 +1382,12 @@ class _Card {
   final String quote;
   final int room;
 
+  /// The language the card was laid out in.
+  final Locale locale;
+
   /// How much smaller than full size the plate had to be to fit.
   late final double f;
-  late final double nameSize, nameW, nameH, bulbR, shieldW, quoteWidth, quoteSize;
+  late final double nameSize, nameW, nameH, smallH, bulbR, shieldW, quoteWidth, quoteSize;
   late final List<String> glyphs;
   late final List<double> glyphX, glyphW;
   late final TextPainter outline;

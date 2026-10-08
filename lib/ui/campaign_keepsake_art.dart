@@ -14,7 +14,25 @@ import '../game/neferhoo_story_art.dart';
 import '../game/pirate_boss_rig.dart';
 import '../game/spitter_boss_rig.dart';
 import '../game/star_art.dart';
+import '../l10n/l10n.dart' show L10n;
 import 'theme.dart';
+
+// l10n-english-twin: the boss names in [CampaignHeadwear.name] are the twins
+// of the ARB keys `boss_*_name`; screens show `l.bossName(kind)`.
+
+/// Whether [text] is set right to left and its letters join (Arabic): such
+/// words are shaped whole, never set one letter at a time.
+bool _joinedScript(String text) => text.runes.any(
+  (r) =>
+      (r >= 0x0600 && r <= 0x06ff) ||
+      (r >= 0x0750 && r <= 0x077f) ||
+      (r >= 0x08a0 && r <= 0x08ff) ||
+      (r >= 0xfb50 && r <= 0xfdff) ||
+      (r >= 0xfe70 && r <= 0xfeff),
+);
+
+TextDirection _directionOf(String text) =>
+    _joinedScript(text) ? TextDirection.rtl : TextDirection.ltr;
 
 /// The headwear each boss loses in its defeat, drawn by the boss's own
 /// painter and fitted into any box: a boss lair on the map, a postage stamp.
@@ -73,7 +91,8 @@ abstract final class CampaignHeadwear {
     canvas.restore();
   }
 
-  /// The name on the boss's lair and postcard.
+  /// The boss's name in English: the twin of `l.bossName(boss)`, which the
+  /// screens show.
   static String name(BossKind boss) => switch (boss) {
     BossKind.baronBat => 'Baron Bat',
     BossKind.spitterBeetle => 'Spitter King',
@@ -104,9 +123,13 @@ abstract final class CampaignHeadwear {
 
 /// A perforated postage stamp with a boss's headwear on a sunburst field.
 class CampaignStampPainter extends CustomPainter {
-  const CampaignStampPainter(this.boss, {this.chapter = 1});
+  const CampaignStampPainter(this.boss, {this.chapter = 1, this.label});
   final BossKind boss;
   final int chapter;
+
+  /// The club's name on the stamp's band; the current language's
+  /// ("SKY CLUB") when null.
+  final String? label;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -236,7 +259,7 @@ class CampaignStampPainter extends CustomPainter {
     );
     _text(
       canvas,
-      'SKY CLUB',
+      label ?? L10n.strings.campaignStampSkyClub,
       Offset(field.center.dx, band.center.dy - field.width * .075),
       bodyText(
         field.width * .15,
@@ -244,21 +267,37 @@ class CampaignStampPainter extends CustomPainter {
         weight: FontWeight.w900,
       ).copyWith(letterSpacing: field.width * .012, height: 1),
       center: true,
+      maxWidth: field.width * .94,
     );
   }
 
+  /// Sets [text] at [at] (its top centre with [center]); a [maxWidth] it
+  /// would run past squeezes it to that width about its centre.
   static void _text(
     Canvas canvas,
     String text,
     Offset at,
     TextStyle style, {
     bool center = false,
+    double? maxWidth,
   }) {
     final painter = TextPainter(
       text: TextSpan(text: text, style: style),
-      textDirection: TextDirection.ltr,
+      textDirection: _directionOf(text),
     )..layout();
-    painter.paint(canvas, center ? at - Offset(painter.width / 2, 0) : at);
+    final origin = center ? at - Offset(painter.width / 2, 0) : at;
+    if (maxWidth != null && painter.width > maxWidth) {
+      final k = maxWidth / painter.width;
+      final mid = origin + Offset(painter.width / 2, painter.height / 2);
+      canvas.save();
+      canvas.translate(mid.dx, mid.dy);
+      canvas.scale(k);
+      canvas.translate(-mid.dx, -mid.dy);
+      painter.paint(canvas, origin);
+      canvas.restore();
+    } else {
+      painter.paint(canvas, origin);
+    }
     painter.dispose();
   }
 
@@ -288,7 +327,7 @@ class CampaignStampPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(CampaignStampPainter old) =>
-      old.boss != boss || old.chapter != chapter;
+      old.boss != boss || old.chapter != chapter || old.label != label;
 }
 
 /// A round rubber postmark with wavy cancel lines, printed in soft indigo
@@ -418,7 +457,7 @@ class CampaignPostmarkPainter extends CustomPainter {
     if (text.isEmpty) return;
     final painter = TextPainter(
       text: TextSpan(text: text, style: style),
-      textDirection: TextDirection.ltr,
+      textDirection: _directionOf(text),
     )..layout();
     painter.paint(canvas, at - Offset(painter.width / 2, painter.height / 2));
     painter.dispose();
@@ -426,7 +465,9 @@ class CampaignPostmarkPainter extends CustomPainter {
 
   /// Letters set one by one along the rim, reading left to right on both
   /// the upper and the lower arc. Long words shrink to keep to their half of
-  /// the ring, so the two never run into each other.
+  /// the ring, so the two never run into each other. Joined letters
+  /// (Arabic) are shaped as one word and bent along the rim in thin
+  /// slices instead ([_arcShaped]).
   static void _arc(
     Canvas canvas,
     String text,
@@ -436,8 +477,11 @@ class CampaignPostmarkPainter extends CustomPainter {
     required bool upper,
   }) {
     if (text.isEmpty) return;
+    if (_joinedScript(text)) {
+      return _arcShaped(canvas, text, center, radius, style, upper: upper);
+    }
     List<TextPainter> lay(TextStyle s) => [
-      for (final ch in text.split(''))
+      for (final ch in text.characters)
         TextPainter(
           text: TextSpan(text: ch, style: s),
           textDirection: TextDirection.ltr,
@@ -477,6 +521,56 @@ class CampaignPostmarkPainter extends CustomPainter {
       angle += half * 2;
       g.dispose();
     }
+  }
+
+  /// [_arc] for words whose letters join: the word is shaped whole, then cut
+  /// into thin upright slices, each turned to its place on the rim, so the
+  /// joins survive the bend.
+  static void _arcShaped(
+    Canvas canvas,
+    String text,
+    Offset center,
+    double radius,
+    TextStyle style, {
+    required bool upper,
+  }) {
+    TextPainter lay(TextStyle s) => TextPainter(
+      text: TextSpan(text: text, style: s),
+      textDirection: TextDirection.rtl,
+    )..layout();
+    var painter = lay(style);
+    const room = math.pi * .82;
+    if (painter.width / radius > room) {
+      final k = room * radius / painter.width;
+      painter.dispose();
+      painter = lay(
+        style.copyWith(
+          fontSize: style.fontSize! * k,
+          letterSpacing: style.letterSpacing! * k,
+        ),
+      );
+    }
+    final span = painter.width, height = painter.height;
+    final slices = math.max(1, (span / (style.fontSize! * .3)).ceil());
+    final slice = span / slices;
+    for (var i = 0; i < slices; i++) {
+      final x = i * slice;
+      final a = (x + slice / 2 - span / 2) / radius;
+      canvas.save();
+      canvas.translate(center.dx, center.dy);
+      if (upper) {
+        canvas.rotate(a);
+        canvas.translate(-slice / 2, -radius - height * .5);
+      } else {
+        canvas.rotate(-a);
+        canvas.translate(-slice / 2, radius - height * .5);
+      }
+      // A hair of overlap hides the seams between slices.
+      canvas.clipRect(Rect.fromLTWH(-.3, 0, slice + .6, height));
+      painter.paint(canvas, Offset(-x, 0));
+      canvas.restore();
+    }
+    painter.dispose();
   }
 
   @override
@@ -631,18 +725,22 @@ class CampaignLettering extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final painter = _LetteringPainter(text.toUpperCase());
+    final painter = _LetteringPainter(L10n.upper(text));
     return CustomPaint(size: painter.size, painter: painter);
   }
 }
 
+/// Lettering set a letter at a time, each a little off its neighbours; a
+/// word whose letters join (Arabic) is set whole, right to left.
 class _LetteringPainter extends CustomPainter {
   _LetteringPainter(this.text)
     : fontSize = text.length > 10 ? 34.0 : 42.0,
-      glyphs = text.split('');
+      direction = _directionOf(text),
+      glyphs = _joinedScript(text) ? [text] : text.characters.toList();
 
   final String text;
   final double fontSize;
+  final TextDirection direction;
   final List<String> glyphs;
 
   double get _gap => fontSize * .03;
@@ -656,7 +754,7 @@ class _LetteringPainter extends CustomPainter {
         foreground: foreground ?? (Paint()..color = SkyColors.yellow),
       ),
     ),
-    textDirection: TextDirection.ltr,
+    textDirection: direction,
   )..layout();
 
   /// The lettering's box, with room for its halo and depth.

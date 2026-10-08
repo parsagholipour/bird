@@ -11,9 +11,13 @@ import '../../domain/built_level.dart';
 import '../../domain/built_reach.dart';
 import '../../domain/built_templates.dart';
 import '../../domain/game_rules.dart';
+import '../../l10n/l10n.dart';
+import '../../l10n/text/builder_shelf_text.dart';
+import '../../l10n/text/builder_text.dart';
 import '../campaign_chrome.dart' show MapGlyph, MapKey;
 import '../components.dart' show SceneLayout, SkyBackdrop;
 import '../control_glyphs.dart';
+import '../fit_text.dart';
 import '../home_keys.dart';
 import '../match_hud.dart' show MatchPlate;
 import '../theme.dart';
@@ -128,10 +132,7 @@ class _BuilderEditorScreenState extends ConsumerState<BuilderEditorScreen> {
     await c.flush();
     if (!mounted) return;
     if (c.saveError) {
-      BuilderToast.warn(
-        _toastContext,
-        'The level didn’t save, so it can’t fly yet. Tap its name to retry.',
-      );
+      BuilderToast.warn(_toastContext, context.l10n.builderSaveFailedFlyToast);
       return;
     }
     _leaving = true;
@@ -154,7 +155,13 @@ class _BuilderEditorScreenState extends ConsumerState<BuilderEditorScreen> {
           .create(
             level.plan.copyWith(
               id: BuiltPlan.newId(_random),
-              name: suffixedName(level.plan.name, ' remix'),
+              // Named as the shelf names a remix: a starter's in the
+              // player's language.
+              name: suffixedName(
+                context.l10n.builtLevelName(level.plan),
+                ' ${context.l10n.builderShelfRemixSuffix}',
+                context.l10n,
+              ),
             ),
             origin: BuiltOrigin.remixed,
             remixOf: level.template ? level.id : level.from,
@@ -168,7 +175,7 @@ class _BuilderEditorScreenState extends ConsumerState<BuilderEditorScreen> {
     } catch (error) {
       debugPrint('PushUpBird builder remix: $error');
       if (mounted) {
-        BuilderToast.warn(_toastContext, 'That didn’t save. Please try again.');
+        BuilderToast.warn(_toastContext, context.l10n.builderShelfSaveFailed);
       }
     }
   }
@@ -176,24 +183,21 @@ class _BuilderEditorScreenState extends ConsumerState<BuilderEditorScreen> {
   Future<void> _share() async {
     final c = _controller;
     if (c == null) return;
+    final l = context.l10n;
     if (!c.flyable) {
-      BuilderToast.warn(
-        _toastContext,
-        'Fix the red flags first: then the level can be shared.',
-      );
+      BuilderToast.warn(_toastContext, l.builderShareBlockedToast);
       return;
     }
     await c.flush();
-    await copyShareCode(c.plan, cleared: c.level.cleared);
+    await copyShareCode(c.plan, cleared: c.level.cleared, l: l);
     if (!mounted) return;
     // A friend's preview says whether its maker flew it to the end, as the
     // shelf's share does.
     BuilderToast.show(
       _toastContext,
       c.level.cleared
-          ? 'Code copied! Paste it to a friend.'
-          : 'Code copied! Fly it to the finish too, so friends know it can '
-                'be done.',
+          ? l.builderShelfCodeCopied
+          : l.builderShelfCodeCopiedUncleared,
       icon: Icons.content_paste_go_rounded,
     );
   }
@@ -272,15 +276,21 @@ class _BuilderEditorScreenState extends ConsumerState<BuilderEditorScreen> {
                             rect: EditorLayout.palette,
                             child: BuilderPalette(controller: c),
                           ),
+                          // The sky and the route strip are the flight's
+                          // world: they run left to right in every language.
                           Positioned.fromRect(
                             rect: EditorLayout.canvas,
-                            child: BuilderCanvas(controller: c, bird: bird),
+                            child: FlightDirection(
+                              child: BuilderCanvas(controller: c, bird: bird),
+                            ),
                           ),
                           Positioned.fromRect(
                             rect: EditorLayout.timeline,
-                            child: BuilderTimeline(
-                              controller: c,
-                              view: EditorLayout.view,
+                            child: FlightDirection(
+                              child: BuilderTimeline(
+                                controller: c,
+                                view: EditorLayout.view,
+                              ),
                             ),
                           ),
                           Positioned.fromRect(
@@ -324,6 +334,7 @@ class _TopBar extends StatelessWidget {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: controller,
     builder: (context, _) {
+      final l = context.l10n;
       final c = controller;
       final readOnly = c.readOnly;
       final issues = c.issues;
@@ -336,7 +347,7 @@ class _TopBar extends StatelessWidget {
         children: [
           MapKey(
             glyph: MapGlyph.back,
-            label: 'Back to the builder',
+            label: l.builderEditorBackSemantics,
             onPressed: onBack,
           ),
           const SizedBox(width: 10),
@@ -353,7 +364,7 @@ class _TopBar extends StatelessWidget {
                   const SizedBox(width: 8),
                   MapKey(
                     glyph: MapGlyph.settings,
-                    label: 'Level settings',
+                    label: l.builderSettingsSemantics,
                     onPressed: onSettings,
                   ),
                 ],
@@ -363,20 +374,24 @@ class _TopBar extends StatelessWidget {
           const SizedBox(width: 10),
           if (readOnly) ...[
             // A starter level says so up here, clear of its sky.
-            _StarterBanner(onRemix: onRemix),
+            // A long translation shrinks its words rather than the name.
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 400),
+              child: _StarterBanner(onRemix: onRemix),
+            ),
             const SizedBox(width: 10),
-            _FlyKey(label: 'FLY', onPressed: onFly),
+            _FlyKey(test: false, onPressed: onFly),
           ] else ...[
             BuilderKey(
               key: const ValueKey('editor-undo'),
-              tooltip: 'Undo',
+              tooltip: l.builderUndoSemantics,
               icon: Icons.undo_rounded,
               onPressed: c.canUndo ? c.undo : null,
             ),
             const SizedBox(width: 4),
             BuilderKey(
               key: const ValueKey('editor-redo'),
-              tooltip: 'Redo',
+              tooltip: l.builderRedoSemantics,
               icon: Icons.redo_rounded,
               onPressed: c.canRedo ? c.redo : null,
             ),
@@ -384,10 +399,10 @@ class _TopBar extends StatelessWidget {
             BuilderKey(
               key: const ValueKey('editor-issues'),
               tooltip: blocking > 0
-                  ? '$blocking to fix, $advice tips'
+                  ? l.builderIssuesSemantics(blocking, advice)
                   : advice > 0
-                  ? '$advice tips'
-                  : 'Ready to fly',
+                  ? l.builderTipsSemantics(advice)
+                  : l.builderReadySemantics,
               // Ready is a quiet tick: the fly key is the loud one.
               label: blocking > 0
                   ? '$blocking'
@@ -410,7 +425,7 @@ class _TopBar extends StatelessWidget {
             const SizedBox(width: 6),
             BuilderKey(
               key: const ValueKey('editor-share'),
-              tooltip: 'Share code',
+              tooltip: l.builderShareSemantics,
               icon: Icons.ios_share_rounded,
               muted: !c.flyable,
               onMuted: onShare,
@@ -419,8 +434,8 @@ class _TopBar extends StatelessWidget {
             const SizedBox(width: 16),
             BuilderKey(
               key: const ValueKey('editor-from-here'),
-              tooltip: 'Test fly from here',
-              label: 'From here',
+              tooltip: l.builderFromHereSemantics,
+              label: l.builderFromHere,
               icon: Icons.play_arrow_rounded,
               color: const Color(0xffe4f4e8),
               labelSize: 14,
@@ -428,7 +443,7 @@ class _TopBar extends StatelessWidget {
               onPressed: onFlyFromHere,
             ),
             const SizedBox(width: 8),
-            _FlyKey(label: 'TEST FLY', onPressed: onFly),
+            _FlyKey(test: true, onPressed: onFly),
           ],
         ],
       );
@@ -436,51 +451,56 @@ class _TopBar extends StatelessWidget {
   );
 }
 
-/// The way into the sky: a mint key like the title screen's.
+/// The way into the sky: a mint key like the title screen's, FLY for a
+/// starter level and TEST FLY for the player's own.
 class _FlyKey extends StatelessWidget {
-  const _FlyKey({required this.label, required this.onPressed});
-  final String label;
+  const _FlyKey({required this.test, required this.onPressed});
+  final bool test;
   final VoidCallback onPressed;
 
   @override
-  Widget build(BuildContext context) => SizedBox(
-    key: const ValueKey('editor-fly'),
-    width: label.length > 4 ? 148 : 112,
-    height: 54,
-    child: HomeKey(
-      label: label == 'FLY' ? 'Fly this level' : 'Test fly the whole level',
-      colors: HomeKeyColors.mint,
-      lip: 6,
-      radius: 20,
-      onPressed: onPressed,
-      builder: (context, _) => Center(
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                label,
-                style: heading(18, weight: FontWeight.w700).copyWith(
-                  letterSpacing: 1,
-                  height: 1,
-                  shadows: const [
-                    Shadow(color: SkyColors.cream, offset: Offset(0, 1.5)),
-                  ],
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final label = test ? l.builderTestFly : l.builderFly;
+    return SizedBox(
+      key: const ValueKey('editor-fly'),
+      width: test ? 148 : 112,
+      height: 54,
+      child: HomeKey(
+        label: test ? l.builderTestFlySemantics : l.builderFlySemantics,
+        colors: HomeKeyColors.mint,
+        lip: 6,
+        radius: 20,
+        onPressed: onPressed,
+        builder: (context, _) => Center(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  style: heading(18, weight: FontWeight.w700).copyWith(
+                    letterSpacing: 1,
+                    height: 1,
+                    shadows: const [
+                      Shadow(color: SkyColors.cream, offset: Offset(0, 1.5)),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 6),
-              const Icon(
-                Icons.play_arrow_rounded,
-                size: 26,
-                color: SkyColors.ink,
-              ),
-            ],
+                const SizedBox(width: 6),
+                const Icon(
+                  Icons.play_arrow_rounded,
+                  size: 26,
+                  color: SkyColors.ink,
+                ),
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 /// The level's name and mode, and whether its changes are saved. A tap
@@ -492,20 +512,23 @@ class _NamePlate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final c = controller;
     final plan = c.plan;
     final (status, color) = c.readOnly
-        ? ('Starter level · look, fly or remix', SkyColors.muted)
+        ? (l.builderStatusStarter, SkyColors.muted)
         : c.saveError
-        ? ('Couldn’t save · tap to retry', SkyColors.coralDeep)
+        ? (l.builderStatusSaveFailed, SkyColors.coralDeep)
         : c.unsaved
-        ? ('Saving…', SkyColors.muted)
-        : ('All changes saved', SkyColors.muted);
+        ? (l.builderStatusSaving, SkyColors.muted)
+        : (l.builderStatusSaved, SkyColors.muted);
+    final name = l.builtLevelName(plan);
+    final mode = builtModeName(plan.mode, l);
     return Semantics(
       button: !c.readOnly,
-      label:
-          '${plan.name}. ${builtModeName(plan.mode)}. $status.'
-          '${c.readOnly ? '' : ' Tap to rename.'}',
+      label: c.readOnly
+          ? l.builderNamePlateSemantics(l.playerText(name), mode, status)
+          : l.builderNamePlateRenameSemantics(l.playerText(name), mode, status),
       excludeSemantics: true,
       child: GestureDetector(
         key: const ValueKey('editor-name'),
@@ -529,7 +552,7 @@ class _NamePlate extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Tooltip(
-                  message: builtModeName(plan.mode),
+                  message: mode,
                   child: ControlGlyph(builtControl(plan.mode), size: 32),
                 ),
                 const SizedBox(width: 8),
@@ -538,17 +561,18 @@ class _NamePlate extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // The player's own words: never translated, set in
+                      // the game's font with the system's for any other
+                      // script.
                       Text(
-                        plan.name,
+                        name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: heading(18, weight: FontWeight.w700),
                       ),
                       const SizedBox(height: 1),
-                      Text(
+                      FitText(
                         status,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                         style: bodyText(
                           11,
                           color: color,
@@ -591,15 +615,17 @@ class _StarterBanner extends StatelessWidget {
       children: [
         const Icon(Icons.lock_rounded, size: 18, color: SkyColors.ink),
         const SizedBox(width: 6),
-        Text(
-          'Remix it to make it yours',
-          style: bodyText(14, weight: FontWeight.w900),
+        Flexible(
+          child: FitText(
+            context.l10n.builderStarterBanner,
+            style: bodyText(14, weight: FontWeight.w900),
+          ),
         ),
         const SizedBox(width: 10),
         BuilderKey(
           key: const ValueKey('banner-remix'),
-          tooltip: 'Remix',
-          label: 'Remix',
+          tooltip: context.l10n.builderRemixSemantics,
+          label: context.l10n.builderRemix,
           icon: Icons.auto_fix_high_rounded,
           color: SkyColors.cream,
           labelSize: 14,
@@ -617,8 +643,9 @@ Future<BuiltIssue?> showIssuesSheet(
   BuilderController controller,
 ) => showBuilderSheet<BuiltIssue>(
   context,
-  label: 'Close problems and tips',
+  label: context.l10n.builderIssuesCloseSemantics,
   builder: (context) {
+    final l = context.l10n;
     final issues = controller.issues;
     final plan = controller.plan;
     final blocking = issues.where((i) => i.blocking).length;
@@ -628,14 +655,14 @@ Future<BuiltIssue?> showIssuesSheet(
         children: [
           BuilderSheetTitle(
             title: issues.isEmpty
-                ? 'Ready to fly!'
+                ? l.builderIssuesReadyTitle
                 : blocking > 0
-                ? 'To fix before it flies'
-                : 'Ready, with a few tips',
+                ? l.builderIssuesFixTitle
+                : l.builderIssuesTipsTitle,
             subtitle: issues.isEmpty
-                ? 'Nothing to fix. Test fly it to the finish to clear it.'
-                : 'Tap one to go to its place on the route.',
-            closeLabel: 'Close problems and tips',
+                ? l.builderIssuesReadyDetail
+                : l.builderIssuesDetail,
+            closeLabel: l.builderIssuesCloseSemantics,
           ),
           const SizedBox(height: 12),
           Expanded(
@@ -673,7 +700,10 @@ Future<BuiltIssue?> showIssuesSheet(
                           final issue = issues[i];
                           final where = issue.x == null
                               ? null
-                              : '${BuiltReach.secondsTo(plan, issue.x!).toStringAsFixed(1)} s';
+                              : l.builtSeconds(
+                                  BuiltReach.secondsTo(plan, issue.x!),
+                                  digits: 1,
+                                );
                           return _IssueRow(
                             key: ValueKey('issue-$i'),
                             issue: issue,
@@ -733,7 +763,7 @@ class _IssueRow extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                issue.message,
+                context.l10n.builtIssueMessage(issue),
                 maxLines: 2,
                 style: bodyText(15, weight: FontWeight.w800),
               ),

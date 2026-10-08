@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 
 import '../domain/sky_boss.dart';
+import '../l10n/l10n.dart';
 import '../ui/theme.dart';
 import 'boss_motion.dart';
 import 'king_coo_kit.dart';
@@ -55,7 +56,8 @@ abstract final class KingCooHudArt {
 
   // ------------------------------------------------------------- caches --
 
-  static final Map<Object, TextPainter> _texts = {};
+  // (laid out again in a new language's words and fonts)
+  static final Map<Object, TextPainter> _texts = L10n.cache({});
 
   static TextPainter _text(
     String value,
@@ -90,7 +92,8 @@ abstract final class KingCooHudArt {
               ),
           ],
         ),
-        textDirection: TextDirection.ltr,
+        // Words run their language's way; the tag stays where it is.
+        textDirection: L10n.textDirection,
       )..layout();
     }
     return p;
@@ -1079,17 +1082,29 @@ abstract final class KingCooHudArt {
     return none;
   }
 
+  /// **PUFFED ×2**: the word in cream, the gold ×2; set smaller when a
+  /// translation would push the tag past [tagWidthMax] (its other parts take
+  /// 42 u).
+  static TextPainter _puffed(double u) {
+    TextPainter at(double k) => _text(
+      L10n.strings.bossKingCooPuffed,
+      tagType * u * k,
+      .5 * u * k,
+      tail: ' ×2',
+      tailSize: (tagType + 1.5) * u * k,
+    );
+    final full = at(1);
+    final room = (tagWidthMax - 42) * u;
+    return full.width <= room
+        ? full
+        : at((room / full.width * 100).floorToDouble() / 100);
+  }
+
   /// Where the tag hangs when it is fully shown (px): from the plate's lower
   /// edge, centred a quarter of the way along the gauge, so it keeps left of
   /// his head, and never wider than [tagWidthMax] (u = 1).
   static Rect tagBox(Rect strip, Rect bar, double u) {
-    final text = _text(
-      'PUFFED',
-      tagType * u,
-      .5 * u,
-      tail: ' ×2',
-      tailSize: (tagType + 1.5) * u,
-    );
+    final text = _puffed(u);
     final w = 5.6 * u + 8.4 * u + 3.2 * u + text.width + 4.4 * u + 3 * 5.8 * u + 3.0 * u;
     // A quarter of the way along the gauge, but never so far right that it
     // reaches past the gauge's middle, and never off the plate's left end.
@@ -1118,13 +1133,7 @@ abstract final class KingCooHudArt {
     final s = tagState(boss, reduced: reduced);
     if (s.show <= 0) return;
     _buildBar(bar, u);
-    final text = _text(
-      'PUFFED',
-      tagType * u,
-      .5 * u,
-      tail: ' ×2',
-      tailSize: (tagType + 1.5) * u,
-    );
+    final text = _puffed(u);
     final ball = 8.4 * u, gap = 3.2 * u, pipGap = 5.8 * u, pipR = 2.1 * u;
     final spot = tagBox(strip, bar, u);
     final w = spot.width, h = spot.height;

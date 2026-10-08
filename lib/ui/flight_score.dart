@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import 'theme.dart';
 import 'match_hud.dart';
 
@@ -91,8 +92,12 @@ class _FlightScoreState extends State<FlightScore>
   @override
   Widget build(BuildContext context) => Center(
     child: Semantics(
-      label:
-          'Score ${widget.score}${widget.multiplier > 1 ? ', ${widget.multiplier} times multiplier' : ''}',
+      label: widget.multiplier > 1
+          ? context.l10n.hudScoreMultiplierSemantics(
+              widget.score,
+              widget.multiplier,
+            )
+          : context.l10n.hudScoreSemantics(widget.score),
       excludeSemantics: true,
       child: ScaleTransition(
         scale: _scale,

@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 import '../domain/game_rules.dart';
+import '../l10n/l10n.dart';
+import '../l10n/text/boss_text.dart';
 import '../ui/theme.dart';
 import 'boss_health_bar_art.dart';
 import 'boss_motion.dart';
@@ -41,27 +43,13 @@ abstract final class BossVanguardArt {
   /// What the card calls under the title. King Coo's squadron throws stale
   /// crusts from rules version 45 ([crusts]), and those that get away come
   /// back in his fight ([returns]); the card says so.
+  /// (Neferhoo, like the pirate, the dragon and the Gargoyle, sends no
+  /// vanguard: their call is empty.)
   static String call(
     BossKind kind, {
     bool crusts = false,
     bool returns = false,
-  }) => switch (kind) {
-    BossKind.baronBat => 'Here they come! The Baron is right behind.',
-    BossKind.spitterBeetle =>
-      'Here they come! The Spitter King is right behind.',
-    BossKind.duskMoth => 'Here they come! The Empress is right behind.',
-    BossKind.kingCoo =>
-      returns
-          ? 'Duck the crusts! Miss one and it comes back!'
-          : crusts
-          ? 'Here they come! Duck the crusts!'
-          : 'Here they come! King Coo is right behind.',
-    // Neferhoo sends no vanguard either (see the master plan).
-    BossKind.pirate ||
-    BossKind.dragon ||
-    BossKind.searchlightGargoyle ||
-    BossKind.neferhoo => '',
-  };
+  }) => L10n.strings.vanguardCall(kind, crusts: crusts, returns: returns);
 
   /// Each member's state, in the order they fly in, wave by wave.
   static List<List<VanguardPip>> pips(FlightSimulation sim) => [
@@ -288,7 +276,7 @@ abstract final class BossVanguardArt {
         : null;
     if (left == 0) {
       final p = _text(
-        'CLEAR!',
+        L10n.strings.bossVanguardClear,
         9.5 * u,
         _mint,
         spacing: .6 * u,
@@ -297,7 +285,12 @@ abstract final class BossVanguardArt {
       p.paint(c, Offset(right - p.width, cy - p.height / 2));
     } else {
       final n = _text('$left', 10.5 * u, _gold, shadows: shadows);
-      final word = _text('LEFT', 7 * u, _dim, spacing: .5 * u);
+      final word = _text(
+        L10n.strings.bossVanguardLeft,
+        7 * u,
+        _dim,
+        spacing: .5 * u,
+      );
       final base =
           cy +
           n.computeDistanceToActualBaseline(TextBaseline.alphabetic) -
@@ -603,19 +596,23 @@ abstract final class BossVanguardArt {
       text: TextSpan(
         text: value,
         style: TextStyle(
-          fontFamily: 'Fredoka',
+          fontFamily: L10n.fonts.heading,
+          fontFamilyFallback: L10n.fonts.headingFallback,
           fontWeight: weight,
           fontSize: points,
           letterSpacing: h * .002,
           foreground: paint,
         ),
       ),
-      textDirection: TextDirection.ltr,
+      // Words run their language's way; the card stays where it is.
+      textDirection: L10n.textDirection,
     )..layout();
+
+    final title = L10n.strings.vanguardTitle(guard.boss);
 
     final titleSize = h * .082, callSize = h * .038;
     final shade = type(
-      guard.title,
+      title,
       titleSize,
       FontWeight.w700,
       Paint()..color = Color.lerp(accent, _ink, .62)!.withValues(alpha: fade),
@@ -759,7 +756,7 @@ abstract final class BossVanguardArt {
     c.translate(0, -titleTop - shade.height / 2);
     shade.paint(c, Offset(-shade.width / 2, titleTop + h * .008));
     type(
-      guard.title,
+      title,
       titleSize,
       FontWeight.w700,
       Paint()
@@ -843,7 +840,8 @@ abstract final class BossVanguardArt {
         .toColor();
   }
 
-  static final Map<Object, TextPainter> _texts = {};
+  // (fonts follow the language: a switch lays the words out again)
+  static final Map<Object, TextPainter> _texts = L10n.cache({});
 
   static TextPainter _text(
     String value,
@@ -859,7 +857,7 @@ abstract final class BossVanguardArt {
         color: color,
       ).copyWith(letterSpacing: spacing, shadows: shadows),
     ),
-    textDirection: TextDirection.ltr,
+    textDirection: L10n.textDirection,
     maxLines: 1,
   )..layout();
 }

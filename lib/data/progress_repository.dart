@@ -12,6 +12,7 @@ import '../domain/campaign_story.dart';
 import '../domain/game_rules.dart';
 import '../domain/tracking.dart';
 import '../domain/daily_adventure.dart';
+import '../l10n/app_language.dart';
 import 'built_level_repository.dart';
 import 'cloud_logbook.dart';
 
@@ -247,6 +248,9 @@ extension LevelRenumbering on ProgressDatabase {
   });
 }
 
+// l10n-english-twin: birdNames and birdDescriptions are the twins of the
+// bird_N_name and bird_N_description keys; screens show SharedText.birdName
+// and BirdsText.birdDescription (lib/l10n/text/).
 const birdNames = ['Pip', 'Peaches', 'Minty', 'Orbit'];
 
 /// Minty is the first main character: the bird a new player flies with and
@@ -283,8 +287,14 @@ class GameSettings {
     this.recordAudio = false,
     this.voices = true,
     this.bird = firstBird,
+    this.language,
   });
   final bool music, effects, reducedMotion, recordAudio;
+
+  /// The language chosen in Settings, or null to follow the device
+  /// (lib/l10n/language_providers.dart). A device setting: it never syncs,
+  /// and a reset of this phone or another keeps it.
+  final AppLanguage? language;
 
   /// The characters' recorded voices: the story's lines, the thank-you
   /// notes and what the bird and the bosses say in flight.
@@ -540,6 +550,9 @@ abstract interface class ProgressRepository {
   Future<String?> loadFlightVoices();
   Future<void> saveFlightVoices(String memory);
   Future<void> setSetting(SettingKey key, bool value);
+
+  /// Saves the language chosen in Settings; null follows the device.
+  Future<void> setLanguage(AppLanguage? language);
   Future<void> equipBird(int bird);
 
   /// Saves a co-op flight in [mode] once per id: its mode's best and flight
@@ -668,6 +681,7 @@ class SqliteProgressRepository implements ProgressRepository {
         reducedMotion: prefs['reducedMotion'] == 'true',
         recordAudio: prefs['recordAudio'] == 'true',
         voices: prefs['voices'] != 'false',
+        language: AppLanguage.fromTag(prefs[_languageKey]),
         // A locked bird left equipped (from before birds cost stars) gives
         // way to Minty until it is bought.
         bird: unlocked.contains(selected) ? selected : firstBird,
@@ -997,6 +1011,19 @@ class SqliteProgressRepository implements ProgressRepository {
         );
   }
 
+  static const _languageKey = 'language';
+
+  @override
+  Future<void> setLanguage(AppLanguage? language) async {
+    if (language == null) {
+      await (db.delete(
+        db.preferences,
+      )..where((p) => p.key.equals(_languageKey))).go();
+      return;
+    }
+    await _remember(_languageKey, language.tag);
+  }
+
   @override
   Future<void> equipBird(int bird) async {
     if (bird < 0 || bird >= birdNames.length) {
@@ -1173,8 +1200,9 @@ class SqliteProgressRepository implements ProgressRepository {
   Future<void> reset({bool cloud = false}) => db.transaction(() async {
     final epoch = await _epoch();
     // Having synced stays: the cloud holds the old progress until the next
-    // sync replaces it.
-    await _clear(const {_syncedKey});
+    // sync replaces it. The language stays too, so the player keeps reading
+    // the game the way they just read the reset dialog.
+    await _clear(const {_syncedKey, _languageKey});
     // Clearing the cloud copy too: the fresh logbook's higher epoch
     // replaces it rather than merging the old progress back. The time
     // keeps it above a reset on another phone this one has not heard of.
@@ -1201,6 +1229,7 @@ class SqliteProgressRepository implements ProgressRepository {
   /// not in this database and stay too.
   static final _localKeys = {
     for (final key in SettingKey.values) key.name,
+    _languageKey,
     _flightVoicesKey,
     _playGamesKey,
     _syncedKey,

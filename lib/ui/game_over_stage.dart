@@ -11,7 +11,11 @@ import '../domain/tracking.dart';
 import '../game/bird_puppet.dart';
 import '../game/play_controller.dart';
 import 'campaign_map_art.dart' show MapStarsPainter;
+import '../l10n/l10n.dart';
+import '../l10n/text/flight_text.dart';
+import '../l10n/text/passport_text.dart';
 import 'components.dart';
+import 'fit_text.dart';
 import 'stage_key.dart';
 import 'theme.dart';
 
@@ -118,6 +122,7 @@ class _GameOverStageState extends State<GameOverStage>
     final c = widget.controller;
     final r = c.result!;
     final p = widget.progress;
+    final l = context.l10n;
     // A level's stars take the place of the endless best.
     final level = c.level;
     final newStamps = p.medalsWonSince(widget.initialStamps);
@@ -132,10 +137,10 @@ class _GameOverStageState extends State<GameOverStage>
     final armed = _intro.value >= GameOverStage.armAt || _intro.isCompleted;
     final fade = _calm ? _intro.value.clamp(0.0, 1.0) : 1.0;
     final caption = isBest
-        ? 'Bumped out on a brand-new best!'
+        ? l.gameOverCaptionBest
         : widget.splash
-        ? 'A little splash in the sea.'
-        : 'A little bump in the clouds.';
+        ? l.gameOverCaptionSea
+        : l.flightResultBumpClouds;
 
     return Opacity(
       opacity: fade,
@@ -259,8 +264,9 @@ class _GameOverStageState extends State<GameOverStage>
 
   Widget _title(String caption) {
     final level = widget.controller.level;
-    final word = widget.splash ? 'Splash!' : 'Bonk!';
-    final letters = word.split('');
+    final l = context.l10n;
+    final word = widget.splash ? l.gameOverSplash : l.gameOverBonk;
+    final letters = dropLetters(word);
     final plate = _span(.26, .46, Curves.easeOutBack);
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -269,12 +275,18 @@ class _GameOverStageState extends State<GameOverStage>
           header: true,
           label: word,
           child: ExcludeSemantics(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                for (final (i, letter) in letters.indexed)
-                  _letter(letter, i, letters.length),
-              ],
+            // A longer word shrinks to the stage rather than spill off it;
+            // its letters keep their order whichever way the language runs.
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                textDirection: letters.length > 1 ? TextDirection.ltr : null,
+                children: [
+                  for (final (i, letter) in letters.indexed)
+                    _letter(letter, i, letters.length),
+                ],
+              ),
             ),
           ),
         ),
@@ -330,9 +342,13 @@ class _GameOverStageState extends State<GameOverStage>
                           ),
                         ),
                         const SizedBox(width: 8),
-                        Text(
-                          caption,
-                          style: bodyText(16, weight: FontWeight.w900),
+                        // A long caption wraps rather than spill off the
+                        // stage.
+                        Flexible(
+                          child: Text(
+                            caption,
+                            style: bodyText(16, weight: FontWeight.w900),
+                          ),
                         ),
                       ],
                     ),
@@ -487,6 +503,7 @@ class _GameOverStageState extends State<GameOverStage>
   }
 
   Widget _scores(RunResult r, {required int best, required bool isBest}) {
+    final l = context.l10n;
     final count = _span(.3, .7, Curves.easeOutCubic);
     final land = math.sin(_span(.7, .8) * math.pi);
     final ribbon = _span(.72, .92, Curves.elasticOut);
@@ -501,7 +518,7 @@ class _GameOverStageState extends State<GameOverStage>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(widget.course.scoreLabel, style: _label),
+              Text(l.courseScoreLabel(widget.course), style: _label),
               Flexible(
                 child: Transform.scale(
                   scale: 1 + .08 * land,
@@ -554,7 +571,10 @@ class _GameOverStageState extends State<GameOverStage>
                       children: [
                         Opacity(
                           opacity: 1 - gild,
-                          child: Text('PERSONAL BEST', style: _label),
+                          child: Text(
+                            l.flightResultPersonalBest,
+                            style: _label,
+                          ),
                         ),
                         if (isBest && ribbon > 0)
                           OverflowBox(
@@ -564,7 +584,9 @@ class _GameOverStageState extends State<GameOverStage>
                               scale: ribbon,
                               child: Transform.rotate(
                                 angle: -.04,
-                                child: const StageRibbon('NEW PERSONAL BEST!'),
+                                child: StageRibbon(
+                                  l.flightResultNewPersonalBest,
+                                ),
                               ),
                             ),
                           ),
@@ -604,6 +626,7 @@ class _GameOverStageState extends State<GameOverStage>
   /// mark, and how far along the route the bird got, or how much fight the
   /// boss had left.
   Widget _levelScores(RunResult r, CampaignLevel level) {
+    final l = context.l10n;
     final count = _span(.3, .7, Curves.easeOutCubic);
     final land = math.sin(_span(.7, .8) * math.pi);
     final sim = widget.controller.simulation!;
@@ -623,7 +646,7 @@ class _GameOverStageState extends State<GameOverStage>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('STARS COLLECTED', style: label),
+              Text(l.flightResultStarsCollected, style: label),
               Flexible(
                 child: Transform.scale(
                   scale: 1 + .08 * land,
@@ -639,13 +662,13 @@ class _GameOverStageState extends State<GameOverStage>
               const SizedBox(height: 2),
               Semantics(
                 label: at == null
-                    ? 'Every mark reached'
-                    : '${at - r.stars} more stars for $mark stars',
+                    ? l.gameOverEveryMarkSemantics
+                    : l.gameOverMoreStarsSemantics(at - r.stars, mark),
                 excludeSemantics: true,
                 child: at == null
                     ? _marksReached(
                         beat: boss != null && boss.isMiniBoss
-                            ? boss.name
+                            ? boss.kind
                             : null,
                       )
                     : _nextMark(mark, at, r.stars, count),
@@ -658,8 +681,12 @@ class _GameOverStageState extends State<GameOverStage>
           child: Center(
             child: Semantics(
               label: boss != null
-                  ? '${boss.name}: ${boss.hp} of ${boss.maxHp} health left'
-                  : '$flown percent of the route flown',
+                  ? l.gameOverBossHealthSemantics(
+                      l.bossName(boss.kind),
+                      boss.hp,
+                      boss.maxHp,
+                    )
+                  : l.gameOverRouteSemantics(flown),
               excludeSemantics: true,
               child: Container(
                 width: 184,
@@ -683,9 +710,14 @@ class _GameOverStageState extends State<GameOverStage>
                             // "KING COO LEFT" reads as "went away": a guardian
                             // says what is left of him.
                             ? boss.isMiniBoss
-                                  ? '${boss.name.toUpperCase()}: ${boss.hp} HP LEFT'
-                                  : '${boss.name.toUpperCase()} LEFT'
-                            : 'ROUTE FLOWN',
+                                  ? l.gameOverGuardianHpLeft(
+                                      L10n.upper(l.bossName(boss.kind)),
+                                      boss.hp,
+                                    )
+                                  : l.gameOverBossLeft(
+                                      L10n.upper(l.bossName(boss.kind)),
+                                    )
+                            : l.gameOverRouteFlown,
                         maxLines: 1,
                         style: label,
                       ),
@@ -709,8 +741,8 @@ class _GameOverStageState extends State<GameOverStage>
                             fit: BoxFit.scaleDown,
                             child: Text(
                               boss != null
-                                  ? '${boss.hp} HP'
-                                  : '${(flown * count).round()}%',
+                                  ? l.gameOverHp(boss.hp)
+                                  : l.flightPercent((flown * count).round()),
                               style: heading(42, weight: FontWeight.w700),
                             ),
                           ),
@@ -774,7 +806,7 @@ class _GameOverStageState extends State<GameOverStage>
       _meter(stars / at * count, SkyColors.gold, height: 13, width: 96),
       const SizedBox(width: 8),
       Text(
-        '${at - stars} more for',
+        context.l10n.gameOverMoreFor(at - stars),
         style: bodyText(14, color: SkyColors.muted, weight: FontWeight.w900),
       ),
       const SizedBox(width: 6),
@@ -787,8 +819,8 @@ class _GameOverStageState extends State<GameOverStage>
   );
 
   /// Both star marks were reached, so the finish is all that is missing; a
-  /// guardian's level says what is left to do ([beat] is his name).
-  Widget _marksReached({String? beat}) => Row(
+  /// guardian's level says what is left to do ([beat] is the guardian).
+  Widget _marksReached({BossKind? beat}) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
       SizedBox(
@@ -802,8 +834,11 @@ class _GameOverStageState extends State<GameOverStage>
           fit: BoxFit.scaleDown,
           child: Text(
             beat == null
-                ? 'Both marks reached'
-                : 'Both marks reached. Beat $beat!',
+                ? context.l10n.gameOverBothMarks
+                : context.l10n.gameOverBothMarksBeat(
+                    context.l10n.bossName(beat),
+                    beat.name,
+                  ),
             style: bodyText(
               14,
               color: const Color(0xff2e7d6f),
@@ -817,45 +852,43 @@ class _GameOverStageState extends State<GameOverStage>
 
   /// This flight's numbers, as quiet tiles on a sand inset.
   Widget _stats(RunResult r) {
-    final repsLabel = switch (widget.mode) {
-      PlayMode.pushUp => 'push-ups',
-      PlayMode.squat => 'squats',
-      PlayMode.jump => 'jumps',
-      PlayMode.touch => 'flaps',
-    };
+    final l = context.l10n;
+    final moves = widget.mode.controlsHeight ? r.repetitions : r.flaps;
+    final repsLabel = l.flightMoves(widget.mode, moves);
     final stats = <(IconData, Color, String, String)>[
       (
         widget.mode == PlayMode.touch
             ? Icons.touch_app_outlined
             : Icons.fitness_center_rounded,
         SkyColors.sky,
-        '${widget.mode.controlsHeight ? r.repetitions : r.flaps}',
+        '$moves',
         repsLabel,
       ),
       (
         Icons.timer_outlined,
         SkyColors.sky,
-        '${r.durationSeconds.round()}s',
-        'flight time',
+        l.flightSeconds('${r.durationSeconds.round()}'),
+        l.flightStatFlightTime,
       ),
       (
         Icons.center_focus_strong_rounded,
         SkyColors.mint,
         '${r.perfectPasses}',
-        'perfect',
+        l.flightStatPerfect,
       ),
       if (r.course.collectsStars)
-        (Icons.auto_awesome, SkyColors.yellow, '${r.bestCombo}', 'best streak')
+        (
+          Icons.auto_awesome,
+          SkyColors.yellow,
+          '${r.bestCombo}',
+          l.flightStatBestStreak,
+        )
       else if (r.score >= 5)
         (
           Icons.workspace_premium_outlined,
           SkyColors.yellow,
-          r.score >= 25
-              ? 'Sky captain'
-              : r.score >= 10
-              ? 'Cloud explorer'
-              : 'First wings',
-          'rank',
+          l.flightRank(r.score),
+          l.flightStatRank,
         ),
     ];
     final k = _span(.2, .42, Curves.easeOutCubic);
@@ -912,15 +945,19 @@ class _GameOverStageState extends State<GameOverStage>
                                 style: heading(24, weight: FontWeight.w700),
                               ),
                             ),
-                          Text(
-                            label,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: bodyText(
-                              13,
-                              color: SkyColors.muted,
-                              weight: FontWeight.w800,
-                            ).copyWith(height: 1.1),
+                          // A long word shrinks rather than lose its end.
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: AlignmentDirectional.centerStart,
+                            child: Text(
+                              label,
+                              maxLines: 1,
+                              style: bodyText(
+                                13,
+                                color: SkyColors.muted,
+                                weight: FontWeight.w800,
+                              ).copyWith(height: 1.1),
+                            ),
                           ),
                         ],
                       ),
@@ -989,6 +1026,7 @@ class _GameOverStageState extends State<GameOverStage>
     required List<StampProgress> newStamps,
     required StampProgress? nextStamp,
   }) {
+    final l = context.l10n;
     final title = bodyText(14, weight: FontWeight.w900);
     final detail = bodyText(
       12,
@@ -999,7 +1037,7 @@ class _GameOverStageState extends State<GameOverStage>
       return _chip(
         onTap: () => widget.onLeave('/daily'),
         leading: _badge(Icons.local_post_office_outlined, SkyColors.mint),
-        body: Text('Today’s postcard stamped!', style: title),
+        body: Text(l.flightResultDailyStamped, style: title),
       );
     }
     if (newStamps.isNotEmpty) {
@@ -1011,13 +1049,9 @@ class _GameOverStageState extends State<GameOverStage>
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(won.medalTitle, style: title),
-            Text(
-              won.stamp.goal(won.medal!),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: detail,
-            ),
+            Text(l.stampMedalTitle(won), style: title),
+            // A long goal shrinks rather than lose its end.
+            FitText(l.stampGoal(won.stamp, won.medal!), style: detail),
           ],
         ),
       );
@@ -1032,17 +1066,21 @@ class _GameOverStageState extends State<GameOverStage>
           children: [
             Row(
               children: [
+                // A long title shrinks rather than lose its end.
                 Expanded(
-                  child: Text(
-                    'Next: ${nextStamp.nextTitle}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: title,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text(
+                      l.flightResultNextStamp(l.stampNextTitle(nextStamp)),
+                      maxLines: 1,
+                      style: title,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  nextStamp.tally,
+                  l.stampTally(nextStamp),
                   style: bodyText(13, weight: FontWeight.w900),
                 ),
               ],
@@ -1059,12 +1097,8 @@ class _GameOverStageState extends State<GameOverStage>
                 ),
               ),
             ),
-            Text(
-              nextStamp.goal,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: detail,
-            ),
+            // A long goal shrinks rather than lose its end.
+            FitText(l.stampProgressGoal(nextStamp), style: detail),
           ],
         ),
       );
@@ -1075,6 +1109,7 @@ class _GameOverStageState extends State<GameOverStage>
   /// Save status (tap to retry), then session and camera messages.
   List<Widget> _status(RunResult r) {
     final c = widget.controller;
+    final l = context.l10n;
     Widget note(IconData icon, String text, Color color) => Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -1108,7 +1143,7 @@ class _GameOverStageState extends State<GameOverStage>
               color: SkyColors.coralDeep,
             ),
             label: Text(
-              c.saveError,
+              l.flightNote(c.saveError),
               style: bodyText(
                 13.5,
                 weight: FontWeight.w900,
@@ -1125,22 +1160,24 @@ class _GameOverStageState extends State<GameOverStage>
           c.saved
               // Gates count endless flights only, so a level just saves.
               ? c.campaign
-                    ? 'Saved on this phone'
-                    : 'Saved on this phone · ${widget.progress.totalObstacles} total gates'
-              : 'Saving your flight…',
+                    ? l.flightResultSavedOnPhone
+                    : l.flightResultSavedGates(widget.progress.totalObstacles)
+              : l.flightResultSaving,
           SkyColors.muted,
         ),
       if (c.sessionSaved)
         note(
           Icons.video_library_outlined,
-          'Session saved · Watch in Records',
+          l.flightResultSessionSaved,
           // Teal deepened so small text keeps its contrast on cream.
           const Color(0xff2e7d6f),
         ),
       if (c.sessionError.isNotEmpty || c.cameraRecordingError.isNotEmpty)
         note(
           Icons.error_outline_rounded,
-          c.sessionError.isNotEmpty ? c.sessionError : c.cameraRecordingError,
+          l.flightNote(
+            c.sessionError.isNotEmpty ? c.sessionError : c.cameraRecordingError,
+          ),
           SkyColors.coralDeep,
         ),
     ];
@@ -1148,6 +1185,7 @@ class _GameOverStageState extends State<GameOverStage>
 
   Widget _actions(RunResult r) {
     final c = widget.controller;
+    final l = context.l10n;
     Widget pop(double at, Widget child) {
       final k = _span(at, at + .22, Curves.easeOutBack);
       return Opacity(
@@ -1175,14 +1213,14 @@ class _GameOverStageState extends State<GameOverStage>
             c.campaign
                 ? StageKey(
                     key: const ValueKey('game-over-map'),
-                    label: 'Map',
+                    label: l.commonMap,
                     icon: Icons.map_rounded,
                     // Tall enough to stay 48 dp on the smallest phone.
                     height: 76,
                     onPressed: () => widget.onLeave('/campaign'),
                   )
                 : StageKey(
-                    label: 'Home',
+                    label: l.commonHome,
                     icon: Icons.home_rounded,
                     onPressed: widget.onLeave,
                   ),
@@ -1198,12 +1236,12 @@ class _GameOverStageState extends State<GameOverStage>
                 key: const ValueKey('save-or-watch-session'),
                 height: c.campaign ? 76 : null,
                 label: c.sessionSaved
-                    ? 'Watch replay'
+                    ? l.flightResultWatchReplay
                     : c.preparingReplay
-                    ? 'Preparing…'
+                    ? l.flightResultPreparing
                     : c.sessionSaving
-                    ? 'Saving…'
-                    : 'Save session',
+                    ? l.flightResultSavingShort
+                    : l.flightResultSaveSession,
                 icon: c.sessionSaved
                     ? Icons.play_circle_outline_rounded
                     : Icons.save_alt_rounded,
@@ -1225,7 +1263,7 @@ class _GameOverStageState extends State<GameOverStage>
               scale: 1 + .06 * math.sin(ready * math.pi),
               child: StageKey(
                 key: const ValueKey('game-over-fly-again'),
-                label: c.campaign ? 'Retry' : 'Fly again',
+                label: c.campaign ? l.commonRetry : l.flightResultFlyAgain,
                 icon: Icons.replay_rounded,
                 hero: true,
                 autofocus: true,

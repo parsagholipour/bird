@@ -46,6 +46,10 @@ import 'mini_results.dart';
 import 'keyboard.dart';
 import 'pause_card.dart';
 import 'ui_sounds.dart';
+import '../l10n/l10n.dart';
+import '../l10n/text/boss_text.dart';
+import '../l10n/text/builder_shelf_text.dart';
+import '../l10n/text/flight_text.dart';
 
 class PlayScreen extends ConsumerStatefulWidget {
   const PlayScreen({
@@ -703,21 +707,26 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     final mode = widget.mode;
     final color = miniColor(mode);
     final pushUp = mode == PlayMode.pushUp, squat = mode == PlayMode.squat;
+    final l = context.l10n;
     return Padding(
       padding: const EdgeInsets.fromLTRB(28, 22, 28, 20),
       child: Column(
         children: [
           _header(
             pushUp
-                ? 'A little setup. A lot of sky.'
+                ? l.flightSetupTitlePushUp
                 : squat
-                ? 'Feet planted. Wings open.'
-                : 'Small jumps. Big wings.',
+                ? l.flightSetupTitleSquat
+                : l.flightSetupTitleJump,
             trailing: [
               MiniTag(
                 widget.built != null
-                    ? 'LEVEL · ${widget.built!.plan.name.toUpperCase()}'
-                    : '${widget.course.title.toUpperCase()} · SCORED',
+                    ? l.flightSetupBuiltTag(
+                        L10n.upper(l.builtLevelName(widget.built!.plan)),
+                      )
+                    : l.flightSetupScoredTag(
+                        L10n.upper(l.courseTitle(widget.course)),
+                      ),
                 icon: widget.course.collectsStars
                     ? Icons.star_rounded
                     : Icons.emoji_events_rounded,
@@ -756,18 +765,18 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                                 fit: BoxFit.scaleDown,
                                 child: Text(
                                   pushUp
-                                      ? 'Make a little room to move.'
-                                      : 'Show your whole body.',
+                                      ? l.flightSetupRoomPushUp
+                                      : l.flightSetupRoomBody,
                                   style: heading(23, weight: FontWeight.w700),
                                 ),
                               ),
                               const SizedBox(height: 3),
                               Text(
                                 pushUp
-                                    ? 'Phone low. Show an arm and hip.\nFacing it? Keep both shoulders in view.'
+                                    ? l.flightSetupTipsPushUp
                                     : squat
-                                    ? 'Squat to descend. Stand to rise.\nKeep both feet on the floor.'
-                                    : 'Jump for a boost + 3s glide.\nLand before jumping again.',
+                                    ? l.flightSetupTipsSquat
+                                    : l.flightSetupTipsJump,
                                 style: bodyText(
                                   13.5,
                                   color: SkyColors.muted,
@@ -810,7 +819,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
-                                    'HOW TO FLY',
+                                    l.flightSetupHowToFly,
                                     style: bodyText(
                                       12,
                                       weight: FontWeight.w900,
@@ -836,36 +845,38 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                                           _step(
                                             '1',
                                             pushUp
-                                                ? 'Show your arm and hip'
+                                                ? l.flightSetupStep1PushUp
                                                 : squat
-                                                ? 'Make room to squat'
-                                                : 'Make room to jump',
+                                                ? l.flightSetupStep1Squat
+                                                : l.flightSetupStep1Jump,
                                             pushUp
-                                                ? 'Facing the phone? Show both shoulders, one arm and a hip.'
-                                                : 'Phone in landscape. Show your body and both feet.',
+                                                ? l.flightSetupStep1DetailPushUp
+                                                : l.flightSetupStep1DetailBody,
                                           ),
                                           _step(
                                             '2',
                                             pushUp
-                                                ? 'Find your movement range'
+                                                ? l.flightSetupStep2PushUp
                                                 : squat
-                                                ? 'Find your comfortable squat'
-                                                : 'Stand tall and still',
+                                                ? l.flightSetupStep2Squat
+                                                : l.flightSetupStep2Jump,
                                             pushUp
-                                                ? 'Find a comfortable top, then move down and up twice.'
+                                                ? l.flightSetupStep2DetailPushUp
                                                 : squat
-                                                ? 'Stand still, squat and hold briefly, then stand back up.'
-                                                : 'Hold still briefly. Then jump for a big boost.',
+                                                ? l.flightSetupStep2DetailSquat
+                                                : l.flightSetupStep2DetailJump,
                                           ),
                                           _step(
                                             '3',
                                             widget.course.collectsStars
-                                                ? 'Collect stars'
-                                                : widget.course.title,
+                                                ? l.flightSetupStep3Stars
+                                                : l.courseTitle(widget.course),
                                             mode == PlayMode.jump &&
                                                     widget.course.collectsStars
-                                                ? 'Stars add 0.75s of glide, up to 5s. Collect trios for +5 points.'
-                                                : widget.course.instructions,
+                                                ? l.flightSetupStep3DetailJump
+                                                : l.courseInstructions(
+                                                    widget.course,
+                                                  ),
                                             last: true,
                                           ),
                                         ],
@@ -878,8 +889,8 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                               SetupLives(
                                 hearts: widget.course == FlightCourse.starTrail,
                                 text: widget.course == FlightCourse.starTrail
-                                    ? 'Three hearts + a shield. You can pause any time.'
-                                    : 'A collision or losing your position ends a scored flight. You can pause any time.',
+                                    ? l.flightSetupLivesEndless
+                                    : l.flightSetupLivesClassic,
                               ),
                             ],
                           ),
@@ -887,7 +898,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                       ),
                       const SizedBox(height: 12),
                       MiniKey(
-                        label: 'Set up my camera',
+                        label: l.flightSetupCameraButton,
                         icon: Icons.camera_alt_rounded,
                         colors: miniKeyColors(mode),
                         size: 22,
@@ -910,6 +921,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
   /// replays will carry sound, the switch at the far end.
   Widget _microphoneOption() {
     final on = controller.recordAudio;
+    final l = context.l10n;
     return AnimatedContainer(
       duration:
           MediaQuery.disableAnimationsOf(context) || controller.reducedMotion
@@ -939,10 +951,11 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                   children: [
                     Text.rich(
                       TextSpan(
-                        text: 'Record microphone',
+                        text: l.flightMicTitle,
                         children: [
                           TextSpan(
-                            text: on ? ' · On' : ' · Optional',
+                            text:
+                                ' · ${on ? l.flightMicOn : l.flightMicOptional}',
                             style: bodyText(
                               12.5,
                               color: on ? SkyColors.teal : SkyColors.muted,
@@ -958,8 +971,8 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                     const SizedBox(height: 1),
                     Text(
                       controller.microphoneMessage.isEmpty
-                          ? 'Add your voice and room sound to replays. Uses the microphone during flight only. Saved on this phone.'
-                          : controller.microphoneMessage,
+                          ? l.flightMicDetail
+                          : l.flightNote(controller.microphoneMessage),
                       style: bodyText(
                         10.5,
                         color: SkyColors.muted,
@@ -969,7 +982,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                 ),
               ),
               Semantics(
-                label: 'Record microphone for replays',
+                label: l.flightMicSemantics,
                 child: Switch(
                   value: on,
                   activeTrackColor: SkyColors.teal,
@@ -992,7 +1005,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
               child: TextButton.icon(
                 onPressed: controller.source!.openSettings,
                 icon: const Icon(Icons.settings_rounded, size: 16),
-                label: const Text('Microphone settings'),
+                label: Text(l.flightMicSettings),
               ),
             ),
         ],
@@ -1018,15 +1031,16 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         error = controller.stage == PlayStage.error;
     final mode = widget.mode, accent = miniColor(mode);
     final still = p.settings.reducedMotion;
+    final l = context.l10n;
     final title = ready
-        ? 'You found your wings!'
+        ? l.flightCalibrationTitleReady
         : busy
-        ? 'Waking up your camera…'
+        ? l.flightCalibrationTitleWaking
         : error
-        ? 'Let’s reconnect your camera.'
+        ? l.flightCalibrationTitleError
         : mode.controlsHeight
-        ? 'Find your movement range.'
-        : 'Stand tall and still.';
+        ? l.flightCalibrationTitleRange
+        : l.flightCalibrationTitleStill;
     final camera = busy
         ? CameraState.starting
         : error
@@ -1036,21 +1050,21 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         : CameraState.live;
     final body = controller.body, squat = controller.squat;
     final (step, stepTitle) = ready
-        ? (3, 'Try moving your bird.')
+        ? (3, l.flightCalibrationStepTry)
         : mode == PlayMode.pushUp
         ? switch (body.step) {
-            BodyCalibrationStep.position => (1, 'Find a comfortable top.'),
-            BodyCalibrationStep.lower => (2, 'Lower yourself slowly.'),
-            _ => (3, 'Push back up.'),
+            BodyCalibrationStep.position => (1, l.flightCalibrationStepTop),
+            BodyCalibrationStep.lower => (2, l.flightCalibrationStepLower),
+            _ => (3, l.flightCalibrationStepPushBack),
           }
         : mode == PlayMode.squat
         ? switch (squat.step) {
-            SquatCalibrationStep.standing => (1, 'Stand tall and still.'),
-            SquatCalibrationStep.lower => (2, 'Squat comfortably.'),
-            SquatCalibrationStep.rise => (3, 'Stand back up.'),
-            SquatCalibrationStep.complete => (3, 'You found your wings!'),
+            SquatCalibrationStep.standing => (1, l.flightCalibrationStepStill),
+            SquatCalibrationStep.lower => (2, l.flightCalibrationStepSquat),
+            SquatCalibrationStep.rise => (3, l.flightCalibrationStepStandUp),
+            SquatCalibrationStep.complete => (3, l.flightCalibrationStepDone),
           }
-        : (1, 'Stand tall and still.');
+        : (1, l.flightCalibrationStepStill);
     // Push-ups fill half the meter each, a little more as each one goes down
     // and comes back up; squats a third per step; jumps over the still hold.
     final (segments, progress) = switch (mode) {
@@ -1110,19 +1124,19 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                       ),
                       const SizedBox(height: 14),
                       Text(
-                        'A fresh start usually helps.',
+                        l.flightCameraTroubleTitle,
                         style: heading(23, weight: FontWeight.w700),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 16),
-                      const CalibrationTip(
+                      CalibrationTip(
                         icon: Icons.lock_open_rounded,
-                        text: 'Allow camera access in Settings.',
+                        text: l.flightCameraTroubleAllow,
                       ),
                       const SizedBox(height: 10),
-                      const CalibrationTip(
+                      CalibrationTip(
                         icon: Icons.apps_rounded,
-                        text: 'Close any other camera app, then try again.',
+                        text: l.flightCameraTroubleClose,
                       ),
                     ],
                   ),
@@ -1136,7 +1150,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
           children: [
             Expanded(
               child: MiniKey(
-                label: 'Try again',
+                label: l.commonTryAgain,
                 icon: Icons.refresh_rounded,
                 colors: miniKeyColors(mode),
                 height: 58,
@@ -1147,7 +1161,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
             const SizedBox(width: 12),
             MiniRoundKey(
               icon: Icons.settings_rounded,
-              label: 'Camera permission settings',
+              label: l.flightCameraPermissionSemantics,
               onPressed: controller.source!.openSettings,
             ),
           ],
@@ -1169,13 +1183,13 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         Text(
           ready
               ? (mode == PlayMode.pushUp
-                    ? 'Push up to rise. Lower to glide.'
+                    ? l.flightCalibrationReadyPushUp
                     : mode == PlayMode.squat
-                    ? 'Squat to descend. Stand to rise.'
-                    : 'Jump, then rest while your bird glides.')
+                    ? l.flightCalibrationReadySquat
+                    : l.flightCalibrationReadyJump)
               : (mode == PlayMode.pushUp
-                    ? 'Keep your shoulders, one arm and a hip in view. Move comfortably.'
-                    : 'Keep your shoulders, hips and both feet in view.'),
+                    ? l.flightCalibrationKeepPushUp
+                    : l.flightCalibrationKeepBody),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: bodyText(13.5, color: SkyColors.ink, weight: FontWeight.w700),
@@ -1202,12 +1216,14 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                         : .5,
                     caption: !ready
                         ? (mode.controlsHeight
-                              ? 'Learning your range as you move.'
-                              : 'Your bird moves after calibration.')
+                              ? l.flightCalibrationLearning
+                              : l.flightCalibrationAfter)
                         : mode == PlayMode.jump
                         ? (controller.movement.flap
-                              ? 'Jump!'
-                              : controller.movement.feedback)
+                              ? l.flightCalibrationJump
+                              : l.trackingFeedback(
+                                  controller.movement.feedback,
+                                ))
                         : null,
                   ),
                 ),
@@ -1234,10 +1250,16 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                           fit: BoxFit.scaleDown,
                           child: MiniTag(
                             ready
-                                ? 'CONTROL CHECK'
+                                ? l.flightCalibrationTagCheck
                                 : mode == PlayMode.pushUp
-                                ? '${body.cycles} / 2 PUSH-UPS'
-                                : '${((mode == PlayMode.squat ? squat.progress : controller.jump.progress) * 100).round()}% CALIBRATED',
+                                ? l.flightCalibrationTagPushUps(body.cycles)
+                                : l.flightCalibrationTagPercent(
+                                    ((mode == PlayMode.squat
+                                                ? squat.progress
+                                                : controller.jump.progress) *
+                                            100)
+                                        .round(),
+                                  ),
                             color: ready ? SkyColors.mint : SkyColors.yellow,
                           ),
                         ),
@@ -1252,7 +1274,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         const SizedBox(height: 12),
         if (ready)
           MiniKey(
-            label: 'Ready for takeoff',
+            label: l.flightCalibrationTakeoff,
             icon: Icons.flight_takeoff_rounded,
             colors: miniKeyColors(mode),
             height: 58,
@@ -1261,7 +1283,9 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
           )
         else
           MiniKey(
-            label: busy ? 'Starting…' : 'Start calibration again',
+            label: busy
+                ? l.flightCalibrationStarting
+                : l.flightCalibrationRestart,
             onPressed: busy ? null : () => controller.startCamera(),
             colors: HomeKeyColors.paper,
             icon: Icons.restart_alt_rounded,
@@ -1271,7 +1295,15 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
           ),
         const SizedBox(height: 5),
         CalibrationMetrics(
-          '${controller.metrics.hz.toStringAsFixed(0)} updates/s · ${controller.metrics.p95.toStringAsFixed(0)} ms p95${controller.metrics.sensorTimestamp ? '' : ' (processing only)'}',
+          controller.metrics.sensorTimestamp
+              ? l.flightCalibrationMetrics(
+                  controller.metrics.hz.toStringAsFixed(0),
+                  controller.metrics.p95.toStringAsFixed(0),
+                )
+              : l.flightCalibrationMetricsProcessing(
+                  controller.metrics.hz.toStringAsFixed(0),
+                  controller.metrics.p95.toStringAsFixed(0),
+                ),
         ),
       ],
     );
@@ -1286,12 +1318,12 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
             trailing: [
               MiniTag(
                 ready
-                    ? 'READY'
+                    ? l.flightCalibrationStatusReady
                     : busy
-                    ? 'STARTING'
+                    ? l.flightCalibrationStatusStarting
                     : error
-                    ? 'CAMERA OFF'
-                    : 'CALIBRATING',
+                    ? l.flightCalibrationStatusCameraOff
+                    : l.flightCalibrationStatusCalibrating,
                 icon: ready
                     ? Icons.check_circle_rounded
                     : error
@@ -1305,7 +1337,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
               ),
               MiniRoundKey(
                 icon: Icons.cameraswitch_rounded,
-                label: 'Switch camera',
+                label: l.flightSwitchCameraSemantics,
                 onPressed: busy ? null : controller.switchCamera,
               ),
             ],
@@ -1370,8 +1402,8 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                     bottom: 14,
                     child: CalibrationNote(
                       text: controller.message.isEmpty
-                          ? 'Step into view'
-                          : controller.message,
+                          ? l.flightCalibrationStepIntoView
+                          : l.flightNote(controller.message),
                       icon: busy
                           ? Icons.hourglass_top_rounded
                           : error
@@ -1429,6 +1461,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
 
   Widget _flight() {
     final sim = controller.simulation!;
+    final l = context.l10n;
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -1436,26 +1469,13 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
           Semantics(
             label: sim.boss == null
                 ? sim.vanguardFlying
-                      ? 'Tap to flap. ${sim.vanguard!.title.toLowerCase()} '
-                            'fly in ahead of their boss'
-                      : 'Tap to flap'
-                : 'Tap to flap. ${sim.boss!.name}: ${sim.boss!.hp} of ${sim.boss!.maxHp} health${sim.boss!.stageHint != null
-                      ? '. ${sim.boss!.stageHint}'
-                      : sim.boss!.isMoth
-                      ? '. ${sim.boss!.shieldHint}'
-                      : sim.boss!.isPirate
-                      ? '. ${sim.boss!.tideHint}'
-                      : sim.boss!.isDragon
-                      ? '. ${sim.boss!.breathHint}'
-                      : sim.boss!.isKingCoo
-                      ? '. ${sim.boss!.cooHint}'
-                      : sim.boss!.isGargoyle
-                      ? '. ${sim.boss!.gargoyleHint}'
-                      : sim.boss!.isNeferhoo
-                      ? '. ${sim.boss!.neferhooHint}'
-                      : sim.boss!.screeches
-                      ? '. ${sim.boss!.screechHint}'
-                      : ''}',
+                      // The banner's title (capitals) in lower case, so a
+                      // screen reader says words rather than letters.
+                      ? l.flightTapVanguardSemantics(
+                          l.vanguardTitle(sim.vanguard!.boss).toLowerCase(),
+                        )
+                      : l.flightTapSemantics
+                : _bossLabel(l, sim.boss!),
             button: true,
             onTap: controller.flap,
             child: LayoutBuilder(
@@ -1500,7 +1520,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                       controller.celebration ?? 0,
                       reducedMotion: controller.reducedMotion,
                     ),
-              child: SceneLayout(child: _flightHud()),
+              child: FlightDirection(child: SceneLayout(child: _flightHud())),
             ),
           ),
         // A test of a push-up or squat level steers by the finger's height;
@@ -1513,16 +1533,48 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     );
   }
 
+  /// The sky's label in a boss fight: the boss, its health and its current
+  /// tip (the domain's English hint, worded by [BossText.bossHintText]).
+  String _bossLabel(AppLocalizations l, SkyBoss boss) {
+    final hint = boss.stageHint != null
+        ? boss.stageHint!
+        : boss.isMoth
+        ? boss.shieldHint
+        : boss.isPirate
+        ? boss.tideHint
+        : boss.isDragon
+        ? boss.breathHint
+        : boss.isKingCoo
+        ? boss.cooHint
+        : boss.isGargoyle
+        ? boss.gargoyleHint
+        : boss.isNeferhoo
+        ? boss.neferhooHint
+        : boss.screeches
+        ? boss.screechHint
+        : null;
+    final name = l.bossName(boss.kind);
+    return hint == null
+        ? l.flightTapBossSemantics(name, boss.hp, boss.maxHp)
+        : l.flightTapBossHintSemantics(
+            name,
+            boss.hp,
+            boss.maxHp,
+            l.bossHintText(hint),
+          );
+  }
+
   /// The flight itself. Flame's game widget would take the focus and keep
   /// every key from this screen, so it never gets it.
-  Widget _sky() =>
-      ExcludeFocus(child: GameWidget(game: game!, autofocus: false));
+  Widget _sky() => FlightDirection(
+    child: ExcludeFocus(child: GameWidget(game: game!, autofocus: false)),
+  );
 
   /// Taps during the knockout skip to the stage, but only once
   /// [KnockoutArt.skipAfter] has passed, so mashing cannot dismiss it.
   Widget _knockoutSkip() => Semantics(
     button: true,
-    label: 'Skip to results',
+    label: context.l10n.flightSkipToResultsSemantics,
     onTap: controller.skipKnockout,
     child: Listener(
       key: const ValueKey('knockout-skip'),
@@ -1536,7 +1588,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
   /// line cannot dismiss it.
   Widget _celebrationSkip() => Semantics(
     button: true,
-    label: 'Skip to results',
+    label: context.l10n.flightSkipToResultsSemantics,
     onTap: controller.skipCelebration,
     child: Listener(
       key: const ValueKey('celebration-skip'),
@@ -1548,6 +1600,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
   Widget _flightHud() {
     final sim = controller.simulation!;
     final paused = sim.phase == RunPhase.paused;
+    final l = context.l10n;
     const edge = MatchLayout.edge, gap = MatchLayout.gap;
     // Bottom faces sit a little higher so their lips clear the edge too.
     const bottom = edge + 6, shot = 96.0, sprint = 80.0;
@@ -1559,7 +1612,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       right: 0,
       child: MatchAction(
         symbol: MatchSymbol.pause,
-        label: 'Pause flight',
+        label: l.hudPauseSemantics,
         onPressed: () {
           UiSounds.effect(context, 'pause');
           controller.pause();
@@ -1583,32 +1636,32 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     final hint = counting
         ? (controller.testFly && controller.mode.controlsHeight
               ? keys
-                    ? 'Test flight: Up and Down steer.'
-                    : 'Test flight: drag up and down to steer.'
+                    ? l.flightHintTestSteerKeys
+                    : l.flightHintTestSteerDrag
               : controller.testFly && controller.mode == PlayMode.jump
               ? keys
-                    ? 'Test flight: Space for a jump.'
-                    : 'Test flight: tap for a jump.'
+                    ? l.flightHintTestJumpKeys
+                    : l.flightHintTestJumpTap
               : controller.isTouch && keys
               ? (controller.routed && !sim.offersShoot
-                    ? 'Space to flap. Fly through the stars.'
+                    ? l.flightHintKeysStars
                     : controller.routed && !sim.offersSprint
-                    ? 'Space to flap. Hold D to charge a shot.'
+                    ? l.flightHintKeysShoot
                     : sim.supportsCombat
-                    ? 'Space to flap. Hold D to charge a shot. A to sprint!'
-                    : 'Space to flap. Esc pauses.')
+                    ? l.flightHintKeysCombat
+                    : l.flightHintKeysPause)
               : controller.isTouch
               ? (controller.routed && !sim.offersShoot
-                    ? 'Tap the sky to flap. Fly through the stars.'
+                    ? l.flightHintTapStars
                     : controller.routed && !sim.offersSprint
-                    ? 'Tap the sky to flap. Hold Shoot to charge.'
+                    ? l.flightHintTapShoot
                     : sim.supportsCombat
-                    ? 'Tap the sky to flap. Hold Shoot to charge. Sprint to smash!'
-                    : 'Tap to flap. Release between taps.')
+                    ? l.flightHintTapCombat
+                    : l.flightHintTapRelease)
               : sim.isTrail
-              ? 'Follow the stars. Your shield is ready.'
-              : 'The sky is yours.')
-        : sim.trackingFeedback;
+              ? l.flightHintTrail
+              : l.flightHintSky)
+        : l.flightNote(sim.trackingFeedback);
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -1706,7 +1759,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                 color: finalStretch ? SkyColors.coral : SkyColors.cream,
                 padding: const EdgeInsets.fromLTRB(9, 6, 12, 6),
                 child: Semantics(
-                  label: '${sim.clockLabel} remaining',
+                  label: l.hudClockSemantics(sim.clockLabel),
                   excludeSemantics: true,
                   child: SizedBox(
                     height: 44,
@@ -1763,11 +1816,28 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                           ? sim.magnetRemaining / sim.magnetDuration
                           : sim.magnetCharge / sim.magnetGates,
                       text: sim.magnetActive
-                          ? '${sim.magnetRemaining.ceil()}s'
+                          ? l.flightSeconds('${sim.magnetRemaining.ceil()}')
                           : null,
                       label: sim.magnetActive
-                          ? 'Star magnet: ${sim.magnetRemaining.ceil()} seconds remaining'
-                          : 'Magnet charging: ${sim.magnetCharge} of ${sim.magnetGates} perfect gates',
+                          ? HudWords.of(
+                              l,
+                              ('magnet', sim.magnetRemaining.ceil()),
+                              () => l.hudMagnetActiveSemantics(
+                                sim.magnetRemaining.ceil(),
+                              ),
+                            )
+                          : HudWords.of(
+                              l,
+                              (
+                                'magnetCharge',
+                                sim.magnetCharge,
+                                sim.magnetGates,
+                              ),
+                              () => l.hudMagnetChargingSemantics(
+                                sim.magnetCharge,
+                                sim.magnetGates,
+                              ),
+                            ),
                       color: SkyColors.purple,
                       active: sim.magnetActive,
                       segments: sim.magnetActive ? 0 : sim.magnetGates,
@@ -1790,21 +1860,24 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
           _flightReadout(
             right: edge,
             bottom: bottom,
-            child: MatchPlate(
-              color: SkyColors.yellow,
-              padding: const EdgeInsets.fromLTRB(8, 6, 16, 6),
-              child: SizedBox(
-                height: 44,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const MatchIcon(MatchSymbol.eye, size: 36),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Finding you…',
-                      style: heading(22, weight: FontWeight.w700),
-                    ),
-                  ],
+            // Words in the left-to-right HUD read their language's way.
+            child: LanguageDirection(
+              child: MatchPlate(
+                color: SkyColors.yellow,
+                padding: const EdgeInsets.fromLTRB(8, 6, 16, 6),
+                child: SizedBox(
+                  height: 44,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const MatchIcon(MatchSymbol.eye, size: 36),
+                      const SizedBox(width: 8),
+                      Text(
+                        l.hudFindingYou,
+                        style: heading(22, weight: FontWeight.w700),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -1817,7 +1890,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
             bottom: bottom,
             child: MatchShotButton(
               key: const ValueKey('touch-shoot'),
-              label: 'Shoot',
+              label: l.hudShoot,
               reserve: sim.ammo,
               charge: sim.shotCharge,
               spend: sim.charging && !sim.outOfAmmo ? sim.shotCost : 0,
@@ -1839,7 +1912,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
             bottom: bottom + (shot - sprint) / 2,
             child: MatchSprintButton(
               key: const ValueKey('touch-sprint'),
-              label: 'Sprint',
+              label: l.hudSprint,
               recharge: 1 - sim.sprintCooldownRemaining / sim.sprintCooldown,
               burst: sim.sprintRemaining / sim.sprintSeconds,
               secondsLeft: sim.sprintCooldownRemaining.ceil(),
@@ -1850,116 +1923,126 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
           ),
         if (sim.phase == RunPhase.countdown && (sim.countdown > 0 || !counting))
           Center(
-            child: MatchPlate(
-              radius: 28,
-              padding: const EdgeInsets.fromLTRB(32, 16, 32, 20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (controller.testFly) ...[
-                    const TestFlightTag(note: '· nothing is saved'),
-                    const SizedBox(height: 10),
-                  ],
-                  Text(
-                    counting ? 'Ready, steady…' : 'Find your position',
-                    style: heading(28),
-                  ),
-                  const SizedBox(height: 12),
-                  // Each number pops in once; while tracking is lost the
-                  // badge looks for the player instead.
-                  MatchPulse(
-                    value: counting
-                        ? sim.countdown.ceil().clamp(1, sim.countdownSeconds)
-                        : 0,
-                    reducedMotion: controller.reducedMotion,
-                    child: SizedBox.square(
-                      dimension: 92,
-                      child: MatchPlate(
-                        color: SkyColors.yellow,
-                        padding: EdgeInsets.zero,
-                        child: Center(
-                          child: counting
-                              ? Text(
-                                  '${sim.countdown.ceil().clamp(1, sim.countdownSeconds)}',
-                                  style: matchDigits(62),
-                                )
-                              : const MatchIcon(MatchSymbol.eye, size: 56),
+            // The card's sentences read their language's way.
+            child: LanguageDirection(
+              child: MatchPlate(
+                radius: 28,
+                padding: const EdgeInsets.fromLTRB(32, 16, 32, 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (controller.testFly) ...[
+                      TestFlightTag(note: '· ${l.flightTestNothingSaved}'),
+                      const SizedBox(height: 10),
+                    ],
+                    Text(
+                      counting ? l.flightCountdownReady : l.flightFindPosition,
+                      style: heading(28),
+                    ),
+                    const SizedBox(height: 12),
+                    // Each number pops in once; while tracking is lost the
+                    // badge looks for the player instead.
+                    MatchPulse(
+                      value: counting
+                          ? sim.countdown.ceil().clamp(1, sim.countdownSeconds)
+                          : 0,
+                      reducedMotion: controller.reducedMotion,
+                      child: SizedBox.square(
+                        dimension: 92,
+                        child: MatchPlate(
+                          color: SkyColors.yellow,
+                          padding: EdgeInsets.zero,
+                          child: Center(
+                            child: counting
+                                ? Text(
+                                    '${sim.countdown.ceil().clamp(1, sim.countdownSeconds)}',
+                                    style: matchDigits(62),
+                                  )
+                                : const MatchIcon(MatchSymbol.eye, size: 56),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  if (hint.isNotEmpty) ...[
-                    const SizedBox(height: 14),
-                    Text(
-                      hint,
-                      style: bodyText(16, color: SkyColors.muted),
-                      textAlign: TextAlign.center,
-                    ),
+                    if (hint.isNotEmpty) ...[
+                      const SizedBox(height: 14),
+                      Text(
+                        hint,
+                        style: bodyText(16, color: SkyColors.muted),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           ),
+        // The pause card is a menu: it reads (and mirrors) its language's
+        // way inside the left-to-right HUD.
         if (paused)
-          PauseCard(
-            reducedMotion: controller.reducedMotion,
-            subtitle: level != null
-                ? '${level.id} · ${level.name}. Your bird is perched and waiting.'
-                : widget.built?.test == true
-                ? 'Test flight of ${widget.built!.level.plan.name}. '
-                      'Nothing is saved.'
-                : widget.built != null
-                ? '${widget.built!.plan.name}. Your bird is perched and waiting.'
-                : controller.isTouch
-                ? 'Your bird is perched and waiting. We’ll count you back in.'
-                : 'Shake it out, then get back in position. We’ll count you in.',
-            actions: [
-              // A level starts over or goes back to the map; either way the
-              // attempt is saved.
-              if (widget.built != null) ...[
-                PauseAction(
-                  key: const ValueKey('pause-builder'),
-                  label: widget.built!.test ? 'Edit' : 'Builder',
-                  icon: widget.built!.test
-                      ? Icons.edit_rounded
-                      : Icons.dashboard_customize_rounded,
-                  // A test goes back to the editor where it was paused.
-                  onPressed: () => leave(
-                    widget.built!.test
-                        ? '$_builtHome?at='
-                              '${BuiltResultStage.reached(controller, widget.built!)}'
-                        : _builtHome,
+          LanguageDirection(
+            child: PauseCard(
+              reducedMotion: controller.reducedMotion,
+              subtitle: level != null
+                  ? l.flightPausedLevel(level.id, l.levelName(level))
+                  : widget.built?.test == true
+                  ? l.flightPausedTest(
+                      l.builtLevelName(widget.built!.level.plan),
+                    )
+                  : widget.built != null
+                  ? l.flightPausedBuilt(l.builtLevelName(widget.built!.plan))
+                  : controller.isTouch
+                  ? l.flightPausedTouch
+                  : l.flightPausedCamera,
+              actions: [
+                // A level starts over or goes back to the map; either way the
+                // attempt is saved.
+                if (widget.built != null) ...[
+                  PauseAction(
+                    key: const ValueKey('pause-builder'),
+                    label: widget.built!.test
+                        ? l.flightPauseEdit
+                        : l.flightPauseBuilder,
+                    icon: widget.built!.test
+                        ? Icons.edit_rounded
+                        : Icons.dashboard_customize_rounded,
+                    // A test goes back to the editor where it was paused.
+                    onPressed: () => leave(
+                      widget.built!.test
+                          ? '$_builtHome?at='
+                                '${BuiltResultStage.reached(controller, widget.built!)}'
+                          : _builtHome,
+                    ),
                   ),
-                ),
-                PauseAction(
-                  key: const ValueKey('pause-retry'),
-                  label: 'Retry',
-                  icon: Icons.replay_rounded,
-                  tint: SkyColors.mint,
-                  onPressed: restart,
-                ),
-              ] else if (level != null) ...[
-                PauseAction(
-                  key: const ValueKey('pause-map'),
-                  label: 'Map',
-                  icon: Icons.map_rounded,
-                  onPressed: () => leave('/campaign'),
-                ),
-                PauseAction(
-                  key: const ValueKey('pause-retry'),
-                  label: 'Retry',
-                  icon: Icons.replay_rounded,
-                  tint: SkyColors.mint,
-                  onPressed: restart,
-                ),
-              ] else
-                PauseAction(
-                  label: 'Finish flight',
-                  icon: Icons.flag_rounded,
-                  onPressed: controller.endFlight,
-                ),
-            ],
-            onResume: () => controller.resume(),
+                  PauseAction(
+                    key: const ValueKey('pause-retry'),
+                    label: l.commonRetry,
+                    icon: Icons.replay_rounded,
+                    tint: SkyColors.mint,
+                    onPressed: restart,
+                  ),
+                ] else if (level != null) ...[
+                  PauseAction(
+                    key: const ValueKey('pause-map'),
+                    label: l.commonMap,
+                    icon: Icons.map_rounded,
+                    onPressed: () => leave('/campaign'),
+                  ),
+                  PauseAction(
+                    key: const ValueKey('pause-retry'),
+                    label: l.commonRetry,
+                    icon: Icons.replay_rounded,
+                    tint: SkyColors.mint,
+                    onPressed: restart,
+                  ),
+                ] else
+                  PauseAction(
+                    label: l.flightPauseFinish,
+                    icon: Icons.flag_rounded,
+                    onPressed: controller.endFlight,
+                  ),
+              ],
+              onResume: () => controller.resume(),
+            ),
           ),
       ],
     );

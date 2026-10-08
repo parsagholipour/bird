@@ -1,0 +1,463 @@
+{
+  "@note": "English source of the Play Store listing and the Google Play Games texts. Translators copy this file to l10n/store/<slug>.json (slugs as AppLanguage: es_419, pt_br, id, fr, de, ja, ko, tr, zh_hant, ru, ar), translate every \"text\", keep every key, and stay within \"maxChars\" (Play Console counts characters). The owner pastes them into Play Console: Grow users > Store presence > Main store listing > translations, and Play Games Services > Achievements > (each) > translations. Nothing here ships in the app. check: python3 tool/l10n/check_store.py.",
+  "@status": "listing: DRAFT by the localization architect (no English listing existed in the repo); owner to approve before translation. achievements: copied from play-games-ws/UX-DECISION.md section 5 (names and descriptions as designed; descriptions 1-24 equal SkyStamp.goal in the app).",
+  "listing": {
+    "title": {
+      "text": "Beakbound",
+      "maxChars": 30,
+      "description": "App name on Google Play. A brand name: keep it as is unless a market needs a transliteration (owner decides).",
+      "keepEnglish": true
+    },
+    "shortDescription": {
+      "text": "Tap to fly a courier bird around the world. Every letter lands!",
+      "maxChars": 80,
+      "description": "Play Store short description, under the screenshots. Friendly, no ALL CAPS, no emoji, no \"free\"/\"best\"/\"#1\" (Play policy)."
+    },
+    "fullDescription": {
+      "text": "Beakbound is a bright, offline flying adventure. You are the Sky Club's newest courier: tap to flap, weave through gates, collect stars and deliver the mail across the world.\n\nFLY THE CAMPAIGN\nFive mail routes went quiet overnight. Fly level by level from the jungle to carnival Brazil and the Aztec temples, on to ancient Rome, Egypt and Arabia, and into the bright lights of New York. Every level carries a parcel, and every delivery comes back with a thank-you.\n\nFACE THE BOSSES\nBaron Bat, the Spitter King, Neferhoo the Mummy Courier, King Coo and the Searchlight Gargoyle stand in the way. Shoot, sprint and dodge to send them packing.\n\nFLY ENDLESS\nChase your best score on the endless course, where gates, gales and bosses keep coming.\n\nMORE TO DO\n- Four birds to collect, each with its own voice\n- Upgrades bought with the stars you collect\n- A daily Adventure and a Sky Passport full of medals\n- The Level Builder: make your own routes and fly them\n- Fly Together and 1 v 1 duels for two players on one phone\n- Mini games that fly by push-ups, squats or jumps in front of the camera\n\nPLAYS YOUR WAY\nNo account and no internet needed. The camera mini games run entirely on your phone: video never leaves it. Optional Google Play Games cloud save and achievements.",
+      "maxChars": 4000,
+      "description": "Play Store full description. Section headers in capitals are fine. Keep the facts: offline, camera stays on the phone, optional Play Games."
+    },
+    "releaseNotes": {
+      "text": "Beakbound now speaks your language: choose it in Settings.",
+      "maxChars": 500,
+      "description": "\"What's new\" for the release that ships the translations."
+    }
+  },
+  "playGames": {
+    "displayName": {
+      "text": "Beakbound",
+      "maxChars": 50,
+      "description": "Play Games Services game name.",
+      "keepEnglish": true
+    },
+    "description": {
+      "text": "Fly a courier bird around the world: deliver the mail, beat the bosses and collect every medal.",
+      "maxChars": 4000,
+      "description": "Play Games Services game description (Properties)."
+    }
+  },
+  "achievements": {
+    "frequentFlyerBronze": {
+      "name": {
+        "text": "Frequent Flyer · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Finish 10 scored flights.",
+        "maxChars": 500
+      }
+    },
+    "frequentFlyerSilver": {
+      "name": {
+        "text": "Frequent Flyer · Silver",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Finish 100 scored flights.",
+        "maxChars": 500
+      }
+    },
+    "frequentFlyerGold": {
+      "name": {
+        "text": "Frequent Flyer · Gold",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Finish 500 scored flights.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotBronze": {
+      "name": {
+        "text": "On the Dot · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Fly 25 perfect passes along the aiming marks.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotSilver": {
+      "name": {
+        "text": "On the Dot · Silver",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Fly 200 perfect passes along the aiming marks.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotGold": {
+      "name": {
+        "text": "On the Dot · Gold",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Fly 1,000 perfect passes along the aiming marks.",
+        "maxChars": 500
+      }
+    },
+    "starChaserBronze": {
+      "name": {
+        "text": "Star Chaser · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Collect 50 stars.",
+        "maxChars": 500
+      }
+    },
+    "starChaserSilver": {
+      "name": {
+        "text": "Star Chaser · Silver",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Collect 500 stars.",
+        "maxChars": 500
+      }
+    },
+    "starChaserGold": {
+      "name": {
+        "text": "Star Chaser · Gold",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Collect 5,000 stars.",
+        "maxChars": 500
+      }
+    },
+    "constellationBronze": {
+      "name": {
+        "text": "Constellation · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Collect 15 stars in one unbroken streak.",
+        "maxChars": 500
+      }
+    },
+    "constellationSilver": {
+      "name": {
+        "text": "Constellation · Silver",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Collect 40 stars in one unbroken streak.",
+        "maxChars": 500
+      }
+    },
+    "constellationGold": {
+      "name": {
+        "text": "Constellation · Gold",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Collect 80 stars in one unbroken streak.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainBronze": {
+      "name": {
+        "text": "Sky Captain · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Score 100 points in one endless flight.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainSilver": {
+      "name": {
+        "text": "Sky Captain · Silver",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Score 500 points in one endless flight.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainGold": {
+      "name": {
+        "text": "Sky Captain · Gold",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Score 2,000 points in one endless flight.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerBronze": {
+      "name": {
+        "text": "Trailblazer · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Fly at least 60 seconds in 5 endless flights.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerSilver": {
+      "name": {
+        "text": "Trailblazer · Silver",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Fly at least 60 seconds in 50 endless flights.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerGold": {
+      "name": {
+        "text": "Trailblazer · Gold",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Fly at least 60 seconds in 250 endless flights.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherBronze": {
+      "name": {
+        "text": "Flock Together · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Take two different birds on scored flights.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherSilver": {
+      "name": {
+        "text": "Flock Together · Silver",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Take all four birds on scored flights.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherGold": {
+      "name": {
+        "text": "Flock Together · Gold",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Fly 25 scored flights with every bird.",
+        "maxChars": 500
+      }
+    },
+    "allRounderBronze": {
+      "name": {
+        "text": "All-Rounder · Bronze",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Fly a push-up, squat or jump mini game.",
+        "maxChars": 500
+      }
+    },
+    "allRounderSilver": {
+      "name": {
+        "text": "All-Rounder · Silver",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Fly all three mini games: push-up, squat, jump.",
+        "maxChars": 500
+      }
+    },
+    "allRounderGold": {
+      "name": {
+        "text": "All-Rounder · Gold",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Fly 10 scored flights in each mini game.",
+        "maxChars": 500
+      }
+    },
+    "canopyBoss": {
+      "name": {
+        "text": "Mail Through the Canopy",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Beat Baron Bat in his lair at the end of the Canopy Route (1-8).",
+        "maxChars": 500
+      }
+    },
+    "neferhoo": {
+      "name": {
+        "text": "Return to Sender",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Beat Neferhoo, the Mummy Courier guarding Egypt (2-6).",
+        "maxChars": 500
+      }
+    },
+    "roadBoss": {
+      "name": {
+        "text": "Mint Tea Again",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Beat the Spitter King at the end of the Ancient Road (2-9).",
+        "maxChars": 500
+      }
+    },
+    "kingCoo": {
+      "name": {
+        "text": "Crumbs Cleared",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Beat King Coo, New York's guardian (3-2).",
+        "maxChars": 500
+      }
+    },
+    "gargoyle": {
+      "name": {
+        "text": "Out of the Spotlight",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Beat the Searchlight Gargoyle (3-4).",
+        "maxChars": 500
+      }
+    },
+    "goldCanopy": {
+      "name": {
+        "text": "Gold Canopy",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Earn three stars on every level of the Canopy Route.",
+        "maxChars": 500
+      }
+    },
+    "goldRoad": {
+      "name": {
+        "text": "Gold Road",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Earn three stars on every level of the Ancient Road.",
+        "maxChars": 500
+      }
+    },
+    "brightLights": {
+      "name": {
+        "text": "Bright Lights",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Earn three stars on every New York level.",
+        "maxChars": 500
+      }
+    },
+    "lamplighter": {
+      "name": {
+        "text": "Lamplighter",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Beat the Dusk Empress in an endless flight.",
+        "maxChars": 500
+      }
+    },
+    "harbourBells": {
+      "name": {
+        "text": "Harbour Bells",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Beat the Pirate Captain in an endless flight.",
+        "maxChars": 500
+      }
+    },
+    "edgeOfTheMap": {
+      "name": {
+        "text": "Edge of the Map",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Beat the Ember Dragon in an endless flight.",
+        "maxChars": 500
+      }
+    },
+    "twoOnOnePhone": {
+      "name": {
+        "text": "Two on One Phone",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Finish a roped Fly Together flight.",
+        "maxChars": 500
+      }
+    },
+    "friendlyRivals": {
+      "name": {
+        "text": "Friendly Rivals",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Fly a 1 v 1 duel.",
+        "maxChars": 500
+      }
+    },
+    "routePlanner": {
+      "name": {
+        "text": "Route Planner",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Build a level in the Level Builder and fly it to the finish.",
+        "maxChars": 500
+      }
+    },
+    "wholeKit": {
+      "name": {
+        "text": "The Whole Kit",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Buy all 16 upgrade levels.",
+        "maxChars": 500
+      }
+    },
+    "penPal": {
+      "name": {
+        "text": "Pen Pal",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Stamp 10 daily postcards by finishing every task of a day's Adventure.",
+        "maxChars": 500
+      }
+    },
+    "nightMail": {
+      "name": {
+        "text": "Night Mail",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Finish a scored flight between midnight and 4 a.m.",
+        "maxChars": 500
+      }
+    },
+    "specialDelivery": {
+      "name": {
+        "text": "Special Delivery",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Shoot an Alley Pigeon and win back the star it snatched.",
+        "maxChars": 500
+      }
+    }
+  },
+  "@achievementNote": "Keys are PlayAchievement values (lib/data/play_achievements.dart), in Play Console order. Names 1-24 follow the in-game \"Stamp · Medal\" pattern: translate the stamp and medal words as the game's ARB does (passport keys) so the two match."
+}

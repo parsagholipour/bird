@@ -1,0 +1,463 @@
+{
+  "@note": "Spanish (Latin America, es_419) translation of l10n/store/en.json. English source of the Play Store listing and the Google Play Games texts. Translators copy this file to l10n/store/<slug>.json (slugs as AppLanguage: es_419, pt_br, id, fr, de, ja, ko, tr, zh_hant, ru, ar), translate every \"text\", keep every key, and stay within \"maxChars\" (Play Console counts characters). The owner pastes them into Play Console: Grow users > Store presence > Main store listing > translations, and Play Games Services > Achievements > (each) > translations. Nothing here ships in the app. check: python3 tool/l10n/check_store.py.",
+  "@status": "listing: DRAFT by the localization architect (no English listing existed in the repo); owner to approve before translation. achievements: copied from play-games-ws/UX-DECISION.md section 5 (names and descriptions as designed; descriptions 1-24 equal SkyStamp.goal in the app).",
+  "listing": {
+    "title": {
+      "text": "Beakbound",
+      "maxChars": 30,
+      "description": "App name on Google Play. A brand name: keep it as is unless a market needs a transliteration (owner decides).",
+      "keepEnglish": true
+    },
+    "shortDescription": {
+      "text": "Toca para volar con un ave mensajera por todo el mundo. ¡Toda carta llega!",
+      "maxChars": 80,
+      "description": "Play Store short description, under the screenshots. Friendly, no ALL CAPS, no emoji, no \"free\"/\"best\"/\"#1\" (Play policy)."
+    },
+    "fullDescription": {
+      "text": "Beakbound es una aventura de vuelo llena de color que se juega sin conexión. Eres la nueva ave mensajera del Club del Cielo: toca para aletear, pasa entre las puertas, reúne estrellas y entrega el correo por todo el mundo.\n\nVUELA LA CAMPAÑA\nCinco rutas de correo se quedaron en silencio de la noche a la mañana. Vuela nivel por nivel desde la selva hasta el Brasil del carnaval y los templos aztecas, pasa por la antigua Roma, Egipto y Arabia, y llega a las luces brillantes de Nueva York. Cada nivel lleva un paquete, y cada entrega vuelve con un agradecimiento.\n\nENFRENTA A LOS JEFES\nEl Barón Murciélago, el Rey Escupidor, Neferhoo el Mensajero Momia, el Rey Currucú y la Gárgola del Reflector se interponen en tu camino. Dispara, usa el Turbo y esquiva para mandarlos a volar.\n\nVUELO INFINITO\nSupera tu récord en el recorrido infinito, donde las puertas, los vendavales y los jefes no dejan de llegar.\n\nY MUCHO MÁS\n- Cuatro aves para coleccionar, cada una con su propia voz\n- Mejoras que compras con las estrellas que reúnes\n- Una Aventura diaria y un pasaporte del cielo lleno de medallas\n- El Creador de niveles: diseña tus propias rutas y vuélalas\n- Vuelen juntos y duelos 1 contra 1 para dos jugadores en un mismo teléfono\n- Minijuegos que se vuelan con flexiones, sentadillas o saltos frente a la cámara\n\nJUEGA A TU MANERA\nNo necesitas cuenta ni internet. Los minijuegos con cámara funcionan por completo en tu teléfono: el video nunca sale de él. Guardado en la nube y logros opcionales con Google Play Juegos.",
+      "maxChars": 4000,
+      "description": "Play Store full description. Section headers in capitals are fine. Keep the facts: offline, camera stays on the phone, optional Play Games."
+    },
+    "releaseNotes": {
+      "text": "Beakbound ya habla tu idioma: elígelo en Ajustes.",
+      "maxChars": 500,
+      "description": "\"What's new\" for the release that ships the translations."
+    }
+  },
+  "playGames": {
+    "displayName": {
+      "text": "Beakbound",
+      "maxChars": 50,
+      "description": "Play Games Services game name.",
+      "keepEnglish": true
+    },
+    "description": {
+      "text": "Vuela con un ave mensajera por todo el mundo: entrega el correo, vence a los jefes y consigue todas las medallas.",
+      "maxChars": 4000,
+      "description": "Play Games Services game description (Properties)."
+    }
+  },
+  "achievements": {
+    "frequentFlyerBronze": {
+      "name": {
+        "text": "Pasajero frecuente · Bronce",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Termina 10 vuelos con puntaje.",
+        "maxChars": 500
+      }
+    },
+    "frequentFlyerSilver": {
+      "name": {
+        "text": "Pasajero frecuente · Plata",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Termina 100 vuelos con puntaje.",
+        "maxChars": 500
+      }
+    },
+    "frequentFlyerGold": {
+      "name": {
+        "text": "Pasajero frecuente · Oro",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Termina 500 vuelos con puntaje.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotBronze": {
+      "name": {
+        "text": "Dar en el blanco · Bronce",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Haz 25 pases perfectos por los puntos de mira.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotSilver": {
+      "name": {
+        "text": "Dar en el blanco · Plata",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Haz 200 pases perfectos por los puntos de mira.",
+        "maxChars": 500
+      }
+    },
+    "onTheDotGold": {
+      "name": {
+        "text": "Dar en el blanco · Oro",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Haz 1,000 pases perfectos por los puntos de mira.",
+        "maxChars": 500
+      }
+    },
+    "starChaserBronze": {
+      "name": {
+        "text": "Cazaestrellas · Bronce",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Reúne 50 estrellas.",
+        "maxChars": 500
+      }
+    },
+    "starChaserSilver": {
+      "name": {
+        "text": "Cazaestrellas · Plata",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Reúne 500 estrellas.",
+        "maxChars": 500
+      }
+    },
+    "starChaserGold": {
+      "name": {
+        "text": "Cazaestrellas · Oro",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Reúne 5,000 estrellas.",
+        "maxChars": 500
+      }
+    },
+    "constellationBronze": {
+      "name": {
+        "text": "Constelación · Bronce",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Reúne 15 estrellas en una sola racha.",
+        "maxChars": 500
+      }
+    },
+    "constellationSilver": {
+      "name": {
+        "text": "Constelación · Plata",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Reúne 40 estrellas en una sola racha.",
+        "maxChars": 500
+      }
+    },
+    "constellationGold": {
+      "name": {
+        "text": "Constelación · Oro",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Reúne 80 estrellas en una sola racha.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainBronze": {
+      "name": {
+        "text": "Capitán del cielo · Bronce",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Consigue 100 puntos en un solo vuelo infinito.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainSilver": {
+      "name": {
+        "text": "Capitán del cielo · Plata",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Consigue 500 puntos en un solo vuelo infinito.",
+        "maxChars": 500
+      }
+    },
+    "skyCaptainGold": {
+      "name": {
+        "text": "Capitán del cielo · Oro",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Consigue 2,000 puntos en un solo vuelo infinito.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerBronze": {
+      "name": {
+        "text": "Abrecaminos · Bronce",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Vuela al menos 60 segundos en 5 vuelos infinitos.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerSilver": {
+      "name": {
+        "text": "Abrecaminos · Plata",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Vuela al menos 60 segundos en 50 vuelos infinitos.",
+        "maxChars": 500
+      }
+    },
+    "trailblazerGold": {
+      "name": {
+        "text": "Abrecaminos · Oro",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Vuela al menos 60 segundos en 250 vuelos infinitos.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherBronze": {
+      "name": {
+        "text": "Todos en bandada · Bronce",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Lleva dos aves distintas en vuelos con puntaje.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherSilver": {
+      "name": {
+        "text": "Todos en bandada · Plata",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Lleva a las cuatro aves en vuelos con puntaje.",
+        "maxChars": 500
+      }
+    },
+    "flockTogetherGold": {
+      "name": {
+        "text": "Todos en bandada · Oro",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Haz 25 vuelos con puntaje con cada ave.",
+        "maxChars": 500
+      }
+    },
+    "allRounderBronze": {
+      "name": {
+        "text": "Todoterreno · Bronce",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Juega un minijuego de flexiones, sentadillas o saltos.",
+        "maxChars": 500
+      }
+    },
+    "allRounderSilver": {
+      "name": {
+        "text": "Todoterreno · Plata",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Juega los tres minijuegos: flexiones, sentadillas y saltos.",
+        "maxChars": 500
+      }
+    },
+    "allRounderGold": {
+      "name": {
+        "text": "Todoterreno · Oro",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Haz 10 vuelos con puntaje en cada minijuego.",
+        "maxChars": 500
+      }
+    },
+    "canopyBoss": {
+      "name": {
+        "text": "Correo por la selva",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Vence al Barón Murciélago en su guarida al final de La Ruta de la Selva (1-8).",
+        "maxChars": 500
+      }
+    },
+    "neferhoo": {
+      "name": {
+        "text": "Devuélvase al remitente",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Vence a Neferhoo, el Mensajero Momia que custodia Egipto (2-6).",
+        "maxChars": 500
+      }
+    },
+    "roadBoss": {
+      "name": {
+        "text": "Otra vez té de menta",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Vence al Rey Escupidor al final del Camino Antiguo (2-9).",
+        "maxChars": 500
+      }
+    },
+    "kingCoo": {
+      "name": {
+        "text": "Ni una migaja",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Vence al Rey Currucú, el guardián de Nueva York (3-2).",
+        "maxChars": 500
+      }
+    },
+    "gargoyle": {
+      "name": {
+        "text": "Lejos de los reflectores",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Vence a la Gárgola del Reflector (3-4).",
+        "maxChars": 500
+      }
+    },
+    "goldCanopy": {
+      "name": {
+        "text": "Selva de oro",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Consigue tres estrellas en todos los niveles de La Ruta de la Selva.",
+        "maxChars": 500
+      }
+    },
+    "goldRoad": {
+      "name": {
+        "text": "Camino de oro",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Consigue tres estrellas en todos los niveles del Camino Antiguo.",
+        "maxChars": 500
+      }
+    },
+    "brightLights": {
+      "name": {
+        "text": "Luces de la gran ciudad",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Consigue tres estrellas en todos los niveles de Nueva York.",
+        "maxChars": 500
+      }
+    },
+    "lamplighter": {
+      "name": {
+        "text": "Farolero",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Vence a la Emperatriz del Ocaso en un vuelo infinito.",
+        "maxChars": 500
+      }
+    },
+    "harbourBells": {
+      "name": {
+        "text": "Campanas del puerto",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Vence al Capitán Pirata en un vuelo infinito.",
+        "maxChars": 500
+      }
+    },
+    "edgeOfTheMap": {
+      "name": {
+        "text": "El Borde del Mapa",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Vence al Dragón de las Brasas en un vuelo infinito.",
+        "maxChars": 500
+      }
+    },
+    "twoOnOnePhone": {
+      "name": {
+        "text": "Dos en un teléfono",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Termina un vuelo con cuerda en Vuelen juntos.",
+        "maxChars": 500
+      }
+    },
+    "friendlyRivals": {
+      "name": {
+        "text": "Rivales amistosos",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Juega un duelo 1 contra 1.",
+        "maxChars": 500
+      }
+    },
+    "routePlanner": {
+      "name": {
+        "text": "Trazador de rutas",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Crea un nivel en el Creador de niveles y vuélalo hasta la meta.",
+        "maxChars": 500
+      }
+    },
+    "wholeKit": {
+      "name": {
+        "text": "Todo el paquete",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Compra los 16 niveles de mejoras.",
+        "maxChars": 500
+      }
+    },
+    "penPal": {
+      "name": {
+        "text": "Amigos por carta",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Sella 10 postales diarias cumpliendo todas las metas de la Aventura de un día.",
+        "maxChars": 500
+      }
+    },
+    "nightMail": {
+      "name": {
+        "text": "Correo nocturno",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Termina un vuelo con puntaje entre la medianoche y las 4 a. m.",
+        "maxChars": 500
+      }
+    },
+    "specialDelivery": {
+      "name": {
+        "text": "Entrega especial",
+        "maxChars": 100
+      },
+      "description": {
+        "text": "Dispárale a una paloma de callejón y recupera la estrella que se robó.",
+        "maxChars": 500
+      }
+    }
+  },
+  "@achievementNote": "Keys are PlayAchievement values (lib/data/play_achievements.dart), in Play Console order. Names 1-24 follow the in-game \"Stamp · Medal\" pattern: translate the stamp and medal words as the game's ARB does (passport keys) so the two match."
+}

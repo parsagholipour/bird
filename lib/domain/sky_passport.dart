@@ -1,3 +1,7 @@
+// l10n-english-twin: the stamp titles, medal labels and goals here are the
+// twins of the stamp_*, passportMedal_* and passport* keys; screens word
+// them with PassportText (lib/l10n/text/passport_text.dart).
+
 /// The three medals of a stamp, earned in order.
 enum StampMedal {
   bronze('Bronze'),

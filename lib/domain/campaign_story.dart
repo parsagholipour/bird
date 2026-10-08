@@ -2,6 +2,12 @@ import 'campaign.dart';
 import 'sky_boss.dart' show BossKind;
 import 'world_region.dart';
 
+// l10n-english-twin: every line here is the English caption of its voice
+// clip; a language's captions come from assets/l10n/story/<slug>.json by clip
+// name (StoryCaptions), and the screens show those. [CampaignStory.postmaster]
+// and [CampaignStory.motto] are the twins of the ARB keys
+// `storyPostmasterName` and `campaignMotto` (CampaignText).
+
 /// Who says a line. The courier is the equipped bird, under its own name;
 /// the boss is the scene's [StoryScene.boss]. A caption is nobody's voice:
 /// where the scene is, or the words of a letter being read.

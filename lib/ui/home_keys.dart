@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
 import '../game/star_art.dart';
+import '../l10n/l10n.dart';
 import 'control_glyphs.dart';
 import 'home_world.dart';
 import 'theme.dart';
@@ -402,58 +403,66 @@ class HomeEndlessKey extends StatelessWidget {
   final bool animated, reducedMotion;
 
   @override
-  Widget build(BuildContext context) => HomeKey(
-    label: best > 0
-        ? 'Endless. Fly as far as you can. Best: $best stars.'
-        : 'Endless. Fly as far as you can.',
-    colors: HomeKeyColors.sun,
-    animated: animated,
-    reducedMotion: reducedMotion,
-    onPressed: onPressed,
-    builder: (context, breath) => Padding(
-      padding: const EdgeInsets.fromLTRB(20, 10, 18, 12),
-      child: Row(
-        children: [
-          Expanded(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('ENDLESS', style: _keyTitle(30)),
-                  const SizedBox(height: 3),
-                  Text(
-                    'Fly as far as you can',
-                    style: bodyText(
-                      12.5,
-                      color: const Color(0xff6e4b12),
-                      weight: FontWeight.w900,
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    // The play arrow points the way the language reads.
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    return HomeKey(
+      label: best > 0
+          ? l.homeEndlessBestSemantics(best)
+          : l.homeEndlessSemantics,
+      colors: HomeKeyColors.sun,
+      animated: animated,
+      reducedMotion: reducedMotion,
+      onPressed: onPressed,
+      builder: (context, breath) => Padding(
+        padding: const EdgeInsetsDirectional.fromSTEB(20, 10, 18, 12),
+        child: Row(
+          children: [
+            Expanded(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: AlignmentDirectional.centerStart,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l.homeEndlessTitle, style: _keyTitle(30)),
+                    const SizedBox(height: 3),
+                    Text(
+                      l.homeEndlessDetail,
+                      style: bodyText(
+                        12.5,
+                        color: const Color(0xff6e4b12),
+                        weight: FontWeight.w900,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 7),
-                  _BestTag(best: best),
-                ],
+                    const SizedBox(height: 7),
+                    _BestTag(best: best),
+                  ],
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 8),
-          AnimatedBuilder(
-            animation: breath,
-            builder: (context, child) => Transform.translate(
-              offset: Offset(4 * breath.value, 0),
-              child: child,
+            const SizedBox(width: 8),
+            AnimatedBuilder(
+              animation: breath,
+              builder: (context, child) => Transform.translate(
+                offset: Offset((rtl ? -4 : 4) * breath.value, 0),
+                child: child,
+              ),
+              child: Transform.flip(
+                flipX: rtl,
+                child: const CustomPaint(
+                  size: Size(30, 34),
+                  painter: _PlayArrowPainter(),
+                ),
+              ),
             ),
-            child: const CustomPaint(
-              size: Size(30, 34),
-              painter: _PlayArrowPainter(),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 /// The campaign: a little map, the level it continues with and the level
@@ -477,17 +486,18 @@ class HomeCampaignKey extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final motion = HomeMotion.maybeOf(context);
     final still = motion?.still ?? true;
     final done = of > 0 && stars >= of;
     return HomeKey(
-      label:
-          'Campaign. ${next == null ? 'Every letter delivered' : 'Next: $next'}. '
-          '$stars of $of stars.',
+      label: next == null
+          ? l.homeCampaignDoneSemantics(stars, of)
+          : l.homeCampaignNextSemantics(stars, of, next!),
       colors: HomeKeyColors.mint,
       onPressed: onPressed,
       builder: (context, _) => Padding(
-        padding: const EdgeInsets.fromLTRB(12, 10, 14, 12),
+        padding: const EdgeInsetsDirectional.fromSTEB(12, 10, 14, 12),
         child: Row(
           children: [
             RepaintBoundary(
@@ -503,15 +513,15 @@ class HomeCampaignKey extends StatelessWidget {
             Expanded(
               child: FittedBox(
                 fit: BoxFit.scaleDown,
-                alignment: Alignment.centerLeft,
+                alignment: AlignmentDirectional.centerStart,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('CAMPAIGN', style: _keyTitle(27)),
+                    Text(l.homeCampaignTitle, style: _keyTitle(27)),
                     const SizedBox(height: 3),
                     Text(
-                      next ?? 'Every letter delivered',
+                      next ?? l.homeCampaignDone,
                       style: bodyText(
                         12.5,
                         color: const Color(0xff1d5a43),
@@ -582,7 +592,7 @@ class _HalfKey extends StatelessWidget {
           Expanded(
             child: FittedBox(
               fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
+              alignment: AlignmentDirectional.centerStart,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -618,11 +628,11 @@ class HomeMiniGamesKey extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => _HalfKey(
-    label: 'Mini games. Push-ups, squats, jumps, or two players.',
+    label: context.l10n.homeMiniGamesSemantics,
     colors: HomeKeyColors.lavender,
     onPressed: onPressed,
-    title: 'MINI GAMES',
-    subtitle: 'Workouts · 2 players',
+    title: context.l10n.homeMiniGamesTitle,
+    subtitle: context.l10n.homeMiniGamesDetail,
     subtitleColor: const Color(0xff4f4386),
     // Three workouts overlapping like a hand of stickers.
     art: SizedBox(
@@ -666,25 +676,25 @@ class HomeLevelBuilderKey extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     if (flightsLeft <= 0) {
       return _HalfKey(
-        label: 'Level Builder. Make your own levels, fly them and share them.',
+        label: l.homeBuilderSemantics,
         colors: HomeKeyColors.blueprint,
         onPressed: onPressed,
-        title: 'LEVEL BUILDER',
-        subtitle: 'Make · fly · share',
+        title: l.homeBuilderTitle,
+        subtitle: l.homeBuilderDetail,
         subtitleColor: const Color(0xff245a77),
         art: const LevelBuilderGlyph(size: 46),
       );
     }
-    final flights = flightsLeft == 1 ? '1 flight' : '$flightsLeft flights';
     return _HalfKey(
-      label: 'Level Builder. Locked. Unlocks in $flights.',
+      label: l.homeBuilderLockedSemantics(flightsLeft),
       colors: HomeKeyColors.locked,
       cue: ShopCues.denied,
       onPressed: () {},
-      title: 'LEVEL BUILDER',
-      subtitle: 'Unlocks in $flights',
+      title: l.homeBuilderTitle,
+      subtitle: l.homeBuilderLocked(flightsLeft),
       subtitleColor: _lockedInk,
       art: const Opacity(opacity: .5, child: LevelBuilderGlyph(size: 46)),
       trailing: Icons.lock_rounded,
@@ -838,7 +848,7 @@ class _BestTag extends StatelessWidget {
         if (best > 0)
           Text.rich(
             TextSpan(
-              text: 'Best ',
+              text: '${context.l10n.homeBest} ',
               style: bodyText(
                 12,
                 color: SkyColors.muted,
@@ -855,7 +865,7 @@ class _BestTag extends StatelessWidget {
           )
         else
           Text(
-            'Set your first best',
+            context.l10n.homeBestNone,
             style: bodyText(
               12,
               color: SkyColors.muted,

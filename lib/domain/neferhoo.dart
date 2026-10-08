@@ -1,3 +1,6 @@
+// l10n-english-twin: [Neferhoo.name], [Neferhoo.title] and the hints are the
+// English twins of the ARB keys mapped in lib/l10n/text/boss_text.dart
+// (boss_neferhoo_name, boss_neferhoo_title, BossHint).
 import 'dart:math' as math;
 
 import 'sky_boss.dart';

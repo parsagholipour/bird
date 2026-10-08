@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import '../../domain/built_reach.dart';
 import '../../domain/game_rules.dart';
 import '../../game/star_art.dart';
+import '../../l10n/l10n.dart';
+import '../../l10n/text/builder_text.dart';
 import '../theme.dart';
 import '../ui_sounds.dart';
 import 'builder_chrome.dart';
@@ -37,13 +39,15 @@ class BuilderTimeline extends StatelessWidget {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: controller,
     builder: (context, _) {
+      final l = context.l10n;
       final plan = controller.plan;
-      final reps = builtReps(plan);
+      final reps = builtReps(plan, l);
+      final target = plan.boss == null ? 'finish' : 'boss';
+      final length = builtLength(plan, l);
       return Semantics(
-        label:
-            'Route overview. ${builtLength(plan)} to the '
-            '${plan.boss == null ? 'finish' : 'boss'}.'
-            '${reps == null ? '' : ' $reps.'} Drag to move along the route.',
+        label: reps == null
+            ? l.builderRouteSemantics(target, length)
+            : l.builderRouteRepsSemantics(target, length, reps),
         child: LayoutBuilder(
           builder: (context, box) => GestureDetector(
             key: const ValueKey('builder-timeline'),
@@ -57,6 +61,7 @@ class BuilderTimeline extends StatelessWidget {
             child: CustomPaint(
               size: box.biggest,
               painter: _TimelinePainter(
+                words: l,
                 plan: plan,
                 scroll: controller.scroll,
                 view: view,
@@ -80,15 +85,19 @@ class BuilderRouteStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ExcludeSemantics(
-    child: CustomPaint(
-      size: const Size.fromHeight(58),
-      painter: _TimelinePainter(
-        plan: plan,
-        scroll: 0,
-        view: 0,
-        issues: const [],
-        selected: null,
-        reps: builtReps(plan),
+    // The route runs left to right in every language, as the sky does.
+    child: FlightDirection(
+      child: CustomPaint(
+        size: const Size.fromHeight(58),
+        painter: _TimelinePainter(
+          words: context.l10n,
+          plan: plan,
+          scroll: 0,
+          view: 0,
+          issues: const [],
+          selected: null,
+          reps: builtReps(plan, context.l10n),
+        ),
       ),
     ),
   );
@@ -96,6 +105,7 @@ class BuilderRouteStrip extends StatelessWidget {
 
 class _TimelinePainter extends CustomPainter {
   _TimelinePainter({
+    required this.words,
     required this.plan,
     required this.scroll,
     required this.view,
@@ -103,6 +113,9 @@ class _TimelinePainter extends CustomPainter {
     required this.selected,
     required this.reps,
   });
+
+  /// The language its labels are written in.
+  final AppLocalizations words;
   final BuiltPlan plan;
   final double scroll, view;
   final List<BuiltIssue> issues;
@@ -283,12 +296,16 @@ class _TimelinePainter extends CustomPainter {
     final cruise = BuiltReach.cruise(plan);
     final total = BuiltReach.seconds(plan);
     final step = _step(total, w);
-    final label = [?reps, builtLength(plan)].join(' · ');
+    final length = builtLength(plan, words);
+    final label = [
+      ?reps,
+      plan.boss == null ? length : words.builderRouteToBoss(length),
+    ].join(' · '); // l10n-ignore: a separator
     // The level's length and workout at the right end; second labels stop
     // short of it.
     final end = _text(
       canvas,
-      plan.boss == null ? label : '$label to the boss',
+      label,
       Offset(w, _track + 5),
       right: true,
       bold: true,
@@ -298,7 +315,12 @@ class _TimelinePainter extends CustomPainter {
     for (var s = 0.0; s <= total + .01; s += step) {
       final x = tx(FlightSimulation.birdX + s * cruise);
       if (x + 24 > end) break;
-      _text(canvas, '${s.round()} s', Offset(x, _track + 5), centred: true);
+      _text(
+        canvas,
+        words.builtSeconds(s.round()),
+        Offset(x, _track + 5),
+        centred: true,
+      );
     }
   }
 
@@ -369,7 +391,7 @@ class _TimelinePainter extends CustomPainter {
           weight: FontWeight.w900,
         ).copyWith(height: 1),
       ),
-      textDirection: TextDirection.ltr,
+      textDirection: L10n.textDirection,
     )..layout();
     var x = centred
         ? at.dx - painter.width / 2
@@ -398,6 +420,7 @@ class _TimelinePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_TimelinePainter old) =>
+      !identical(old.words, words) ||
       !identical(old.plan, plan) ||
       old.scroll != scroll ||
       old.view != view ||

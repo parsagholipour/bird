@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/painting.dart';
 import '../domain/game_rules.dart';
+import '../l10n/l10n.dart';
 import '../ui/theme.dart';
 import 'finish_celebration_art.dart';
 import 'sky_scenery.dart';
@@ -765,13 +766,20 @@ abstract final class FinishGateArt {
   /// FINISH on the sign: cream letters with an ink edge, set at pixel scale
   /// so the text stays crisp, and turned with the swinging sign.
   static void _lettering(Canvas canvas, double h, double x, double swing) {
-    final size = h * .062;
+    final finish = L10n.strings.encounterFinish;
+    // A long translation is set smaller to stay on the sign (.27 h wide,
+    // .23 h of it for the word).
+    final size = math.min(
+      h * .062,
+      h * .23 / emWidth(finish, FontWeight.w700, .06),
+    );
     final center = Offset(x, h * (.255 + .095 / 2 + .003));
     TextPainter word(Paint? paint, Color? color) => TextPainter(
       text: TextSpan(
-        text: 'FINISH',
+        text: finish,
         style: TextStyle(
-          fontFamily: 'Fredoka',
+          fontFamily: L10n.fonts.heading,
+          fontFamilyFallback: L10n.fonts.headingFallback,
           fontWeight: FontWeight.w700,
           fontSize: size,
           letterSpacing: size * .06,
@@ -779,7 +787,8 @@ abstract final class FinishGateArt {
           foreground: paint,
         ),
       ),
-      textDirection: TextDirection.ltr,
+      // Words run their language's way; the sign stays where it is.
+      textDirection: L10n.textDirection,
     )..layout();
     final edge = word(
       Paint()
@@ -801,6 +810,31 @@ abstract final class FinishGateArt {
     fill.paint(canvas, at);
     canvas.restore();
   }
+
+  /// [word]'s width in the heading font at a size of 1 (letter spacing
+  /// [spacing] of the size), measured once per word and language: what a
+  /// long translation of FINISH must be scaled by to fit.
+  static double emWidth(String word, FontWeight weight, double spacing) =>
+      _ems[(word, weight, spacing)] ??= () {
+        final probe = TextPainter(
+          text: TextSpan(
+            text: word,
+            style: TextStyle(
+              fontFamily: L10n.fonts.heading,
+              fontFamilyFallback: L10n.fonts.headingFallback,
+              fontWeight: weight,
+              fontSize: 100,
+              letterSpacing: 100 * spacing,
+            ),
+          ),
+          textDirection: L10n.textDirection,
+        )..layout();
+        final width = probe.width / 100;
+        probe.dispose();
+        return width;
+      }();
+
+  static final _ems = L10n.cache(<(String, FontWeight, double), double>{});
 
   static double _smooth(double t) {
     final x = t.clamp(0.0, 1.0);

@@ -1,0 +1,61 @@
+{
+ "format": 1,
+ "generated_by": "tool/l10n/prepare_localized_voices.py",
+ "packs": {
+  "es_419": {
+   "story": 372,
+   "flight": 637,
+   "bytes": 25907226
+  },
+  "pt_br": {
+   "story": 372,
+   "flight": 637,
+   "bytes": 25806187
+  },
+  "id": {
+   "story": 372,
+   "flight": 637,
+   "bytes": 26187626
+  },
+  "fr": {
+   "story": 372,
+   "flight": 637,
+   "bytes": 23906182
+  },
+  "de": {
+   "story": 372,
+   "flight": 637,
+   "bytes": 25760837
+  },
+  "ja": {
+   "story": 372,
+   "flight": 382,
+   "bytes": 18032459
+  },
+  "ko": {
+   "story": 372,
+   "flight": 382,
+   "bytes": 17417724
+  },
+  "tr": {
+   "story": 372,
+   "flight": 382,
+   "bytes": 16742132
+  },
+  "zh_hant": {
+   "story": 372,
+   "flight": 382,
+   "bytes": 15499849
+  },
+  "ru": {
+   "story": 372,
+   "flight": 382,
+   "bytes": 17954882
+  },
+  "ar": {
+   "story": 372,
+   "flight": 255,
+   "bytes": 15587674
+  }
+ }
+}

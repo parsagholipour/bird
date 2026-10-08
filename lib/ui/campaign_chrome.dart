@@ -1,6 +1,7 @@
 import 'dart:math' show pi;
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import 'campaign_map_art.dart' show MapPadlockPainter, MapRibbonPainter;
 import 'campaign_text_scale.dart';
 import 'keyboard.dart' show BackKeyTarget;
@@ -102,7 +103,11 @@ class _MapKeyState extends State<MapKey> {
                       child: Center(
                         child: CustomPaint(
                           size: const Size.square(24),
-                          painter: _GlyphPainter(widget.glyph),
+                          painter: _GlyphPainter(
+                            widget.glyph,
+                            rtl:
+                                Directionality.of(context) == TextDirection.rtl,
+                          ),
                         ),
                       ),
                     ),
@@ -125,12 +130,21 @@ class _MapKeyState extends State<MapKey> {
 
 /// A chunky arrow, cross, chevron or cog: round caps and a stroke as heavy as
 /// the HUD's pause bars, so the face reads at a glance.
+///
+/// The back arrow points the way back in the reading direction: right in a
+/// right-to-left language ([rtl]). The map's step chevrons point along the
+/// route, which runs left to right in every language, so they never turn.
 class _GlyphPainter extends CustomPainter {
-  const _GlyphPainter(this.glyph);
+  const _GlyphPainter(this.glyph, {this.rtl = false});
   final MapGlyph glyph;
+  final bool rtl;
 
   @override
   void paint(Canvas canvas, Size size) {
+    if (rtl && glyph == MapGlyph.back) {
+      canvas.translate(size.width, 0);
+      canvas.scale(-1, 1);
+    }
     final s = size.width / 24;
     canvas.scale(s);
     final path = Path();
@@ -201,7 +215,7 @@ class _GlyphPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_GlyphPainter old) => old.glyph != glyph;
+  bool shouldRepaint(_GlyphPainter old) => old.glyph != glyph || old.rtl != rtl;
 }
 
 /// The campaign's star total, "12 / 48", on a plate in the same material as
@@ -212,7 +226,7 @@ class CampaignStarTotal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Semantics(
-    label: '$stars of $of campaign stars',
+    label: context.l10n.campaignStarTotalSemantics(stars, of),
     excludeSemantics: true,
     child: CampaignTextScale.wrap(
       MatchPlate(
@@ -289,7 +303,7 @@ class MapNotice extends StatelessWidget {
         shade: SkyColors.gold,
       ),
       child: Padding(
-        padding: EdgeInsets.fromLTRB(
+        padding: EdgeInsetsDirectional.fromSTEB(
           locked ? size : size * 1.4,
           size * .3,
           size * 1.4,

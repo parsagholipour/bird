@@ -2,9 +2,11 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import '../domain/campaign.dart' show Delivery;
+import '../domain/campaign.dart' show Campaign, CampaignLevel, Delivery;
 import '../domain/sky_boss.dart' show BossKind;
+import '../l10n/l10n.dart';
 import 'campaign_keepsake_art.dart';
+import 'fit_text.dart';
 import 'theme.dart';
 
 /// The postal pieces a level's delivery is shown with: the parcel tag tied to
@@ -42,7 +44,7 @@ abstract final class DeliveryArt {
     int lines(double width) {
       final painter = TextPainter(
         text: TextSpan(text: text, style: worn),
-        textDirection: TextDirection.ltr,
+        textDirection: Directionality.maybeOf(context) ?? TextDirection.ltr,
         textScaler: MediaQuery.textScalerOf(context),
       )..layout(maxWidth: width);
       final count = painter.computeLineMetrics().length;
@@ -64,11 +66,44 @@ abstract final class DeliveryArt {
     }
     return math.min(max, high + 1);
   }
+
+  /// [style], a step smaller at a time (5 %, down to [FitText.minScale]),
+  /// until [text] keeps to [maxLines] across [width]: a translation longer
+  /// than the English sets a little smaller rather than end in an ellipsis.
+  /// Words that fit keep [style] itself, so the English is untouched.
+  static TextStyle fitted(
+    BuildContext context,
+    String text,
+    TextStyle style,
+    double width,
+    int maxLines,
+  ) {
+    final worn = DefaultTextStyle.of(context).style.merge(style);
+    final size = worn.fontSize ?? 14;
+    for (var step = 1.0; ; step -= .05) {
+      final scale = math.max(step, FitText.minScale);
+      final painter = TextPainter(
+        text: TextSpan(
+          text: text,
+          style: scale == 1 ? worn : worn.copyWith(fontSize: size * scale),
+        ),
+        textDirection: Directionality.maybeOf(context) ?? TextDirection.ltr,
+        textScaler: MediaQuery.textScalerOf(context),
+        maxLines: maxLines,
+      )..layout(maxWidth: width);
+      final over = painter.didExceedMaxLines;
+      painter.dispose();
+      if (!over || scale <= FitText.minScale) {
+        return scale == 1 ? style : style.copyWith(fontSize: size * scale);
+      }
+    }
+  }
 }
 
 /// A few words written by hand: Fredoka leaned over, its lines split evenly
 /// unless [balance] is off, when each line takes all it can. The text widget
-/// carries [textKey].
+/// carries [textKey]. [align] follows the reading direction: start is the
+/// left in English and the right in Arabic.
 class DeliveryScript extends StatelessWidget {
   const DeliveryScript(
     this.text, {
@@ -76,7 +111,7 @@ class DeliveryScript extends StatelessWidget {
     required this.style,
     required this.maxLines,
     this.textKey,
-    this.align = TextAlign.left,
+    this.align = TextAlign.start,
     this.balance = true,
   });
   final String text;
@@ -91,30 +126,42 @@ class DeliveryScript extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, box) => Align(
-      alignment: switch (align) {
-        TextAlign.center => Alignment.center,
-        TextAlign.right || TextAlign.end => Alignment.centerRight,
-        _ => Alignment.centerLeft,
-      },
-      child: SizedBox(
-        width: balance
-            ? DeliveryArt.balancedWidth(context, text, style, box.maxWidth)
-            : box.maxWidth,
-        child: Transform(
-          alignment: Alignment.center,
-          transform: Matrix4.skewX(lean),
-          child: Text(
-            text,
-            key: textKey,
-            maxLines: maxLines,
-            overflow: TextOverflow.ellipsis,
-            textAlign: align,
-            style: style,
+    builder: (context, box) {
+      // A longer translation writes a little smaller to keep to its lines.
+      final look = DeliveryArt.fitted(
+        context,
+        text,
+        style,
+        box.maxWidth,
+        maxLines,
+      );
+      return Align(
+        alignment: switch (align) {
+          TextAlign.center => Alignment.center,
+          TextAlign.right => Alignment.centerRight,
+          TextAlign.left => Alignment.centerLeft,
+          TextAlign.end => AlignmentDirectional.centerEnd,
+          _ => AlignmentDirectional.centerStart,
+        },
+        child: SizedBox(
+          width: balance
+              ? DeliveryArt.balancedWidth(context, text, look, box.maxWidth)
+              : box.maxWidth,
+          child: Transform(
+            alignment: Alignment.center,
+            transform: Matrix4.skewX(lean),
+            child: Text(
+              text,
+              key: textKey,
+              maxLines: maxLines,
+              overflow: TextOverflow.ellipsis,
+              textAlign: align,
+              style: look,
+            ),
           ),
         ),
-      ),
-    ),
+      );
+    },
   );
 }
 
@@ -313,6 +360,11 @@ class DeliverySealPainter extends CustomPainter {
 /// their own hand, and who signs it, on air-mail paper with a heart seal. A
 /// boss grumbles its thanks in its own ink, on paper framed in its stamp
 /// colour and sealed with its headwear.
+///
+/// A campaign level's note is in the current language: its thank-you is the
+/// caption of its voice clip ([StoryCaptions.thanks]) and its signer the
+/// level's sender ([CampaignText.levelSender]). Any other delivery shows
+/// its own words.
 class DeliveryNote extends StatelessWidget {
   const DeliveryNote({
     super.key,
@@ -331,12 +383,25 @@ class DeliveryNote extends StatelessWidget {
   static const width = 150.0, maxHeight = 148.0;
   static const _radius = 12.0, _edge = 2.6, _seal = 30.0;
 
+  /// The campaign level that sends [delivery], if any.
+  CampaignLevel? get _level {
+    for (final level in Campaign.levels) {
+      if (identical(level.delivery, delivery)) return level;
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final boss = this.boss;
     final pen = boss == null ? DeliveryArt.pen : DeliveryArt.bossInk(boss);
+    final l = context.l10n, level = _level;
+    final thanks = level == null
+        ? delivery.thanks
+        : L10n.captions.thanks(level);
+    final from = level == null ? delivery.from : l.levelSender(level);
     return Semantics(
-      label: 'Thank-you note from ${delivery.from}: ${delivery.thanks}',
+      label: l.campaignThanksSemantics(from, thanks),
       excludeSemantics: true,
       child: SizedBox(
         key: const ValueKey('level-result-note'),
@@ -379,7 +444,7 @@ class DeliveryNote extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         DeliveryScript(
-                          '“${delivery.thanks}”',
+                          l.campaignThanksQuoted(thanks),
                           textKey: const ValueKey('level-result-thanks'),
                           maxLines: 4,
                           align: TextAlign.center,
@@ -391,11 +456,11 @@ class DeliveryNote extends StatelessWidget {
                         const SizedBox(height: 7),
                         // The signature keeps off the paper's edge.
                         Padding(
-                          padding: const EdgeInsets.only(right: 2),
+                          padding: const EdgeInsetsDirectional.only(end: 2),
                           child: DeliveryScript(
-                            '— ${delivery.from}',
+                            l.campaignThanksSignature(from),
                             maxLines: 2,
-                            align: TextAlign.right,
+                            align: TextAlign.end,
                             balance: false,
                             style: DeliveryArt.hand(
                               13.5,

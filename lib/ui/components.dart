@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import 'match_hud.dart' show MatchPlate, matchInkEdge;
 import 'theme.dart';
 import 'ui_sounds.dart';
@@ -132,7 +133,7 @@ class _SkyButtonState extends State<SkyButton> {
       button: true,
       enabled: enabled,
       label: widget.label,
-      value: widget.busy ? 'Busy' : null,
+      value: widget.busy ? context.l10n.commonBusySemantics : null,
       liveRegion: widget.busy,
       child: AnimatedContainer(
         duration: disableAnimations
@@ -406,8 +407,6 @@ class _CloudPainter extends CustomPainter {
 
 void showFailure(BuildContext context, Object error) {
   ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text('Could not save this change. Please try again. ($error)'),
-    ),
+    SnackBar(content: Text(context.l10n.commonSaveFailed('$error'))),
   );
 }

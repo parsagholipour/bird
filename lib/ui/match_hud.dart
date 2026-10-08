@@ -2,6 +2,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../domain/power_shot.dart';
+import '../l10n/l10n.dart';
+import '../l10n/text/flight_text.dart';
 import 'theme.dart';
 
 enum MatchSymbol {
@@ -742,6 +744,7 @@ class _MatchHealthState extends State<MatchHealth>
   Widget build(BuildContext context) {
     final hearts = widget.hearts;
     final shield = widget.shield, recovering = widget.recovering;
+    final l = context.l10n;
     final shieldMeter = MatchPulse(
       value: (shield, recovering),
       reducedMotion: widget.reducedMotion,
@@ -753,10 +756,14 @@ class _MatchHealthState extends State<MatchHealth>
         color: recovering ? SkyColors.gold : SkyColors.teal,
         segments: shield || recovering ? 0 : widget.stars,
         label: recovering
-            ? 'Recovering'
+            ? l.hudShieldRecovering
             : shield
-            ? 'Shield ready'
-            : 'Shield charging: ${widget.charge} of ${widget.stars} stars',
+            ? l.hudShieldReady
+            : HudWords.of(
+                l,
+                ('shield', widget.charge, widget.stars),
+                () => l.hudShieldChargingSemantics(widget.charge, widget.stars),
+              ),
       ),
     );
     return AnimatedBuilder(
@@ -769,7 +776,10 @@ class _MatchHealthState extends State<MatchHealth>
           child: SizedBox(
             height: 34,
             child: Semantics(
-              label: '$hearts hearts remaining',
+              label: HudWords.of(l, (
+                'hearts',
+                hearts,
+              ), () => l.hudHeartsSemantics(hearts)),
               excludeSemantics: true,
               child: Center(
                 child: hearts > 3
@@ -962,16 +972,20 @@ class _MatchSprintButtonState extends State<MatchSprintButton> {
     final sprinting = widget.burst > 0;
     final ready = !sprinting && widget.secondsLeft == 0;
     final recharging = !ready && !sprinting;
+    final l = context.l10n;
     return Semantics(
       button: true,
       enabled: widget.onPressed != null,
       label: widget.label,
       value: sprinting
-          ? 'Sprinting'
+          ? l.hudSprinting
           : ready
-          ? 'Ready'
-          : 'Recharging, ${widget.secondsLeft} seconds',
-      hint: 'Rush ahead to smash bats and stone panels',
+          ? l.hudSprintReady
+          : HudWords.of(l, (
+              'sprint',
+              widget.secondsLeft,
+            ), () => l.hudSprintRecharging(widget.secondsLeft)),
+      hint: l.hudSprintHint,
       onTap: widget.onPressed,
       excludeSemantics: true,
       child: Tooltip(
@@ -1131,18 +1145,21 @@ class _MatchShotButtonState extends State<MatchShotButton> {
         widget.reducedMotion || MediaQuery.disableAnimationsOf(context);
     final enabled = widget.onPress != null;
     final showingCharge = widget.charging && !widget.empty;
+    final l = context.l10n;
     return Semantics(
       button: true,
       enabled: enabled,
       label: widget.label,
       value: widget.empty
-          ? 'Reloading…'
+          ? l.hudShotReloading
           : showingCharge
           ? widget.full
-                ? 'Full charge, ${(widget.hold * PowerShot.maxFullHoldSeconds * 1000).round()} ms left'
-                : 'Charging ${(widget.charge * 100).round()}%'
-          : 'Ammo ${(widget.reserve * 100).round()}%',
-      hint: 'Hold to charge a bigger rock',
+                ? l.hudShotFullCharge(
+                    (widget.hold * PowerShot.maxFullHoldSeconds * 1000).round(),
+                  )
+                : l.hudShotCharging((widget.charge * 100).round())
+          : l.hudShotAmmo((widget.reserve * 100).round()),
+      hint: l.hudShotHint,
       focusable: enabled,
       focused: _focused,
       onTap: enabled
@@ -1204,7 +1221,7 @@ class _MatchShotButtonState extends State<MatchShotButton> {
                         child: FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Text(
-                            'Reloading…',
+                            l.hudShotReloading,
                             style: matchDigits(
                               16,
                               color: SkyColors.white,

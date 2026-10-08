@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The voice packs' feature module titles. Flutter's deferred components
+         check requires each to be the component's name
+         (tool/l10n/prepare_localized_voices.py, wire). -->
+    <!-- voice-packs:begin -->
+    <string name="voice_es_419Name">voice_es_419</string>
+    <string name="voice_pt_brName">voice_pt_br</string>
+    <string name="voice_idName">voice_id</string>
+    <string name="voice_frName">voice_fr</string>
+    <string name="voice_deName">voice_de</string>
+    <string name="voice_jaName">voice_ja</string>
+    <string name="voice_koName">voice_ko</string>
+    <string name="voice_trName">voice_tr</string>
+    <string name="voice_zh_hantName">voice_zh_hant</string>
+    <string name="voice_ruName">voice_ru</string>
+    <string name="voice_arName">voice_ar</string>
+    <!-- voice-packs:end -->
+</resources>

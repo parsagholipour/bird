@@ -1,5 +1,9 @@
 import 'game_rules.dart';
 
+// l10n-english-twin: goal titles, descriptions and day titles are the twins
+// of the task_* and dailyTheme_* keys; screens word them with DailyText
+// (lib/l10n/text/daily_text.dart).
+
 /// Calendar goals are reproducible offline and independent of movement controls.
 enum DailyTask { flights, gates, stars, streak, perfects, finishTrail }
 

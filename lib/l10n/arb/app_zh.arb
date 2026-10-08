@@ -1,0 +1,4 @@
+{
+  "@@locale": "zh",
+  "@@x-note": "Empty on purpose: gen-l10n needs a base file beside app_zh_Hant.arb. Translate app_zh_Hant.arb; this one falls back to English."
+}

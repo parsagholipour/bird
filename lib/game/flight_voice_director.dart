@@ -7,10 +7,15 @@ enum VoiceUrgency { chatter, normal, high, urgent }
 
 /// One recorded line.
 class VoiceClip {
-  const VoiceClip(this.name, this.asset, this.ms);
+  const VoiceClip(this.name, this.asset, this.ms, {this.mouth, this.mood});
   final String name, asset;
   final int ms;
   double get seconds => ms / 1000;
+
+  /// A voice pack's own take carries its face (lib/game/voice_packs.dart):
+  /// the mouth every 50 ms and the mood (a StoryMood name). Null for the
+  /// English takes, whose faces are in the generated tables.
+  final String? mouth, mood;
 }
 
 /// A line the director chose to say now.
@@ -114,6 +119,21 @@ class FlightVoiceBank {
       pools
           .putIfAbsent(poolOf(name), () => [])
           .add(VoiceClip(name, '$folder/$name.ogg', ms));
+    }
+    return FlightVoiceBank(pools);
+  }
+
+  /// Groups [clips] into pools by name, after the [extra] pools: a voice
+  /// pack's lines, each with its own asset path and face.
+  factory FlightVoiceBank.ofClips(
+    Iterable<VoiceClip> clips, {
+    Map<String, List<VoiceClip>> extra = const {},
+  }) {
+    final pools = <String, List<VoiceClip>>{
+      for (final entry in extra.entries) entry.key: [...entry.value],
+    };
+    for (final clip in clips) {
+      pools.putIfAbsent(poolOf(clip.name), () => []).add(clip);
     }
     return FlightVoiceBank(pools);
   }

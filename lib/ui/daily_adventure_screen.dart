@@ -5,8 +5,13 @@ import '../data/providers.dart';
 import '../data/progress_repository.dart';
 import '../domain/daily_adventure.dart';
 import '../domain/game_rules.dart';
+import '../domain/tracking.dart' show PlayMode;
+import '../l10n/l10n.dart';
+import '../l10n/text/daily_text.dart';
+import '../l10n/text/date_text.dart';
 import 'components.dart';
 import 'control_glyphs.dart';
+import 'fit_text.dart';
 import 'home_keys.dart';
 import 'mini_chrome.dart';
 import 'theme.dart';
@@ -28,13 +33,10 @@ class DailyAdventureScreen extends ConsumerWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        'Your adventure needs a moment.',
-                        style: heading(26),
-                      ),
+                      Text(context.l10n.dailyUnavailable, style: heading(26)),
                       const SizedBox(height: 16),
                       SkyButton(
-                        label: 'Try again',
+                        label: context.l10n.commonTryAgain,
                         onPressed: () => ref.invalidate(progressProvider),
                       ),
                     ],
@@ -53,20 +55,7 @@ class DailyAdventureScreen extends ConsumerWidget {
     final today =
         p.today ??
         DailyAdventure.forDate(ref.read(appClockProvider)(), const []);
-    const months = [
-      'JAN',
-      'FEB',
-      'MAR',
-      'APR',
-      'MAY',
-      'JUN',
-      'JUL',
-      'AUG',
-      'SEP',
-      'OCT',
-      'NOV',
-      'DEC',
-    ];
+    final l = context.l10n;
     void fly(String control) {
       ref.read(selectedCourseProvider.notifier).select(FlightCourse.starTrail);
       context.go('/play/$control?course=starTrail');
@@ -76,12 +65,12 @@ class DailyAdventureScreen extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         MiniHeader(
-          title: 'Today’s little adventure.',
+          title: l.dailyTitle,
           size: 34,
           onBack: () => context.go('/'),
           trailing: [
             MiniTag(
-              '${today.date.day} ${months[today.date.month - 1]} · ${today.completedGoals}/3 GOALS',
+              l.dailyDateTag(l.dayMonthCaps(today.date), today.completedGoals),
               icon: Icons.wb_sunny_rounded,
               color: SkyColors.yellow,
             ),
@@ -89,9 +78,9 @@ class DailyAdventureScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 4),
         Padding(
-          padding: const EdgeInsets.only(left: 64),
-          child: Text(
-            'Three goals. Any control. One endless flight works on all three.',
+          padding: const EdgeInsetsDirectional.only(start: 64),
+          child: FitText(
+            l.dailyIntro,
             style: bodyText(15, weight: FontWeight.w800),
           ),
         ),
@@ -129,10 +118,22 @@ class DailyAdventureScreen extends ConsumerWidget {
                       child: Row(
                         children: [
                           for (final (i, (label, mode, control)) in [
-                            ('Endless', 'touch', FlyControl.tap),
-                            ('Push-Up Flight', 'push-up', FlyControl.pushUp),
-                            ('Squat & Fly', 'squat', FlyControl.squat),
-                            ('Jump & Fly', 'jump', FlyControl.jump),
+                            (l.dailyLaunchEndless, 'touch', FlyControl.tap),
+                            (
+                              l.playModeName(PlayMode.pushUp),
+                              'push-up',
+                              FlyControl.pushUp,
+                            ),
+                            (
+                              l.playModeName(PlayMode.squat),
+                              'squat',
+                              FlyControl.squat,
+                            ),
+                            (
+                              l.playModeName(PlayMode.jump),
+                              'jump',
+                              FlyControl.jump,
+                            ),
                           ].indexed) ...[
                             if (i > 0) const SizedBox(width: 8),
                             Expanded(
@@ -168,6 +169,7 @@ class _Postcard extends StatelessWidget {
   final GameSettings settings;
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final tint = [
       SkyColors.yellow,
       SkyColors.coral,
@@ -190,7 +192,7 @@ class _Postcard extends StatelessWidget {
                     left: 12,
                     top: 10,
                     child: Text(
-                      'SKY CLUB POSTCARD',
+                      l.dailyPostcardKicker,
                       style: bodyText(
                         10,
                         weight: FontWeight.w900,
@@ -220,33 +222,38 @@ class _Postcard extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Text(
-              adventure.title,
+            child: FitText(
+              l.dailyThemeTitle(adventure.theme),
               style: heading(23, weight: FontWeight.w700),
               textAlign: TextAlign.center,
             ),
           ),
           const SizedBox(height: 8),
-          Pill(
-            adventure.complete
-                ? 'POSTCARD STAMPED!'
-                : '${adventure.completedGoals} / 3 GOALS COMPLETE',
-            icon: adventure.complete
-                ? Icons.check_rounded
-                : Icons.auto_awesome_rounded,
-            color: adventure.complete ? SkyColors.mint : SkyColors.white,
+          // A longer translation shrinks the pill to the card's width.
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Pill(
+                adventure.complete
+                    ? l.dailyStamped
+                    : l.dailyGoalsComplete(adventure.completedGoals),
+                icon: adventure.complete
+                    ? Icons.check_rounded
+                    : Icons.auto_awesome_rounded,
+                color: adventure.complete ? SkyColors.mint : SkyColors.white,
+              ),
+            ),
           ),
           const SizedBox(height: 8),
           Text(
-            adventure.complete
-                ? 'A small adventure, all yours.'
-                : 'Finish all three to stamp this card.',
+            adventure.complete ? l.dailyDoneNote : l.dailyOpenNote,
+            textAlign: TextAlign.center,
             style: bodyText(
               11.5,
               color: SkyColors.muted,
               weight: FontWeight.w800,
             ),
-            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 10),
         ],
@@ -300,6 +307,8 @@ class _GoalRow extends StatelessWidget {
   final int index;
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
+    final description = l.dailyGoalText(goal);
     final color = [SkyColors.yellow, SkyColors.lavender, SkyColors.mint][index];
     final icon = switch (goal.task) {
       DailyTask.flights => Icons.flight_takeoff_rounded,
@@ -310,8 +319,13 @@ class _GoalRow extends StatelessWidget {
       DailyTask.finishTrail => Icons.route_rounded,
     };
     return Semantics(
-      label:
-          '${goal.description} ${goal.complete ? 'Complete' : '${goal.displayed} of ${goal.target}'}',
+      label: goal.complete
+          ? l.dailyGoalCompleteSemantics(description)
+          : l.dailyGoalProgressSemantics(
+              description,
+              goal.displayed,
+              goal.target,
+            ),
       child: Container(
         margin: const EdgeInsets.only(bottom: 3),
         padding: const EdgeInsets.fromLTRB(10, 6, 14, 8),
@@ -348,8 +362,8 @@ class _GoalRow extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(
-                        child: Text(
-                          goal.title,
+                        child: FitText(
+                          l.dailyTaskTitle(goal.task),
                           style: heading(19, weight: FontWeight.w700),
                         ),
                       ),
@@ -360,8 +374,8 @@ class _GoalRow extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 1),
-                  Text(
-                    goal.description,
+                  FitText(
+                    description,
                     style: bodyText(12, color: SkyColors.muted),
                   ),
                   const SizedBox(height: 5),
@@ -436,72 +450,71 @@ class _WeekCards extends StatelessWidget {
   final List<DailyAdventure> adventures;
   final String today;
   @override
-  Widget build(BuildContext context) => Column(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          for (final card in adventures)
-            Tooltip(
-              message:
-                  '${card.dayKey}: ${card.complete ? 'Postcard stamped' : '${card.completedGoals}/3 goals'}',
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 26,
-                    height: 26,
-                    decoration: BoxDecoration(
-                      color: card.complete
-                          ? SkyColors.mint
-                          : card.dayKey == today
-                          ? SkyColors.yellow
-                          : SkyColors.cream,
-                      shape: BoxShape.circle,
-                      border: Border.all(
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            for (final card in adventures)
+              Tooltip(
+                message: card.complete
+                    ? l.dailyWeekStampedSemantics(l.dateDigits(card.date))
+                    : l.dailyWeekProgressSemantics(
+                        l.dateDigits(card.date),
+                        card.completedGoals,
+                      ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 26,
+                      height: 26,
+                      decoration: BoxDecoration(
+                        color: card.complete
+                            ? SkyColors.mint
+                            : card.dayKey == today
+                            ? SkyColors.yellow
+                            : SkyColors.cream,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: card.complete || card.dayKey == today
+                              ? SkyColors.ink
+                              : SkyColors.ink.withValues(alpha: .4),
+                          width: 2,
+                        ),
+                      ),
+                      child: Icon(
+                        card.complete
+                            ? Icons.check_rounded
+                            : Icons.local_post_office_rounded,
+                        size: 15,
                         color: card.complete || card.dayKey == today
                             ? SkyColors.ink
-                            : SkyColors.ink.withValues(alpha: .4),
-                        width: 2,
+                            : SkyColors.muted,
                       ),
                     ),
-                    child: Icon(
-                      card.complete
-                          ? Icons.check_rounded
-                          : Icons.local_post_office_rounded,
-                      size: 15,
-                      color: card.complete || card.dayKey == today
-                          ? SkyColors.ink
-                          : SkyColors.muted,
+                    const SizedBox(height: 2),
+                    Text(
+                      l.weekdayLetter(card.date),
+                      style: bodyText(
+                        10,
+                        weight: FontWeight.w900,
+                      ).copyWith(height: 1.1),
                     ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    const [
-                      'M',
-                      'T',
-                      'W',
-                      'T',
-                      'F',
-                      'S',
-                      'S',
-                    ][card.date.weekday - 1],
-                    style: bodyText(
-                      10,
-                      weight: FontWeight.w900,
-                    ).copyWith(height: 1.1),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-        ],
-      ),
-      const SizedBox(height: 3),
-      Text(
-        'Fresh goals. No streak to lose.',
-        style: bodyText(11.5, weight: FontWeight.w800).copyWith(height: 1.1),
-      ),
-    ],
-  );
+          ],
+        ),
+        const SizedBox(height: 3),
+        FitText(
+          l.dailyNoStreak,
+          style: bodyText(11.5, weight: FontWeight.w800).copyWith(height: 1.1),
+        ),
+      ],
+    );
+  }
 }

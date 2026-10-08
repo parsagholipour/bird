@@ -21,6 +21,28 @@ val playGamesAppId = Regex("""playGamesAppId\s*=\s*'(\d*)'""")
         ).asText.get()
     )?.groupValues?.get(1).orEmpty()
 
+// Release guard for the voice packs: a Play app bundle must carry every
+// language's pack (each android/voice_<slug> module) as a deferred component.
+// Dev builds may list fewer (tool/l10n/dev_voice_packs.py --only/--none keeps
+// the APK small); then `flutter build appbundle` stops here until
+// `python3 tool/l10n/dev_voice_packs.py --all`.
+if (gradle.startParameter.taskNames.any { it.substringAfterLast(':').startsWith("bundle") }) {
+    val voiceModules = rootProject.projectDir.listFiles().orEmpty()
+        .filter { it.name.startsWith("voice_") && it.resolve("build.gradle.kts").isFile }
+        .map { it.name }
+        .toSortedSet()
+    val listed = providers.gradleProperty("deferred-component-names").orNull.orEmpty()
+        .split(',').filter { it.isNotBlank() }.toSet()
+    val missing = voiceModules - listed
+    if (missing.isNotEmpty()) {
+        throw GradleException(
+            "Voice packs missing from this app bundle: ${missing.joinToString()}. " +
+                "pubspec.yaml lists a dev subset (tool/l10n/dev_voice_packs.py); run " +
+                "`python3 tool/l10n/dev_voice_packs.py --all` before `flutter build appbundle`."
+        )
+    }
+}
+
 android {
     namespace = "com.ravanix.push_up_bird"
     compileSdk = flutter.compileSdkVersion
@@ -49,6 +71,9 @@ android {
 
     buildTypes {
         release {
+            // Flutter turns R8 off for any app with deferred components (the
+            // voice packs); they hold no code, so the base keeps it on.
+            isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
@@ -70,6 +95,9 @@ dependencies {
     implementation("com.google.mediapipe:tasks-vision:0.10.35")
     // The games_services plugin's own SDK, started by PlayGamesGate.kt.
     implementation("com.google.android.gms:play-services-games-v2:21.0.0")
+    // Play Feature Delivery for the voice packs, used by VoicePackDelivery.kt
+    // (Flutter's own Play manager is built on Play Core 1.x).
+    implementation("com.google.android.play:feature-delivery:2.1.0")
 }
 
 kotlin {
