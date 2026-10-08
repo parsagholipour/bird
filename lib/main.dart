@@ -23,6 +23,8 @@ import 'ui/builder/builder_home_screen.dart';
 import 'ui/coop_screen.dart';
 import 'ui/calibration_probe.dart';
 import 'ui/theme.dart';
+import 'ui/tutorial_screen.dart';
+import 'ui/welcome_screen.dart';
 import 'ui/screen_frame.dart';
 import 'ui/passport_screen.dart';
 import 'ui/daily_adventure_screen.dart';
@@ -85,6 +87,25 @@ final appRouter = GoRouter(
         key: ValueKey(state.uri.toString()),
         level: state.uri.queryParameters['level'],
       ),
+    ),
+    // A new player's first launch: the language, then flight school.
+    GoRoute(
+      path: '/welcome',
+      builder: (context, state) => const WelcomeScreen(),
+    ),
+    GoRoute(
+      path: '/tutorial',
+      builder: (context, state) => const TutorialScreen(),
+      routes: [
+        GoRoute(
+          path: 'fly',
+          builder: (context, state) => PlayScreen(
+            key: ValueKey(state.uri.toString()),
+            mode: PlayMode.touch,
+            tutorial: true,
+          ),
+        ),
+      ],
     ),
     GoRoute(
       path: '/daily',
@@ -254,7 +275,10 @@ class _PushUpBirdAppState extends ConsumerState<PushUpBirdApp>
   bool get _inFlight {
     if (ref.read(playGamesProvider.notifier).calm) return false;
     final path = appRouter.routerDelegate.currentConfiguration.uri.path;
-    return path.startsWith('/play/') || path == '/coop' || path == '/lab';
+    return path.startsWith('/play/') ||
+        path == '/tutorial/fly' ||
+        path == '/coop' ||
+        path == '/lab';
   }
 
   void _syncMenuMusic() {
@@ -262,6 +286,7 @@ class _PushUpBirdAppState extends ConsumerState<PushUpBirdApp>
     final path = appRouter.routerDelegate.currentConfiguration.uri.path;
     final inGame =
         path.startsWith('/play/') ||
+        path == '/tutorial/fly' ||
         path.startsWith('/replay/') ||
         path == '/lab';
     unawaited(

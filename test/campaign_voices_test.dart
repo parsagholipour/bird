@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:push_up_bird/domain/campaign.dart';
 import 'package:push_up_bird/domain/campaign_story.dart';
+import 'package:push_up_bird/domain/tutorial_story.dart';
 import 'package:push_up_bird/game/campaign_voice_clips.dart';
 import 'package:push_up_bird/game/campaign_voices.dart';
 import 'package:push_up_bird/ui/story_scene.dart';
@@ -16,7 +17,7 @@ const _pending = 'pending recording';
 
 /// Every clip the game asks for, with the words it prints for it.
 Map<String, String> _printed() => {
-  for (final scene in CampaignStory.scenes)
+  for (final scene in [...TutorialStory.scenes, ...CampaignStory.scenes])
     for (var i = 0; i < scene.lines.length; i++)
       for (final name in CampaignVoices.lineNames(scene, i))
         name: scene.lines[i].text,
@@ -364,6 +365,14 @@ void main() {
           clip['name'] as String,
     };
     expect(guardianClips, hasLength(47));
+    // Flight school (docs/tutorial.md) was written before it was recorded
+    // too: 33 clips, its two scenes and Bill's coaching in flight.
+    final schoolClips = {
+      for (final clip in _clips(_sources()))
+        if (RegExp('^(school|coach)-').hasMatch(clip['name'] as String))
+          clip['name'] as String,
+    };
+    expect(schoolClips, hasLength(33));
     // Egypt's guardian (rules 50): Neferhoo's two scenes and the pyramid
     // caretaker's thank-you on 2-6 are all recorded in their cast voices: 31
     // clips (18 lines, the courier's 4 in each bird's voice, and the note).
@@ -402,9 +411,11 @@ void main() {
     // `after-3`, a thank-you or a sprint call) is a fault, so a missing clip
     // anywhere else still fails the suite.
     expect(
-      pending.difference(guardianClips),
+      pending.difference(guardianClips).difference(schoolClips),
       isEmpty,
-      reason: 'only New York guardians\' clips may be pending recording',
+      reason:
+          'only New York guardians\' and flight school\'s clips may be '
+          'pending recording',
     );
     for (final name in pending) {
       expect(campaignVoiceClips, isNot(contains(name)), reason: name);

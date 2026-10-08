@@ -432,6 +432,19 @@ Where the takes are and how to put the winner on his 8 story clips and 16 flight
 lines: [story-voices-recording.md](story-voices-recording.md), section 2,
 "Neferhoo".
 
+## Flight school (pending recording)
+
+The first-time lesson ([tutorial.md](tutorial.md)) speaks through the same
+clips: its scene before the lesson (`school-intro-0` to `-3`), Bill's 18
+coaching lines in flight (`coach-<line>-0`, such as `coach-flap-0` and
+`coach-shoot-more-0`) and the scene after the rookie Pirate Captain's
+retreat (`school-outro-0` to `-4`), 33 clips with the courier's lines once
+per bird. All are in `docs/story-voices-sources.json`, pending recording, in
+the existing cast's voices (Bill, the Pirate Captain, the narrator and the
+four birds), each prompt with tags the recorded takes have proven. Record
+them like any pending clip; the game picks each up as soon as it is in the
+clip table. A coaching line plays over the flight and ducks its music.
+
 ## Adding a new character or voice
 
 The recipe, in the order things go wrong if you skip a step. "Clip name" is the

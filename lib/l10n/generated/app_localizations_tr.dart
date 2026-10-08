@@ -6532,4 +6532,135 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get replayMomentEndDetail => 'Bu uçuşun sonu.';
+
+  @override
+  String get welcomeTitle => 'Dilini seç';
+
+  @override
+  String get welcomeContinue => 'Hadi uçalım!';
+
+  @override
+  String get welcomeHint =>
+      'Bunu istediğin zaman Ayarlar\'dan değiştirebilirsin.';
+
+  @override
+  String get welcomeDevice => 'Telefonunun dili';
+
+  @override
+  String get tutorialTitle => 'Uçuş Okulu';
+
+  @override
+  String get tutorialSkip => 'Dersi geç';
+
+  @override
+  String get tutorialSkipTitle => 'Uçuş Okulu geçilsin mi?';
+
+  @override
+  String get tutorialSkipBody =>
+      'Dersi istediğin zaman Ayarlar\'dan yeniden alabilirsin.';
+
+  @override
+  String get tutorialSkipConfirm => 'Geç';
+
+  @override
+  String get tutorialSkipCancel => 'Derse devam';
+
+  @override
+  String get tutorialRestart => 'Baştan başla';
+
+  @override
+  String get tutorialGoalFlaps => 'Kanat çırp';
+
+  @override
+  String get tutorialGoalStars => 'Yıldız topla';
+
+  @override
+  String get tutorialGoalGates => 'Kapılardan geç';
+
+  @override
+  String get tutorialGoalBats => 'Yarasaları bayılt';
+
+  @override
+  String get tutorialGoalDoor => 'Taş kapıyı kır';
+
+  @override
+  String get tutorialGoalSprint => 'Sprint at';
+
+  @override
+  String get tutorialGoalBoss => 'Kaptan\'ı yen';
+
+  @override
+  String get tutorialPromptTap => 'Dokun!';
+
+  @override
+  String get tutorialPromptShoot => 'Ateş\'e dokun';
+
+  @override
+  String get tutorialPromptHoldShoot => 'Ateş: basılı tut';
+
+  @override
+  String get tutorialPromptSprint => 'Sprint\'e dokun';
+
+  @override
+  String get tutorialPraiseNice => 'Güzel!';
+
+  @override
+  String get tutorialPraiseGreat => 'Harika!';
+
+  @override
+  String get tutorialPraiseSuper => 'Muhteşem!';
+
+  @override
+  String tutorialWaitingSemantics(String prompt) {
+    return 'Ders bekliyor: $prompt';
+  }
+
+  @override
+  String get licenceTitle => 'Kurye Ehliyeti';
+
+  @override
+  String get licenceIssuer => 'Gök Kulübü Postası';
+
+  @override
+  String get licenceHolder => 'Kurye';
+
+  @override
+  String get licenceRank => 'Rütbe';
+
+  @override
+  String get licenceRankRookie => 'Çaylak kurye';
+
+  @override
+  String get licenceSkills => 'Beceriler';
+
+  @override
+  String get licenceStamp => 'Onaylandı';
+
+  @override
+  String licenceSignedBy(String name) {
+    return 'İmza: $name';
+  }
+
+  @override
+  String licenceStars(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count yıldız',
+      one: '1 yıldız',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get licenceStart => 'İlk rotama başla!';
+
+  @override
+  String get licenceAgain => 'Bir daha uç';
+
+  @override
+  String get settingsTutorial => 'Uçuş Okulu';
+
+  @override
+  String get settingsTutorialDetail => 'İlk dersi yeniden al';
 }

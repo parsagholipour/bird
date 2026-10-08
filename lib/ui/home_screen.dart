@@ -20,6 +20,8 @@ import 'match_hud.dart' show MatchIcon, MatchSymbol;
 import 'menu_collectible_art.dart';
 import 'mini_games.dart';
 import 'theme.dart';
+import 'tutorial_screen.dart'
+    show firstLaunchRoute, firstLaunchTutorialProvider;
 
 const _course = FlightCourse.starTrail;
 
@@ -68,10 +70,22 @@ class HomeScreen extends ConsumerWidget {
                 ),
               ),
             ),
-            data: (progress) => HomeStage(
-              reducedMotion: progress.settings.reducedMotion,
-              child: _HomeScene(progress: progress),
-            ),
+            data: (progress) {
+              // A new player begins with the language and flight school.
+              final first = ref.watch(firstLaunchTutorialProvider)
+                  ? firstLaunchRoute(progress)
+                  : null;
+              if (first != null) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (context.mounted) context.go(first);
+                });
+                return const BeakboundLaunchScreen();
+              }
+              return HomeStage(
+                reducedMotion: progress.settings.reducedMotion,
+                child: _HomeScene(progress: progress),
+              );
+            },
           ),
     ),
   );

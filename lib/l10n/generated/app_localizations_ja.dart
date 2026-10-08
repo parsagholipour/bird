@@ -6292,4 +6292,133 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get replayMomentEndDetail => 'このフライトのおわり。';
+
+  @override
+  String get welcomeTitle => '言語を選んでね';
+
+  @override
+  String get welcomeContinue => 'さあ、飛ぼう！';
+
+  @override
+  String get welcomeHint => '設定からいつでも変えられます。';
+
+  @override
+  String get welcomeDevice => 'スマホの言語';
+
+  @override
+  String get tutorialTitle => 'フライト教室';
+
+  @override
+  String get tutorialSkip => 'レッスンをとばす';
+
+  @override
+  String get tutorialSkipTitle => 'フライト教室をとばす？';
+
+  @override
+  String get tutorialSkipBody => 'レッスンは設定からいつでも受け直せます。';
+
+  @override
+  String get tutorialSkipConfirm => 'とばす';
+
+  @override
+  String get tutorialSkipCancel => '練習を続ける';
+
+  @override
+  String get tutorialRestart => '最初から';
+
+  @override
+  String get tutorialGoalFlaps => 'はばたく';
+
+  @override
+  String get tutorialGoalStars => '星を集める';
+
+  @override
+  String get tutorialGoalGates => 'ゲートを通る';
+
+  @override
+  String get tutorialGoalBats => 'コウモリをやっつける';
+
+  @override
+  String get tutorialGoalDoor => '石の扉をこわす';
+
+  @override
+  String get tutorialGoalSprint => 'ダッシュ';
+
+  @override
+  String get tutorialGoalBoss => '船長をやっつける';
+
+  @override
+  String get tutorialPromptTap => 'タップ！';
+
+  @override
+  String get tutorialPromptShoot => 'ショットをタップ';
+
+  @override
+  String get tutorialPromptHoldShoot => 'ショットを長押し';
+
+  @override
+  String get tutorialPromptSprint => 'ダッシュをタップ';
+
+  @override
+  String get tutorialPraiseNice => 'いいね！';
+
+  @override
+  String get tutorialPraiseGreat => 'すごい！';
+
+  @override
+  String get tutorialPraiseSuper => 'おみごと！';
+
+  @override
+  String tutorialWaitingSemantics(String prompt) {
+    return 'レッスンが待っています：$prompt';
+  }
+
+  @override
+  String get licenceTitle => '配達人免許証';
+
+  @override
+  String get licenceIssuer => 'スカイクラブ郵便';
+
+  @override
+  String get licenceHolder => '配達人';
+
+  @override
+  String get licenceRank => 'ランク';
+
+  @override
+  String get licenceRankRookie => '新米配達人';
+
+  @override
+  String get licenceSkills => 'スキル';
+
+  @override
+  String get licenceStamp => '認定';
+
+  @override
+  String licenceSignedBy(String name) {
+    return '署名：$name';
+  }
+
+  @override
+  String licenceStars(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '星$count個',
+      one: '星1個',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get licenceStart => 'はじめてのルートへ！';
+
+  @override
+  String get licenceAgain => 'もう一度飛ぶ';
+
+  @override
+  String get settingsTutorial => 'フライト教室';
+
+  @override
+  String get settingsTutorialDetail => '最初のレッスンをもう一度';
 }

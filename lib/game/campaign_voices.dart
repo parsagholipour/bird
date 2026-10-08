@@ -1,5 +1,6 @@
 import '../domain/campaign.dart';
 import '../domain/campaign_story.dart';
+import '../domain/tutorial_story.dart';
 import 'campaign_voice_clips.dart';
 import 'voice_packs.dart';
 
@@ -79,11 +80,11 @@ abstract final class CampaignVoices {
   ];
 
   /// Every clip the game can ask for, recorded or not: the lines of every
-  /// scene (a courier's for every bird), every level's thank-you and every
+  /// scene, flight school's too (a courier's for every bird), every level's thank-you and every
   /// bird's sprint calls. A recording the game has no name for is never
   /// played, and a name without a recording is a pending clip.
   static Set<String> get wanted => {
-    for (final scene in CampaignStory.scenes)
+    for (final scene in [...TutorialStory.scenes, ...CampaignStory.scenes])
       for (var i = 0; i < scene.lines.length; i++) ...lineNames(scene, i),
     for (final level in Campaign.levels) thanksName(level),
     for (var bird = 0; bird < birds.length; bird++) ...sprintNames(bird),

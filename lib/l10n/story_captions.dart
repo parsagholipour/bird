@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import '../domain/campaign.dart';
 import '../domain/campaign_story.dart';
+import '../domain/tutorial_story.dart';
 import '../game/campaign_voices.dart';
 import 'app_language.dart';
 import 'pseudo.dart';
@@ -62,7 +63,7 @@ class StoryCaptions {
   /// Every English line and thank-you, pseudo-localized ([pseudoLocalize]):
   /// the story's longest-case stand-in before translations exist.
   factory StoryCaptions.pseudo() => StoryCaptions._(AppLanguage.en, {
-    for (final scene in CampaignStory.scenes)
+    for (final scene in [...TutorialStory.scenes, ...CampaignStory.scenes])
       for (var i = 0; i < scene.lines.length; i++)
         for (final name in CampaignVoices.lineNames(scene, i))
           name: pseudoLocalize(scene.lines[i].text),

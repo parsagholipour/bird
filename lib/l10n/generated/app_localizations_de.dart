@@ -6655,4 +6655,135 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get replayMomentEndDetail => 'Das Ende dieses Flugs.';
+
+  @override
+  String get welcomeTitle => 'Wähle deine Sprache';
+
+  @override
+  String get welcomeContinue => 'Auf in die Luft!';
+
+  @override
+  String get welcomeHint =>
+      'Du kannst sie jederzeit in den Einstellungen ändern.';
+
+  @override
+  String get welcomeDevice => 'Sprache deines Handys';
+
+  @override
+  String get tutorialTitle => 'Flugschule';
+
+  @override
+  String get tutorialSkip => 'Lektion auslassen';
+
+  @override
+  String get tutorialSkipTitle => 'Flugschule auslassen?';
+
+  @override
+  String get tutorialSkipBody =>
+      'Du kannst die Lektion jederzeit in den Einstellungen wiederholen.';
+
+  @override
+  String get tutorialSkipConfirm => 'Auslassen';
+
+  @override
+  String get tutorialSkipCancel => 'Weiterlernen';
+
+  @override
+  String get tutorialRestart => 'Neu starten';
+
+  @override
+  String get tutorialGoalFlaps => 'Flattern';
+
+  @override
+  String get tutorialGoalStars => 'Sterne sammeln';
+
+  @override
+  String get tutorialGoalGates => 'Durch Tore fliegen';
+
+  @override
+  String get tutorialGoalBats => 'Fledermäuse k.o.';
+
+  @override
+  String get tutorialGoalDoor => 'Steintür knacken';
+
+  @override
+  String get tutorialGoalSprint => 'Sprinten';
+
+  @override
+  String get tutorialGoalBoss => 'Käpt’n besiegen';
+
+  @override
+  String get tutorialPromptTap => 'Tipp!';
+
+  @override
+  String get tutorialPromptShoot => 'Drück Schießen';
+
+  @override
+  String get tutorialPromptHoldShoot => 'Halte Schießen';
+
+  @override
+  String get tutorialPromptSprint => 'Drück Sprint';
+
+  @override
+  String get tutorialPraiseNice => 'Gut so!';
+
+  @override
+  String get tutorialPraiseGreat => 'Klasse!';
+
+  @override
+  String get tutorialPraiseSuper => 'Spitze!';
+
+  @override
+  String tutorialWaitingSemantics(String prompt) {
+    return 'Die Lektion wartet: $prompt';
+  }
+
+  @override
+  String get licenceTitle => 'Kurierschein';
+
+  @override
+  String get licenceIssuer => 'Himmelsclub-Post';
+
+  @override
+  String get licenceHolder => 'Kurier';
+
+  @override
+  String get licenceRank => 'Rang';
+
+  @override
+  String get licenceRankRookie => 'Grünschnabel';
+
+  @override
+  String get licenceSkills => 'Fähigkeiten';
+
+  @override
+  String get licenceStamp => 'Geprüft';
+
+  @override
+  String licenceSignedBy(String name) {
+    return 'Gezeichnet: $name';
+  }
+
+  @override
+  String licenceStars(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Sterne',
+      one: '1 Stern',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get licenceStart => 'Auf zur ersten Route!';
+
+  @override
+  String get licenceAgain => 'Noch mal fliegen';
+
+  @override
+  String get settingsTutorial => 'Flugschule';
+
+  @override
+  String get settingsTutorialDetail => 'Erste Lektion wiederholen';
 }

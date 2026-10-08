@@ -5,6 +5,7 @@ import 'dart:math';
 import '../domain/built_level.dart';
 import '../domain/campaign.dart';
 import '../domain/session_replay.dart';
+import '../domain/tutorial.dart';
 import '../data/session_repository.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
@@ -110,6 +111,7 @@ class PlayController extends ChangeNotifier {
     this.best = 0,
     FlightVoiceMemory? voiceMemory,
     this.rememberVoices,
+    this.coach,
     DateTime Function()? clock,
   }) : voiceMemory = voiceMemory ?? FlightVoiceMemory(),
        assert(
@@ -220,6 +222,24 @@ class PlayController extends ChangeNotifier {
 
   /// The endless record this flight chases, for the bird's "new record".
   final int best;
+
+  /// Flight school's coach, on the tutorial flight only: it holds the
+  /// moment at each new lesson until the player does what it asks, and
+  /// slows time to a stop as it does (see [advance]).
+  final TutorialCoach? coach;
+
+  /// Flight school: the tutorial flight ([TutorialPlan]).
+  bool get tutorial => coach != null;
+
+  /// Lets a held lesson go when [gesture] is what it waits for. Returns
+  /// whether the gesture may reach the flight.
+  bool _coached(CoachGesture gesture) {
+    final coach = this.coach;
+    if (coach == null) return true;
+    if (!coach.lets(gesture)) return false;
+    if (coach.act(gesture)) notify();
+    return true;
+  }
 
   /// What the characters have said, shared by every flight so none repeats
   /// the last ([FlightVoices]). It may be swapped for the saved memory once
@@ -440,7 +460,8 @@ class PlayController extends ChangeNotifier {
     if (isTouch &&
         !_disposed &&
         stage == PlayStage.flying &&
-        simulation?.phase == RunPhase.playing) {
+        simulation?.phase == RunPhase.playing &&
+        _coached(CoachGesture.tap)) {
       if (player == 0) {
         _touchFlap = true;
       } else if (coop && player == 1) {
@@ -474,6 +495,7 @@ class PlayController extends ChangeNotifier {
   /// Pressing Shoot starts a power shot; releasing it calls [shoot].
   void startCharge({int player = 0}) {
     if (!_ready(player, (sim) => sim.canCharge)) return;
+    if (!_coached(CoachGesture.shoot)) return;
     recorder?.command('charge', null, _who(player));
     notify();
   }
@@ -488,6 +510,7 @@ class PlayController extends ChangeNotifier {
     )) {
       return;
     }
+    if (!_coached(CoachGesture.shoot)) return;
     recorder?.command('shoot', null, _who(player));
     audio.syncCombat(simulation!);
     notify();
@@ -495,6 +518,7 @@ class PlayController extends ChangeNotifier {
 
   void sprint({int player = 0}) {
     if (!_ready(player, (sim) => sim.canSprint)) return;
+    if (!_coached(CoachGesture.sprint)) return;
     recorder?.command('sprint', null, _who(player));
     audio.syncCombat(simulation!);
     notify();
@@ -518,6 +542,16 @@ class PlayController extends ChangeNotifier {
           !dt.isFinite ||
           dt <= 0) {
         return;
+      }
+      // Flight school slows time to a stop while a lesson holds it; a held
+      // moment reaches neither the journal nor the simulation.
+      if (coach case final coach?) {
+        coach.update(dt, simulation!);
+        dt *= coach.timeScale;
+        if (dt <= 0) {
+          notify();
+          return;
+        }
       }
       _touchTime += dt * 1000;
       now = _touchTime;
@@ -779,7 +813,9 @@ class PlayController extends ChangeNotifier {
     );
     simulation = recorder!.simulation;
     // Player 1's bird would cheer or mourn a duel as its own flight.
-    audio.voices = duel
+    // Flight school's voice is Bill's: the birds keep their chatter for
+    // real routes.
+    audio.voices = duel || tutorial
         ? null
         : FlightVoices(
             bird: bird,

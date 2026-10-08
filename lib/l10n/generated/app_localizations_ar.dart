@@ -6957,4 +6957,137 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get replayMomentEndDetail => 'نهاية هذه الرحلة.';
+
+  @override
+  String get welcomeTitle => 'اختر لغتك';
+
+  @override
+  String get welcomeContinue => 'هيا نطير!';
+
+  @override
+  String get welcomeHint => 'يمكنك تغييرها في أي وقت من الإعدادات.';
+
+  @override
+  String get welcomeDevice => 'لغة هاتفك';
+
+  @override
+  String get tutorialTitle => 'مدرسة الطيران';
+
+  @override
+  String get tutorialSkip => 'تخطّي الدرس';
+
+  @override
+  String get tutorialSkipTitle => 'أتتخطى مدرسة الطيران؟';
+
+  @override
+  String get tutorialSkipBody => 'يمكنك إعادة الدرس في أي وقت من الإعدادات.';
+
+  @override
+  String get tutorialSkipConfirm => 'تخطٍّ';
+
+  @override
+  String get tutorialSkipCancel => 'مواصلة التعلّم';
+
+  @override
+  String get tutorialRestart => 'البدء من جديد';
+
+  @override
+  String get tutorialGoalFlaps => 'رفرف';
+
+  @override
+  String get tutorialGoalStars => 'اجمع النجوم';
+
+  @override
+  String get tutorialGoalGates => 'اعبر البوابات';
+
+  @override
+  String get tutorialGoalBats => 'أسقِط الخفافيش';
+
+  @override
+  String get tutorialGoalDoor => 'حطّم الباب الحجري';
+
+  @override
+  String get tutorialGoalSprint => 'انطلاقة';
+
+  @override
+  String get tutorialGoalBoss => 'اهزم القبطان';
+
+  @override
+  String get tutorialPromptTap => 'انقر!';
+
+  @override
+  String get tutorialPromptShoot => 'انقر «ارمِ»';
+
+  @override
+  String get tutorialPromptHoldShoot => 'ثبّت على «ارمِ»';
+
+  @override
+  String get tutorialPromptSprint => 'انقر «انطلاقة»';
+
+  @override
+  String get tutorialPraiseNice => 'رائع!';
+
+  @override
+  String get tutorialPraiseGreat => 'ممتاز!';
+
+  @override
+  String get tutorialPraiseSuper => 'مذهل!';
+
+  @override
+  String tutorialWaitingSemantics(String prompt) {
+    return 'الدرس بانتظارك: $prompt';
+  }
+
+  @override
+  String get licenceTitle => 'رخصة ساعي البريد';
+
+  @override
+  String get licenceIssuer => 'بريد نادي السماء';
+
+  @override
+  String get licenceHolder => 'ساعي البريد';
+
+  @override
+  String get licenceRank => 'الرتبة';
+
+  @override
+  String get licenceRankRookie => 'ساعي بريد مبتدئ';
+
+  @override
+  String get licenceSkills => 'المهارات';
+
+  @override
+  String get licenceStamp => 'معتمد';
+
+  @override
+  String licenceSignedBy(String name) {
+    return 'التوقيع: $name';
+  }
+
+  @override
+  String licenceStars(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count نجمة',
+      many: '$count نجمة',
+      few: '$count نجوم',
+      two: 'نجمتان',
+      one: 'نجمة واحدة',
+      zero: '$count نجمة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get licenceStart => 'إلى خطي الأول!';
+
+  @override
+  String get licenceAgain => 'الطيران مجددًا';
+
+  @override
+  String get settingsTutorial => 'مدرسة الطيران';
+
+  @override
+  String get settingsTutorialDetail => 'إعادة الدرس الأول';
 }

@@ -6521,4 +6521,134 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get replayMomentEndDetail => 'Akhir penerbangan ini.';
+
+  @override
+  String get welcomeTitle => 'Pilih bahasamu';
+
+  @override
+  String get welcomeContinue => 'Ayo terbang!';
+
+  @override
+  String get welcomeHint => 'Kamu bisa menggantinya kapan saja di Pengaturan.';
+
+  @override
+  String get welcomeDevice => 'Bahasa ponselmu';
+
+  @override
+  String get tutorialTitle => 'Sekolah Terbang';
+
+  @override
+  String get tutorialSkip => 'Lewati pelajaran';
+
+  @override
+  String get tutorialSkipTitle => 'Lewati Sekolah Terbang?';
+
+  @override
+  String get tutorialSkipBody =>
+      'Kamu bisa mengulang pelajaran ini kapan saja dari Pengaturan.';
+
+  @override
+  String get tutorialSkipConfirm => 'Lewati';
+
+  @override
+  String get tutorialSkipCancel => 'Terus belajar';
+
+  @override
+  String get tutorialRestart => 'Ulang dari awal';
+
+  @override
+  String get tutorialGoalFlaps => 'Kepak';
+
+  @override
+  String get tutorialGoalStars => 'Kumpulkan bintang';
+
+  @override
+  String get tutorialGoalGates => 'Lintasi gerbang';
+
+  @override
+  String get tutorialGoalBats => 'Jatuhkan kelelawar';
+
+  @override
+  String get tutorialGoalDoor => 'Pecahkan pintu batu';
+
+  @override
+  String get tutorialGoalSprint => 'Melesat';
+
+  @override
+  String get tutorialGoalBoss => 'Kalahkan Kapten';
+
+  @override
+  String get tutorialPromptTap => 'Ketuk!';
+
+  @override
+  String get tutorialPromptShoot => 'Ketuk Tembak';
+
+  @override
+  String get tutorialPromptHoldShoot => 'Tahan Tembak';
+
+  @override
+  String get tutorialPromptSprint => 'Ketuk Melesat';
+
+  @override
+  String get tutorialPraiseNice => 'Bagus!';
+
+  @override
+  String get tutorialPraiseGreat => 'Hebat!';
+
+  @override
+  String get tutorialPraiseSuper => 'Luar biasa!';
+
+  @override
+  String tutorialWaitingSemantics(String prompt) {
+    return 'Pelajaran menunggu: $prompt';
+  }
+
+  @override
+  String get licenceTitle => 'Surat Izin Kurir';
+
+  @override
+  String get licenceIssuer => 'Pos Klub Langit';
+
+  @override
+  String get licenceHolder => 'Kurir';
+
+  @override
+  String get licenceRank => 'Pangkat';
+
+  @override
+  String get licenceRankRookie => 'Kurir pemula';
+
+  @override
+  String get licenceSkills => 'Keahlian';
+
+  @override
+  String get licenceStamp => 'Disahkan';
+
+  @override
+  String licenceSignedBy(String name) {
+    return 'Tertanda: $name';
+  }
+
+  @override
+  String licenceStars(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count bintang',
+      one: '1 bintang',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get licenceStart => 'Mulai rute pertamaku';
+
+  @override
+  String get licenceAgain => 'Terbang lagi';
+
+  @override
+  String get settingsTutorial => 'Sekolah Terbang';
+
+  @override
+  String get settingsTutorialDetail => 'Ulangi pelajaran pertama';
 }

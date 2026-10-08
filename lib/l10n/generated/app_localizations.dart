@@ -9837,6 +9837,240 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The end of this flight.'**
   String get replayMomentEndDetail;
+
+  /// First launch, the very first screen: title over the list of languages. It cycles through every language, each in its own words, so keep it short and plain.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your language'**
+  String get welcomeTitle;
+
+  /// First launch, language screen: the big button that confirms the chosen language and starts flight school (the first lesson). Playful.
+  ///
+  /// In en, this message translates to:
+  /// **'Let’s fly!'**
+  String get welcomeContinue;
+
+  /// First launch, language screen: small line under the languages.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change it any time in Settings.'**
+  String get welcomeHint;
+
+  /// First launch, language screen: small badge on the language that matches the phone's settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone’s language'**
+  String get welcomeDevice;
+
+  /// Name of the first-time lesson (tutorial) flown before the campaign: on the pause card, in Settings and on the courier licence. Postmaster Bill teaches it.
+  ///
+  /// In en, this message translates to:
+  /// **'Flight school'**
+  String get tutorialTitle;
+
+  /// Flight school: key that skips the first-time lesson and goes straight to the campaign map. On the intro and the pause card.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip lesson'**
+  String get tutorialSkip;
+
+  /// Flight school: title of the box that asks whether to skip the lesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip flight school?'**
+  String get tutorialSkipTitle;
+
+  /// Flight school: text of the box that asks whether to skip the lesson.
+  ///
+  /// In en, this message translates to:
+  /// **'You can take the lesson again any time from Settings.'**
+  String get tutorialSkipBody;
+
+  /// Flight school: confirms skipping the lesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get tutorialSkipConfirm;
+
+  /// Flight school: keeps flying the lesson instead of skipping it.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep learning'**
+  String get tutorialSkipCancel;
+
+  /// Flight school pause card: flies the lesson again from the beginning.
+  ///
+  /// In en, this message translates to:
+  /// **'Start over'**
+  String get tutorialRestart;
+
+  /// Flight school goal chip: tap to flap a few times. Followed by a count such as 2/3.
+  ///
+  /// In en, this message translates to:
+  /// **'Flap'**
+  String get tutorialGoalFlaps;
+
+  /// Flight school goal chip: fly through stars. Followed by a count. Also a ticked skill on the courier licence.
+  ///
+  /// In en, this message translates to:
+  /// **'Collect stars'**
+  String get tutorialGoalStars;
+
+  /// Flight school goal chip: fly through the gaps in the gates. Followed by a count. Also a ticked skill on the courier licence.
+  ///
+  /// In en, this message translates to:
+  /// **'Fly through gates'**
+  String get tutorialGoalGates;
+
+  /// Flight school goal chip: shoot pebbles at bats. Followed by a count. Also a ticked skill on the courier licence.
+  ///
+  /// In en, this message translates to:
+  /// **'Knock out bats'**
+  String get tutorialGoalBats;
+
+  /// Flight school goal chip: break a stone door with a charged shot. Also a ticked skill on the courier licence.
+  ///
+  /// In en, this message translates to:
+  /// **'Smash the door'**
+  String get tutorialGoalDoor;
+
+  /// Flight school goal chip: press Sprint once. Also a ticked skill on the courier licence. Same game term as the Sprint button.
+  ///
+  /// In en, this message translates to:
+  /// **'Sprint'**
+  String get tutorialGoalSprint;
+
+  /// Flight school goal chip in the boss fight: defeat the Pirate Captain. Also a ticked skill on the courier licence.
+  ///
+  /// In en, this message translates to:
+  /// **'Beat the Captain'**
+  String get tutorialGoalBoss;
+
+  /// Flight school: big shout while the lesson waits for a tap anywhere on the screen to flap.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap!'**
+  String get tutorialPromptTap;
+
+  /// Flight school: big shout next to the Shoot button while the lesson waits for it to be pressed. Shoot is the button's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap Shoot'**
+  String get tutorialPromptShoot;
+
+  /// Flight school: big shout next to the Shoot button: press and keep holding it to charge a power shot, then let go.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold Shoot'**
+  String get tutorialPromptHoldShoot;
+
+  /// Flight school: big shout next to the Sprint button while the lesson waits for it to be pressed. Sprint is the button's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap Sprint'**
+  String get tutorialPromptSprint;
+
+  /// Flight school: pop-up praise when a lesson's goal is met.
+  ///
+  /// In en, this message translates to:
+  /// **'Nice!'**
+  String get tutorialPraiseNice;
+
+  /// Flight school: pop-up praise when a lesson's goal is met (another wording).
+  ///
+  /// In en, this message translates to:
+  /// **'Great!'**
+  String get tutorialPraiseGreat;
+
+  /// Flight school: pop-up praise when a lesson's goal is met (another wording).
+  ///
+  /// In en, this message translates to:
+  /// **'Brilliant!'**
+  String get tutorialPraiseSuper;
+
+  /// Screen reader: flight school has frozen the flight until the player does what it asks. {prompt} is one of the shouts, such as "Tap Shoot".
+  ///
+  /// In en, this message translates to:
+  /// **'The lesson is waiting: {prompt}'**
+  String tutorialWaitingSemantics(String prompt);
+
+  /// End of flight school: title of the card the new courier earns, like a driving licence for mail birds.
+  ///
+  /// In en, this message translates to:
+  /// **'Courier licence'**
+  String get licenceTitle;
+
+  /// Courier licence: who issues it, the club's post office. Same name as in the story.
+  ///
+  /// In en, this message translates to:
+  /// **'Sky Club post'**
+  String get licenceIssuer;
+
+  /// Courier licence: label over the bird's name (the holder).
+  ///
+  /// In en, this message translates to:
+  /// **'Courier'**
+  String get licenceHolder;
+
+  /// Courier licence: label over the holder's rank.
+  ///
+  /// In en, this message translates to:
+  /// **'Rank'**
+  String get licenceRank;
+
+  /// Courier licence: the rank of a brand-new courier.
+  ///
+  /// In en, this message translates to:
+  /// **'Rookie courier'**
+  String get licenceRankRookie;
+
+  /// Courier licence: label over the list of ticked skills learned in flight school.
+  ///
+  /// In en, this message translates to:
+  /// **'Skills'**
+  String get licenceSkills;
+
+  /// Courier licence: word on the round rubber stamp slammed onto the card. Shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Certified'**
+  String get licenceStamp;
+
+  /// Courier licence: the signature line. {name} is Postmaster Bill's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed: {name}'**
+  String licenceSignedBy(String name);
+
+  /// Courier licence: how many stars were collected in the lesson.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 star} other{{count} stars}}'**
+  String licenceStars(int count);
+
+  /// Courier licence: the main button, which opens the campaign map. Excited.
+  ///
+  /// In en, this message translates to:
+  /// **'Start my first route'**
+  String get licenceStart;
+
+  /// Courier licence: smaller button that flies flight school again.
+  ///
+  /// In en, this message translates to:
+  /// **'Fly it again'**
+  String get licenceAgain;
+
+  /// Settings: key that flies the first-time lesson again. Same name as tutorialTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Flight school'**
+  String get settingsTutorial;
+
+  /// Settings: small line on the flight school key.
+  ///
+  /// In en, this message translates to:
+  /// **'Take the first lesson again'**
+  String get settingsTutorialDetail;
 }
 
 class _AppLocalizationsDelegate

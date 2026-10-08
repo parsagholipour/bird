@@ -55,6 +55,7 @@ class StoryScene {
     required this.lines,
     this.region,
     this.boss,
+    this.beaten,
   });
 
   /// Saved once the scene has been watched, so it plays by itself once.
@@ -71,7 +72,12 @@ class StoryScene {
   /// Whether the boss has been beaten by now: the scenes after a chapter
   /// boss (`after-…`) and a guardian's last word (`last-…`). It has lost its
   /// headwear and looks sheepish.
-  bool get bossBeaten => id.startsWith('after-') || id.startsWith('last-');
+  bool get bossBeaten =>
+      beaten ?? (id.startsWith('after-') || id.startsWith('last-'));
+
+  /// Says whether the boss is beaten when the id cannot: flight school's
+  /// last scene, after the rookie captain's retreat. Null goes by the id.
+  final bool? beaten;
 
   /// Whether the scene ends on the closing caption of a stop that leaves
   /// its chapter unfinished ([StoryLine.endOfStop]): New York's last scene,
