@@ -10307,5 +10307,216 @@
   "replayMomentEndDetail": "The end of this flight.",
   "@replayMomentEndDetail": {
     "description": "Flight highlights sheet (replay): line under \"Final moment\" otherwise."
+  },
+  "welcomeTitle": "Choose your language",
+  "@welcomeTitle": {
+    "description": "First launch, the very first screen: title over the list of languages. It cycles through every language, each in its own words, so keep it short and plain.",
+    "x-maxChars": 30
+  },
+  "welcomeContinue": "Let’s fly!",
+  "@welcomeContinue": {
+    "description": "First launch, language screen: the big button that confirms the chosen language and starts flight school (the first lesson). Playful.",
+    "x-maxChars": 18
+  },
+  "welcomeHint": "You can change it any time in Settings.",
+  "@welcomeHint": {
+    "description": "First launch, language screen: small line under the languages.",
+    "x-maxChars": 60
+  },
+  "welcomeDevice": "Your phone’s language",
+  "@welcomeDevice": {
+    "description": "First launch, language screen: small badge on the language that matches the phone's settings.",
+    "x-maxChars": 24
+  },
+  "tutorialTitle": "Flight school",
+  "@tutorialTitle": {
+    "description": "Name of the first-time lesson (tutorial) flown before the campaign: on the pause card, in Settings and on the courier licence. Postmaster Bill teaches it.",
+    "x-maxChars": 22
+  },
+  "tutorialSkip": "Skip lesson",
+  "@tutorialSkip": {
+    "description": "Flight school: key that skips the first-time lesson and goes straight to the campaign map. On the intro and the pause card.",
+    "x-maxChars": 18
+  },
+  "tutorialSkipTitle": "Skip flight school?",
+  "@tutorialSkipTitle": {
+    "description": "Flight school: title of the box that asks whether to skip the lesson.",
+    "x-maxChars": 30
+  },
+  "tutorialSkipBody": "You can take the lesson again any time from Settings.",
+  "@tutorialSkipBody": {
+    "description": "Flight school: text of the box that asks whether to skip the lesson."
+  },
+  "tutorialSkipConfirm": "Skip",
+  "@tutorialSkipConfirm": {
+    "description": "Flight school: confirms skipping the lesson.",
+    "x-maxChars": 14
+  },
+  "tutorialSkipCancel": "Keep learning",
+  "@tutorialSkipCancel": {
+    "description": "Flight school: keeps flying the lesson instead of skipping it.",
+    "x-maxChars": 18
+  },
+  "tutorialRestart": "Start over",
+  "@tutorialRestart": {
+    "description": "Flight school pause card: flies the lesson again from the beginning.",
+    "x-maxChars": 16
+  },
+  "tutorialGoalFlaps": "Flap",
+  "@tutorialGoalFlaps": {
+    "description": "Flight school goal chip: tap to flap a few times. Followed by a count such as 2/3.",
+    "x-maxChars": 20
+  },
+  "tutorialGoalStars": "Collect stars",
+  "@tutorialGoalStars": {
+    "description": "Flight school goal chip: fly through stars. Followed by a count. Also a ticked skill on the courier licence.",
+    "x-maxChars": 20
+  },
+  "tutorialGoalGates": "Fly through gates",
+  "@tutorialGoalGates": {
+    "description": "Flight school goal chip: fly through the gaps in the gates. Followed by a count. Also a ticked skill on the courier licence.",
+    "x-maxChars": 20
+  },
+  "tutorialGoalBats": "Knock out bats",
+  "@tutorialGoalBats": {
+    "description": "Flight school goal chip: shoot pebbles at bats. Followed by a count. Also a ticked skill on the courier licence.",
+    "x-maxChars": 20
+  },
+  "tutorialGoalDoor": "Smash the door",
+  "@tutorialGoalDoor": {
+    "description": "Flight school goal chip: break a stone door with a charged shot. Also a ticked skill on the courier licence.",
+    "x-maxChars": 20
+  },
+  "tutorialGoalSprint": "Sprint",
+  "@tutorialGoalSprint": {
+    "description": "Flight school goal chip: press Sprint once. Also a ticked skill on the courier licence. Same game term as the Sprint button.",
+    "x-maxChars": 20
+  },
+  "tutorialGoalBoss": "Beat the Captain",
+  "@tutorialGoalBoss": {
+    "description": "Flight school goal chip in the boss fight: defeat the Pirate Captain. Also a ticked skill on the courier licence.",
+    "x-maxChars": 20
+  },
+  "tutorialPromptTap": "Tap!",
+  "@tutorialPromptTap": {
+    "description": "Flight school: big shout while the lesson waits for a tap anywhere on the screen to flap.",
+    "x-maxChars": 12
+  },
+  "tutorialPromptShoot": "Tap Shoot",
+  "@tutorialPromptShoot": {
+    "description": "Flight school: big shout next to the Shoot button while the lesson waits for it to be pressed. Shoot is the button's name.",
+    "x-maxChars": 16
+  },
+  "tutorialPromptHoldShoot": "Hold Shoot",
+  "@tutorialPromptHoldShoot": {
+    "description": "Flight school: big shout next to the Shoot button: press and keep holding it to charge a power shot, then let go.",
+    "x-maxChars": 16
+  },
+  "tutorialPromptSprint": "Tap Sprint",
+  "@tutorialPromptSprint": {
+    "description": "Flight school: big shout next to the Sprint button while the lesson waits for it to be pressed. Sprint is the button's name.",
+    "x-maxChars": 16
+  },
+  "tutorialPraiseNice": "Nice!",
+  "@tutorialPraiseNice": {
+    "description": "Flight school: pop-up praise when a lesson's goal is met.",
+    "x-maxChars": 12
+  },
+  "tutorialPraiseGreat": "Great!",
+  "@tutorialPraiseGreat": {
+    "description": "Flight school: pop-up praise when a lesson's goal is met (another wording).",
+    "x-maxChars": 12
+  },
+  "tutorialPraiseSuper": "Brilliant!",
+  "@tutorialPraiseSuper": {
+    "description": "Flight school: pop-up praise when a lesson's goal is met (another wording).",
+    "x-maxChars": 12
+  },
+  "tutorialWaitingSemantics": "The lesson is waiting: {prompt}",
+  "@tutorialWaitingSemantics": {
+    "description": "Screen reader: flight school has frozen the flight until the player does what it asks. {prompt} is one of the shouts, such as \"Tap Shoot\".",
+    "placeholders": {
+      "prompt": {
+        "type": "String",
+        "example": "Tap Shoot"
+      }
+    }
+  },
+  "licenceTitle": "Courier licence",
+  "@licenceTitle": {
+    "description": "End of flight school: title of the card the new courier earns, like a driving licence for mail birds.",
+    "x-maxChars": 22
+  },
+  "licenceIssuer": "Sky Club post",
+  "@licenceIssuer": {
+    "description": "Courier licence: who issues it, the club's post office. Same name as in the story.",
+    "x-maxChars": 22
+  },
+  "licenceHolder": "Courier",
+  "@licenceHolder": {
+    "description": "Courier licence: label over the bird's name (the holder).",
+    "x-maxChars": 14
+  },
+  "licenceRank": "Rank",
+  "@licenceRank": {
+    "description": "Courier licence: label over the holder's rank.",
+    "x-maxChars": 14
+  },
+  "licenceRankRookie": "Rookie courier",
+  "@licenceRankRookie": {
+    "description": "Courier licence: the rank of a brand-new courier.",
+    "x-maxChars": 20
+  },
+  "licenceSkills": "Skills",
+  "@licenceSkills": {
+    "description": "Courier licence: label over the list of ticked skills learned in flight school.",
+    "x-maxChars": 14
+  },
+  "licenceStamp": "Certified",
+  "@licenceStamp": {
+    "description": "Courier licence: word on the round rubber stamp slammed onto the card. Shown in capitals.",
+    "x-maxChars": 12
+  },
+  "licenceSignedBy": "Signed: {name}",
+  "@licenceSignedBy": {
+    "description": "Courier licence: the signature line. {name} is Postmaster Bill's name.",
+    "x-maxChars": 30,
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Postmaster Bill"
+      }
+    }
+  },
+  "licenceStars": "{count, plural, =1{1 star} other{{count} stars}}",
+  "@licenceStars": {
+    "description": "Courier licence: how many stars were collected in the lesson.",
+    "x-maxChars": 14,
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "38"
+      }
+    }
+  },
+  "licenceStart": "Start my first route",
+  "@licenceStart": {
+    "description": "Courier licence: the main button, which opens the campaign map. Excited.",
+    "x-maxChars": 24
+  },
+  "licenceAgain": "Fly it again",
+  "@licenceAgain": {
+    "description": "Courier licence: smaller button that flies flight school again.",
+    "x-maxChars": 18
+  },
+  "settingsTutorial": "Flight school",
+  "@settingsTutorial": {
+    "description": "Settings: key that flies the first-time lesson again. Same name as tutorialTitle.",
+    "x-maxChars": 22
+  },
+  "settingsTutorialDetail": "Take the first lesson again",
+  "@settingsTutorialDetail": {
+    "description": "Settings: small line on the flight school key.",
+    "x-maxChars": 32
   }
 }

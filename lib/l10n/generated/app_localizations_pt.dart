@@ -6472,6 +6472,136 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get replayMomentEndDetail => 'The end of this flight.';
+
+  @override
+  String get welcomeTitle => 'Choose your language';
+
+  @override
+  String get welcomeContinue => 'Let’s fly!';
+
+  @override
+  String get welcomeHint => 'You can change it any time in Settings.';
+
+  @override
+  String get welcomeDevice => 'Your phone’s language';
+
+  @override
+  String get tutorialTitle => 'Flight school';
+
+  @override
+  String get tutorialSkip => 'Skip lesson';
+
+  @override
+  String get tutorialSkipTitle => 'Skip flight school?';
+
+  @override
+  String get tutorialSkipBody =>
+      'You can take the lesson again any time from Settings.';
+
+  @override
+  String get tutorialSkipConfirm => 'Skip';
+
+  @override
+  String get tutorialSkipCancel => 'Keep learning';
+
+  @override
+  String get tutorialRestart => 'Start over';
+
+  @override
+  String get tutorialGoalFlaps => 'Flap';
+
+  @override
+  String get tutorialGoalStars => 'Collect stars';
+
+  @override
+  String get tutorialGoalGates => 'Fly through gates';
+
+  @override
+  String get tutorialGoalBats => 'Knock out bats';
+
+  @override
+  String get tutorialGoalDoor => 'Smash the door';
+
+  @override
+  String get tutorialGoalSprint => 'Sprint';
+
+  @override
+  String get tutorialGoalBoss => 'Beat the Captain';
+
+  @override
+  String get tutorialPromptTap => 'Tap!';
+
+  @override
+  String get tutorialPromptShoot => 'Tap Shoot';
+
+  @override
+  String get tutorialPromptHoldShoot => 'Hold Shoot';
+
+  @override
+  String get tutorialPromptSprint => 'Tap Sprint';
+
+  @override
+  String get tutorialPraiseNice => 'Nice!';
+
+  @override
+  String get tutorialPraiseGreat => 'Great!';
+
+  @override
+  String get tutorialPraiseSuper => 'Brilliant!';
+
+  @override
+  String tutorialWaitingSemantics(String prompt) {
+    return 'The lesson is waiting: $prompt';
+  }
+
+  @override
+  String get licenceTitle => 'Courier licence';
+
+  @override
+  String get licenceIssuer => 'Sky Club post';
+
+  @override
+  String get licenceHolder => 'Courier';
+
+  @override
+  String get licenceRank => 'Rank';
+
+  @override
+  String get licenceRankRookie => 'Rookie courier';
+
+  @override
+  String get licenceSkills => 'Skills';
+
+  @override
+  String get licenceStamp => 'Certified';
+
+  @override
+  String licenceSignedBy(String name) {
+    return 'Signed: $name';
+  }
+
+  @override
+  String licenceStars(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count stars',
+      one: '1 star',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get licenceStart => 'Start my first route';
+
+  @override
+  String get licenceAgain => 'Fly it again';
+
+  @override
+  String get settingsTutorial => 'Flight school';
+
+  @override
+  String get settingsTutorialDetail => 'Take the first lesson again';
 }
 
 /// The translations for Portuguese, as used in Brazil (`pt_BR`).
@@ -13106,4 +13236,134 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
 
   @override
   String get replayMomentEndDetail => 'O fim deste voo.';
+
+  @override
+  String get welcomeTitle => 'Escolha seu idioma';
+
+  @override
+  String get welcomeContinue => 'Bora voar!';
+
+  @override
+  String get welcomeHint => 'Dá para mudar quando quiser em Configurações.';
+
+  @override
+  String get welcomeDevice => 'Idioma do celular';
+
+  @override
+  String get tutorialTitle => 'Escola de Voo';
+
+  @override
+  String get tutorialSkip => 'Pular lição';
+
+  @override
+  String get tutorialSkipTitle => 'Pular a Escola de Voo?';
+
+  @override
+  String get tutorialSkipBody =>
+      'Você pode refazer a lição quando quiser em Configurações.';
+
+  @override
+  String get tutorialSkipConfirm => 'Pular';
+
+  @override
+  String get tutorialSkipCancel => 'Continuar a lição';
+
+  @override
+  String get tutorialRestart => 'Recomeçar';
+
+  @override
+  String get tutorialGoalFlaps => 'Bata as asas';
+
+  @override
+  String get tutorialGoalStars => 'Colete estrelas';
+
+  @override
+  String get tutorialGoalGates => 'Passe nos portais';
+
+  @override
+  String get tutorialGoalBats => 'Derrube morcegos';
+
+  @override
+  String get tutorialGoalDoor => 'Quebre a porta';
+
+  @override
+  String get tutorialGoalSprint => 'Use o Turbo';
+
+  @override
+  String get tutorialGoalBoss => 'Vença o Capitão';
+
+  @override
+  String get tutorialPromptTap => 'Toque!';
+
+  @override
+  String get tutorialPromptShoot => 'Toque em Atirar';
+
+  @override
+  String get tutorialPromptHoldShoot => 'Segure Atirar';
+
+  @override
+  String get tutorialPromptSprint => 'Toque em Turbo';
+
+  @override
+  String get tutorialPraiseNice => 'Boa!';
+
+  @override
+  String get tutorialPraiseGreat => 'Mandou bem!';
+
+  @override
+  String get tutorialPraiseSuper => 'Brilhante!';
+
+  @override
+  String tutorialWaitingSemantics(String prompt) {
+    return 'A lição está esperando: $prompt';
+  }
+
+  @override
+  String get licenceTitle => 'Licença de carteiro';
+
+  @override
+  String get licenceIssuer => 'Correio do Clube';
+
+  @override
+  String get licenceHolder => 'Carteiro';
+
+  @override
+  String get licenceRank => 'Cargo';
+
+  @override
+  String get licenceRankRookie => 'Carteiro aprendiz';
+
+  @override
+  String get licenceSkills => 'Habilidades';
+
+  @override
+  String get licenceStamp => 'Aprovado';
+
+  @override
+  String licenceSignedBy(String name) {
+    return 'Assinado: $name';
+  }
+
+  @override
+  String licenceStars(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count estrelas',
+      one: '1 estrela',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get licenceStart => 'Minha primeira rota!';
+
+  @override
+  String get licenceAgain => 'Voar de novo';
+
+  @override
+  String get settingsTutorial => 'Escola de Voo';
+
+  @override
+  String get settingsTutorialDetail => 'Refazer a primeira lição';
 }

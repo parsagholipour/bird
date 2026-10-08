@@ -6684,4 +6684,135 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get replayMomentEndDetail => 'La fin de ce vol.';
+
+  @override
+  String get welcomeTitle => 'Choisis ta langue';
+
+  @override
+  String get welcomeContinue => 'On s’envole !';
+
+  @override
+  String get welcomeHint =>
+      'Tu peux la changer à tout moment dans les Réglages.';
+
+  @override
+  String get welcomeDevice => 'Langue du téléphone';
+
+  @override
+  String get tutorialTitle => 'École de vol';
+
+  @override
+  String get tutorialSkip => 'Passer la leçon';
+
+  @override
+  String get tutorialSkipTitle => 'Passer l’école de vol ?';
+
+  @override
+  String get tutorialSkipBody =>
+      'Tu pourras refaire la leçon à tout moment depuis les Réglages.';
+
+  @override
+  String get tutorialSkipConfirm => 'Passer';
+
+  @override
+  String get tutorialSkipCancel => 'Continuer la leçon';
+
+  @override
+  String get tutorialRestart => 'Recommencer';
+
+  @override
+  String get tutorialGoalFlaps => 'Bats des ailes';
+
+  @override
+  String get tutorialGoalStars => 'Attrape les étoiles';
+
+  @override
+  String get tutorialGoalGates => 'Passe les portes';
+
+  @override
+  String get tutorialGoalBats => 'Chauves-souris K.-O.';
+
+  @override
+  String get tutorialGoalDoor => 'Brise la dalle';
+
+  @override
+  String get tutorialGoalSprint => 'Utilise le Sprint';
+
+  @override
+  String get tutorialGoalBoss => 'Bats le Capitaine';
+
+  @override
+  String get tutorialPromptTap => 'Touche !';
+
+  @override
+  String get tutorialPromptShoot => 'Touche Tirer';
+
+  @override
+  String get tutorialPromptHoldShoot => 'Maintiens Tirer';
+
+  @override
+  String get tutorialPromptSprint => 'Touche Sprint';
+
+  @override
+  String get tutorialPraiseNice => 'Bien joué !';
+
+  @override
+  String get tutorialPraiseGreat => 'Super !';
+
+  @override
+  String get tutorialPraiseSuper => 'Génial !';
+
+  @override
+  String tutorialWaitingSemantics(String prompt) {
+    return 'La leçon t’attend : $prompt';
+  }
+
+  @override
+  String get licenceTitle => 'Permis de facteur';
+
+  @override
+  String get licenceIssuer => 'Poste du Club du Ciel';
+
+  @override
+  String get licenceHolder => 'Facteur';
+
+  @override
+  String get licenceRank => 'Grade';
+
+  @override
+  String get licenceRankRookie => 'Jeune recrue';
+
+  @override
+  String get licenceSkills => 'Compétences';
+
+  @override
+  String get licenceStamp => 'Certifié';
+
+  @override
+  String licenceSignedBy(String name) {
+    return 'Signé : $name';
+  }
+
+  @override
+  String licenceStars(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count étoiles',
+      one: '$count étoile',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get licenceStart => 'Ma première route !';
+
+  @override
+  String get licenceAgain => 'Rejouer la leçon';
+
+  @override
+  String get settingsTutorial => 'École de vol';
+
+  @override
+  String get settingsTutorialDetail => 'Refaire la première leçon';
 }

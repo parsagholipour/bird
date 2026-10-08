@@ -61,6 +61,7 @@ class SkyBoss {
     this.fasterNeferhoo = false,
     this.wilderNeferhoo = false,
     this.quickRestart = false,
+    this.rookie = false,
     int? maxHp,
   }) : maxHp = maxHp ?? healthFor(kind, number) {
     if (this.maxHp <= 0) throw ArgumentError.value(this.maxHp, 'maxHp');
@@ -258,6 +259,16 @@ class SkyBoss {
   /// restarts.
   final bool quickRestart;
 
+  /// Flight school's Pirate Captain ([FlightPlan.rookieBoss]): a staged
+  /// fight with [rookieHp] health, slower cannonballs fired less often, one
+  /// ball at a time until his fury (then a pair now and then, never a
+  /// broadside). His tide is the same, so the lesson is the real one. Only
+  /// a staged pirate is ever a rookie; every recorded flight has none.
+  final bool rookie;
+
+  /// The rookie captain's health: about two dozen pebbles.
+  static const rookieHp = 240;
+
   /// 0, the warm-up, above two thirds of its health (only a staged boss has
   /// one); 1, the full fight; 2, fury ([enraged]).
   int get stage => enraged
@@ -384,6 +395,7 @@ class SkyBoss {
   /// A campaign-only guardian: King Coo, the Searchlight Gargoyle or
   /// Neferhoo.
   bool get isMiniBoss => kind.campaignOnly;
+
   /// English twins: screens show `AppLocalizations.bossName(kind)` and
   /// `bossTitle(boss)` (lib/l10n/text/), tests and logs read these.
   String get name => switch (kind) {
@@ -413,7 +425,12 @@ class SkyBoss {
     BossKind.spitterBeetle => enraged ? .66 : (calm ? .5 : .56),
     BossKind.duskMoth => enraged ? .72 : (calm ? .56 : .62),
     // Horizontal speed only: cannonballs fly on a ballistic arc.
-    BossKind.pirate => enraged ? .6 : (calm ? .46 : .5),
+    BossKind.pirate =>
+      rookie
+          ? (enraged ? .46 : (calm ? .38 : .42))
+          : enraged
+          ? .6
+          : (calm ? .46 : .5),
     BossKind.dragon => enraged ? .62 : (calm ? .48 : .52),
     // King Coo fires no shots. The Gargoyle's stone feathers fly at this
     // horizontal speed, level ones aimed low faster (see
@@ -430,7 +447,12 @@ class SkyBoss {
     BossKind.baronBat => enraged ? 1.55 : (calm ? 2.6 : 2.15),
     BossKind.spitterBeetle => enraged ? 1.3 : (calm ? 2.3 : 1.8),
     BossKind.duskMoth => enraged ? 1.2 : (calm ? 2.1 : 1.65),
-    BossKind.pirate => enraged ? 1.5 : (calm ? 2.6 : 2.1),
+    BossKind.pirate =>
+      rookie
+          ? (enraged ? 2.3 : (calm ? 3.2 : 2.8))
+          : enraged
+          ? 1.5
+          : (calm ? 2.6 : 2.1),
     BossKind.dragon => enraged ? 1.55 : (calm ? 2.5 : 2.0),
     // The mini-bosses never fire volleys: their attacks run on fixed cycles.
     BossKind.kingCoo ||
@@ -482,6 +504,8 @@ class SkyBoss {
     // shot at the bird, then a pair that brackets it. Fury adds a wide
     // broadside every third volley, but never while the tide squeezes the
     // sky, so a surge always leaves room between the balls.
+    BossKind.pirate when rookie =>
+      enraged && volleys.isOdd ? const [-.18, .18] : const [0],
     BossKind.pirate => switch (volleys % (enraged ? 3 : 2)) {
       0 => const [0],
       2 when tide == 0 => const [-.26, 0, .26],
@@ -635,14 +659,15 @@ class SkyBoss {
     return seaLevel + (tidePeak - seaLevel) * tide;
   }
 
-  String get tideHint => (tideWarning > 0
-          ? BossHint.tideRising
-          : tide > 0
-          ? BossHint.highTide
-          : enraged
-          ? BossHint.tideFury
-          : BossHint.tideCalm)
-      .english;
+  String get tideHint =>
+      (tideWarning > 0
+              ? BossHint.tideRising
+              : tide > 0
+              ? BossHint.highTide
+              : enraged
+              ? BossHint.tideFury
+              : BossHint.tideCalm)
+          .english;
 
   /// Cannon launch toward a point [dy] below the bird's height, from the
   /// captain's current position: the barrel angle, the muzzle and the
@@ -1303,18 +1328,19 @@ class SkyBoss {
                 shieldWarningSeconds)
             .clamp(0.0, 1.0)
       : 0;
-  String get shieldHint => (!hasShield
-          ? enraged
-                ? BossHint.mothFuryNoVeil
-                : BossHint.mothNoVeil
-          : shielded
-          ? BossHint.mothShielded
-          : shieldWarning > 0
-          ? BossHint.mothShieldForming
-          : enraged
-          ? BossHint.mothFury
-          : BossHint.mothCalm)
-      .english;
+  String get shieldHint =>
+      (!hasShield
+              ? enraged
+                    ? BossHint.mothFuryNoVeil
+                    : BossHint.mothNoVeil
+              : shielded
+              ? BossHint.mothShielded
+              : shieldWarning > 0
+              ? BossHint.mothShieldForming
+              : enraged
+              ? BossHint.mothFury
+              : BossHint.mothCalm)
+          .english;
   static const arrivalSeconds = 2.5, departureSeconds = 2.0;
   static const revealAt = 1.65, roarAt = 2.65, burstAt = .85;
   final bool cinematic;

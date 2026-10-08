@@ -6472,6 +6472,136 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get replayMomentEndDetail => 'The end of this flight.';
+
+  @override
+  String get welcomeTitle => 'Choose your language';
+
+  @override
+  String get welcomeContinue => 'Let’s fly!';
+
+  @override
+  String get welcomeHint => 'You can change it any time in Settings.';
+
+  @override
+  String get welcomeDevice => 'Your phone’s language';
+
+  @override
+  String get tutorialTitle => 'Flight school';
+
+  @override
+  String get tutorialSkip => 'Skip lesson';
+
+  @override
+  String get tutorialSkipTitle => 'Skip flight school?';
+
+  @override
+  String get tutorialSkipBody =>
+      'You can take the lesson again any time from Settings.';
+
+  @override
+  String get tutorialSkipConfirm => 'Skip';
+
+  @override
+  String get tutorialSkipCancel => 'Keep learning';
+
+  @override
+  String get tutorialRestart => 'Start over';
+
+  @override
+  String get tutorialGoalFlaps => 'Flap';
+
+  @override
+  String get tutorialGoalStars => 'Collect stars';
+
+  @override
+  String get tutorialGoalGates => 'Fly through gates';
+
+  @override
+  String get tutorialGoalBats => 'Knock out bats';
+
+  @override
+  String get tutorialGoalDoor => 'Smash the door';
+
+  @override
+  String get tutorialGoalSprint => 'Sprint';
+
+  @override
+  String get tutorialGoalBoss => 'Beat the Captain';
+
+  @override
+  String get tutorialPromptTap => 'Tap!';
+
+  @override
+  String get tutorialPromptShoot => 'Tap Shoot';
+
+  @override
+  String get tutorialPromptHoldShoot => 'Hold Shoot';
+
+  @override
+  String get tutorialPromptSprint => 'Tap Sprint';
+
+  @override
+  String get tutorialPraiseNice => 'Nice!';
+
+  @override
+  String get tutorialPraiseGreat => 'Great!';
+
+  @override
+  String get tutorialPraiseSuper => 'Brilliant!';
+
+  @override
+  String tutorialWaitingSemantics(String prompt) {
+    return 'The lesson is waiting: $prompt';
+  }
+
+  @override
+  String get licenceTitle => 'Courier licence';
+
+  @override
+  String get licenceIssuer => 'Sky Club post';
+
+  @override
+  String get licenceHolder => 'Courier';
+
+  @override
+  String get licenceRank => 'Rank';
+
+  @override
+  String get licenceRankRookie => 'Rookie courier';
+
+  @override
+  String get licenceSkills => 'Skills';
+
+  @override
+  String get licenceStamp => 'Certified';
+
+  @override
+  String licenceSignedBy(String name) {
+    return 'Signed: $name';
+  }
+
+  @override
+  String licenceStars(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count stars',
+      one: '1 star',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get licenceStart => 'Start my first route';
+
+  @override
+  String get licenceAgain => 'Fly it again';
+
+  @override
+  String get settingsTutorial => 'Flight school';
+
+  @override
+  String get settingsTutorialDetail => 'Take the first lesson again';
 }
 
 /// The translations for English (`en_XA`).
@@ -13120,4 +13250,136 @@ class AppLocalizationsEnXa extends AppLocalizationsEn {
 
   @override
   String get replayMomentEndDetail => '[Théé éñð ööƒ thíš ƒłííght.~~~~~]';
+
+  @override
+  String get welcomeTitle => '[Çhöööšéé ýöüür łáñgüüágéé~~~]';
+
+  @override
+  String get welcomeContinue => '[Łéét’š ƒłý!~~]';
+
+  @override
+  String get welcomeHint =>
+      '[Ýööü çááñ çháñgéé ít ááñý tíméé íñ Šééttíñgš.~~~~~~~]';
+
+  @override
+  String get welcomeDevice => '[Ýööür þhööñé’š łááñgüáágé~~~~]';
+
+  @override
+  String get tutorialTitle => '[Fłííght šçhöööł~~~]';
+
+  @override
+  String get tutorialSkip => '[Škííþ łéššööñ~~]';
+
+  @override
+  String get tutorialSkipTitle => '[Škííþ ƒłíght šçhöööł?~~~~~]';
+
+  @override
+  String get tutorialSkipBody =>
+      '[Ýööü çááñ tákéé thé łééššöñ áágáííñ áñý tíímé ƒrööm Šéttííñgš.~~~~~~~~~]';
+
+  @override
+  String get tutorialSkipConfirm => '[Škííþ~]';
+
+  @override
+  String get tutorialSkipCancel => '[Kéééþ łééárñííñg~~]';
+
+  @override
+  String get tutorialRestart => '[Štáárt övéér~~]';
+
+  @override
+  String get tutorialGoalFlaps => '[Fłááþ~]';
+
+  @override
+  String get tutorialGoalStars => '[Çööłłéçt štáárš~~~]';
+
+  @override
+  String get tutorialGoalGates => '[Fłý thrööügh gáátéš~~~~]';
+
+  @override
+  String get tutorialGoalBats => '[Kñööçk öüüt bátš~~~]';
+
+  @override
+  String get tutorialGoalDoor => '[Šmáášh thé ðööör~~~]';
+
+  @override
+  String get tutorialGoalSprint => '[Šþrííñt~~]';
+
+  @override
+  String get tutorialGoalBoss => '[Bééát théé Çáþtááíñ~~~]';
+
+  @override
+  String get tutorialPromptTap => '[Tááþ!~]';
+
+  @override
+  String get tutorialPromptShoot => '[Tááþ Šhöööt~~]';
+
+  @override
+  String get tutorialPromptHoldShoot => '[Hööłð Šhöööt~~]';
+
+  @override
+  String get tutorialPromptSprint => '[Tááþ Šþríñt~~~]';
+
+  @override
+  String get tutorialPraiseNice => '[Ñííçé!~]';
+
+  @override
+  String get tutorialPraiseGreat => '[Grééát!~]';
+
+  @override
+  String get tutorialPraiseSuper => '[Brííłłíááñt!~~]';
+
+  @override
+  String tutorialWaitingSemantics(String prompt) {
+    return '[Théé łéššööñ íš wááítííñg: $prompt~~~~~]';
+  }
+
+  @override
+  String get licenceTitle => '[Çööürííér łííçéñçéé~~]';
+
+  @override
+  String get licenceIssuer => '[Šký Çłüüb þöšt~~~~]';
+
+  @override
+  String get licenceHolder => '[Çööürííér~]';
+
+  @override
+  String get licenceRank => '[Rááñk~]';
+
+  @override
+  String get licenceRankRookie => '[Rööökííé çööürííér~~]';
+
+  @override
+  String get licenceSkills => '[Škííłłš~~]';
+
+  @override
+  String get licenceStamp => '[Çéértíƒííéð~~]';
+
+  @override
+  String licenceSignedBy(String name) {
+    return '[Šíígñéð: $name~~~]';
+  }
+
+  @override
+  String licenceStars(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count štárš',
+      one: '1 štáár',
+    );
+    return '[$_temp0~~~~]';
+  }
+
+  @override
+  String get licenceStart => '[Štáárt mý ƒíršt rööütéé~~~~]';
+
+  @override
+  String get licenceAgain => '[Fłý íít ágááíñ~~]';
+
+  @override
+  String get settingsTutorial => '[Fłííght šçhöööł~~~]';
+
+  @override
+  String get settingsTutorialDetail =>
+      '[Tááké théé ƒíršt łééššöñ áágáííñ~~~~~]';
 }

@@ -108,6 +108,16 @@ abstract class FlightPlan {
   /// Whether a heart pickup follows each boss victory.
   bool get heartPickups;
 
+  /// Flight school ([TutorialPlan]): the last heart is never lost, so a
+  /// first flight can bump and learn but never be knocked out. Every
+  /// other plan is false, so no recorded flight changes.
+  bool get forgiving => false;
+
+  /// Flight school's boss fights its rookie fight ([SkyBoss.rookie]): far
+  /// less health, slower and fewer shots and a gentler tide. Every other
+  /// plan is false.
+  bool get rookieBoss => false;
+
   /// When the first rush path runs and how long one waits after a boss or
   /// a gale, on the schedule clock.
   double get firstRushAt;

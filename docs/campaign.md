@@ -30,6 +30,11 @@ The story is told between flights, never during one:
 - one line from each boss on its entrance name card, under the epithet;
 - one illustrated postcard after each chapter.
 
+Before the first route a new player flies **flight school**
+([tutorial.md](tutorial.md)): Bill's one lesson over the bay, ending with a
+rookie fight against the Pirate Captain, who sails off promising to return
+(chapter 4). The prologue follows on the map.
+
 Every scene can be skipped, and a player who skips them all still sees the
 progress: the map fills with stars, routes unlock and each chapter ends with
 a postcard.

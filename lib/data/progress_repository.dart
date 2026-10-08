@@ -277,7 +277,16 @@ const birdDescriptions = [
   'A dreamy owl who flies by starlight.',
 ];
 
-enum SettingKey { music, effects, voices, reducedMotion, recordAudio }
+enum SettingKey {
+  music,
+  effects,
+  voices,
+  reducedMotion,
+  recordAudio,
+
+  /// Flight school has been flown or skipped (docs/tutorial.md).
+  tutorialDone,
+}
 
 class GameSettings {
   const GameSettings({
@@ -288,8 +297,15 @@ class GameSettings {
     this.voices = true,
     this.bird = firstBird,
     this.language,
+    this.tutorialDone = false,
   });
   final bool music, effects, reducedMotion, recordAudio;
+
+  /// Whether flight school, the first-time lesson, has been flown to its
+  /// end or skipped. Until then a new player's first launch opens the
+  /// language screen and the lesson (`firstLaunchRoute`). A device
+  /// setting, like the others.
+  final bool tutorialDone;
 
   /// The language chosen in Settings, or null to follow the device
   /// (lib/l10n/language_providers.dart). A device setting: it never syncs,
@@ -682,6 +698,7 @@ class SqliteProgressRepository implements ProgressRepository {
         recordAudio: prefs['recordAudio'] == 'true',
         voices: prefs['voices'] != 'false',
         language: AppLanguage.fromTag(prefs[_languageKey]),
+        tutorialDone: prefs[SettingKey.tutorialDone.name] == 'true',
         // A locked bird left equipped (from before birds cost stars) gives
         // way to Minty until it is bought.
         bird: unlocked.contains(selected) ? selected : firstBird,

@@ -1314,6 +1314,10 @@ class FlightSimulation {
   int score = 0, repetitions = 0, flaps = 0;
   int gates = 0, collectedStars = 0, combo = 0, bestCombo = 0;
   int completedTrios = 0;
+
+  /// Knockouts a forgiving plan ([FlightPlan.forgiving]) caught: each
+  /// left the bird its last heart.
+  int fallsCaught = 0;
   static const maxHearts = 5;
   int perfectPasses = 0, perfectStreak = 0;
 
@@ -2666,6 +2670,8 @@ class FlightSimulation {
       final staged = supportsBossStages;
       final upgraded =
           supportsUpgradedBaron && kind == BossKind.baronBat && !debut;
+      // Flight school's captain fights his rookie fight.
+      final rookie = staged && kind == BossKind.pirate && plan.rookieBoss;
       boss = SkyBoss(
         number: number,
         x: viewportWidth + .3,
@@ -2683,7 +2689,10 @@ class FlightSimulation {
         fasterNeferhoo: supportsFasterNeferhoo && kind == BossKind.neferhoo,
         wilderNeferhoo: supportsWilderNeferhoo && kind == BossKind.neferhoo,
         quickRestart: supportsCooRestart && kind == BossKind.kingCoo,
-        maxHp: staged
+        rookie: rookie,
+        maxHp: rookie
+            ? SkyBoss.rookieHp
+            : staged
             ? SkyBoss.campaignHealthFor(
                 kind,
                 tougherCoo: supportsTougherCoo,
@@ -3891,7 +3900,12 @@ class FlightSimulation {
     } else {
       hearts--;
       _event(FlightEventKind.hit);
-      if (hearts <= 0) {
+      if (hearts <= 0 && plan.forgiving) {
+        // Flight school catches the bird: the hit still counts, the
+        // knockout never comes.
+        hearts = 1;
+        fallsCaught++;
+      } else if (hearts <= 0) {
         if (duel) {
           _view.downAt = elapsed;
         } else {

@@ -6298,4 +6298,133 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get replayMomentEndDetail => '이번 비행의 끝.';
+
+  @override
+  String get welcomeTitle => '언어를 골라 주세요';
+
+  @override
+  String get welcomeContinue => '날아 보자!';
+
+  @override
+  String get welcomeHint => '설정에서 언제든지 바꿀 수 있어요.';
+
+  @override
+  String get welcomeDevice => '휴대폰 언어';
+
+  @override
+  String get tutorialTitle => '비행 학교';
+
+  @override
+  String get tutorialSkip => '수업 건너뛰기';
+
+  @override
+  String get tutorialSkipTitle => '비행 학교를 건너뛸까요?';
+
+  @override
+  String get tutorialSkipBody => '수업은 설정에서 언제든 다시 들을 수 있어요.';
+
+  @override
+  String get tutorialSkipConfirm => '건너뛰기';
+
+  @override
+  String get tutorialSkipCancel => '계속 배우기';
+
+  @override
+  String get tutorialRestart => '처음부터';
+
+  @override
+  String get tutorialGoalFlaps => '날갯짓';
+
+  @override
+  String get tutorialGoalStars => '별 모으기';
+
+  @override
+  String get tutorialGoalGates => '관문 통과';
+
+  @override
+  String get tutorialGoalBats => '박쥐 물리치기';
+
+  @override
+  String get tutorialGoalDoor => '돌문 부수기';
+
+  @override
+  String get tutorialGoalSprint => '대시';
+
+  @override
+  String get tutorialGoalBoss => '선장 물리치기';
+
+  @override
+  String get tutorialPromptTap => '탭!';
+
+  @override
+  String get tutorialPromptShoot => '발사를 탭';
+
+  @override
+  String get tutorialPromptHoldShoot => '발사 꾹 누르기';
+
+  @override
+  String get tutorialPromptSprint => '대시를 탭';
+
+  @override
+  String get tutorialPraiseNice => '좋아요!';
+
+  @override
+  String get tutorialPraiseGreat => '멋져요!';
+
+  @override
+  String get tutorialPraiseSuper => '훌륭해요!';
+
+  @override
+  String tutorialWaitingSemantics(String prompt) {
+    return '수업이 기다리는 중: $prompt';
+  }
+
+  @override
+  String get licenceTitle => '배달부 면허증';
+
+  @override
+  String get licenceIssuer => '하늘 클럽 우체국';
+
+  @override
+  String get licenceHolder => '배달부';
+
+  @override
+  String get licenceRank => '등급';
+
+  @override
+  String get licenceRankRookie => '신참 배달부';
+
+  @override
+  String get licenceSkills => '기술';
+
+  @override
+  String get licenceStamp => '인증';
+
+  @override
+  String licenceSignedBy(String name) {
+    return '서명: $name';
+  }
+
+  @override
+  String licenceStars(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '별 $count개',
+      one: '별 1개',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get licenceStart => '첫 항로로 출발!';
+
+  @override
+  String get licenceAgain => '다시 날기';
+
+  @override
+  String get settingsTutorial => '비행 학교';
+
+  @override
+  String get settingsTutorialDetail => '첫 수업 다시 듣기';
 }

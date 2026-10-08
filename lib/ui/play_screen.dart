@@ -20,7 +20,11 @@ import '../domain/campaign.dart';
 import '../domain/campaign_progress.dart';
 import '../domain/game_rules.dart';
 import '../domain/tracking.dart';
+import '../domain/tutorial.dart';
 import '../game/audio.dart';
+import '../game/campaign_voices.dart';
+import '../domain/tutorial_story.dart';
+import '../game/sound_bank.dart';
 import '../game/bird_game.dart';
 import '../game/finish_celebration_art.dart';
 import '../game/finish_gate_art.dart';
@@ -46,6 +50,8 @@ import 'mini_results.dart';
 import 'keyboard.dart';
 import 'pause_card.dart';
 import 'ui_sounds.dart';
+import 'tutorial_coach.dart';
+import 'tutorial_finale.dart';
 import '../l10n/l10n.dart';
 import '../l10n/text/boss_text.dart';
 import '../l10n/text/builder_shelf_text.dart';
@@ -58,8 +64,14 @@ class PlayScreen extends ConsumerStatefulWidget {
     this.course = FlightCourse.starTrail,
     this.level,
     this.built,
+    this.tutorial = false,
   });
   final FlightCourse course;
+
+  /// Flight school, the first-time lesson ([TutorialPlan]): a Tap & Fly
+  /// flight of its own route with Postmaster Bill coaching over it
+  /// ([TutorialCoachLayer]), saved nowhere, and its own finale.
+  final bool tutorial;
   final PlayMode mode;
 
   /// The campaign level to fly (a scored touch flight), or null for
@@ -124,14 +136,56 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
   String? initialDailyKey;
   bool initialDailyComplete = false;
 
+  /// Flight school's coach as last heard: its line, its praise and whether
+  /// it held the moment, so each new one sounds once.
+  int _coachLines = 0, _coachPraises = 0;
+  bool _coachHeld = false;
+
+  /// Flight school's reserved cues (docs/tutorial.md): each plays its own
+  /// recording once it is in the sound bank, an existing cue until then.
+  static String _cue(String reserved, String stand) =>
+      soundBank.containsKey(reserved) ? reserved : stand;
+
+  /// Voices Bill's new line, chimes a goal met and marks a held moment.
+  void _coachCues() {
+    final coach = controller.coach;
+    if (coach == null) return;
+    if (coach.lineCount != _coachLines) {
+      _coachLines = coach.lineCount;
+      if (coach.line case final line?) {
+        final voice = CampaignVoices.line(
+          TutorialStory.coach(line),
+          0,
+          bird: controller.bird,
+        );
+        if (voice != null) audio.speak(voice);
+      }
+    }
+    if (coach.praises != _coachPraises) {
+      _coachPraises = coach.praises;
+      audio.effect(
+        coach.lesson == TutorialLesson.victory
+            ? _cue('tutorial_victory', 'unlock')
+            : _cue('tutorial_goal', 'perfect'),
+      );
+    }
+    if (coach.holding && !_coachHeld) {
+      audio.effect(_cue('tutorial_hold', 'ready'));
+    }
+    _coachHeld = coach.holding;
+  }
+
   /// The keyboard's shot key while it is held: the shot charges until it is
   /// let go.
   LogicalKeyboardKey? _shotKey;
 
   /// A campaign or built level flies to its region's song; endless keeps
   /// the flight's.
-  SkyMusic get music =>
-      SkyMusic.flightOver(widget.level?.region ?? widget.built?.plan.region);
+  SkyMusic get music => SkyMusic.flightOver(
+    widget.level?.region ??
+        widget.built?.plan.region ??
+        (widget.tutorial ? TutorialPlan.course.region : null),
+  );
 
   /// Where leaving a built flight goes: back to the editor after a test,
   /// else the builder.
@@ -167,7 +221,10 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       mode: widget.mode,
       course: widget.course,
       level: widget.level,
-      built: widget.built,
+      built:
+          widget.built ??
+          (widget.tutorial ? BuiltFlight(TutorialPlan.level) : null),
+      coach: widget.tutorial ? TutorialCoach() : null,
       // A test flight stands in for the camera with the touch screen.
       source: widget.mode == PlayMode.touch || (widget.built?.test ?? false)
           ? null
@@ -183,10 +240,13 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
           .read(progressProvider.notifier)
           .setting(SettingKey.recordAudio, value),
       saveSession: (session) async {
+        // Flight school is saved nowhere.
+        if (widget.tutorial) return;
         await ref.read(sessionRepositoryProvider).save(session);
         ref.invalidate(sessionsProvider);
       },
       saveRun: (run) async {
+        if (widget.tutorial) return;
         _saving = true;
         try {
           await (widget.built == null
@@ -254,6 +314,8 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
       previousShield = true;
       previousCount = 4;
       awardSoundPlayed = false;
+      _coachLines = _coachPraises = 0;
+      _coachHeld = false;
       final progress = ref.read(progressProvider).asData?.value;
       initialBest = widget.built != null
           ? 0
@@ -296,11 +358,15 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         finish: () => controller.celebration,
         // The celebrating bird lands where the result's courier sits (a
         // built level's result seats its courier in the same place).
-        seat: widget.level == null && widget.built == null
+        seat: widget.level == null && widget.built == null && !widget.tutorial
             ? null
             : (size) => LevelResultStage.courierSeat(size, _safe),
         speech: () => controller.speech,
       );
+    }
+    _coachCues();
+    if (widget.tutorial && controller.stage == PlayStage.results) {
+      unawaited(_graduate());
     }
     if (sim != null) {
       // Reaching a level's collection mark chimes, and a level never
@@ -438,15 +504,35 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     if (_calm != null) ref.read(playGamesProvider.notifier).calm = false;
     passing = controller.stage == PlayStage.flying;
     await controller.exit();
+    // Leaving flight school for the map, by its end or by Skip, is done
+    // with it; only flying it again is not.
+    final to = destination ?? (widget.tutorial ? '/campaign' : null);
+    if (widget.tutorial && to == '/campaign') await _graduate();
     if (mounted) {
       context.go(
-        destination ??
+        to ??
             (widget.built != null
                 ? _builtHome
                 : widget.level == null
                 ? '/'
                 : '/campaign'),
       );
+    }
+  }
+
+  bool _graduated = false;
+
+  /// Remembers that flight school is done, so a first launch never opens it
+  /// again (a player can still fly it from Settings).
+  Future<void> _graduate() async {
+    if (_graduated) return;
+    _graduated = true;
+    try {
+      await ref
+          .read(progressProvider.notifier)
+          .setting(SettingKey.tutorialDone, true);
+    } catch (error) {
+      debugPrint('Flight school: $error');
     }
   }
 
@@ -501,6 +587,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     // A built level's result stages over every ending, a bump's too.
     final built = widget.built;
     final builtResult = built != null && stage == PlayStage.results;
+    final tutorialResult = widget.tutorial && stage == PlayStage.results;
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
@@ -508,6 +595,16 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
         // Back during a level's celebration goes on to its result.
         if (controller.stage == PlayStage.celebrating) {
           controller.endCelebration();
+        } else if (widget.tutorial && controller.stage == PlayStage.flying) {
+          // Flight school pauses: its card offers the way out.
+          if (controller.simulation?.phase == RunPhase.paused) {
+            unawaited(controller.resume());
+          } else {
+            controller.pause();
+          }
+        } else if (widget.tutorial) {
+          // Back from the finale goes on to the map, as its key does.
+          unawaited(leave('/campaign'));
         } else {
           unawaited(leave());
         }
@@ -553,7 +650,8 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                       if (stage == PlayStage.results &&
                           !knockedOut &&
                           level == null &&
-                          built == null)
+                          built == null &&
+                          !widget.tutorial)
                         _results(p),
                     ],
                   ),
@@ -564,7 +662,8 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                     knockedOut &&
                         (stage == PlayStage.fallen ||
                             stage == PlayStage.results) ||
-                    (levelResult || builtResult) && game != null)
+                    (levelResult || builtResult || tutorialResult) &&
+                        game != null)
                   Positioned.fill(child: _flight()),
                 if (stage == PlayStage.fallen && knockedOut)
                   Positioned.fill(child: _knockoutSkip()),
@@ -583,6 +682,21 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
                       initialDailyComplete: initialDailyComplete,
                       onLeave: leave,
                       splash: KnockoutArt.atSea(controller.simulation!),
+                    ),
+                  ),
+                if (tutorialResult && !passing)
+                  Positioned.fill(
+                    child: TutorialFinale(
+                      key: ValueKey(controller.result!.id),
+                      coach: controller.coach!,
+                      stars: controller.simulation?.collectedStars ?? 0,
+                      bird: p.settings.bird,
+                      voices: p.settings.voices,
+                      reducedMotion: controller.reducedMotion,
+                      onStart: () => leave('/campaign'),
+                      onAgain: () => leave(
+                        '/tutorial/fly?again=${DateTime.now().millisecondsSinceEpoch}',
+                      ),
                     ),
                   ),
                 if (builtResult && !passing)
@@ -1523,6 +1637,20 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
               child: FlightDirection(child: SceneLayout(child: _flightHud())),
             ),
           ),
+        // Flight school's coach over the HUD, never taking a touch.
+        if (controller.coach case final coach?
+            when controller.stage == PlayStage.flying &&
+                sim.phase != RunPhase.paused &&
+                !sim.bossCutscene)
+          FlightDirection(
+            child: SceneLayout(
+              child: TutorialCoachLayer(
+                coach: coach,
+                bird: controller.bird,
+                reducedMotion: controller.reducedMotion,
+              ),
+            ),
+          ),
         // A test of a push-up or squat level steers by the finger's height;
         // a rail down the edge shows the range and where the bird is.
         if (controller.testFly &&
@@ -1884,41 +2012,51 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
           ),
         // A level may hold Shoot and Sprint back; endless offers both. The
         // bird coasts through a boss level's victory glide without them.
-        if (sim.offersShoot && !sim.victoryGlide)
+        if (sim.offersShoot &&
+            !sim.victoryGlide &&
+            _taught(TutorialLesson.shoot))
           Positioned(
             right: edge,
             bottom: bottom,
-            child: MatchShotButton(
-              key: const ValueKey('touch-shoot'),
-              label: l.hudShoot,
-              reserve: sim.ammo,
-              charge: sim.shotCharge,
-              spend: sim.charging && !sim.outOfAmmo ? sim.shotCost : 0,
-              hold: sim.fullHoldLeft,
-              limit: sim.maxCharge,
-              charging: sim.charging,
-              empty: sim.outOfAmmo,
-              onPress: sim.phase == RunPhase.playing
-                  ? controller.startCharge
-                  : null,
-              onRelease: controller.shoot,
-              reducedMotion: controller.reducedMotion,
-              size: shot,
+            child: _Reveal(
+              still: controller.reducedMotion,
+              child: MatchShotButton(
+                key: const ValueKey('touch-shoot'),
+                label: l.hudShoot,
+                reserve: sim.ammo,
+                charge: sim.shotCharge,
+                spend: sim.charging && !sim.outOfAmmo ? sim.shotCost : 0,
+                hold: sim.fullHoldLeft,
+                limit: sim.maxCharge,
+                charging: sim.charging,
+                empty: sim.outOfAmmo,
+                onPress: sim.phase == RunPhase.playing
+                    ? controller.startCharge
+                    : null,
+                onRelease: controller.shoot,
+                reducedMotion: controller.reducedMotion,
+                size: shot,
+              ),
             ),
           ),
-        if (sim.offersSprint && !sim.victoryGlide)
+        if (sim.offersSprint &&
+            !sim.victoryGlide &&
+            _taught(TutorialLesson.sprint))
           Positioned(
             right: edge + shot + gap + 4,
             bottom: bottom + (shot - sprint) / 2,
-            child: MatchSprintButton(
-              key: const ValueKey('touch-sprint'),
-              label: l.hudSprint,
-              recharge: 1 - sim.sprintCooldownRemaining / sim.sprintCooldown,
-              burst: sim.sprintRemaining / sim.sprintSeconds,
-              secondsLeft: sim.sprintCooldownRemaining.ceil(),
-              onPressed: sim.canSprint ? controller.sprint : null,
-              reducedMotion: controller.reducedMotion,
-              size: sprint,
+            child: _Reveal(
+              still: controller.reducedMotion,
+              child: MatchSprintButton(
+                key: const ValueKey('touch-sprint'),
+                label: l.hudSprint,
+                recharge: 1 - sim.sprintCooldownRemaining / sim.sprintCooldown,
+                burst: sim.sprintRemaining / sim.sprintSeconds,
+                secondsLeft: sim.sprintCooldownRemaining.ceil(),
+                onPressed: sim.canSprint ? controller.sprint : null,
+                reducedMotion: controller.reducedMotion,
+                size: sprint,
+              ),
             ),
           ),
         if (sim.phase == RunPhase.countdown && (sim.countdown > 0 || !counting))
@@ -1982,7 +2120,9 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
           LanguageDirection(
             child: PauseCard(
               reducedMotion: controller.reducedMotion,
-              subtitle: level != null
+              subtitle: widget.tutorial
+                  ? l.tutorialTitle
+                  : level != null
                   ? l.flightPausedLevel(level.id, l.levelName(level))
                   : widget.built?.test == true
                   ? l.flightPausedTest(
@@ -1996,7 +2136,24 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
               actions: [
                 // A level starts over or goes back to the map; either way the
                 // attempt is saved.
-                if (widget.built != null) ...[
+                if (widget.tutorial) ...[
+                  PauseAction(
+                    key: const ValueKey('pause-skip-lesson'),
+                    label: l.tutorialSkip,
+                    icon: Icons.skip_next_rounded,
+                    onPressed: () => leave('/campaign'),
+                  ),
+                  PauseAction(
+                    key: const ValueKey('pause-retry'),
+                    label: l.tutorialRestart,
+                    icon: Icons.replay_rounded,
+                    tint: SkyColors.mint,
+                    onPressed: () => leave(
+                      '/tutorial/fly?again='
+                      '${DateTime.now().millisecondsSinceEpoch}',
+                    ),
+                  ),
+                ] else if (widget.built != null) ...[
                   PauseAction(
                     key: const ValueKey('pause-builder'),
                     label: widget.built!.test
@@ -2048,6 +2205,12 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     );
   }
 
+  /// Whether flight school has reached [lesson], which brings its key on
+  /// screen: Shoot and Sprint appear as they are taught. Every other
+  /// flight shows its keys from the start.
+  bool _taught(TutorialLesson lesson) =>
+      (controller.coach?.lesson.index ?? lesson.index) >= lesson.index;
+
   /// A flight that ended without a bump, outside the campaign: a workout
   /// finished from the pause menu, or a whole trail flown.
   Widget _results(ProgressSnapshot p) => MiniResults(
@@ -2062,4 +2225,23 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
     initialDailyComplete: initialDailyComplete,
     onLeave: leave,
   );
+}
+
+/// A HUD key arriving: it pops in once, the first time it is built.
+class _Reveal extends StatelessWidget {
+  const _Reveal({required this.child, this.still = false});
+  final Widget child;
+  final bool still;
+
+  @override
+  Widget build(BuildContext context) => still
+      ? child
+      : TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0, end: 1),
+          duration: const Duration(milliseconds: 520),
+          curve: Curves.easeOutBack,
+          builder: (context, t, child) =>
+              Transform.scale(scale: t.clamp(0.0, 1.2), child: child),
+          child: child,
+        );
 }

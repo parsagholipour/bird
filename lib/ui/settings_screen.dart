@@ -97,6 +97,8 @@ class SettingsScreen extends ConsumerWidget {
     final playGames = ref.watch(playGamesProvider).available;
     final l = context.l10n;
     void lab() => context.go('/lab');
+    // Flight school again, straight into the lesson.
+    void school() => context.go('/tutorial/fly');
     void about() => showLicensePage(
       context: context,
       applicationName: AppBrand.name,
@@ -245,6 +247,21 @@ class SettingsScreen extends ConsumerWidget {
                                         children: [
                                           Expanded(
                                             child: _ActionRow(
+                                              key: const ValueKey(
+                                                'settings-tutorial',
+                                              ),
+                                              icon: Icons.school_rounded,
+                                              label: l.settingsTutorial,
+                                              semanticLabel:
+                                                  '${l.settingsTutorial}. '
+                                                  '${l.settingsTutorialDetail}',
+                                              compact: true,
+                                              onTap: school,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: _ActionRow(
                                               icon: Icons.camera_alt_rounded,
                                               label: l.settingsCameraLab,
                                               compact: true,
@@ -273,10 +290,38 @@ class SettingsScreen extends ConsumerWidget {
                                     const SizedBox(height: 6),
                                   ] else ...[
                                     const SizedBox(height: 12),
-                                    _ActionRow(
-                                      icon: Icons.camera_alt_rounded,
-                                      label: l.settingsCameraLab,
-                                      onTap: lab,
+                                    // Flight school and the camera lab
+                                    // share a row, as tall as the taller.
+                                    IntrinsicHeight(
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.stretch,
+                                        children: [
+                                          Expanded(
+                                            child: _ActionRow(
+                                              key: const ValueKey(
+                                                'settings-tutorial',
+                                              ),
+                                              icon: Icons.school_rounded,
+                                              label: l.settingsTutorial,
+                                              semanticLabel:
+                                                  '${l.settingsTutorial}. '
+                                                  '${l.settingsTutorialDetail}',
+                                              compact: true,
+                                              onTap: school,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: _ActionRow(
+                                              icon: Icons.camera_alt_rounded,
+                                              label: l.settingsCameraLab,
+                                              compact: true,
+                                              onTap: lab,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                     const SizedBox(height: 8),
                                     _ActionRow(
@@ -741,6 +786,7 @@ class _PrivacyCard extends StatelessWidget {
 /// A full-width list action. [danger] marks the one destructive choice.
 class _ActionRow extends StatelessWidget {
   const _ActionRow({
+    super.key,
     required this.icon,
     required this.label,
     required this.onTap,

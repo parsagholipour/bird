@@ -6796,4 +6796,136 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get replayMomentEndDetail => 'Конец этого полёта.';
+
+  @override
+  String get welcomeTitle => 'Выбери язык';
+
+  @override
+  String get welcomeContinue => 'Полетели!';
+
+  @override
+  String get welcomeHint => 'Его можно сменить в любой момент в настройках.';
+
+  @override
+  String get welcomeDevice => 'Язык телефона';
+
+  @override
+  String get tutorialTitle => 'Лётная школа';
+
+  @override
+  String get tutorialSkip => 'Пропустить урок';
+
+  @override
+  String get tutorialSkipTitle => 'Пропустить лётную школу?';
+
+  @override
+  String get tutorialSkipBody =>
+      'Пройти урок заново можно в любой момент в настройках.';
+
+  @override
+  String get tutorialSkipConfirm => 'Пропустить';
+
+  @override
+  String get tutorialSkipCancel => 'Учиться дальше';
+
+  @override
+  String get tutorialRestart => 'Начать заново';
+
+  @override
+  String get tutorialGoalFlaps => 'Взмахи';
+
+  @override
+  String get tutorialGoalStars => 'Собери звёзды';
+
+  @override
+  String get tutorialGoalGates => 'Пролети в ворота';
+
+  @override
+  String get tutorialGoalBats => 'Сбей летучих мышей';
+
+  @override
+  String get tutorialGoalDoor => 'Разбей дверь';
+
+  @override
+  String get tutorialGoalSprint => 'Рывок';
+
+  @override
+  String get tutorialGoalBoss => 'Победи Капитана';
+
+  @override
+  String get tutorialPromptTap => 'Жми!';
+
+  @override
+  String get tutorialPromptShoot => 'Жми «Выстрел»';
+
+  @override
+  String get tutorialPromptHoldShoot => 'Держи «Выстрел»';
+
+  @override
+  String get tutorialPromptSprint => 'Жми «Рывок»';
+
+  @override
+  String get tutorialPraiseNice => 'Отлично!';
+
+  @override
+  String get tutorialPraiseGreat => 'Здорово!';
+
+  @override
+  String get tutorialPraiseSuper => 'Блестяще!';
+
+  @override
+  String tutorialWaitingSemantics(String prompt) {
+    return 'Урок ждёт: $prompt';
+  }
+
+  @override
+  String get licenceTitle => 'Курьерские права';
+
+  @override
+  String get licenceIssuer => 'Почта Небесного клуба';
+
+  @override
+  String get licenceHolder => 'Курьер';
+
+  @override
+  String get licenceRank => 'Звание';
+
+  @override
+  String get licenceRankRookie => 'Курьер-новичок';
+
+  @override
+  String get licenceSkills => 'Навыки';
+
+  @override
+  String get licenceStamp => 'Заверено';
+
+  @override
+  String licenceSignedBy(String name) {
+    return 'Подпись: $name';
+  }
+
+  @override
+  String licenceStars(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count звезды',
+      many: '$count звёзд',
+      few: '$count звезды',
+      one: '$count звезда',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get licenceStart => 'На первый маршрут!';
+
+  @override
+  String get licenceAgain => 'Пролететь снова';
+
+  @override
+  String get settingsTutorial => 'Лётная школа';
+
+  @override
+  String get settingsTutorialDetail => 'Пройти первый урок заново';
 }

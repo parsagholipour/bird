@@ -320,6 +320,13 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
 
 | Voice | Id | Clips |
 | --- | --- | --- |
+| Twinkle - Narration & Acting | `Qz7YNvloEr5RXwYE3NCH` | 1 |
+| GERALD - Exciting Older Voice (NEW) | `fGIZlgPQ75MMlvQ6WxgY` | 22 |
+| Nelson – Awkward Nerd Character | `EaX6rnyDKjJx35tchi80` | 2 |
+| Cherry Twinkle – Adorable Cartoon Girl | `XJ2fW4ybq7HouelYYGcL` | 2 |
+| Teddy Twinkle - Cute Cartoon Boy | `XjGYkUkzth8BPs29fmcV` | 2 |
+| Lola - Soft, Innocent and Calming | `f9imtLc2jfOLXtqe3Ihb` | 2 |
+| Matthew Schmitz - Old Pirate Captain | `4Vl3K2x290GidNvuaLm7` | 2 |
 | King Coo (audition) | to audition | 8 |
 | Searchlight Gargoyle (audition) | to audition | 6 |
 
@@ -337,9 +344,412 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
 - `last-3-4-2`: [softly, voice cracking], [sniffs], [happily]
 - `last-3-4-4`: [ecstatic], [theatrically]
 
+### school-intro (7 clips)
+
+- [ ] **1/47 `school-intro-0`**: Twinkle - Narration & Acting (`Qz7YNvloEr5RXwYE3NCH`)
+  - Prompt, exactly:
+
+    ```
+    [softly] The Sky Club post. Before sunrise.
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/school-intro-0.mp3`; it becomes `assets/audio/story/school-intro-0.ogg`.
+  - Flight school: the scene before the lesson
+
+- [ ] **2/47 `school-intro-1`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+  - Prompt, exactly:
+
+    ```
+    [cheerfully] Morning, rookie! Before you carry a single letter, let’s see you fly.
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/school-intro-1.mp3`; it becomes `assets/audio/story/school-intro-1.ogg`.
+  - Flight school: the scene before the lesson
+
+- [ ] **3/47 `school-intro-2-pip`**: Nelson – Awkward Nerd Character (`EaX6rnyDKjJx35tchi80`)
+  - Prompt, exactly:
+
+    ```
+    [excited] Right now? I was born ready!
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/school-intro-2-pip.mp3`; it becomes `assets/audio/story/school-intro-2-pip.ogg`.
+  - Flight school: the scene before the lesson
+
+- [ ] **4/47 `school-intro-2-peaches`**: Cherry Twinkle – Adorable Cartoon Girl (`XJ2fW4ybq7HouelYYGcL`)
+  - Prompt, exactly:
+
+    ```
+    [excited] Right now? I was born ready!
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/school-intro-2-peaches.mp3`; it becomes `assets/audio/story/school-intro-2-peaches.ogg`.
+  - Flight school: the scene before the lesson
+
+- [ ] **5/47 `school-intro-2-minty`**: Teddy Twinkle - Cute Cartoon Boy (`XjGYkUkzth8BPs29fmcV`)
+  - Prompt, exactly:
+
+    ```
+    [excited] Right now? I was born ready!
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/school-intro-2-minty.mp3`; it becomes `assets/audio/story/school-intro-2-minty.ogg`.
+  - Flight school: the scene before the lesson
+
+- [ ] **6/47 `school-intro-2-orbit`**: Lola - Soft, Innocent and Calming (`f9imtLc2jfOLXtqe3Ihb`)
+  - Prompt, exactly:
+
+    ```
+    [excited] Right now? I was born ready!
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/school-intro-2-orbit.mp3`; it becomes `assets/audio/story/school-intro-2-orbit.ogg`.
+  - Flight school: the scene before the lesson
+
+- [ ] **7/47 `school-intro-3`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+  - Prompt, exactly:
+
+    ```
+    [chuckles] Ha! Then follow my lead. One short lesson, and the sky is yours.
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/school-intro-3.mp3`; it becomes `assets/audio/story/school-intro-3.ogg`.
+  - Flight school: the scene before the lesson
+
+### coach-flap (1 clips)
+
+- [ ] **8/47 `coach-flap-0`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+  - Prompt, exactly:
+
+    ```
+    [warmly] Tap anywhere to flap your wings!
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/coach-flap-0.mp3`; it becomes `assets/audio/story/coach-flap-0.ogg`.
+  - Flight school, in flight: Postmaster Bill's coaching bubble
+
+### coach-air (1 clips)
+
+- [ ] **9/47 `coach-air-0`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+  - Prompt, exactly:
+
+    ```
+    [warmly] Keep tapping to stay up. Don’t touch the top or the bottom!
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/coach-air-0.mp3`; it becomes `assets/audio/story/coach-air-0.ogg`.
+  - Flight school, in flight: Postmaster Bill's coaching bubble
+
+### coach-stars (1 clips)
+
+- [ ] **10/47 `coach-stars-0`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+  - Prompt, exactly:
+
+    ```
+    [delighted] Stars! Fly right through them.
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/coach-stars-0.mp3`; it becomes `assets/audio/story/coach-stars-0.ogg`.
+  - Flight school, in flight: Postmaster Bill's coaching bubble
+
+### coach-streak (1 clips)
+
+- [ ] **11/47 `coach-streak-0`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+  - Prompt, exactly:
+
+    ```
+    [delighted] A streak! Keep chaining stars to multiply your score.
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/coach-streak-0.mp3`; it becomes `assets/audio/story/coach-streak-0.ogg`.
+  - Flight school, in flight: Postmaster Bill's coaching bubble
+
+### coach-gates (1 clips)
+
+- [ ] **12/47 `coach-gates-0`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+  - Prompt, exactly:
+
+    ```
+    [firmly] Here come the gates. Fly through the gaps!
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/coach-gates-0.mp3`; it becomes `assets/audio/story/coach-gates-0.ogg`.
+  - Flight school, in flight: Postmaster Bill's coaching bubble
+
+### coach-hit (1 clips)
+
+- [ ] **13/47 `coach-hit-0`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+  - Prompt, exactly:
+
+    ```
+    [sighs] Ouch! A bump breaks your shield first, then costs a heart.
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/coach-hit-0.mp3`; it becomes `assets/audio/story/coach-hit-0.ogg`.
+  - Flight school, in flight: Postmaster Bill's coaching bubble
+
+### coach-safe (1 clips)
+
+- [ ] **14/47 `coach-safe-0`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+  - Prompt, exactly:
+
+    ```
+    [gently] Don’t worry, nobody falls in flight school. Keep going!
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/coach-safe-0.mp3`; it becomes `assets/audio/story/coach-safe-0.ogg`.
+  - Flight school, in flight: Postmaster Bill's coaching bubble
+
+### coach-shoot (2 clips)
+
+- [ ] **15/47 `coach-shoot-0`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+  - Prompt, exactly:
+
+    ```
+    [urgently] A bat! Tap Shoot to throw a pebble.
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/coach-shoot-0.mp3`; it becomes `assets/audio/story/coach-shoot-0.ogg`.
+  - Flight school, in flight: Postmaster Bill's coaching bubble
+
+### coach-shoot-more (1 clips)
+
+- [ ] **16/47 `coach-shoot-more-0`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+  - Prompt, exactly:
+
+    ```
+    [cheerfully] Got him! Knock out the others.
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/coach-shoot-more-0.mp3`; it becomes `assets/audio/story/coach-shoot-more-0.ogg`.
+  - Flight school, in flight: Postmaster Bill's coaching bubble
+
+### coach-power (2 clips)
+
+- [ ] **17/47 `coach-power-0`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+  - Prompt, exactly:
+
+    ```
+    [curious] A stone door! Hold Shoot to charge, then let go.
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/coach-power-0.mp3`; it becomes `assets/audio/story/coach-power-0.ogg`.
+  - Flight school, in flight: Postmaster Bill's coaching bubble
+
+### coach-power-done (1 clips)
+
+- [ ] **18/47 `coach-power-done-0`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+  - Prompt, exactly:
+
+    ```
+    [laughs] Smashed! Charged shots hit hardest.
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/coach-power-done-0.mp3`; it becomes `assets/audio/story/coach-power-done-0.ogg`.
+  - Flight school, in flight: Postmaster Bill's coaching bubble
+
+### coach-sprint (1 clips)
+
+- [ ] **19/47 `coach-sprint-0`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+  - Prompt, exactly:
+
+    ```
+    [excited] Now tap Sprint to zoom ahead. It smashes right through bats!
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/coach-sprint-0.mp3`; it becomes `assets/audio/story/coach-sprint-0.ogg`.
+  - Flight school, in flight: Postmaster Bill's coaching bubble
+
+### coach-together (1 clips)
+
+- [ ] **20/47 `coach-together-0`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+  - Prompt, exactly:
+
+    ```
+    [proudly] Now put it all together!
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/coach-together-0.mp3`; it becomes `assets/audio/story/coach-together-0.ogg`.
+  - Flight school, in flight: Postmaster Bill's coaching bubble
+
+### coach-heart (1 clips)
+
+- [ ] **21/47 `coach-heart-0`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+  - Prompt, exactly:
+
+    ```
+    [cheerfully] A heart! Catch it to get one back.
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/coach-heart-0.mp3`; it becomes `assets/audio/story/coach-heart-0.ogg`.
+  - Flight school, in flight: Postmaster Bill's coaching bubble
+
+### coach-pirate (1 clips)
+
+- [ ] **22/47 `coach-pirate-0`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+  - Prompt, exactly:
+
+    ```
+    [surprised] Pirates! Dodge the cannonballs and shoot the Captain!
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/coach-pirate-0.mp3`; it becomes `assets/audio/story/coach-pirate-0.ogg`.
+  - Flight school, in flight: Postmaster Bill's coaching bubble
+
+### coach-stronger (1 clips)
+
+- [ ] **23/47 `coach-stronger-0`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+  - Prompt, exactly:
+
+    ```
+    [urgently] He’s getting angry. Grab that heart!
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/coach-stronger-0.mp3`; it becomes `assets/audio/story/coach-stronger-0.ogg`.
+  - Flight school, in flight: Postmaster Bill's coaching bubble
+
+### coach-tide (1 clips)
+
+- [ ] **24/47 `coach-tide-0`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+  - Prompt, exactly:
+
+    ```
+    [shouting] The tide is rising! Fly high!
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/coach-tide-0.mp3`; it becomes `assets/audio/story/coach-tide-0.ogg`.
+  - Flight school, in flight: Postmaster Bill's coaching bubble
+
+### coach-victory (1 clips)
+
+- [ ] **25/47 `coach-victory-0`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+  - Prompt, exactly:
+
+    ```
+    [overjoyed] You did it! Now that’s a courier!
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/coach-victory-0.mp3`; it becomes `assets/audio/story/coach-victory-0.ogg`.
+  - Flight school, in flight: Postmaster Bill's coaching bubble
+
+### school-outro (8 clips)
+
+- [ ] **26/47 `school-outro-0`**: Matthew Schmitz - Old Pirate Captain (`4Vl3K2x290GidNvuaLm7`)
+  - Prompt, exactly:
+
+    ```
+    [angry] Arr! Ye sting like a jellyfish, postie!
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/school-outro-0.mp3`; it becomes `assets/audio/story/school-outro-0.ogg`.
+  - Flight school: the scene after the rookie Pirate Captain retreats
+
+- [ ] **27/47 `school-outro-1`**: Matthew Schmitz - Old Pirate Captain (`4Vl3K2x290GidNvuaLm7`)
+  - Prompt, exactly:
+
+    ```
+    [shouting] Keep yer little letters. The open sea be mine, and we’ll meet again!
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/school-outro-1.mp3`; it becomes `assets/audio/story/school-outro-1.ogg`.
+  - Flight school: the scene after the rookie Pirate Captain retreats
+
+- [ ] **28/47 `school-outro-2`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+  - Prompt, exactly:
+
+    ```
+    [surprised] The Pirate Captain, raiding my bay! Rookie, you were magnificent.
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/school-outro-2.mp3`; it becomes `assets/audio/story/school-outro-2.ogg`.
+  - Flight school: the scene after the rookie Pirate Captain retreats
+
+- [ ] **29/47 `school-outro-3-pip`**: Nelson – Awkward Nerd Character (`EaX6rnyDKjJx35tchi80`)
+  - Prompt, exactly:
+
+    ```
+    [excited] Did I pass? Did I really pass?
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/school-outro-3-pip.mp3`; it becomes `assets/audio/story/school-outro-3-pip.ogg`.
+  - Flight school: the scene after the rookie Pirate Captain retreats
+
+- [ ] **30/47 `school-outro-3-peaches`**: Cherry Twinkle – Adorable Cartoon Girl (`XJ2fW4ybq7HouelYYGcL`)
+  - Prompt, exactly:
+
+    ```
+    [excited] Did I pass? Did I really pass?
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/school-outro-3-peaches.mp3`; it becomes `assets/audio/story/school-outro-3-peaches.ogg`.
+  - Flight school: the scene after the rookie Pirate Captain retreats
+
+- [ ] **31/47 `school-outro-3-minty`**: Teddy Twinkle - Cute Cartoon Boy (`XjGYkUkzth8BPs29fmcV`)
+  - Prompt, exactly:
+
+    ```
+    [excited] Did I pass? Did I really pass?
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/school-outro-3-minty.mp3`; it becomes `assets/audio/story/school-outro-3-minty.ogg`.
+  - Flight school: the scene after the rookie Pirate Captain retreats
+
+- [ ] **32/47 `school-outro-3-orbit`**: Lola - Soft, Innocent and Calming (`f9imtLc2jfOLXtqe3Ihb`)
+  - Prompt, exactly:
+
+    ```
+    [excited] Did I pass? Did I really pass?
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/school-outro-3-orbit.mp3`; it becomes `assets/audio/story/school-outro-3-orbit.ogg`.
+  - Flight school: the scene after the rookie Pirate Captain retreats
+
+- [ ] **33/47 `school-outro-4`**: GERALD - Exciting Older Voice (NEW) (`fGIZlgPQ75MMlvQ6WxgY`)
+  - Prompt, exactly:
+
+    ```
+    [proudly] With flying colours. Here’s your courier licence. Now, inside: the mail is waiting!
+    ```
+
+  - Model `eleven_v4`, 1 generation.
+  - Save the take as `build/story-voices/source/school-outro-4.mp3`; it becomes `assets/audio/story/school-outro-4.ogg`.
+  - Flight school: the scene after the rookie Pirate Captain retreats
+
 ### before-3-2 (4 clips)
 
-- [ ] **1/14 `before-3-2-0`**: King Coo (audition)
+- [ ] **34/47 `before-3-2-0`**: King Coo (audition)
   - Fallback: Rusty Malone - Deep & Raspy (`507tTFX0IPtqFzGd1CAL`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [pompously] -> [dramatically] or [haughtily]
   - Prompt, exactly:
@@ -352,7 +762,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-2-0.mp3`; it becomes `assets/audio/story/before-3-2-0.ogg`.
   - Scene before-3-2, line 0. Map, at the lair: plays before 3-2's level card opens the first time; the card's story key replays it.
 
-- [ ] **2/14 `before-3-2-2`**: King Coo (audition)
+- [ ] **35/47 `before-3-2-2`**: King Coo (audition)
   - Fallback: Rusty Malone - Deep & Raspy (`507tTFX0IPtqFzGd1CAL`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [suspiciously] -> [knowingly]; [fuming] -> [angry]
   - Prompt, exactly:
@@ -365,7 +775,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-2-2.mp3`; it becomes `assets/audio/story/before-3-2-2.ogg`.
   - Scene before-3-2, line 2. Map, at the lair: plays before 3-2's level card opens the first time; the card's story key replays it.
 
-- [ ] **3/14 `before-3-2-4`**: King Coo (audition)
+- [ ] **36/47 `before-3-2-4`**: King Coo (audition)
   - Fallback: Rusty Malone - Deep & Raspy (`507tTFX0IPtqFzGd1CAL`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [wistfully] -> [sadly]; [sniffs] -> [sighs]
   - Prompt, exactly:
@@ -378,7 +788,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-2-4.mp3`; it becomes `assets/audio/story/before-3-2-4.ogg`.
   - Scene before-3-2, line 4. Map, at the lair: plays before 3-2's level card opens the first time; the card's story key replays it.
 
-- [ ] **4/14 `before-3-2-6`**: King Coo (audition)
+- [ ] **37/47 `before-3-2-6`**: King Coo (audition)
   - Fallback: Rusty Malone - Deep & Raspy (`507tTFX0IPtqFzGd1CAL`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [pompously] -> [dramatically] or [haughtily]
   - Prompt, exactly:
@@ -393,7 +803,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
 
 ### last-3-2 (4 clips)
 
-- [ ] **5/14 `last-3-2-0`**: King Coo (audition)
+- [ ] **38/47 `last-3-2-0`**: King Coo (audition)
   - Fallback: Rusty Malone - Deep & Raspy (`507tTFX0IPtqFzGd1CAL`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [quietly] -> [softly]
   - Prompt, exactly:
@@ -406,7 +816,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-2-0.mp3`; it becomes `assets/audio/story/last-3-2-0.ogg`.
   - Scene last-3-2, line 0. Map, at the lair: plays after 3-2 is first beaten; the card's story key replays it.
 
-- [ ] **6/14 `last-3-2-2`**: King Coo (audition)
+- [ ] **39/47 `last-3-2-2`**: King Coo (audition)
   - Fallback: Rusty Malone - Deep & Raspy (`507tTFX0IPtqFzGd1CAL`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [deadpan] -> [dryly]
   - Prompt, exactly:
@@ -419,7 +829,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-2-2.mp3`; it becomes `assets/audio/story/last-3-2-2.ogg`.
   - Scene last-3-2, line 2. Map, at the lair: plays after 3-2 is first beaten; the card's story key replays it.
 
-- [ ] **7/14 `last-3-2-4`**: King Coo (audition)
+- [ ] **40/47 `last-3-2-4`**: King Coo (audition)
   - Fallback: Rusty Malone - Deep & Raspy (`507tTFX0IPtqFzGd1CAL`)
   - Prompt, exactly:
 
@@ -431,7 +841,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-2-4.mp3`; it becomes `assets/audio/story/last-3-2-4.ogg`.
   - Scene last-3-2, line 4. Map, at the lair: plays after 3-2 is first beaten; the card's story key replays it.
 
-- [ ] **8/14 `last-3-2-6`**: King Coo (audition)
+- [ ] **41/47 `last-3-2-6`**: King Coo (audition)
   - Fallback: Rusty Malone - Deep & Raspy (`507tTFX0IPtqFzGd1CAL`)
   - Prompt, exactly:
 
@@ -445,7 +855,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
 
 ### before-3-4 (3 clips)
 
-- [ ] **9/14 `before-3-4-1`**: Searchlight Gargoyle (audition)
+- [ ] **42/47 `before-3-4-1`**: Searchlight Gargoyle (audition)
   - Fallback: Eldrin - Wise Epic Fantasy Narration Storyteller (`LvmvHEBEmMJBJw9UuhwO`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [delighted gasp] -> [gasps] [delighted]
   - Prompt, exactly:
@@ -458,7 +868,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-4-1.mp3`; it becomes `assets/audio/story/before-3-4-1.ogg`.
   - Scene before-3-4, line 1. Map, at the lair: plays before 3-4's level card opens the first time; the card's story key replays it.
 
-- [ ] **10/14 `before-3-4-3`**: Searchlight Gargoyle (audition)
+- [ ] **43/47 `before-3-4-3`**: Searchlight Gargoyle (audition)
   - Fallback: Eldrin - Wise Epic Fantasy Narration Storyteller (`LvmvHEBEmMJBJw9UuhwO`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [wistfully] -> [sadly]; [quietly] -> [softly]
   - Prompt, exactly:
@@ -471,7 +881,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/before-3-4-3.mp3`; it becomes `assets/audio/story/before-3-4-3.ogg`.
   - Scene before-3-4, line 3. Map, at the lair: plays before 3-4's level card opens the first time; the card's story key replays it.
 
-- [ ] **11/14 `before-3-4-4`**: Searchlight Gargoyle (audition)
+- [ ] **44/47 `before-3-4-4`**: Searchlight Gargoyle (audition)
   - Fallback: Eldrin - Wise Epic Fantasy Narration Storyteller (`LvmvHEBEmMJBJw9UuhwO`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [theatrically] -> [dramatically]; [pleading] -> [worried]
   - Prompt, exactly:
@@ -486,7 +896,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
 
 ### last-3-4 (3 clips)
 
-- [ ] **12/14 `last-3-4-0`**: Searchlight Gargoyle (audition)
+- [ ] **45/47 `last-3-4-0`**: Searchlight Gargoyle (audition)
   - Fallback: Eldrin - Wise Epic Fantasy Narration Storyteller (`LvmvHEBEmMJBJw9UuhwO`)
   - Prompt, exactly:
 
@@ -498,7 +908,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-4-0.mp3`; it becomes `assets/audio/story/last-3-4-0.ogg`.
   - Scene last-3-4, line 0. Map, at the lair: plays after 3-4 is first beaten; the card's story key replays it.
 
-- [ ] **13/14 `last-3-4-2`**: Searchlight Gargoyle (audition)
+- [ ] **46/47 `last-3-4-2`**: Searchlight Gargoyle (audition)
   - Fallback: Eldrin - Wise Epic Fantasy Narration Storyteller (`LvmvHEBEmMJBJw9UuhwO`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [softly, voice cracking] -> [softly] [trembling voice]; [sniffs] -> [sighs]; [happily] -> [happy]
   - Prompt, exactly:
@@ -511,7 +921,7 @@ Model `eleven_v4`, 1 generation per clip, export `mp3_44100_128`. Flow: https://
   - Save the take as `build/story-voices/source/last-3-4-2.mp3`; it becomes `assets/audio/story/last-3-4-2.ogg`.
   - Scene last-3-4, line 2. Map, at the lair: plays after 3-4 is first beaten; the card's story key replays it.
 
-- [ ] **14/14 `last-3-4-4`**: Searchlight Gargoyle (audition)
+- [ ] **47/47 `last-3-4-4`**: Searchlight Gargoyle (audition)
   - Fallback: Eldrin - Wise Epic Fantasy Narration Storyteller (`LvmvHEBEmMJBJw9UuhwO`)
   - Unproven tags, check by transcription (stand-ins if read aloud): [ecstatic] -> [overjoyed]; [theatrically] -> [dramatically]
   - Prompt, exactly:

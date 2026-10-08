@@ -6472,6 +6472,136 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get replayMomentEndDetail => 'The end of this flight.';
+
+  @override
+  String get welcomeTitle => 'Choose your language';
+
+  @override
+  String get welcomeContinue => 'Let’s fly!';
+
+  @override
+  String get welcomeHint => 'You can change it any time in Settings.';
+
+  @override
+  String get welcomeDevice => 'Your phone’s language';
+
+  @override
+  String get tutorialTitle => 'Flight school';
+
+  @override
+  String get tutorialSkip => 'Skip lesson';
+
+  @override
+  String get tutorialSkipTitle => 'Skip flight school?';
+
+  @override
+  String get tutorialSkipBody =>
+      'You can take the lesson again any time from Settings.';
+
+  @override
+  String get tutorialSkipConfirm => 'Skip';
+
+  @override
+  String get tutorialSkipCancel => 'Keep learning';
+
+  @override
+  String get tutorialRestart => 'Start over';
+
+  @override
+  String get tutorialGoalFlaps => 'Flap';
+
+  @override
+  String get tutorialGoalStars => 'Collect stars';
+
+  @override
+  String get tutorialGoalGates => 'Fly through gates';
+
+  @override
+  String get tutorialGoalBats => 'Knock out bats';
+
+  @override
+  String get tutorialGoalDoor => 'Smash the door';
+
+  @override
+  String get tutorialGoalSprint => 'Sprint';
+
+  @override
+  String get tutorialGoalBoss => 'Beat the Captain';
+
+  @override
+  String get tutorialPromptTap => 'Tap!';
+
+  @override
+  String get tutorialPromptShoot => 'Tap Shoot';
+
+  @override
+  String get tutorialPromptHoldShoot => 'Hold Shoot';
+
+  @override
+  String get tutorialPromptSprint => 'Tap Sprint';
+
+  @override
+  String get tutorialPraiseNice => 'Nice!';
+
+  @override
+  String get tutorialPraiseGreat => 'Great!';
+
+  @override
+  String get tutorialPraiseSuper => 'Brilliant!';
+
+  @override
+  String tutorialWaitingSemantics(String prompt) {
+    return 'The lesson is waiting: $prompt';
+  }
+
+  @override
+  String get licenceTitle => 'Courier licence';
+
+  @override
+  String get licenceIssuer => 'Sky Club post';
+
+  @override
+  String get licenceHolder => 'Courier';
+
+  @override
+  String get licenceRank => 'Rank';
+
+  @override
+  String get licenceRankRookie => 'Rookie courier';
+
+  @override
+  String get licenceSkills => 'Skills';
+
+  @override
+  String get licenceStamp => 'Certified';
+
+  @override
+  String licenceSignedBy(String name) {
+    return 'Signed: $name';
+  }
+
+  @override
+  String licenceStars(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count stars',
+      one: '1 star',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get licenceStart => 'Start my first route';
+
+  @override
+  String get licenceAgain => 'Fly it again';
+
+  @override
+  String get settingsTutorial => 'Flight school';
+
+  @override
+  String get settingsTutorialDetail => 'Take the first lesson again';
 }
 
 /// The translations for Spanish Castilian, as used in Latin America and the Caribbean (`es_419`).
@@ -13125,4 +13255,134 @@ class AppLocalizationsEs419 extends AppLocalizationsEs {
 
   @override
   String get replayMomentEndDetail => 'El final de este vuelo.';
+
+  @override
+  String get welcomeTitle => 'Elige tu idioma';
+
+  @override
+  String get welcomeContinue => '¡A volar!';
+
+  @override
+  String get welcomeHint => 'Puedes cambiarlo cuando quieras en Ajustes.';
+
+  @override
+  String get welcomeDevice => 'Idioma del teléfono';
+
+  @override
+  String get tutorialTitle => 'Escuela de vuelo';
+
+  @override
+  String get tutorialSkip => 'Saltar lección';
+
+  @override
+  String get tutorialSkipTitle => '¿Saltar la escuela de vuelo?';
+
+  @override
+  String get tutorialSkipBody =>
+      'Puedes repetir la lección cuando quieras desde Ajustes.';
+
+  @override
+  String get tutorialSkipConfirm => 'Saltar';
+
+  @override
+  String get tutorialSkipCancel => 'Seguir aprendiendo';
+
+  @override
+  String get tutorialRestart => 'Empezar de nuevo';
+
+  @override
+  String get tutorialGoalFlaps => 'Aletea';
+
+  @override
+  String get tutorialGoalStars => 'Reúne estrellas';
+
+  @override
+  String get tutorialGoalGates => 'Cruza las puertas';
+
+  @override
+  String get tutorialGoalBats => 'Noquea murciélagos';
+
+  @override
+  String get tutorialGoalDoor => 'Rompe la losa';
+
+  @override
+  String get tutorialGoalSprint => 'Usa el Turbo';
+
+  @override
+  String get tutorialGoalBoss => 'Vence al Capitán';
+
+  @override
+  String get tutorialPromptTap => '¡Toca!';
+
+  @override
+  String get tutorialPromptShoot => 'Toca Disparar';
+
+  @override
+  String get tutorialPromptHoldShoot => 'Mantén Disparar';
+
+  @override
+  String get tutorialPromptSprint => 'Toca Turbo';
+
+  @override
+  String get tutorialPraiseNice => '¡Bien!';
+
+  @override
+  String get tutorialPraiseGreat => '¡Genial!';
+
+  @override
+  String get tutorialPraiseSuper => '¡Excelente!';
+
+  @override
+  String tutorialWaitingSemantics(String prompt) {
+    return 'La lección te espera: $prompt';
+  }
+
+  @override
+  String get licenceTitle => 'Licencia de mensajería';
+
+  @override
+  String get licenceIssuer => 'Correo del Club';
+
+  @override
+  String get licenceHolder => 'Ave mensajera';
+
+  @override
+  String get licenceRank => 'Rango';
+
+  @override
+  String get licenceRankRookie => 'Aprendiz de correo';
+
+  @override
+  String get licenceSkills => 'Habilidades';
+
+  @override
+  String get licenceStamp => 'Aprobado';
+
+  @override
+  String licenceSignedBy(String name) {
+    return 'Firma: $name';
+  }
+
+  @override
+  String licenceStars(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count estrellas',
+      one: '1 estrella',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get licenceStart => '¡A mi primera ruta!';
+
+  @override
+  String get licenceAgain => 'Volar otra vez';
+
+  @override
+  String get settingsTutorial => 'Escuela de vuelo';
+
+  @override
+  String get settingsTutorialDetail => 'Repite la primera lección';
 }

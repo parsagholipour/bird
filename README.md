@@ -17,6 +17,13 @@ Android/iOS and Flutter loading artwork. It adds no timed delay. Regenerate the
 shared launch images with `flutter test tool/render_launch_assets_test.dart`,
 then `python3 tool/export_launch_assets.py`.
 
+**First launch:** a new player chooses their language (each one shown in its
+own words, the phone's chosen to begin with), then flies **flight school**:
+Postmaster Bill's guided lesson, which freezes the moment to teach each new
+move (tap, stars, gates, Shoot, a charged shot, Sprint), never lets the bird
+fall, and ends with a rookie Pirate Captain and a stamped courier licence.
+Settings flies it again. See [docs/tutorial.md](docs/tutorial.md).
+
 Push-Up Flight maps a calibrated push-up range to continuous bird height.
 **Squat & Fly** keeps your feet planted: squat to descend, stand to rise.
 Stand still, hold a comfortable squat briefly, then stand back up to learn your range.
