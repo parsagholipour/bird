@@ -2019,7 +2019,8 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
             right: edge,
             bottom: bottom,
             child: _Reveal(
-              still: controller.reducedMotion,
+              // Only flight school brings its keys in as it teaches them.
+              still: controller.reducedMotion || !controller.tutorial,
               child: MatchShotButton(
                 key: const ValueKey('touch-shoot'),
                 label: l.hudShoot,
@@ -2046,7 +2047,8 @@ class _PlayScreenState extends ConsumerState<PlayScreen>
             right: edge + shot + gap + 4,
             bottom: bottom + (shot - sprint) / 2,
             child: _Reveal(
-              still: controller.reducedMotion,
+              // Only flight school brings its keys in as it teaches them.
+              still: controller.reducedMotion || !controller.tutorial,
               child: MatchSprintButton(
                 key: const ValueKey('touch-sprint'),
                 label: l.hudSprint,
